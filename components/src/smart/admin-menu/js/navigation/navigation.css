@@ -1,0 +1,857 @@
+@layer sf.components {
+  /* The navigation shell of sf-admin-menu: two columns on a desktop, a rail when
+     collapsed, two screens on a phone. Every size is a step of the Framework's
+     ladder and every colour a role, so the menu sits on the same grid as the
+     page beside it. Rows keep the geometry of the free admin-menu row: a
+     space-1 inset, a space-1/2 gap, the UI radius and a text-size-3 icon. */
+  /* As wide as its columns, whatever box the page put it in: a second column
+     opening is the menu growing, not the menu spilling over the page. */
+  /* The menu stands in the window whatever the host's frame (owner,
+     2026-10-14): as tall as its frame up to the window, and held at the top
+     while the page scrolls. In a frame as tall as the page it scrolled away
+     with it, its foot halfway down and an empty column under it. */
+  .sf-admin-nav {
+    display: flex;
+    inline-size: max-content;
+    block-size: 100%;
+    max-block-size: 100dvh;
+    min-block-size: 0;
+    position: sticky;
+    inset-block-start: 0;
+    color: var(--sf-on-surface);
+    font-family: var(--sf-text--family);
+    font-size: var(--sf-text-size-1\/2);
+    line-height: var(--sf-text-height-1\/2);
+  }
+
+  .sf-admin-nav-first,
+  .sf-admin-nav-second {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    block-size: 100%;
+    background-color: var(--sf-surface-0);
+    border-inline-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-admin-nav-first {
+    inline-size: var(--sf-admin-nav-first--inline-size, var(--sf-f6));
+    flex: 0 0 auto;
+    background-color: var(--sf-surface-1);
+  }
+
+  .sf-admin-nav-first[data-compact="true"] {
+    inline-size: var(--sf-admin-nav-rail--inline-size, var(--sf-d4));
+  }
+
+  .sf-admin-nav-second {
+    inline-size: var(--sf-admin-nav-second--inline-size, var(--sf-f5));
+    flex: 0 0 auto;
+  }
+
+  /* On a phone each column is a whole screen. */
+  .sf-admin-nav[data-wide="false"] {
+    inline-size: 100%;
+  }
+  .sf-admin-nav[data-wide="false"] .sf-admin-nav-first,
+  .sf-admin-nav[data-wide="false"] .sf-admin-nav-second {
+    inline-size: 100%;
+    border-inline-end: 0;
+  }
+
+  .sf-admin-nav-scroll {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-y: auto;
+    /* A wheel over the menu scrolls the menu, never the page behind it. */
+    overscroll-behavior: contain;
+    /* The column's inset, the same for the rows and for «Найти в разделе»
+       above them, so a row's icon stays under the field's. */
+    padding: var(--sf-a4);
+  }
+
+  .sf-admin-nav-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-px);
+  }
+
+  /* ─── a row ─────────────────────────────────────────────────────────────── */
+
+  .sf-admin-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .sf-admin-nav-item[data-depth="1"] {
+    padding-inline-start: var(--sf-space-2);
+  }
+
+  .sf-admin-nav-row {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    min-inline-size: 0;
+    /* A row is exactly as tall as a size-1/2 field -- a line of text and a6
+       above and below, which is a field's border and padding together -- and
+       its icon starts where a field's does, a px border and b4 in. «Найти в
+       разделе» sits above these rows, and a list whose icons do not line up
+       with the field over it is two grids on one column. */
+    /* Fixed rather than padded, so a badge -- taller than a line of text --
+       sits inside the row instead of making that one row taller. */
+    min-block-size: calc(var(--sf-icon-size-2) + 2 * var(--sf-a6));
+    padding: 0 calc(var(--sf-px) + var(--sf-b4));
+    border-radius: var(--sf-radius--ui);
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .sf-admin-nav-row:hover {
+    background-color: var(--sf-surface-container-hover);
+  }
+
+  .sf-admin-nav-row[data-current="true"],
+  .sf-admin-nav-row[data-open="true"] {
+    background-color: var(--sf-secondary-container);
+    color: var(--sf-on-secondary-container);
+    --sf-icon--color: var(--sf-on-secondary-container);
+  }
+
+  .sf-admin-nav-row:focus-visible,
+  .sf-admin-nav-site-trigger:focus-visible,
+  .sf-admin-nav-link-button:focus-visible {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: calc(-1 * var(--sf-focus--width));
+  }
+
+  /* Icons at the icon ladder's step 2, 1.25rem: one line of text, and the size a
+     size-1/2 field draws its own icon at, so a row is no taller than its text
+     and the icons in the rows line up with the one in «Найти в разделе». Set
+     through sf-icon's own variables, because its stylesheet sizes the glyph from
+     them: sizing the box from outside left a 24px glyph in the row. */
+  .sf-admin-nav {
+    --sf-icon--font-size: var(--sf-icon-size-2);
+    --sf-icon--width: var(--sf-icon-size-2);
+    --sf-icon--height: var(--sf-icon-size-2);
+  }
+  .sf-admin-nav-row-icon {
+    --sf-icon--color: var(--sf-on-surface-variant);
+  }
+
+  .sf-admin-nav-row-label {
+    flex: 1 1 auto;
+    font-weight: var(--sf-font-weight-medium);
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .sf-admin-nav-row-chevron {
+    --sf-icon--color: var(--sf-on-surface-variant);
+  }
+
+  /* sf-badge is display: contents, so the box that sits in the row is the badge
+     inside it -- and that one shrinks by default, which cut «4 новых» to «4 н…».
+     What needs attention is read whole; the label gives way instead. */
+  .sf-admin-nav-attention,
+  .sf-admin-nav-attention > .sf-badge {
+    flex: none;
+  }
+
+  .sf-admin-nav-item > .sf-admin-nav-attention {
+    margin-inline-end: var(--sf-space-1\/2);
+  }
+
+  /* A count beside a row's words is a counter, not a label: its own small
+     line and no padding above or below, so it is no taller than the letters
+     beside it (owner, 2026-10-14: the «1» by «Уведомления» stood 20px tall
+     beside 14px words). */
+  .sf-admin-nav-attention .sf-badge {
+    --sf-badge--font-size: var(--sf-text-size-1\/3);
+    --sf-badge--line-height: var(--sf-text-height-1\/3);
+    --sf-badge--padding-block: 0px;
+    --sf-badge--padding-inline-start: var(--sf-a4);
+    --sf-badge--padding-inline-end: var(--sf-a4);
+  }
+
+  .sf-admin-nav-kbd {
+    flex: none;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/3);
+    font-family: inherit;
+  }
+
+  /* In the rail a row's counter sits on its icon (simai/ui-source#12): the
+     icon is wrapped in the Framework's .sf-badge-anchor and the badge sheet
+     places the count; it stood at the row's corner before, beside the icon. The
+     rail's surface is surface-1, so that is the ring round the count. */
+  .sf-admin-nav-first {
+    --sf-badge--surface: var(--sf-surface-1);
+  }
+
+  .sf-admin-nav-row[data-current="true"],
+  .sf-admin-nav-row[data-open="true"] {
+    --sf-badge--surface: var(--sf-secondary-container);
+  }
+
+  /* ─── the items menu (no navigation port) ─────────────────────────────── */
+
+  /* An item's counter is the last child of its container (simai/ui-source#12).
+     Expanded, the words take the room between the icon and the counter, so the
+     counter stands at the row's end, and it is never squeezed. */
+  .sf-admin-menu-item-container > .sf-admin-menu-item-label {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    text-align: start;
+  }
+
+  .sf-admin-menu-item-counter,
+  .sf-admin-menu-item-counter > .sf-badge {
+    flex: none;
+  }
+
+  /* Compact, the free admin-menu sheet moves the counter onto the icon and
+     hides every span in the container but an image icon -- the initials of an
+     item without an icon among them, which left the counter nothing to stand
+     on. The initials are the item's avatar: they stay, and being round, the
+     counter's centre is on their circle at 45 degrees, not on the box's corner. */
+  .sf-admin-menu-panel.small .sf-admin-menu-item .sf-admin-menu-item-container > span.sf-admin-menu-item-placeholder {
+    display: flex;
+  }
+
+  .sf-admin-menu-panel.small .sf-admin-menu-item .sf-admin-menu-item-container:has(> .sf-admin-menu-item-placeholder) > .sf-badge {
+    --sf-badge--anchor-radius: var(--sf-admin-menu-item-placeholder--border-radius, var(--sf-radius-rounded));
+  }
+
+  .sf-admin-nav-first[data-compact="true"] .sf-admin-nav-row {
+    position: relative;
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .sf-admin-nav-heading {
+    padding: var(--sf-space-1) var(--sf-space-1) var(--sf-space-1\/4);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/3);
+    line-height: var(--sf-text-height-1\/3);
+  }
+
+  .sf-admin-nav-divider {
+    margin: var(--sf-space-1\/2) var(--sf-space-1);
+    border: 0;
+    border-block-start: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-admin-nav-empty {
+    margin: 0;
+    padding: var(--sf-space-1);
+    color: var(--sf-on-surface-variant);
+  }
+
+  /* ─── the site ──────────────────────────────────────────────────────────── */
+
+  /* The site and the person are rows of the same column: the same inset as the
+     rows (the scroll box's a4), and the mark and avatar 2rem, centred on the
+     axis of the rows' icons -- a px border, b4 and half an icon in. Doubled
+     paddings (space-1/2 around a button padded space-1/2) and a 2.5rem mark made
+     both a block twice as roomy as the rows, with their left edge on no line of
+     the column's (owner, 2026-10-13). */
+  .sf-admin-nav-first {
+    --sf-admin-nav-mark-size: var(--sf-c6);
+    --sf-admin-nav-mark-inset: calc(var(--sf-px) + var(--sf-b4) + (var(--sf-icon-size-2) - var(--sf-admin-nav-mark-size)) / 2);
+  }
+
+  .sf-admin-nav-site {
+    position: relative;
+    flex: none;
+    padding: var(--sf-a4);
+    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-admin-nav-site-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    inline-size: 100%;
+    padding-block: var(--sf-a4);
+    padding-inline: var(--sf-admin-nav-mark-inset);
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .sf-admin-nav-site-trigger:not(:disabled):hover {
+    background-color: var(--sf-surface-container-hover);
+  }
+
+  .sf-admin-nav-site-trigger:disabled {
+    cursor: default;
+  }
+
+  .sf-admin-nav-first[data-compact="true"] .sf-admin-nav-site-trigger {
+    justify-content: center;
+  }
+
+  .sf-admin-nav-mark {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--sf-admin-nav-mark-size, var(--sf-c6));
+    block-size: var(--sf-admin-nav-mark-size, var(--sf-c6));
+    border-radius: var(--sf-radius--ui);
+    background-color: var(--sf-primary);
+    color: var(--sf-on-primary);
+    font-weight: var(--sf-font-weight-bold);
+  }
+
+  .sf-admin-nav-site-text,
+  .sf-admin-nav-person-text,
+  .sf-admin-nav-second-title {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .sf-admin-nav-site-label,
+  .sf-admin-nav-second-label,
+  .sf-admin-nav-person-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-admin-nav-second-label {
+    font-size: var(--sf-text-size-1);
+    line-height: var(--sf-text-height-1);
+    font-weight: var(--sf-font-weight-bold);
+  }
+
+  .sf-admin-nav-site-caption,
+  .sf-admin-nav-second-caption,
+  .sf-admin-nav-person-email {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/3);
+    line-height: var(--sf-text-height-1\/3);
+  }
+
+  .sf-admin-nav-site-chevron {
+    flex: none;
+    --sf-icon--color: var(--sf-on-surface-variant);
+  }
+
+
+
+  .sf-admin-nav-link-button {
+    padding: var(--sf-space-1\/4) var(--sf-space-1\/2);
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: none;
+    color: var(--sf-primary);
+    font: inherit;
+    font-size: var(--sf-text-size-1\/3);
+    cursor: pointer;
+  }
+
+  .sf-admin-nav-action {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/2) var(--sf-space-1);
+    border-radius: var(--sf-radius--ui);
+    color: var(--sf-primary);
+    text-decoration: none;
+    --sf-icon--color: var(--sf-primary);
+  }
+
+
+  .sf-admin-nav-action:hover {
+    background-color: var(--sf-surface-container-hover);
+  }
+
+  /* ─── favourites, bottom, foot ──────────────────────────────────────────── */
+
+  .sf-admin-nav-favourites {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-px);
+    margin-block-start: var(--sf-space-1\/2);
+  }
+
+  .sf-admin-nav-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sf-space-1\/2) var(--sf-space-1) 0;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/3);
+    line-height: var(--sf-text-height-1\/3);
+  }
+
+  .sf-admin-nav-bottom {
+    position: relative;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-px);
+    padding: var(--sf-a4);
+  }
+
+  /* The person stands apart from the rows above it: a line between
+     «Уведомления» (or «Избранное») and the profile, and none over them --
+     they read as the end of the menu, not as a block of their own (owner,
+     2026-10-16). With nothing above the profile there is no line. */
+  .sf-admin-nav-bottom > :not(.sf-admin-nav-person-row) ~ .sf-admin-nav-person-row {
+    margin-block-start: var(--sf-a4);
+    padding-block-start: var(--sf-a4);
+    border-block-start: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-admin-nav-person {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    inline-size: 100%;
+    padding-block: var(--sf-a4);
+    padding-inline: var(--sf-admin-nav-mark-inset);
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .sf-admin-nav-person:hover,
+  .sf-admin-nav-person[aria-expanded="true"] {
+    background-color: var(--sf-surface-container-hover);
+  }
+
+  .sf-admin-nav-person:focus-visible {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: calc(-1 * var(--sf-focus--width));
+  }
+
+  .sf-admin-nav-first[data-compact="true"] .sf-admin-nav-person {
+    justify-content: center;
+  }
+
+  .sf-admin-nav-avatar {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--sf-admin-nav-mark-size, var(--sf-c6));
+    block-size: var(--sf-admin-nav-mark-size, var(--sf-c6));
+    border-radius: 50%;
+    background-color: var(--sf-tertiary-container);
+    color: var(--sf-on-tertiary-container);
+    font-size: var(--sf-text-size-1\/3);
+    font-weight: var(--sf-font-weight-bold);
+    object-fit: cover;
+  }
+
+  .sf-admin-nav-person-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-px);
+  }
+
+  .sf-admin-nav-person-row > .sf-admin-nav-person {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  .sf-admin-nav-collapse {
+    flex: none;
+  }
+
+  .sf-admin-nav-first[data-compact="true"] .sf-admin-nav-person-row {
+    flex-direction: column;
+  }
+
+  /* ─── the second column ─────────────────────────────────────────────────── */
+
+  .sf-admin-nav-second-head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1) var(--sf-space-1\/2) var(--sf-space-1\/2) var(--sf-space-1);
+  }
+
+  /* The install is not the site: its caption says so in the colour of a fact
+     worth noticing, so the two cannot be mistaken for each other. */
+  .sf-admin-nav-second-caption[data-install="true"] {
+    color: var(--sf-tertiary);
+  }
+
+  .sf-admin-nav-find {
+    flex: none;
+    padding: 0 var(--sf-a4) var(--sf-a4);
+  }
+
+  .sf-admin-nav-children {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-px);
+  }
+
+  .sf-admin-nav-second-foot {
+    flex: none;
+    padding: var(--sf-space-1\/2);
+    border-block-start: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  /* ─── the ⌘K palette ────────────────────────────────────────────────────── */
+
+  /* Over the page, so the same search is there on the rail and on a phone. The
+     page is dimmed the way sf-drawer dims it, and the dialog stands on step 3. */
+  .sf-admin-nav-palette {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: var(--sf-e2) var(--sf-space-1) var(--sf-space-1);
+  }
+
+  /* The same dimming as the record panel's (sf-drawer's overlay, black at 60):
+     at 20 it all but vanished in the dark theme (owner, 2026-10-16). */
+  .sf-admin-nav-palette::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--sf-drawer-overlay-background, var(--sf-black));
+    opacity: var(--sf-drawer-overlay-opacity, var(--sf-opacity-60));
+  }
+
+  .sf-admin-nav-palette-dialog {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    inline-size: min(100%, var(--sf-g7));
+    max-block-size: min(100%, var(--sf-g9));
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius--surface);
+    background-color: var(--sf-elevation-3--surface);
+    box-shadow: var(--sf-elevation-3--shadow);
+    overflow: hidden;
+  }
+
+  .sf-admin-nav-palette-field {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/2);
+    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  /* sf-input is display: contents; the field box inside it is what fills the row. */
+  .sf-admin-nav-palette-field sf-input > .sf-input {
+    flex: 1 1 auto;
+  }
+
+  /* Where the host searched, so nobody takes one site's records for all of them. */
+  .sf-admin-nav-palette-scope {
+    flex: none;
+    padding: var(--sf-a2) var(--sf-a6);
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius-rounded);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/3);
+    line-height: var(--sf-text-height-1\/3);
+    white-space: nowrap;
+  }
+
+  .sf-admin-nav-palette-results {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-y: auto;
+    padding: var(--sf-a4);
+  }
+
+  .sf-admin-nav-palette-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    min-block-size: calc(var(--sf-icon-size-2) + 2 * var(--sf-a6));
+    padding: 0 calc(var(--sf-px) + var(--sf-b4));
+    border-radius: var(--sf-radius--ui);
+    cursor: pointer;
+  }
+
+  .sf-admin-nav-palette-item[data-active="true"] {
+    background-color: var(--sf-secondary-container);
+    color: var(--sf-on-secondary-container);
+    --sf-icon--color: var(--sf-on-secondary-container);
+  }
+
+  .sf-admin-nav-palette-label {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-admin-nav-palette-caption {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/3);
+    line-height: var(--sf-text-height-1\/3);
+  }
+
+  .sf-admin-nav-palette-more {
+    display: block;
+    padding: var(--sf-a4) calc(var(--sf-px) + var(--sf-b4));
+    color: var(--sf-primary);
+    font-size: var(--sf-text-size-1\/3);
+    text-decoration: none;
+  }
+
+  .sf-admin-nav-palette-foot {
+    flex: none;
+    display: flex;
+    gap: var(--sf-space-1);
+    padding: var(--sf-a6) var(--sf-space-1\/2);
+    border-block-start: var(--sf-px) solid var(--sf-outline-variant);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/3);
+    line-height: var(--sf-text-height-1\/3);
+  }
+
+  .sf-admin-nav-key {
+    display: inline-flex;
+    justify-content: center;
+    min-inline-size: var(--sf-text-height-1\/3);
+    margin-inline-end: var(--sf-a2);
+    padding: 0 var(--sf-a3);
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius--ui);
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  /* ─── the profile menu ──────────────────────────────────────────────────── */
+
+  /* The Framework's standard menu (js/navigation/account.js): its surface,
+     rows, theme choice and language search are the menu's own, and so is its
+     width. The site switcher and the profile menu open as wide as the button
+     they open from (owner, 2026-10-14); the rest are as wide as their lines --
+     the floor of f8 left a row menu of three short actions a third empty. */
+
+  /* ─── the edit mode ─────────────────────────────────────────────────────── */
+
+  .sf-admin-nav-edit-banner {
+    position: relative;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-a4);
+    margin: var(--sf-a4);
+    padding: var(--sf-a4) var(--sf-a4) var(--sf-a6);
+    border: var(--sf-px) solid var(--sf-warning);
+    border-radius: var(--sf-radius--surface);
+    background-color: var(--sf-warning-container);
+    color: var(--sf-on-warning-container);
+  }
+
+  .sf-admin-nav-edit-title,
+  .sf-admin-nav-edit-profile {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: 0 var(--sf-a4);
+    font-weight: var(--sf-font-weight-bold);
+  }
+
+  .sf-admin-nav-edit-profile {
+    min-block-size: calc(var(--sf-icon-size-2) + 2 * var(--sf-a6));
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius--ui);
+    background-color: var(--sf-surface-0);
+    color: var(--sf-on-surface);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .sf-admin-nav-edit-note,
+  .sf-admin-nav-edit-message {
+    margin: 0;
+    padding: var(--sf-a6) var(--sf-a8);
+    border-radius: var(--sf-radius--ui);
+    background-color: var(--sf-surface-0);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/3);
+    line-height: var(--sf-text-height-1\/3);
+  }
+
+  .sf-admin-nav-edit-message {
+    color: var(--sf-error);
+  }
+
+  /* The profile list, a row's ⋯ and «Добавить» open the Framework's standard
+     menu (js/navigation/menu.js); the add control alone is drawn here. */
+  button.sf-admin-nav-add {
+    inline-size: 100%;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: start;
+  }
+
+  .sf-admin-nav-edit-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-px);
+  }
+
+  .sf-admin-nav-edit-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-a4);
+    min-block-size: calc(var(--sf-icon-size-2) + 2 * var(--sf-a6));
+    padding: 0 var(--sf-a4);
+    border-radius: var(--sf-radius--ui);
+    /* The column's own colour: the first column is surface-1 and the second
+       surface-0, and a row painted surface-0 stood out as a strip in the
+       first (owner, 2026-10-12). Only hover marks a row. */
+    background-color: transparent;
+  }
+
+  .sf-admin-nav-edit-row:hover {
+    background-color: var(--sf-surface-container-hover);
+  }
+
+  /* Hidden in this profile: drawn, so it can be brought back, but plainly
+     not part of the menu. */
+  .sf-admin-nav-edit-row[data-hidden="true"] .sf-admin-nav-row-label,
+  .sf-admin-nav-edit-row[data-hidden="true"] .sf-admin-nav-row-icon {
+    opacity: var(--sf-opacity-40);
+    text-decoration: line-through;
+  }
+
+  .sf-admin-nav-edit-row .sf-admin-nav-row-label[data-heading="true"] {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/3);
+  }
+
+  .sf-admin-nav-edit-handle {
+    flex: none;
+    display: inline-flex;
+    inline-size: var(--sf-icon-size-2);
+    cursor: grab;
+    --sf-icon--color: var(--sf-on-surface-variant);
+  }
+
+  /* The glyph keeps its size and the name takes what is left, ending in an
+     ellipsis: a long name squeezed the glyph under its first letters (owner,
+     2026-10-14). */
+  .sf-admin-nav-edit-icon {
+    flex: none;
+  }
+
+  .sf-admin-nav-edit-row > .sf-admin-nav-row-label {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-admin-nav-edit-line {
+    flex: 1 1 auto;
+    margin: 0;
+  }
+
+  .sf-admin-nav-edit-open {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    min-inline-size: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .sf-admin-nav-edit-button {
+    flex: none;
+    display: inline-flex;
+    padding: var(--sf-a2);
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: none;
+    cursor: pointer;
+    --sf-icon--color: var(--sf-on-surface-variant);
+  }
+
+  .sf-admin-nav-edit-button:hover {
+    background-color: var(--sf-surface-container-hover);
+  }
+
+  .sf-admin-nav-edit-button:focus-visible,
+  .sf-admin-nav-edit-open:focus-visible,
+  .sf-admin-nav-edit-profile:focus-visible {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: calc(-1 * var(--sf-focus--width));
+  }
+
+  .sf-admin-nav-edit-rename {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  .sf-admin-nav-add {
+    color: var(--sf-primary);
+    --sf-icon--color: var(--sf-primary);
+  }
+
+  .sf-admin-nav-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-a4);
+    padding: var(--sf-a4);
+  }
+
+  .sf-admin-nav-edit-actions {
+    display: flex;
+    gap: var(--sf-a4);
+  }
+
+  .sf-admin-nav-edit-check {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-a4);
+    font-size: var(--sf-text-size-1\/3);
+  }
+}

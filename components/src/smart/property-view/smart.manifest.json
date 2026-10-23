@@ -1,0 +1,1166 @@
+{
+  "schema_version": 2,
+  "id": "smart.property-view",
+  "version": "1.4.0",
+  "title": "Property view",
+  "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
+  "kind": "composite",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "admin",
+    "record",
+    "form",
+    "property"
+  ],
+  "capabilities": [
+    "field-renderers",
+    "file-upload",
+    "group-edit",
+    "host-slots",
+    "modeless-panel",
+    "panel-stack",
+    "property-view",
+    "record-picker",
+    "responsive",
+    "sections"
+  ],
+  "custom_element": "sf-property-view",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "component.icons",
+      "smart.avatar",
+      "smart.badges",
+      "smart.button-group",
+      "smart.buttons",
+      "smart.checkbox",
+      "smart.color",
+      "smart.country-code",
+      "smart.data-view",
+      "smart.datepicker",
+      "smart.drawer",
+      "smart.dropdown",
+      "smart.file-preview",
+      "smart.file-upload",
+      "smart.help-mark",
+      "smart.icon-buttons",
+      "smart.inputs",
+      "smart.list-item",
+      "smart.popover",
+      "smart.profile-picker",
+      "smart.progress-bar",
+      "smart.progress-scale",
+      "smart.range-slider",
+      "smart.reference-link",
+      "smart.sortable",
+      "smart.spinner",
+      "smart.switch",
+      "smart.table",
+      "smart.tabs",
+      "smart.tags",
+      "smart.textarea",
+      "smart.tree",
+      "smart.tree-item"
+    ],
+    "public_parts": [],
+    "declarative": {
+      "standard": "simai.composition.document.v1",
+      "type": "smart.property-view",
+      "mode": "leaf",
+      "profiles": [
+        "ui-layout"
+      ],
+      "props": [
+        "cancel-text",
+        "changed-text",
+        "close-label",
+        "collection",
+        "conflict-text",
+        "copy-link-label",
+        "edit-text",
+        "empty-text",
+        "errors-text",
+        "mode",
+        "open-full-label",
+        "panel",
+        "panel-label",
+        "panel-size",
+        "record-id",
+        "save-text",
+        "sections-label",
+        "show-rare",
+        "size",
+        "template"
+      ],
+      "presentation": {
+        "views": [
+          "default"
+        ],
+        "presets": [],
+        "modifiers": []
+      },
+      "slots": {},
+      "renderer": {
+        "kind": "custom-element",
+        "name": "sf-property-view"
+      },
+      "assets": [],
+      "data": {},
+      "events": [
+        "sf-property-view-address-copy",
+        "sf-property-view-close",
+        "sf-property-view-open-full",
+        "sf-property-view-open-record",
+        "sf-property-view-delete-record",
+        "sf-property-view-state"
+      ],
+      "persistence": {
+        "settings_key_prop": null,
+        "revision_prop": null
+      },
+      "host_port": {
+        "port": "simai.property-view-port",
+        "version": "1.13.0",
+        "path": "src/core/contracts/ports/simai.property-view-port/1.13.0/port.json",
+        "sha256": "d0a8823e59728cdd20538f84043438fa16d75bc685b69b013324375c52096b07",
+        "supported_versions": [
+          "1.0.0",
+          "1.1.0",
+          "1.2.0",
+          "1.3.0",
+          "1.4.0",
+          "1.5.0",
+          "1.6.0",
+          "1.7.0",
+          "1.8.0",
+          "1.10.0",
+          "1.11.0",
+          "1.12.0",
+          "1.13.0"
+        ]
+      }
+    }
+  },
+  "inputs": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "add-field-text": {
+        "type": "string",
+        "default": "Add a field",
+        "description": "Opens the list of fields this group can take: the ones this view places nowhere, and the ones another group holds."
+      },
+      "add-group-text": {
+        "type": "string",
+        "default": "Add an area",
+        "description": "Names the button that makes a new area at the end of the arrangement."
+      },
+      "add-section-text": {
+        "type": "string",
+        "default": "Add a section",
+        "description": "Names the button that makes a new section."
+      },
+      "back-label": {
+        "type": "string",
+        "default": "Back",
+        "description": "The control that returns from a section screen to the list of sections, which exists only below the drawer breakpoint. Above it the sections stand beside the groups and there is nothing to go back from."
+      },
+      "cancel-configuring-text": {
+        "type": "string",
+        "default": "Cancel",
+        "description": "Names the control that leaves the arranging mode with the arrangement it was entered with. Not a reset: a reset takes the layer away, this puts back what was there."
+      },
+      "cancel-name-text": {
+        "type": "string",
+        "default": "Leave the name",
+        "description": "Names the cross that leaves a name as it was."
+      },
+      "cancel-text": {
+        "type": "string",
+        "default": "Cancel",
+        "description": "The caption that drops what was typed. Nothing was written, so there is nothing to undo."
+      },
+      "changed-text": {
+        "type": "string",
+        "default": "Fields changed",
+        "description": "The label before the count of changed fields in the action bar."
+      },
+      "close-label": {
+        "type": "string",
+        "default": "Close",
+        "description": "The accessible name of the panel's close control. Defaults to the word for the page's language; the attribute overrides it."
+      },
+      "collection": {
+        "type": "string",
+        "default": "",
+        "description": "What kind of object this is, in the host's own vocabulary. Passed back to the host and never interpreted here."
+      },
+      "collection-icon": {
+        "type": "string",
+        "default": "",
+        "description": "The glyph beside the collection name, from the Framework icon font."
+      },
+      "collection-label": {
+        "type": "string",
+        "default": "",
+        "description": "What the collection is called, shown on its own line above the record name. The port carries a collection key; the name a person reads belongs to the host and arrives here."
+      },
+      "configure-hint-narrow-text": {
+        "type": "string",
+        "default": "Drag fields between groups. Applied at once.",
+        "description": "Said on the band while the view is arranged on a narrow panel, where the section list is a screen of its own and a field cannot be dropped on it."
+      },
+      "configure-hint-text": {
+        "type": "string",
+        "default": "Drag fields between groups and onto a section on the left. Applied at once.",
+        "description": "Said on the band while the view is arranged: what dragging does and that a change applies at once."
+      },
+      "configure-text": {
+        "type": "string",
+        "default": "Arrange the view",
+        "description": "The control that enters configuring. Shown only when the host declares view-settings and this person may write at least one layer."
+      },
+      "conflict-text": {
+        "type": "string",
+        "default": "The record changed; read it again",
+        "description": "What a conflict reads as when the host sends no message of its own."
+      },
+      "copy-link-label": {
+        "type": "string",
+        "default": "Copy link",
+        "description": "The accessible name of the copy control, which appears only when the host sent an address."
+      },
+      "delete-text": {
+        "type": "string",
+        "default": "Delete",
+        "description": "The control that asks the host to delete the record. Offered only when the record names `record.delete` among its actions."
+      },
+      "done-configuring-text": {
+        "type": "string",
+        "default": "Done",
+        "description": "Leaves configuring. Changes are already stored, so this closes a mode rather than confirming anything."
+      },
+      "edit-text": {
+        "type": "string",
+        "default": "edit",
+        "description": "The caption that opens a group for editing. Defaults to the word for the page's language; the attribute overrides it."
+      },
+      "empty-record-text": {
+        "type": "string",
+        "default": "This record has nothing to show",
+        "description": "Said in place of the fields when the host answered with a record that holds nothing visible. Without a word for it the panel is an empty box that reads as something still loading."
+      },
+      "empty-text": {
+        "type": "string",
+        "default": "not filled in",
+        "description": "What an empty value reads as. Defaults to the word for the page's language; the attribute overrides it."
+      },
+      "errors-text": {
+        "type": "string",
+        "default": "Errors",
+        "description": "The label before the count of field errors the host refused the save with."
+      },
+      "favourite": {
+        "type": "boolean",
+        "default": false,
+        "description": "Whether this record is one of the favourites of the person. The star reports a press and redraws when the host sets this back: whether a record is a favourite belongs to the host to store."
+      },
+      "favourite-label": {
+        "type": "string",
+        "default": "Favourite",
+        "description": "The accessible name of the star beside the record name."
+      },
+      "field-label-text": {
+        "type": "string",
+        "default": "Name",
+        "description": "Names the field in the field's own settings, where this view's name for it is typed. The collection keeps its own name; resetting the layer gives it back."
+      },
+      "field-settings-text": {
+        "type": "string",
+        "default": "Field settings",
+        "description": "Names the surface holding a field's width, template and hint while the view is arranged."
+      },
+      "hidden-text": {
+        "type": "string",
+        "default": "Hide",
+        "description": "Hides an entry in this layer. Disabled when a layer above hid it, which the host states per entry."
+      },
+      "hide-rare-text": {
+        "type": "string",
+        "default": "Hide rare fields",
+        "description": "Offers to stop showing the rare entries again."
+      },
+      "hint-text": {
+        "type": "string",
+        "default": "Hint",
+        "description": "The hint stored for a field in this layer."
+      },
+      "in-this-group-text": {
+        "type": "string",
+        "default": "In this area",
+        "description": "Names the stretch of the add-a-field list that this area already holds. The list says where a field lives now once, over the fields that live there."
+      },
+      "inherited-text": {
+        "type": "string",
+        "default": "by default",
+        "description": "What marks a value the record has not decided, inherited from a package or a theme. A person seeing it knows that changing the source changes this."
+      },
+      "link-copied-label": {
+        "type": "string",
+        "default": "Link copied",
+        "description": "What the copy control is called while it shows its tick. Copying leaves no trace a person can see, so the control says it happened for as long as the Framework’s clipboard does, then goes back."
+      },
+      "menu-label": {
+        "type": "string",
+        "default": "More",
+        "description": "The accessible name of the «…» menu in the head."
+      },
+      "move-down-text": {
+        "type": "string",
+        "default": "Move down",
+        "description": "Moves a group one step down."
+      },
+      "move-up-text": {
+        "type": "string",
+        "default": "Move up",
+        "description": "Moves a group one step up among the groups of its section, for a person who would rather press than drag."
+      },
+      "new-group-title": {
+        "type": "string",
+        "default": "New area",
+        "description": "The name a new area is made with, before the person types one."
+      },
+      "new-section-title": {
+        "type": "string",
+        "default": "New section",
+        "description": "The name a new section is made with, before the person types one."
+      },
+      "no-match-text": {
+        "type": "string",
+        "default": "Nothing matches",
+        "description": "Said in place of the list when a search matches no field."
+      },
+      "open-full-label": {
+        "type": "string",
+        "default": "Open as a page",
+        "description": "The accessible name of the open-full-page control, which appears only when the host sent an address."
+      },
+      "panel": {
+        "type": "boolean",
+        "default": false,
+        "description": "Render in a modeless panel beside the list the object was opened from, rather than in the work area. Modeless on purpose: the list stays visible and usable."
+      },
+      "panel-label": {
+        "type": "string",
+        "default": "",
+        "description": "The record's title in the panel header, and the panel's accessible name. It was the accessible name alone, which is true and invisible: a panel with no visible title tells nobody which record is open, and in a stack that is what a person most needs to know. The full header, with the collection and the star, is its own step."
+      },
+      "panel-size": {
+        "type": "string",
+        "default": "1",
+        "description": "How wide the panel is, on the drawer's own ladder.",
+        "enum": [
+          "1/2",
+          "1",
+          "2",
+          "full"
+        ]
+      },
+      "size": {
+        "type": "string",
+        "enum": [
+          "1",
+          "1/2"
+        ],
+        "default": "1",
+        "description": "The view's size: its text, field labels, titles and controls. 1/2 matches a table at 1/2."
+      },
+      "mode": {
+        "type": "string",
+        "enum": [
+          "view",
+          "auto",
+          "edit",
+          "create"
+        ],
+        "default": "auto",
+        "description": "What the surface is placed to do. view: show the object and offer no change, footer, delete or arranging whatever the person may do. auto: show it and offer what this person may do (record.edit, the lifecycle acts, the writable layers). edit: every group open at once, one record.save. create: an empty object of the collection read with record.load mode create, every field open, one record.create."
+      },
+      "panel-width": {
+        "type": "string",
+        "default": "",
+        "description": "An exact panel width, for a consumer whose layout the ladder step does not fit. Empty leaves panel-size in charge; a length here wins over it. A stacked panel is narrowed from this width rather than from the ladder."
+      },
+      "personal-layer-text": {
+        "type": "string",
+        "default": "Personal",
+        "description": "The layer only this person sees. Renamed from «Mine» on 2026-10-09: it stands in a list of named views now, beside «Обычный» and «Экспертный», where the word has to answer the same question the others do."
+      },
+      "rare-text": {
+        "type": "string",
+        "default": "rare",
+        "description": "Marks an entry the collection declares rare, beside its name."
+      },
+      "record-id": {
+        "type": "string",
+        "default": "",
+        "description": "Which object to read. Changing it re-reads through the port; the component keeps nothing from the previous one."
+      },
+      "remove-field-text": {
+        "type": "string",
+        "default": "Remove from this area",
+        "description": "Names the control that takes a field out of its area. The field joins the unplaced, where the area’s own list offers it back, and nothing about it is lost."
+      },
+      "remove-group-text": {
+        "type": "string",
+        "default": "Remove this area",
+        "description": "Names the control that takes an area out of the view. Its fields join the unplaced rather than going with it."
+      },
+      "remove-section-text": {
+        "type": "string",
+        "default": "Remove this section",
+        "description": "Names the control that takes a section out of the view. Its areas move to the section that remains."
+      },
+      "rename-text": {
+        "type": "string",
+        "default": "Rename",
+        "description": "Names the pencil beside an area's or a section's name while the view is being arranged, and the field it opens."
+      },
+      "reset-view-ask-text": {
+        "type": "string",
+        "default": "Reset the whole view?",
+        "description": "The question the reset asks before it takes the layer away. A reset undoes everything a person arranged in this layer, which is more than one press of a button beside «done» should do."
+      },
+      "reset-view-text": {
+        "type": "string",
+        "default": "Reset",
+        "description": "Returns the chosen layer to what lies beneath it."
+      },
+      "save-name-text": {
+        "type": "string",
+        "default": "Save the name",
+        "description": "Names the tick that writes a name being typed into the layer."
+      },
+      "save-text": {
+        "type": "string",
+        "default": "Save",
+        "description": "The caption that saves the open group. One press is one revision."
+      },
+      "section-icon-text": {
+        "type": "string",
+        "default": "Section glyph",
+        "description": "Names the chooser of a section's glyph while the view is being arranged."
+      },
+      "section-icons": {
+        "type": "string",
+        "default": "",
+        "description": "The glyphs a section may be marked with, as names from the Framework's icon set separated by spaces or commas. Empty means the component's own hundred and twenty, the ones products reach for; a host with its own vocabulary replaces them rather than adding to them."
+      },
+      "sections-as": {
+        "type": "string",
+        "default": "list",
+        "description": "Where the sections are read: as a list beside the groups, which suits a settings screen with many of them, or as a row of tabs above them, which suits a record with a few. The sections are the same either way.",
+        "enum": [
+          "list",
+          "tabs"
+        ]
+      },
+      "sections-label": {
+        "type": "string",
+        "default": "Sections",
+        "description": "The accessible name of the section list. Defaults to the word for the page's language; the attribute overrides it."
+      },
+      "shared-layer-text": {
+        "type": "string",
+        "default": "Everyone's",
+        "description": "The layer everyone sees. Drawn disabled with the host reason when this person may not write it, rather than left out -- an absent control reads as a missing feature."
+      },
+      "show-rare": {
+        "type": "boolean",
+        "default": false,
+        "description": "Show the sections, groups and fields the host marked rare. A view decision: it writes nothing and changes no value."
+      },
+      "show-rare-text": {
+        "type": "string",
+        "default": "Show rare fields",
+        "description": "Offers to show the entries the collection declares rare. Offered only when the record holds one."
+      },
+      "shown-text": {
+        "type": "string",
+        "default": "Shown",
+        "description": "Names the control that shows or hides an entry in this layer."
+      },
+      "template": {
+        "type": "string",
+        "enum": [
+          "default"
+        ],
+        "default": "default",
+        "description": "Which template draws the view."
+      },
+      "unplaced-hint-text": {
+        "type": "string",
+        "default": "Fields this view does not show. Drag one into a group to place it, or drag a field here to take it out.",
+        "description": "Retired on 2026-10-09 and kept only until the sweep: the not-placed bin is the Framework's accordion now and draws no hint line, so this is parsed and ignored. Recorded in contracts/changes/journal.json as property-view-unplaced-hint-text."
+      },
+      "unplaced-title": {
+        "type": "string",
+        "default": "Not placed",
+        "description": "Names the area holding fields this view places in no group. Drawn only while the view is being arranged."
+      },
+      "variant-text": {
+        "type": "string",
+        "default": "Template",
+        "description": "Chooses the template variant, among the variants the host offers for that field."
+      },
+      "view-conflict-text": {
+        "type": "string",
+        "default": "The view changed and was read again",
+        "description": "Said when a layer moved underneath this person and the arrangement was read again."
+      },
+      "view-denied-text": {
+        "type": "string",
+        "default": "You may not change this layer",
+        "description": "The fallback reason on a layer this person may not write, used when the host sends none of its own."
+      },
+      "width-text": {
+        "type": "string",
+        "default": "Full width",
+        "description": "Names the switch that makes a field take the whole row rather than half of it."
+      },
+      "view-profile-label": {
+        "type": "string",
+        "default": "View",
+        "description": "The accessible name of the chooser that picks which named view is shown. Unset, the component answers in the page language."
+      },
+      "add-view-text": {
+        "type": "string",
+        "default": "Add a view",
+        "description": "The words on the control that makes a new named view from the arrangement on screen. Unset, the component answers in the page language."
+      },
+      "new-view-text": {
+        "type": "string",
+        "default": "New view",
+        "description": "What a view is called the moment it is made, before the person types over it. A view called «New view» among four real ones is one nobody can tell from the others, which is why the name opens for typing straight away."
+      },
+      "delete-view-text": {
+        "type": "string",
+        "default": "Remove the view",
+        "description": "The accessible name of the control that removes a named view."
+      },
+      "last-shared-view-text": {
+        "type": "string",
+        "default": "The only view everyone has",
+        "description": "Why removing is not offered for the last shared view: a scope with none has nothing for a person who has made none of their own. Shown on the control that is not offered rather than as a refusal after the press."
+      }
+    }
+  },
+  "item_contract": {
+    "section": "A key, a label and its groups. The arrangement is the host's; the component never invents a section.",
+    "group": "A key, a label and its fields, in one or two columns.",
+    "field": "A key, a label and a propertyType the renderer set is addressed by. The host supplies the type; the Framework supplies the template.",
+    "host_slot": "A child with slot=\"actions\", slot=\"menu\" or slot=\"footer\". The composite gives it a place and a gap and styles nothing inside it."
+  },
+  "contracts": {
+    "rendering": {
+      "const": "Every field value is drawn by the published field renderer set. The component chooses no component for a value and carries no CSS for one."
+    },
+    "storage": {
+      "const": "The component stores no value and no revision. Reading is the only intent in this port version; a later version writes against the revision the read carried."
+    },
+    "sections": {
+      "const": "One section renders as groups alone, with no section list: a list of one is a control that cannot be used."
+    },
+    "saving": {
+      "const": "A group is saved by the button alone -- never on blur and never per field -- carrying only the fields the person changed, against the revision the read carried. A stale revision is answered with a conflict and what the person typed is kept."
+    },
+    "dom": {
+      "const": "Renders into its own light DOM, like every other Smart component. A shadow root would cut the field controls off from the Framework's component stylesheets, which is what the first version did."
+    },
+    "loading": {
+      "const": "Registered with the loader through rule.js, so the tag loads the composite and the components the renderer set can emit, including the icon font."
+    },
+    "formatting": {
+      "const": "A scalar may arrive as {value, text}: the data and the host's formatting of it. The Framework has no locale and does not acquire one through a renderer. A unit stays its own field so a column can align units."
+    },
+    "record_picker": {
+      "const": "A reference field is picked from the host's candidates when the host announces the field-options capability, a page at a time with the search answered by the host. Without the capability the field shows its current value read-only, which is better than an empty control over a value that exists."
+    },
+    "panel": {
+      "const": "The panel is modeless -- modal and overlay both off -- so the list it was opened from stays visible and usable. Esc is handled by the composite rather than by the drawer, because in a stack it must close the top window only."
+    },
+    "address": {
+      "const": "A window's address is the host's. The component copies it and announces it and never constructs one; without an address neither the copy nor the open control is rendered."
+    },
+    "file_upload": {
+      "const": "A file is taken by the host through field.upload, which answers with the stored file in the shape the field reads. The host reports its own progress; the component times nothing, because a bar over a transfer it does not perform would be a bar that lies. Removing a stored file is a value change saved by the button, not an upload intent -- otherwise it would be the one edit here that could not be cancelled."
+    },
+    "host_slots": {
+      "const": "Children marked slot=\"actions\", slot=\"menu\" or slot=\"footer\" are captured by the base element before the first render and returned as live nodes by reference, so a host's listeners and open state survive every render. The menu slot holds a host's own items inside the «…», under the ones the component offers, so the corner of the head is one place whatever the task puts in it. Both slots work in the panel and in the full-page layout; there is deliberately no slot inside a group or between fields, because content there could not survive the view configuration reordering around it."
+    },
+    "panel_stack": {
+      "const": "A stack is an order of elements, not one state held for several records: each window is its own sf-property-view with its own record, open group and unsaved changes, so a half-edited window left underneath keeps them. The Framework owns the behaviour between windows -- Esc closes the top one, the others are dimmed and not interactive, and each depth is inset so the one below stays partly visible."
+    },
+    "opening_a_reference": {
+      "const": "Activating a reference raises record.open and nothing else. The component follows no href, because that would be routing for the consumer, and opens no window, because that would decide whether a half-edited window may be covered."
+    },
+    "panel_layout": {
+      "const": "The panel's body takes the height left to it and scrolls as one; the field columns follow the width of the panel through a container query, not the width of the window, because a panel is narrow inside a wide one."
+    }
+  },
+  "methods": {
+    "setHostPort": {
+      "summary": "Connect a host adapter exposing raise(intent, payload, {signal}), version and capabilities.",
+      "arguments": [
+        {
+          "name": "host",
+          "type": "object",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
+      }
+    },
+    "load": {
+      "summary": "Read the object again through the port.",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "A promise of the host answer to the read: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
+      }
+    },
+    "editGroup": {
+      "summary": "Open one group for editing.",
+      "arguments": [
+        {
+          "name": "section",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "group",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
+      }
+    },
+    "cancelEdit": {
+      "summary": "Close the open group, dropping what was typed. Writes nothing.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
+      }
+    },
+    "saveGroup": {
+      "summary": "Save the changed fields of the open group as one revision.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "A promise of the host answer to the write: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
+      }
+    },
+    "selectSection": {
+      "summary": "Open one section.",
+      "arguments": [
+        {
+          "name": "key",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
+      }
+    },
+    "changeField": {
+      "summary": "Record that a field was changed; undefined takes the change back, so a save carries nothing for that field. Called by the edit template; a host does not need it.",
+      "arguments": [
+        {
+          "name": "field",
+          "type": "object",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "any",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
+      }
+    },
+    "getFieldOptionsPage": {
+      "summary": "The page of candidates the host last answered with for one field.",
+      "arguments": [
+        {
+          "name": "field",
+          "type": "object",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "The options page loaded for the field, or null."
+      }
+    },
+    "getFieldOptionSearch": {
+      "summary": "What the person has typed into one field's picker.",
+      "arguments": [
+        {
+          "name": "field",
+          "type": "object",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "string",
+        "description": "The search text typed for the field's options."
+      }
+    },
+    "setFieldOptionSearch": {
+      "summary": "Record what the person typed, without asking the host.",
+      "arguments": [
+        {
+          "name": "field",
+          "type": "object",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
+      }
+    },
+    "loadFieldOptions": {
+      "summary": "Ask the host for a page of candidates for one field.",
+      "arguments": [
+        {
+          "name": "field",
+          "type": "object",
+          "required": true
+        },
+        {
+          "name": "options",
+          "type": "object",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "A promise of the host answer with the options page: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
+      }
+    },
+    "closePanel": {
+      "summary": "Announce that the panel should close. Closing is the host's decision.",
+      "arguments": [
+        {
+          "name": "reason",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
+      }
+    },
+    "copyAddress": {
+      "summary": "Copy the address the host gave, and say whether the browser allowed it.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "A promise of whether the address reached the clipboard."
+      }
+    },
+    "openFullPage": {
+      "summary": "Announce that this object should open on a full page.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
+      }
+    },
+    "getFieldUploads": {
+      "summary": "The files in flight for one field, in the shape sf-file-upload reads.",
+      "arguments": [
+        {
+          "name": "field",
+          "type": "object",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "array",
+        "description": "The uploads in progress or done for the field."
+      }
+    },
+    "startFieldUpload": {
+      "summary": "Hand the host the files the person chose, one intent each.",
+      "arguments": [
+        {
+          "name": "field",
+          "type": "object",
+          "required": true
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "A promise of the element, settled when the uploads are raised."
+      }
+    },
+    "retryFieldUpload": {
+      "summary": "Send one failed file again.",
+      "arguments": [
+        {
+          "name": "field",
+          "type": "object",
+          "required": true
+        },
+        {
+          "name": "index",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "A promise of the element, settled when the upload is raised again."
+      }
+    },
+    "openReference": {
+      "summary": "Ask the host to open a reference the person activated.",
+      "arguments": [
+        {
+          "name": "field",
+          "type": "object",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "any",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "A promise of the host answer to the opening: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
+      }
+    }
+  },
+  "events": {
+    "sf-property-view-state": {
+      "summary": "Runtime event sf-property-view-state.",
+      "payload": {
+        "type": "object"
+      }
+    },
+    "sf-property-view-close": {
+      "summary": "The panel asks to be closed (by its close control, Esc or Cancel), carrying how many fields would be lost: changed and not saved, or entered and not yet a value.",
+      "payload": {
+        "type": "object"
+      }
+    },
+    "sf-property-view-address-copy": {
+      "summary": "The window's address was copied, or the browser refused the clipboard.",
+      "payload": {
+        "type": "object"
+      }
+    },
+    "sf-property-view-open-full": {
+      "summary": "The person asked for this object on a full page, at the address the host gave.",
+      "payload": {
+        "type": "object"
+      }
+    },
+    "sf-property-view-delete-record": {
+      "summary": "The person asked for the record to be deleted; the host decides whether to ask first and whether to delete at all.",
+      "payload": {
+        "type": "object"
+      }
+    },
+    "sf-property-view-open-record": {
+      "summary": "A reference value was activated; the host decides what to open and where.",
+      "payload": {
+        "type": "object"
+      }
+    },
+    "sf-host-port-request": {
+      "summary": "Asks the page for a host port, once per connection and only while this element has none. The shared convention for every component that takes `setHostPort`. Answered by calling `setHostPort` on the event target, at once or later.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "component": {
+            "type": "object"
+          },
+          "context": {
+            "type": "object",
+            "description": "owner is «property-view», record is the record-id this element is showing, group is null."
+          }
+        }
+      }
+    },
+    "sf-property-view-favourite": {
+      "summary": "The star was pressed. Carries the record, the collection and the state being asked for; the component changes nothing until the host sets favourite back.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "collection": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "favourite": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "sf-property-view-menu": {
+      "summary": "The «…» menu in the head was opened, with the items the component offers for the view. A host adds its own through the menu slot.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array"
+          },
+          "open": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "sf-property-view-created": {
+      "summary": "A create surface made its object; the host may go on to its own place for it. The component shows the new object in auto mode.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ]
+          },
+          "collection": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "sf-property-view-cancel": {
+      "summary": "A surface open all at once (edit, create) was cancelled; what the person typed is dropped and the host decides where that leads. A panel closes.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "enum": [
+              "edit",
+              "create"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "data": [
+        "loading",
+        "ready",
+        "empty",
+        "error"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "loading",
+      "empty",
+      "error"
+    ]
+  },
+  "persistence": {
+    "mode": "external-host",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": "revision"
+  },
+  "ownership": {
+    "source": "simai/ui-admin",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "access decisions",
+      "database writes",
+      "unspecified transport",
+      "choosing a component for a property type"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "record",
+      "sections",
+      "field values"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "region",
+    "accessible_name": "required",
+    "keyboard": [
+      "Native controls and child Smart components"
+    ],
+    "focus": "No focus movement on re-read"
+  },
+  "presentation": {
+    "skeleton": {
+      "shape": "record",
+      "while_loading": "template"
+    },
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "ru",
+      "en"
+    ],
+    "responsive": [
+      "The section list and the fields stack below the tablet breakpoint; child components own their own responsive behaviour"
+    ]
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [],
+    "scenarios": []
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "host-port",
+      "property-view",
+      "loader-rule",
+      "generated-pair"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "1d3f0eb63761e5e94883243e66007bfe38cccd7e",
+      "ui_smart_revision": "4e3e58aa1e6aa20b0434f334ea30e0f1a3c16319"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": []
+  },
+  "provenance": {
+    "source_repository": "simai/ui-source",
+    "source_revision": "300cf1a3f1b8edf0d4cadc6016a82402de39c1f7",
+    "source_artifacts": [
+      {
+        "path": "src/smart/property-view/index.js",
+        "sha256": "19f692740acc9025dc5c0d6d804117d01191cce36efe8eb2286766531a70564e"
+      },
+      {
+        "path": "src/smart/property-view/js/templates/default.js",
+        "sha256": "965d5e044b4f7b9684f76e41a3023a82dc010df1c98bc0c25c8cf73bdc12a6fe"
+      },
+      {
+        "path": "src/smart/property-view/js/templates/default.css",
+        "sha256": "51f4b0b71bdf7f7238bc1fc00719655071f7d56300b5398b975b870b88abe9db"
+      },
+      {
+        "path": "src/smart/property-view/js/datetime-value.js",
+        "sha256": "01cfe61e97ca757e8e172a01b3d4030667ced76c7d6a4fa2f8660425c3eab585"
+      },
+      {
+        "path": "src/smart/property-view/js/datetime-edit.js",
+        "sha256": "73aa9ecf895689e6f6456b09da7b896d8497ff5540fb8b38033ebdfe47f94ac8"
+      },
+      {
+        "path": "src/smart/property-view/rule.js",
+        "sha256": "98d1c2f96404201314f3682d636ae1a9d83897efd7a49cc92f2e00220a588a4e"
+      },
+      {
+        "path": "src/core/contracts/ports/simai.property-view-port/1.4.0/port.json",
+        "sha256": "9d9f43cf1abf9c900b74166ec7a7282f39d5dd176c28f5ea37e6c73df643e5f7"
+      },
+      {
+        "path": "src/smart/property-view/docs.md",
+        "sha256": "f6800cf66244cb9880cdd43678cbd09ca63e168b4f6f9fd5b939889f3996c1e2"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use to show and edit the fields of one object -- a record, site settings, a user -- where the host owns the values and the arrangement.",
+    "do_not": [
+      "Do not pass a component or a CSS class for a field value: pass its property type and let the renderer set decide.",
+      "Do not expect the component to hold a value or a revision between reads.",
+      "Do not filter rare fields out of the answer: mark them and send them, or toggling the view twice shows two different objects."
+    ],
+    "required_reads": [
+      "host_port",
+      "events",
+      "ownership",
+      "compatibility",
+      "docs"
+    ],
+    "minimal_example": "<sf-property-view collection=\"storage\" record-id=\"42\" aria-label=\"Запись\"></sf-property-view>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-browser-probes.mjs <free output> <package output>"
+    ]
+  }
+}

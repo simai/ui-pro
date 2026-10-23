@@ -1,0 +1,560 @@
+{
+  "answer": "applied",
+  "record": {
+    "record_id": "record-00829e9f69f48df4c2741f8d4a6b2377",
+    "collection": "workbench.demo_solutions",
+    "revision": 15,
+    "sections": [
+      {
+        "key": "main",
+        "label": "Общее",
+        "rare": false,
+        "hidden": false,
+        "groups": [
+          {
+            "key": "main",
+            "label": "Основное",
+            "columns": 2,
+            "fields": [
+              {
+                "key": "code",
+                "label": "Код решения",
+                "propertyType": "string",
+                "variant": null,
+                "value": "simai.notify",
+                "width": "half",
+                "required": true,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "title",
+                "label": "Название",
+                "propertyType": "string",
+                "variant": null,
+                "value": "SIMAI: Платежи №178",
+                "width": "half",
+                "required": true,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "section",
+                "label": "Раздел",
+                "propertyType": "record",
+                "variant": null,
+                "value": {
+                  "value": "record-1792d97ad5c99dd20fb9536f70e6ad63",
+                  "label": "Платежи и биллинг",
+                  "href": "/admin/cms?structure_id=workbench.demo_sections&record_id=record-1792d97ad5c99dd20fb9536f70e6ad63&record_mode=view#minimal-cms-record-view"
+                },
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "linked_solution",
+                "label": "Связанное решение",
+                "propertyType": "record",
+                "variant": null,
+                "value": {
+                  "value": "record-70ca0007b51f9f4bf7636ad55cc576de",
+                  "label": "SIMAI: Уведомления №387",
+                  "href": "/admin/cms?structure_id=workbench.demo_solutions&record_id=record-70ca0007b51f9f4bf7636ad55cc576de&record_mode=view#minimal-cms-record-view"
+                },
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "status",
+                "label": "Статус",
+                "propertyType": "choice",
+                "variant": null,
+                "value": "in_progress",
+                "width": "half",
+                "required": true,
+                "rare": false,
+                "hidden": false,
+                "options": [
+                  {
+                    "value": "new",
+                    "label": "Новое",
+                    "color": "info"
+                  },
+                  {
+                    "value": "in_progress",
+                    "label": "В работе",
+                    "color": "primary"
+                  },
+                  {
+                    "value": "review",
+                    "label": "На проверке",
+                    "color": "warning"
+                  },
+                  {
+                    "value": "done",
+                    "label": "Готово",
+                    "color": "success"
+                  },
+                  {
+                    "value": "canceled",
+                    "label": "Отменено",
+                    "color": "danger"
+                  }
+                ],
+                "hiddenBy": null
+              },
+              {
+                "key": "priority",
+                "label": "Приоритет",
+                "propertyType": "choice",
+                "variant": null,
+                "value": "critical",
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "options": [
+                  {
+                    "value": "low",
+                    "label": "Низкий",
+                    "color": "neutral"
+                  },
+                  {
+                    "value": "medium",
+                    "label": "Средний",
+                    "color": "info"
+                  },
+                  {
+                    "value": "high",
+                    "label": "Высокий",
+                    "color": "warning"
+                  },
+                  {
+                    "value": "critical",
+                    "label": "Критичный",
+                    "color": "danger"
+                  }
+                ],
+                "hiddenBy": null
+              }
+            ]
+          },
+          {
+            "key": "work",
+            "label": "Работа",
+            "columns": 2,
+            "fields": [
+              {
+                "key": "author",
+                "label": "Автор",
+                "propertyType": "user",
+                "variant": null,
+                "value": {
+                  "value": "user:admin_identity:2",
+                  "label": "Administrator",
+                  "avatarText": "A"
+                },
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "version",
+                "label": "Последняя версия",
+                "propertyType": "string",
+                "variant": null,
+                "value": "3.3.8",
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "progress",
+                "label": "Прогресс, %",
+                "propertyType": "integer",
+                "variant": "scale",
+                "value": 69,
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "deadline",
+                "label": "Крайний срок",
+                "propertyType": "date",
+                "variant": null,
+                "value": "2027-01-13",
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "modules",
+                "label": "Модули",
+                "propertyType": "choices",
+                "variant": null,
+                "value": [
+                  "updates"
+                ],
+                "width": "full",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "options": [
+                  {
+                    "value": "billing",
+                    "label": "Биллинг",
+                    "color": "#7c3aed"
+                  },
+                  {
+                    "value": "storage",
+                    "label": "Хранилище",
+                    "color": "#0891b2"
+                  },
+                  {
+                    "value": "content",
+                    "label": "Контент",
+                    "color": "#16a34a"
+                  },
+                  {
+                    "value": "framework",
+                    "label": "Framework",
+                    "color": "#2563eb"
+                  },
+                  {
+                    "value": "payments",
+                    "label": "Платежи",
+                    "color": "#db2777"
+                  },
+                  {
+                    "value": "registrations",
+                    "label": "Регистрации",
+                    "color": "#ea580c"
+                  },
+                  {
+                    "value": "updates",
+                    "label": "Обновления",
+                    "color": "#4b5563"
+                  }
+                ],
+                "hiddenBy": null
+              },
+              {
+                "key": "active",
+                "label": "Активно",
+                "propertyType": "boolean",
+                "variant": null,
+                "value": true,
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "trueText": "Yes",
+                "falseText": "No",
+                "hiddenBy": null
+              }
+            ]
+          },
+          {
+            "key": "money",
+            "label": "Деньги и сроки",
+            "columns": 2,
+            "fields": [
+              {
+                "key": "price",
+                "label": "Стоимость, ₽",
+                "propertyType": "number",
+                "variant": null,
+                "value": {
+                  "value": "25025.93",
+                  "text": "25,025.93"
+                },
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "created_on",
+                "label": "Создано",
+                "propertyType": "datetime",
+                "variant": null,
+                "value": {
+                  "value": "2026-11-27T13:26:00",
+                  "text": "2026-11-27 13:26:00"
+                },
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "updated_on",
+                "label": "Обновлено",
+                "propertyType": "datetime",
+                "variant": null,
+                "value": {
+                  "value": "2026-12-25T16:46:00",
+                  "text": "2026-12-25 16:46:00"
+                },
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              },
+              {
+                "key": "phone",
+                "label": "Телефон",
+                "propertyType": "string",
+                "variant": "phone",
+                "value": "+7 (495) 000-00-00",
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              }
+            ]
+          },
+          {
+            "key": "look",
+            "label": "Оформление",
+            "columns": 2,
+            "fields": [
+              {
+                "key": "brand_color",
+                "label": "Основной цвет",
+                "propertyType": "color",
+                "variant": null,
+                "value": "#2a5bd7",
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null,
+                "hint": "Наследуется из темы, пока не задан",
+                "swatches": "#2a5bd7|Основной #d7452a|Акцент #2ad77a|Успех #6b7280|Нейтральный"
+              },
+              {
+                "key": "accent_color",
+                "label": "Акцент",
+                "propertyType": "color",
+                "variant": null,
+                "value": "",
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null,
+                "inheritedValue": "#2a5bd7",
+                "swatches": "#2a5bd7|Основной #d7452a|Акцент #2ad77a|Успех #6b7280|Нейтральный"
+              },
+              {
+                "key": "document",
+                "label": "Документ",
+                "propertyType": "file",
+                "variant": null,
+                "value": null,
+                "width": "half",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "uploadText": "Choose a file",
+                "formats": "Any file",
+                "hiddenBy": null
+              },
+              {
+                "key": "summary",
+                "label": "Описание",
+                "propertyType": "text",
+                "variant": null,
+                "value": "Решение «Платежи» (simai.notify).\nДемонстрационная запись для проверки списка, фильтров и панели записи.",
+                "width": "full",
+                "required": false,
+                "rare": false,
+                "hidden": false,
+                "hiddenBy": null
+              }
+            ]
+          }
+        ],
+        "hiddenBy": null
+      }
+    ],
+    "address": "/admin/cms?structure_id=workbench.demo_solutions&record_id=record-00829e9f69f48df4c2741f8d4a6b2377&record_mode=view#minimal-cms-record-view",
+    "view": {
+      "target": "personal",
+      "layers": {
+        "personal": {
+          "revision": "13",
+          "view": {
+            "schema_version": 1,
+            "sections": {},
+            "groups": {},
+            "fields": {
+              "code": {
+                "group": "main",
+                "order": 1
+              },
+              "price": {
+                "group": "main",
+                "order": 11
+              },
+              "title": {
+                "group": "main",
+                "order": 2
+              },
+              "active": {
+                "group": "main",
+                "order": 12
+              },
+              "author": {
+                "group": "main",
+                "order": 9
+              },
+              "status": {
+                "group": "main",
+                "order": 6
+              },
+              "modules": {
+                "group": "main",
+                "order": 8
+              },
+              "related": {
+                "group": "main",
+                "order": 18
+              },
+              "section": {
+                "group": "main",
+                "order": 3
+              },
+              "summary": {
+                "group": "main",
+                "order": 16
+              },
+              "version": {
+                "group": "main",
+                "order": 5
+              },
+              "deadline": {
+                "group": "main",
+                "order": 13
+              },
+              "document": {
+                "group": "main",
+                "order": 17
+              },
+              "priority": {
+                "group": "main",
+                "order": 7
+              },
+              "progress": {
+                "group": "main",
+                "order": 10
+              },
+              "created_on": {
+                "group": "main",
+                "order": 14
+              },
+              "updated_on": {
+                "group": "main",
+                "order": 15
+              },
+              "linked_solution": {
+                "group": "main",
+                "order": 4
+              }
+            }
+          }
+        },
+        "shared": {
+          "revision": null,
+          "view": null
+        }
+      },
+      "editable": [
+        "personal",
+        "shared"
+      ],
+      "profiles": [
+        {
+          "id": "default",
+          "label": "Обычный",
+          "shared": true
+        },
+        {
+          "id": "expert",
+          "label": "Экспертный",
+          "shared": true
+        },
+        {
+          "id": "mine",
+          "label": "Персональный",
+          "shared": false
+        }
+      ],
+      "profile": "default"
+    },
+    "actions": [
+      "record.delete"
+    ],
+    "unplaced": [
+      {
+        "key": "head_scripts",
+        "label": "Скрипты в head",
+        "propertyType": "include",
+        "variant": null,
+        "language": "html",
+        "value": "<script>\n  window.dataLayer = window.dataLayer || [];\n</script>",
+        "width": "full",
+        "required": false,
+        "rare": false,
+        "hidden": false,
+        "hiddenBy": null
+      },
+      {
+        "key": "related",
+        "label": "Связанный материал",
+        "propertyType": "relation",
+        "variant": null,
+        "value": null,
+        "width": "half",
+        "required": false,
+        "rare": false,
+        "hidden": false,
+        "hiddenBy": null
+      },
+      {
+        "key": "approver",
+        "label": "Ответственный за согласование договора с подрядчиком",
+        "propertyType": "user",
+        "variant": null,
+        "value": null,
+        "width": "full",
+        "required": false,
+        "rare": false,
+        "hidden": false,
+        "hiddenBy": null
+      }
+    ]
+  }
+}

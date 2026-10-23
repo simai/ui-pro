@@ -1,0 +1,17 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "reference",
+  "component": "smart.data-view",
+  "title": "Data View reference",
+  "summary": "Deterministic reference fixture for sf-table.",
+  "locale": "ru",
+  "props": {
+    "aria-label": "Записи",
+    "table-settings-key": "studio.records",
+    "pagin": true,
+    "pagination-total": 3,
+    "pagination-page-size": 10
+  },
+  "children": [],
+  "state": "default"
+}

@@ -1,0 +1,872 @@
+{
+  "schema_version": 2,
+  "id": "smart.admin-menu",
+  "version": "1.1.0",
+  "title": "Admin menu",
+  "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
+  "kind": "composite",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "admin",
+    "menu",
+    "navigation",
+    "settings"
+  ],
+  "capabilities": [
+    "navigation",
+    "search",
+    "nested-panels",
+    "preferences",
+    "responsive"
+  ],
+  "custom_element": "sf-admin-menu",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "component.admin-menu",
+      "component.badges",
+      "component.icons",
+      "component.inputs",
+      "smart.badges",
+      "smart.buttons",
+      "smart.context-menu",
+      "smart.dropdown",
+      "smart.empty-state",
+      "smart.icon-buttons",
+      "smart.icons",
+      "smart.inputs",
+      "smart.profile-picker",
+      "smart.resizer",
+      "smart.sortable"
+    ],
+    "public_parts": [],
+    "declarative": {
+      "standard": "simai.composition.document.v1",
+      "type": "smart.admin-menu",
+      "mode": "leaf",
+      "profiles": [
+        "ui-layout"
+      ],
+      "props": [
+        "allow-system-settings",
+        "aria-label",
+        "brand",
+        "collapsible",
+        "compact",
+        "logo",
+        "logo-href",
+        "panel-class",
+        "persistence-mode",
+        "root-class",
+        "search-hint",
+        "search-keys-hint",
+        "search-label",
+        "search-mode",
+        "search-placeholder",
+        "search-shortcut",
+        "search-title",
+        "searchable",
+        "settings",
+        "settings-mode",
+        "settings-revision",
+        "settings-title",
+        "system-settings-revision",
+        "template",
+        "toggle-label"
+      ],
+      "presentation": {
+        "views": [
+          "default"
+        ],
+        "presets": [],
+        "modifiers": []
+      },
+      "slots": {},
+      "renderer": {
+        "kind": "custom-element",
+        "name": "sf-admin-menu"
+      },
+      "assets": [],
+      "data": {},
+      "events": [
+        "sf-admin-menu-intent",
+        "sf-admin-menu-navigate",
+        "sf-admin-menu-compact-change"
+      ],
+      "persistence": {
+        "settings_key_prop": null,
+        "revision_prop": null
+      },
+      "host_port": {
+        "port": "simai.admin-navigation-port",
+        "version": "1.0.0",
+        "path": "src/core/contracts/ports/simai.admin-navigation-port/1.0.0/port.json",
+        "sha256": "467091d6c2e61b9956551cfe532ef9508ef994fa685582edfeb34882aa3c178c",
+        "supported_versions": [
+          "1.0.0"
+        ]
+      }
+    }
+  },
+  "inputs": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "aria-label"
+    ],
+    "properties": {
+      "template": {
+        "type": "string",
+        "const": "default",
+        "default": "default"
+      },
+      "brand": {
+        "type": "string",
+        "default": ""
+      },
+      "logo": {
+        "type": "string",
+        "default": ""
+      },
+      "logo-href": {
+        "type": "string",
+        "default": "#"
+      },
+      "aria-label": {
+        "type": "string",
+        "minLength": 1,
+        "default": "Admin menu"
+      },
+      "searchable": {
+        "type": "boolean",
+        "default": false
+      },
+      "collapsible": {
+        "type": "boolean",
+        "default": false
+      },
+      "settings": {
+        "type": "boolean",
+        "default": true
+      },
+      "settings-title": {
+        "type": "string",
+        "default": "Menu settings"
+      },
+      "compact": {
+        "type": "boolean",
+        "default": false
+      },
+      "persistence-mode": {
+        "type": "string",
+        "enum": [
+          "local",
+          "external"
+        ],
+        "default": "local"
+      },
+      "settings-mode": {
+        "type": "string",
+        "enum": [
+          "user",
+          "system"
+        ],
+        "default": "user"
+      },
+      "settings-revision": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0
+      },
+      "system-settings-revision": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0
+      },
+      "allow-system-settings": {
+        "type": "boolean",
+        "default": false
+      },
+      "search-placeholder": {
+        "type": "string",
+        "default": "Search sections"
+      },
+      "toggle-label": {
+        "type": "string",
+        "default": "Menu"
+      },
+      "panel-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "search-mode": {
+        "type": "string",
+        "enum": [
+          "row",
+          "panel"
+        ],
+        "default": "row",
+        "description": "Where the search lives: a row under the header, or a panel opened from a magnifier in the header."
+      },
+      "search-label": {
+        "type": "string",
+        "default": "Search the admin (Ctrl+K)",
+        "description": "Accessible name and tooltip of the magnifier that opens the search panel."
+      },
+      "search-shortcut": {
+        "type": "string",
+        "default": "mod+k",
+        "description": "The key that opens the search from anywhere on the page; empty turns it off."
+      },
+      "search-hint": {
+        "type": "string",
+        "default": "",
+        "description": "A short line shown under an empty query, when the host has one."
+      },
+      "search-keys-hint": {
+        "type": "string",
+        "default": "↑↓ select · Enter open · Esc close",
+        "description": "The line of key hints at the bottom of the search panel."
+      },
+      "search-title": {
+        "type": "string",
+        "default": "",
+        "description": "Heading shown above the search field in the navigation panel."
+      }
+    }
+  },
+  "item_contract": {
+    "stable_id_attribute": "item-id",
+    "package_owned": [
+      "item-id",
+      "label",
+      "href",
+      "left-icon",
+      "badge",
+      "access"
+    ],
+    "preference_fields": [
+      "order",
+      "hidden",
+      "pinned"
+    ],
+    "supports": [
+      "nested-items",
+      "divider",
+      "main-slot",
+      "bottom-slot",
+      "active",
+      "current",
+      "disabled"
+    ],
+    "notes": [
+      "An sf-admin-menu-item takes its glyph from the left-icon attribute; an icon attribute on the item is not read. right-icon is read into the item data but no template draws it.",
+      "A navigation node from the host (applyExternalSettingsState, simai.admin-navigation-port) carries the glyph as its icon property, which becomes the item's left icon. That is the host's data field, not an alias of the markup attribute."
+    ]
+  },
+  "contracts": {
+    "settings_profile": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "items",
+        "layout"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "items": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "order": {
+                "type": "number"
+              },
+              "hidden": {
+                "type": "boolean"
+              },
+              "pinned": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "layout": {
+          "type": "object",
+          "properties": {
+            "compact": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "methods": {
+    "applyExternalSettingsState": {
+      "summary": "Apply backend-resolved state and tree.",
+      "arguments": [
+        {
+          "name": "state",
+          "schema": {
+            "type": "object"
+          }
+        },
+        {
+          "name": "target",
+          "schema": {
+            "enum": [
+              "user",
+              "system"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "applySettingsResult": {
+      "summary": "Commit a successful external save response.",
+      "arguments": [
+        {
+          "name": "result",
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "applySettingsError": {
+      "summary": "Keep the draft and expose error or conflict state.",
+      "arguments": [
+        {
+          "name": "error",
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "setCompact": {
+      "summary": "Set compact navigation mode.",
+      "arguments": [
+        {
+          "name": "compact",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      }
+    },
+    "toggleMenuSettings": {
+      "summary": "Enter or leave the settings editor.",
+      "arguments": [],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "refresh": {
+      "summary": "Read the navigation menu again from its host, after something outside the menu changed what it shows (a star in the page header). No effect on the items menu.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "A promise that settles when the host has answered."
+      }
+    },
+    "setHostPort": {
+      "summary": "Bind the host of simai.admin-navigation-port; the menu then draws the navigation shell instead of the items menu.",
+      "arguments": [
+        {
+          "name": "host",
+          "type": "object",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
+      }
+    },
+    "setSearchResults": {
+      "summary": "The host answers one search request with its own groups of results. An answer to a query the person has moved on from is dropped.",
+      "arguments": [
+        {
+          "name": "requestId",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "groups",
+          "type": "array",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "Whether the answer was for the current query and was shown."
+      }
+    },
+    "setRecentResults": {
+      "summary": "What the host offers an empty search field: a recent list, standing until it sets another.",
+      "arguments": [
+        {
+          "name": "groups",
+          "type": "array",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "Always true."
+      }
+    }
+  },
+  "events": {
+    "sf-admin-menu-compact-change": {
+      "summary": "Notify the host shell about width mode.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "compact",
+          "source"
+        ],
+        "properties": {
+          "compact": {
+            "type": "boolean"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-search": {
+      "summary": "Runtime event sf-admin-menu-search.",
+      "payload": {
+        "type": "object"
+      }
+    },
+    "sf-admin-menu-settings-cancel": {
+      "summary": "Discard the local draft.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "enum": [
+              "user",
+              "system"
+            ]
+          }
+        }
+      }
+    },
+    "sf-admin-menu-settings-mode-change": {
+      "summary": "Request state for another settings level.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "target"
+        ],
+        "properties": {
+          "target": {
+            "enum": [
+              "user",
+              "system"
+            ]
+          }
+        }
+      }
+    },
+    "sf-admin-menu-settings-refresh": {
+      "summary": "Request fresh backend state after a conflict.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "target",
+          "base_revision",
+          "profile"
+        ],
+        "properties": {
+          "target": {
+            "enum": [
+              "user",
+              "system"
+            ]
+          },
+          "base_revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "profile": {
+            "$ref": "#/contracts/settings_profile"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-settings-reset": {
+      "summary": "Request reset of the selected preference level.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "target",
+          "base_revision"
+        ],
+        "properties": {
+          "target": {
+            "enum": [
+              "user",
+              "system"
+            ]
+          },
+          "base_revision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "sf-admin-menu-settings-save": {
+      "summary": "Request persistence of the current delta.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "target",
+          "base_revision",
+          "profile"
+        ],
+        "properties": {
+          "target": {
+            "enum": [
+              "user",
+              "system"
+            ]
+          },
+          "base_revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "profile": {
+            "$ref": "#/contracts/settings_profile"
+          }
+        }
+      }
+    },
+    "sf-host-port-request": {
+      "summary": "Ask the page for a host port when connecting. A page that answers with simai.admin-navigation-port gets the navigation shell; a page that answers nothing gets the items menu, unchanged.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "component",
+          "context"
+        ],
+        "properties": {
+          "component": {
+            "type": "object"
+          },
+          "context": {
+            "type": "object",
+            "required": [
+              "owner",
+              "record",
+              "group"
+            ],
+            "properties": {
+              "owner": {
+                "type": "string",
+                "const": "admin-menu"
+              },
+              "record": {
+                "type": "null"
+              },
+              "group": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      }
+    },
+    "sf-admin-menu-navigate": {
+      "summary": "The host answered item.open applied: the page belongs to this row now. For a host that navigates in its own router rather than through the address it answered with.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "key",
+          "href"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "href": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "sf-admin-menu-intent": {
+      "summary": "What a person asked of the host, announced for every intent of simai.admin-navigation-port as the menu raises it. The host answers through the port, not through this event.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "intent",
+          "payload"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "intent": {
+            "type": "string",
+            "description": "The port intent, e.g. navigation.load or favourite.add."
+          },
+          "payload": {
+            "type": "object",
+            "description": "The intent's payload as the port declares it."
+          }
+        }
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "settings": [
+        "idle",
+        "saving",
+        "success",
+        "error",
+        "conflict"
+      ],
+      "navigation": [
+        "expanded",
+        "compact",
+        "nested",
+        "searching"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "loading",
+      "empty",
+      "saving",
+      "success",
+      "error",
+      "conflict",
+      "disabled",
+      "open"
+    ]
+  },
+  "persistence": {
+    "mode": "hybrid",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": "base_revision"
+  },
+  "ownership": {
+    "source": "simai/ui-admin",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "access decisions",
+      "route discovery",
+      "domain record semantics",
+      "cross-user identity selection",
+      "HTTP endpoint invention"
+    ]
+  },
+  "backend": {
+    "adapters": [
+      "larena:ui.admin_menu"
+    ],
+    "integration_examples": {
+      "larena_php": "Smart::render('ui.admin_menu', ['props' => $props]);",
+      "event_bridge": "Register the generic Smart event bridge for save, reset, mode-change and refresh events."
+    }
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "Reject unknown item IDs",
+      "Reject package-owned field mutations",
+      "Treat labels, badges and URLs as untrusted render data"
+    ],
+    "network_policy": "host-only"
+  },
+  "accessibility": {
+    "role": "navigation",
+    "accessible_name": "required",
+    "keyboard": [
+      "Tab",
+      "Enter",
+      "Space",
+      "Escape"
+    ],
+    "focus": "Context menus focus their first available native item after rendering. Escape returns to the native opener; Tab/Shift+Tab close and continue from the opener. Outside focus is preserved. If save/cancel removes the opener, abandoned body focus returns to the settings control or another available control in this Admin Menu. Shared portal ownership and stale callbacks are guarded. Popup geometry follows the native opener, including display-contents Smart hosts, LTR/RTL, responsive movement, content, font and viewport changes; --sf-context-menu-viewport-space derives from the spacing scale. Internal scrolling preserves the menu; outside document scrolling dismisses it. Search and nested drill-down layers make inactive panels inert. Opening a nested layer focuses its localized Back control; Back restores the corresponding tree trigger. Compact search focuses the revealed input. Search placement and directional chevrons follow LTR or RTL."
+  },
+  "presentation": {
+    "skeleton": {
+      "shape": "menu",
+      "while_loading": "none"
+    },
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop-expanded",
+      "desktop-compact",
+      "mobile-full-width",
+      "viewport-bounded-context-menu",
+      "nested-columns"
+    ]
+  },
+  "adapter": {
+    "kind": "owner",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "fixture",
+      "runtime-upgrade",
+      "scenario-smoke",
+      "host-settings-bridge"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "1d3f0eb63761e5e94883243e66007bfe38cccd7e",
+      "ui_smart_revision": "4e3e58aa1e6aa20b0434f334ea30e0f1a3c16319"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": [
+      {
+        "from": "1.0.0",
+        "to": "1.1.0",
+        "changes": [
+          "The manifest moves to smart-component-manifest v2: persistence, ownership, security, accessibility and state use the v2 shape, and adapter, artifacts and readiness are declared.",
+          "The conformance scenarios left the manifest (v2 keeps scenarios in artifacts) and are documented in docs/docs.md; studio.fixture.json and studio.scenario.json are the declared artifacts.",
+          "No runtime behaviour changes."
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "source_repository": "simai/ui-source",
+    "source_revision": "300cf1a3f1b8edf0d4cadc6016a82402de39c1f7",
+    "source_artifacts": [
+      {
+        "path": "src/smart/admin-menu/index.js",
+        "sha256": "ea8128cc1ec4b8cabbb957b35e24e90cee7ff92c7f696592e3d56ccc1a2e8f06"
+      },
+      {
+        "path": "src/smart/admin-menu/js/templates/default.js",
+        "sha256": "d150fccc8be46141a687543ab667dc8c3550806750bf4c6597afc756d0c2aa8c"
+      },
+      {
+        "path": "src/smart/admin-menu/js/navigation/navigation.css",
+        "sha256": "95e78985c0ee93945b38e5d9cfdd62166b6769c5bc6fbacd2e48f8b76179398d"
+      },
+      {
+        "path": "src/smart/admin-menu/js/navigation/template.js",
+        "sha256": "3f28e4271286b489c12ca83a3e1614035a20f36bb7f1ce46b4c9a18fbe2db415"
+      },
+      {
+        "path": "src/smart/admin-menu/js/navigation/palette.js",
+        "sha256": "3613d902b3b3e0f2246f5a2c4d7879214642a888886ebc1b9be012f11cc2b960"
+      },
+      {
+        "path": "src/smart/admin-menu/js/navigation/account.js",
+        "sha256": "f002851030eb623cd5a05d501b4f7aad993a3224602834d97cf0142af981daef"
+      },
+      {
+        "path": "src/smart/admin-menu/js/navigation/edit.js",
+        "sha256": "7ecf5fb5b47f429edfa7c5e34711030eb5f21e9b5d8fb7ce4f3a0ebaa4209aaf"
+      },
+      {
+        "path": "src/smart/admin-menu/js/navigation/controller.js",
+        "sha256": "77f6c2d53bb8e93ea1f97a1a083ba323dcafb9ac68cb70911c53430ee9d3fc9d"
+      },
+      {
+        "path": "src/smart/admin-menu/js/navigation/menu.js",
+        "sha256": "2aae43917ea2de31b6837d96e782d31197eb5b74952d349a75480691784d40a2"
+      },
+      {
+        "path": "src/component/admin-menu/scss/_css__admin_menu.scss",
+        "sha256": "b29acf6d8efc048e8c6d68234994dd2c9caeda0c7982b1bf01f419ddccb0347d"
+      }
+    ],
+    "generated_runtime": [
+      {
+        "repository": "simai/ui-smart",
+        "revision": "4e3e58aa1e6aa20b0434f334ea30e0f1a3c16319",
+        "path": "smart/admin-menu/js/admin-menu.js",
+        "sha256": "899b034e81dac2327f4c1386153b064a658a6a209efb9983408b8300d1abeab2"
+      }
+    ]
+  },
+  "ai_guidance": {
+    "use_when": "Use the complete component for product admin navigation with search, nesting, badges, compact mode or editable preferences.",
+    "do_not": [
+      "Do not rebuild the menu from primitive SF tags",
+      "Do not store Larena domain state in localStorage",
+      "Do not let the browser decide access or routes"
+    ],
+    "required_reads": [
+      "inputs",
+      "events",
+      "persistence",
+      "ownership",
+      "backend",
+      "scenarios"
+    ],
+    "minimal_example": "<sf-admin-menu aria-label=\"Admin menu\" searchable collapsible persistence-mode=\"external\"></sf-admin-menu>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-browser-probes.mjs <free output> <package output>"
+    ]
+  }
+}

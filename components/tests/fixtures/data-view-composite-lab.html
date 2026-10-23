@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sf-data-view: два независимых представления</title>
+<!-- Copy this file to the root of a Smart product build, then serve that root. -->
+<script src="smart/data-view/js/data-view.js"></script>
+<sf-data-view id="documents" aria-label="Документы"></sf-data-view>
+<sf-data-view id="requests" aria-label="Заявки"></sf-data-view>
+<script>
+  for (const [id, record] of [['documents', 'Документ'], ['requests', 'Заявка']]) {
+    const view = document.getElementById(id);
+    view.setHostPort({
+      version: '1.1.0',
+      capabilities: ['row-actions', 'saved-views'],
+      raise(intent, payload) {
+        if (intent !== 'query.change') return {answer: 'refused', reason: 'demo-read-only'};
+        return {
+          answer: 'applied', sequence: payload.sequence,
+          data: {
+            columns: [{key: 'name', label: 'Название', min_width: 160, priority: 0, sticky: 'start'}],
+            records: [{id, name: record, revision: 'r1', actions: ['view']}],
+            total: 1,
+            echo: {filters_chosen: {}, filters: {}, filters_rejected: [],
+              search: payload.query.search, sort: [], page: 1, per_page: 25},
+          },
+        };
+      },
+    });
+  }
+</script>
+</html>

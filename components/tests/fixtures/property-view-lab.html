@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ru" class="theme-light" style="font-size: 14px">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sf-property-view — лаборатория</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/ui/distr/core/css/core.css">
+<link rel="stylesheet" href="/ui/distr/core/css/utility.full.css">
+<link rel="stylesheet" href="/ui/distr/component/buttons/css/buttons.css">
+<link rel="stylesheet" href="/ui/distr/component/icon-buttons/css/icon-buttons.css">
+<link rel="stylesheet" href="/ui/distr/component/icons/css/icons.css">
+<link rel="stylesheet" href="/ui/distr/component/inputs/css/inputs.css">
+<link rel="stylesheet" href="/ui/distr/component/textarea/css/textarea.css">
+<link rel="stylesheet" href="/ui/distr/component/dropdown/css/dropdown.css">
+<link rel="stylesheet" href="/ui/distr/component/datepicker/css/datepicker.css">
+<link rel="stylesheet" href="/ui/distr/component/tags/css/tags.css">
+<link rel="stylesheet" href="/ui/distr/component/badges/css/badges.css">
+<link rel="stylesheet" href="/ui/distr/component/avatars/css/avatars.css">
+<link rel="stylesheet" href="/ui/distr/component/tree/css/tree.css">
+<link rel="stylesheet" href="/ui/distr/component/progress-scale/css/progress-scale.css">
+<link rel="stylesheet" href="/ui/distr/component/file-upload/css/file-upload.css">
+<link rel="stylesheet" href="/ui/distr/component/file-preview/css/file-preview.css">
+<link rel="stylesheet" href="/ui/distr/component/progress-bar/css/progress-bar.css">
+<link rel="stylesheet" href="/ui/distr/component/context-menu/css/context-menu.css">
+<link rel="stylesheet" href="/ui/distr/component/tooltip/css/tooltip.css">
+<link rel="stylesheet" href="/ui/distr/component/button-group/css/button-group.css">
+<link rel="stylesheet" href="/ui/distr/component/accordion/css/accordion.css">
+<link rel="stylesheet" href="/ui/distr/component/checkbox/css/checkbox.css">
+<link rel="stylesheet" href="/ui/distr/component/switch/css/switch.css">
+<link rel="stylesheet" href="/ui/distr/component/pagination/css/pagination.css">
+<link rel="stylesheet" href="/smart/table/css/table.css">
+<link rel="stylesheet" href="/smart/drawer/css/drawer.css">
+<link rel="stylesheet" href="/smart/sortable/css/sortable.css">
+<link rel="stylesheet" href="/ui/distr/component/country-code/css/country-code.css">
+<link rel="stylesheet" href="/smart/color/css/color.css">
+<link rel="stylesheet" href="/smart/property-view/css/property-view.css">
+<style>
+  /* The lab page itself, which is not the component: a page behind the panel so
+     the panel can be seen lying over something, and a bar to switch the states the
+     assignment names. Nothing here styles sf-property-view -- if the component
+     needs a rule to look right, that rule belongs in the component. */
+  body { margin: 0; font-family: var(--sf-font-family, system-ui); }
+  .lab-bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; flex-wrap: wrap; gap: var(--sf-space-1);
+    align-items: center;
+    padding: var(--sf-space-2) var(--sf-space-3);
+    background: var(--sf-surface-1); border-block-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+  .lab-bar h1 { font-size: 1rem; margin: 0 var(--sf-space-3) 0 0; }
+  .lab-page { padding: var(--sf-space-4); }
+  .lab-page h2 { margin: 0 0 var(--sf-space-3); }
+  /* The phone width, so the narrow arrangement can be tried without resizing the
+     window: the page is held to 390px and the panel follows it. */
+  body.lab-narrow .lab-page,
+  body.lab-narrow .lab-bar { max-inline-size: 390px; }
+  body.lab-narrow { inline-size: 390px; }
+  .lab-note { color: var(--sf-on-surface-variant); margin: 0 0 var(--sf-space-3); }
+</style>
+</head>
+<body>
+  <div class="lab-bar">
+    <h1>sf-property-view</h1>
+    <sf-button size="1" appearance="outline" data-state="card" text="Карточка записи"></sf-button>
+    <sf-button size="1" appearance="outline" data-state="edit" text="Правка группы"></sf-button>
+    <sf-button size="1" appearance="outline" data-state="related" text="Связанная запись поверх"></sf-button>
+    <sf-button size="1" appearance="outline" data-state="sections" text="Запись с разделами"></sf-button>
+    <sf-button size="1" appearance="outline" data-state="configure" text="Настройка вида"></sf-button>
+    <sf-button size="1" appearance="outline" data-state="configure-sections" text="Настройка с разделами"></sf-button>
+    <sf-button size="1" appearance="outline" data-state="tabs" text="Разделы вкладками"></sf-button>
+    <sf-button size="1" appearance="outline" data-state="conflict" text="Конфликт"></sf-button>
+    <sf-button size="1" appearance="outline" data-state="refused" text="Отказ"></sf-button>
+    <sf-button size="1" appearance="outline" data-state="unavailable" text="Недоступно"></sf-button>
+    <sf-button size="1" appearance="link" data-action="theme" text="Тема"></sf-button>
+    <sf-button size="1" appearance="link" data-action="root-size" text="14px"></sf-button>
+    <sf-button size="1" appearance="link" data-action="lang" text="lang"></sf-button>
+    <sf-button size="1" appearance="link" data-action="narrow" text="390px"></sf-button>
+  </div>
+
+  <!-- The page the panel lies over. It carries a wide table on purpose: the
+       assignment asks that a table behind the panel never reflows into
+       letter-wide columns, and that cannot be seen without one. -->
+  <div class="lab-page">
+    <h2>Каталог решений (демо)</h2>
+    <p class="lab-note">Страница под панелью. Её раскладка не должна меняться, когда панель открыта.</p>
+    <sf-data-view id="behind" chrome="toolbar pagination select settings">
+      <sf-table slot="content" id="behind-table" toolbar="false" aria-label="Каталог решений"></sf-table>
+      <sf-pagination slot="pagination"></sf-pagination>
+    </sf-data-view>
+  </div>
+
+  <script>
+    // Where the runtime lives on this server. Without these the Core loader goes
+    // to the public CDN for every Smart asset and the page shows nothing while it
+    // fails -- which is what a blank lab page meant the first time.
+    window.sfPath = '/ui/distr';
+    // Empty, because the loader appends «smart/» itself: with '/smart' it asked for
+    // /smart/smart/... and every Smart asset came back 404.
+    window.sfSmartPath = '';
+    window.SF_BOOT_CONFIG = {icons: {enabled: true}, preloader: {enabled: false}, smart: {base: true}, theme: false, packages: {larena: {base: '/smart'}}};
+  </script>
+  <script type="module" src="/ui/distr/core/js/core.js"></script>
+  <script type="module" src="/smart/icons/js/icons.js"></script>
+  <script type="module" src="/smart/buttons/js/buttons.js"></script>
+  <script type="module" src="/smart/icon-buttons/js/icon-buttons.js"></script>
+  <script type="module" src="/smart/inputs/js/inputs.js"></script>
+  <script type="module" src="/smart/textarea/js/textarea.js"></script>
+  <script type="module" src="/smart/dropdown/js/dropdown.js"></script>
+  <script type="module" src="/smart/list-item/js/list-item.js"></script>
+  <script type="module" src="/smart/checkbox/js/checkbox.js"></script>
+  <script type="module" src="/smart/switch/js/switch.js"></script>
+  <script type="module" src="/smart/button-group/js/button-group.js"></script>
+  <script type="module" src="/smart/datepicker/js/datepicker.js"></script>
+  <script type="module" src="/smart/tags/js/tags.js"></script>
+  <script type="module" src="/smart/badges/js/badges.js"></script>
+  <script type="module" src="/smart/avatar/js/avatar.js"></script>
+  <script type="module" src="/smart/avatars/js/avatars.js"></script>
+  <script type="module" src="/smart/reference-link/js/reference-link.js"></script>
+  <script type="module" src="/smart/progress-scale/js/progress-scale.js"></script>
+  <script type="module" src="/smart/progress-bar/js/progress-bar.js"></script>
+  <script type="module" src="/smart/file-upload/js/file-upload.js"></script>
+  <script type="module" src="/smart/file-preview/js/file-preview.js"></script>
+  <script type="module" src="/smart/tree/js/tree.js"></script>
+  <script type="module" src="/smart/tree-item/js/tree-item.js"></script>
+  <script type="module" src="/smart/tooltip/js/tooltip.js"></script>
+  <script type="module" src="/smart/context-menu/js/context-menu.js"></script>
+  <script type="module" src="/smart/tabs/js/tabs.js"></script>
+  <script type="module" src="/smart/spinner/js/spinner.js"></script>
+  <script type="module" src="/smart/pagination/js/pagination.js"></script>
+  <script type="module" src="/ui/distr/component/accordion/js/accordion.js"></script>
+<script type="module" src="/smart/table/js/table.js"></script>
+  <script type="module" src="/smart/data-view/js/data-view.js"></script>
+  <script type="module" src="/smart/sortable/js/sortable.js"></script>
+  <script type="module" src="/smart/field-renderers/js/field-renderers.js"></script>
+  <script type="module" src="/smart/drawer/js/drawer.js"></script>
+  <script type="module" src="/smart/country-code/js/country-code.js"></script>
+  <script type="module" src="/smart/color/js/color.js"></script>
+  <script type="module" src="/smart/property-view/js/property-view.js"></script>
+  <script type="module">
+    // Last, and after the elements are defined. A module script runs in document
+    // order, so this one placed above the component imports ran first and called
+    // setHostPort on an element that was still an unknown tag.
+    await Promise.all(['sf-property-view', 'sf-data-view', 'sf-table', 'sf-button', 'sf-color', 'sf-country-code']
+      .map((tag) => customElements.whenDefined(tag)));
+
+    // A lab reads its fixtures as they are on disk now, not as the browser
+    // remembers them: an edited fixture that still showed the old record cost
+    // a quarter of an hour of looking at the wrong page.
+    const load = async (path) => (await fetch(path, {cache: 'no-store'})).json();
+    const base = '/ui-source/tests/fixtures/property-view-assignment';
+    const [solution, section, relatedList, fieldOptions] = await Promise.all([
+      load(`${base}/record-load-solution.json`),
+      load(`${base}/record-load-section.json`),
+      load(`${base}/related-list-query.json`),
+      load(`${base}/field-options-section.json`),
+    ]);
+    // The assignment's list fixture nests a row's cell values under `values`.
+    // The data view's port declares a record as id, revision, actions and its
+    // values beside them -- `additionalProperties: true` -- so every cell in the
+    // embedded list and in the page's own table rendered empty. The stand reads
+    // the fixture as a host that answered correctly would; whether the port
+    // should also accept `values` is a question for the owner and Larena, not
+    // something to decide here.
+    for (const record of relatedList?.data?.records ?? []) {
+      if (!record.values) continue;
+      Object.assign(record, record.values);
+      delete record.values;
+    }
+
+    // A record with several sections, so the section list can be tried. The
+    // stand's own answers carry one section each, and one section draws no list.
+    const manySections = await load(`${base}/record-load-many-sections.json`);
+    const copy = (value) => JSON.parse(JSON.stringify(value));
+
+    // The page behind, on the same answer the related list uses, so the table the
+    // panel lies over is a real one with real columns.
+    document.getElementById('behind').setHostPort({
+      version: '1.6.0', capabilities: ['row-actions'],
+      async raise(intent, payload) {
+        if (intent !== 'query.change') return {answer: 'applied'};
+        return {...copy(relatedList), sequence: payload.sequence};
+      },
+    });
+
+    // One host, answering from the fixtures. A failure state is the same answer
+    // with the answer word changed, which is what a host does.
+    // Three named views, so the chooser is a choice. Their ids are permanent and
+    // their labels are not: renaming one changes the label alone.
+    const PROFILES = [
+      {id: 'default', label: 'Обычный', shared: true},
+      {id: 'expert', label: 'Экспертный', shared: true},
+      {id: 'mine', label: 'Персональный', shared: false},
+    ];
+
+    const makeHost = (record, {answer = 'applied'} = {}) => ({
+      version: '1.7.0',
+      capabilities: ['field-options', 'field-upload', 'view-settings'],
+      async raise(intent, payload) {
+        if (intent === 'record.load') {
+          // The list of views is the host's, so every read carries the one it
+          // is keeping rather than whatever the fixture was written with.
+          if (record?.record?.view) record.record.view.profiles = copy(PROFILES);
+          if (answer === 'unavailable') return {answer: 'unavailable', reason: 'host-down', message: 'Хост недоступен'};
+          return copy(record);
+        }
+        if (intent === 'field.options') return copy(fieldOptions);
+        if (intent === 'group.save') {
+          if (answer === 'conflict') return {answer: 'conflict', message: 'Запись изменилась, обновите её'};
+          if (answer === 'refused') {
+            return {answer: 'refused', errors: {title: 'Название не может быть пустым', code: 'Такой код уже занят'}};
+          }
+          return copy(record);
+        }
+        // Keeping the list, the way a host keeps it: ids are the host's and
+      // permanent, the last shared view is refused, and every answer carries
+      // the record through whichever view is current afterwards.
+      if (intent === 'view.create') {
+          if (payload.shared && !PROFILES.some((p) => p.shared)) return {answer: 'refused', reason: 'access-denied'};
+          const id = `view-${PROFILES.length + 1}`;
+          PROFILES.push({id, label: payload.label, shared: Boolean(payload.shared)});
+          const next = copy(record);
+          next.record.view = {...(next.record.view ?? {}), profiles: copy(PROFILES), profile: id};
+          return next;
+      }
+      if (intent === 'view.rename') {
+          const found = PROFILES.find((p) => p.id === payload.profile);
+          if (!found) return {answer: 'refused', reason: 'unknown-view'};
+          found.label = payload.label;
+          const next = copy(record);
+          next.record.view = {...(next.record.view ?? {}), profiles: copy(PROFILES)};
+          return next;
+      }
+      if (intent === 'view.delete') {
+          const found = PROFILES.find((p) => p.id === payload.profile);
+          if (!found) return {answer: 'refused', reason: 'unknown-view'};
+          if (found.shared && PROFILES.filter((p) => p.shared).length < 2) {
+              return {answer: 'refused', reason: 'last-shared-view', message: 'Это единственный общий вид'};
+          }
+          PROFILES.splice(PROFILES.indexOf(found), 1);
+          const next = copy(record);
+          next.record.view = {...(next.record.view ?? {}), profiles: copy(PROFILES), profile: PROFILES[0]?.id ?? null};
+          return next;
+      }
+      if (intent === 'view.profile') {
+          if (payload.profile === 'forbidden') return {answer: 'refused', reason: 'access-denied', message: 'Этот вид вам не открыт'};
+          const next = copy(record);
+          next.record.view = {...(next.record.view ?? {}), profile: payload.profile};
+          return next;
+      }
+      if (intent === 'view.save') return {answer: 'applied', revision: 'v' + Date.now()};
+        if (intent === 'view.reset') {
+          return {answer: 'applied', revision: 'v0', view: {schema_version: 1, sections: {}, groups: {}, fields: {}}};
+        }
+        // Deleting is the host's, confirmation included. The stand asks and does
+        // nothing else, so pressing it on the stand costs nothing.
+        if (intent === 'record.delete') {
+          const sure = window.confirm(`Удалить «${payload.record_id}»? Стенд ничего не удаляет.`);
+          return sure
+            ? {answer: 'refused', message: 'Стенд ничего не удаляет: хост решает сам'}
+            : {answer: 'refused', message: 'Удаление отменено'};
+        }
+        if (intent === 'record.open') {
+          // The related record opens as a second panel over the first, which is
+          // what the prototype does and what the stack is for.
+          openPanel(section, {label: 'Платежи и биллинг', collection: 'Разделы каталога', icon: 'table_view'});
+          return {answer: 'applied'};
+        }
+        return {answer: 'unavailable', reason: 'unknown-intent'};
+      },
+    });
+
+    // A nested list answers through the request the component raises, not through
+    // anything this page reaches into.
+    document.addEventListener('sf-host-port-request', (event) => {
+      if (event.detail?.context?.owner !== 'property-view') return;
+      event.target.setHostPort({
+        version: '1.6.0', capabilities: ['row-actions'],
+        async raise(intent, payload) {
+          if (intent !== 'query.change') return {answer: 'applied'};
+          return {...copy(relatedList), sequence: payload.sequence};
+        },
+      });
+    });
+
+    const panels = [];
+    const openPanel = (record, {label, collection, icon, answer = 'applied', favourite = false} = {}) => {
+      const panel = document.createElement('sf-property-view');
+      panel.setAttribute('panel', '');
+      panel.setAttribute('panel-width', '40rem');
+      panel.setAttribute('record-id', record.record?.record_id ?? 'record');
+      panel.setAttribute('collection', record.record?.collection ?? '');
+      // What a host tells the panel that port 1.7.0 does not carry.
+      panel.setAttribute('collection-label', collection ?? 'Каталог решений');
+      panel.setAttribute('collection-icon', icon ?? 'inventory_2');
+      panel.setAttribute('panel-label', label ?? 'SIMAI: Платежи №178');
+      if (favourite) panel.setAttribute('favourite', '');
+      document.body.append(panel);
+      panel.setHostPort(makeHost(record, {answer}));
+      panel.addEventListener('sf-property-view-close', () => {
+        panel.remove();
+        panels.splice(panels.indexOf(panel), 1);
+      });
+      panel.addEventListener('sf-property-view-favourite', (event) => {
+        panel.toggleAttribute('favourite', event.detail.favourite);
+      });
+      panels.push(panel);
+      window.labPanel = panel;
+      return panel;
+    };
+
+    const clear = () => {
+      while (panels.length) panels.pop().remove();
+    };
+
+    const settle = (ms = 500) => new Promise((done) => setTimeout(done, ms));
+    // Wait for the record rather than for a number of milliseconds: a fixed delay
+    // called editGroup with undefined keys when the answer was a moment late, and
+    // the state simply did not change.
+    const loaded = async (panel) => {
+      for (let tries = 0; tries < 60; tries += 1) {
+        if (panel.sections?.length) return panel.sections[0];
+        await settle(50);
+      }
+      return null;
+    };
+    const firstGroup = async (panel) => {
+      const section = await loaded(panel);
+      return {section, group: section?.groups?.[0] ?? null};
+    };
+
+    const states = {
+      async card() {
+        clear();
+        openPanel(solution, {favourite: true});
+      },
+      async edit() {
+        clear();
+        const panel = openPanel(solution, {favourite: true});
+        const {section, group} = await firstGroup(panel);
+        if (group) panel.editGroup(String(section.key), String(group.key));
+      },
+      async related() {
+        clear();
+        const first = openPanel(solution, {favourite: true});
+        await loaded(first);
+        openPanel(section, {label: 'Платежи и биллинг', collection: 'Разделы каталога', icon: 'table_view'});
+      },
+      async sections() {
+        clear();
+        openPanel(manySections, {label: 'Настройки сайта', collection: 'Настройки', icon: 'tune'});
+      },
+      async configure() {
+        clear();
+        const panel = openPanel(solution, {favourite: true});
+        await loaded(panel);
+        panel.startConfiguringView();
+      },
+      // Arranging a record that has a section list: this is the only state where a
+      // field can be dragged onto a section, and the one-section record cannot
+      // show it because a list of one is not drawn.
+      // The same record with its sections read as a row of tabs instead of a list
+      // beside the fields.
+      async tabs() {
+        clear();
+        const panel = openPanel(manySections, {label: 'Настройки сайта', collection: 'Настройки', icon: 'tune'});
+        panel.setAttribute('sections-as', 'tabs');
+        await loaded(panel);
+      },
+      async configureSections() {
+        clear();
+        const panel = openPanel(manySections, {label: 'Настройки сайта', collection: 'Настройки', icon: 'tune'});
+        await loaded(panel);
+        panel.startConfiguringView();
+      },
+      async conflict() {
+        clear();
+        const panel = openPanel(solution, {answer: 'conflict', favourite: true});
+        const {section, group} = await firstGroup(panel);
+        if (!group) return;
+        panel.editGroup(String(section.key), String(group.key));
+        await settle(200);
+        // A save with nothing changed sends nothing, so the state needs a change
+        // to carry: this is what a person would have typed.
+        panel.changeField(group.fields[0], 'Изменено на стенде');
+        await settle(100);
+        panel.saveGroup();
+      },
+      async refused() {
+        clear();
+        const panel = openPanel(solution, {answer: 'refused', favourite: true});
+        const {section, group} = await firstGroup(panel);
+        if (!group) return;
+        panel.editGroup(String(section.key), String(group.key));
+        await settle(200);
+        // A save with nothing changed sends nothing, so the state needs a change
+        // to carry: this is what a person would have typed.
+        panel.changeField(group.fields[0], 'Изменено на стенде');
+        await settle(100);
+        panel.saveGroup();
+      },
+      async unavailable() {
+        clear();
+        openPanel(solution, {answer: 'unavailable'});
+      },
+    };
+
+    document.querySelectorAll('[data-state]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        document.querySelectorAll('[data-state]').forEach((other) => other.removeAttribute('appearance'));
+        button.setAttribute('appearance', 'filled');
+        const state = button.getAttribute('data-state');
+        window.labState = state;
+        document.documentElement.dataset.labState = state;
+        // The attribute is kebab-case and the state is a method name.
+        const name = state.replace(/-([a-z])/gu, (_, letter) => letter.toUpperCase());
+        await states[name]();
+      });
+    });
+    // Larena sets 14px on the root. The stand opens there and this switches to the
+    // browser's own 16, because a panel judged at the wrong root size is a panel
+    // nobody is looking at.
+    document.querySelector('[data-action="root-size"]').addEventListener('click', (event) => {
+      const root = document.documentElement;
+      const at14 = root.style.fontSize === '14px';
+      root.style.fontSize = at14 ? '16px' : '14px';
+      event.target.setAttribute('text', at14 ? '16px' : '14px');
+    });
+    document.querySelector('[data-action="theme"]').addEventListener('click', () => {
+      const root = document.documentElement;
+      root.classList.toggle('theme-dark');
+      root.classList.toggle('theme-light');
+    });
+    document.querySelector('[data-action="lang"]').addEventListener('click', () => {
+      document.documentElement.lang = document.documentElement.lang === 'ru' ? 'en' : 'ru';
+    });
+    document.querySelector('[data-action="narrow"]')?.addEventListener('click', () => {
+      document.body.classList.toggle('lab-narrow');
+    });
+
+    await states.card();
+    document.documentElement.dataset.labReady = 'true';
+  </script>
+</body>
+</html>

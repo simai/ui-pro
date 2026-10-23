@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru" class="theme-light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Larena components — admin menu flyout</title>
+  <script>
+    const view = new URLSearchParams(location.search);
+    const assets = view.get('assets');
+    document.documentElement.dir = view.get('dir') === 'rtl' ? 'rtl' : 'ltr';
+    for (const href of [`${assets}/core/css/core.css`, `${assets}/core/css/utility.full.css`]) document.write(`<link rel="stylesheet" href="${href}">`);
+    window.sfPath = assets;
+    window.sfSmartPath = view.get('smart');
+    window.SF_BOOT_CONFIG = {icons: {enabled: false}, preloader: {enabled: false}, smart: {base: true}, theme: false, packages: {larena: {base: `${view.get('smart')}/smart`}}};
+  </script>
+  <style>
+    body { margin: 0; background: var(--sf-surface-1, Canvas); color: var(--sf-on-surface, CanvasText); min-block-size: 200vb; }
+    #stage { position: fixed; inset-inline: 0; padding: 0 var(--sf-space-1, 1rem); display: flex; gap: 1rem; align-items: flex-start; }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <div id="admin"><button id="admin-opener" type="button" aria-label="Действия">⋮</button></div>
+  </div>
+  <div hidden id="admin-host"><sf-admin-menu
+  aria-label="Разделы администрирования"
+  brand="SIMAI"
+  persistence-mode="external"
+  searchable
+  collapsible>
+  <sf-admin-menu-item item-id="dashboard" label="Обзор" href="#dashboard" icon-start="dashboard" current>
+  </sf-admin-menu-item>
+  <sf-admin-menu-item item-id="content" label="Контент" icon-start="description">
+    <sf-admin-menu-item item-id="content.pages" label="Страницы">
+      <sf-admin-menu-item item-id="content.pages.catalog" label="Каталог">
+        <sf-admin-menu-item item-id="content.pages.catalog.products" label="Товары" href="#products" badge="12">
+        </sf-admin-menu-item>
+      </sf-admin-menu-item>
+    </sf-admin-menu-item>
+    <sf-admin-menu-item item-id="content.media" label="Медиафайлы" href="#media">
+    </sf-admin-menu-item>
+  </sf-admin-menu-item>
+  <sf-admin-menu-item item-id="settings" label="Настройки" href="#settings" icon-start="settings" slot="bottom">
+  </sf-admin-menu-item>
+</sf-admin-menu>
+</div>
+  <script>
+    const core = document.createElement('script');
+    core.src = `${assets}/core/js/core.js`;
+    core.onload = async () => {
+      await customElements.whenDefined('sf-admin-menu');
+      document.getElementById('admin-host').hidden = false;
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      document.documentElement.dataset.ready = 'true';
+    };
+    document.body.append(core);
+  </script>
+</body>
+</html>

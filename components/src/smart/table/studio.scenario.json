@@ -1,0 +1,30 @@
+{
+  "schema": "simai.smart-component-scenario.v1",
+  "id": "smoke",
+  "component": "smart.data-view",
+  "fixture": "reference",
+  "viewport": "desktop",
+  "actions": [
+    {
+      "type": "invoke",
+      "method": "setDataState",
+      "arguments": [
+        "empty"
+      ]
+    }
+  ],
+  "assertions": [
+    {
+      "type": "upgraded"
+    },
+    {
+      "type": "visible"
+    },
+    {
+      "type": "no-console-error"
+    },
+    {
+      "type": "no-network"
+    }
+  ]
+}

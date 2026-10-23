@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru" class="theme-light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Smart Table — standalone Loader</title>
+  <link rel="stylesheet" href="../../source/output/action-focus-browser/core/css/core.css">
+  <link rel="stylesheet" href="../../source/output/action-focus-browser/core/css/utility.full.css">
+  <script>
+    window.sfPath = '../../source/output/action-focus-browser';
+    window.sfSmartPath = '../../source/output/action-focus-browser';
+    window.SF_BOOT_CONFIG = {
+      icons: {
+        enabled: true,
+        subsetHost: '/ui-source/tests/fixtures/icon-subset-service'
+      },
+      preloader: {enabled: false},
+      smart: {base: true},
+      packages: {larena: {base: '../../source/output/action-focus-browser/smart'}},
+      theme: false
+    };
+  </script>
+</head>
+<body class="p-4">
+  <main class="min-w-0">
+    <sf-table aria-label="Сотрудники" table-settings-key="demo.employees"></sf-table>
+    <sf-table aria-label="Проекты" table-settings-key="demo.projects" settings="false" actions="false"></sf-table>
+  </main>
+  <script src="../../source/output/action-focus-browser/core/js/core.js"></script>
+</body>
+</html>

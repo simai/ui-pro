@@ -1,0 +1,958 @@
+@layer sf.components {
+  /* The composite renders into its own light DOM, so these rules reach the field
+     controls and the Framework's component stylesheets reach them too. The first
+     version used a shadow root and every Smart child inside it came out with its
+     markup and none of its CSS -- sf-data-view avoids that by slotting its
+     children and says so beside the slot. */
+  sf-property-view {
+    display: block;
+  }
+
+  /* A stack of windows. Each depth is inset a little further so the one below
+     stays partly visible, which is what makes it a stack rather than a
+     replacement: a person can see they are two records deep. Only the top window
+     is interactive -- a dimmed window that still answered clicks would be a
+     window that looks disabled and is not. */
+  .sf-property-view-panel[data-stacked="true"] {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .sf-property-view-panel[data-stacked="true"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--sf-surface-0);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* sf-drawer portals its content out of the element, so an open panel is no
+     longer a descendant of sf-property-view. These rules are scoped to the panel
+     itself rather than to the element: written under `sf-property-view` they
+     matched nothing at all -- the shadow-root mistake one layer further out, and
+     it would have shipped as a panel with no styles.
+
+     The panel's own column: the controls above, the body below, and the body
+     scrolling rather than the controls scrolling away from the person using them. */
+  /* The panel is the tinted surface the cards sit on. White cards on a white panel
+     have only their outline to tell them apart, which at a glance is no boundary at
+     all -- the state the owner saw. */
+  .sf-property-view-panel {
+    /* The three rows meet: a gap between them left a band of panel above the
+       first card and below the last, which read as an extra margin nobody had
+       asked for (owner, 2026-10-08). What spaces the cards is their own. */
+    gap: 0;
+    /* It grows with its content and the drawer's body scrolls it. Pinned to the
+       body's height it made its own scroller, and that scroller's bar sat inside
+       the panel's gutter. */
+    min-block-size: 100%;
+    /* The drawer paints the surface, through its own `panel-style`, so the whole
+       panel is one colour -- head, gutters and body. Painting it here instead
+       left a tinted block inside a white one, which is what the owner saw.
+       No padding of its own: the inline gutter is the drawer's, and two insets
+       stacked is what produced three axes in a consumer's panel. */
+    padding: 0;
+  }
+
+  /* The panel is laid out the way a page is: a head across the top, a foot
+     across the bottom, and what is between them scrolling under both. The two
+     bands were sticky inside the panel's own scroller before, which holds a
+     band only while its containing block is on screen -- so a record scrolled
+     far enough took its own head and foot with it. They are rows of a column
+     that does not scroll now, and nothing can carry them off. */
+  .sf-property-view-panel {
+    /* Grown to fill what the host gives it, not sized at a percentage of it: a
+       percentage resolves against the host's height, and a host sized by its
+       own content has none to resolve against -- the panel then takes the
+       height of the record, and the foot stops wherever the record stops
+       instead of standing at the bottom. Growing works either way, because a
+       host with height hands it over and a host without one has nothing to
+       hand. */
+    flex: 1 1 auto;
+    min-block-size: 0;
+    /* The panel takes the host's block padding back here, as one negative
+       margin, rather than letting the head and the bar each reach past it with
+       one of their own. Reaching past is overflow, and the drawer's own panel
+       is a scroller: the bands fitted into its padding by a pixel, so anything
+       that grew by one more made the whole panel scroll -- head, record and
+       foot together, which is the foot «travelling» the owner reported. Inside
+       the panel's own box there is nothing to scroll. */
+    margin-block: calc(-1 * var(--sf-property-view--panel-axis));
+    /* Not clipped: a popover opened at the panel's edge belongs outside it. */
+    overflow: visible;
+  }
+
+  /* The one scroller of the panel, and the only thing reserving room for a
+     scrollbar. Reserved on both edges: reserved on the end alone, the cards sat
+     a scrollbar's width further from the right edge of the panel than from the
+     left, which is the difference the owner measured. */
+  .sf-property-view-scroll {
+    overflow: hidden auto;
+    scrollbar-gutter: stable both-edges;
+    /* A wheel or a trackpad that reaches the end of this column keeps its
+       gesture, and the browser hands what is left to whatever is outside --
+       which here is the drawer, and the drawer moves the head and the foot with
+       it. That is the panel «flying off» after one more scroll at the bottom.
+       Contained, the gesture stops where the column stops. */
+    overscroll-behavior: contain;
+    /* The step above the first card and below the last one belongs inside the
+       scroller, not between it and the head: on the outside it is room nobody
+       scrolls through, it holds the cards away from the head for ever, and the
+       head has nothing to cover when the record moves. Inside, the record
+       starts a step down, travels under the head from there, and the step is
+       gone the moment it does (owner, 2026-10-08). */
+    padding-block: var(--sf-space-1);
+  }
+
+  /* With a rail of tabs what is between the bands is two columns, each with its
+     own scrollbar: a long list of sections scrolls without moving the record,
+     and a long record scrolls without moving the list. */
+  .sf-property-view-panel--railed .sf-property-view-scroll {
+    /* Not a utility: the area is a scroller in the plain panel, and a utility
+       in the markup cannot beat the component rule that makes it one -- the
+       layers put components above utilities. A rule answered by another rule
+       stays a rule. */
+    overflow: hidden;
+    align-items: stretch;
+    /* The same step the panel keeps at its edges, so the tabs, the record and
+       the panel's sides are one rhythm rather than three. */
+    gap: var(--sf-drawer-gutter, var(--sf-space-1));
+    scrollbar-gutter: auto;
+  }
+
+  /* Each column carries its own step, and the box that holds them both carries
+     none: with a rail the outer box does not scroll, so a step on it would be
+     the fixed gap again -- the one the owner measured as the panel wasting a
+     row of space under the head. The columns do scroll, so the step goes in
+     there, where it moves with what it spaces. */
+  .sf-property-view-panel--railed .sf-property-view-scroll {
+    padding-block: 0;
+  }
+
+  .sf-property-view-panel--railed .sf-property-view-sections,
+  .sf-property-view-panel--railed .sf-property-view-frame {
+    overflow: hidden auto;
+    min-block-size: 0;
+    padding-block: var(--sf-space-1);
+    /* Each column keeps its own gesture, for the reason the plain scroller
+       does: past the end of a column the rest of a scroll is the drawer's, and
+       the drawer carries the bands. */
+    overscroll-behavior: contain;
+  }
+
+  /* The space left of the tabs, between them and the record, and right of the
+     record is one step (owner, 2026-10-08): the record's end is the drawer's own
+     inline padding, the same step as the gap. It used to be reached by pulling
+     the column into that padding with a negative margin, but the scroller that
+     holds both columns clips at its own box, so the last pixels of every card
+     were cut -- the card «Фон» lost its right border and «Добавить область» ran
+     to the edge while the view was arranged (Larena, 2026-10-18). Room for the
+     column's scrollbar, so a row's last control does not sit under it, is
+     reserved only where the scrollbar takes room. */
+  .sf-property-view-panel--railed .sf-property-view-frame {
+    padding-inline-end: 0;
+    scrollbar-gutter: stable;
+  }
+
+  .sf-property-view-panel--railed .sf-property-view-sections {
+    position: static;
+    align-self: stretch;
+  }
+
+
+  /* The body takes the height that is left. It used to scroll itself, which put a
+     scrollbar inside the panel's own gutter: the cards ended fourteen pixels
+     short of the right edge while the head reached it, so the panel had two
+     different margins. The drawer's body scrolls instead, with its bar sticky
+     against it and the section list sticking at the top. */
+  .sf-property-view-panel > .sf-property-view-layout {
+    flex: 1 1 auto;
+    min-block-size: 0;
+  }
+
+  /* Two columns by the width of the panel, not of the window. A media query asks
+     the viewport, and a panel is narrow inside a wide one: a consumer saw one
+     column at a 1296px viewport because the panel itself was far narrower. */
+  .sf-property-view-layout {
+    container-type: inline-size;
+    container-name: sf-property-view;
+  }
+
+  /* What the body draws is scoped to the element elsewhere in this file, and in a
+     portalled panel that scope is gone. These repeat for the panel, so a card is
+     a card in both places. */
+
+
+
+
+
+  .sf-property-view-status[hidden] {
+    display: none;
+  }
+
+  /* The drawer's body is the scroller, not this. A scroller of its own put a
+     scrollbar inside the panel's own gutter, so the cards ended fourteen pixels
+     short of the right edge while the head reached it -- two different margins
+     on the two sides of the same panel. The section list sticks instead, which
+     is what the inner scroller was for. */
+  /* The column the section list takes. It is a token because the panel's own
+     width is computed from it: the window is the fields' width plus this
+     column, so the two numbers must be one number. It is declared on the root
+     because the drawer's panel is positioned outside this component's own
+     subtree -- read from the element, the calc resolved to nothing and the
+     panel silently fell back to a ladder step 336px wide. */
+  /* The component's own two tokens, declared on the element and on the panel it
+     opens -- never on the page. A composite styles its own subtree, and the
+     panel is portalled out of that subtree, so the panel is told them through
+     the drawer's `panel-style` rather than through `:root`, which would be this
+     component writing on the document. */
+  /* The inset the panel's own bands take back, computed from the drawer's own
+     tokens. The width of the section column is not declared here: the component
+     owns that number, because the panel's width is computed from it outside
+     this subtree, and passes it in. */
+  sf-property-view,
+  .sf-property-view-panel {
+    /* What the drawer's body keeps around its content, which the head and the
+       bar of actions take back: a band that holds an edge has to reach it. The
+       panel reserves no scrollbar room of its own any more -- it scrolls
+       nothing, the area between the bands does -- so the gutter is the whole of
+       the inset. */
+    --sf-property-view--panel-bleed: var(--sf-drawer-gutter, var(--sf-space-1));
+    /* Where the content inside the scroller actually starts: the gutter plus the
+       room that scroller keeps for its bar on both edges. The two bands reach
+       the panel's edges and set their text on this, so the record's name and the
+       cards under it stand on one axis. */
+    --sf-property-view--panel-axis: calc(
+      var(--sf-property-view--panel-bleed) + var(--sf-scroll-bg-width, 0px)
+    );
+  }
+
+  .sf-property-view-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sf-space-4);
+  }
+
+  /* A rail of tabs and nothing else: the record's name and the band of the
+     arranging mode stand over the fields, not over this.
+
+     It is a surface of its own, a step from the panel's, and it runs to the
+     panel's edge: the inline gutter is the drawer's padding, so the rail takes
+     it back with a margin and gives it to its own rows. A rail inset from the
+     edge read as a floating block of buttons rather than as the side of the
+     panel.
+
+     The tabs are one pixel apart (owner, 2026-10-07): a tinted rail already
+     separates them, and a space between each pair made a column of eleven
+     sections twice as tall as the names in it. */
+  .sf-property-view-sections {
+    position: sticky;
+    inset-block-start: 0;
+    gap: var(--sf-px);
+    /* The rail keeps the panel's own inline step rather than taking it back: at
+       the edge the handles and the painted tab were cut by the panel's corner
+       (owner, 2026-10-08). */
+    padding-inline: var(--sf-space-1\/4);
+    /* Nothing is painted under the tabs (owner, 2026-10-07): a tinted column
+       running past the last one drew a block the size of the record rather than
+       the size of the list in it. What a tab is, it says by itself. */
+    /* Reading, the tabs are a tree, and these are its own tokens: the rail sets
+       what it wants rather than reaching into the component's rules. */
+    --sf-tree--padding-inline-start: 0;
+    --sf-tree--padding-inline-end: 0;
+    --sf-tree--padding-top: 0;
+    --sf-tree--padding-bottom: 0;
+    --sf-tree--gap: var(--sf-px);
+    --sf-tree-item--padding-inline: var(--sf-space-1\/3);
+  }
+
+  .sf-property-view-section-tabs {
+    gap: var(--sf-px);
+  }
+
+  /* A tab is a row of its own while the view is arranged: a handle, what it is,
+     and its name. It keeps the shape of the tree row it replaces, so the column
+     does not change size on the way into the mode. */
+  .sf-property-view-section-tab {
+    inline-size: 100%;
+    padding-block: var(--sf-space-1\/3);
+    /* The handle stands inside the row rather than on its edge: pressed against
+       the painted edge of a selected tab it read as part of the paint. */
+    padding-inline: var(--sf-space-1\/4);
+    border: 0;
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    transition: background-color var(--sf-duration-fast) var(--sf-animation);
+  }
+
+  .sf-property-view-section-tab:hover {
+    background-color: var(--sf-surface-transparent-hover);
+  }
+
+  .sf-property-view-section-tab[aria-current='true'] {
+    background-color: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
+  }
+
+  .sf-property-view-section-tab-label {
+    overflow-wrap: anywhere;
+  }
+
+  .sf-property-view-section-grip {
+    cursor: grab;
+  }
+
+  /* The list is a column of its own width and gives the rest to the fields. It
+     had `min-inline-size: var(--sf-g0)`, and so did the body -- `--sf-g0` is a
+     grid step of 20rem, not zero, so the two floors came to 42rem inside a 40rem
+     panel and a sectioned record was clipped at the drawer's edge. Both floors
+     are gone; the list keeps a width of its own and a long name wraps in it. */
+  .sf-property-view-sections {
+    flex: 0 0 var(--sf-property-view--sections-width);
+  }
+
+
+
+  /* A group is a card, which is what makes a form of twenty fields readable as
+     five things rather than twenty. */
+
+
+
+  /* A card is white on the panel's tinted surface, so a group reads as a card
+     rather than as a band of the same colour. Its padding is one step, not two:
+     at space-4 the card was mostly air and a person scrolled past three fields
+     where six fit. */
+  .sf-property-view-group {
+    /* A group decides its own columns. Asking the panel instead kept two columns
+       in a 319px card inside a 575px panel -- which is what a section list beside
+       the fields leaves -- and every label sat on top of its neighbour's value. */
+    container-type: inline-size;
+    container-name: sf-property-view-group;
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius--surface);
+    padding: var(--sf-space-2);
+  }
+
+  /* The head carries the group's name and the way into editing it, with a line
+     under it: the mockup draws one, and without it the title floated among the
+     fields at the same size as their labels. */
+  .sf-property-view-group-header {
+    padding-block-end: var(--sf-space-1);
+    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  /* The title takes the free space so it starts where the fields under it start.
+     Left to `space-between` with a grip before it and an eye after it, a group
+     title stood in the middle of its own header. */
+  .sf-property-view-group-title {
+    margin: 0;
+    /* `--sf-title-small` does not exist in this Framework, so this fell back to
+       `inherit` and a group title was the same sixteen regular pixels as the field
+       labels under it -- the flat look the owner called slapdash. The roles that
+       do exist are display, heading, label and text. */
+    font-size: var(--sf-property-view--group-size, var(--sf-heading-6--size));
+    line-height: var(--sf-property-view--group-height, var(--sf-heading-6--height));
+    font-weight: 600;
+  }
+
+  /* A label is smaller and quieter than its value. They were the same size, so a
+     field had no hierarchy at all and a card read as a list of equal lines. */
+  .sf-property-view-field-label {
+    font-size: var(--sf-property-view--label-size, var(--sf-label-large--size));
+    line-height: var(--sf-property-view--label-height, var(--sf-label-large--height));
+  }
+
+  .sf-property-view-field-value {
+    font-size: var(--sf-property-view--value-size, var(--sf-text-medium--size));
+    line-height: var(--sf-property-view--value-height, var(--sf-text-medium--height));
+    color: var(--sf-on-surface);
+  }
+
+  .sf-property-view-group-fields {
+    display: grid;
+    gap: var(--sf-space-3) var(--sf-space-4);
+    grid-template-columns: 1fr;
+  }
+
+  .sf-property-view-group[data-columns="2"] .sf-property-view-group-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* After the two-column rule, not before it. A container query adds no
+     specificity, and this carries the same selector as the rule above, so while it
+     stood earlier in the file the later one won and the query never did anything --
+     a two-column group stayed two columns in a 390px panel, wrapping every label
+     and every value onto two lines. A comment in this file claimed the columns
+     followed the panel's width through this query; they did not, and no measurement
+     said so until a consumer asked why their phone looked like that. */
+  @container sf-property-view-group (max-width: 29rem) {
+    .sf-property-view-group[data-columns="2"] .sf-property-view-group-fields {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @container sf-property-view (max-width: 35rem) {
+    /* The section list stacks above the fields by the panel's own width. The
+       viewport rule below does the same thing by the window's width, which is the
+       wrong question for a panel: a narrow panel inside a wide window kept a
+       14rem column beside fields that had nothing left to sit in. */
+    .sf-property-view-layout {
+      display: block;
+    }
+
+    .sf-property-view-sections {
+    margin-block-end: var(--sf-space-3);
+  }
+  }
+
+  /* A field asking for the whole row gets it in either arrangement. */
+  .sf-property-view-field--full {
+    grid-column: 1 / -1;
+  }
+
+
+
+
+  .sf-property-view-required {
+    margin-inline-start: var(--sf-space-1);
+  }
+
+  /* A field that asked for the whole row gets a control that fills it. The value
+     box is a flex row everywhere else, because a user value is an avatar beside a
+     name; a full-width field holds one control, and in a flex row that control
+     keeps its intrinsic width -- measured at 246px inside a 900px row. As a block
+     it fills: 900 of 900. The first attempt set `flex: 1 1 auto` on the box's
+     children, which reaches nothing, because a Smart element is display:contents
+     and its painted element is a grandchild rather than a flex item. */
+  .sf-property-view-field--full .sf-property-view-field-value {
+    display: block;
+  }
+
+  .sf-property-view-field-value {
+    /* A value may be text, a chip, an avatar and a name, or a control. They all
+       sit on one line with the label above, so the box is a flex row rather than
+       a block: a bare string and an element must align the same way. */
+    display: flex;
+  }
+
+  /* A datetime is a day and a time on one row (js/datetime-edit.js): the day
+     as wide as a date field is anywhere in the view, the time as wide as
+     «00:00» in its own font, so it follows the field's size step with the
+     datepicker. Both are the same size on the ladder, so they stand at one
+     height. The row does not wrap: a time under its day reads as a second
+     field. */
+  .sf-property-view-datetime {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-2);
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  /* Both hosts are display: contents, so the flex items are what they draw:
+     the datepicker's wrap and the time field's root (its root-class). */
+  .sf-property-view-datetime > sf-datepicker > .sf-datepicker-wrap {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+  }
+
+  .sf-property-view-datetime .sf-property-view-datetime-time-field {
+    flex: 0 0 6.5em;
+    min-inline-size: 0;
+  }
+
+  /* A value whose editor does not exist yet is shown, not blanked, and reads as
+     not-yet-editable rather than as empty. */
+
+
+  /* The host's actions in the full-page layout. In a panel they sit beside the
+     panel's own three controls; here there is no header yet -- that arrives with
+     the header step -- so they get a row of their own above the body rather than
+     being panel-only, which is what was promised. */
+  .sf-property-view-host-actions {
+    margin-block-end: var(--sf-space-3);
+  }
+
+  /* The host's own content, under the body and above the save bar. It gets a
+     place and a gap and nothing else: what a consumer puts here is theirs, and a
+     composite styling it would be deciding how someone else's menu looks. */
+  .sf-property-view-host-footer {
+    margin-block-start: var(--sf-space-3);
+  }
+
+  /* An empty value reads as empty rather than as absent. */
+
+
+
+
+  /* The bar sticks to the bottom of the view, not of the viewport: this component
+     is also a panel and a phone screen, and a bar fixed to the viewport would
+     float over whatever is behind it. */
+  /* The floor of the panel, not a card standing on it: it reaches both edges and
+     the bottom, because a bar inset from the panel it belongs to wastes the
+     surface on three sides and reads as another card. The drawer's body carries
+     the inline gutter and the block end, so the bar takes them back. */
+  /* It holds the bottom of the panel and keeps the panel's whole width. The
+     drawer's panel is the scroller, so sticking to the bottom sticks to the
+     panel's own bottom, and the negative inline margins take back the gutter the
+     body applies. There is no scrollbar inside that gutter to sit in any more. */
+  /* The bar holds the foot of the panel whether or not there is enough to scroll
+     (owner, 2026-10-08): with little in the record it rose to meet the content
+     and stood in the middle of an empty panel. The auto margin takes the space
+     that is left, so an empty panel puts the bar where a full one does. */
+  .sf-property-view-actions {
+    flex: 0 0 auto;
+    z-index: 1;
+    margin-inline: calc(-1 * var(--sf-property-view--panel-bleed));
+    padding: var(--sf-space-1) var(--sf-property-view--panel-axis);
+    background-color: var(--sf-surface-2);
+    border-top: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  /* Save and cancel hold the end of the bar; what is said about the edit, and
+     the record's own actions, hold the start. */
+
+
+  /* The group being edited says so, so a person can see which card the bar at the
+     bottom belongs to. */
+  .sf-property-view-group--editing {
+    border-color: var(--sf-primary);
+  }
+
+  /* The Framework's own md step, --sf-breakpoint-md: 48rem. A media query
+     cannot read a custom property, so the number is written out -- but it is
+     written the same way everywhere. The px form of this same boundary that
+     stood here parts company with the rem form as soon as the root is not
+     16px, which is exactly what a consumer running at 14px does. */
+  @media (max-width: 47.99rem) {
+    /* The section list becomes a row above the fields rather than a column
+       beside them. The field columns are not here any more: they follow the
+       width of the panel through a container query, because a media query asks
+       the viewport and a panel is narrow inside a wide one. The request asks for
+       the section list to become its own screen on a phone, which arrives with
+       the phone step -- this keeps it usable until then rather than leaving a
+       28-pixel column of truncated names. */
+    .sf-property-view-layout {
+      display: block;
+    }
+
+    .sf-property-view-sections {
+    margin-block-end: var(--sf-space-3);
+  }
+  }
+  @media (forced-colors: active) {
+    .sf-property-view-group {
+      border-color: CanvasText;
+    }
+
+    .sf-property-view-actions {
+    border-top-color: CanvasText;
+  }
+  }
+
+  /* Configuring the view. Every rule here is scoped to its own class rather than
+     to the element, because a panel is portalled out of sf-property-view and a
+     rule hung off the element would not reach it -- the mistake that produced
+     four of one consumer's seven layout reports at once. */
+  /* Arranging the view is a mode, so it is drawn as one: a tinted band that says
+     the panel is not being read right now. The colour is a container role rather
+     than a chosen tint, so it follows the theme into dark without a second
+     declaration.
+
+     Primary rather than warning (owner, 2026-10-07): arranging is not a warning,
+     and the container role is the one with a text colour of its own. The other
+     candidate, the primary overlay, is a state wash -- it has no paired text
+     role, so nothing would guarantee the contrast of the words on it. */
+  /* One row of controls: the layer being written, and the two ways out. It
+     carried a title, a sentence and two differently-shaped actions as well, and
+     read as three kinds of thing at once. */
+  /* In the foot the mode's controls are controls, not a band: the foot already
+     says where they are, and a tinted block inside it read as something stuck
+     on top of the panel (owner, 2026-10-08). */
+
+  /* The sentence tells a person what the mode lets them do and that it applies at
+     once. It takes the free space, so the two actions keep the end of the band. */
+  /* The grip is the handle sf-sortable looks for. It takes a column of the field
+     row rather than floating over it, so a label never sits underneath it. */
+  /* The handle carries its own size. It is drawn with an icon, and an icon has
+     no box until its font arrives -- so until then the handle was a point, and
+     a drag could not be started on it at all. */
+  .sf-property-view-grip {
+    flex: 0 0 auto;
+    display: inline-flex;
+    justify-content: center;
+    /* On the label's own step, with the two controls at the other end of the
+       row. At the control step it was the largest thing in a row of text. */
+    font-size: var(--sf-text-height-1\/2, var(--sf-space-2));
+    inline-size: var(--sf-space-2);
+    block-size: var(--sf-space-2);
+    cursor: grab;
+    /* Paler than the words beside it, by the role the Framework keeps for that
+       -- the same one a field's label reads in. Opacity was doing this before,
+       which pales a glyph by making it transparent: it reads as disabled, and
+       what shows through is whatever happens to be behind (owner,
+       2026-10-08). */
+    /* Through the icon's own token, not `color` and not a colour utility: the
+       glyph reads `var(--sf-icon--color, currentColor)` in the components
+       layer, and utilities lose to components -- the handle carried
+       `color-on-surface-variant` and was drawn at the weight of the words
+       anyway. */
+    --sf-icon--color: var(--sf-on-surface-variant);
+  }
+
+  .sf-property-view-grip:hover {
+    --sf-icon--color: var(--sf-on-surface);
+  }
+
+  [data-sf-sortable-dragging] .sf-property-view-grip,
+  .sf-property-view-grip:active {
+    cursor: grabbing;
+  }
+
+  /* The groups are one sortable list and the unplaced area stands after it, so a
+     group dropped at the end does not land past something that is not a group. */
+
+
+  /* The area for fields the view places nowhere. Dashed, because it is not a
+     card of the record: it is the edge of the arrangement, and it is drawn empty
+     so that a field dragged out of every group has somewhere to land. */
+  .sf-property-view-group--unplaced {
+    border-style: dashed;
+    background-color: transparent;
+  }
+
+  /* One row, nothing under it: the name and the handle only. */
+  .sf-property-view-field--unplaced {
+    grid-template-areas: "grip label actions";
+  }
+
+  /* An empty one still has to be a target a pointer can reach. */
+  .sf-property-view-unplaced {
+    min-block-size: var(--sf-space-4);
+  }
+
+  /* A hidden entry stays visible while the view is being configured -- a hidden
+     field nobody can see is a field nobody can show again -- and is dimmed so the
+     difference is not something a person has to remember. */
+  .sf-property-view-field[data-hidden="true"],
+  .sf-property-view-group[data-hidden="true"] {
+    opacity: .55;
+  }
+
+  /* The two controls a field carries while the view is arranged sit at its end,
+     on the row the label starts, so the arrangement reads as a list of fields
+     rather than a list of controls. */
+  /* While the view is arranged a field is three things on one row -- the handle,
+     the label and the two controls -- with the value under them. As a column flex
+     the handle took a line of its own above the label and the controls took a line
+     under the value, which is three rows per field and the reason a group of eight
+     could no longer be read as an arrangement. */
+  .sf-property-view-field[data-arranging="true"] {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "grip label actions"
+      ".    value value";
+    align-items: center;
+    column-gap: var(--sf-space-1);
+  }
+
+  .sf-property-view-field[data-arranging="true"] > .sf-property-view-grip {
+    grid-area: grip;
+  }
+
+  .sf-property-view-field[data-arranging="true"] > .sf-property-view-field-label {
+    grid-area: label;
+  }
+
+  .sf-property-view-field[data-arranging="true"] > .sf-property-view-field-value {
+    grid-area: value;
+  }
+
+  .sf-property-view-field-actions {
+    grid-area: actions;
+  }
+
+  /* The settings surface is anchored to the gear it opened from. It needs a width
+     of its own: a context menu sizes to its content, and a dropdown inside one
+     would otherwise set the width of the whole surface. */
+  /* The head's menu anchors to the «⋯» it opened from, the same way a field's
+     settings anchor to their gear. */
+  /* An inline view has no head, so its own row carries the «⋯» at the end. */
+
+
+  /* A rare entry is marked, not hidden from the person who chose to see it. */
+  .sf-property-view-rare {
+    font-size: var(--sf-label-small--size);
+    line-height: var(--sf-label-small--height);
+    opacity: .75;
+  }
+  /* The section being arranged, named above its areas. */
+  .sf-property-view-section-bar {
+    padding-block-end: var(--sf-space-1);
+    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-property-view-section-title {
+    margin: 0;
+    font-size: var(--sf-title-small--size);
+    line-height: var(--sf-title-small--height);
+  }
+
+  /* A name that can be changed is a control, and says so only by being one: it
+     keeps the type of the title it replaces rather than borrowing a link's. */
+  .sf-property-view-rename-trigger {
+    appearance: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+  }
+
+  .sf-property-view-rename-trigger:hover {
+    text-decoration: underline;
+  }
+
+  /* The two answers to a name being typed stand beside the field, on the step
+     the rest of the arranging mode uses. */
+
+
+
+  .sf-property-view-additions {
+    padding-block-start: var(--sf-space-1);
+  }
+
+  /* «Make a new box» stands the width of the arrangement it adds to. A 149px
+     button under a 525px column read as a control belonging to whatever sat
+     left of it rather than to the whole column (owner, 2026-10-09). */
+  .sf-property-view-additions sf-button,
+  .sf-property-view-additions .sf-button {
+    inline-size: 100%;
+  }
+
+  /* The not-placed bin is the Framework's accordion, so its own chrome is the
+     accordion's. What is left here is what the arrangement needs: the rows
+     inside it stand closer than fields in an area do, because they are a list
+     of names rather than a form, and the bin keeps the dashed edge that says
+     it is where things land (owner, 2026-10-09). */
+  .sf-property-view-group--unplaced .sf-accordion-content {
+    padding-block-start: 0;
+  }
+
+  .sf-property-view-unplaced {
+    gap: var(--sf-space-1\/3);
+  }
+
+  .sf-property-view-unplaced .sf-property-view-field--unplaced {
+    padding-block: var(--sf-space-1\/4);
+  }
+
+
+
+
+  .sf-property-view-settings-row--stacked {
+    align-items: stretch;
+  }
+
+  /* The settings read as a form of 1/2 controls, so their labels take the size
+     a 1/2 control gives its own label -- the text ladder's 1/3 step. They were
+     on the label-small role, which is a different ladder, and stood smaller
+     than anything beside them (owner, 2026-10-08). */
+  .sf-property-view-settings-label {
+    font-size: var(--sf-text-size-1\/3);
+    line-height: var(--sf-text-height-1\/3);
+  }
+
+  /* A related list's rows stand on the same inline axis as the field labels in the
+     groups around it. The table's own text sits a little in from its edge -- the
+     cell spacing before the first cell plus that cell's padding -- so the list is
+     pulled out by exactly that, using the number the table publishes rather than a
+     constant typed here, which would drift the first time either part changed.
+     Measured at 169.95px against labels at 57px before the two chrome columns went,
+     and at 36 against 33 after; this closes the last three pixels. */
+  .sf-property-view-group-related {
+    margin-inline-start: calc(-1 * var(--sf-table--row-text-inset, 0px));
+  }
+
+  /* A record that holds nothing says so, rather than being an empty box that
+     reads as something still loading. */
+  .sf-property-view-empty-record {
+    margin: 0;
+    padding: var(--sf-space-4) var(--sf-space-2);
+    text-align: center;
+  }
+
+  .sf-property-view-group-error {
+    color: var(--sf-color-danger-text, currentColor);
+    padding-inline: var(--sf-space-3);
+    padding-block-end: var(--sf-space-2);
+  }
+
+  /* Nothing restates the body or field-list layout for sf-sortable: it carries the
+     same class, and `sf-sortable { display: block }` is declared in sf.base while
+     these rules are in sf.components, which sits above it. The first draft of this
+     file duplicated both containers here with values typed from memory -- a gap of
+     space-3 where the body uses space-4 -- which would have reflowed the whole
+     arrangement at the moment a person entered the mode for arranging it. */
+
+  /* The phone's two screens. Below the drawer's own breakpoint the panel is full
+     screen, the sections are a list, and a section is the screen behind it. The
+     query matches sf-drawer's docking query rather than the breakpoint array,
+     because the panel is a drawer: flipping its arrangement 48px away from where
+     the drawer changes its own behaviour would be visible in that gap. */
+
+
+  .sf-property-view-phone-section {
+    min-block-size: var(--sf-ui-2--control-height);
+    padding-inline: var(--sf-space-3);
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+  }
+
+  .sf-property-view-phone-section + .sf-property-view-phone-section {
+    border-block-start: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-property-view-phone-head {
+    min-block-size: var(--sf-ui-2--control-height);
+  }
+
+  .sf-property-view-phone-title {
+    margin: 0;
+    font: inherit;
+    font-weight: 600;
+  }
+
+  @media (max-width: 47.99rem) {
+    /* The action bar holds the bottom of the screen, so Save stays reachable
+       while a long group scrolls past it. It is a row of the panel's own column
+       and the content scrolls between the bands, so it holds that place without
+       being positioned at all. */
+    .sf-property-view-actions {
+      /* The same surface the component paints. --sf-surface does not exist -- the
+         ladder is surface-0/1/2 -- and an empty var() would have left the bar
+         transparent, with the rows scrolling through the only control that saves
+         them. */
+      background-color: var(--sf-surface-0);
+    }
+  }
+
+  /* The panel's head: the collection on its own line, then the record's name with
+     its star and the «⋯». One block with the body below it, so nothing stands
+     between the title and the first card -- the view this replaces had two empty
+     bands there, which was the first thing the owner pointed at. */
+  /* The head is a band of its own (owner, 2026-10-08): it keeps its place while
+     the record scrolls under it and says where it ends with a rule, so the name
+     of the record and the first card are no longer one undivided stretch. The
+     rule reaches both edges, which is why the inline gutter is taken back here
+     and given again as padding -- the same thing the bar at the foot does. */
+  .sf-property-view-head {
+    flex: 0 0 auto;
+    z-index: 2;
+    margin-inline: calc(-1 * var(--sf-property-view--panel-bleed));
+    padding: var(--sf-property-view--panel-bleed) var(--sf-property-view--panel-axis) var(--sf-space-1);
+    background-color: var(--sf-surface-1);
+    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+
+
+  .sf-property-view-title {
+    margin: 0;
+    font-size: var(--sf-property-view--title-size, var(--sf-heading-4--size));
+    line-height: var(--sf-property-view--title-height, var(--sf-heading-4--height));
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Beside the panel, not in it: the strip goes into the drawer's own edge area,
+     which is a sibling of the panel and is not clipped by it. How the controls
+     stack is said with utilities on the element; this only rounds them, because
+     a control standing on a surface of its own is a round one. They carry that
+     surface -- a transparent control with a dark glyph stood on the dimmed page
+     and could not be seen at all, which is why the owner found no way to close
+     the panel. */
+  .sf-property-view-edge sf-icon-button button {
+    border-radius: 50%;
+  }
+  /* A panel filling the screen has the strip inside it, in a row along its top
+     at the drawer's inline step (space-1). The head starts its line after the
+     strip and a step more, so the record's name is not under the controls
+     (docs review, round 4, 2026-10-20). The strip's width is the template's:
+     how many controls it carries times one control, and the steps between. */
+  .sf-property-view-panel--fills .sf-property-view-head {
+    padding-inline-start: calc(var(--sf-space-1) + var(--sf-property-view--edge-room, 0px) + var(--sf-space-1\/2));
+  }
+
+
+  /* A value is a button that opens its group, so reading and changing are one
+     screen. It must still look like a value: no control chrome, the pen only when
+     the pointer is on it or the keyboard is in it. */
+  .sf-property-view-field-open {
+    inline-size: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+  }
+
+  /* The pen marks a value as a way in; it is not a control of its own, so it
+     stands a step below the text it sits beside rather than at the icon size,
+     where it was the largest thing in the row. */
+  /* Shown on hover, and sized from the icon ladder rather than from a text
+     height: a glyph beside a value is a 1/2 glyph (owner, 2026-10-08). */
+  .sf-property-view-pen {
+    opacity: 0;
+    /* On the label's weight, not the value's: it is what can be done to the
+       field, not what the field says. Through the icon's own token, for the
+       reason the handle gives. */
+    --sf-icon--color: var(--sf-on-surface-variant);
+  }
+
+  .sf-property-view-field-open:hover .sf-property-view-pen,
+  .sf-property-view-field-open:focus-visible .sf-property-view-pen {
+    opacity: 1;
+  }
+
+  .sf-property-view-field-open:focus-visible {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: var(--sf-px);
+    border-radius: var(--sf-radius-1);
+  }
+
+  /* The hint is sf-help-mark now, not a glyph with a native title, so it carries
+     no hover cursor of its own: what stands on the label's line is a button, and
+     the mark's own stylesheet keeps it out of the line's height. The class is
+     kept as the hook a probe and a consumer already address the hint by. */
+
+
+
+
+
+  /* A block of code or markup kept in a file. Monospace and scrolling rather than
+     wrapping, because a wrapped line of code is a line nobody can read; no syntax
+     colouring, which needs an editor component and its own decision. */
+  /* The Framework declares what code looks like -- family, surface and corner --
+     and this reads those roles rather than naming its own. The family it named,
+     --sf-font-family-mono, is not a token the theme has, so the block fell
+     through to whatever monospace the browser keeps. What belongs to the field
+     rather than to code is the height it is allowed and the scroll inside it. */
+  .sf-field-include {
+    margin: 0;
+    max-block-size: calc(var(--sf-ui-2--control-height) * 6);
+    overflow: auto;
+    padding: var(--sf-space-2);
+    border-radius: var(--sf-code--radius);
+    background-color: var(--sf-code--background);
+    color: var(--sf-code--color);
+    font-family: var(--sf-code--font-family);
+    white-space: pre;
+  }
+}

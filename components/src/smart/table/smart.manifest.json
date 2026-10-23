@@ -1,0 +1,1888 @@
+{
+  "schema_version": 2,
+  "id": "smart.data-view",
+  "version": "1.9.0",
+  "title": "Data view",
+  "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
+  "kind": "composite",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "admin",
+    "collection",
+    "data",
+    "filter",
+    "table"
+  ],
+  "capabilities": [
+    "data-view",
+    "search",
+    "filtering",
+    "sorting",
+    "selection",
+    "preferences",
+    "pagination",
+    "responsive"
+  ],
+  "custom_element": "sf-table",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "smart.avatar",
+      "smart.badges",
+      "smart.buttons",
+      "smart.checkbox",
+      "smart.context-menu",
+      "smart.datepicker",
+      "smart.dropdown",
+      "smart.icon-buttons",
+      "smart.inputs",
+      "smart.list-item",
+      "smart.modal",
+      "smart.pagination",
+      "smart.radio",
+      "smart.range-slider",
+      "smart.resizer",
+      "smart.spinner",
+      "smart.tags"
+    ],
+    "public_parts": [],
+    "declarative": {
+      "standard": "simai.composition.document.v1",
+      "type": "smart.data-view",
+      "mode": "leaf",
+      "profiles": [
+        "ui-layout"
+      ],
+      "props": [
+        "aria-label",
+        "table-settings-key",
+        "selectable",
+        "toolbar",
+        "settings",
+        "actions",
+        "row-actions",
+        "pagin",
+        "pagination-total",
+        "pagination-page-size",
+        "page-sizes",
+        "filter-text",
+        "clear-text",
+        "search-placeholder",
+        "create-text",
+        "loading-text",
+        "empty-text",
+        "error-text",
+        "retry-text",
+        "context-menu-columns",
+        "data-state"
+      ],
+      "data": {
+        "columns": {
+          "contract": "columns"
+        },
+        "rows": {
+          "contract": "rows"
+        }
+      },
+      "events": [
+        "sf-table-search-change",
+        "sf-table-filter-change",
+        "sf-table-sort-change",
+        "sf-table-create-intent",
+        "sf-table-template-save",
+        "sf-table-template-select",
+        "sf-table-template-delete",
+        "sf-table-column-settings-change",
+        "sf-table-action-intent",
+        "sf-table-query-intent",
+        "sf-table-retry",
+        "sf-table-toolbar-action"
+      ],
+      "persistence": {
+        "settings_key_prop": "table-settings-key",
+        "revision_prop": null
+      },
+      "presentation": {
+        "views": [
+          "default"
+        ],
+        "presets": [],
+        "modifiers": []
+      },
+      "slots": {},
+      "renderer": {
+        "kind": "custom-element",
+        "name": "sf-table"
+      },
+      "assets": [
+        "smart/table"
+      ],
+      "host_port": {
+        "port": "simai.dataview-port",
+        "version": "1.0.0",
+        "path": "src/core/contracts/ports/simai.dataview-port/1.0.0/port.json",
+        "sha256": "208db0e9709639c46f25830cac255f35d7d8c50ea4dfb1c578adc0055798c46e",
+        "supported_versions": [
+          "1.0.0"
+        ]
+      }
+    }
+  },
+  "inputs": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "aria-label",
+      "table-settings-key"
+    ],
+    "properties": {
+      "template": {
+        "type": "string",
+        "const": "default",
+        "default": "default"
+      },
+      "aria-label": {
+        "type": "string",
+        "minLength": 1,
+        "default": "Data table",
+        "description": "The table's accessible name. Read it from the props context and never from the element: `aria-label` is reflected by the platform, so element.ariaLabel returns null with no attribute set and shadows what the component resolves. Whether an English default belongs in a family whose other fourteen text inputs default to Russian is the owner's open question about the Framework's default language."
+      },
+      "selectable": {
+        "type": "boolean",
+        "default": true
+      },
+      "settings": {
+        "type": "boolean",
+        "default": true
+      },
+      "actions": {
+        "type": "boolean",
+        "default": true
+      },
+      "row-actions": {
+        "type": "boolean",
+        "default": true
+      },
+      "creatable": {
+        "type": "boolean",
+        "default": true,
+        "description": "The create button and its menu of kinds, inside actions. A data view turns it off for a host on port 1.10.0 that does not announce create-record."
+      },
+      "filter-templates": {
+        "type": "boolean",
+        "default": true,
+        "description": "The button that saves the filter as a template. A data view turns it off when the host keeps no saved views."
+      },
+      "settings-menu": {
+        "type": "boolean",
+        "default": true,
+        "description": "The gear in the head of the settings column, which opens the column settings. Off, the column still carries each row's menu. A data view turns it off for a host on port 1.10.0 that does not announce personal-column-settings."
+      },
+      "pagin": {
+        "type": "boolean",
+        "default": false
+      },
+      "filter-text": {
+        "type": "string",
+        "default": "Filter"
+      },
+      "clear-text": {
+        "type": "string",
+        "default": "Clear"
+      },
+      "search-placeholder": {
+        "type": "string",
+        "default": "Search"
+      },
+      "create-text": {
+        "type": "string",
+        "default": "Create"
+      },
+      "pagination-total": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 10
+      },
+      "pagination-page-size": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "default": 10
+      },
+      "page-sizes": {
+        "type": "string",
+        "default": "10,20,30,40"
+      },
+      "context-menu-columns": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "default": 1,
+        "description": "How many columns the settings menu splits its items into. One until a host asks for more: the read was bare for the whole life of this input, so neither its declared default nor a value a host passed ever reached the menu."
+      },
+      "remember-widths": {
+        "type": "boolean",
+        "default": false,
+        "description": "Remember the column widths as a view preference (SF.Preferences, under preferences-key or table-settings-key) for a table no host keeps settings for; a double click on a column's edge forgets that column's width."
+      },
+      "table-settings-key": {
+        "type": "string",
+        "minLength": 1,
+        "default": "",
+        "description": "Which stored settings this table uses. Empty means the element's own id, and then its instance id, so each table on a page keeps its own. A real default here would make every table share one key and overwrite the others."
+      },
+      "data-state": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "loading",
+          "populated",
+          "empty",
+          "error"
+        ],
+        "default": "auto"
+      },
+      "loading-text": {
+        "type": "string",
+        "default": "Loading"
+      },
+      "empty-text": {
+        "type": "string",
+        "default": "No data"
+      },
+      "error-text": {
+        "type": "string",
+        "default": "The data could not be loaded"
+      },
+      "retry-text": {
+        "type": "string",
+        "default": "Try again"
+      },
+      "toolbar": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show the built-in toolbar; a composite can provide its own toolbar slot."
+      },
+      "pin-column-label": {
+        "type": "string",
+        "default": "Pin the column",
+        "description": "Accessible name and tooltip of the control that pins a column."
+      },
+      "unpin-column-label": {
+        "type": "string",
+        "default": "Unpin the column",
+        "description": "Accessible name and tooltip of the control that unpins a column."
+      },
+      "column-move-label": {
+        "type": "string",
+        "default": "Move the column",
+        "description": "Accessible name of the handle that moves a column in the settings list; the column label is appended to it."
+      },
+      "column-search-placeholder": {
+        "type": "string",
+        "default": "Search the fields",
+        "description": "Placeholder and accessible name of the search field above the column settings list."
+      },
+      "column-search-empty-text": {
+        "type": "string",
+        "default": "No field matches",
+        "description": "Shown in place of the column settings list when the search matches no field."
+      },
+      "vertical-scroll": {
+        "type": "string",
+        "default": "self",
+        "description": "Whether the table scrolls within itself or lets the page scroll. Declared as a string with two values; the manifest previously said boolean true, which was wrong in both the type and the default.",
+        "enum": [
+          "self",
+          "page"
+        ]
+      },
+      "filter-apply-text": {
+        "type": "string",
+        "default": "Apply",
+        "description": "Label of the filter window’s commit button; the number of conditions a press would change is appended to it while a draft is pending."
+      },
+      "layout": {
+        "type": "string",
+        "default": "table",
+        "enum": [
+          "auto",
+          "table",
+          "list"
+        ],
+        "description": "How the records are drawn: a table, a compact list of records, or auto -- a table while the table's container is at least list-below pixels wide, the list below that. sf-data-view asks for auto on a page's list."
+      },
+      "list-below": {
+        "type": "number",
+        "default": 600,
+        "description": "The container width, in pixels, below which layout auto draws the compact list."
+      },
+      "list-fields": {
+        "type": "number",
+        "default": 3,
+        "description": "How many fields a record shows under its title in the compact list, chosen by the columns' priority."
+      },
+      "size": {
+        "type": "string",
+        "default": "1",
+        "enum": [
+          "1/2",
+          "1"
+        ],
+        "description": "The step of the size ladder the table's controls and rows take: 1, or the dense 1/2 -- 32px controls, 14/20 text, rows of the step's height. A size of 1 written on an element the table draws becomes the table's."
+      },
+      "preferences-key": {
+        "type": "string",
+        "default": "",
+        "description": "The key this table's arrangement -- order, visibility, pinning, widths -- is kept under as a view preference (SF.Preferences, sf-table/<key>); a data view passes its own. Without it table-settings-key is used, and without either nothing is kept."
+      },
+      "row-actions-visible": {
+        "type": "string",
+        "enum": [
+          "hover",
+          "always"
+        ],
+        "default": "hover",
+        "description": "Where a row's action buttons are drawn: in the row under the pointer, with the focus or current (hover, the default), or in every row (always)."
+      },
+      "drag-rows": {
+        "type": "boolean",
+        "default": false,
+        "description": "Rows may be dragged out of the list as records (application/x-sf-records+json): the row's record, or every selected record when it is one of them."
+      },
+      "row-reorder": {
+        "type": "boolean",
+        "default": false,
+        "description": "Rows can be put in another order by dragging them inside the list; a drop emits sf-table-rows-reorder {ids, before, order}. A data view sets it when the host offers row-reorder."
+      },
+      "inline-edit": {
+        "type": "boolean",
+        "default": false,
+        "description": "A boolean cell the record names in `editable` is a checkbox; pressing it emits sf-table-cell-set {id, key, value, revision} and the cell waits for the host. A data view sets it when the host offers inline-edit."
+      }
+    }
+  },
+  "item_contract": {
+    "stable_id_attribute": "row.id",
+    "package_owned": [
+      "columns[].key",
+      "columns[].label",
+      "filter_fields[].key",
+      "filter_fields[].operators",
+      "actions[].id"
+    ],
+    "preference_fields": [
+      "column_settings.*.order",
+      "column_settings.*.width",
+      "column_settings.*.visible",
+      "column_settings.*.pinned",
+      "query.page_size"
+    ],
+    "supports": [
+      "structured-cells",
+      "row-selection",
+      "bulk-selection",
+      "column-resize",
+      "column-reorder",
+      "column-visibility",
+      "filter-templates",
+      "row-actions"
+    ]
+  },
+  "contracts": {
+    "query_intent": {
+      "type": "object",
+      "required": [
+        "search",
+        "filters",
+        "sort",
+        "page",
+        "page_size"
+      ],
+      "properties": {
+        "search": {
+          "type": "string"
+        },
+        "filters": {
+          "type": "object"
+        },
+        "sort": {
+          "type": "array"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "additionalProperties": false
+    },
+    "column_settings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "number"
+          },
+          "width": {
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "pinned": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "action_intent": {
+      "type": "object",
+      "required": [
+        "action_id",
+        "record_ids"
+      ],
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "record_ids": {
+          "type": "array",
+          "items": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "minLength": 1
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "query_context": {
+      "type": "object",
+      "required": [
+        "record_ids"
+      ],
+      "properties": {
+        "record_ids": {
+          "type": "array",
+          "maxItems": 1000,
+          "uniqueItems": true,
+          "items": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "composition_ports": {
+      "manifest": "simai.composition.port-manifest.v1",
+      "element": "sf-table",
+      "version": "1.0.0",
+      "outputs": {
+        "selection": "record-ids.v1"
+      },
+      "inputs": {
+        "context": "record-ids.v1"
+      }
+    },
+    "columns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "order": {
+            "type": [
+              "number",
+              "string",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ]
+          },
+          "colWidth": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ]
+          },
+          "size": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ]
+          },
+          "minWidth": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ]
+          },
+          "maxWidth": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ]
+          },
+          "sortable": {
+            "type": "boolean"
+          },
+          "resizable": {
+            "type": "boolean"
+          },
+          "draggable": {
+            "type": "boolean"
+          },
+          "renderer": {
+            "enum": [
+              "link"
+            ]
+          },
+          "system": {
+            "type": "boolean"
+          },
+          "component": {
+            "type": "object"
+          },
+          "rowComponent": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "integer"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "methods": {
+    "addRows": {
+      "summary": "Append another backend page for show-more mode.",
+      "arguments": [
+        {
+          "name": "rows",
+          "schema": {
+            "type": "array"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "applyQueryResult": {
+      "summary": "Apply rows answering the newest pending context query. Returns false and changes nothing for a stale, repeated or unknown sequence.",
+      "arguments": [
+        {
+          "name": "sequence",
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        {
+          "name": "rows",
+          "schema": {
+            "type": "array"
+          }
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      }
+    },
+    "clearSelection": {
+      "summary": "Clear the explicit selection of this instance; emits the selection port once when it changes.",
+      "arguments": [],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "getActiveFilterFieldKeys": {
+      "summary": "Which filter fields the filter is showing, in the host's field order.",
+      "arguments": [],
+      "returns": {
+        "type": "array"
+      }
+    },
+    "getColumnSettings": {
+      "summary": "Read the current column-preference delta.",
+      "arguments": [],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "getFilterPayload": {
+      "summary": "Read the current filter draft for host-side query validation.",
+      "arguments": [],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "getInstanceId": {
+      "summary": "Identity of this instance: the author's id when there is one, an own counter otherwise. Ids, the settings key fallback and the portal derive from it.",
+      "arguments": [],
+      "returns": {
+        "type": "string"
+      }
+    },
+    "getQueryContext": {
+      "summary": "Read the immutable context last received through the context input port, or null.",
+      "arguments": [],
+      "returns": {
+        "type": [
+          "object",
+          "null"
+        ]
+      }
+    },
+    "getSelectedRecordIds": {
+      "summary": "Read the typed record identities selected in this table result, without DOM parsing.",
+      "arguments": [],
+      "returns": {
+        "type": "array",
+        "items": {
+          "type": [
+            "string",
+            "integer"
+          ]
+        }
+      }
+    },
+    "getSort": {
+      "summary": "Read the sort shown on the headers.",
+      "arguments": [],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "getToolbarActions": {
+      "summary": "The toolbar actions as declared, copied.",
+      "arguments": [],
+      "returns": {
+        "type": "array"
+      }
+    },
+    "requestActionIntent": {
+      "summary": "Emit a typed row or bulk action request; the host owns execution and authorization. Invalid arguments throw TypeError before emission.",
+      "arguments": [
+        {
+          "name": "actionId",
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "name": "recordIds",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ],
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "requestContextQuery": {
+      "summary": "Internal to the context port: emit sf-table-query-intent for the current context with a new pending sequence.",
+      "arguments": [
+        {
+          "name": "sequence",
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "requestCreateIntent": {
+      "summary": "Emit sf-table-create-intent for the main button (null) or a declared create item id.",
+      "arguments": [
+        {
+          "name": "itemId",
+          "schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "requestRetry": {
+      "summary": "Emit a retry intent after a failed data request.",
+      "arguments": [],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setActiveFilterFields": {
+      "summary": "Show exactly these filter fields in the selected filter template. Used when a saved view is opened: settings.filter_fields names the fields it was showing.",
+      "arguments": [
+        {
+          "name": "keys",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setBulkActions": {
+      "summary": "Register labeled opaque actions for the current selection. Empty selection disables their controls.",
+      "arguments": [
+        {
+          "name": "actions",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setColumns": {
+      "summary": "Replace canonical backend-provided columns.",
+      "arguments": [
+        {
+          "name": "columns",
+          "schema": {
+            "type": "array"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setCreateItems": {
+      "summary": "Set the create split-button menu items ({id, name} only). Without items the create button has no arrow.",
+      "arguments": [
+        {
+          "name": "items",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setDataState": {
+      "summary": "Switch between automatic, loading, populated, empty and error presentation states.",
+      "arguments": [
+        {
+          "name": "state",
+          "schema": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "loading",
+              "populated",
+              "empty",
+              "error"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setFilterFields": {
+      "summary": "Register backend-allowlisted filter fields and controls.",
+      "arguments": [
+        {
+          "name": "fields",
+          "schema": {
+            "type": "array"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setRows": {
+      "summary": "Replace the current backend result rows.",
+      "arguments": [
+        {
+          "name": "rows",
+          "schema": {
+            "type": "array"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setSort": {
+      "summary": "Show the host's current sort on the headers without emitting an event; (null, null) clears it.",
+      "arguments": [
+        {
+          "name": "key",
+          "schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        {
+          "name": "direction",
+          "schema": {
+            "enum": [
+              "asc",
+              "desc",
+              null
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setTableData": {
+      "summary": "Patch columns, rows or related table state supplied by the host.",
+      "arguments": [
+        {
+          "name": "patch",
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setTableSettings": {
+      "summary": "Apply a column-preference delta without emitting a save request.",
+      "arguments": [
+        {
+          "name": "settings",
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setTemplates": {
+      "summary": "Apply saved filter/view templates.",
+      "arguments": [
+        {
+          "name": "templates",
+          "schema": {
+            "type": "array"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setToolbarActions": {
+      "summary": "Declare the view's own actions for the toolbar menu: {id, label, icon?, href?}. An href must name this same site. Without actions the control is not rendered.",
+      "arguments": [
+        {
+          "name": "items",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "sfPortInput": {
+      "summary": "Composition input port entry used by sf-composition-scope. Accepts only the declared context port with record-ids.v1; invalid ports or values throw TypeError before any state change.",
+      "arguments": [
+        {
+          "name": "port",
+          "schema": {
+            "const": "context"
+          }
+        },
+        {
+          "name": "value",
+          "schema": {
+            "type": "array",
+            "maxItems": 1000,
+            "uniqueItems": true,
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ],
+              "minLength": 1,
+              "maxLength": 256
+            }
+          }
+        },
+        {
+          "name": "meta",
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "isTree": {
+      "summary": "Whether the rows are a tree: some row carries __tree, written by the data view from the host's levels.",
+      "arguments": [],
+      "returns": {
+        "type": "boolean"
+      }
+    },
+    "treeColumnKey": {
+      "summary": "The column a tree hangs from: the title column, or the first data column.",
+      "arguments": [
+        {
+          "name": "columns",
+          "type": "array",
+          "required": false
+        }
+      ],
+      "returns": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "toggleTreeRow": {
+      "summary": "Say that a tree row was opened or closed (sf-table-tree-toggle).",
+      "arguments": [
+        {
+          "name": "row",
+          "type": "object",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element."
+      }
+    },
+    "requestTreeMore": {
+      "summary": "Ask for the next page of a tree level (sf-table-tree-more).",
+      "arguments": [
+        {
+          "name": "row",
+          "type": "object",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element."
+      }
+    }
+  },
+  "events": {
+    "sf-port-output": {
+      "summary": "Composition port output. The table emits port selection (record-ids.v1) once per change of its explicit selection, including clearing; a common sf-composition-scope routes it.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "port",
+          "value"
+        ],
+        "properties": {
+          "port": {
+            "const": "selection"
+          },
+          "value": {
+            "type": "array",
+            "maxItems": 1000,
+            "uniqueItems": true,
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ],
+              "minLength": 1,
+              "maxLength": 256
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-action-intent": {
+      "summary": "Request one host-resolved row or bulk operation. Event source is the owning table instance; emission is not operation success.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "action_id",
+          "record_ids"
+        ],
+        "properties": {
+          "action_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "record_ids": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ],
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-column-settings-change": {
+      "summary": "Request persistence of a column preference delta after resize, reorder or visibility changes.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "reason",
+          "tableSettingsKey",
+          "columnSettings"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "tableSettingsKey": {
+            "type": "string"
+          },
+          "columnSettings": {
+            "$ref": "#/contracts/column_settings"
+          }
+        }
+      }
+    },
+    "sf-table-column-settings-reset": {
+      "summary": "The person asked for the default columns back. The table drops its own stored arrangement and names no defaults: the host (or a data view) resets the person's layer and answers with its defaults.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "target",
+          "tableSettingsKey"
+        ],
+        "properties": {
+          "target": {
+            "type": "string",
+            "const": "personal",
+            "description": "The layer to reset. The table only resets the person's own layer."
+          },
+          "tableSettingsKey": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The table's settings key, or null when it has none."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-create-intent": {
+      "summary": "The user pressed the create button (item null) or chose an item from its menu (item id). Intent only: the host opens its create form.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "item"
+        ],
+        "properties": {
+          "item": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-filter-change": {
+      "summary": "Request a host-side query after the active filter changes: Apply in the filter window, a chip removed, or the filter cleared. A data view turns it into query.change with filters from values.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "templateKey",
+          "templateLabel",
+          "values",
+          "tags"
+        ],
+        "properties": {
+          "templateKey": {
+            "type": "string",
+            "description": "The selected template's key, or an empty string."
+          },
+          "templateLabel": {
+            "type": "string",
+            "description": "The selected template's label, or an empty string."
+          },
+          "values": {
+            "type": "object",
+            "description": "The filter values now in force, keyed by filter field."
+          },
+          "tags": {
+            "type": "object",
+            "description": "The active filter chips, keyed by filter field."
+          }
+        },
+        "description": "The table's getFilterPayload(): the selected template's own data fields spread first, then these four."
+      }
+    },
+    "sf-table-query-intent": {
+      "summary": "Request a host-side query after the context input port changed. The host resolves the relation and access, then answers with applyQueryResult(sequence, rows); older sequences are ignored.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "reason",
+          "context",
+          "sequence"
+        ],
+        "properties": {
+          "reason": {
+            "const": "context"
+          },
+          "context": {
+            "$ref": "#/contracts/query_context"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-retry": {
+      "summary": "Request another host-side load after the error state.",
+      "payload": {
+        "type": "null"
+      }
+    },
+    "sf-table-search-change": {
+      "summary": "Request a host-side query after the debounced search value changes.",
+      "payload": {
+        "type": "string"
+      }
+    },
+    "sf-table-sort-change": {
+      "summary": "The user activated a sortable header. Direction cycles asc, desc, null (unsorted). Intent only: the table marks the header but does not reorder rows; the host reorders or reloads.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "key",
+          "direction"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "direction": {
+            "enum": [
+              "asc",
+              "desc",
+              null
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-template-delete": {
+      "summary": "The user deleted saved templates on the Templates tab and pressed Apply. Intent only: the host removes the saved view. One event per deleted template.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-template-save": {
+      "summary": "Request persistence of one or more filter templates (order, pin, delete, default, selected flags or data). Loading a saved view is reported by sf-table-template-select.",
+      "payload": {
+        "type": [
+          "object",
+          "array"
+        ]
+      }
+    },
+    "sf-table-template-select": {
+      "summary": "The user applied a different saved template on the Templates tab. Intent only: the host loads that saved view.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-toolbar-action": {
+      "summary": "The user chose one of the view's own actions from the toolbar menu. Intent only, and cancelable: the component follows an item's same-site href unless the host takes the navigation over with preventDefault.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "href": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-tree-toggle": {
+      "summary": "The person opened or closed a tree row. The data view answers it; the table only says which row and whether it was open.",
+      "payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "integer"
+            ]
+          },
+          "expanded": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "sf-table-tree-more": {
+      "summary": "The person asked for the next page of one tree level.",
+      "payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "parent": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ]
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "sf-table-rows-drag": {
+      "summary": "Rows began to be dragged out of a list with drag-rows, for a drop target such as a tree; the same {ids, source} rides in the drag data as application/x-sf-records+json.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids",
+          "source"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "The ids dragged: every selected id when the dragged row is selected, otherwise that row's id alone."
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Where the rows come from: the table's preferences-key, table-settings-key or id, or null."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-table-rows-reorder": {
+      "summary": "Rows were dragged into another order inside the list: the ids that moved, the row they now stand before (null: the end) and the whole order shown.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array"
+          },
+          "before": {},
+          "order": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    "sf-table-cell-set": {
+      "summary": "A checkable cell was pressed: the record, the field, the new value and the record's revision.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {},
+          "key": {
+            "type": "string"
+          },
+          "value": {},
+          "revision": {}
+        }
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "data": [
+        "idle",
+        "loading",
+        "populated",
+        "empty",
+        "error"
+      ],
+      "query": [
+        "clean",
+        "searching",
+        "filtered",
+        "sorting",
+        "paging"
+      ],
+      "preferences": [
+        "idle",
+        "editing",
+        "saving",
+        "success",
+        "error",
+        "conflict"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "loading",
+      "empty",
+      "error",
+      "selected",
+      "active",
+      "open"
+    ]
+  },
+  "persistence": {
+    "mode": "external-host",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": "base_revision",
+    "view_preference": {
+      "key": "sf-table/<preferences-key>",
+      "general_key": "sf-table/*",
+      "v": 1,
+      "fields": {
+        "columnSettings": {
+          "type": "object",
+          "description": "The person's column arrangement, per column key: visible (boolean), width (CSS length), order (number), pinned (start or end). Merged onto the host's column settings, so a column it does not name keeps the host's.",
+          "seed": true,
+          "written_by": [
+            "sf-table"
+          ],
+          "schema": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "visible": {
+                  "type": "boolean"
+                },
+                "width": {
+                  "type": "string"
+                },
+                "order": {
+                  "type": "number"
+                },
+                "pinned": {
+                  "enum": [
+                    "start",
+                    "end",
+                    null
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "widths": {
+          "type": "object",
+          "description": "Column widths the person dragged, per column key, as \"<N>px\". Kept also without a preferences-key when the table has remember-widths (then under the table's own key).",
+          "seed": true,
+          "written_by": [
+            "sf-table"
+          ],
+          "schema": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "view": {
+          "type": "object",
+          "description": "The table's look: density (compact, normal, spacious), stripes, lines, singleLine, stickyHead. Under sf-table/* it is the person's look for every table, read under this table's own.",
+          "seed": true,
+          "written_by": [
+            "sf-table"
+          ],
+          "schema": {
+            "type": "object",
+            "properties": {
+              "density": {
+                "enum": [
+                  "compact",
+                  "normal",
+                  "spacious"
+                ]
+              },
+              "stripes": {
+                "type": "boolean"
+              },
+              "lines": {
+                "type": "boolean"
+              },
+              "singleLine": {
+                "type": "boolean"
+              },
+              "stickyHead": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "sort": {
+          "type": "array",
+          "description": "The sort the person chose: [{key, direction}]. Written and read by the data view the table is in, so the first query comes in this order.",
+          "seed": true,
+          "written_by": [
+            "sf-data-view"
+          ],
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "direction"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "direction": {
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "pageSize": {
+          "type": "integer",
+          "description": "The page size the person chose. Written and read by the data view, so the first query asks for it.",
+          "seed": true,
+          "written_by": [
+            "sf-data-view"
+          ]
+        }
+      }
+    }
+  },
+  "ownership": {
+    "source": "simai/ui-admin",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "query authorization",
+      "field/operator invention",
+      "record access decisions",
+      "domain mutations",
+      "cross-user preference selection",
+      "HTTP endpoint invention"
+    ]
+  },
+  "backend": {
+    "adapters": [
+      "larena:ui.dataview"
+    ],
+    "integration_examples": {
+      "larena_php": "Smart::renderView('dataview.table', ['props' => ['title' => $title], 'children' => $resolvedChildren]);",
+      "event_bridge": "Normalize SF runtime events to Data View intents, validate them in larena/dataview, then return a fresh access-filtered projection."
+    }
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "Reject unknown columns, filters, sorts and action IDs",
+      "Treat every row and structured cell as untrusted render data",
+      "Never accept record ownership or access flags from the browser"
+    ],
+    "network_policy": "host-only"
+  },
+  "accessibility": {
+    "role": "region",
+    "accessible_name": "required",
+    "keyboard": [
+      "Tab",
+      "Shift+Tab",
+      "Enter",
+      "Space",
+      "Escape",
+      "Arrow keys",
+      "ArrowLeft and ArrowRight resize a focused resizable column"
+    ],
+    "focus": "Every icon-only action and contextual surface has an accessible name. Per-instance overlays stay inside the visual viewport, close on Escape and restore focus to their trigger. Column resize keeps focus on its native button."
+  },
+  "presentation": {
+    "skeleton": {
+      "shape": "rows",
+      "while_loading": "template"
+    },
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop-wide",
+      "desktop-local-scroll",
+      "mobile-stacked-toolbar",
+      "mobile-horizontal-table-scroll",
+      "viewport-bounded-overlays"
+    ]
+  },
+  "adapter": {
+    "kind": "owner",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "fixture",
+      "runtime-upgrade",
+      "scenario-smoke",
+      "host-query-bridge"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "1d3f0eb63761e5e94883243e66007bfe38cccd7e",
+      "ui_smart_revision": "4e3e58aa1e6aa20b0434f334ea30e0f1a3c16319"
+    },
+    "aliases": [
+      "smart.table"
+    ],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": [
+      {
+        "from": "1.0.0",
+        "to": "1.1.0",
+        "changes": [
+          "Add sf-table-action-intent and requestActionIntent for row, context and bulk operations.",
+          "Replace the placeholder View modal with a host-resolved intent; preserve explicit trusted callback overrides.",
+          "Selection preserves complete typed IDs; bulk controls use the current-result selection only."
+        ]
+      },
+      {
+        "from": "1.1.0",
+        "to": "1.2.0",
+        "changes": [
+          "Publish Composition ports: output selection and input context, both record-ids.v1.",
+          "Add sf-table-query-intent, applyQueryResult (latest result wins), getQueryContext and clearSelection.",
+          "Emit sf-port-output once per explicit selection change; no endpoint, action or query text is emitted.",
+          "After remount, a table whose context query was left unanswered requests the same context once with a new sequence."
+        ]
+      },
+      {
+        "from": "1.2.0",
+        "to": "1.3.0",
+        "changes": [
+          "Add sf-table-create-intent: the create button emits {item: null}; setCreateItems adds an arrow menu whose items emit {item: id}. Without items the arrow is not rendered.",
+          "Add sf-table-template-select {key} when Apply on the Templates tab changes the selected template; sf-table-template-save is unchanged.",
+          "Columns with sortable: true render a header button with aria-sort and emit sf-table-sort-change {key, direction}; setSort and getSort mirror the host's sort. Rows are never reordered by the table.",
+          "Filter fields with filter.optionRenderer 'badge' render options as tonal sf-badge labels coloured by option.color (a badge scheme or a hex colour) with optional option.icon.",
+          "The actions column is a system column: not resizable or draggable and no longer frozen into column settings.",
+          "Fix: dropping a dragged column no longer duplicates header and body cells; ending a column drag or pointer resize does not sort.",
+          "Context menus are anchored to their opener with SF.Position: they flip and shift at the viewport edge and follow the opener on scroll; the filter chip menu opens under the chip instead of the viewport corner."
+        ]
+      },
+      {
+        "from": "1.3.0",
+        "to": "1.4.0",
+        "changes": [
+          "Filter chips are keyboard operable: each chip label is a button (sf-tag interactive) beside its remove action; Enter or Space opens the chip menu, anchored to the chip, and Escape returns focus to the chip.",
+          "The built-in record modal ignores modal:after-close events of nested modals now that modal events bubble."
+        ]
+      },
+      {
+        "from": "1.4.0",
+        "to": "1.5.0",
+        "changes": [
+          "The manifest moves to smart-component-manifest v2: persistence, ownership, security, accessibility and state use the v2 shape, and adapter, artifacts and readiness are declared.",
+          "The five conformance scenarios left the manifest (v2 keeps scenarios in artifacts) and are documented in docs/smart-table-guide.md; studio.fixture.json and studio.scenario.json are the declared artifacts.",
+          "No runtime behaviour changes."
+        ]
+      },
+      {
+        "from": "1.5.0",
+        "to": "1.6.0",
+        "changes": [
+          "Add sf-table-template-delete {key}: deleting a saved template on the Templates tab is its own intent, one event per template; sf-table-template-save keeps reporting the other flags.",
+          "Instance isolation: the column resize handles carry per-instance ids (<instance>--column-resizer--<column>), the portal records data-sf-instance, and a table without table-settings-key and without an id falls back to its own instance id instead of the shared key \"users\".",
+          "The region declares its resolved data state: data-state and aria-busy are set on the sf-table region, not only on tbody."
+        ]
+      },
+      {
+        "from": "1.6.0",
+        "to": "1.7.0",
+        "changes": [
+          "Declare the data view as a composition type (smart.data-view): the projection now carries the intents it raises, the data it accepts and where its settings key lives, instead of dropping them.",
+          "Add the columns and rows contracts: closed column descriptions and rows with a stable id. They are the data half of the type and the base of the future host port.",
+          "No runtime behaviour changes."
+        ]
+      },
+      {
+        "from": "1.7.0",
+        "to": "1.8.0",
+        "changes": [
+          "Add responsive priority/min_width/sticky projection for declared columns; existing columns keep their previous order and scroll behavior.",
+          "Add toolbar=false for a parent composite that supplies a toolbar slot."
+        ]
+      },
+      {
+        "from": "1.8.0",
+        "to": "1.9.0",
+        "changes": [
+          "Add row-actions: row-actions=\"false\" hides the row action column while actions keeps the create button, for hosts whose row menu is the only entry to a row's actions."
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "source_repository": "simai/ui-source",
+    "source_revision": "300cf1a3f1b8edf0d4cadc6016a82402de39c1f7",
+    "source_artifacts": [
+      {
+        "path": "src/smart/table/index.js",
+        "sha256": "80b5ba53002cc12dead1ca23d5348b321d50ff24d7f9db84579b9badf795fb93"
+      },
+      {
+        "path": "src/smart/table/js/templates/default.js",
+        "sha256": "572f833e11dc4b2f7a6134381168678a8f3ae9bce78d1a7422c10e3db821fa80"
+      },
+      {
+        "path": "src/smart/table/js/templates/default.css",
+        "sha256": "83c01b7c6548e64346ff44bebbabd45d895762f93fbcee036dec5412a2ad889f"
+      },
+      {
+        "path": "src/smart/helpers/option-badge.js",
+        "sha256": "3d86eadce74690add49205be7bf4259d88847cb8a60821b4dae783584543000f"
+      },
+      {
+        "path": "src/smart/table/rule.js",
+        "sha256": "40f2148692155d80ae852d297cd3337cc0e2242fa24d9b2a5bfc0615e40aada7"
+      },
+      {
+        "path": "src/smart/table/docs/smart-table-guide.md",
+        "sha256": "bac17007e6868c412b769fda631c13d550b0df20b2e867e33b7ecb9ec506933e"
+      },
+      {
+        "path": "src/smart/pagination/index.js",
+        "sha256": "5bd5a0bb2a26c582d436f25d0cc428017bbc20370a614a0a8bafcf74c9f43a34"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use the whole Data View for an admin collection that needs server search, filters, table preferences, actions or pagination.",
+    "do_not": [
+      "Do not rebuild the toolbar, table and pagination from unrelated primitives",
+      "Do not let the browser own query or access semantics",
+      "Do not send arbitrary field, operator, route or action identifiers to the backend"
+    ],
+    "required_reads": [
+      "contracts",
+      "events",
+      "persistence",
+      "ownership",
+      "backend",
+      "scenarios"
+    ],
+    "minimal_example": "<sf-table aria-label=\"Записи\" table-settings-key=\"package.records\"></sf-table>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-browser-probes.mjs <free output> <package output>"
+    ]
+  }
+}

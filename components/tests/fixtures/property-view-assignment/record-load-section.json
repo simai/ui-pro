@@ -1,0 +1,81 @@
+{
+ "answer": "applied",
+ "record": {
+  "record_id": "record-1792d97ad5c99dd20fb9536f70e6ad63",
+  "collection": "workbench.demo_sections",
+  "revision": 1,
+  "sections": [
+   {
+    "key": "main",
+    "label": "General",
+    "rare": false,
+    "hidden": false,
+    "groups": [
+     {
+      "key": "main",
+      "label": "Main",
+      "columns": 2,
+      "rare": false,
+      "hidden": false,
+      "fields": [
+       {
+        "key": "title",
+        "label": "Название",
+        "propertyType": "string",
+        "variant": null,
+        "value": "Платежи и биллинг",
+        "width": "half",
+        "required": true,
+        "rare": false,
+        "hidden": false,
+        "hiddenBy": null
+       },
+       {
+        "key": "summary",
+        "label": "Описание",
+        "propertyType": "text",
+        "variant": null,
+        "value": "Оплата, счета и тарифы.",
+        "width": "full",
+        "required": false,
+        "rare": false,
+        "hidden": false,
+        "hiddenBy": null
+       }
+      ],
+      "hiddenBy": null
+     },
+     {
+      "key": "related-61ca0720457d",
+      "label": "Каталог решений (демо)",
+      "kind": "related",
+      "rowCap": 5,
+      "rare": false,
+      "hidden": false,
+      "fields": [],
+      "hiddenBy": null
+     }
+    ],
+    "hiddenBy": null
+   }
+  ],
+  "address": "/admin/cms?structure_id=workbench.demo_sections&record_id=record-1792d97ad5c99dd20fb9536f70e6ad63&record_mode=view#minimal-cms-record-view",
+  "view": {
+   "target": "package",
+   "layers": {
+    "personal": {
+     "revision": null,
+     "view": null
+    },
+    "shared": {
+     "revision": null,
+     "view": null
+    }
+   },
+   "editable": [
+    "personal",
+    "shared"
+   ]
+  }
+ }
+}

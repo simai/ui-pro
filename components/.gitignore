@@ -1,0 +1,5 @@
+.overlay/
+.overlay.package/
+# without a trailing slash, so a symlinked dependency tree is ignored too
+node_modules
+.DS_Store

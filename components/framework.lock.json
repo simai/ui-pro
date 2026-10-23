@@ -1,0 +1,10 @@
+{
+  "schema": "simai.framework.product-package-source-lock",
+  "schema_version": 1,
+  "summary": "The ui-source revision the larena component package is built and tested against: the overlay is ui-source at this revision with this folder laid over it (scripts/overlay.mjs), and ui-builder's product-package build builds the same (standard simai.component-package).",
+  "package": "larena",
+  "source": {
+    "repository": "simai/ui-source",
+    "revision": "ec37b108806c768eea19d3ca9201a76f65d5f5aa"
+  }
+}

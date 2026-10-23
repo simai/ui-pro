@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru" class="theme-light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Smart Table — host intents</title>
+  <script>
+    const view = new URLSearchParams(location.search);
+    const assets = view.get('assets');
+    document.documentElement.dir = view.get('dir') === 'rtl' ? 'rtl' : 'ltr';
+    document.documentElement.className = `theme-${view.get('theme') === 'dark' ? 'dark' : 'light'}`;
+    for (const href of [`${assets}/core/css/core.css`, `${assets}/core/css/utility.full.css`]) document.write(`<link rel="stylesheet" href="${href}">`);
+    window.sfPath = assets;
+    window.sfSmartPath = view.get('smart');
+    window.SF_BOOT_CONFIG = {icons: {enabled: false}, preloader: {enabled: false}, smart: {base: true}, theme: false, packages: {larena: {base: `${view.get('smart')}/smart`}}};
+    window.labEvents = [];
+    for (const name of ['sf-table-create-intent', 'sf-table-sort-change', 'sf-table-template-select', 'sf-table-template-save',
+      'sf-table-column-settings-change', 'sf-table-template-delete', 'drawer:before-open', 'drawer:after-open', 'drawer:before-close', 'drawer:after-close', 'modal:after-open', 'modal:after-close', 'sf-action-for-all-change']) {
+      document.addEventListener(name, (event) => {
+        window.labEvents.push({name, detail: name.startsWith('drawer:') ? {drawerId: event.detail?.drawerId} : name.startsWith('modal:') ? {modalId: event.detail?.modal?.id} : name === 'sf-action-for-all-change' ? {actionForAll: event.detail?.actionForAll} : event.detail});
+      });
+    }
+  </script>
+  <style>
+    body { margin: 0; padding: var(--sf-space-1); background: var(--sf-surface-1, Canvas); color: var(--sf-on-surface, CanvasText); }
+  </style>
+</head>
+<body>
+  <main class="min-w-0">
+    <sf-table id="table" aria-label="Записи" table-settings-key="lab.records"></sf-table>
+    <sf-table id="second" aria-label="Вторая таблица"></sf-table>
+  </main>
+  <sf-drawer id="outer" drawer-id="outer" modal="false" title="Запись">
+    <div slot="content">
+      <p>Содержимое записи</p>
+      <sf-drawer id="inner" drawer-id="inner" modal="false" title="Вложенная панель"><div slot="content">Вложенная</div></sf-drawer>
+    </div>
+  </sf-drawer>
+  <sf-pagination id="pager" total="5" page-size="10" bottom="true" show-action-for-all
+                 actions='[{"value":"archive","label":"Архивировать"}]'></sf-pagination>
+  <sf-modal id="m-outer" title="Внешнее окно">
+    <div slot="content"><p>Внешнее</p><sf-modal id="m-inner" title="Вложенное окно"><div slot="content">Вложенное</div></sf-modal></div>
+  </sf-modal>
+  <script>
+    const core = document.createElement('script');
+    core.src = `${assets}/core/js/core.js`;
+    core.onload = async () => {
+      await Promise.all(['sf-table', 'sf-drawer', 'sf-modal', 'sf-pagination'].map((tag) => customElements.whenDefined(tag)));
+      const second = document.getElementById('second');
+      second.setColumns([{key: 'title', label: 'Название', sortable: true, colWidth: '200px'}]);
+      second.setRows([{id: 9, title: 'Вторая'}]);
+      const table = document.getElementById('table');
+      table.setColumns([
+        {key: 'title', label: 'Название', sortable: true, colWidth: '200px'},
+        {key: 'status', label: 'Статус', sortable: true, colWidth: '160px'},
+        {key: 'author', label: 'Автор', colWidth: '160px'},
+      ]);
+      table.setRows([
+        {id: 1, title: 'Главная', status: 'Готово', author: 'Анна'},
+        {id: 2, title: 'О компании', status: 'Отменено', author: 'Борис'},
+      ]);
+      table.setFilterFields([{
+        key: 'status', label: 'Статус',
+        filter: {enabled: true, control: 'multi-select', operators: ['in'], defaultOperator: 'in', optionRenderer: 'badge',
+          options: [
+            {value: 'done', label: 'Готово', color: 'success', icon: 'check'},
+            {value: 'cancelled', label: 'Отменено', color: 'danger'},
+            {value: 'draft', label: 'Черновик', color: '#7c3aed'},
+            {value: 'other', label: 'Прочее', color: 'url(x)'},
+          ]},
+      }]);
+      window.labOuterHelper = [];
+      document.getElementById('outer').onAfterOpen((event) => window.labOuterHelper.push(event.detail.drawerId));
+      window.labModalHelper = [];
+      document.getElementById('m-outer').onAfterOpen((event) => window.labModalHelper.push(event.detail.modal.id));
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      document.documentElement.dataset.ready = 'true';
+    };
+    document.body.append(core);
+  </script>
+</body>
+</html>

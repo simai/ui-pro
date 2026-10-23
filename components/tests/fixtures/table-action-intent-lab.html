@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" class="theme-light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Smart Table action intent acceptance</title>
+  <link rel="stylesheet" href="/core-a/core/css/core.css">
+  <link rel="stylesheet" href="/core-a/core/css/utility.full.css">
+  <script>
+    const view = new URL(location.href).searchParams;
+    document.documentElement.classList.toggle('theme-dark', view.get('theme') === 'dark');
+    document.documentElement.classList.toggle('theme-light', view.get('theme') !== 'dark');
+    document.documentElement.dir = view.get('dir') === 'rtl' ? 'rtl' : 'ltr';
+    window.sfPath = '/core-a';
+    window.sfSmartPath = '/smart-a';
+    window.SF_BOOT_CONFIG = {
+      icons: {enabled: true, subsetHost: '/icon-subset-service'}, preloader: {enabled: false},
+      smart: {base: true}, theme: false, packages: {larena: {base: '/smart-a/smart'}}
+    };
+    window.actionIntents = [];
+    window.labErrors = [];
+    window.addEventListener('error', event => window.labErrors.push(event.message));
+    document.addEventListener('sf-table-action-intent', event => {
+      window.actionIntents.push({instance: event.target.id, detail: event.detail});
+      document.getElementById('intents').textContent = JSON.stringify(window.actionIntents, null, 2);
+    });
+  </script>
+</head>
+<body class="p-2">
+  <main class="min-w-0 flex flex-col gap-2">
+    <h1>Smart Table action intent acceptance</h1>
+    <sf-table id="products-a" aria-label="Products A" pagin="false"></sf-table>
+    <sf-table id="products-b" aria-label="Products B" pagin="false"></sf-table>
+    <button id="remount-a" type="button">Remount Products A</button>
+    <sf-table id="nested-parent" aria-label="Nested parent" selectable="false" settings="false" actions="false"></sf-table>
+    <pre id="intents" aria-label="Recorded action intents"></pre>
+  </main>
+  <script src="/core-a/core/js/core.js"></script>
+  <script>
+    customElements.whenDefined('sf-table').then(() => {
+      for (const [id, rows] of [
+        ['products-a', [{id: 'товар_α_01', name: 'Alpha'}, {id: 0, name: 'Zero'}]],
+        ['products-b', [{id: 'other_β_02', name: 'Beta'}]],
+      ]) {
+        const table = document.getElementById(id);
+        table.setColumns([{key: 'name', label: 'Name'}]);
+        table.setRows(rows);
+        table.setBulkActions([{id: 'delete', name: 'Delete selected'}]);
+      }
+      document.getElementById('remount-a').onclick = () => {
+        const table = document.getElementById('products-a');
+        const next = table.nextSibling;
+        const parent = table.parentNode;
+        table.remove();
+        parent.insertBefore(table, next);
+      };
+      const parent = document.getElementById('nested-parent');
+      parent.setColumns([{key: 'name', label: 'Nested view'}]);
+      parent.setRows([{id: 'parent-row', name: {component: {
+        type: 'table',
+        props: {
+          id: 'nested-child', ariaLabel: 'Nested child', settings: false,
+          ':ref': child => {
+            child.setColumns([{key: 'name', label: 'Name'}]);
+            child.setRows([{id: 'nested_γ_03', name: 'Nested Gamma'}]);
+          },
+        },
+      }}}]);
+      window.labReady = true;
+    }).catch(error => window.labErrors.push(error.message));
+  </script>
+</body>
+</html>

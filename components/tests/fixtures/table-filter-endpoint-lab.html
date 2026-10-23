@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/core/css/core.css">
+  <link rel="stylesheet" href="/assets/core/css/utility.full.css">
+  <title>Table endpoint options</title>
+  <script>
+    window.sfPath = '/assets';
+    window.sfSmartPath = '/smart';
+    window.SF_BOOT_CONFIG = {icons: {enabled: false}, preloader: {enabled: false}, smart: {base: true}, theme: false, packages: {larena: {base: '/smart/smart'}}};
+  </script>
+</head>
+<body>
+  <sf-table id="table" aria-label="Records"></sf-table>
+  <script>
+    const core = document.createElement('script');
+    core.src = '/assets/core/js/core.js';
+    core.onload = async () => {
+      await customElements.whenDefined('sf-table');
+      const table = document.getElementById('table');
+      table.setColumns([{key: 'title', label: 'Title'}]);
+      table.setRows([{id: 'one', title: 'Record'}]);
+      table.setFilterFields([{key: 'author', label: 'Author', filter: {
+        enabled: true, control: 'entity-multi-select', defaultOperator: 'in', operators: ['in'],
+        optionsSource: {type: 'endpoint', url: '/filter-options?scope_ref=scope%3Atest&structure_id=workbench.demo&field_key=author'},
+      }}]);
+      table.setTemplates([{key: 'test', label: 'Filter', selected: true,
+        data: {tags: {author: {label: 'Author', active: true}}, values: {author: {values: ['offpage'], operator: 'in'}}}}]);
+      document.documentElement.dataset.ready = 'true';
+    };
+    document.body.append(core);
+  </script>
+</body>
+</html>

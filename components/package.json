@@ -1,0 +1,13 @@
+{
+  "name": "@simai/larena-components",
+  "version": "1.0.0",
+  "description": "Larena's Smart components, the component package larena: sf-table, sf-data-view, sf-property-view and sf-admin-menu",
+  "private": true,
+  "license": "PolyForm-Small-Business-1.0.0 OR PolyForm-Noncommercial-1.0.0 OR LicenseRef-SIMAI-Commercial",
+  "author": "Rim Zabarov",
+  "scripts": {
+    "overlay": "node scripts/overlay.mjs",
+    "test": "node scripts/test.mjs",
+    "test:browser": "node scripts/run-browser-probes.mjs"
+  }
+}

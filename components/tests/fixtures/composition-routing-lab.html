@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru" class="theme-light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>SIMAI Framework — composition routing</title>
+  <script>
+    // The lab host plays the product: it answers typed query intents with its
+    // own data and never calls table internals beyond published methods.
+    const view = new URLSearchParams(location.search);
+    const assets = view.get('assets');
+    const smart = view.get('smart');
+    const source = view.get('source');
+    if (!assets || !smart || !source) throw new Error('composition_routing_lab_paths_required');
+    document.documentElement.className = view.get('theme') === 'dark' ? 'theme-dark' : 'theme-light';
+    document.documentElement.dir = view.get('dir') === 'rtl' ? 'rtl' : 'ltr';
+    for (const href of [`${assets}/core/css/core.css`, `${assets}/core/css/utility.full.css`]) {
+      document.write(`<link rel="stylesheet" href="${href}">`);
+    }
+    window.sfPath = assets;
+    window.sfSmartPath = smart;
+    window.SF_BOOT_CONFIG = {
+      icons: {enabled: true, subsetHost: `${source}/tests/fixtures/icon-subset-service`},
+      preloader: {enabled: false},
+      smart: {base: true},
+      theme: false,
+      packages: {larena: {base: `${smart}/smart`}},
+    };
+    const DATA = {
+      orders: [{id: 'заказ_1', name: 'Заказ 1'}, {id: 'order-2', name: 'Заказ 2'}, {id: 0, name: 'Заказ 0'}],
+      lines: {'заказ_1': [{id: 'l-11', name: 'Строка 1.1'}, {id: 'l-12', name: 'Строка 1.2'}], 'order-2': [{id: 'l-21', name: 'Строка 2.1'}], 0: [{id: 7, name: 'Строка 0.7'}]},
+      details: {'l-11': [{id: 'd-111', name: 'Деталь 1.1.1'}], 'l-12': [{id: 'd-121', name: 'Деталь 1.2.1'}], 'l-21': [{id: 'd-211', name: 'Деталь 2.1.1'}], 7: [{id: 'd-7', name: 'Деталь 0.7'}]},
+    };
+    window.lab = {intents: [], results: [], delays: {}, errors: []};
+    window.addEventListener('error', (event) => window.lab.errors.push(event.message));
+    document.addEventListener('sf-table-query-intent', (event) => {
+      const table = event.target;
+      const scope = table.closest('sf-composition-scope')?.getAttribute('data-sf-composition-id');
+      const endpoint = table.getAttribute('data-sf-endpoint');
+      const {context, sequence} = event.detail;
+      const key = `${scope}/${endpoint}`;
+      window.lab.intents.push({key, ids: [...context.record_ids], sequence});
+      const rows = context.record_ids.flatMap((id) => (DATA[endpoint]?.[id] || []));
+      const delay = window.lab.delays[`${key}:${JSON.stringify(context.record_ids)}`] ?? 30;
+      setTimeout(() => {
+        window.lab.results.push({key, sequence, applied: table.applyQueryResult(sequence, rows)});
+      }, delay);
+    });
+  </script>
+  <style>
+    body { margin: 0; padding: var(--sf-space-2, .5rem); background: var(--sf-surface-1, Canvas); color: var(--sf-on-surface, CanvasText); }
+  </style>
+</head>
+<body>
+  <a id="before" href="#start">До страницы</a>
+  <div id="host"></div>
+  <script>
+    const core = document.createElement('script');
+    core.src = `${assets}/core/js/core.js`;
+    core.onload = async () => {
+      const composition = window.SF.Composition;
+      const records = (id, label) => ({
+        id, type: 'example.records',
+        props: {'aria-label': label, 'table-settings-key': `lab.${id}`},
+        extensions: {'simai.composition:endpoint': {name: id.split('-').pop()}},
+      });
+      const type = {
+        schema: 'simai.composition.type-manifest', schema_version: 1, type: 'example.records', version: '1.0.0', category: 'smart', mode: 'leaf',
+        profiles: ['ui-layout'], data_schema: {type: 'object', additionalProperties: false, properties: {}},
+        props_schema: {type: 'object', additionalProperties: false, properties: {'aria-label': {type: 'string'}, 'table-settings-key': {type: 'string'}}},
+        presentation: {views: ['default'], presets: [], modifiers: []}, slots: {},
+        renderer: {kind: 'custom-element', name: 'sf-table'}, assets: ['smart/table'], capabilities: ['html', 'hydration'],
+      };
+      const route = (id, from, to) => ({id, from: {endpoint: from, port: 'selection'}, to: {endpoint: to, port: 'context'}});
+      const workspace = {
+        id: 'workspace', type: 'layout.scope',
+        props: {routes: [route('order-lines', 'orders', 'lines'), route('line-details', 'lines', 'details')]},
+        slots: {default: [{
+          id: 'shell', type: 'layout.regions', slots: {regions: [
+            {id: 'r-orders', type: 'layout.region', props: {name: 'orders', landmark: 'main', placement: 'center'}, slots: {default: [records('ws-orders', 'Заказы')]}},
+            {id: 'r-lines', type: 'layout.region', props: {name: 'lines', landmark: 'complementary', label: 'Строки и детали', placement: 'end'}, slots: {default: [records('ws-lines', 'Строки заказа'), records('ws-details', 'Детали строки')]}},
+          ]},
+        }]},
+      };
+      const archive = {
+        id: 'archive', type: 'layout.scope',
+        props: {routes: [route('archive-lines', 'orders', 'lines')]},
+        slots: {default: [records('ar-orders', 'Архив заказов'), records('ar-lines', 'Архив строк')]},
+      };
+      const document_ = {schema: 'simai.composition.document', schema_version: 1, id: 'routing-lab', profile: 'ui-layout', root: {
+        id: 'page', type: 'layout.section', slots: {default: [workspace, archive]},
+      }};
+      const registry = composition.createRegistry([...(await fetch(`${assets}/core/contracts/composition-types.v1.json`).then((r) => r.json())).entries, type]);
+      const rendered = await composition.render(document_, {registry});
+      if (rendered.diagnostics.length) throw new Error(JSON.stringify(rendered.diagnostics));
+      window.lab.html = rendered.html;
+      document.getElementById('host').innerHTML = rendered.html;
+      await customElements.whenDefined('sf-table');
+      for (const table of document.querySelectorAll('sf-table')) {
+        table.setColumns([{key: 'name', label: 'Название'}]);
+        table.setRows(table.getAttribute('data-sf-endpoint') === 'orders' ? DATA.orders : []);
+      }
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      document.documentElement.dataset.ready = 'true';
+    };
+    document.body.append(core);
+  </script>
+</body>
+</html>
