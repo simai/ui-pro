@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you refer to SIMAI Pro, please cite it as below."
+title: "SIMAI Pro"
+abstract: "Advanced Smart components built on SIMAI Framework: sf-table, sf-data-view, sf-property-view and sf-admin-menu."
+type: software
+authors:
+  - family-names: "Zabarov"
+    given-names: "Rim"
+    email: "rim@zabarov.com"
+license-url: "https://github.com/simai/ui-pro/blob/main/LICENSE.md"
+repository-code: "https://github.com/simai/ui-pro"
+url: "https://ui.simai.io/"
