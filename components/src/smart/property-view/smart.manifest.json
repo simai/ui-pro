@@ -124,9 +124,9 @@
       },
       "host_port": {
         "port": "simai.property-view-port",
-        "version": "1.13.0",
-        "path": "src/core/contracts/ports/simai.property-view-port/1.13.0/port.json",
-        "sha256": "d0a8823e59728cdd20538f84043438fa16d75bc685b69b013324375c52096b07",
+        "version": "1.14.0",
+        "path": "src/core/contracts/ports/simai.property-view-port/1.14.0/port.json",
+        "sha256": "bc1ccf1449a7d90c07fbf33daaf82b0ee31c8e6761f81c0e517c9da68e437576",
         "supported_versions": [
           "1.0.0",
           "1.1.0",
@@ -140,7 +140,8 @@
           "1.10.0",
           "1.11.0",
           "1.12.0",
-          "1.13.0"
+          "1.13.0",
+          "1.14.0"
         ]
       }
     }
@@ -610,6 +611,15 @@
     },
     "panel_layout": {
       "const": "The panel's body takes the height left to it and scrolls as one; the field columns follow the width of the panel through a container query, not the width of the window, because a panel is narrow inside a wide one."
+    },
+    "lookup": {
+      "const": "A lookup field (port 1.14.0) holds {value, label}, or a list of them when multiple, and is drawn by the renderer set's lookup templates. A list sent inline as options is chosen from in place and never asked for; otherwise the candidates are paged by field.options with the field's source and a limit, searched by the host, and asked for only of a host with the field-options capability -- without it the value is shown read-only."
+    },
+    "save_confirmation": {
+      "const": "A save the host will make only once confirmed is refused with reason confirm_required and confirm {summary, digest} (port 1.14.0). The summary is shown in the bar where save was pressed; confirming raises the same save again with confirm set to the digest, and a confirmation asked again is shown again. Going back sends nothing and keeps every entry."
+    },
+    "conditional_fields": {
+      "const": "A field's when.visible, when.required and when.enabled are conditions over the values on screen, evaluated by the component on every render (port 1.14.0). A field its condition hides is not drawn and not sent in a save, and it is not cleared: it keeps what it holds. A condition the component cannot read leaves the field as declared."
     }
   },
   "methods": {
@@ -670,7 +680,14 @@
     },
     "saveGroup": {
       "summary": "Save the changed fields of the open group as one revision.",
-      "arguments": [],
+      "arguments": [
+        {
+          "name": "options",
+          "type": "object",
+          "required": false,
+          "description": "{confirm}: the digest of a confirmation the host asked for; set by confirmSave."
+        }
+      ],
       "returns": {
         "type": "object",
         "description": "A promise of the host answer to the write: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
@@ -877,6 +894,22 @@
       "returns": {
         "type": "object",
         "description": "A promise of the host answer to the opening: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
+      }
+    },
+    "confirmSave": {
+      "summary": "Raise the save the host asked to confirm again, with the digest it issued (port 1.14.0).",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "A promise of the host answer to the write, or of null when nothing waits to be confirmed."
+      }
+    },
+    "cancelConfirmation": {
+      "summary": "Go back to editing from a confirmation the host asked for. Sends nothing and keeps every entry.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "The element, for chaining."
       }
     }
   },
@@ -1110,11 +1143,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "19f692740acc9025dc5c0d6d804117d01191cce36efe8eb2286766531a70564e"
+        "sha256": "d36aa33cfc735aa0107902b732c3ca8ee00041c9924c7be6d5b678c36ccef7ec"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "965d5e044b4f7b9684f76e41a3023a82dc010df1c98bc0c25c8cf73bdc12a6fe"
+        "sha256": "59936ba267338dec7d4fa0b11e51e401b2501e552f1cf3e8b92568e5df17b5c0"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",
@@ -1129,6 +1162,10 @@
         "sha256": "73aa9ecf895689e6f6456b09da7b896d8497ff5540fb8b38033ebdfe47f94ac8"
       },
       {
+        "path": "src/smart/property-view/js/conditions.js",
+        "sha256": "bf48b0bf4d2affb43433d1142b1a0ca57e22dc26088c5bd0b28e3212fba7134b"
+      },
+      {
         "path": "src/smart/property-view/rule.js",
         "sha256": "98d1c2f96404201314f3682d636ae1a9d83897efd7a49cc92f2e00220a588a4e"
       },
@@ -1138,7 +1175,7 @@
       },
       {
         "path": "src/smart/property-view/docs.md",
-        "sha256": "f6800cf66244cb9880cdd43678cbd09ca63e168b4f6f9fd5b939889f3996c1e2"
+        "sha256": "b302b689ca2802a48f808320a309b35f161ae6dac87d53df99bacafd0531c2dd"
       }
     ],
     "generated_runtime": []

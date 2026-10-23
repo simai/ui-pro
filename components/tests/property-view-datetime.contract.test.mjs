@@ -73,7 +73,7 @@ test('the template edits a datetime with the pair and leaves every other type to
 test('an entry that is not a value yet stops both saves and is said under the field', () => {
   const view = read('src/smart/property-view/index.js');
   assert.match(view, /if \(this\.editing && this\.inputErrors\.size\) return this\._inputsInvalid\(\);/u);
-  assert.match(view, /async saveAll\(\) \{\n\s+if \(this\.inputErrors\.size\) return this\._inputsInvalid\(\);/u);
+  assert.match(view, /async saveAll\(\{confirm = null\} = \{\}\) \{\n\s+if \(this\.inputErrors\.size\) return this\._inputsInvalid\(\);/u);
   assert.match(view, /errors: this\.inputErrors\.size \? new Map\(\[\.\.\.this\.errors, \.\.\.this\.inputErrors\]\) : this\.errors/u);
   // Every place a change is dropped drops the drafts with it.
   assert.equal((view.match(/this\.changed\.clear\(\);\n\s+this\._clearInputs\(\);/gu) ?? []).length,

@@ -396,6 +396,10 @@ function renderEntryName(context, kind, key, label, titleClass) {
 // showing that it can be. Only a readonly field, a field already being edited and
 // a field being arranged are not buttons -- each already means something else.
 function renderField(context, field, editing, sectionKey = '', groupKey = '') {
+    // A field as its conditions make it now (port 1.14.0): required or not,
+    // enabled or drawn disabled as a readonly field is. Not while the view is
+    // arranged: arranging places fields, it does not fill them in.
+    if (!context.configuring && field.when) field = context.conditionedField(field);
     const key = String(field.key ?? '');
     const error = context.errors.get(key);
 
@@ -834,9 +838,38 @@ function sizeStyle(context) {
         + ' --sf-property-view--value-size: var(--sf-text-small--size); --sf-property-view--value-height: var(--sf-text-small--height);';
 }
 
+// A save the host makes only once confirmed (port 1.14.0): its words, and the
+// two answers, in the bar where save was pressed -- the same place and the same
+// arrangement as the view's reset question. Going back sends nothing and keeps
+// what was entered.
+function renderConfirmation(context) {
+    return html`
+        <div class="sf-property-view-actions flex items-cross-center gap-2 flex-wrap" role="group"
+             data-confirming="true">
+            <span class="sf-property-view-confirm-text" role="alert">${context.confirmation.text}</span>
+            <span class="grow"></span>
+            <sf-button
+                    appearance="default"
+                    size=${context.size}
+                    text=${context.confirmSaveText}
+                    data-action="confirm-save"
+                    @click=${() => context.component.confirmSave()}
+            ></sf-button>
+            <sf-button
+                    appearance="outline"
+                    size=${context.size}
+                    text=${context.keepEditingText}
+                    data-action="keep-editing"
+                    @click=${() => context.component.cancelConfirmation()}
+            ></sf-button>
+        </div>
+    `;
+}
+
 // The foot of a surface open all at once: Create or Save, and Cancel, with
 // what went wrong beside them.
 function renderOpenAllBar(context) {
+    if (context.confirmation) return renderConfirmation(context);
     const creating = context.mode === 'create';
     return html`
         <div class="sf-property-view-actions flex items-cross-center gap-2 flex-wrap" role="group">
@@ -875,6 +908,7 @@ function renderActions(context, {panel = false} = {}) {
     // saving a record and arranging the view it is read in are two modes, and a
     // bar holding both would offer a save for something nobody was editing.
     if (context.configuring) return renderConfigureBar(context);
+    if (context.editing && context.confirmation) return renderConfirmation(context);
     // A panel's foot holds every action on the record -- the host's own, slotted
     // as `footer`, and the delete -- in one bar under the fields (owner,
     // 2026-10-14). They were drawn in the scrolling body, the delete as one more

@@ -19,5 +19,10 @@ test('changeField takes a change back on undefined', () => {
 });
 
 test('a save sends only the recorded changes', () => {
-  assert.equal((source.match(/values: Object\.fromEntries\(this\.changed\)/gu) ?? []).length, 3);
+  // Every save takes its values from one place, and that place reads the
+  // recorded changes alone -- less the fields a condition hides (port 1.14.0).
+  assert.match(source, /_savedValues\(\) \{[\s\S]*?return Object\.fromEntries\(\[\.\.\.this\.changed\]\.filter\(/u);
+  assert.equal((source.match(/const values = this\._savedValues\(\);/gu) ?? []).length, 2);
+  assert.equal((source.match(/\n\s+values,\n/gu) ?? []).length, 3);
+  assert.doesNotMatch(source, /values: Object\.fromEntries/u);
 });

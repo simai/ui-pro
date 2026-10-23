@@ -114,6 +114,68 @@ time, a time without a day or a time that is not hh:mm is said under the field
 like a host's error, and the save waits until it is put right. A `readonly`
 datetime is shown, not edited.
 
+## Lookup fields
+
+A field with `propertyType: "lookup"` holds a value chosen from a reference list
+the host keeps — a country, a status, a contract type (port 1.14.0). Its value
+is `{"value": "RU", "label": "Россия"}`, or a list of such objects when the field
+is `multiple`, and a save writes the same shape back. The label travels with the
+value, so the field reads «Россия» without a second read; several values read as
+a row of tags. Nothing opens from a lookup: it is not a reference to a record.
+
+A short list arrives inline as the field's `options` and is chosen from in
+place, searched in the dropdown itself, because the list in hand is the whole
+list. A longer one is the host's: the field names it by `source`, and the
+picker pages it through `field.options`, whose payload carries that `source` and
+a `limit` of 20. The search is the host's too, over the whole list — the
+component never filters a page it holds. Without the `field-options` capability
+a lookup that is not inline is shown read-only, as a record is.
+
+```json
+{"key": "country", "label": "Страна", "propertyType": "lookup", "source": "countries",
+ "value": {"value": "RU", "label": "Россия"}}
+```
+
+## A save the host confirms first
+
+A save that reaches past the object — one that moves every record of a type —
+may be confirmed first (port 1.14.0, the same shape as the data view port's).
+The host answers the save `refused` with `reason: "confirm_required"` and
+`confirm: {summary, digest}`. The panel shows the summary in the bar where save
+was pressed, with «Подтвердить и сохранить» and «Вернуться к правке». Confirming
+raises the same `group.save` or `record.save` again with `confirm` set to the
+digest; going back sends nothing and keeps every entry. A host whose digest no
+longer matches what the save would do asks again, and the new summary is shown:
+a person confirms what will actually happen. A create is never confirmed.
+
+## Conditional fields
+
+A field's `when` says when it is shown, required and enabled (port 1.14.0):
+
+```json
+{"key": "valid_until", "propertyType": "date",
+ "when": {"visible": {"field": "type", "op": "eq", "value": "framework"},
+          "required": {"all": [{"field": "type", "op": "eq", "value": "framework"},
+                               {"field": "status", "op": "ne", "value": "draft"}]},
+          "enabled": {"not": {"field": "status", "op": "in", "value": ["signed", "closed"]}}}}
+```
+
+A leaf is `{field, op, value}` with `op` one of `eq`, `ne`, `in`, `not_in`
+(`value` a list), `empty`, `not_empty`; `all`, `any` and `not` combine them. The
+conditions read the values on screen — what the record holds, or what the
+person changed it to and has not saved — so a field appears the moment the value
+it waits for is chosen. An object carrying `value` (a lookup) is compared by it,
+a list matches `eq` and `in` when any item does, and values compare as text. A
+condition the component cannot read leaves the field as declared.
+
+A field its condition hides is not drawn and not sent in a save, and it is **not
+cleared**: it keeps what it holds, its own value or an inherited one. Hidden by a
+condition is not the same as emptied — switching a contract's type back and
+forth must not lose the date it had. `required` decides the required mark and
+the control's own required state; the host validates as it always has.
+`enabled` that does not hold draws the control disabled, as `readonly` does.
+While the view is arranged every field is listed, whatever its condition.
+
 ## Closing a panel over unsaved work
 
 A panel never closes itself: the cross, Esc and «Отменить» each raise

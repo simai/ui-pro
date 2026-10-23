@@ -19,18 +19,30 @@ import {ICON_CHOICES} from "./js/icon-choices.js";
 import {pageText} from "../../core/js/page-language";
 import {renderPropertyViewTemplate} from "./js/templates/default";
 import {composeDateTime, normalizeTime, splitDateTime} from "./js/datetime-value.js";
+import {fieldConditions} from "./js/conditions.js";
 
 // Every port version this composite accepts, in one place, the way sf-data-view
 // keeps its list -- a guard naming a narrower set than the published versions is
 // a component refusing a host it asked to move. The contract test beside this
 // file compares the list with the manifest.
-const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0"];
+const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0"];
 
 // The surface's mode (owner, 2026-10-14). view: show the object, never offer
 // a change. auto: show it and offer what this person may do. edit: every group
 // open at once, one save. create: an empty object of the collection, every
 // field open, one create.
 const MODES = ["view", "auto", "edit", "create"];
+
+// The most candidates a picker asks for at once, from a host on port 1.14.0 or
+// later (an earlier port's field.options payload is closed and would refuse
+// it). Twenty is the page the record picker was built and measured against
+// with the consumer's 448 targets; the host may answer fewer, and says which
+// page is the last by its cursor, not by a short page.
+const OPTIONS_PAGE_LIMIT = 20;
+
+// The property types picked from a list the host pages: the records and people,
+// and since 1.14.0 a lookup whose list is not inline.
+const PAGED_TYPES = ["record", "relation", "user", "lookup"];
 const versionAtLeast = (version, minimum) => {
     const parts = (value) => String(value ?? "").split(".").map((part) => Number.parseInt(part, 10) || 0);
     const [a, b] = [parts(version), parts(minimum)];
@@ -128,6 +140,8 @@ const PROPERTY_VIEW_TEXT = {
         timeMissingText: "Enter the time",
         timeInvalidText: "Enter the time as hh:mm, from 00:00 to 23:59",
         conflictText: "The record changed; read it again",
+        confirmSaveText: "Confirm and save",
+        keepEditingText: "Keep editing",
         sectionsLabel: "Sections",
         closeLabel: "Close",
         statePortNotConnected: "The record port is not connected",
@@ -208,6 +222,8 @@ const PROPERTY_VIEW_TEXT = {
         timeMissingText: "Укажите время",
         timeInvalidText: "Укажите время в виде чч:мм, от 00:00 до 23:59",
         conflictText: "Запись изменилась, обновите её",
+        confirmSaveText: "Подтвердить и сохранить",
+        keepEditingText: "Вернуться к правке",
         sectionsLabel: "Разделы",
         closeLabel: "Закрыть",
         statePortNotConnected: "Порт записи не подключён",
@@ -406,6 +422,11 @@ class SfPropertyView extends SfBaseElement {
         this.inputDrafts = new Map();
         this.inputErrors = new Map();
         this.conflict = null;
+        // A save the host will make only once confirmed (port 1.14.0): what it
+        // said the save will do and the digest it issued for it, held until the
+        // person confirms or goes back to editing. Nothing is written meanwhile,
+        // and what was entered stays.
+        this.confirmation = null;
         // Candidate records for a reference field, per field: the page the host
         // last answered with and the search it was answered for. Held for
         // rendering only, and dropped when the search changes -- a page is not the
@@ -1442,10 +1463,72 @@ class SfPropertyView extends SfBaseElement {
         return this;
     }
 
-    visible(entries) {
+    visible(entries, {conditions = true} = {}) {
+        const values = conditions ? this.fieldValues() : null;
         return (Array.isArray(entries) ? entries : [])
             .filter((entry) => entry && entry.hidden !== true)
-            .filter((entry) => this.showRare || entry.rare !== true);
+            .filter((entry) => this.showRare || entry.rare !== true)
+            // A field its condition hides is not drawn (port 1.14.0). Not while
+            // the view is arranged -- the template lists every entry then -- and
+            // not by the view: `hidden` is the arrangement's, `when` the values'.
+            .filter((entry) => !values || !entry.when || fieldConditions(entry, values).visible);
+    }
+
+    // Every field's value as it stands on screen: what the record holds, or what
+    // the person changed it to and has not saved. The conditions read these, so
+    // a field appears the moment the value it waits for is chosen, before any
+    // save -- and a condition over a field in another group, closed, reads what
+    // that field holds.
+    fieldValues() {
+        const values = new Map();
+        const take = (field) => {
+            if (!field || field.key === undefined || field.key === null) return;
+            const key = String(field.key);
+            values.set(key, this.changed.has(key) ? this.changed.get(key) : field.value);
+        };
+        for (const section of this.sections ?? []) {
+            for (const group of section?.groups ?? []) (group?.fields ?? []).forEach(take);
+        }
+        this.unplaced.forEach(take);
+        return values;
+    }
+
+    // A field as its conditions make it: required as `when.required` says, and
+    // drawn disabled -- as `readonly` is -- while `when.enabled` does not hold.
+    // The field itself is the host's and is not written to.
+    conditionedField(field, values = this.fieldValues()) {
+        if (!field?.when) return field;
+        const decided = fieldConditions(field, values);
+        return {
+            ...field,
+            required: decided.required,
+            readonly: field.readonly === true || !decided.enabled,
+        };
+    }
+
+    // The keys of the fields their conditions hide now.
+    _hiddenByCondition() {
+        const values = this.fieldValues();
+        const hidden = new Set();
+        const check = (field) => {
+            if (field?.when && !fieldConditions(field, values).visible) hidden.add(String(field.key));
+        };
+        for (const section of this.sections ?? []) {
+            for (const group of section?.groups ?? []) (group?.fields ?? []).forEach(check);
+        }
+        this.unplaced.forEach(check);
+        return hidden;
+    }
+
+    // What a save carries: the changed fields, less every field its condition
+    // hides (port 1.14.0). Such a field is left out, not emptied: it keeps what
+    // it holds -- its own value or an inherited one -- because hidden by a
+    // condition is not the same as cleared, and a contract type switched back
+    // and forth must not lose the date it had. What the person typed into it
+    // stays among the changes, unsent, and is sent if the field shows again.
+    _savedValues() {
+        const hidden = this._hiddenByCondition();
+        return Object.fromEntries([...this.changed].filter(([key]) => !hidden.has(key)));
     }
 
     templateContext() {
@@ -1502,8 +1585,12 @@ class SfPropertyView extends SfBaseElement {
             sectionsWidth: SECTIONS_WIDTH,
             isTopPanel: this.isTopPanel,
             conflict: this.conflict,
+            confirmation: this.confirmation,
+            confirmSaveText: pageText(PROPERTY_VIEW_TEXT, "confirmSaveText", this),
+            keepEditingText: pageText(PROPERTY_VIEW_TEXT, "keepEditingText", this),
             message: this.message,
             visible: (entries) => this.visible(entries),
+            conditionedField: (field) => this.conditionedField(field),
             canConfigureView: this.canConfigureView,
             configuring: this.configuring,
             unplaced: this.unplaced,
@@ -1946,6 +2033,12 @@ class SfPropertyView extends SfBaseElement {
             field: key,
             cursor,
             search: String(search ?? ""),
+            // The reference list a lookup chooses from, and how many to answer
+            // with (port 1.14.0). Sent only to a host that reads them: the
+            // payload of an earlier port is closed.
+            ...(versionAtLeast(this.hostPort?.version, "1.14.0")
+                ? {...(field.source ? {source: String(field.source)} : {}), limit: OPTIONS_PAGE_LIMIT}
+                : {}),
         }, {stale: () => recordEpoch !== this.epoch || fieldEpoch !== this.optionEpochs.get(key)});
         if (!answer) return null;
         if (answer.answer !== "applied") {
@@ -1987,6 +2080,9 @@ class SfPropertyView extends SfBaseElement {
         if (value === undefined) this.changed.delete(key);
         else this.changed.set(key, value);
         this.errors.delete(key);
+        // A confirmation described the save as it stood; an entry changed after
+        // it is a different save, and the question goes until save is pressed again.
+        this.confirmation = null;
         this.requestComponentUpdate("changed");
         return this;
     }
@@ -2035,13 +2131,19 @@ class SfPropertyView extends SfBaseElement {
         return {answer: "refused", reason: "input_invalid", errors: Object.fromEntries(this.inputErrors)};
     }
 
-    // Which fields in a group are picked from a list of records rather than typed.
+    // Which fields in a group are picked from a list the host pages rather than
+    // typed. A lookup that brought its list inline is chosen from in place and
+    // asks for nothing. A field its condition hides now still has its first page
+    // asked for: the condition can change at any keystroke, and a picker that
+    // appears empty is the broken-looking case this read exists to avoid.
     _referenceFields(section, group) {
         const current = this.sections.find((entry) => String(entry.key) === String(section));
         const found = this.visible(current?.groups).find((entry) => String(entry.key) === String(group));
 
-        return this.visible(found?.fields)
-            .filter((field) => ["record", "relation", "user"].includes(field.propertyType || field.type));
+        return this.visible(found?.fields, {conditions: false})
+            .filter((field) => PAGED_TYPES.includes(field.propertyType || field.type))
+            .filter((field) => !((field.propertyType || field.type) === "lookup"
+                && Array.isArray(field.options) && field.options.length > 0));
     }
 
     editGroup(section, group) {
@@ -2051,6 +2153,7 @@ class SfPropertyView extends SfBaseElement {
         this._clearInputs();
         this.errors.clear();
         this.conflict = null;
+        this.confirmation = null;
         this.requestComponentUpdate("editing");
         // The first page is asked for as the group opens, not when the person
         // first types: a picker that is empty until you search looks broken, and
@@ -2085,6 +2188,7 @@ class SfPropertyView extends SfBaseElement {
             this._clearInputs();
             this.errors.clear();
             this.conflict = null;
+            this.confirmation = null;
             this.requestComponentUpdate("editing");
             return this;
         }
@@ -2093,6 +2197,7 @@ class SfPropertyView extends SfBaseElement {
         this._clearInputs();
         this.errors.clear();
         this.conflict = null;
+        this.confirmation = null;
         this.requestComponentUpdate("editing");
         return this;
     }
@@ -2100,20 +2205,28 @@ class SfPropertyView extends SfBaseElement {
     // One press, one intent, one revision. Nothing is sent on blur and nothing
     // per field: a save carries the fields the person changed, against the
     // revision the read carried, and the host compares and sets.
-    async saveGroup() {
-        if (this.openAll) return this.saveAll();
+    //
+    // `confirm` is the digest of a confirmation the host asked for (port
+    // 1.14.0): the same save raised again once the person has read what it does.
+    async saveGroup({confirm = null} = {}) {
+        if (this.openAll) return this.saveAll({confirm});
         if (this.editing && this.inputErrors.size) return this._inputsInvalid();
         if (!this.editing || this.changed.size === 0) return null;
+        const values = this._savedValues();
+        if (!Object.keys(values).length) return null;
+        this.confirmation = null;
         const epoch = ++this.epoch;
         const answer = await this._raise("group.save", {
             record_id: this.recordId || null,
             collection: this.collection || null,
             section: this.editing.section,
             group: this.editing.group,
-            values: Object.fromEntries(this.changed),
+            values,
             revision: this.record?.revision ?? null,
+            ...(confirm ? {confirm} : {}),
         }, {stale: () => epoch !== this.epoch});
         if (!answer) return null;
+        if (this._askedToConfirm(answer)) return answer;
         if (answer.answer === "applied") {
             this.record = answer.record ?? this.record;
             this.sections = Array.isArray(answer.record?.sections) ? answer.record.sections : this.sections;
@@ -2145,23 +2258,29 @@ class SfPropertyView extends SfBaseElement {
     // A surface open all at once saves the whole object: a create makes it
     // (record.create), an edit saves every changed field as one revision
     // (record.save), port 1.12.0.
-    async saveAll() {
+    async saveAll({confirm = null} = {}) {
         if (this.inputErrors.size) return this._inputsInvalid();
         if (this.mode !== "create" && this.changed.size === 0) return null;
-        const epoch = ++this.epoch;
         const creating = this.mode === "create";
+        const values = this._savedValues();
+        if (!creating && !Object.keys(values).length) return null;
+        this.confirmation = null;
+        const epoch = ++this.epoch;
         const answer = creating
             ? await this._raise("record.create", {
                 collection: this.collection || null,
-                values: Object.fromEntries(this.changed),
+                values,
             }, {stale: () => epoch !== this.epoch})
             : await this._raise("record.save", {
                 record_id: this.recordId || null,
                 collection: this.collection || null,
-                values: Object.fromEntries(this.changed),
+                values,
                 revision: this.record?.revision ?? null,
+                ...(confirm ? {confirm} : {}),
             }, {stale: () => epoch !== this.epoch});
         if (!answer) return null;
+        // A create is not confirmed: record.create carries no digest.
+        if (!creating && this._askedToConfirm(answer)) return answer;
         if (answer.answer === "applied") {
             this.changed.clear();
         this._clearInputs();
@@ -2206,6 +2325,40 @@ class SfPropertyView extends SfBaseElement {
         }
         this._setState("error", answer.message || pageText(PROPERTY_VIEW_TEXT, "saveFailedText", this));
         return answer;
+    }
+
+    // A save the host makes only once confirmed (port 1.14.0, the data view
+    // port's shape since 1.8.0): refused with reason confirm_required, with what
+    // the save will do and a digest of it. The person reads it in the bar where
+    // they pressed save -- the component's own place for a question, as the
+    // view's reset asks there -- and either confirms, which raises the same save
+    // again with the digest, or goes back to editing, which sends nothing and
+    // keeps every entry. A confirmation asked again -- the digest no longer
+    // matched what the save would do -- is shown again with the host's new
+    // words: a person confirms what will actually happen, never what was
+    // described before something moved.
+    _askedToConfirm(answer) {
+        const confirm = answer?.confirm;
+        if (answer?.answer !== "refused" || answer.reason !== "confirm_required"
+            || !confirm || typeof confirm.digest !== "string" || !confirm.digest) return false;
+        this.confirmation = {
+            text: String(confirm.summary || answer.message || ""),
+            digest: confirm.digest,
+        };
+        this.requestComponentUpdate("confirmation");
+        return true;
+    }
+
+    confirmSave() {
+        const digest = this.confirmation?.digest;
+        if (!digest) return Promise.resolve(null);
+        return this.openAll ? this.saveAll({confirm: digest}) : this.saveGroup({confirm: digest});
+    }
+
+    cancelConfirmation() {
+        this.confirmation = null;
+        this.requestComponentUpdate("confirmation");
+        return this;
     }
 
     // Configuring the view. The host decides three separate things and the
