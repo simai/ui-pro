@@ -45,7 +45,7 @@ const files = (root, current = root) => readdirSync(current, {withFileTypes: tru
   });
 
 export function materializeOverlay(target, {uiSource, committed = false} = {}) {
-  // This folder lives inside ui-admin, so ui-source is looked for beside the
+  // This folder lives inside a repository (ui-pro), so ui-source is looked for beside the
   // repository, not beside the folder.
   const repositoryRoot = execFileSync('git', ['-C', PACKAGE_ROOT, 'rev-parse', '--show-toplevel'], {encoding: 'utf8'}).trim();
   const sourceRoot = resolve(uiSource ?? process.env.UI_SOURCE_ROOT ?? join(repositoryRoot, '..', 'ui-source'));

@@ -2,9 +2,9 @@
 
 Copyright SIMAI. All rights reserved, except as granted below.
 
-This licence covers everything in this repository: the SIMAI Admin components
-(`components/`, the component package `larena`), the reference host, the
-polygon, the mock server and their scripts and data. It does not cover the
+This licence covers everything in this repository: the SIMAI Pro Smart
+components (`components/`, the component package `larena`), their tests,
+scripts and documentation. It does not cover the
 SIMAI Framework this repository builds on (`simai/ui-source`, `simai/ui`,
 `@simai-studio/ui`), which is licensed separately under Apache-2.0, nor
 third-party dependencies, which keep their own licences.
