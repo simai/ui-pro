@@ -17,10 +17,13 @@ test('the kit marks its own delete destructive and nothing else', () => {
   assert.deepEqual(catalogue.map((action) => action.id), ['edit', 'view', 'delete']);
   const marked = catalogue.filter((action) => action.danger === true).map((action) => action.id);
   assert.deepEqual(marked, ['delete']);
-  // The icon in the actions column states its own scheme; the mark is a fact
-  // about the action, not a repaint of every table's inline buttons.
+  // The icon in the actions column keeps the family it falls back to, and the
+  // destructive one says so with its status (2026-10-23): the row menu paints
+  // delete in `error`, so the inline icon does too.
   assert.deepEqual(catalogue.map((action) => action.component.props.scheme),
     ['on-surface', 'on-surface', 'on-surface']);
+  assert.deepEqual(catalogue.map((action) => action.component.props.status ?? null),
+    [null, null, 'error']);
 });
 
 test('the row menu carries the mark through, for an action and for a group member', () => {

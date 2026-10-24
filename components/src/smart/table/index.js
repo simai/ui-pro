@@ -488,9 +488,13 @@ class SfTable extends SfBaseElement {
                     // delete in a host catalogue only to restore the red row is
                     // no longer the price of leaving it to the kit (Larena
                     // storage QA, 2026-10-22). The icon in the actions column
-                    // keeps its stated `on-surface`: whether a destructive
-                    // inline icon-button paints `error` is a repaint of every
-                    // table, not a property of this entry.
+                    // says the same with `status: 'error'` (decided 2026-10-23,
+                    // control/VISUAL-DECISIONS.md «Разрушительное действие
+                    // строкой»): one act must not look like two on the two
+                    // surfaces of one row, and with the column's default
+                    // visibility at most one red icon shows at a time. The
+                    // status paints, the scheme stays the family it falls back
+                    // to (sf-icon-button: they cannot both paint it).
                     danger: true,
                     component: {
                         type: 'icon-button',
@@ -499,6 +503,7 @@ class SfTable extends SfBaseElement {
                             size: '1',
                             appearance: 'link',
                             scheme: 'on-surface',
+                            status: 'error',
                             icon: 'delete',
                             ariaLabel: this.text('deleteActionText'),
                             value: 'delete'
