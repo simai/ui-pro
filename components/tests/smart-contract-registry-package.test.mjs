@@ -14,10 +14,11 @@ test("the package composites are generated into the searchable registry beside t
   run("build");
   const registry = JSON.parse(readFileSync(new URL("../contracts/generated/smart-component-contract-registry.json", import.meta.url), "utf8"));
   assert.equal(registry.schema, "simai.smart-component-contract-registry.v2");
-  // The free registry's Smart components (sf-image-field the latest) and the
-  // package's own make 62: 55 free, the four admin composites and the three
-  // conversation components promoted from simai/ui-chat (2026-10-25).
-  assert.equal(registry.entries.length, 62);
+  // The free registry's Smart components (sf-accordion, sf-quantity,
+  // sf-code-input and sf-menu the latest) and the package's own make 66: 59
+  // free, the four admin composites and the three conversation components
+  // promoted from simai/ui-chat (2026-10-25).
+  assert.equal(registry.entries.length, 66);
   for (const id of ["smart.admin-menu", "smart.data-view", "smart.data-view-composite", "smart.property-view",
     "smart.message-log", "smart.thread-list", "smart.change-confirm"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
@@ -62,7 +63,8 @@ test("CLI discovers and describes the whole data view", () => {
 
 test("CLI discovers, describes and verifies the whole composite", () => {
   const listed = JSON.parse(run("list", "--kind", "smart", "--capability", "navigation"));
-  assert.deepEqual(listed.map(({id}) => id), ["smart.admin-menu"]);
+  // The free sf-menu (site navigation) and the package's admin menu.
+  assert.deepEqual(listed.map(({id}) => id), ["smart.admin-menu", "smart.menu"]);
   const packet = JSON.parse(run("describe", "smart.admin-menu", "--format", "ai"));
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-admin-menu");
