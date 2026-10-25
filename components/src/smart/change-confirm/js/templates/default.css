@@ -1,0 +1,143 @@
+@layer sf.components {
+  /* sf-change-confirm. The host is display: contents; .sf-change-confirm is
+     the card the page places. Every value is a Framework token; the public
+     adaptation points are the --sf-change-confirm--* variables:
+       --sf-change-confirm--radius       the card's corner
+       --sf-change-confirm--inset        its padding
+       --sf-change-confirm--gap          between its rows
+       --sf-change-confirm--before-fill  the old value's ground
+       --sf-change-confirm--after-fill   the new value's ground
+       --sf-change-confirm--after-ink    the new value's text */
+  .sf-change-confirm {
+    --sf-change-confirm--radius: var(--sf-radius-2);
+    --sf-change-confirm--inset: var(--sf-space-1\/2) var(--sf-space-1);
+    --sf-change-confirm--gap: var(--sf-space-1\/2);
+    --sf-change-confirm--before-fill: var(--sf-surface-container);
+    --sf-change-confirm--after-fill: var(--sf-primary-container);
+    --sf-change-confirm--after-ink: var(--sf-on-primary-container);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-change-confirm--gap);
+    min-inline-size: 0;
+    padding: var(--sf-change-confirm--inset);
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-change-confirm--radius);
+    color: var(--sf-on-surface);
+    font-family: var(--sf-text--family);
+    font-size: var(--sf-text--size);
+    line-height: var(--sf-text--height);
+  }
+
+  .sf-change-confirm__heading {
+    margin: 0;
+    font-weight: var(--sf-font-weight-bold);
+  }
+
+  .sf-change-confirm__description {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-large--size);
+    line-height: var(--sf-label-large--height);
+  }
+
+  .sf-change-confirm__changes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-change-confirm--gap);
+    margin: 0;
+  }
+
+  .sf-change-confirm__change {
+    display: grid;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .sf-change-confirm__label {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-medium--size);
+    line-height: var(--sf-label-medium--height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  /* The tag column is as wide as its longest word, so the two values start
+     on one line whatever the language calls «was» and «will be». */
+  .sf-change-confirm__before,
+  .sf-change-confirm__after {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--sf-space-1\/2);
+    margin: 0;
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1\/2);
+    border-radius: var(--sf-radius--ui);
+    font-size: var(--sf-label-large--size);
+    line-height: var(--sf-label-large--height);
+  }
+
+  .sf-change-confirm__before { background: var(--sf-change-confirm--before-fill); }
+
+  .sf-change-confirm__after {
+    background: var(--sf-change-confirm--after-fill);
+    color: var(--sf-change-confirm--after-ink);
+  }
+
+  .sf-change-confirm__tag {
+    font-size: var(--sf-label-medium--size);
+    line-height: var(--sf-label-large--height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-change-confirm__value {
+    min-inline-size: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .sf-change-confirm__value--empty { font-style: italic; }
+
+  .sf-change-confirm__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sf-space-1\/3);
+  }
+
+  .sf-change-confirm__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    margin: 0;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-medium--size);
+    line-height: var(--sf-label-medium--height);
+  }
+
+  /* Focus arrives here by script, when the answers go; the ring is the
+     Framework's own, a little off the words. */
+  .sf-change-confirm__status:focus-visible {
+    outline-offset: var(--sf-space-1\/4);
+  }
+
+  .sf-change-confirm--accepted .sf-change-confirm__status { color: var(--sf-on-success-container); }
+
+  .sf-change-confirm__actions {
+    display: flex;
+    gap: var(--sf-space-1\/3);
+  }
+
+  .sf-change-confirm__actions[hidden] { display: none; }
+
+  /* On a narrow screen the two answers share the width equally. A media
+     query and not a container query: containing the card's inline size would
+     make a card that is as wide as its content (in a message bubble) collapse
+     to nothing. */
+  @media (max-width: 479px) {
+    .sf-change-confirm__actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-self: stretch;
+      inline-size: 100%;
+    }
+  }
+}

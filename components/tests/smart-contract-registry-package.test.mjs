@@ -15,9 +15,11 @@ test("the package composites are generated into the searchable registry beside t
   const registry = JSON.parse(readFileSync(new URL("../contracts/generated/smart-component-contract-registry.json", import.meta.url), "utf8"));
   assert.equal(registry.schema, "simai.smart-component-contract-registry.v2");
   // The free registry's Smart components (sf-image-field the latest) and the
-  // package's own make 59.
-  assert.equal(registry.entries.length, 59);
-  for (const id of ["smart.admin-menu", "smart.data-view", "smart.data-view-composite", "smart.property-view"]) {
+  // package's own make 62: 55 free, the four admin composites and the three
+  // conversation components promoted from simai/ui-chat (2026-10-25).
+  assert.equal(registry.entries.length, 62);
+  for (const id of ["smart.admin-menu", "smart.data-view", "smart.data-view-composite", "smart.property-view",
+    "smart.message-log", "smart.thread-list", "smart.change-confirm"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
   }
   assert.ok(registry.entries.find(({id}) => id === "smart.admin-menu").capabilities.includes("navigation"));

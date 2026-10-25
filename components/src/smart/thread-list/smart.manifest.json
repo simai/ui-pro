@@ -1,0 +1,769 @@
+{
+  "schema_version": 2,
+  "id": "smart.thread-list",
+  "version": "1.0.0",
+  "title": "Thread list",
+  "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
+  "kind": "composite",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "conversation",
+    "threads",
+    "chat",
+    "navigation"
+  ],
+  "capabilities": [
+    "conversations",
+    "rename-in-place",
+    "pagination",
+    "responsive"
+  ],
+  "custom_element": "sf-thread-list",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "smart.avatar",
+      "smart.badges",
+      "smart.context-menu",
+      "smart.icons"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "template": {
+        "type": "string",
+        "const": "default",
+        "default": "default"
+      },
+      "selected": {
+        "type": "string",
+        "default": "",
+        "description": "The id of the open conversation."
+      },
+      "has-more": {
+        "type": "boolean",
+        "default": false,
+        "description": "A next page exists: reaching the end asks for it."
+      },
+      "archived": {
+        "type": "boolean",
+        "default": false,
+        "description": "Show the archive: a way back, Restore instead of Archive, no New conversation."
+      },
+      "no-create": {
+        "type": "boolean",
+        "default": false,
+        "description": "No New conversation."
+      },
+      "no-manage": {
+        "type": "boolean",
+        "default": false,
+        "description": "No row actions: no menu, no F2."
+      },
+      "no-archive": {
+        "type": "boolean",
+        "default": false,
+        "description": "No archive: no way to it and no Archive among the row actions."
+      },
+      "group-by": {
+        "enum": [
+          "day",
+          "none"
+        ],
+        "default": "day",
+        "description": "day: Today, Yesterday, Earlier by updated_at in the reader's time zone. none: one list."
+      },
+      "label": {
+        "type": "string",
+        "default": "",
+        "description": "The navigation's accessible name; empty is Conversations, or Archive, in the page's language."
+      }
+    }
+  },
+  "contracts": {
+    "thread": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "ISO 8601; orders the list and groups it by day."
+        },
+        "archived": {
+          "type": "boolean"
+        },
+        "caption": {
+          "type": "string",
+          "description": "A quiet second line: who it is with, the last message."
+        },
+        "unread": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "avatar": {
+          "type": "object",
+          "properties": {
+            "image_url": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ]
+    },
+    "slots": {
+      "type": "object",
+      "properties": {
+        "footer": {
+          "type": "string",
+          "description": "Under the list, after the way to the archive (a usage meter, a settings link)."
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "properties": {
+        "threads": {
+          "type": "array",
+          "description": "Read-only: the conversations shown, newest first."
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "text"
+            ]
+          },
+          "description": "Row actions of the host's own, after Rename and Archive."
+        }
+      }
+    },
+    "css_variables": {
+      "type": "object",
+      "properties": {
+        "--sf-thread-list--inset": {
+          "type": "string"
+        },
+        "--sf-thread-list--row-height": {
+          "type": "string"
+        },
+        "--sf-thread-list--radius": {
+          "type": "string"
+        },
+        "--sf-thread-list--hover": {
+          "type": "string"
+        },
+        "--sf-thread-list--current": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "methods": {
+    "setThreads": {
+      "summary": "Replace the list; only the conversations of the shown view (archived or not) are kept.",
+      "arguments": [
+        {
+          "name": "threads",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "description": "ISO 8601; orders the list and groups it by day."
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "caption": {
+                  "type": "string",
+                  "description": "A quiet second line: who it is with, the last message."
+                },
+                "unread": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "avatar": {
+                  "type": "object",
+                  "properties": {
+                    "image_url": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "title"
+              ]
+            }
+          }
+        },
+        {
+          "name": "options",
+          "required": false,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "hasMore": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "appendThreads": {
+      "summary": "The next page, after the ones shown; a conversation already listed is not repeated.",
+      "arguments": [
+        {
+          "name": "threads",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "description": "ISO 8601; orders the list and groups it by day."
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "caption": {
+                  "type": "string",
+                  "description": "A quiet second line: who it is with, the last message."
+                },
+                "unread": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "avatar": {
+                  "type": "object",
+                  "properties": {
+                    "image_url": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "title"
+              ]
+            }
+          }
+        },
+        {
+          "name": "options",
+          "required": false,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "hasMore": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "upsert": {
+      "summary": "A new or changed conversation, placed where its date puts it.",
+      "arguments": [
+        {
+          "name": "thread",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "ISO 8601; orders the list and groups it by day."
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "caption": {
+                "type": "string",
+                "description": "A quiet second line: who it is with, the last message."
+              },
+              "unread": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "avatar": {
+                "type": "object",
+                "properties": {
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "removeThread": {
+      "summary": "Take one conversation off the list.",
+      "arguments": [
+        {
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "setLoading": {
+      "summary": "While the first page loads: the shape of the list, and the list busy.",
+      "arguments": [
+        {
+          "name": "loading",
+          "required": true,
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "setStatus": {
+      "summary": "A sentence in place of the list (an error); empty clears it.",
+      "arguments": [
+        {
+          "name": "message",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "moreFailed": {
+      "summary": "The next page could not be loaded: reaching the end asks again.",
+      "arguments": [],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "rename": {
+      "summary": "Start renaming a conversation in place, as F2 does.",
+      "arguments": [
+        {
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "openMenu": {
+      "summary": "Open a conversation's actions, as the row's «⋯» and Shift+F10 do.",
+      "arguments": [
+        {
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "anchor",
+          "required": true,
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    }
+  },
+  "events": {
+    "sf-thread-list-create": {
+      "summary": "New conversation was pressed.",
+      "payload": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    "sf-thread-list-select": {
+      "summary": "A conversation was opened. The list does not move selected itself; the host sets it.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "sf-thread-list-rename": {
+      "summary": "A conversation was renamed in place; the new title is shown at once. A host that cannot keep it upserts the old title.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ]
+      }
+    },
+    "sf-thread-list-archive": {
+      "summary": "Archive was chosen for a conversation.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "sf-thread-list-unarchive": {
+      "summary": "Restore was chosen for an archived conversation.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "sf-thread-list-action": {
+      "summary": "One of the host's own row actions was chosen.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "action"
+        ]
+      }
+    },
+    "sf-thread-list-load-more": {
+      "summary": "The end of the list came into view while has-more: the next page is wanted. moreFailed() lets it ask again.",
+      "payload": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    "sf-thread-list-view": {
+      "summary": "The archive, or the way back from it, was pressed.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "archived"
+        ]
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "list": [
+        "loading",
+        "ready",
+        "empty"
+      ],
+      "row": [
+        "idle",
+        "renaming"
+      ],
+      "more": [
+        "idle",
+        "loading"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "loading",
+      "empty",
+      "selected",
+      "disabled"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "fetching conversations",
+      "deciding which conversation is open",
+      "access decisions"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "titles and captions (drawn as text)",
+      "avatar image URLs (passed to sf-avatar)"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "navigation",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Tab",
+      "ArrowUp",
+      "ArrowDown",
+      "Home",
+      "End",
+      "Enter",
+      "Space",
+      "F2",
+      "Shift+F10",
+      "ContextMenu",
+      "Escape"
+    ],
+    "focus": "One Tab stop for the list (roving tabindex: the row last moved to, else the open one, else the first). The open row carries aria-current=page and medium weight, and the system highlight in forced colours. F2 renames in place (Enter keeps, Escape gives up and does not reach a surrounding panel, leaving keeps); focus returns to the row. Shift+F10 or the menu key opens the row's actions; the «⋯» is not a Tab stop."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile",
+      "hover-none"
+    ],
+    "skeleton": {
+      "shape": "rows",
+      "while_loading": "template"
+    }
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [],
+    "scenarios": []
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "thread-list-contract",
+      "thread-list-browser"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "045432a6fb2474758fbc8c47022800801e6333e8",
+      "ui_smart_revision": "045432a6fb2474758fbc8c47022800801e6333e8"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": []
+  },
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "cf2521fb4694144f0ddcb9f9ea0ef61982fe8205",
+    "source_artifacts": [
+      {
+        "path": "src/smart/thread-list/index.js",
+        "sha256": "83d158bb8be8a2df6416dc273ecdd02581e09e1480c2c947db6a9547afa74880"
+      },
+      {
+        "path": "src/smart/thread-list/js/templates/default.js",
+        "sha256": "f071ed1a022c14fd2de6d40c46d0bbeb0f06f655ffe8c544277a272481d40548"
+      },
+      {
+        "path": "src/smart/thread-list/js/templates/default.css",
+        "sha256": "726ac665a4343baddc3f914564ab0b0098d690a1a4d633bb77a9f34af59eae29"
+      },
+      {
+        "path": "src/smart/thread-list/rule.js",
+        "sha256": "a9234c5b40a33e1877341f169012f19e9b0fbdd186dbc78ef3715e49af3564ba"
+      },
+      {
+        "path": "src/smart/thread-list/docs.md",
+        "sha256": "e6fd36cb57c9fcda9bde7f344b2a48f69128397750a15d3f2dce809e87326e49"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use sf-thread-list for a list of conversations -- an assistant's or people's chats -- the host feeds through setThreads and upsert. Promoted from simai/ui-chat sf-chat-thread-list (owner decision 2026-10-25).",
+    "do_not": [
+      "Do not fetch from the element; the host answers sf-thread-list-load-more",
+      "Do not expect the list to move selected on a click; set it when the conversation is open",
+      "Do not put markup in titles or captions; they are text"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "methods",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-thread-list selected=\"t1\"></sf-thread-list>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-browser-probes.mjs <free output> <package output>"
+    ]
+  }
+}

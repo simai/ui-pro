@@ -1,0 +1,156 @@
+@layer sf.components {
+  /* sf-message-log. The host is display: contents (the Smart base sets it), so
+     .sf-message-log is what the page's layout places: give its container a
+     height and the log scrolls inside it.
+
+     Every value is a Framework token. The public adaptation points are the five
+     --sf-message-log--* variables below; a host sets those, not rules:
+       --sf-message-log--column    the reading column's width
+       --sf-message-log--inset     the column's inline inset
+       --sf-message-log--gap-run   between messages of one author
+       --sf-message-log--gap-turn  between one author's run and the next
+       --sf-message-log--fade      how far the top edge fades
+     What a message looks like is the host's renderer, or the plain default at
+     the end of this file. */
+  .sf-message-log {
+    --sf-message-log--column: var(--sf-layout-reading-width);
+    --sf-message-log--inset: var(--sf-space-3);
+    --sf-message-log--gap-run: var(--sf-space-1\/4);
+    --sf-message-log--gap-turn: var(--sf-space-1\/2);
+    --sf-message-log--fade: var(--sf-space-1);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-block-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable both-edges;
+    /* The Framework scrolls smoothly page-wide; the jumps the log makes itself
+       (to the end on open, keeping place on prepend) must land at once. */
+    scroll-behavior: auto;
+    /* What scrolls under a header above fades out instead of being cut. The
+       fade is the column's top inset, so nothing at rest is dimmed. */
+    mask-image: linear-gradient(to bottom, transparent, #000 var(--sf-message-log--fade));
+  }
+
+  /* The region takes focus so a keyboard can scroll it; the ring is drawn
+     inside, because the region fills its container edge to edge. */
+  .sf-message-log:focus-visible {
+    outline-offset: calc(-1 * var(--sf-focus--width));
+  }
+
+  .sf-message-log__column,
+  .sf-message-log__earlier,
+  .sf-message-log__empty {
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: calc(var(--sf-message-log--column) + 2 * var(--sf-message-log--inset));
+    margin-inline: auto;
+    padding-inline: var(--sf-message-log--inset);
+  }
+
+  .sf-message-log__column {
+    display: flex;
+    flex-direction: column;
+    padding-block: var(--sf-space-3) var(--sf-space-4);
+  }
+
+  .sf-message-log--empty .sf-message-log__column { display: none; }
+
+  /* One author's messages read as one run; runs stand apart. */
+  .sf-message-log__item + .sf-message-log__item {
+    margin-block-start: var(--sf-message-log--gap-run);
+  }
+
+  .sf-message-log__item + .sf-message-log__item--first {
+    margin-block-start: var(--sf-message-log--gap-turn);
+  }
+
+  .sf-message-log__item {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .sf-message-log__item--own { align-items: flex-end; }
+
+  .sf-message-log__item[tabindex]:focus-visible,
+  .sf-message-log__item > [tabindex="-1"]:focus-visible {
+    outline-offset: var(--sf-space-1\/4);
+    border-radius: var(--sf-radius--ui);
+  }
+
+  .sf-message-log__earlier {
+    display: flex;
+    justify-content: center;
+    padding-block-start: var(--sf-space-1\/2);
+  }
+
+  .sf-message-log__empty {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .sf-message-log__earlier[hidden],
+  .sf-message-log__empty[hidden],
+  .sf-message-log__jump[hidden] { display: none; }
+
+  /* A floating round button over the end of the column: the Framework's
+     surface button, made opaque and raised through its public tokens. Sticky,
+     so it rides the bottom edge of the scroller without leaving the flow. */
+  .sf-message-log__jump {
+    position: sticky;
+    inset-block-end: var(--sf-space-1\/3);
+    align-self: center;
+    margin-block-start: calc(-1 * var(--sf-ui-1--control-height));
+    --sf-icon-button-background-color: var(--sf-elevation-2--surface);
+  }
+
+  .sf-message-log__jump > sf-icon-button > button {
+    box-shadow: var(--sf-elevation-2--shadow);
+  }
+
+  /* --- the default message ------------------------------------------------
+     Drawn when the host gives no renderer: the author over the first message
+     of a run, the text in a capsule that keeps its corner when it grows. */
+
+  .sf-message-log__message {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+    max-inline-size: 100%;
+    color: var(--sf-on-surface);
+    font-family: var(--sf-text--family);
+    font-size: var(--sf-text--size);
+    line-height: var(--sf-text--height);
+  }
+
+  .sf-message-log__item--own .sf-message-log__message { align-items: flex-end; }
+
+  .sf-message-log__author {
+    margin: 0;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-medium--size);
+    line-height: var(--sf-label-medium--height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-message-log__text {
+    margin: 0;
+    padding-block: var(--sf-space-1\/4);
+    padding-inline: var(--sf-space-1\/2);
+    border-radius: var(--sf-radius-2);
+    background: var(--sf-surface-container);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .sf-message-log__item--own .sf-message-log__text {
+    background: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
+  }
+}

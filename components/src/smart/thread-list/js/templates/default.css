@@ -1,0 +1,257 @@
+@layer sf.components {
+  /* sf-thread-list. The host is display: contents; .sf-thread-list is what the
+     page places, and it fills its container's height: the head and foot stay,
+     the rows scroll between them.
+
+     Every value is a Framework token. The public adaptation points are the
+     --sf-thread-list--* variables:
+       --sf-thread-list--inset       the inline inset of the head, rows and foot
+       --sf-thread-list--row-height  a one-line row (the ladder's step 1 control)
+       --sf-thread-list--radius      a row's corner
+       --sf-thread-list--hover       a row under the pointer
+       --sf-thread-list--current     the open row */
+  .sf-thread-list {
+    --sf-thread-list--inset: var(--sf-space-1\/3);
+    --sf-thread-list--row-height: var(--sf-ui-1--control-height);
+    --sf-thread-list--radius: var(--sf-radius-1);
+    --sf-thread-list--hover: var(--sf-surface-transparent-hover);
+    --sf-thread-list--current: var(--sf-surface-transparent-select);
+
+    display: flex;
+    flex-direction: column;
+    block-size: 100%;
+    min-block-size: 0;
+    color: var(--sf-on-surface);
+    font-family: var(--sf-text--family);
+    font-size: var(--sf-label-large--size);
+    line-height: var(--sf-label-large--height);
+  }
+
+  .sf-thread-list__head,
+  .sf-thread-list__footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+    padding: var(--sf-thread-list--inset);
+  }
+
+  .sf-thread-list__footer {
+    border-block-start: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-thread-list__head[hidden],
+  .sf-thread-list__footer[hidden],
+  .sf-thread-list__command[hidden],
+  .sf-thread-list__status[hidden] { display: none; }
+
+  .sf-thread-list__heading-view {
+    margin: 0;
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1\/2);
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: var(--sf-font-weight-bold);
+  }
+
+  /* Row-like commands: «New conversation», «Back», «Archive». A row's height,
+     a glyph of the step that sits in a control of that height, the text where
+     the rows' titles start. */
+  .sf-thread-list__command {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    inline-size: 100%;
+    min-block-size: var(--sf-thread-list--row-height);
+    padding-inline: var(--sf-space-1\/2);
+    border: 0;
+    border-radius: var(--sf-thread-list--radius);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: var(--sf-font-weight-medium);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .sf-thread-list__command:hover { background: var(--sf-thread-list--hover); }
+
+  /* The Framework's ring, drawn inside: a row sits flush in a scroller that
+     would cut a ring drawn outside it. */
+  .sf-thread-list__command:focus-visible,
+  .sf-thread-list__link:focus-visible,
+  .sf-thread-list__rename:focus-visible,
+  .sf-thread-list__more:focus-visible {
+    outline-offset: calc(-1 * var(--sf-focus--width));
+  }
+
+  .sf-thread-list__scroller {
+    flex: 1;
+    min-block-size: 0;
+    overflow-y: auto;
+    padding-inline: var(--sf-thread-list--inset);
+    padding-block-end: var(--sf-space-1\/2);
+    scrollbar-width: thin;
+  }
+
+  .sf-thread-list__group + .sf-thread-list__group { margin-block-start: var(--sf-space-1\/2); }
+
+  .sf-thread-list__heading {
+    margin: 0;
+    padding-block: var(--sf-space-1\/2) var(--sf-space-1\/4);
+    padding-inline: var(--sf-space-1\/2);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-medium--size);
+    line-height: var(--sf-label-medium--height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-thread-list__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sf-thread-list__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-radius: var(--sf-thread-list--radius);
+  }
+
+  .sf-thread-list__item:hover { background: var(--sf-thread-list--hover); }
+
+  /* The open conversation is told by more than a tint: its title is set in
+     medium weight, and in forced colours it takes the system highlight. */
+  .sf-thread-list__item--current { background: var(--sf-thread-list--current); }
+
+  .sf-thread-list__item--current .sf-thread-list__title,
+  .sf-thread-list__item--unread .sf-thread-list__title {
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  /* The row paints the system highlight itself: left to adjust, Chrome lays a
+     Canvas backing under the text and HighlightText vanishes. */
+  @media (forced-colors: active) {
+    .sf-thread-list__link[aria-current] {
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+  }
+
+  .sf-thread-list__link,
+  .sf-thread-list__rename {
+    flex: 1;
+    min-inline-size: 0;
+    min-block-size: var(--sf-thread-list--row-height);
+    padding-block: var(--sf-space-1\/4);
+    padding-inline: var(--sf-space-1\/2);
+    border: 0;
+    border-radius: var(--sf-thread-list--radius);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+  }
+
+  .sf-thread-list__link {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    cursor: pointer;
+  }
+
+  .sf-thread-list__rename {
+    background: var(--sf-surface-0);
+    cursor: text;
+  }
+
+  .sf-thread-list__avatar { flex: none; }
+
+  .sf-thread-list__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .sf-thread-list__title,
+  .sf-thread-list__caption {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .sf-thread-list__caption {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-medium--size);
+    line-height: var(--sf-label-medium--height);
+  }
+
+  .sf-thread-list__unread { flex: none; }
+
+  /* The row's «⋯»: an icon button of the step below the row, centred in the
+     row's end, shown on hover, on focus within and on the open row. */
+  .sf-thread-list__more {
+    position: absolute;
+    inset-inline-end: var(--sf-space-1\/4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--sf-ui-1\/2--control-height);
+    block-size: var(--sf-ui-1\/2--control-height);
+    padding: 0;
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: transparent;
+    color: var(--sf-on-surface-variant);
+    cursor: pointer;
+    opacity: 0;
+  }
+
+  .sf-thread-list__more:hover { background: var(--sf-thread-list--hover); }
+
+  .sf-thread-list__item:hover .sf-thread-list__link,
+  .sf-thread-list__item:focus-within .sf-thread-list__link,
+  .sf-thread-list__item--current .sf-thread-list__link {
+    padding-inline-end: calc(var(--sf-ui-1\/2--control-height) + var(--sf-space-1\/2));
+  }
+
+  .sf-thread-list__item:hover .sf-thread-list__more,
+  .sf-thread-list__item:focus-within .sf-thread-list__more,
+  .sf-thread-list__item--current .sf-thread-list__more {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    .sf-thread-list__more { opacity: 1; }
+    .sf-thread-list__link { padding-inline-end: calc(var(--sf-ui-1\/2--control-height) + var(--sf-space-1\/2)); }
+  }
+
+  .sf-thread-list__status {
+    margin: 0;
+    padding: var(--sf-space-1\/2);
+    color: var(--sf-on-surface-variant);
+  }
+
+  /* The loading list has the shape of the list: rows of the same height, a
+     text line inside each, so nothing moves when the rows arrive. */
+  .sf-thread-list__skeleton {
+    display: flex;
+    flex-direction: column;
+    padding-block-start: calc(var(--sf-label-medium--height) + var(--sf-space-1\/2) + var(--sf-space-1\/4));
+  }
+
+  .sf-thread-list__skeleton span {
+    block-size: var(--sf-thread-list--row-height);
+    border-block: calc((var(--sf-thread-list--row-height) - var(--sf-label-large--height)) / 2) solid transparent;
+    margin-inline: var(--sf-space-1\/2);
+    background: var(--sf-surface-container) content-box;
+    border-radius: var(--sf-radius--ui);
+  }
+
+  .sf-thread-list__skeleton span:nth-child(2) { inline-size: 70%; }
+  .sf-thread-list__skeleton span:nth-child(3) { inline-size: 85%; }
+
+  .sf-thread-list__sentinel { block-size: 1px; }
+}

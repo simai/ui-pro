@@ -1,0 +1,407 @@
+{
+  "schema_version": 2,
+  "id": "smart.change-confirm",
+  "version": "1.0.0",
+  "title": "Change confirmation",
+  "summary": "A prepared change put to a person: each value as it was and as it will be, two answers of equal weight, until when it can be answered, and then only the outcome. Applies nothing; a press is an event.",
+  "kind": "smart",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "confirmation",
+    "change",
+    "diff",
+    "chat"
+  ],
+  "capabilities": [
+    "confirmation",
+    "expiry",
+    "live-announcement"
+  ],
+  "custom_element": "sf-change-confirm",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "smart.buttons",
+      "smart.icons"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "template": {
+        "type": "string",
+        "const": "default",
+        "default": "default"
+      },
+      "heading": {
+        "type": "string",
+        "default": "",
+        "description": "What the change is; without one the card is named «What will change»."
+      },
+      "heading-level": {
+        "enum": [
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "default": "3",
+        "description": "The heading's level where the card is placed."
+      },
+      "state": {
+        "enum": [
+          "open",
+          "pending",
+          "accepted",
+          "declined",
+          "expired"
+        ],
+        "default": "open",
+        "description": "open: the answers are offered. pending: an answer is on its way (set by a press). accepted, declined, expired: only the outcome is shown."
+      },
+      "expires-at": {
+        "type": "string",
+        "default": "",
+        "description": "ISO 8601. Past it an open card reads as expired and says so once with sf-change-confirm-expire."
+      },
+      "change-id": {
+        "type": "string",
+        "default": "",
+        "description": "The host's name for the change, carried back in every event."
+      },
+      "disabled": {
+        "type": "boolean",
+        "default": false,
+        "description": "The answers are shown and cannot be pressed (a send is in flight elsewhere)."
+      },
+      "accept-text": {
+        "type": "string",
+        "default": "",
+        "description": "The accepting answer; empty is Confirm in the page's language."
+      },
+      "decline-text": {
+        "type": "string",
+        "default": "",
+        "description": "The declining answer; empty is Decline in the page's language."
+      },
+      "changes": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "What changes (a field's name)."
+            },
+            "before": {
+              "type": [
+                "string",
+                "number",
+                "null"
+              ],
+              "description": "The value as it is; empty or null reads as empty."
+            },
+            "after": {
+              "type": [
+                "string",
+                "number",
+                "null"
+              ],
+              "description": "The value as it will be."
+            }
+          },
+          "required": [
+            "label"
+          ]
+        },
+        "default": [],
+        "description": "The values, as JSON in markup; a property set from script wins."
+      }
+    }
+  },
+  "contracts": {
+    "change": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "What changes (a field's name)."
+        },
+        "before": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ],
+          "description": "The value as it is; empty or null reads as empty."
+        },
+        "after": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ],
+          "description": "The value as it will be."
+        }
+      },
+      "required": [
+        "label"
+      ]
+    },
+    "answers": {
+      "const": "A press moves the card to pending and dispatches sf-change-confirm-accept or -decline (cancelable). A cancelled event returns it to open. The host sets the outcome: accepted, declined, or open again when the answer could not be delivered. The card never applies anything."
+    },
+    "slots": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "A line under the heading (a code, who proposed it)."
+        }
+      }
+    },
+    "css_variables": {
+      "type": "object",
+      "properties": {
+        "--sf-change-confirm--radius": {
+          "type": "string"
+        },
+        "--sf-change-confirm--inset": {
+          "type": "string"
+        },
+        "--sf-change-confirm--gap": {
+          "type": "string"
+        },
+        "--sf-change-confirm--before-fill": {
+          "type": "string"
+        },
+        "--sf-change-confirm--after-fill": {
+          "type": "string"
+        },
+        "--sf-change-confirm--after-ink": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "methods": {
+    "answer": {
+      "summary": "Answer as the person would; false when the card is not open or is disabled, or the host cancelled the event.",
+      "arguments": [
+        {
+          "name": "kind",
+          "required": true,
+          "schema": {
+            "enum": [
+              "accept",
+              "decline"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      }
+    }
+  },
+  "events": {
+    "sf-change-confirm-accept": {
+      "summary": "The person confirmed. Cancel it to keep the question open.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "change-id"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "sf-change-confirm-decline": {
+      "summary": "The person declined. Cancel it to keep the question open.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "change-id"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "sf-change-confirm-expire": {
+      "summary": "An open card passed expires-at; said once per time.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "change-id"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "answer": [
+        "open",
+        "pending",
+        "accepted",
+        "declined",
+        "expired"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "loading",
+      "success",
+      "disabled"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "applying the change",
+      "composing a command or a code for the server",
+      "access decisions"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "heading, labels and values (drawn as text)"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "region",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Tab",
+      "Enter",
+      "Space"
+    ],
+    "focus": "A section named by its heading (role=heading at heading-level). The values are a description list. The status line is a polite live region, present before it speaks; when a press takes the answers away, focus moves to it instead of falling to the page, and back to the first answer when the host cancels."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile"
+    ],
+    "skeleton": {
+      "shape": "none",
+      "while_loading": "none"
+    }
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [],
+    "scenarios": []
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "change-confirm-contract",
+      "change-confirm-browser"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "045432a6fb2474758fbc8c47022800801e6333e8",
+      "ui_smart_revision": "045432a6fb2474758fbc8c47022800801e6333e8"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": []
+  },
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "cf2521fb4694144f0ddcb9f9ea0ef61982fe8205",
+    "source_artifacts": [
+      {
+        "path": "src/smart/change-confirm/index.js",
+        "sha256": "8f913c18bdf01d35a78121e5ecffe9fdef7b8a73a1e964b66efb48359f35393a"
+      },
+      {
+        "path": "src/smart/change-confirm/js/templates/default.js",
+        "sha256": "51677ab97a50457f541e99cd5c9712d7761374df90f3dbfe41d75975e74f5140"
+      },
+      {
+        "path": "src/smart/change-confirm/js/templates/default.css",
+        "sha256": "c9f320398261308dcab6185c935b4ea13ebc97ba3fa0409256a700f9f4e08554"
+      },
+      {
+        "path": "src/smart/change-confirm/rule.js",
+        "sha256": "23aeacdccaa4cc9bca58f14c040f6aa256c53a200a62ac3c6b6cb218d3e5cefd"
+      },
+      {
+        "path": "src/smart/change-confirm/docs.md",
+        "sha256": "d704981299fe18958b2e73e33da5bdd32fe3fecbef75ca906c25c5ec8ab18bf7"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use sf-change-confirm wherever a prepared change waits for a person's yes or no -- an assistant's proposal, a colleague's edit, an import. Promoted from simai/ui-chat renderProposal (owner decision 2026-10-25).",
+    "do_not": [
+      "Do not apply the change in the element; answer the event and set state",
+      "Do not leave the card pending: set accepted, declined, or open again",
+      "Do not pass markup in values; they are text"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-change-confirm heading=\"Переименовать раздел\" change-id=\"c1\" changes='[{\"label\":\"Название\",\"before\":\"Новости\",\"after\":\"События\"}]'></sf-change-confirm>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-browser-probes.mjs <free output> <package output>"
+    ]
+  }
+}
