@@ -14,9 +14,9 @@ test("the package composites are generated into the searchable registry beside t
   run("build");
   const registry = JSON.parse(readFileSync(new URL("../contracts/generated/smart-component-contract-registry.json", import.meta.url), "utf8"));
   assert.equal(registry.schema, "simai.smart-component-contract-registry.v2");
-  // The free registry's Smart components (sf-theme-generator the latest)
-  // and the package's own make 58.
-  assert.equal(registry.entries.length, 58);
+  // The free registry's Smart components (sf-image-field the latest) and the
+  // package's own make 59.
+  assert.equal(registry.entries.length, 59);
   for (const id of ["smart.admin-menu", "smart.data-view", "smart.data-view-composite", "smart.property-view"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
   }
