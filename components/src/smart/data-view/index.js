@@ -247,6 +247,9 @@ class SfDataView extends HTMLElement {
         // is no mode attribute, because a view whose host stops counting should
         // not need a host to be reconfigured as well.
         this.countKnown = true;
+        // A host may answer an estimate (`total_exact: false`): the number is
+        // shown, but as «~N», and nothing is applied under the filter on it.
+        this.totalExact = true;
         this.hasNext = false;
         this.countedQuery = null;
         this.savedViews = [];
@@ -1039,6 +1042,7 @@ class SfDataView extends HTMLElement {
             // changes what is being counted does.
             this.countKnown = this.countedQuery !== null && this.countedQuery === this._countKey();
         }
+        if (Number.isSafeInteger(data.total)) this.totalExact = data.total_exact !== false;
         this._answered = true;
         if (Array.isArray(data.saved_views)) this.savedViews = copy(data.saved_views);
         if (data.column_settings) this.columnSettings = copy(data.column_settings);
@@ -1087,7 +1091,7 @@ class SfDataView extends HTMLElement {
         const total = pagination.countKnown === false ? null : pagination.total;
         const forAllLabel = total == null
             ? pagination.actionForAllLabel
-            : `${pagination.actionForAllLabel} (${total})`;
+            : `${pagination.actionForAllLabel} (${this._shownTotal(total)})`;
         const chosen = (node, name, value) => {
             if (value == null || value === false) node.removeAttribute(name);
             else node.setAttribute(name, value === true ? "" : String(value));
@@ -1652,7 +1656,7 @@ class SfDataView extends HTMLElement {
         // put «Всего: 0» under a heading that already said 450: the host's own
         // total in the markup was overwritten with this element's initial zero.
         const counted = this._answered
-            ? {total: this.total, countKnown: this.countKnown, hasNext: this.hasNext}
+            ? {total: this.total, countKnown: this.countKnown, totalExact: this.totalExact, hasNext: this.hasNext}
             : {};
         // The page size in force is one of the sizes offered: 25 by default
         // against the pager's 10/20/30/40 showed a size the select could not
@@ -1725,7 +1729,7 @@ class SfDataView extends HTMLElement {
             count.textContent = this.countKnown
                 ? pageText(DATA_VIEW_TEXT, "ofTotal", this)
                     .replace("{shown}", String(this.cappedRecords.length))
-                    .replace("{total}", String(this.total))
+                    .replace("{total}", this._shownTotal(this.total))
                 : "";
         }
         const search = this.shadowRoot.querySelector("[data-search]");
@@ -1823,7 +1827,18 @@ class SfDataView extends HTMLElement {
         return this.saveColumnSettings({}, {});
     }
 
+    // An estimate reads «~N» wherever this element writes the number itself.
+    _shownTotal(total) {
+        return this.totalExact ? String(total) : `~${total}`;
+    }
+
     applyUnderFilter(actionId, confirmedTotal) {
+        // An estimate is not a number anyone can confirm: count first.
+        if (!this.totalExact) {
+            return this.count("action-for-all").then((answer) => (this.totalExact && answer?.answer === "applied"
+                ? this.applyUnderFilter(actionId, this.total)
+                : answer));
+        }
         if (!Number.isSafeInteger(confirmedTotal) || confirmedTotal !== this.total) {
             throw new TypeError("Confirm the current total before a filter-wide action");
         }
@@ -1857,8 +1872,9 @@ class SfDataView extends HTMLElement {
         }
         this.total = total;
         this.countKnown = true;
+        this.totalExact = answer.data.total_exact !== false;
         this.countedQuery = requested;
-        this.pagination?.setState?.({counting: false, countKnown: true, total});
+        this.pagination?.setState?.({counting: false, countKnown: true, totalExact: this.totalExact, total});
         if (reason === "last-page") this.pagination?.lastPage?.();
         return answer;
     }
