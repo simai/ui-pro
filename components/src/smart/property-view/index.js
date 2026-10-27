@@ -2730,6 +2730,7 @@ class SfPropertyView extends PropertyViewElement {
         // what a person started from -- which is what a person means by it.
         this.arrangementEntered = {
             kind: this.viewTarget,
+            revision: this._layerRevision(this.viewTarget),
             view: this._layerCopy(this.viewTarget),
         };
         this.resetAsked = false;
@@ -2757,10 +2758,24 @@ class SfPropertyView extends PropertyViewElement {
     // as resetting: a reset takes the layer away and lets what lies beneath show
     // through, while this writes back the arrangement that was there when the
     // mode was entered, including one a person had made earlier.
+    //
+    // Nothing written since then means nothing to write back: the host's layer
+    // is still the one entered with, and an identical view.save still cost a
+    // shared revision and a history entry (simai.main QA, 2026-10-28).
     async cancelConfiguringView() {
         if (!this.configuring) return false;
         const entered = this.arrangementEntered;
         if (!entered || entered.kind !== this.viewTarget) {
+            this.stopConfiguringView();
+            return true;
+        }
+        const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+        const stored = this._layerCopy(entered.kind);
+        const untouched = entered.revision != null && this._layerRevision(entered.kind) === entered.revision;
+        if (untouched || same(stored, entered.view)) {
+            // A write the host refused leaves the draft ahead of the layer, so
+            // what is drawn is read again; an untouched draft needs nothing.
+            if (!same(this.layerDraft, entered.view)) await this.load("view-cancel");
             this.stopConfiguringView();
             return true;
         }

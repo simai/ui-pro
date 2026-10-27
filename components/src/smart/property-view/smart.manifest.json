@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1241,6 +1241,13 @@
           "Cancelling one group's edit dispatches sf-property-view-cancel too, with detail {mode, scope: \"group\", section, group}; the whole-object cancel keeps its shape.",
           "«Add a view» opens a naming row first (Enter or the check makes the view through view.create with that name; Escape or the cross leaves without writing); it no longer makes «New view» at once. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.7.1",
+        "to": "1.7.2",
+        "changes": [
+          "Cancelling the arrangement mode with nothing changed raises no view.save: the layer is still the one entered with (same revision, or the same content), so nothing is written back. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1250,7 +1257,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "41677d8420f4700bdfb62cd7f01b99ae10e3a27200dcbfa8a876d652c1efb68b"
+        "sha256": "7ef5d9b2330e3ad11fcd5c9c5c8b859769ddedce811bf65f06cd938a73197666"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",

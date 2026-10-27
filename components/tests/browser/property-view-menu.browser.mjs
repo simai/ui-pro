@@ -217,6 +217,25 @@ try {
       expected: 'the press opens a naming row and raises nothing; Enter raises view.create once with the typed name and closes the row'});
   }
 
+  // Cancelling an arrangement nobody changed writes nothing: it raised an
+  // identical view.save, a shared revision and a history entry (simai.main QA,
+  // 2026-10-28).
+  const untouched = await page.evaluate(async () => {
+    const view = document.getElementById('view');
+    const wait = (ms) => new Promise((done) => setTimeout(done, ms));
+    const saves = () => window.raised.filter((entry) => entry.intent === 'view.save').length;
+    const before = saves();
+    view.startConfiguringView?.();
+    await wait(300);
+    await view.cancelConfiguringView?.();
+    await wait(300);
+    return {saves: saves() - before, configuring: Boolean(view.configuring)};
+  });
+  if (untouched.saves !== 0 || untouched.configuring) {
+    note({case: 'cancelling an untouched arrangement writes nothing', got: untouched,
+      expected: 'no view.save, and the mode left'});
+  }
+
   // A host's own items slotted into `menu` are rows of the same standard menu
   // (owner, 2026-10-14): they were a popover of link buttons.
   await page.evaluate(() => document.getElementById('view').remove());
@@ -269,7 +288,7 @@ try {
     note({case: "a host's menu items are rows of the standard menu", got: hostedMenu});
   }
 
-  console.log(JSON.stringify({probe: 'property-view-menu', menu, views, chosen, chooser, barMenu, naming, hostedMenu, failures}, null, 2));
+  console.log(JSON.stringify({probe: 'property-view-menu', menu, views, chosen, chooser, barMenu, naming, untouched, hostedMenu, failures}, null, 2));
 } finally {
   await browser.close();
 }

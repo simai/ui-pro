@@ -40,3 +40,13 @@ test('an empty name makes nothing and keeps the row; a name makes the view and c
   assert.deepEqual(calls[0][0], 'view.create');
   assert.equal(calls[0][1].label, 'Договоры');
 });
+
+// Cancelling an arrangement nobody changed writes nothing (simai.main QA,
+// 2026-10-28): an identical view.save still cost a shared revision.
+test('cancelling configure skips view.save when the layer is the one entered with', () => {
+  const body = source.slice(source.indexOf('    async cancelConfiguringView() {'), source.indexOf('    askReset() {'));
+  assert.match(body, /const untouched = entered\.revision != null && this\._layerRevision\(entered\.kind\) === entered\.revision;/u);
+  const early = body.slice(body.indexOf('if (untouched'), body.indexOf('this.layerDraft = copy(entered.view);'));
+  assert.doesNotMatch(early, /saveView/u);
+  assert.match(source, /revision: this\._layerRevision\(this\.viewTarget\),/u);
+});
