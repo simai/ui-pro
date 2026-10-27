@@ -255,4 +255,29 @@
   .sf-thread-list__skeleton span:nth-child(3) { inline-size: 85%; }
 
   .sf-thread-list__sentinel { block-size: 1px; }
+
+  /* Under a finger every target is at least 44px (--sf-d1; WCAG 2.5.5 and the
+     platforms' own minimum, as the Framework's context menu rows, owner
+     2026-10-28): a row, «New conversation» and the other row-like commands,
+     and a row's «⋯». A mouse keeps the ladder's row. */
+  @media (pointer: coarse) {
+    .sf-thread-list__command,
+    .sf-thread-list__link,
+    .sf-thread-list__rename {
+      min-block-size: max(var(--sf-thread-list--row-height), var(--sf-d1));
+    }
+    .sf-thread-list__more {
+      inline-size: var(--sf-d1);
+      block-size: var(--sf-d1);
+    }
+    .sf-thread-list__item:hover .sf-thread-list__link,
+    .sf-thread-list__item:focus-within .sf-thread-list__link,
+    .sf-thread-list__item--current .sf-thread-list__link {
+      padding-inline-end: calc(var(--sf-d1) + var(--sf-space-1\/4));
+    }
+  }
+
+  @media (pointer: coarse) and (hover: none) {
+    .sf-thread-list__link { padding-inline-end: calc(var(--sf-d1) + var(--sf-space-1\/4)); }
+  }
 }

@@ -155,3 +155,6 @@ Keys: `label`, `create-text`, `today`, `yesterday`, `earlier`, `actions-label`,
 `rename-text`, `rename-label`, `archive-text`, `unarchive-text`, `archive-view`,
 `back-text`, `empty-text`, `archive-empty-text`, `loading-text`, `untitled-text`,
 `unread-label`.
+
+Under a finger (`pointer: coarse`) every target is at least 44px (`--sf-d1`):
+a row, «Новый разговор» and the other row-like commands, and a row's «⋯».
