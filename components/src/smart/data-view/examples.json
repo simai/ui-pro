@@ -122,6 +122,106 @@
                     "href": "#f-5"
                   },
                   "accent": "#cf222e"
+                },
+                {
+                  "id": "r-006",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Портал клиента",
+                  "owner": {
+                    "value": "u-1",
+                    "label": "Анна Захарова",
+                    "href": "#u-1"
+                  },
+                  "attachment": {
+                    "value": "f-1",
+                    "label": "договор.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-1"
+                  },
+                  "accent": "#2f6feb"
+                },
+                {
+                  "id": "r-007",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Каталог товаров",
+                  "owner": {
+                    "value": "u-2",
+                    "label": "Илья Петров",
+                    "href": "#u-2"
+                  },
+                  "attachment": {
+                    "value": "f-2",
+                    "label": "схема.png",
+                    "mime": "image/png",
+                    "href": "#f-2"
+                  },
+                  "accent": "#1a7f37"
+                },
+                {
+                  "id": "r-008",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Личный кабинет",
+                  "owner": {
+                    "value": "u-3",
+                    "label": "Мария Соколова",
+                    "href": "#u-3"
+                  },
+                  "attachment": {
+                    "value": "f-3",
+                    "label": "отчёт.docx",
+                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "href": "#f-3"
+                  },
+                  "accent": "#bf3989"
+                },
+                {
+                  "id": "r-009",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Склад",
+                  "owner": {
+                    "value": "u-4",
+                    "label": "Олег Иванов",
+                    "href": "#u-4"
+                  },
+                  "attachment": {
+                    "value": "f-4",
+                    "label": "накладная.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-4"
+                  },
+                  "accent": "#9a6700"
+                },
+                {
+                  "id": "r-010",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Сайт",
+                  "owner": {
+                    "value": "u-5",
+                    "label": "Ирина Белова",
+                    "href": "#u-5"
+                  },
+                  "attachment": {
+                    "value": "f-5",
+                    "label": "логотип.svg",
+                    "mime": "image/svg+xml",
+                    "href": "#f-5"
+                  },
+                  "accent": "#cf222e"
                 }
               ],
               "columns": [
@@ -147,7 +247,7 @@
                   "property_type": "color"
                 }
               ],
-              "total": 5,
+              "total": 10,
               "echo": {
                 "filters_chosen": {},
                 "filters": {},
@@ -175,7 +275,7 @@
             "answer": "applied"
           }
         },
-        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the rows it answers -- a reference, a file and a colour per row -- draw where the skeleton stood."
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers as many rows as the skeleton stands for (row-cap, else a page of 10), each with a reference, a file and a colour."
       }
     },
     {
@@ -350,7 +450,7 @@
             "answer": "applied"
           }
         },
-        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the rows it answers -- a reference, a file and a colour per row -- draw where the skeleton stood."
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers as many rows as the skeleton stands for (row-cap, else a page of 10), each with a reference, a file and a colour."
       }
     },
     {
@@ -474,6 +574,106 @@
                     "href": "#f-5"
                   },
                   "accent": "#cf222e"
+                },
+                {
+                  "id": "r-006",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Портал клиента",
+                  "owner": {
+                    "value": "u-1",
+                    "label": "Анна Захарова",
+                    "href": "#u-1"
+                  },
+                  "attachment": {
+                    "value": "f-1",
+                    "label": "договор.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-1"
+                  },
+                  "accent": "#2f6feb"
+                },
+                {
+                  "id": "r-007",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Каталог товаров",
+                  "owner": {
+                    "value": "u-2",
+                    "label": "Илья Петров",
+                    "href": "#u-2"
+                  },
+                  "attachment": {
+                    "value": "f-2",
+                    "label": "схема.png",
+                    "mime": "image/png",
+                    "href": "#f-2"
+                  },
+                  "accent": "#1a7f37"
+                },
+                {
+                  "id": "r-008",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Личный кабинет",
+                  "owner": {
+                    "value": "u-3",
+                    "label": "Мария Соколова",
+                    "href": "#u-3"
+                  },
+                  "attachment": {
+                    "value": "f-3",
+                    "label": "отчёт.docx",
+                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "href": "#f-3"
+                  },
+                  "accent": "#bf3989"
+                },
+                {
+                  "id": "r-009",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Склад",
+                  "owner": {
+                    "value": "u-4",
+                    "label": "Олег Иванов",
+                    "href": "#u-4"
+                  },
+                  "attachment": {
+                    "value": "f-4",
+                    "label": "накладная.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-4"
+                  },
+                  "accent": "#9a6700"
+                },
+                {
+                  "id": "r-010",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Сайт",
+                  "owner": {
+                    "value": "u-5",
+                    "label": "Ирина Белова",
+                    "href": "#u-5"
+                  },
+                  "attachment": {
+                    "value": "f-5",
+                    "label": "логотип.svg",
+                    "mime": "image/svg+xml",
+                    "href": "#f-5"
+                  },
+                  "accent": "#cf222e"
                 }
               ],
               "columns": [
@@ -499,7 +699,7 @@
                   "property_type": "color"
                 }
               ],
-              "total": 5,
+              "total": 10,
               "echo": {
                 "filters_chosen": {},
                 "filters": {},
@@ -527,7 +727,7 @@
             "answer": "applied"
           }
         },
-        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the rows it answers -- a reference, a file and a colour per row -- draw where the skeleton stood."
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers as many rows as the skeleton stands for (row-cap, else a page of 10), each with a reference, a file and a colour."
       }
     }
   ]
