@@ -5,7 +5,7 @@
 <sf-button appearance="link" scheme="on-surface" size="1/2" icon="expand_less" text="Показать предыдущие сообщения" style="display: contents;">
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface flex items-cross-center" data-action="earlier" data-sf-static>
 
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" icon="expand_less" style="display: contents;" loaded><i class="sf-icon sf-icon-loaded sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>expand_less</i></sf-icon>
+<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" icon="expand_less" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>expand_less</i></sf-icon>
 <span class="sf-button-text-container text-center pointer-event-none">
 Показать предыдущие сообщения
 </span>
@@ -13,18 +13,9 @@
 </button>
 </sf-button>
 </div>
-<div class="sf-message-log__empty" hidden>
-
-</div>
+<div class="sf-message-log__empty" hidden></div>
 <div class="sf-message-log__column" role="log" aria-live="off" aria-label="Сообщения"><div class="sf-message-log__item sf-message-log__item--first" data-id="m1"><article class="sf-message-log__message" aria-label="Анна"><p class="sf-message-log__author">Анна</p><p class="sf-message-log__text">Добрый день!</p></article></div><div class="sf-message-log__item sf-message-log__item--last" data-id="m2"><article class="sf-message-log__message" aria-label="Анна"><p class="sf-message-log__text">Отчёт готов?</p></article></div><div class="sf-message-log__item sf-message-log__item--own sf-message-log__item--first sf-message-log__item--last sf-message-log__item--end" data-id="m3"><article class="sf-message-log__message" aria-label="Вы"><p class="sf-message-log__text">Да, отправил утром.</p></article></div></div>
-<div class="sf-message-log__jump" hidden>
-<sf-icon-button appearance="surface" scheme="on-surface" size="1" radius="rounded" icon="arrow_downward" title="К последнему сообщению" aria-label="К последнему сообщению" style="display: contents;">
-<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--surface flex items-cross-center sf-icon-button--on-surface radius-rounded" aria-label="К последнему сообщению" title="К последнему сообщению" data-action="latest" data-sf-static>
-
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="arrow_downward" style="display: contents;" loaded><i class="sf-icon sf-icon-loaded sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>arrow_downward</i></sf-icon>
-</button>
-</sf-icon-button>
-</div>
+<div class="sf-message-log__jump" hidden></div>
 <div class="sf-message-log__announcer sr-only" aria-live="polite"></div>
 </div>
-<script data-sf-held type="application/json" data-sf-settings="">{"messages":[{"id":"m1","author":"anna","author-name":"Анна","text":"Добрый день!"},{"id":"m2","author":"anna","author-name":"Анна","text":"Отчёт готов?"},{"id":"m3","author":"me","own":true,"text":"Да, отправил утром."}]}</script></sf-message-log>
+</sf-message-log>

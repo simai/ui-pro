@@ -38,7 +38,11 @@
           "selection": []
         }
       },
-      "from": "studio.fixture.json"
+      "from": "studio.fixture.json",
+      "first-paint": {
+        "max-bytes": 16384,
+        "why": "A data table at rest: its toolbar (search, settings, export), the selection column and the rows, every control a printed Smart element with its own markup. Nothing closed is printed; the table itself is the first paint."
+      }
     },
     {
       "name": "loading",
@@ -49,6 +53,10 @@
       },
       "expect": {
         "name": "Записи"
+      },
+      "first-paint": {
+        "max-bytes": 16384,
+        "why": "A data table at rest: its toolbar (search, settings, export), the selection column and the rows, every control a printed Smart element with its own markup. Nothing closed is printed; the table itself is the first paint."
       }
     },
     {
@@ -96,6 +104,10 @@
         "values": {
           "selected": "2"
         }
+      },
+      "first-paint": {
+        "max-bytes": 16384,
+        "why": "A data table at rest: its toolbar (search, settings, export), the selection column and the rows, every control a printed Smart element with its own markup. Nothing closed is printed; the table itself is the first paint."
       }
     },
     {
@@ -108,7 +120,11 @@
       "expect": {
         "name": "Записи"
       },
-      "x-note": "§18.4: the window draws the rows in view; gate 17 runs on this shape (probe.json p1, p4, p7)"
+      "x-note": "§18.4: the window draws the rows in view; gate 17 runs on this shape (probe.json p1, p4, p7)",
+      "first-paint": {
+        "max-bytes": 16384,
+        "why": "A data table at rest: its toolbar (search, settings, export), the selection column and the rows, every control a printed Smart element with its own markup. Nothing closed is printed; the table itself is the first paint."
+      }
     },
     {
       "name": "typed-cells",
@@ -176,7 +192,11 @@
       "expect": {
         "name": "Решения"
       },
-      "x-first-paint": "The cells sf-table draws with other Smart elements (sf-reference-link, sf-file-preview, sf-color): their code comes with the table's, so the rows do not move when they arrive (stand 24: CLS 0.0145 at 1280)."
+      "x-first-paint": "The cells sf-table draws with other Smart elements (sf-reference-link, sf-file-preview, sf-color): their code comes with the table's, so the rows do not move when they arrive (stand 24: CLS 0.0145 at 1280).",
+      "first-paint": {
+        "max-bytes": 16384,
+        "why": "A data table at rest with its toolbar (search, settings, export), a selection column and two rows whose cells are three printed Smart elements each (sf-reference-link, sf-file-preview, sf-color)."
+      }
     }
   ]
 }

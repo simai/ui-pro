@@ -3,7 +3,7 @@ import {existsSync, readFileSync} from 'node:fs';
 import {dirname, join, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
-import {describe, exampleFiles} from '../scripts/first-paint-lib.mjs';
+import {describe, exampleFiles, givesLateData, sizeProblem} from '../scripts/first-paint-lib.mjs';
 import {fillSkeleton} from '../scripts/first-paint-skeleton.mjs';
 
 // The first paint of the package components (standard simai.smart-component
@@ -26,8 +26,13 @@ test('every example of every package component has its static markup and sheets'
     for (const example of component.examples) {
       const files = exampleFiles(component, example);
       assert.ok(existsSync(files.html), `${folder}/${example.name}: ${files.html}`);
-      const late = component.late.some((name) => name in (example.settings ?? {}));
+      // An explicitly empty list is data, the empty state: no skeleton for it.
+      const late = givesLateData(component, example);
       assert.equal(existsSync(files.skeleton), late, `${folder}/${example.name}: a skeleton exactly when the example gives late data`);
+      // The size gate of ui-source's snapshot tool, held here without a browser.
+      for (const file of [files.html, files.skeleton].filter((one) => existsSync(one))) {
+        assert.equal(sizeProblem(example, readFileSync(file).length), null, file);
+      }
     }
   }
 });
@@ -51,4 +56,26 @@ test('sf-data-view: its static markup is its skeleton, slotted as the first pain
     const extra = ['toolbar', 'pagination'].filter((part) => chrome.split(/\s+/u).includes(part)).length;
     assert.equal(bars, rows + extra, `${example.name}: a bar per row and per chrome part`);
   }
+});
+
+test('the port-fed components give gate 24 a fake port, so phase 3 checks their data', async () => {
+  const {portOf} = await import('../scripts/first-paint-lib.mjs');
+  for (const folder of ['data-view', 'property-view']) {
+    const component = describe(smart, folder);
+    for (const example of component.examples) {
+      const port = portOf(component, example);
+      assert.ok(port, `${folder}/${example.name}: a port`);
+      assert.equal(port.id, component.manifest.port.id);
+      assert.ok(Object.keys(port.answers).length, `${folder}/${example.name}: answers`);
+    }
+  }
+});
+
+test('sf-table brings the cells it draws with other Smart elements with it, not after the rows', () => {
+  const rule = readFileSync(join(smart, 'table', 'rule.js'), 'utf8');
+  for (const name of ['cl-reference-link', 'cl-file-preview', 'cl-color']) {
+    assert.match(rule, new RegExp(`\\{ name: "${name}" \\}`, 'u'), `${name} eager`);
+  }
+  const table = describe(smart, 'table');
+  assert.ok(table.examples.some((one) => one.name === 'typed-cells'), 'an example with those cells');
 });

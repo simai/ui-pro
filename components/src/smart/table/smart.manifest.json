@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "title": "Data view",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2040,7 +2040,7 @@
       },
       {
         "path": "src/smart/table/rule.js",
-        "sha256": "1689c7fd73e451efa0f864ebe48b46ec951298fb3189afbf732f3ffb741b0010"
+        "sha256": "2ea64a9991b28ea2d650bfe96909cfd49619c9ee08e8ddec010e0d1d08c1a7e4"
       },
       {
         "path": "src/smart/table/docs/smart-table-guide.md",

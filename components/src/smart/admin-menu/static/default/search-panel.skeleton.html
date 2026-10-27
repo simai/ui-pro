@@ -11,7 +11,7 @@
 <sf-icon-button root-class="sf-admin-menu-search-toggle" appearance="link" scheme="on-surface" icon="search" title="Поиск по админке (Ctrl+K)" aria-label="Поиск по админке (Ctrl+K)" style="display: contents;">
 <button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface sf-admin-menu-search-toggle" aria-label="Поиск по админке (Ctrl+K)" title="Поиск по админке (Ctrl+K)" data-sf-admin-search-toggle data-sf-static aria-hidden="true">
 
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="search" style="display: contents;" loaded><i class="sf-icon sf-icon-loaded sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>search</i></sf-icon>
+<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="search" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>search</i></sf-icon>
 </button>
 </sf-icon-button>
 </div>
@@ -30,7 +30,7 @@
  <div class="sf-admin-menu-head items-cross-center flex content-main-between flex-none">
 <button type="button" class="sf-admin-menu-item sf-admin-menu-back flex items-cross-center flex-1 min-w-0" aria-label="Назад к меню">
 <span class="sf-admin-menu-item-container sf-admin-menu-head-container flex items-cross-center flex-1 min-w-0">
-<i class="sf-icon sf-admin-menu-back-button sf-icon-loaded">chevron_left</i>
+<i class="sf-icon sf-admin-menu-back-button">chevron_left</i>
 <span class="overflow-hidden wrap-none t-ellipsis"><span class="sf-first-paint-bar" aria-hidden="true">Поиск</span></span>
 </span>
 </button>
@@ -39,45 +39,15 @@
 <div class="sf-admin-menu-search-field flex-none">
 <span class="sf-input sf-input--size-1 sf-input--filled flex flex-col">
 <span class="sf-input-field items-cross-center transition flex">
-<span class="sf-input-left flex"><sf-icon icon="search" style="display: contents;" loaded><i class="sf-icon sf-icon-loaded sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>search</i></sf-icon></span>
-<input type="search" role="combobox" aria-expanded="true" aria-controls="sf-admin-menu-search-panel-1" name="sf_admin_search_input" aria-activedescendant="sf-admin-menu-search-panel-2" aria-label="Поиск по разделам" placeholder="Поиск по разделам">
+<span class="sf-input-left flex"><sf-icon icon="search" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>search</i></sf-icon></span>
+<input type="search" role="combobox" aria-expanded="true" aria-controls="sf-admin-menu-search-panel-1" name="sf_admin_search_input" aria-activedescendant="sf-admin-search-recent-0-0" aria-label="Поиск по разделам" placeholder="Поиск по разделам">
 <span class="sf-input-right"><kbd class="sf-admin-menu-search-kbd"><span class="sf-first-paint-bar" aria-hidden="true">Esc</span></kbd></span>
 </span>
 </span>
 </div>
-<div id="sf-admin-menu-search-panel-1" role="listbox" class="sf-admin-menu-search-results-area flex-auto min-h-0 overflow-auto flex flex-col" aria-label="Поиск">
-
-
-<div class="sf-admin-menu-search-group flex flex-col">
-<div class="sf-admin-menu-search-group-head flex items-cross-center content-main-between">
-<span><span class="sf-first-paint-bar" aria-hidden="true">Недавнее</span></span>
-
-</div>
-<ul class="p-0 m-0 gap-1/3 flex flex-col" role="presentation">
-
-<li class="sf-admin-menu-item-wrap flex items-cross-center" role="presentation">
-<a role="option" id="sf-admin-menu-search-panel-2" aria-selected="true" class="sf-admin-menu-item sf-admin-menu-search-row flex items-cross-center flex-1 max-w-full min-w-0 selected" href="#files">
-<span class="sf-admin-menu-item-container max-w-full wrap-none flex items-cross-center flex-1">
-<span class="sf-admin-menu-item-placeholder flex items-cross-center content-main-center flex-none"></span>
-<span class="flex flex-col min-w-0">
-<span class="overflow-hidden wrap-none t-ellipsis">
-
-</span>
-
-</span>
-</span>
-</a>
-</li>
-
-</ul>
-</div>
-
-
-
-
-</div>
+<div id="sf-admin-menu-search-panel-1" role="listbox" class="sf-admin-menu-search-results-area flex-auto min-h-0 overflow-auto flex flex-col" aria-label="Поиск"></div>
 <div class="sf-admin-menu-search-keys flex-none"><span class="sf-first-paint-bar" aria-hidden="true">↑↓ выбрать · Enter открыть · Esc закрыть</span></div>
 
 </section>
 </aside>
-<script data-sf-held type="application/json" data-sf-settings="">{"recent-results":[{"key":"recent","label":"Недавнее","items":[{"key":"files","label":"Файлы","href":"#files"}]}]}</script></sf-admin-menu>
+</sf-admin-menu>

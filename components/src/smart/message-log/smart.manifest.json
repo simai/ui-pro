@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "title": "Message log",
   "summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
   "kind": "composite",
