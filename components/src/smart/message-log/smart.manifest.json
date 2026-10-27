@@ -727,7 +727,9 @@
     "module": null
   },
   "artifacts": {
-    "fixtures": [],
+    "fixtures": [
+      "studio.fixture.json"
+    ],
     "scenarios": []
   },
   "readiness": {
@@ -745,8 +747,8 @@
       "version": 2
     },
     "runtime_pair": {
-      "ui_revision": "045432a6fb2474758fbc8c47022800801e6333e8",
-      "ui_smart_revision": "045432a6fb2474758fbc8c47022800801e6333e8"
+      "ui_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f",
+      "ui_smart_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f"
     },
     "aliases": [],
     "deprecations": [],

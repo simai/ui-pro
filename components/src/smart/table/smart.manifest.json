@@ -1908,8 +1908,8 @@
       "version": 2
     },
     "runtime_pair": {
-      "ui_revision": "1d3f0eb63761e5e94883243e66007bfe38cccd7e",
-      "ui_smart_revision": "4e3e58aa1e6aa20b0434f334ea30e0f1a3c16319"
+      "ui_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f",
+      "ui_smart_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f"
     },
     "aliases": [
       "smart.table"
