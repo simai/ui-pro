@@ -2160,9 +2160,11 @@ class SfAdminMenu extends AdminMenuElement {
 
     // The field, whichever shape it is in: the row builds it from sf-input, and
     // the panel writes the input itself because it carries combobox semantics
-    // that sf-input does not pass through.
+    // that sf-input does not pass through. A form-associated sf-input keeps the
+    // name on itself, not on its inner input (ui-source helpers/form-field.js
+    // innerControlName), so the row's field is found through its host.
     getSearchInput() {
-        return this.querySelector('input[name="sf_admin_search_input"]');
+        return this.querySelector('input[name="sf_admin_search_input"], sf-input[name="sf_admin_search_input"] input');
     }
 
     isAvailableNavigationTarget(target) {

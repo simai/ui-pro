@@ -1030,7 +1030,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
-        "sha256": "ef23bc0f94793378c2f30693ccf33e5d9ce7b4790d283fd35dded821bcc185af"
+        "sha256": "d8e5594fb9fa6fe01580214501657476e10fdaf466c77c6b38dc92670fa0b022"
       },
       {
         "path": "src/smart/admin-menu/js/templates/default.js",
