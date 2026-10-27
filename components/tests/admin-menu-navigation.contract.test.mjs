@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {readFileSync} from 'node:fs';
 import test from 'node:test';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -24,7 +25,8 @@ test('Admin Menu drill-down restores a meaningful trigger and localizes Back', a
   // The name says where the arrow goes, which is what the consumer's owner asked
   // for on 2026-10-03: a submenu header reads «‹ Раздел», and «Назад» alone left
   // a reader guessing what it goes back to.
-  assert.match(template, /back: "Назад к меню"/);
+  assert.match(template, /back: "menu-translations-back"/);
+  assert.equal(JSON.parse(readFileSync(new URL("../src/smart/admin-menu/lang/ru.json", import.meta.url), "utf8")).runtime["menu-translations-back"], "Назад к меню");
   assert.match(template, /aria-label=\$\{menuText\("back"\)\}/);
 });
 

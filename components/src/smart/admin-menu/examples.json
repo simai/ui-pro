@@ -1,0 +1,141 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Admin Menu reference",
+      "settings": {
+        "brand": "SIMAI",
+        "searchable": true,
+        "collapsible": true,
+        "persistence-mode": "external"
+      },
+      "host": {
+        "aria-label": "Разделы администрирования"
+      },
+      "children": [
+        {
+          "element": "sf-admin-menu-item",
+          "props": {
+            "item-id": "content",
+            "label": "Контент",
+            "icon-start": "description",
+            "href": "#content"
+          }
+        },
+        {
+          "element": "sf-admin-menu-item",
+          "props": {
+            "item-id": "settings",
+            "label": "Настройки",
+            "icon-start": "settings",
+            "href": "#settings"
+          }
+        }
+      ],
+      "expect": {
+        "name": "Разделы администрирования"
+      },
+      "from": "studio.fixture.json"
+    },
+    {
+      "name": "search-panel",
+      "title": "Поиск панелью",
+      "settings": {
+        "brand": "SIMAI",
+        "searchable": true,
+        "search-mode": "panel",
+        "recent-results": [
+          {
+            "key": "recent",
+            "label": "Недавнее",
+            "items": [
+              {
+                "key": "files",
+                "label": "Файлы",
+                "href": "#files"
+              }
+            ]
+          }
+        ]
+      },
+      "host": {
+        "aria-label": "Меню"
+      },
+      "children": [
+        {
+          "element": "sf-admin-menu-item",
+          "props": {
+            "item-id": "content",
+            "label": "Контент",
+            "icon-start": "description",
+            "href": "#content"
+          }
+        },
+        {
+          "element": "sf-admin-menu-item",
+          "props": {
+            "item-id": "settings",
+            "label": "Настройки",
+            "icon-start": "settings",
+            "href": "#settings"
+          }
+        }
+      ],
+      "expect": {
+        "name": "Меню"
+      }
+    },
+    {
+      "name": "navigation-port",
+      "title": "Меню над портом навигации",
+      "settings": {},
+      "host": {
+        "aria-label": "Меню"
+      },
+      "port": {
+        "id": "simai.admin-navigation-port",
+        "version": "1.0.0",
+        "answers": {
+          "navigation.load": {
+            "answer": "applied",
+            "revision": "1",
+            "current": "cms",
+            "items": [
+              {
+                "key": "home",
+                "kind": "page",
+                "level": "site",
+                "label": "Главная",
+                "icon": "home",
+                "href": "/admin"
+              },
+              {
+                "key": "data",
+                "kind": "root",
+                "level": "site",
+                "label": "Данные",
+                "icon": "database",
+                "children": [
+                  {
+                    "key": "cms",
+                    "kind": "page",
+                    "level": "site",
+                    "label": "Минимальная CMS",
+                    "icon": "table",
+                    "href": "/admin/cms"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expect": {
+        "name": "Меню",
+        "events": [
+          "refresh"
+        ]
+      }
+    }
+  ]
+}

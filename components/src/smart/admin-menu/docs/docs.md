@@ -20,3 +20,56 @@ Smart-компонент административного меню: дерев
 
 Фикстура Studio — `studio.fixture.json` (`navigation-menu-reference`), дымовой
 сценарий — `studio.scenario.json` (`smoke`).
+
+## Интерфейс по стандарту simai.smart-component 1.3.8
+
+Контракт — `component.json`; слова — `lang/en.json` и `lang/ru.json` (словари меню
+собираются из них в `js/words.js`); старые имена с датами — `aliases.json`.
+
+### Events
+
+Что человек попросил у хоста через порт `simai.admin-navigation-port`, меню сообщает
+глаголом словаря 1.1.5 (§5.1): `detail` — `{kind, …поля словаря, intent, payload}`,
+где `intent` и `payload` — намерение порта и его данные как есть.
+
+| Event | Intent порта | kind и поля |
+|:---|:---|:---|
+| `sf-admin-menu-refresh` | `navigation.load`, `notifications.load` | `navigation` `{reason, site}`, `notifications` |
+| `sf-admin-menu-open` | `item.open`, `site.switch`, `view.profile`, `search.choose` | `item` `{id, href}`, `site` `{id}`, `view` `{id}`, `search` `{id, group}` |
+| `sf-admin-menu-toggle` | `favourite.toggle` | `favourite` `{id, on}` |
+| `sf-admin-menu-save` | `preference.*`, `view.save` | `preference` `{values}`, `view` `{id, revision}` |
+| `sf-admin-menu-query` | `sites.search`, `search.query`; поиск меню без порта | `site`, `search` `{query}`; `menu` `{query, requestId}` |
+| `sf-admin-menu-create` | `view.create` | `view` |
+| `sf-admin-menu-rename` | `view.rename` | `view` `{id, title}` |
+| `sf-admin-menu-delete` | `view.delete` | `view` `{ids}` |
+| `sf-admin-menu-read` | `notifications.read` | `notifications` `{ids}` |
+| `sf-admin-menu-reset` | `view.reset`; сброс настроек меню без порта | `view` `{id}`; `settings` `{target, baseRevision}` |
+| `sf-admin-menu-sign-out` | `session.sign-out` | `session` |
+| `sf-admin-menu-navigate` | — | хост ответил `applied` на открытие: `{id, key, href, region}` |
+| `sf-admin-menu-compact-change` | — | `{compact, source}` |
+| `sf-admin-menu-settings-save`, `-settings-refresh`, `-settings-cancel`, `-settings-mode-change` | — | `{target, base_revision, baseRevision, profile}` |
+
+Старые имена работают до 2026-12-01, каждое использование записывается в
+`SF.deprecations`: `sf-admin-menu-intent` `{intent, payload}` следует за каждым
+событием, у которого есть `intent`; `sf-admin-menu-search` — за `query` с
+`kind: menu`; `sf-admin-menu-settings-reset` — за `reset` с `kind: settings`.
+`base_revision` остаётся в `detail` рядом с `baseRevision` до той же даты.
+
+### Settings и actions
+
+`recent-results` — настройка (группы недавних результатов панели поиска); прежний
+`setRecentResults()` работает до 2026-12-01 и записывается. Порт вручается базовым
+действием `connectPort({port})` (`setHostPort` — его прежнее имя); событие
+`sf-host-port-request` ещё отправляется до 2026-12-01.
+
+### CSS variables
+
+Публичные переменные оболочки навигации; компонент их не задаёт.
+
+| Variable | Default |
+|:---|:---|
+| `--sf-admin-menu-color` | `var(--sf-on-surface)` |
+| `--sf-admin-menu-first-background-color` | `var(--sf-surface-1)` |
+| `--sf-admin-menu-second-background-color` | `var(--sf-surface-0)` |
+| `--sf-admin-menu-border-color` | `var(--sf-outline-variant)` |
+| `--sf-admin-menu-padding` | `var(--sf-a4)` |

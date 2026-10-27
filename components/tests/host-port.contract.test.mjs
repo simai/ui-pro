@@ -216,7 +216,7 @@ test('the admin menu accepts exactly the navigation port versions its manifest s
   assert.match(index, /!SUPPORTED_NAVIGATION_VERSIONS\.includes\(host\.version\)/u, 'and the guard reads that list');
   assert.match(
     source,
-    /async raise\(intent, payload = \{\}\) \{\s*this\.element\.dispatchEvent\(new CustomEvent\("sf-admin-menu-intent"/u,
+    /async raise\(intent, payload = \{\}\) \{(?:\s*\/\/[^\n]*)*\s*const \[verb, kind, fields\] = INTENT_VERBS\[intent\][^\n]*\n\s*this\.element\.sfEmit\(verb, /u,
     'every intent is announced before the host is asked',
   );
 });

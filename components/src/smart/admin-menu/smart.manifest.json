@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -38,7 +38,7 @@
       "smart.empty-state",
       "smart.icon-buttons",
       "smart.icons",
-      "smart.inputs",
+      "smart.input",
       "smart.profile-picker",
       "smart.resizer",
       "smart.sortable"
@@ -429,7 +429,7 @@
       }
     },
     "setRecentResults": {
-      "summary": "What the host offers an empty search field: a recent list, standing until it sets another.",
+      "summary": "What the host offers an empty search field: a recent list, standing until it sets another. Deprecated: the setting recent-results (until 2026-12-01).",
       "arguments": [
         {
           "name": "groups",
@@ -440,6 +440,21 @@
       "returns": {
         "type": "boolean",
         "description": "Always true."
+      }
+    },
+    "connectPort": {
+      "summary": "The base action connect-port {port}: hands the navigation port; answers an outcome. setHostPort is its alias.",
+      "arguments": [
+        {
+          "name": "port",
+          "required": true,
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
       }
     }
   },
@@ -463,7 +478,7 @@
       }
     },
     "sf-admin-menu-search": {
-      "summary": "Runtime event sf-admin-menu-search.",
+      "summary": "1.0 name of sf-admin-menu-query {kind: menu, query, requestId}; follows it until 2026-12-01.",
       "payload": {
         "type": "object"
       }
@@ -526,7 +541,7 @@
       }
     },
     "sf-admin-menu-settings-reset": {
-      "summary": "Request reset of the selected preference level.",
+      "summary": "1.0 name of sf-admin-menu-reset {kind: settings, target, base_revision, baseRevision}; follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -574,7 +589,7 @@
       }
     },
     "sf-host-port-request": {
-      "summary": "Ask the page for a host port when connecting. A page that answers with simai.admin-navigation-port gets the navigation shell; a page that answers nothing gets the items menu, unchanged.",
+      "summary": "Ask the page for a host port when connecting. A page that answers with simai.admin-navigation-port gets the navigation shell; a page that answers nothing gets the items menu, unchanged. Retired: the page hands the port with connectPort({port}); still sent until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -630,7 +645,7 @@
       }
     },
     "sf-admin-menu-intent": {
-      "summary": "What a person asked of the host, announced for every intent of simai.admin-navigation-port as the menu raises it. The host answers through the port, not through this event.",
+      "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -646,6 +661,193 @@
           "payload": {
             "type": "object",
             "description": "The intent's payload as the port declares it."
+          }
+        }
+      }
+    },
+    "sf-admin-menu-refresh": {
+      "summary": "navigation.load / notifications.load asked of the host (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-open": {
+      "summary": "item.open, site.switch, view.profile or search.choose asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-toggle": {
+      "summary": "favourite.toggle asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-save": {
+      "summary": "a preference or view.save asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-query": {
+      "summary": "a query: kind menu (the items menu), site or search (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-create": {
+      "summary": "view.create asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-rename": {
+      "summary": "view.rename asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-delete": {
+      "summary": "view.delete asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-read": {
+      "summary": "notifications.read asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-reset": {
+      "summary": "kind settings (the items menu) or view (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sf-admin-menu-sign-out": {
+      "summary": "session.sign-out asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
           }
         }
       }
@@ -791,6 +993,26 @@
           "The conformance scenarios left the manifest (v2 keeps scenarios in artifacts) and are documented in docs/docs.md; studio.fixture.json and studio.scenario.json are the declared artifacts.",
           "No runtime behaviour changes."
         ]
+      },
+      {
+        "from": "1.1.0",
+        "to": "1.2.0",
+        "changes": [
+          "standard simai.smart-component 1.3.8: the element is made from component.json; dated aliases in aliases.json",
+          "sf-admin-menu-intent -> sf-admin-menu-refresh until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-open until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-toggle until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-save until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-query until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-create until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-rename until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-delete until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-read until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-reset until 2026-12-01 (event)",
+          "sf-admin-menu-intent -> sf-admin-menu-sign-out until 2026-12-01 (event)",
+          "sf-admin-menu-search -> sf-admin-menu-query until 2026-12-01 (event)",
+          "sf-admin-menu-settings-reset -> sf-admin-menu-reset until 2026-12-01 (event)"
+        ]
       }
     ]
   },
@@ -800,15 +1022,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
-        "sha256": "ea8128cc1ec4b8cabbb957b35e24e90cee7ff92c7f696592e3d56ccc1a2e8f06"
+        "sha256": "6a0e7fbdee41f6b36627c245cdefe4e27b7cacbf22daa9f288faf2fd11b5ea8c"
       },
       {
         "path": "src/smart/admin-menu/js/templates/default.js",
-        "sha256": "d150fccc8be46141a687543ab667dc8c3550806750bf4c6597afc756d0c2aa8c"
+        "sha256": "9986cd031ca422f4cc4830e7ba53acd84d13a91358787dd300639ede86422bcb"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
-        "sha256": "95e78985c0ee93945b38e5d9cfdd62166b6769c5bc6fbacd2e48f8b76179398d"
+        "sha256": "f49decd73a678b03ecf2e94060f4b75c7a9a892e29abbf87be8cdbdde23b6225"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
@@ -828,7 +1050,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
-        "sha256": "77f6c2d53bb8e93ea1f97a1a083ba323dcafb9ac68cb70911c53430ee9d3fc9d"
+        "sha256": "72b30e32a4c86a5cacd87bc766dbb88da5eb6a13223fbae9071df0d88c7a4aed"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",
@@ -837,6 +1059,26 @@
       {
         "path": "src/component/admin-menu/scss/_css__admin_menu.scss",
         "sha256": "b29acf6d8efc048e8c6d68234994dd2c9caeda0c7982b1bf01f419ddccb0347d"
+      },
+      {
+        "path": "src/smart/admin-menu/component.json",
+        "sha256": "d2933917f051a813904fddc13d791c98f62e5233a423649717b74bbf406543e6"
+      },
+      {
+        "path": "src/smart/admin-menu/aliases.json",
+        "sha256": "baea1799a8a7f9e61a2be67c5b76becf672372d55b2d92fd26d1e4171e982a53"
+      },
+      {
+        "path": "src/smart/admin-menu/lang/en.json",
+        "sha256": "d0ac7d8b4c74c9f793d002bb1a155d33981fcac768c4aed8e98698487d6f7035"
+      },
+      {
+        "path": "src/smart/admin-menu/lang/ru.json",
+        "sha256": "95f6f6f5bf6861d3495d329c38a52d7e4678a3bffcae03ce8e43501ea0321197"
+      },
+      {
+        "path": "src/smart/admin-menu/js/words.js",
+        "sha256": "12dd02ee8dae0725a09de24436d5efb65a50758849180c55a20d8f2c472c6275"
       }
     ],
     "generated_runtime": [

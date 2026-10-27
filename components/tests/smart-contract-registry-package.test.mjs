@@ -69,7 +69,7 @@ test("CLI discovers, describes and verifies the whole composite", () => {
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-admin-menu");
   assert.equal(packet.conformance.compatibility.contract_schema.version, 2);
-  assert.equal(packet.conformance.compatibility.migrations.at(-1).to, '1.1.0');
+  assert.equal(packet.conformance.compatibility.migrations.at(-1).to, '1.2.0');
   assert.match(packet.backend.integration_examples.larena_php, /Smart::render\('ui\.admin_menu'/);
   assert.deepEqual(JSON.parse(run("verify", "smart.admin-menu")), {ok: true, verified: ["smart.admin-menu"]});
 });

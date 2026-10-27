@@ -17,7 +17,7 @@ SF.RuleLoader["cl-admin-menu"] = {
     { name: "cl-badges" },
     { name: "cl-icons" },
     { name: "cl-icon-buttons" },
-    { name: "cl-inputs" },
+    { name: "cl-input" },
     // The navigation shell's edit mode moves rows with sf-sortable; a tag the
     // menu renders is a tag it fetches.
     { name: "cl-sortable", lazy: true },

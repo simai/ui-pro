@@ -4,18 +4,25 @@ import test from "node:test";
 
 const source = readFileSync(new URL("../src/smart/admin-menu/index.js", import.meta.url), "utf8");
 const template = readFileSync(new URL("../src/smart/admin-menu/js/templates/default.js", import.meta.url), "utf8");
+// The words are lang/<locale>.json (standard 1.3.8 §11); js/words.js makes the
+// template's dictionary from them.
+const ru = JSON.parse(readFileSync(new URL("../src/smart/admin-menu/lang/ru.json", import.meta.url), "utf8")).runtime;
 const contextMenuTemplate = readFileSync(new URL("../src/smart/context-menu/js/templates/default.js", import.meta.url), "utf8");
 
 test("admin menu supports backend-owned external persistence", () => {
     assert.match(source, /persistenceMode:\s*\{/);
     assert.match(source, /if \(!this\.isLocalPersistence\(\)\) return \{\};/);
-    assert.match(source, /sf-admin-menu-settings-save/);
-    assert.match(source, /sf-admin-menu-settings-reset/);
-    assert.match(source, /sf-admin-menu-settings-cancel/);
-    assert.match(source, /sf-admin-menu-compact-change/);
+    // The events by their verbs (§8): sf-admin-menu-settings-save, -cancel,
+    // -compact-change keep their names; the reset is the vocabulary's reset
+    // {kind: settings}, and sf-admin-menu-settings-reset follows it until
+    // 2026-12-01 (aliases.json).
+    assert.match(source, /emitSettingsEvent\("settings-save"/);
+    assert.match(source, /emitSettingsEvent\("reset", \{\s*kind: "settings"/);
+    assert.match(source, /emitSettingsEvent\("settings-cancel"/);
+    assert.match(source, /emitSettingsEvent\("compact-change"/);
     assert.match(source, /base_revision:\s*this\.getSettingsRevision\(\)/);
     assert.match(source, /profile:\s*this\.buildSettingsProfile\(\)/);
-    assert.match(source, /sf-admin-menu-settings-refresh[\s\S]*?base_revision:\s*this\.getSettingsRevision\(\)[\s\S]*?profile:\s*this\.buildSettingsProfile\(\)/);
+    assert.match(source, /emitSettingsEvent\("settings-refresh"[\s\S]*?base_revision:\s*this\.getSettingsRevision\(\)[\s\S]*?profile:\s*this\.buildSettingsProfile\(\)/);
 });
 
 test("compact mode publishes a layout event for containing shells", () => {
@@ -36,7 +43,8 @@ test("admin menu uses stable IDs and only drafts changes before save", () => {
 });
 
 test("settings UI exposes user and system modes with reset and cancel", () => {
-    assert.match(template, /Настройки для всех/);
+    assert.match(template, /systemSettings: "system-settings"/);
+    assert.equal(ru["system-settings"], "Настройки для всех");
     assert.match(template, /component\.resetMenuSettings\(\)/);
     assert.match(template, /component\.cancelMenuSettings\(\)/);
     assert.match(template, /settingsStatus === \"conflict\"/);

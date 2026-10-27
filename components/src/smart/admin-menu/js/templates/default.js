@@ -1,50 +1,28 @@
 import { html, nothing } from "lit";
 import { getInitials } from "../../../helpers/text";
+import {wordsOf} from "../words.js";
 
-const MENU_TRANSLATIONS = {
-  en: {
-    empty: "Nothing found",
-    favorites: "Favorites",
-    saving: "Saving…",
-    save: "Save",
-    personalSettings: "Personal settings",
-    systemSettings: "Settings for everyone",
-    hiddenItems: "Hidden items",
-    addDivider: "Add divider",
-    refreshState: "Refresh state",
-    resetSettings: "Reset settings",
-    cancel: "Cancel",
-    conflict: "Settings changed. Refresh state and save again.",
-    saveError: "Could not save settings.",
-    collapse: "Collapse",
-    expand: "Expand",
-    search: "Search",
-    sections: "Sections",
-    nothingFound: "Nothing found for",
-    back: "Back to menu",
-  },
-  ru: {
-    empty: "Ничего не найдено",
-    favorites: "Избранное",
-    saving: "Сохранение…",
-    save: "Сохранить",
-    personalSettings: "Личные настройки",
-    systemSettings: "Настройки для всех",
-    hiddenItems: "Скрытые пункты",
-    addDivider: "Добавить разделитель",
-    refreshState: "Обновить состояние",
-    resetSettings: "Сбросить настройки",
-    cancel: "Отменить",
-    conflict: "Настройки изменились. Обновите состояние и повторите сохранение.",
-    saveError: "Не удалось сохранить настройки.",
-    collapse: "Свернуть",
-    expand: "Развернуть",
-    search: "Поиск",
-    sections: "Разделы",
-    nothingFound: "Ничего не найдено по",
-    back: "Назад к меню",
-  },
-};
+const MENU_TRANSLATIONS = wordsOf({
+  empty: "empty",
+  favorites: "favorites",
+  saving: "saving",
+  save: "save",
+  personalSettings: "personal-settings",
+  systemSettings: "system-settings",
+  hiddenItems: "hidden-items",
+  addDivider: "menu-translations-add-divider",
+  refreshState: "refresh-state",
+  resetSettings: "reset-settings",
+  cancel: "cancel",
+  conflict: "menu-translations-conflict",
+  saveError: "save-error",
+  collapse: "collapse",
+  expand: "expand",
+  search: "search",
+  sections: "sections",
+  nothingFound: "menu-translations-nothing-found",
+  back: "menu-translations-back",
+});
 
 function menuText(key) {
   const locale = String(document.documentElement?.lang || "en")
@@ -120,13 +98,10 @@ function renderIcon(icon, alt = "", rootClass = "flex-none") {
 // never settled (2026-10-21). Drawn here, the counter follows the item's data
 // on every render and does not depend on how many copies there are.
 const COUNTER_CAP = 99;
-const COUNTER_TEXT = {
-  en: {count: "{count} unread", dot: "new"},
-  ru: {
-    count: "{count} непрочитанное|{count} непрочитанных|{count} непрочитанных|{count} непрочитанного",
-    dot: "есть новое",
-  },
-};
+const COUNTER_TEXT = wordsOf({
+  count: "count",
+  dot: "dot",
+});
 const PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"];
 
 function pageLocale() {

@@ -10,6 +10,13 @@
      2026-10-14): as tall as its frame up to the window, and held at the top
      while the page scrolls. In a frame as tall as the page it scrolled away
      with it, its foot halfway down and an empty column under it. */
+  /* The public variables (component.json css-variables) are read here and
+     never set, on the menu or any ancestor:
+       --sf-admin-menu-color                     the rows' text
+       --sf-admin-menu-first-background-color    the first column (and the rail)
+       --sf-admin-menu-second-background-color   the second column
+       --sf-admin-menu-border-color              the line after each column
+       --sf-admin-menu-padding                   the inset of the scrolling rows */
   .sf-admin-nav {
     display: flex;
     inline-size: max-content;
@@ -18,7 +25,7 @@
     min-block-size: 0;
     position: sticky;
     inset-block-start: 0;
-    color: var(--sf-on-surface);
+    color: var(--sf-admin-menu-color, var(--sf-on-surface));
     font-family: var(--sf-text--family);
     font-size: var(--sf-text-size-1\/2);
     line-height: var(--sf-text-height-1\/2);
@@ -30,14 +37,14 @@
     flex-direction: column;
     min-block-size: 0;
     block-size: 100%;
-    background-color: var(--sf-surface-0);
-    border-inline-end: var(--sf-px) solid var(--sf-outline-variant);
+    background-color: var(--sf-admin-menu-second-background-color, var(--sf-surface-0));
+    border-inline-end: var(--sf-px) solid var(--sf-admin-menu-border-color, var(--sf-outline-variant));
   }
 
   .sf-admin-nav-first {
     inline-size: var(--sf-admin-nav-first--inline-size, var(--sf-f6));
     flex: 0 0 auto;
-    background-color: var(--sf-surface-1);
+    background-color: var(--sf-admin-menu-first-background-color, var(--sf-surface-1));
   }
 
   .sf-admin-nav-first[data-compact="true"] {
@@ -67,7 +74,7 @@
     overscroll-behavior: contain;
     /* The column's inset, the same for the rows and for «Найти в разделе»
        above them, so a row's icon stays under the field's. */
-    padding: var(--sf-a4);
+    padding: var(--sf-admin-menu-padding, var(--sf-a4));
   }
 
   .sf-admin-nav-rows {

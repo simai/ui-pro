@@ -1,0 +1,316 @@
+{
+  "component": "sf-admin-menu",
+  "probe": "sf-admin-menu against component.json (standard simai.smart-component 1.3.8 §12, gate 20)",
+  "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+  "page": {
+    "lang": "ru",
+    "body": [
+      "<main style=\"display: flex; gap: 24px; block-size: 640px\">",
+      "  <sf-admin-menu id=\"m\" aria-label=\"Меню\"></sf-admin-menu>",
+      "  <sf-admin-menu id=\"s\" aria-label=\"Настройки меню\" persistence-mode=\"external\" searchable></sf-admin-menu>",
+      "</main>",
+      "<script>for (const [id, label, icon] of [['content', 'Контент', 'description'], ['files', 'Файлы', 'folder']]) { const item = document.createElement('sf-admin-menu-item'); item.setAttribute('item-id', id); item.setAttribute('label', label); item.setAttribute('icon-start', icon); item.setAttribute('href', '#' + id); document.querySelector('#s').append(item); }window.__port = {port: 'simai.admin-navigation-port', version: '1.0.0', capabilities: [], asked: [], async raise(intent, payload) { this.asked.push(intent); if (intent === 'navigation.load') return structuredClone({\"answer\": \"applied\", \"revision\": \"1\", \"current\": \"cms\", \"items\": [{\"key\": \"home\", \"kind\": \"page\", \"level\": \"site\", \"label\": \"Главная\", \"icon\": \"home\", \"href\": \"#home\"}, {\"key\": \"data\", \"kind\": \"root\", \"level\": \"site\", \"label\": \"Данные\", \"icon\": \"database\", \"children\": [{\"key\": \"cms\", \"kind\": \"page\", \"level\": \"site\", \"label\": \"Минимальная CMS\", \"icon\": \"table\", \"href\": \"#cms\"}, {\"key\": \"files\", \"kind\": \"page\", \"level\": \"site\", \"label\": \"Файлы\", \"icon\": \"folder\", \"href\": \"#files\"}]}], \"person\": {\"name\": \"Administrator\", \"language\": \"ru\", \"languages\": [{\"code\": \"ru\", \"native\": \"Русский\", \"english\": \"Russian\"}]}, \"site\": {\"current\": {\"key\": \"main\", \"label\": \"Main site\"}, \"count\": 1}}); if (intent === 'item.open') return {answer: 'applied', href: payload.href}; if (intent === 'favourite.toggle') return {answer: 'applied', favourites: payload.on ? [payload.key] : []}; return {answer: 'applied'}; } };customElements.whenDefined('sf-admin-menu').then(() => document.querySelector('#m').connectPort({port: window.__port}));</script>"
+    ]
+  },
+  "probes": [
+    {
+      "id": "p1-refresh-per-verb",
+      "title": "the port's navigation.load is told as sf-admin-menu-refresh {kind: navigation}; sf-admin-menu-intent {intent, payload} follows it once, noted with its dates",
+      "covers": "events.refresh, aliases sf-admin-menu-intent (split), actions.refresh",
+      "steps": [
+        {
+          "script": "(async () => { for (let i = 0; i < 80 && ![...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Файлы'); i += 1) await new Promise((done) => setTimeout(done, 100)); return Boolean([...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Файлы')); })()",
+          "wait": 60,
+          "expect": {
+            "returns": true
+          },
+          "check": "window.__port.asked[0] === 'navigation.load' && document.querySelector('#m').getAttribute('aria-label') === 'Меню'"
+        },
+        {
+          "script": "document.querySelector('#m').refresh().then(() => 'done')",
+          "expect": {
+            "returns": "done",
+            "events": [
+              {
+                "name": "sf-admin-menu-refresh",
+                "count": 1,
+                "detail": {
+                  "kind": "navigation",
+                  "intent": "navigation.load",
+                  "reason": "requested"
+                }
+              },
+              {
+                "name": "sf-admin-menu-intent",
+                "count": 1,
+                "detail": {
+                  "intent": "navigation.load",
+                  "payload": {
+                    "reason": "requested"
+                  }
+                }
+              }
+            ],
+            "journal": [
+              {
+                "from": "sf-admin-menu-intent",
+                "to": "sf-admin-menu-refresh",
+                "since": "2026-10-27",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p2-enter-opens-item",
+      "title": "Enter on a page row asks item.open: sf-admin-menu-open {kind: item, id}, the old intent once, and sf-admin-menu-navigate {id, key, href} when the host applied; Enter on a root row opens or closes its column and asks the host nothing",
+      "covers": "keyboard.host Enter select, events.open, events.navigate, aliases sf-admin-menu-intent",
+      "steps": [
+        {
+          "script": "(async () => { for (let i = 0; i < 80 && ![...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Файлы'); i += 1) await new Promise((done) => setTimeout(done, 100)); return Boolean([...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Файлы')); })()",
+          "wait": 60,
+          "expect": {
+            "returns": true
+          }
+        },
+        {
+          "script": "([...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Файлы').focus(), true)",
+          "wait": 60
+        },
+        {
+          "user": "keyboard:Enter",
+          "wait": 400,
+          "expect": {
+            "events": [
+              {
+                "name": "sf-admin-menu-open",
+                "count": 1,
+                "detail": {
+                  "kind": "item",
+                  "id": "files",
+                  "href": "#files",
+                  "intent": "item.open"
+                }
+              },
+              {
+                "name": "sf-admin-menu-intent",
+                "count": 1,
+                "detail": {
+                  "intent": "item.open"
+                }
+              },
+              {
+                "name": "sf-admin-menu-navigate",
+                "count": 1,
+                "detail": {
+                  "id": "files",
+                  "key": "files",
+                  "href": "#files"
+                }
+              }
+            ],
+            "journal": [
+              {
+                "from": "sf-admin-menu-intent",
+                "to": "sf-admin-menu-open",
+                "since": "2026-10-27",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          }
+        },
+        {
+          "script": "(window.__expanded = [...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Данные').getAttribute('aria-expanded'), [...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Данные').focus(), true)",
+          "wait": 60
+        },
+        {
+          "user": "keyboard:Enter",
+          "wait": 300,
+          "expect": {
+            "events": [
+              {
+                "name": "sf-admin-menu-open",
+                "count": 0
+              },
+              {
+                "name": "sf-admin-menu-intent",
+                "count": 0
+              }
+            ]
+          },
+          "check": "[...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Данные').getAttribute('aria-expanded') !== window.__expanded"
+        }
+      ]
+    },
+    {
+      "id": "p3-toggle-and-save",
+      "title": "favourite.toggle is sf-admin-menu-toggle {kind: favourite, id, on}; a compact preference is sf-admin-menu-save {kind: preference, values}",
+      "covers": "events.toggle, events.save",
+      "steps": [
+        {
+          "script": "(async () => { for (let i = 0; i < 80 && ![...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Файлы'); i += 1) await new Promise((done) => setTimeout(done, 100)); return Boolean([...document.querySelector('#m').querySelectorAll('.sf-admin-nav-row')].find((one) => one.querySelector('.sf-admin-nav-row-label')?.textContent.trim() === 'Файлы')); })()",
+          "wait": 60,
+          "expect": {
+            "returns": true
+          }
+        },
+        {
+          "script": "document.querySelector('#m')._navigation.raise('favourite.toggle', {key: 'files', on: true}).then((one) => one.answer)",
+          "expect": {
+            "returns": "applied",
+            "events": [
+              {
+                "name": "sf-admin-menu-toggle",
+                "count": 1,
+                "detail": {
+                  "kind": "favourite",
+                  "id": "files",
+                  "on": true
+                }
+              },
+              {
+                "name": "sf-admin-menu-intent",
+                "count": 1,
+                "detail": {
+                  "intent": "favourite.toggle"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "document.querySelector('#m')._navigation.raise('preference.compact', {compact: true}).then((one) => one.answer)",
+          "expect": {
+            "returns": "applied",
+            "events": [
+              {
+                "name": "sf-admin-menu-save",
+                "count": 1,
+                "detail": {
+                  "kind": "preference",
+                  "values": {
+                    "compact": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p4-settings-reset",
+      "title": "the items menu's reset of an external profile is the vocabulary's reset {kind: settings, target, baseRevision}; sf-admin-menu-settings-reset follows it once, noted; no intent is told",
+      "covers": "events.reset, aliases sf-admin-menu-settings-reset",
+      "steps": [
+        {
+          "script": "(document.querySelector('#s').resetMenuSettings(), true)",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-admin-menu-reset",
+                "count": 1,
+                "detail": {
+                  "kind": "settings",
+                  "target": "user",
+                  "baseRevision": 0,
+                  "base_revision": 0
+                }
+              },
+              {
+                "name": "sf-admin-menu-settings-reset",
+                "count": 1,
+                "detail": {
+                  "target": "user",
+                  "base_revision": 0
+                }
+              },
+              {
+                "name": "sf-admin-menu-intent",
+                "count": 0
+              }
+            ],
+            "journal": [
+              {
+                "from": "sf-admin-menu-settings-reset",
+                "to": "sf-admin-menu-reset"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p5-menu-search",
+      "title": "the items menu asks the host for a query after a pause: sf-admin-menu-query {kind: menu, query, requestId}; sf-admin-menu-search follows it once, noted",
+      "covers": "events.query, aliases sf-admin-menu-search",
+      "steps": [
+        {
+          "script": "(document.querySelector('#s').requestHostSearch('файл'), true)",
+          "wait": 600,
+          "expect": {
+            "events": [
+              {
+                "name": "sf-admin-menu-query",
+                "count": 1,
+                "detail": {
+                  "kind": "menu",
+                  "query": "файл"
+                }
+              },
+              {
+                "name": "sf-admin-menu-search",
+                "count": 1,
+                "detail": {
+                  "query": "файл"
+                }
+              },
+              {
+                "name": "sf-admin-menu-intent",
+                "count": 0
+              }
+            ],
+            "journal": [
+              {
+                "from": "sf-admin-menu-search",
+                "to": "sf-admin-menu-query"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p6-settings-and-port",
+      "title": "recent-results is a setting (setRecentResults, the 1.0 setter, is noted); connect-port answers outcomes",
+      "covers": "settings.recent-results, base action connect-port",
+      "steps": [
+        {
+          "script": "(document.querySelector('#s').setRecentResults([{key: 'recent', label: 'Недавнее', items: [{key: 'files', label: 'Файлы', href: '#files'}]}]), document.querySelector('#s').recentResults.length)",
+          "expect": {
+            "returns": 1,
+            "journal": [
+              {
+                "from": "setRecentResults",
+                "kind": "action",
+                "since": "2026-10-27",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          }
+        },
+        {
+          "script": "document.querySelector('#s').connectPort({port: {port: 'simai.other-port', version: '1.0.0', raise() {}}})",
+          "expect": {
+            "returns": {
+              "outcome": "refused",
+              "reason": "port-unsupported"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
