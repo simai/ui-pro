@@ -41,8 +41,13 @@
     line-height: var(--sf-text-height-1\/2);
   }
 
+  /* Each column is the box of its width handle (sf-resizer, absolutely
+     placed at its edge): relative from the first paint. The handle made its
+     column relative itself a frame after it connected, and moved from the
+     menu's edge to the column's (gate 24: layout shift 0.0017 at 1280). */
   .sf-admin-nav-first,
   .sf-admin-nav-second {
+    position: relative;
     display: flex;
     flex-direction: column;
     min-block-size: 0;

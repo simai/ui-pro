@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -1074,7 +1074,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "104f42a7cb9edaca7028efab671cc7e2ccbf8681",
+    "source_revision": "c20e423a793edac27c6507fb86420f58fa59b2af",
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
@@ -1086,7 +1086,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
-        "sha256": "b13dfae0766f75dfc72f79f4a56c739ce04db479472b7047f4555a96cce3619b"
+        "sha256": "4c0dd56000f8a6b13008a2944c8b2ddcfaa0f5783d758c66831e3549b0b568bf"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
@@ -1118,7 +1118,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "87b684ed5d67a22cf6b6053e1c4ffc51ea6b8829daa6a3dc882fd582c94da9b0"
+        "sha256": "8dcb8fc7e7e94b2f9bc78c9ed11677aa027ea61a1910dfcb70ff916c95b960b7"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

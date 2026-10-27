@@ -242,6 +242,18 @@
     min-inline-size: max(100%, var(--sf-table--content-inline-size, 0px));
   }
 
+  /* Content-sized but not measured yet -- the static markup a server prints
+     carries no measured size (standard 1.3.9 §5.4), nor do the columns' own
+     widths -- the table is laid out by its content, as wide as it is on one
+     line and never narrower than its box: what measureContentWidths will
+     give it. Fixed, without widths, it split a phone's 390 px evenly and
+     every cell wrapped (gate 24: 583 px against the drawn 271). */
+  sf-table table.sf-table-content-sized:not([style*="--sf-table--content-inline-size"]) {
+    table-layout: auto;
+    inline-size: max-content;
+    min-inline-size: 100%;
+  }
+
   sf-table table.sf-table-measuring {
     table-layout: auto !important;
     inline-size: max-content !important;
