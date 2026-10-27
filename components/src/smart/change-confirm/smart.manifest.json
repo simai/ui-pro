@@ -384,15 +384,15 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "669650d4071b04a58e51e28c73cf480eb8cbb858",
+    "source_revision": "563149a667f24207f24a4a30e6f231348bddd3ce",
     "source_artifacts": [
       {
         "path": "src/smart/change-confirm/index.js",
-        "sha256": "8c9d6f84252dd3c442aac66abe44552b5d57c65514e56b06ce1ef645e833fa34"
+        "sha256": "e9b71763fae58b71a00fd7f1da7b4de0ef3f00b1984fe2c2897ec8f2b2f6b34d"
       },
       {
         "path": "src/smart/change-confirm/js/templates/default.js",
-        "sha256": "e9c777964501e69ca4f26a528c23ff389341196328f299457b5dd470800fdfb0"
+        "sha256": "e1eb6d9390111bb1633a58d1ffd3b7c98e766939dd8b4289f9c6676ece8ff1a6"
       },
       {
         "path": "src/smart/change-confirm/js/templates/default.css",
@@ -404,11 +404,11 @@
       },
       {
         "path": "src/smart/change-confirm/docs.md",
-        "sha256": "a184f4967a87ce1a9f53bd860ee60de499cc975bbdda2f3798adb55e9984d1da"
+        "sha256": "4a56d8dc9c167b4946496f71e75256b9f9395d485e1fb6a7acee079f948b3abd"
       },
       {
         "path": "src/smart/change-confirm/component.json",
-        "sha256": "7cbd824637a5646d493d4dc5c5babb4e71c286a53058974ba15fb4280c6d2874"
+        "sha256": "0ed7fa613a835754b1c4b42e26fd57c73e5960c1c8bda0250ff0e00d546bb830"
       },
       {
         "path": "src/smart/change-confirm/aliases.json",

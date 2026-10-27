@@ -786,19 +786,19 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "669650d4071b04a58e51e28c73cf480eb8cbb858",
+    "source_revision": "15a41da7244c7464c21e19ffedcb787ec55af987",
     "source_artifacts": [
       {
         "path": "src/smart/thread-list/index.js",
-        "sha256": "0f3544cc7198590174d580fe5463f83fee771ba14422f33505273038158c8f4d"
+        "sha256": "2181ecbbadcb1f58d950e6e17d2584bc21819e10340e6197cfd67e5be60abe1f"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.js",
-        "sha256": "682dce62ec5f7f5e77f03b019234aaea39d7018361a28871f1a1eeac6768777b"
+        "sha256": "9ed2a3cea2b45e4ce23bc39c8cecf29f7f0adea36ac51f36645159d3c4005673"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.css",
-        "sha256": "80fbc3c1e87e06286580128455d6b9b252e5ba2d4da65512758c7445a1e091d5"
+        "sha256": "e5d7fefb77da132ba6667de9c77c5691a8af19e4c8d81b32028463690abb9dca"
       },
       {
         "path": "src/smart/thread-list/rule.js",
@@ -806,11 +806,11 @@
       },
       {
         "path": "src/smart/thread-list/docs.md",
-        "sha256": "7ee8d15668b3d90a5292467fe8b2a162f4dc53aacabb900cf3bfd79353f54f5f"
+        "sha256": "a9d7bcf2a6d4a24f443e84544c153cec0d07111bd2f48c73cdf168290666f922"
       },
       {
         "path": "src/smart/thread-list/component.json",
-        "sha256": "90532299e8fcdae69564f0b437b9e772f64fa8004e44dd43b9935a75fd162172"
+        "sha256": "ad53754ba6ae71dfc484672df59a3d039db8de4baf0900de9bf863755b8b0626"
       },
       {
         "path": "src/smart/thread-list/aliases.json",
@@ -818,11 +818,11 @@
       },
       {
         "path": "src/smart/thread-list/lang/en.json",
-        "sha256": "0df8ae541851159b899f92cf64bd204829d3b1c5b4789a79509f60d57dc760bc"
+        "sha256": "07339f6caa4b138b1a41526d8ea42d88383f6c4f412ec63f7e59287954560c3e"
       },
       {
         "path": "src/smart/thread-list/lang/ru.json",
-        "sha256": "1ca6b2d8b77f7b94c16d16902fde638e414667df0b3bbfab48fdbc77a74c319a"
+        "sha256": "b508e0a84de3ad1a479cc494488399c07785a0bf9c96a0146feca259a1d5cd3d"
       }
     ],
     "generated_runtime": []
