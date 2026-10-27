@@ -2024,11 +2024,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "1e63911808ffe84f37c836defecb593116d02d237787eee010491fc1c50f65a5"
+        "sha256": "262feea52ad383da22177c205b210d8a549352251c157b4d4046b1f3a33caf88"
       },
       {
         "path": "src/smart/table/js/templates/default.js",
-        "sha256": "ed693d211775dea9f022a60032ee9fad60696154a9a2bd59039eff9f0308d006"
+        "sha256": "131ac77602ec9b5ee5da51c2f05ec12d393f59d585eb8ecb5797de4fc27d7209"
       },
       {
         "path": "src/smart/table/js/templates/default.css",
@@ -2040,7 +2040,7 @@
       },
       {
         "path": "src/smart/table/rule.js",
-        "sha256": "1d323d3fddeff598d680b91d3eab08c4746e116ef80465b6a2fe99a0dee1334b"
+        "sha256": "1689c7fd73e451efa0f864ebe48b46ec951298fb3189afbf732f3ffb741b0010"
       },
       {
         "path": "src/smart/table/docs/smart-table-guide.md",
@@ -2048,7 +2048,7 @@
       },
       {
         "path": "src/smart/pagination/index.js",
-        "sha256": "e6ac0cb86e8021a0d708bfe4a3b5f261e588fac77628c182ede7695ce268534e"
+        "sha256": "88a4d91ec25466151b0004b74fbf8be463acc5c270406bebaface5011624ad76"
       }
     ],
     "generated_runtime": []

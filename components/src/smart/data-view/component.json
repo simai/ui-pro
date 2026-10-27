@@ -458,7 +458,7 @@
     "events.sf-data-view-files-drop → files-drop (the DOM name without sf-<tag>-)",
     "events.sf-table-cell-set → cell-set (the DOM name without sf-<tag>-)",
     "events.sf-table-rows-reorder → move (vocabulary §5 move)",
-    "slots.toolbar.accepts names components (smart.buttons, smart.inputs, smart.dropdown), not an interface <name>@<major> (§4.5.1); kept as x-accepts",
+    "slots.toolbar.accepts names components (smart.button, smart.input, smart.dropdown), not an interface <name>@<major> (§4.5.1); kept as x-accepts",
     "slots.content.accepts names components (smart.data-view), not an interface <name>@<major> (§4.5.1); kept as x-accepts",
     "slots.pagination.accepts names components (smart.pagination), not an interface <name>@<major> (§4.5.1); kept as x-accepts"
   ],
