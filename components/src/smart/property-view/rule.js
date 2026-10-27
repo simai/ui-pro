@@ -41,7 +41,7 @@ SF.RuleLoader["cl-property-view"] = {
     { name: "cl-file-preview" },
     { name: "cl-file-upload" },
     { name: "cl-progress-bar" },
-    { name: "cl-inputs" },
+    { name: "cl-input" },
     { name: "cl-textarea" },
     { name: "cl-dropdown" },
     { name: "cl-datepicker" },

@@ -66,7 +66,7 @@ test('the cross announces the end of a selection it does not own', async () => {
   // view directly. Neither keeps a copy that could drift from the boxes.
   assert.match(
     pagination,
-    /clearSelection\(\) \{\s*this\.emitComponentEvent\("selection-clear", \{/u,
+    /clearSelection\(\) \{\s*this\.sfEmit\("selection-clear", \{/u,
   );
   assert.match(view, /"sf-action-apply", "sf-show-more", "sf-selection-clear",/u, 'the view listens for it');
   assert.match(

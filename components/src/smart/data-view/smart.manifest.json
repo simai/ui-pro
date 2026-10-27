@@ -79,7 +79,7 @@
         "toolbar": {
           "accepts": [
             "smart.buttons",
-            "smart.inputs",
+            "smart.input",
             "smart.dropdown"
           ]
         },

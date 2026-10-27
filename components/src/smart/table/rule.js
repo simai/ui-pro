@@ -17,7 +17,7 @@ SF.RuleLoader["cl-table"] = {
     { name: "cl-buttons" },
     { name: "cl-icon-buttons" },
     { name: "icons" },
-    { name: "cl-inputs" },
+    { name: "cl-input" },
     { name: "cl-tags" },
     { name: "cl-pagination" },
     { name: "cl-spinner" },

@@ -39,7 +39,7 @@
       "smart.datepicker",
       "smart.dropdown",
       "smart.icon-buttons",
-      "smart.inputs",
+      "smart.input",
       "smart.list-item",
       "smart.modal",
       "smart.pagination",
@@ -1851,7 +1851,7 @@
       },
       {
         "path": "src/smart/table/rule.js",
-        "sha256": "40f2148692155d80ae852d297cd3337cc0e2242fa24d9b2a5bfc0615e40aada7"
+        "sha256": "1d323d3fddeff598d680b91d3eab08c4746e116ef80465b6a2fe99a0dee1334b"
       },
       {
         "path": "src/smart/table/docs/smart-table-guide.md",
@@ -1859,7 +1859,7 @@
       },
       {
         "path": "src/smart/pagination/index.js",
-        "sha256": "5bd5a0bb2a26c582d436f25d0cc428017bbc20370a614a0a8bafcf74c9f43a34"
+        "sha256": "e6ac0cb86e8021a0d708bfe4a3b5f261e588fac77628c182ede7695ce268534e"
       }
     ],
     "generated_runtime": []

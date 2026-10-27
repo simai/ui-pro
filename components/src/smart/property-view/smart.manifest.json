@@ -48,7 +48,7 @@
       "smart.file-upload",
       "smart.help-mark",
       "smart.icon-buttons",
-      "smart.inputs",
+      "smart.input",
       "smart.list-item",
       "smart.popover",
       "smart.profile-picker",
@@ -1167,7 +1167,7 @@
       },
       {
         "path": "src/smart/property-view/rule.js",
-        "sha256": "98d1c2f96404201314f3682d636ae1a9d83897efd7a49cc92f2e00220a588a4e"
+        "sha256": "69e4746d1329040dff7b758a4177406c76085bcb6d8b74ce19e03ef328984ab6"
       },
       {
         "path": "src/core/contracts/ports/simai.property-view-port/1.4.0/port.json",

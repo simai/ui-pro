@@ -141,17 +141,19 @@ test('badge option colours accept badge schemes and hex colours only', () => {
 });
 
 test('drawer events bubble, and on* helpers keep only their own drawer events', () => {
-    assert.match(drawer, /new CustomEvent\(type, \{\s*bubbles: true,\s*composed: true,\s*cancelable,/);
-    assert.match(drawer, /new CustomEvent\(eventName, \{\s*bubbles: true,\s*composed: true,/);
-    const own = new Function('handler', method(drawer.replace(/^  /gm, '    '), 'ownDrawerHandler(handler)', 'onBeforeOpen('));
+    // Since ui-source 758b6fd the drawer sends its events by verb through the
+    // manifest's sfEmit (standard 1.3.8 §8), and the old drawer:* names follow
+    // as dated aliases.
+    assert.match(drawer, /return this\.sfEmit\(verb, \{drawerId: this\.drawerId, \.\.\.extra\}, \{cancelable\}\);/);
+    const own = new Function('handler', method(drawer.replace(/^  /gm, '    '), 'ownDrawerHandler(handler)', 'onDrawerEvent('));
     const self = {};
     const calls = [];
-    const wrapped = own.call(self, function (event) { calls.push([this, event.detail.drawer]); });
-    wrapped({detail: {drawer: {}}});
-    wrapped({detail: {drawer: self}});
+    const wrapped = own.call(self, function (event) { calls.push([this, event.target]); });
+    wrapped({target: {}});
+    wrapped({target: self});
     assert.deepEqual(calls, [[self, self]]);
-    for (const name of ['before-open', 'after-open', 'before-close', 'after-close']) {
-        assert.match(drawer, new RegExp(`addEventListener\\('drawer:${name}', this\\.ownDrawerHandler\\(handler\\), options\\)`));
+    for (const [helper, verb] of [['onBeforeOpen', 'open'], ['onAfterOpen', 'opened'], ['onBeforeClose', 'close'], ['onAfterClose', 'closed']]) {
+        assert.match(drawer, new RegExp(`${helper}\\(handler, options\\) \\{ return this\\.onDrawerEvent\\('${verb}', handler, options\\); \\}`));
     }
 });
 
