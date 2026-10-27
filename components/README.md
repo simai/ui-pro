@@ -23,12 +23,18 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/message-log` | `sf-message-log` | `smart.message-log` |
 | `src/smart/thread-list` | `sf-thread-list` | `smart.thread-list` |
 | `src/smart/change-confirm` | `sf-change-confirm` | `smart.change-confirm` |
+| `src/smart/chat-interlocutor` | `sf-chat-interlocutor` | `smart.chat-interlocutor` |
 
 The three conversation components came from `simai/ui-chat` (`sf-chat-message-list`,
 `sf-chat-thread-list` and the proposal card) under neutral names (owner's decision
 2026-10-25): they serve a conversation with an assistant and one between people
 (simai.chat) alike, so what a message is, who wrote it and what a change means are
 the host's. Their documentation is in each folder's `docs.md`.
+
+`sf-chat-interlocutor` moved from `simai/ui-chat` under its own name (D31, owner's
+approval 2026-10-27): who a chat conversation is with, a thin element over the
+Framework's `sf-context-menu`. The rest of the chat (`sf-chat-composer`,
+`sf-chat-message`, `sf-chat-window`) follows it.
 
 Documentation (Russian): [sf-table and sf-data-view](https://ui.simai.io/ru/smart-components/content/table/),
 [sf-property-view](https://ui.simai.io/ru/smart-components/composite/property-view/),

@@ -1,0 +1,13 @@
+{
+  "title": "Собеседник чата",
+  "runtime": {
+    "assistant-text": "Помощник",
+    "button-label": "Помощник: {title}",
+    "change-text": "При смене помощника начнётся новый разговор",
+    "group-knowledge-text": "Помощники баз",
+    "group-own-text": "Мои помощники",
+    "menu-label": "Выбрать помощника",
+    "search-empty-text": "Ничего не найдено",
+    "search-placeholder": "Найти помощника"
+  }
+}

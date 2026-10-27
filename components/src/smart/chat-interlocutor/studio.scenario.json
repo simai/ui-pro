@@ -1,0 +1,41 @@
+{
+  "schema": "simai.smart-component-scenario.v1",
+  "id": "smoke",
+  "component": "smart.chat-interlocutor",
+  "fixture": "interlocutor-reference",
+  "viewport": "desktop",
+  "actions": [
+    {
+      "type": "invoke",
+      "method": "setOptions",
+      "arguments": [
+        [
+          {
+            "id": "personal",
+            "title": "Мой помощник",
+            "kind": "personal"
+          },
+          {
+            "id": "admin",
+            "title": "Ассистент администратора",
+            "kind": "admin"
+          }
+        ]
+      ]
+    }
+  ],
+  "assertions": [
+    {
+      "type": "upgraded"
+    },
+    {
+      "type": "visible"
+    },
+    {
+      "type": "no-console-error"
+    },
+    {
+      "type": "no-network"
+    }
+  ]
+}

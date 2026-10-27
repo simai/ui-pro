@@ -1,0 +1,132 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Два помощника: выбор",
+      "settings": {
+        "options": [
+          {
+            "id": "personal",
+            "title": "Мой помощник",
+            "kind": "personal"
+          },
+          {
+            "id": "shop",
+            "title": "Поддержка магазина",
+            "kind": "knowledge"
+          }
+        ],
+        "value": "personal"
+      },
+      "expect": {
+        "name": "Помощник: Мой помощник",
+        "values": {
+          "value": "personal"
+        },
+        "texts": {
+          ".sf-chat-interlocutor__title": "Мой помощник"
+        }
+      }
+    },
+    {
+      "name": "single",
+      "title": "Один помощник: только имя",
+      "settings": {
+        "options": [
+          {
+            "id": "personal",
+            "title": "Мой помощник",
+            "kind": "personal"
+          }
+        ],
+        "value": "personal"
+      },
+      "expect": {
+        "name": "Помощник: Мой помощник",
+        "texts": {
+          ".sf-chat-interlocutor__title": "Мой помощник"
+        }
+      }
+    },
+    {
+      "name": "former",
+      "title": "Старый разговор с помощником, которого нет в списке",
+      "settings": {
+        "options": [
+          {
+            "id": "personal",
+            "title": "Мой помощник",
+            "kind": "personal"
+          }
+        ],
+        "value": "admin"
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-interlocutor__title": "Помощник"
+        }
+      }
+    },
+    {
+      "name": "grouped",
+      "title": "Свои помощники и базы знаний, с поиском",
+      "settings": {
+        "options": [
+          {
+            "id": "personal",
+            "title": "Мой помощник",
+            "kind": "personal"
+          },
+          {
+            "id": "base-1",
+            "title": "База 1",
+            "kind": "knowledge"
+          },
+          {
+            "id": "base-2",
+            "title": "База 2",
+            "kind": "knowledge"
+          },
+          {
+            "id": "base-3",
+            "title": "База 3",
+            "kind": "knowledge"
+          },
+          {
+            "id": "base-4",
+            "title": "База 4",
+            "kind": "knowledge"
+          },
+          {
+            "id": "base-5",
+            "title": "База 5",
+            "kind": "knowledge"
+          },
+          {
+            "id": "base-6",
+            "title": "База 6",
+            "kind": "knowledge"
+          },
+          {
+            "id": "base-7",
+            "title": "База 7",
+            "kind": "knowledge"
+          },
+          {
+            "id": "base-8",
+            "title": "База 8",
+            "kind": "knowledge"
+          }
+        ],
+        "value": "base-3"
+      },
+      "expect": {
+        "name": "Помощник: База 3",
+        "texts": {
+          ".sf-chat-interlocutor__title": "База 3"
+        }
+      }
+    }
+  ]
+}

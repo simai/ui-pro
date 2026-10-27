@@ -1,0 +1,57 @@
+@layer sf.components {
+  /* sf-chat-interlocutor. The host is display: contents; .sf-chat-interlocutor
+     is what a header places. Every value is a Framework token. The public
+     variables (component.json css-variables) are read here and never set, on
+     the element or any ancestor (public-variables.v1 rule):
+       --sf-chat-interlocutor-color                   the name's text
+       --sf-chat-interlocutor-icon-color              the chevron
+       --sf-chat-interlocutor-hover-background-color  the button's ground under a pointer
+       --sf-chat-interlocutor-radius                  the button's corner
+       --sf-chat-interlocutor-height                  the button's least height
+     Their fallbacks are the tokens simai/ui-chat's chat.css gave the same
+     places (--sf-chat--ink, --sf-chat--ink-muted, --sf-chat--touch), so the
+     header reads as it did there. */
+  .sf-chat-interlocutor {
+    --sf-chat-interlocutor--color: var(--sf-chat-interlocutor-color, var(--sf-on-surface));
+    --sf-chat-interlocutor--icon-color: var(--sf-chat-interlocutor-icon-color, var(--sf-on-surface-variant));
+    --sf-chat-interlocutor--hover: var(--sf-chat-interlocutor-hover-background-color, var(--sf-surface-transparent-hover));
+    --sf-chat-interlocutor--radius: var(--sf-chat-interlocutor-radius, var(--sf-radius-1));
+    --sf-chat-interlocutor--height: var(--sf-chat-interlocutor-height, var(--sf-ui-1--control-height));
+  }
+
+  .sf-chat-interlocutor__button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    max-inline-size: 100%;
+    min-block-size: var(--sf-chat-interlocutor--height);
+    padding-inline: var(--sf-space-1\/2) var(--sf-space-1\/3);
+    border: 0;
+    border-radius: var(--sf-chat-interlocutor--radius);
+    background: transparent;
+    color: var(--sf-chat-interlocutor--color);
+    font: inherit;
+    font-size: var(--sf-text--size);
+    line-height: var(--sf-text--height);
+    font-weight: var(--sf-font-weight-bold);
+    cursor: pointer;
+  }
+
+  .sf-chat-interlocutor__button:hover:not(:disabled) { background: var(--sf-chat-interlocutor--hover); }
+
+  .sf-chat-interlocutor__button:disabled { cursor: default; }
+  .sf-chat-interlocutor__button sf-icon { color: var(--sf-chat-interlocutor--icon-color); }
+  .sf-chat-interlocutor--single sf-icon { display: none; }
+
+  .sf-chat-interlocutor__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (pointer: coarse) {
+    .sf-chat-interlocutor__button {
+      min-block-size: var(--sf-chat-interlocutor-height, var(--sf-ui-2--control-height));
+    }
+  }
+}
