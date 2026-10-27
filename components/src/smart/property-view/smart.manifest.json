@@ -1138,8 +1138,8 @@
     "migrations": []
   },
   "provenance": {
-    "source_repository": "simai/ui-source",
-    "source_revision": "300cf1a3f1b8edf0d4cadc6016a82402de39c1f7",
+    "source_repository": "simai/ui-pro",
+    "source_revision": "2020a6ba568c32013452023bc041f034a53b0b87",
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",

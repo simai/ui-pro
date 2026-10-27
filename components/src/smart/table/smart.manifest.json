@@ -1830,8 +1830,8 @@
     ]
   },
   "provenance": {
-    "source_repository": "simai/ui-source",
-    "source_revision": "300cf1a3f1b8edf0d4cadc6016a82402de39c1f7",
+    "source_repository": "simai/ui-pro",
+    "source_revision": "37b6cdbfca35991a43f26a3124a5f11a99d8547c",
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
