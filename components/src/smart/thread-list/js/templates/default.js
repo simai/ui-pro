@@ -65,7 +65,7 @@ const row = (context, thread) => {
             >
                 ${avatar
                     ? html`<sf-avatar class="sf-thread-list__avatar" size="1/2" aria-hidden="true"
-                                      image-url=${avatar.image_url ?? ""} text=${avatar.text ?? ""}></sf-avatar>`
+                                      image-url=${avatar["image-url"] ?? ""} text=${avatar.text ?? ""}></sf-avatar>`
                     : nothing}
                 <span class="sf-thread-list__text">
                     <span class="sf-thread-list__title">${title}</span>

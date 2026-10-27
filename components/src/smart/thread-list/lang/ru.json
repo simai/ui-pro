@@ -1,0 +1,22 @@
+{
+  "title": "Список разговоров",
+  "runtime": {
+    "actions-label": "Действия с «{title}»",
+    "archive-empty-text": "В архиве пусто",
+    "archive-text": "В архив",
+    "archive-view": "Архив",
+    "back-text": "К разговорам",
+    "create-text": "Новый разговор",
+    "earlier": "Раньше",
+    "empty-text": "Разговоров пока нет",
+    "label": "Разговоры",
+    "loading-text": "Загружаю разговоры",
+    "rename-label": "Новое название",
+    "rename-text": "Переименовать",
+    "today": "Сегодня",
+    "unarchive-text": "Вернуть из архива",
+    "unread-label": "Непрочитанных: {count}",
+    "untitled-text": "Без названия",
+    "yesterday": "Вчера"
+  }
+}

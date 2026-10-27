@@ -57,8 +57,20 @@ try {
       list.id = 'list';
       for (const [name, value] of Object.entries(attributes)) list.setAttribute(name, value);
       if (footer) list.innerHTML = '<div slot="footer"><a id="usage" href="#usage">Мой расход</a></div>';
-      for (const name of ['create', 'select', 'rename', 'archive', 'unarchive', 'action', 'load-more', 'view']) {
-        list.addEventListener(`sf-thread-list-${name}`, (event) => window.events.push({name, ...event.detail}));
+      // The 1.1 names (vocabulary 1.1.5), read back in the words of the cases
+      // below: open is the old select, restore unarchive, apply action, toggle view.
+      const read = {
+        create: ['create', () => ({})],
+        open: ['select', ({id}) => ({id})],
+        rename: ['rename', ({id, title}) => ({id, title})],
+        archive: ['archive', ({id}) => ({id})],
+        restore: ['unarchive', ({id}) => ({id})],
+        apply: ['action', ({id, action}) => ({id, action})],
+        'load-more': ['load-more', () => ({})],
+        toggle: ['view', ({archived}) => ({archived})],
+      };
+      for (const [verb, [name, pick]] of Object.entries(read)) {
+        list.addEventListener(`sf-thread-list-${verb}`, (event) => window.events.push({name, ...pick(event.detail)}));
       }
       box.append(list);
       if (actions) list.actions = actions;
@@ -66,14 +78,14 @@ try {
       const now = Date.now();
       const items = threads === 'days'
         ? [
-          {id: 't1', title: 'Сегодняшний', updated_at: new Date(now - 60 * 1000).toISOString()},
-          {id: 't2', title: 'Тоже сегодня', updated_at: new Date(now - 120 * 1000).toISOString()},
-          {id: 't3', title: 'Вчерашний', updated_at: new Date(new Date().setHours(12, 0, 0, 0) - day).toISOString()},
-          {id: 't4', title: 'Давний разговор с очень длинным названием, которое не помещается в строку списка', updated_at: '2026-01-02T10:00:00Z'},
-          {id: 't9', title: 'В архиве', updated_at: '2026-01-01T10:00:00Z', archived: true},
+          {id: 't1', title: 'Сегодняшний', 'updated-at': new Date(now - 60 * 1000).toISOString()},
+          {id: 't2', title: 'Тоже сегодня', 'updated-at': new Date(now - 120 * 1000).toISOString()},
+          {id: 't3', title: 'Вчерашний', 'updated-at': new Date(new Date().setHours(12, 0, 0, 0) - day).toISOString()},
+          {id: 't4', title: 'Давний разговор с очень длинным названием, которое не помещается в строку списка', 'updated-at': '2026-01-02T10:00:00Z'},
+          {id: 't9', title: 'В архиве', 'updated-at': '2026-01-01T10:00:00Z', archived: true},
         ]
         : threads === 'long'
-          ? Array.from({length: 40}, (_, index) => ({id: `l${index}`, title: `Разговор ${index}`, updated_at: new Date(now - index * day * 3).toISOString()}))
+          ? Array.from({length: 40}, (_, index) => ({id: `l${index}`, title: `Разговор ${index}`, 'updated-at': new Date(now - index * day * 3).toISOString()}))
           : threads;
       list.setThreads(items, {hasMore});
       await new Promise((done) => setTimeout(done, 300));
@@ -198,8 +210,8 @@ try {
   await page.evaluate(() => {
     window.events.length = 0;
     const list = document.getElementById('list');
-    list.appendThreads([{id: 'l0', title: 'Повтор', updated_at: '2020-01-01T00:00:00Z'},
-      {id: 'x1', title: 'Следующая страница', updated_at: '2020-01-01T00:00:00Z'}], {hasMore: false});
+    list.appendThreads([{id: 'l0', title: 'Повтор', 'updated-at': '2020-01-01T00:00:00Z'},
+      {id: 'x1', title: 'Следующая страница', 'updated-at': '2020-01-01T00:00:00Z'}], {hasMore: false});
   });
   await page.waitForTimeout(300);
   const appended = await page.evaluate(() => ({rows: document.querySelectorAll('.sf-thread-list__link').length, last: [...document.querySelectorAll('.sf-thread-list__link')].at(-1)?.dataset.id}));
@@ -211,7 +223,7 @@ try {
   if (empty !== 'Разговоров пока нет') note({case: 'an empty list says so', got: empty});
   const loading = await page.evaluate(async () => {
     const list = document.getElementById('list');
-    list.setLoading(true);
+    list.loading = true;
     await new Promise((done) => setTimeout(done, 150));
     return {busy: document.querySelector('.sf-thread-list__scroller').getAttribute('aria-busy'),
       rows: document.querySelectorAll('.sf-thread-list__skeleton span').length,
@@ -245,9 +257,9 @@ try {
   if (renamed) note({case: 'no-manage: F2 renames nothing'});
 
   await make({attributes: {'group-by': 'none', selected: 'p2'}, threads: [
-    {id: 'p1', title: 'Анна Смирнова', caption: 'До завтра!', unread: 3, avatar: {text: 'АС'}, updated_at: new Date().toISOString()},
-    {id: 'p2', title: 'Отдел продаж', caption: 'Пётр: отчёт готов', unread: 0, updated_at: '2026-01-01T00:00:00Z'},
-    {id: 'p3', title: 'Пётр', caption: 'Спасибо', unread: 250, updated_at: '2025-01-01T00:00:00Z'},
+    {id: 'p1', title: 'Анна Смирнова', caption: 'До завтра!', unread: 3, avatar: {text: 'АС'}, 'updated-at': new Date().toISOString()},
+    {id: 'p2', title: 'Отдел продаж', caption: 'Пётр: отчёт готов', unread: 0, 'updated-at': '2026-01-01T00:00:00Z'},
+    {id: 'p3', title: 'Пётр', caption: 'Спасибо', unread: 250, 'updated-at': '2025-01-01T00:00:00Z'},
   ]});
   const people = await page.evaluate(() => ({
     headings: document.querySelectorAll('.sf-thread-list__heading').length,

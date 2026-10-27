@@ -1,0 +1,156 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Разговоры по дням",
+      "settings": {
+        "threads": [
+          {
+            "id": "t1",
+            "title": "Отпуск в ноябре",
+            "caption": "Анна: подпишу завтра",
+            "updated-at": "2026-10-27T09:00:00Z",
+            "unread": 2
+          },
+          {
+            "id": "t2",
+            "title": "Отчёт за квартал",
+            "caption": "Вы: отправил",
+            "updated-at": "2026-10-26T15:00:00Z"
+          },
+          {
+            "id": "t3",
+            "title": "Новый сотрудник",
+            "updated-at": "2026-10-20T10:00:00Z",
+            "avatar": {
+              "text": "НС"
+            }
+          }
+        ],
+        "selected": "t1"
+      },
+      "expect": {
+        "name": "Разговоры",
+        "values": {
+          "selected": "t1"
+        }
+      }
+    },
+    {
+      "name": "ungrouped",
+      "title": "Без групп",
+      "settings": {
+        "threads": [
+          {
+            "id": "t1",
+            "title": "Отпуск в ноябре",
+            "caption": "Анна: подпишу завтра",
+            "updated-at": "2026-10-27T09:00:00Z",
+            "unread": 2
+          },
+          {
+            "id": "t2",
+            "title": "Отчёт за квартал",
+            "caption": "Вы: отправил",
+            "updated-at": "2026-10-26T15:00:00Z"
+          },
+          {
+            "id": "t3",
+            "title": "Новый сотрудник",
+            "updated-at": "2026-10-20T10:00:00Z",
+            "avatar": {
+              "text": "НС"
+            }
+          }
+        ],
+        "group-by": "none",
+        "label": "Чаты"
+      },
+      "expect": {
+        "name": "Чаты"
+      }
+    },
+    {
+      "name": "archive",
+      "title": "Архив",
+      "settings": {
+        "threads": [
+          {
+            "id": "t9",
+            "title": "Старый проект",
+            "updated-at": "2026-09-01T10:00:00Z",
+            "archived": true
+          }
+        ],
+        "archived": true
+      },
+      "expect": {
+        "name": "Архив"
+      }
+    },
+    {
+      "name": "loading",
+      "title": "Загрузка",
+      "settings": {
+        "loading": true
+      },
+      "expect": {
+        "name": "Разговоры"
+      }
+    },
+    {
+      "name": "empty",
+      "title": "Пусто",
+      "settings": {
+        "threads": []
+      },
+      "expect": {
+        "name": "Разговоры",
+        "texts": {
+          ".sf-thread-list__status": "Разговоров пока нет"
+        }
+      }
+    },
+    {
+      "name": "people",
+      "title": "Чаты людей без архива",
+      "settings": {
+        "threads": [
+          {
+            "id": "t1",
+            "title": "Отпуск в ноябре",
+            "caption": "Анна: подпишу завтра",
+            "updated-at": "2026-10-27T09:00:00Z",
+            "unread": 2
+          },
+          {
+            "id": "t2",
+            "title": "Отчёт за квартал",
+            "caption": "Вы: отправил",
+            "updated-at": "2026-10-26T15:00:00Z"
+          },
+          {
+            "id": "t3",
+            "title": "Новый сотрудник",
+            "updated-at": "2026-10-20T10:00:00Z",
+            "avatar": {
+              "text": "НС"
+            }
+          }
+        ],
+        "no-archive": true,
+        "no-create": true,
+        "actions": [
+          {
+            "id": "pin",
+            "text": "Закрепить",
+            "icon": "push_pin"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Разговоры"
+      }
+    }
+  ]
+}

@@ -3,19 +3,20 @@
      page places, and it fills its container's height: the head and foot stay,
      the rows scroll between them.
 
-     Every value is a Framework token. The public adaptation points are the
-     --sf-thread-list--* variables:
-       --sf-thread-list--inset       the inline inset of the head, rows and foot
-       --sf-thread-list--row-height  a one-line row (the ladder's step 1 control)
-       --sf-thread-list--radius      a row's corner
-       --sf-thread-list--hover       a row under the pointer
-       --sf-thread-list--current     the open row */
+     Every value is a Framework token. The public variables (component.json
+     css-variables) are read here and never set, on the list or any ancestor:
+       --sf-thread-list-inset                     the inline inset of the head, rows and foot
+       --sf-thread-list-row-height                a one-line row (the ladder's step 1 control)
+       --sf-thread-list-radius                    a row's corner
+       --sf-thread-list-hover-background-color    a row under the pointer
+       --sf-thread-list-current-background-color  the open row
+     The --sf-thread-list--* hooks of 1.0 stay the internal layer they feed. */
   .sf-thread-list {
-    --sf-thread-list--inset: var(--sf-space-1\/3);
-    --sf-thread-list--row-height: var(--sf-ui-1--control-height);
-    --sf-thread-list--radius: var(--sf-radius-1);
-    --sf-thread-list--hover: var(--sf-surface-transparent-hover);
-    --sf-thread-list--current: var(--sf-surface-transparent-select);
+    --sf-thread-list--inset: var(--sf-thread-list-inset, var(--sf-space-1\/3));
+    --sf-thread-list--row-height: var(--sf-thread-list-row-height, var(--sf-ui-1--control-height));
+    --sf-thread-list--radius: var(--sf-thread-list-radius, var(--sf-radius-1));
+    --sf-thread-list--hover: var(--sf-thread-list-hover-background-color, var(--sf-surface-transparent-hover));
+    --sf-thread-list--current: var(--sf-thread-list-current-background-color, var(--sf-surface-transparent-select));
 
     display: flex;
     flex-direction: column;
