@@ -590,6 +590,8 @@ class SfDataView extends DataViewElement {
         this.shadowRoot.querySelector("[data-delete]").addEventListener("click", this._bound);
         this._seedPageSize();
         this._renderProjection();
+        this._firstPaintReady = true;
+        this._drawFirstAnswer();
         this._startFirstPaint();
         if (this.hostPort) this.refresh("connected");
         else this._requestHostPort();
@@ -609,8 +611,8 @@ class SfDataView extends DataViewElement {
         return asked || cap || FIRST_PAINT_ROWS;
     }
 
-    // The page size somebody declared: the person's kept one, or the page
-    // row's page-size as the page printed it. Zero when
+    // The page size somebody declared: the person's kept one, a first answer's
+    // echo, or the page row's page-size as the page printed it. Zero when
     // nobody did -- the query's own 25 is the view's default, not a request.
     _declaredPageSize() {
         if (this._pageSizeDeclared) return Number(this.query.per_page) || 0;
@@ -637,6 +639,39 @@ class SfDataView extends DataViewElement {
         if (!size) return;
         this.query.per_page = size;
         this._pageSizeDeclared = true;
+    }
+
+    // The host's first answer printed with the page (settings.first-answer,
+    // a data-sf-settings island): the shape of query.change's applied data --
+    // records (each with its revision), total or has_next, echo, columns. The
+    // view draws it at once, as if the host had answered, so rows the server
+    // already has are usable before the port; the port then answers the same
+    // query in the background (refresh "connected", no loading state) and its
+    // answer replaces this one. Taken once: a later answer is the port's.
+    get firstAnswer() { return this._firstAnswer ?? null; }
+
+    set firstAnswer(data) {
+        this._firstAnswer = data && typeof data === "object" && !Array.isArray(data) && Array.isArray(data.records) ? copy(data) : null;
+        // Set after the view connected (not from its island, which is read
+        // before the view is ready to draw): drawn now.
+        if (this._firstPaintReady && this.isConnected && this._firstAnswer && !this._answered) {
+            this._drawFirstAnswer();
+            if (this.hostPort) this.refresh("connected");
+        }
+    }
+
+    _drawFirstAnswer() {
+        const data = this._firstAnswer;
+        if (!data || this._answered) return false;
+        this._firstAnswer = null;
+        if (data.echo && Number.isInteger(data.echo.per_page) && data.echo.per_page > 0) this._pageSizeDeclared = true;
+        this._revalidate = true;
+        this.applyProjection(data);
+        // A printed skeleton the server sent as well goes with the first
+        // answer, in the same frame.
+        this.removeAttribute("data-sf-awaiting");
+        for (const node of this._firstPaintNodes()) node.remove?.();
+        return true;
     }
 
     // How many columns the skeleton stands for (expected-columns): the shape
@@ -1151,12 +1186,16 @@ class SfDataView extends DataViewElement {
         // Show more continues the list; every other reason replaces it. The
         // answer carries no reason of its own, so it is remembered here.
         this.continuing = reason === "show-more";
+        // The port's first answer over a first answer the page printed is a
+        // revalidation: the rows stay as they are, usable, until it comes.
+        const revalidating = this._revalidate === true && ["connected", "host-connected"].includes(reason);
+        this._revalidate = false;
         // Continuing the list is answered inside the button that asked for it.
         // The table is not loading — the rows on screen stay exactly as they
         // are — so it neither dims them nor replaces them with a loader.
         if (this.continuing) {
             this.pagination?.setState?.({showMoreBusy: true});
-        } else {
+        } else if (!revalidating) {
             this._setState("loading", pageText(DATA_VIEW_TEXT, "stateLoading", this));
         }
         return this._raise("query.change", {sequence, query: copy(this.query), reason}, {query: true});

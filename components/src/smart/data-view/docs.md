@@ -73,6 +73,25 @@ view.setHostPort({
 ширине через container query. Свой `list-below` у таблицы заготовка не
 учитывает.
 
+Если первая страница уже есть у сервера, он печатает её вместе со страницей —
+настройкой `first-answer` в острове `data-sf-settings`, в той же форме, что
+ответ хоста на `query.change` (`records` с `revision` у каждой записи, `total`
+или `has_next`, `echo`, `columns`). Представление рисует её сразу, без
+заготовки, и список работает до подключения порта; порт затем отвечает на тот
+же запрос в фоне, без состояния загрузки, и его ответ заменяет напечатанный:
+
+```html
+<sf-data-view aria-label="Каталог">
+  <script type="application/json" data-sf-settings>
+    {"first-answer": {"records": [{"id": "1", "revision": "r1", "title": "Первая"}],
+      "total": 2400, "echo": {"page": 1, "per_page": 20},
+      "columns": [{"key": "title", "label": "Название"}]}}
+  </script>
+  <sf-table slot="content" aria-label="Каталог"></sf-table>
+  <sf-pagination slot="pagination" page-size="20"></sf-pagination>
+</sf-data-view>
+```
+
 ## Действия и виды
 
 - Поиск, фильтры, сортировка и окно меняют один `query.change`.

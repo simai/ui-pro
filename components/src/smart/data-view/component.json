@@ -2,7 +2,7 @@
   "$comment": "sf-data-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/data-view; every x-todo decided in x-decisions.",
   "id": "smart.data-view-composite",
   "tag": "sf-data-view",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "kind": "leaf",
   "family": "table",
   "settings": {
@@ -123,6 +123,11 @@
         "label": "string"
       },
       "x-shape": "the actions offered for the marked rows; an assembly gives the ids, their words are its language file's roles.<role>.items.<id> (§11.3); a page may write them on its page row instead"
+    },
+    "first-answer": {
+      "type": "object",
+      "optional": true,
+      "x-shape": "the host's first answer printed with the page, the applied data of query.change: records (each with its revision), total or has_next, echo, columns. A server that already has the first page prints it in the view's data-sf-settings island; the view draws it at once, as if the host had answered, and the port answers the same query in the background without a loading state. Taken once"
     }
   },
   "values": {
@@ -285,7 +290,7 @@
   },
   "presentation": {
     "skeleton": {
-      "$comment": "The data comes through the port, not a setting: until the host first answers, the view is its skeleton (index.js _startFirstPaint) -- the shape the answer will have: the toolbar, the table's head and a row per row it will draw (the page size the list asks for -- a kept one, else the printed page row's page-size -- capped by row-cap; else row-cap; else a page of 10) with a cell per expected column (expected-columns) and the chrome columns, the compact list a phone gets (a container query at sf-table's list-below, 600 px), and the page row -- in its light DOM, slotted as first-paint, so its static markup (static/default/<example>.html) is that skeleton and the view adopts it (standard 1.3.8 §5.4). Its lengths are in sf-table's sheet.",
+      "$comment": "The data comes through the port, or first from the page (first-answer, drawn at once, the port revalidating behind it): until the host first answers, the view is its skeleton (index.js _startFirstPaint) -- the shape the answer will have: the toolbar, the table's head and a row per row it will draw (the page size the list asks for -- a kept one, else the printed page row's page-size -- capped by row-cap; else row-cap; else a page of 10) with a cell per expected column (expected-columns) and the chrome columns, the compact list a phone gets (a container query at sf-table's list-below, 600 px), and the page row -- in its light DOM, slotted as first-paint, so its static markup (static/default/<example>.html) is that skeleton and the view adopts it (standard 1.3.8 §5.4). Its lengths are in sf-table's sheet.",
       "late": []
     }
   },
