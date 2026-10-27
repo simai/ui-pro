@@ -295,17 +295,22 @@ function renderSecondColumn(context) {
 // same before and after the answer. The column fills its region; its rows
 // scroll inside it. The word is for a screen reader only.
 export const SKELETON_ROWS = 6;
-export function renderNavigationSkeleton({text}) {
+export function renderNavigationSkeleton({text, columns = 2}) {
     const widths = ["w-3/4", "w-1/2", "w-2/3", "w-1/2", "w-3/4", "w-2/5"];
     const row = (width) => html`<div class="sf-admin-nav-item"><div class="sf-admin-nav-row sf-admin-nav-row--first" aria-hidden="true">
         <div class="sf-skeleton sf-skeleton--animation-pulse"><div class="sf-skeleton-circle sf-skeleton-icon"></div></div>
         <div class="sf-skeleton sf-skeleton--animation-pulse" style="flex:1"><div class="sf-skeleton-text sf-skeleton-text--size-1/2 ${width}"></div></div></div></div>`;
     const column = (name) => html`<div class=${`sf-admin-nav-${name}`}><div class="sf-admin-nav-scroll">
         <div class="sf-admin-nav-rows">${Array.from({length: SKELETON_ROWS}, (_, at) => row(widths[at % widths.length]))}</div></div></div>`;
-    // Both columns are printed; the stylesheet keeps one, the whole width,
-    // below 48rem (navigation.css), since a printed skeleton knows no viewport.
-    return html`<nav class="sf-admin-nav sf-admin-nav--skeleton" aria-busy="true">
-        ${column("first")}${column("second")}
+    // The columns the answered menu takes on a wide screen (expected-columns:
+    // one on a page whose row has no open root, as the dashboard, else two),
+    // so the menu is as wide before the answer as after it (stand 25 D4: a
+    // two-column skeleton over a one-column menu pushed the page aside and
+    // back). Both are printed when two; the stylesheet keeps one, the whole
+    // width, below 48rem (navigation.css), since a printed skeleton knows no
+    // viewport.
+    return html`<nav class="sf-admin-nav sf-admin-nav--skeleton" aria-busy="true" data-columns=${String(columns)}>
+        ${column("first")}${columns === 1 ? nothing : column("second")}
         <span class="sr-only" role="status">${text("loading")}</span></nav>`;
 }
 

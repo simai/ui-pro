@@ -2,7 +2,7 @@
   "$comment": "The source of sf-admin-menu's interface (standard simai.smart-component 1.3.8). Taken from simai/ui-control control/smart-architecture/migration/out/admin-menu (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.admin-menu",
   "tag": "sf-admin-menu",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "kind": "leaf",
   "family": "menu",
   "settings": {
@@ -126,6 +126,11 @@
       "values": ["items", "port"],
       "default": "items",
       "x-summary": "where the entries come from: items (the setting and the element's children) or port (simai.admin-navigation-port, which the host connects); with port the menu is its navigation skeleton until the host answers, never the empty items menu (first paint, standard 1.3.9 §5.4)"
+    },
+    "expected-columns": {
+      "type": "number",
+      "default": 2,
+      "x-summary": "how many columns the navigation skeleton draws on a wide screen before the host answers (source port): 1 where the page's row has no open root (a dashboard), 2 where it has; the server knows which. The shape of the first paint, never a limit: the answered menu takes the columns its rows need"
     },
     "open": {
       "type": "boolean",

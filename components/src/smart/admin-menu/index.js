@@ -16,6 +16,7 @@ import {
     NAVIGATION_PORT,
     NAVIGATION_TEXT,
     SUPPORTED_NAVIGATION_VERSIONS,
+    skeletonColumns,
 } from "./js/navigation/controller";
 import {renderNavigationSkeleton, renderNavigationTemplate} from "./js/navigation/template";
 import {wordsOf} from "./js/words.js";
@@ -2353,7 +2354,7 @@ class SfAdminMenu extends AdminMenuElement {
     // The navigation skeleton before a port; its columns follow the viewport
     // in the stylesheet, as the answered menu's do (controller.js WIDE_MEDIA_QUERY).
     navigationSkeletonContext() {
-        return {text: (key) => pageText(NAVIGATION_TEXT, key, this, "sf-admin-menu")};
+        return {text: (key) => pageText(NAVIGATION_TEXT, key, this, "sf-admin-menu"), columns: skeletonColumns(this)};
     }
 
     template() {

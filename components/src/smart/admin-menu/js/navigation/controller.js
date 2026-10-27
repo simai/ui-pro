@@ -1273,6 +1273,15 @@ export class NavigationController {
             palette: this.palette,
             shortcut: PALETTE_SHORTCUT,
             edit: this.edit,
+            columns: skeletonColumns(this.element),
         };
     }
+}
+
+// How many columns the skeleton draws (sf-admin-menu expected-columns): the
+// columns the answered menu will take on a wide screen, which the server
+// knows -- one where the page's row has no open root (the dashboard), two
+// where it has. The shape of the first paint, never a limit.
+export function skeletonColumns(element) {
+    return element?.getAttribute?.("expected-columns") === "1" ? 1 : 2;
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -57,6 +57,7 @@
         "brand",
         "collapsible",
         "compact",
+        "expected-columns",
         "logo",
         "logo-href",
         "panel-class",
@@ -255,6 +256,13 @@
         "type": "string",
         "default": "",
         "description": "The row the page is on, by its key; empty: the row whose address the page is at."
+      },
+      "expected-columns": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2,
+        "default": 2,
+        "description": "How many columns the navigation skeleton draws on a wide screen before the host answers: 1 where the page's row has no open root (a dashboard), 2 where it has. The server knows which; with the right number the menu is as wide before the answer as after it. Never a limit: the answered menu takes the columns its rows need."
       },
       "open": {
         "type": "boolean",
