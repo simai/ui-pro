@@ -314,6 +314,7 @@ class SfAdminMenu extends AdminMenuElement {
         // A printed JSON island first (standard 1.3.8 §5.4): the settings read
         // below, before the base's connect, may be in it (recent-results).
         this.sfReadIsland();
+        this._reflectOpen();
         // The navigation shell, when a host answers with its port. Asked before
         // anything else, because the answer decides which menu this is: with a
         // navigation port none of the `items` menu's listeners, observers or
@@ -2369,6 +2370,70 @@ class SfAdminMenu extends AdminMenuElement {
     // to ask. The items menu has nothing to read and ignores it.
     refresh() {
         return this._navigation?.load("requested") ?? Promise.resolve();
+    }
+
+    // ---------- the screen's interface (stand 24 A1) ----------
+
+    // The row the page says it is on. Empty: the row whose address the page
+    // is at, as before (the navigation controller follows the address).
+    get pageCurrent() {
+        return String(this.getAttribute("current") ?? "").trim();
+    }
+
+    // Whether the current row is among the person's favourites, as the host
+    // last answered (values.favourite). A component update tells a binding
+    // to read it again (sf-props-change).
+    get favourite() {
+        const navigation = this._navigation;
+        const key = this.pageCurrent || navigation?.navigation?.current || "";
+        return Boolean(key && navigation?.isFavourite?.(key));
+    }
+
+    // The action toggle {id, on}: the row goes into the person's favourites
+    // or out of them through the port (favourite.toggle). The event toggle
+    // still tells the page it was asked, as for the menu's own star.
+    async toggle(id, on) {
+        const params = id && typeof id === "object" ? id : {id, on};
+        const key = String(params.id ?? "").trim();
+        if (!key) return {outcome: "refused", reason: "no-id"};
+        if (!this._navigation) return {outcome: "refused", reason: "no-port"};
+        const answer = await this._navigation.setFavourite(key, Boolean(params.on));
+        if (answer?.answer === "applied") return {outcome: "applied"};
+        if (answer?.answer === "refused") return {outcome: "refused", reason: answer.reason ?? "refused"};
+        return {outcome: "unavailable", reason: answer?.reason ?? "unavailable"};
+    }
+
+    // open, written by a page that opens the menu from a button of its own:
+    // data-open says it, and the stylesheet folds the menu away while it is
+    // false on a narrow screen. A page that never writes it sees no change.
+    _reflectOpen() {
+        if (!this._sfOpenGiven && !this.hasAttribute("open")) {
+            if (this.hasAttribute("data-open")) this.removeAttribute("data-open");
+            return;
+        }
+        const open = this.hasAttribute("open") && this.getAttribute("open") !== "false";
+        if (this.getAttribute("data-open") !== String(open)) this.setAttribute("data-open", String(open));
+    }
+
+    get open() {
+        return this.hasAttribute("open") && this.getAttribute("open") !== "false";
+    }
+
+    set open(value) {
+        this._sfOpenGiven = true;
+        if (value === true) this.setAttribute("open", "");
+        else this.setAttribute("open", "false");
+        this._reflectOpen();
+    }
+
+    attributeChangedCallback(name, previous, next) {
+        super.attributeChangedCallback?.(name, previous, next);
+        if (previous === next) return;
+        if (name === "open") {
+            this._sfOpenGiven = true;
+            this._reflectOpen();
+        }
+        if (name === "current") this._navigation?.followPageCurrent?.();
     }
 
     // The port arrives by the base action connect-port {port} (§4.1, §4.9;

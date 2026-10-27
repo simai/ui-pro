@@ -286,9 +286,20 @@ export class NavigationController {
         visit(this.navigation?.items);
         // Drawn again whichever row it is: «Уведомления» reads its own mark
         // from the address, not from a row of the tree.
-        if (best && best.key !== this.navigation?.current) this.navigation = {...this.navigation, current: best.key};
+        // The row the page names (setting current) is not moved by the address.
+        if (!this.element.pageCurrent && best && best.key !== this.navigation?.current) this.navigation = {...this.navigation, current: best.key};
         this.followCurrentRoot();
         this.update("address");
+    }
+
+    // The page named the row it is on (setting current, stand 24 A1): it is
+    // current, and an open second column follows it as it follows the address.
+    followPageCurrent() {
+        const key = this.element.pageCurrent;
+        if (!this.navigation || !key || key === this.navigation.current) return;
+        this.navigation = {...this.navigation, current: key};
+        this.followCurrentRoot();
+        this.update("current");
     }
 
     // An open second column shows the root that holds the page: on a page of
@@ -380,7 +391,9 @@ export class NavigationController {
             const echoed = answer.echo?.sequence ?? sequence;
             if (echoed !== null && echoed < this.sequence) return;
             const first = !this.navigation;
-            this.navigation = answer;
+            // The row the page says it is on wins over the host's (stand 24 A1).
+            const pageCurrent = this.element.pageCurrent;
+            this.navigation = pageCurrent ? {...answer, current: pageCurrent} : answer;
             if (first) this.applyPersonPreferences(answer.person);
             // On a wide screen the menu opens where the page is: the root that
             // holds the current row shows its column, as a person who came
@@ -628,12 +641,18 @@ export class NavigationController {
     }
 
     async toggleFavourite(row) {
-        const on = !this.isFavourite(row.key);
-        const answer = await this.raise("favourite.toggle", {key: row.key, on});
+        return this.setFavourite(row.key, !this.isFavourite(row.key));
+    }
+
+    // The row into the person's favourites or out of them, as the menu's star
+    // and the element's action toggle {id, on} ask (favourite.toggle).
+    async setFavourite(key, on) {
+        const answer = await this.raise("favourite.toggle", {key, on});
         if (answer.answer === "applied" && Array.isArray(answer.favourites)) {
             this.navigation = {...this.navigation, favourites: answer.favourites};
             this.update("favourite");
         }
+        return answer;
     }
 
     async toggleCompact() {

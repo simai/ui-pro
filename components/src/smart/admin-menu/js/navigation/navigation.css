@@ -1,4 +1,14 @@
 @layer sf.components {
+  /* A page that opens the menu from a button of its own writes open (stand 24
+     A1): on a narrow screen the menu is folded away while it is false. A page
+     that never writes it has no data-open and sees the menu as it always was. */
+  @media not all and (min-width: 48rem) {
+    /* important: the host's own display (contents) is an inline style. */
+    sf-admin-menu[data-open="false"] {
+      display: none !important;
+    }
+  }
+
   /* The navigation shell of sf-admin-menu: two columns on a desktop, a rail when
      collapsed, two screens on a phone. Every size is a step of the Framework's
      ladder and every colour a role, so the menu sits on the same grid as the

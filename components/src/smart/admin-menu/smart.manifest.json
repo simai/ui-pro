@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -240,6 +240,15 @@
         "type": "string",
         "default": "",
         "description": "Heading shown above the search field in the navigation panel."
+      },
+      "current": {
+        "type": "string",
+        "default": "",
+        "description": "The row the page is on, by its key; empty: the row whose address the page is at."
+      },
+      "open": {
+        "type": "boolean",
+        "description": "Written by a page that opens the menu from its own button: on a narrow screen the menu is folded away while false (data-open). Not written: no change."
       }
     }
   },
@@ -455,6 +464,27 @@
       ],
       "returns": {
         "type": "object"
+      }
+    },
+    "toggle": {
+      "summary": "Add a row to the person's favourites or take it out (favourite.toggle). The items menu refuses.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "on",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "A promise of the outcome: applied, refused or unavailable."
       }
     }
   },
@@ -1030,7 +1060,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
-        "sha256": "7505ee9509c737e4d0f3bffd20c22c543078eb511e3e0e3203d15a416434bb6e"
+        "sha256": "35cb51625c5c351ae91a7c08fbee740edfba692201942081d93611ef76d6a7c9"
       },
       {
         "path": "src/smart/admin-menu/js/templates/default.js",
@@ -1038,7 +1068,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
-        "sha256": "f49decd73a678b03ecf2e94060f4b75c7a9a892e29abbf87be8cdbdde23b6225"
+        "sha256": "4514cc0c5e216c3e6d6c6f0ba5d76636900845d4174a88dfe9aa95018c6c441e"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
@@ -1058,7 +1088,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
-        "sha256": "8a6eaff10c62a5b3d6c8c0b0ecb91e94084a2a0599da1b138330aaf76a5f1b13"
+        "sha256": "924d7c436ddea10f63b12516a8c9d7cbc4f1360586fb83e915d8c1ca17ce6f89"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",
@@ -1070,7 +1100,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "f2ee4e5f8311631d4a5c3e02bf94f26e81e48a23ed923c4b2586a1f880b128dd"
+        "sha256": "b126be5e62181641eabd10f2f548b8491d5c9d0deea0a48eaf70ac859a33e923"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

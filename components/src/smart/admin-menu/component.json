@@ -2,7 +2,7 @@
   "$comment": "The source of sf-admin-menu's interface (standard simai.smart-component 1.3.8). Taken from simai/ui-control control/smart-architecture/migration/out/admin-menu (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.admin-menu",
   "tag": "sf-admin-menu",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "kind": "leaf",
   "family": "menu",
   "settings": {
@@ -115,12 +115,26 @@
         }
       },
       "x-summary": "what the search panel offers before a query, groups of results (was setRecentResults)"
+    },
+    "current": {
+      "type": "string",
+      "default": "",
+      "x-summary": "the row the page is on, by its key: it is marked current and its root's column follows it; empty: the row whose address the page is at (stand 24 A1)"
+    },
+    "open": {
+      "type": "boolean",
+      "optional": true,
+      "x-summary": "whether the menu is shown where a page folds it away (narrower than 48rem): written by the page that opens it from its own button, reflected as data-open; not written: the menu shows as it always has (stand 24 A1)"
     }
   },
   "values": {
     "compact": {
       "type": "boolean",
       "default": false
+    },
+    "favourite": {
+      "type": "boolean",
+      "x-summary": "whether the current row is among the person's favourites, as the host last answered; false without a port or a current row (stand 24 A1)"
     }
   },
   "events": {
@@ -421,6 +435,20 @@
         "refused"
       ],
       "x-summary": "the host's answer to query {kind: menu, request-id}; an older request-id is refused"
+    },
+    "toggle": {
+      "with": {
+        "id": "id",
+        "on": "boolean"
+      },
+      "waits": true,
+      "x-outcomes": [
+        "applied",
+        "refused",
+        "unavailable",
+        "cancelled"
+      ],
+      "x-summary": "add the row id to the person's favourites (on) or take it out (favourite.toggle); the items menu has no favourites and refuses (stand 24 A1)"
     }
   },
   "side-effects": [
