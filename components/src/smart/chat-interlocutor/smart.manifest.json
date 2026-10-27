@@ -294,7 +294,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "ddaee2e80f1d850e4665ef6a481d964830b81e31",
+    "source_revision": "5be3800dbf09bf00b9252cf1f2016357e14e2eee",
     "source_artifacts": [
       {
         "path": "src/smart/chat-interlocutor/index.js",
