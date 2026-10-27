@@ -338,8 +338,18 @@ class SfMessageLog extends LogElement {
 
     // ── actions (§4.4) ───────────────────────────────────────────────────────
 
+
+    // A printed skeleton (data-sf-first-paint="skeleton") stays until the host
+    // gives the messages (standard 1.3.8 §5.4): the first render then draws them
+    // over it in one frame. An empty list given is an answer too -- the empty
+    // state draws -- where the base's test counts it as not yet given.
+    sfAwaitingData() {
+        return this.getAttribute("data-sf-first-paint") === "skeleton" && !this._sfDataGiven;
+    }
+
     /** Replace the whole conversation and show its end. */
     setMessages(messages = [], options = {}) {
+        this._sfDataGiven = true;
         if (messages && !Array.isArray(messages) && Array.isArray(messages.messages)) {
             options = messages.options ?? {};
             messages = messages.messages;

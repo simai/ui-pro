@@ -2,7 +2,7 @@
   "$comment": "The source of sf-thread-list's element plumbing (core/js/element-manifest.js). Taken from simai/ui-control control/smart-architecture/migration/out/thread-list (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); standard simai.smart-component 1.3.8, vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.thread-list",
   "tag": "sf-thread-list",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "leaf",
   "family": "list",
   "settings": {
@@ -263,6 +263,14 @@
       "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
     }
   },
+  "presentation": {
+    "skeleton": {
+      "$comment": "The threads arrive after the first paint when the host loads them: the derived skeleton (static/default/<example>.skeleton.html) holds their box until they do (standard 1.3.8 §5.4).",
+      "late": [
+        "threads"
+      ]
+    }
+  },
   "styles": "js/templates/default.css",
   "examples": "examples.json",
   "docs": "docs.md",
@@ -402,7 +410,7 @@
     "a11y-name: label, else the runtime word label («Разговоры»), or archive-view while the archive is shown.",
     "item-shape: threads and actions name their fields with `of`; entry fields are kebab-case (§18.1), the 1.0 snake spellings read until the aliases' day.",
     "template: templates.default names the Lit template js/templates/default.js, the migration form §5.2 allows.",
-    "skeleton (§5.4): the loading shape is the template's own, drawn while `loading`; a skeleton.html for server markup waits for the static markup build (§5.4), a leftover of this migration.",
+    "skeleton (§5.4): the loading shape is the template's own, drawn while `loading`; its first paint is the static snapshot, and the skeleton is derived from it (presentation.skeleton.late threads).",
     "examples: examples.json from the conversations a host shows (grouped, ungrouped, the archive, loading, empty); probe.json drives the arrows, Enter, F2, Escape and Shift+F10 and the old names (gate 16, gate 20).",
     "css-variables: the five hooks the sheet already had, as public variables in the Framework's form, the hover and current rows each with its own (§6 a variable per state); the 1.0 --sf-thread-list--* hooks stay the internal layer.",
     "side-effects: none. The context menu draws as sf-context-menu does (its own layer)."

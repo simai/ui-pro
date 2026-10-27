@@ -117,6 +117,16 @@ function cellValueBox(item) {
 // follow once through the dated aliases (aliases.json). The table's own props
 // below keep their parsers and defaults; what they do not name is the
 // manifest's.
+// A column's content width, a pixel to spare and rounded up to the 4px grid.
+// The page's text face is font-display: optional, so one page sets a value in
+// Inter and the next -- or the server's printed first paint, measured on
+// another page -- in its metric fallback, a pixel or two apart: a column
+// measured to the pixel in one wrapped the same value in the other, and the
+// row grew by a line when the code took over (standard 1.3.8 gate 24).
+function contentStep(width) {
+    return Math.ceil((Math.ceil(width) + 1) / 4) * 4;
+}
+
 const TableElement = elementFromManifest(manifest, {
     base: SfBaseElement,
     lang: {en, ru},
@@ -2581,11 +2591,25 @@ class SfTable extends TableElement {
             for (const cell of table.querySelectorAll('thead th[data-key]')) {
                 const key = cell.dataset.key;
                 if (SYSTEM_COLUMN_KEYS.has(key)) continue;
-                measured.set(key, Math.ceil(cell.getBoundingClientRect().width));
+                measured.set(key, contentStep(cell.getBoundingClientRect().width));
             }
         } finally {
             table.classList.remove('sf-table-measuring');
         }
+        // The content's own width: every data column at its content width (as
+        // contentWidth caps it) and the system columns at their fixed ones. The
+        // table is never narrower (contentInlineSize): the column that takes
+        // the spare room keeps its content width where there is none, in a
+        // box of any width -- a first paint printed at one width and drawn at
+        // another squeezed it to a letter's width (standard 1.3.8 gate 24).
+        const cap = this.columnWidthCap();
+        let content = 0;
+        for (const cell of table.querySelectorAll('thead th[data-key]')) {
+            const key = cell.dataset.key;
+            content += SYSTEM_COLUMN_KEYS.has(key) ? Math.ceil(cell.getBoundingClientRect().width) : Math.min(measured.get(key) ?? 0, cap);
+        }
+        const contentChanged = content !== (this._contentInlineSize ?? 0);
+        this._contentInlineSize = content;
         // Room to spare: the content is narrower than the box. A fixed table
         // shares the spare room between every column with a width, the box and
         // the menu columns too, so a list of one data column showed it some
@@ -2605,7 +2629,7 @@ class SfTable extends TableElement {
         const changed = measured.size !== previous.size
             || [...measured].some(([key, width]) => Math.abs((previous.get(key) ?? 0) - width) > 2);
         if (changed) this._contentWidths = measured;
-        return changed || surplusChanged;
+        return changed || surplusChanged || contentChanged;
     }
 
     // In pixels, capped here rather than with min() in the column's width: a
@@ -2703,12 +2727,18 @@ class SfTable extends TableElement {
         }
         table.classList.toggle('sf-table-content-sized', this.hasContentWidths);
         table.classList.toggle('w-max', !this.hasContentWidths);
+        if (this.hasContentWidths && this._contentInlineSize) table.style.setProperty('--sf-table--content-inline-size', `${this._contentInlineSize}px`);
+        else table.style.removeProperty('--sf-table--content-inline-size');
     }
 
     contentWidth(column) {
         const width = this._contentWidths?.get(column?.key);
         if (!width) return '';
-        if (this._contentSurplus && column?.key === this.spareRoomColumnKey()) return '';
+        // The column that takes the spare room has no width of its own: the
+        // table's least width (--sf-table--content-inline-size) gives it its
+        // content width where there is no spare room, so it holds in a box of
+        // any width.
+        if (column?.key === this.spareRoomColumnKey()) return '';
         return `${Math.min(width, this.columnWidthCap())}px`;
     }
 

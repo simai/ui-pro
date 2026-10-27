@@ -343,6 +343,20 @@
     border-block-end: var(--sf-px) solid var(--sf-outline-variant);
   }
 
+  /* The loading skeleton's strip of tabs stands where the record's tabs will,
+     and the record has tabs only with sections-as tabs and from the wide
+     arrangement on (index.js WIDE_MEDIA_QUERY): otherwise it is not drawn. A printed skeleton
+     knows no viewport, so the stylesheet decides (standard 1.3.8 §5.4). */
+  .sf-property-view-tabs--skeleton:not([data-sections-as="tabs"]) {
+    display: none;
+  }
+
+  @media not all and (min-width: 48rem) {
+    .sf-property-view-tabs--skeleton {
+      display: none;
+    }
+  }
+
   /* The title takes the free space so it starts where the fields under it start.
      Left to `space-between` with a grip before it and an eye after it, a group
      title stood in the middle of its own header. */

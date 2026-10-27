@@ -2,7 +2,7 @@
   "$comment": "The source of sf-admin-menu's interface (standard simai.smart-component 1.3.8). Taken from simai/ui-control control/smart-architecture/migration/out/admin-menu (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.admin-menu",
   "tag": "sf-admin-menu",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "kind": "leaf",
   "family": "menu",
   "settings": {
@@ -599,7 +599,7 @@
     "existing-aliases: none shipped; every rename is in aliases.json with its dates.",
     "words (§11): lang/en.json and lang/ru.json are the one source; js/words.js makes the navigation's, the settings menu's and the counter's dictionaries from them by the keys they always used.",
     "template: templates.default names the Lit templates in JavaScript, the migration form §5.2 allows.",
-    "skeleton (§5.4): the menu draws its own loading row while the port answers navigation.load; a skeleton.html for server markup waits for the static markup build, a leftover of this migration.",
+    "skeleton (§5.4): the menu draws its own loading row while the port answers navigation.load; its first paint is the static snapshot (static/default/<example>.html); with a navigation port the loading row is part of it.",
     "actions: declared with their 1.0 returns (x-outcomes applied). Their outcome objects (§4.4) come with the major at the aliases' end, with the callers in ui-admin -- a leftover of this migration.",
     "examples: examples.json from studio.fixture.json and studio.scenario.json plus the search panel and the navigation shell over a port; probe.json drives the per-verb events through a port, the old intent name, the settings reset and the menu search (gate 16, gate 20).",
     "css-variables: five public variables the navigation shell reads with the role tokens as fallback; the items menu's look is the free admin-menu class's, whose variables are internal.",

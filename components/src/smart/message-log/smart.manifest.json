@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Message log",
   "summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
   "kind": "composite",
@@ -769,7 +769,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/message-log/index.js",
-        "sha256": "a530fbb7293626550792bccf072877ada0efbd7b65f721fd137a27064c51c77b"
+        "sha256": "41f4f4acaad9c01bcb5167d2d4ac4258dadb44abe8a81b6a55748efdedd82004"
       },
       {
         "path": "src/smart/message-log/js/templates/default.js",
@@ -789,7 +789,7 @@
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "7b7fb4477636a088ff7ae9802c31a01c809379c3d1709c83c27b0813866534d3"
+        "sha256": "ea4c3028d7b3619434c784ff2559401702cabd9f2c597293466b2283ca93abc0"
       },
       {
         "path": "src/smart/message-log/aliases.json",

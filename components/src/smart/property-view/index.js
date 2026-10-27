@@ -1171,7 +1171,11 @@ class SfPropertyView extends PropertyViewElement {
     attributeChangedCallback(name, previous, next) {
         super.attributeChangedCallback?.(name, previous, next);
         if (previous === next || !this.isConnected) return;
-        if (name === "record-id") this.load("record-id-changed");
+        // Without a port there is nothing to read: the view stays loading and
+        // the port, when it comes, reads the record (setHostPort). Read here,
+        // a record-id the page printed failed at once with «port not
+        // connected» while the element upgraded, before it asked for a port.
+        if (name === "record-id" && this.hostPort) this.load("record-id-changed");
         if (name === "hidden" || name === "open" || name === "full") this.syncPanelOpen();
     }
 
@@ -1603,6 +1607,15 @@ class SfPropertyView extends PropertyViewElement {
 
     template() {
         return renderPropertyViewTemplate(this.templateContext());
+    }
+
+    // A printed skeleton (data-sf-first-paint="skeleton", skeleton.html) stays
+    // until the record comes through the port (standard 1.3.8 §5.4): the first
+    // render then draws the record over it in one frame. A panel draws in its
+    // drawer, so it renders at once.
+    sfAwaitingData() {
+        if (this.getAttribute("data-sf-first-paint") !== "skeleton" || this.panel) return false;
+        return !this.record && !this.loadFailure && this.getAttribute("data-state") !== "error";
     }
 
     _setState(state, message = "") {

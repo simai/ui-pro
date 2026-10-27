@@ -173,6 +173,11 @@ class PlainElement extends HTMLElement {
 }
 const DataViewElement = elementFromManifest(manifest, {base: PlainElement, lang: {en, ru}, source: "ru", aliases});
 
+// The first paint's rows when the list has no cap (sf-table's page, its
+// pagination-page-size default) and the widths its bars take in turn.
+const FIRST_PAINT_ROWS = 10;
+const FIRST_PAINT_WIDTHS = ["w-3/4", "w-2/3", "w-1/2", "w-3/4", "w-2/5"];
+
 // The vocabulary's data state (§3) for the view's own words for it.
 const DATA_STATES = {loading: "loading", populated: "ready", empty: "empty", error: "error", "no-access": "refused", unavailable: "unavailable"};
 
@@ -280,7 +285,14 @@ class SfDataView extends DataViewElement {
               inset-block-end: 0;
               z-index: var(--sf-z-index-3, 30);
             }
+            /* The first paint (standard 1.3.8 §5.4): until the host's first
+               answer the view is its skeleton, slotted from the light DOM
+               where a server printed it (static/<template>/<example>.html)
+               or where the view drew it, and the layout stands back. */
+            :host([data-sf-awaiting]) [part="layout"] { display: none; }
+            :host(:not([data-sf-awaiting])) slot[name="first-paint"] { display: none; }
           </style>
+          <slot name="first-paint"></slot>
           <section part="layout" style="position: relative">
             <div part="toolbar"><slot name="toolbar">
               <label>Поиск <input type="search" data-search></label>
@@ -574,8 +586,57 @@ class SfDataView extends DataViewElement {
         this.shadowRoot.querySelector("[data-save]").addEventListener("click", this._bound);
         this.shadowRoot.querySelector("[data-delete]").addEventListener("click", this._bound);
         this._renderProjection();
+        this._startFirstPaint();
         if (this.hostPort) this.refresh("connected");
         else this._requestHostPort();
+    }
+
+    // ---------- the first paint (standard 1.3.8 §5.4) ----------
+
+    // The rows the skeleton holds: the cap of an embedded list, else a page of
+    // the table's (sf-table pagination-page-size, 10).
+    get firstPaintRows() {
+        return this.rowCap || FIRST_PAINT_ROWS;
+    }
+
+    // Until the host's first answer the view shows its skeleton: a bar for the
+    // toolbar, a bar per row and a bar for the page row, as its chrome asks.
+    // It is light DOM, so a server prints it as the view's static markup and
+    // the page draws it before any code; the view adopts what was printed (its
+    // data-sf-static mark goes) rather than drawing a second one beside it.
+    _startFirstPaint() {
+        if (this._answered) return;
+        this.setAttribute("data-sf-awaiting", "");
+        if (this.getAttribute("aria-busy") === null) this.setAttribute("aria-busy", "true");
+        const printed = this._firstPaintNodes();
+        if (printed.length) {
+            for (const node of printed) node.removeAttribute?.("data-sf-static");
+            return;
+        }
+        if (typeof document === "undefined") return;
+        const bar = (width) => `<div class="sf-skeleton sf-skeleton--animation-pulse"><div class="sf-skeleton-text sf-skeleton-text--size-${this.size} ${width}"></div></div>`;
+        const skeleton = document.createElement("div");
+        skeleton.setAttribute("slot", "first-paint");
+        skeleton.setAttribute("aria-hidden", "true");
+        skeleton.className = "sf-data-view-skeleton flex flex-col gap-1";
+        skeleton.innerHTML = [
+            this.renders("toolbar") ? bar("w-1/3") : "",
+            ...Array.from({length: this.firstPaintRows}, (_, at) => bar(FIRST_PAINT_WIDTHS[at % FIRST_PAINT_WIDTHS.length])),
+            this.renders("pagination") ? bar("w-1/4") : "",
+        ].join("");
+        this.append(skeleton);
+    }
+
+    // The host answered (a list, an empty one, a refusal or a failure): the
+    // skeleton goes and the layout comes, in one frame.
+    _endFirstPaint() {
+        if (this.getAttribute("data-sf-awaiting") === null) return;
+        this.removeAttribute?.("data-sf-awaiting");
+        for (const node of this._firstPaintNodes()) node.remove?.();
+    }
+
+    _firstPaintNodes() {
+        return Array.from(this.children ?? []).filter((child) => child.getAttribute?.("slot") === "first-paint");
     }
 
     // A component that takes a host port can also ask for one, so a consumer who
@@ -741,6 +802,7 @@ class SfDataView extends DataViewElement {
     // `message` is for the live region only: it is announced, never laid out.
     _setState(state, message = "") {
         this._dataState = state;
+        if (state !== "loading") this._endFirstPaint();
         this.setAttribute("data-state", state);
         this.setAttribute("aria-busy", state === "loading" ? "true" : "false");
         if (this.table && state === "empty") this.table.emptyContext = this._emptyContext();

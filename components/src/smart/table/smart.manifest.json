@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "title": "Data view",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2024,7 +2024,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "262feea52ad383da22177c205b210d8a549352251c157b4d4046b1f3a33caf88"
+        "sha256": "89917f2080f5a02868ee98d6301c244d36ed739c2f34a88c19f471b7f472b559"
       },
       {
         "path": "src/smart/table/js/templates/default.js",
@@ -2032,7 +2032,7 @@
       },
       {
         "path": "src/smart/table/js/templates/default.css",
-        "sha256": "ffa0481584cdfed3ae98d17f7cd63396ec3aefa0846ec5ae33847c314259c0d5"
+        "sha256": "aa95ec9f254e92596bfeda7a7618f7619cc3d14af20122f7210d76baa20b05a4"
       },
       {
         "path": "src/smart/helpers/option-badge.js",

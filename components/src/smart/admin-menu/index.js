@@ -311,6 +311,9 @@ class SfAdminMenu extends AdminMenuElement {
     }
 
     connectedCallback() {
+        // A printed JSON island first (standard 1.3.8 §5.4): the settings read
+        // below, before the base's connect, may be in it (recent-results).
+        this.sfReadIsland();
         // The navigation shell, when a host answers with its port. Asked before
         // anything else, because the answer decides which menu this is: with a
         // navigation port none of the `items` menu's listeners, observers or

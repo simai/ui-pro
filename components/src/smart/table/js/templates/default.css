@@ -236,6 +236,10 @@
      its columns' sum, so a width of 0 leaves the sum to decide. */
   sf-table table.sf-table-content-sized {
     inline-size: 0;
+    /* Never narrower than its content (measureContentWidths): the column left
+       without a width takes the spare room, and where there is none it keeps
+       its content width rather than a letter's. */
+    min-inline-size: max(100%, var(--sf-table--content-inline-size, 0px));
   }
 
   sf-table table.sf-table-measuring {

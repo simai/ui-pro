@@ -139,12 +139,21 @@ class SfThreadList extends ThreadListElement {
 
     // ── state the host sets ──────────────────────────────────────────────────
 
+    // A printed skeleton (data-sf-first-paint="skeleton") stays until the host
+    // gives the threads (standard 1.3.8 §5.4): the first render then draws them
+    // over it in one frame. An empty list given is an answer too -- the empty
+    // state draws -- where the base's test counts it as not yet given.
+    sfAwaitingData() {
+        return this.getAttribute("data-sf-first-paint") === "skeleton" && !this._sfDataGiven;
+    }
+
     /** The conversations shown, newest first, as the host gave them (§18.4: entries by id). */
     get threads() {
         return this._threads.map((thread) => ({...thread}));
     }
 
     set threads(value) {
+        this._sfDataGiven = true;
         const archived = this.archived;
         this._threads = (Array.isArray(value) ? value : [])
             .filter((thread) => thread && thread.id != null && Boolean(thread.archived) === archived)

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1222,15 +1222,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "de2129a4d7d8f779335f5bd1b4eefd237b88b6e59d560b44775e2d95af743569"
+        "sha256": "1b48f678a56113b5a1716e6f2ca8633f121efe10fee0d80c9acfef3afd12d7df"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "ec44fe557ea514bfb07201ee6da1a4a20916434fff309a19e1354e7256f335f6"
+        "sha256": "aad0ffcf5c46cb2c72fb78c57d65b1eb7ee784bf68679fe919d8610f61e22d57"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",
-        "sha256": "51f4b0b71bdf7f7238bc1fc00719655071f7d56300b5398b975b870b88abe9db"
+        "sha256": "1ae294ce28041063c3a11f913583fec7aa840bfd19fd139f3464c713b0e85a11"
       },
       {
         "path": "src/smart/property-view/js/datetime-value.js",

@@ -1406,31 +1406,26 @@ function sidebarDrawn(context) {
         && (sections.length > 1 || context.configuring));
 }
 
-// The record on its way: three groups of field bars in the Framework's
-// skeleton, the shape of what is coming -- a sentence in its place said
-// nothing about it (owner, 2026-10-14).
+// The record on its way: the arrangement's shape in the Framework's skeleton
+// -- a sentence in its place said nothing about it (owner, 2026-10-14). Each
+// group is the card a group read by itself draws until its fields come
+// (port 1.15.0 group-load, renderGroup's `waiting`): its header with a bar for
+// the title and a line per field, so the record and its groups arrive in the
+// boxes this draws (standard simai.smart-component 1.3.8 §5.4, item 25). The
+// same markup is skeleton.html, which a server prints before any code, so the
+// element's first render after the printed skeleton changes nothing.
 const SKELETON_WIDTHS = ['w-1/3', 'w-2/3', 'w-1/2', 'w-3/4', 'w-2/5'];
+const SKELETON_GROUPS = 3;
+const SKELETON_FIELDS = 3;
 function renderLoading(context) {
-    const bar = (at, size) => html`<div class="sf-skeleton sf-skeleton--animation-pulse" aria-hidden="true">
-        <div class="sf-skeleton-text sf-skeleton-text--size-${size} ${SKELETON_WIDTHS[at % SKELETON_WIDTHS.length]}"></div></div>`;
+    const bar = (at) => html`<div class="sf-skeleton sf-skeleton--animation-pulse" aria-hidden="true"><div class="sf-skeleton-text sf-skeleton-text--size-1 ${SKELETON_WIDTHS[at % SKELETON_WIDTHS.length]}"></div></div>`;
     // The section tabs are drawn with the skeleton, in the box the tabs take
     // (simai/ui-pro#3): they came only with the data before, and the record
-    // moved down by their height when it arrived. A list of sections beside
-    // the record keeps its rail the same way.
-    const tabs = context.wide && context.sectionsAs === 'tabs'
-        ? html`<div class="sf-property-view-tabs sf-property-view-tabs--skeleton flex items-cross-center gap-2" aria-hidden="true" data-sf-skeleton="tabs">
-            ${[0, 1, 2].map((at) => html`<div class="flex-none" style="inline-size: 6rem">${bar(at + 3, '1')}</div>`)}
-        </div>`
-        : nothing;
-    return html`
-        ${tabs}
-        <div class="sf-property-view-loading flex flex-col gap-4" data-state="loading">
-            ${[0, 1, 2].map((group) => html`<div class="flex flex-col gap-2">
-                ${bar(group, '1')}
-                ${[0, 1, 2].map((field) => html`<div class="flex flex-col gap-1/2">${bar(group + field + 1, '1/2')}${bar(group * 2 + field, '1')}</div>`)}
-            </div>`)}
-            <span class="sr-only" role="status">${context.message}</span>
-        </div>`;
+    // moved down by their height when it arrived. The stylesheet draws the
+    // strip only where the record has tabs -- sections-as tabs, from the wide
+    // arrangement on -- since a printed skeleton knows no viewport.
+    const tabs = html`<div class="sf-property-view-tabs sf-property-view-tabs--skeleton flex items-cross-center gap-2" aria-hidden="true" data-sf-skeleton="tabs" data-sections-as=${context.sectionsAs}>${[0, 1, 2].map((at) => html`<div class="flex-none" style="inline-size: 6rem">${bar(at + 3)}</div>`)}</div>`;
+    return html`${tabs}<div class="sf-property-view-loading flex flex-col gap-4" data-state="loading">${Array.from({length: SKELETON_GROUPS}, (_, group) => html`<section class="sf-property-view-group bg-surface-0 flex flex-col gap-2" aria-busy="true"><header class="sf-property-view-group-header flex items-cross-center content-main-between gap-2"><div class="flex-1">${bar(group)}</div></header>${Array.from({length: SKELETON_FIELDS}, (_, field) => bar(group + field + 1))}</section>`)}<span class="sr-only" role="status">${context.message}</span></div>`;
 }
 
 function renderLoadFailure(context) {

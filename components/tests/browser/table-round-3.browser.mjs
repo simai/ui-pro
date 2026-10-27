@@ -420,7 +420,10 @@ try {
       await slow.keyboard.press('Escape');
       await slow.waitForTimeout(250);
     };
-    // A page that has just answered once: the plain first click.
+    // A page that has just answered once: the plain first click. Until the
+    // first answer the view is its first-paint skeleton (standard 1.3.8 §5.4),
+    // so the answer is waited for.
+    await slow.waitForFunction(() => !document.getElementById('v').hasAttribute('data-sf-awaiting'), null, {timeout: 6000});
     const settled = {};
     for (const [name, locate] of [['filter', find], ['gear', gear]]) {
       const at = await centre(slow, locate);
@@ -492,7 +495,10 @@ try {
     document.getElementById('surface').hidden = false;
     document.getElementById('t').addEventListener('sf-table-action-intent', (event) => window.opens.push(event.detail));
   });
-  await late.waitForFunction(() => document.querySelectorAll('#t tbody tr').length > 1, null, {timeout: 6000});
+  // The rows that came, not the table's loading rows: until the host's first
+  // answer the view is its first-paint skeleton (standard 1.3.8 §5.4) and the
+  // table behind it is not drawn, so there is nothing to click yet.
+  await late.waitForFunction(() => document.querySelectorAll('#t tbody:not([data-state]) tr').length > 1, null, {timeout: 6000});
   const afterLoad = await (async () => {
     const menu = () => late.evaluate(() => Boolean(document.querySelector('sf-context-menu')));
     const escape = async () => { await late.keyboard.press('Escape'); await late.waitForTimeout(200); };

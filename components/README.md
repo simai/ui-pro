@@ -66,7 +66,16 @@ same paths ui-source's tests do. A file here may not replace a ui-source file.
 node scripts/test.mjs                 # the package's own suite in the overlay
 node scripts/run-browser-probes.mjs <free build output> <package build output>
 node scripts/run-manifest-probes.mjs <free build output> <package build output> [folder ...]
+node scripts/run-first-paint.mjs snapshot|check|gate <free build output> <package build output> [folder ...]
 ```
+
+The first paint (standard 1.3.8 §5.4, gate 24) is a build snapshot, as in
+ui-source: `src/smart/<folder>/static/` holds each example's static markup,
+the skeleton of an example with late data, and `static/sheets.json`.
+`run-first-paint.mjs snapshot` writes them from the built bytes with
+ui-source's `scripts/snapshot-first-paint.mjs`, `check` fails on a stale one,
+and `gate` runs ui-source's gate 24 probe over them (1280 and 390 px). Run
+`snapshot` after a change to a component's markup and commit what it wrote.
 
 A component on standard `simai.smart-component` 1.3.8 holds its contract in
 `component.json` (with `lang/`, `aliases.json`, `examples.json` and
