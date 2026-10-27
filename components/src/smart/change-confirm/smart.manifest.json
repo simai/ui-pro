@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.change-confirm",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Change confirmation",
   "summary": "A prepared change put to a person: each value as it was and as it will be, two answers of equal weight, until when it can be answered, and then only the outcome. Applies nothing; a press is an event.",
   "kind": "smart",
@@ -156,7 +156,7 @@
       ]
     },
     "answers": {
-      "const": "A press moves the card to pending and dispatches sf-change-confirm-accept or -decline (cancelable). A cancelled event returns it to open. The host sets the outcome: accepted, declined, or open again when the answer could not be delivered. The card never applies anything."
+      "const": "A press moves the card to pending and dispatches sf-change-confirm-answer {id, accepted} (cancelable). A cancelled event returns it to open. The host sets the outcome: accepted, declined, or open again when the answer could not be delivered. The card never applies anything."
     },
     "slots": {
       "type": "object",
@@ -170,22 +170,22 @@
     "css_variables": {
       "type": "object",
       "properties": {
-        "--sf-change-confirm--radius": {
+        "--sf-change-confirm-radius": {
           "type": "string"
         },
-        "--sf-change-confirm--inset": {
+        "--sf-change-confirm-inset": {
           "type": "string"
         },
-        "--sf-change-confirm--gap": {
+        "--sf-change-confirm-gap": {
           "type": "string"
         },
-        "--sf-change-confirm--before-fill": {
+        "--sf-change-confirm-before-background-color": {
           "type": "string"
         },
-        "--sf-change-confirm--after-fill": {
+        "--sf-change-confirm-after-background-color": {
           "type": "string"
         },
-        "--sf-change-confirm--after-ink": {
+        "--sf-change-confirm-after-color": {
           "type": "string"
         }
       }
@@ -193,57 +193,68 @@
   },
   "methods": {
     "answer": {
-      "summary": "Answer as the person would; false when the card is not open or is disabled, or the host cancelled the event.",
+      "summary": "Answer as the person would: accepted true confirms, false declines. Refused closed, disabled or prevented. answer('accept') and answer('decline') are read until 2026-12-01.",
       "arguments": [
         {
-          "name": "kind",
+          "name": "accepted",
           "required": true,
           "schema": {
-            "enum": [
-              "accept",
-              "decline"
-            ]
+            "type": "boolean"
           }
         }
       ],
       "returns": {
-        "type": "boolean"
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "confirm": {
+      "summary": "The acceptance; data-sf-action=\"<id>.confirm\".",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "cancel": {
+      "summary": "The declining answer; data-sf-action=\"<id>.cancel\".",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "open": {
+      "summary": "Puts the question again; asked by an assembly it answers {accepted, reason, value} when the person answers or the time runs out.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
       }
     }
   },
   "events": {
-    "sf-change-confirm-accept": {
-      "summary": "The person confirmed. Cancel it to keep the question open.",
+    "sf-change-confirm-answer": {
+      "summary": "The person answered (vocabulary answer). Cancel it to keep the question open. The 1.0 names sf-change-confirm-accept and -decline follow it until 2026-12-01.",
       "payload": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "description": "change-id"
+          },
+          "accepted": {
+            "type": "boolean"
           }
         },
         "required": [
-          "id"
+          "id",
+          "accepted"
         ]
       }
     },
-    "sf-change-confirm-decline": {
-      "summary": "The person declined. Cancel it to keep the question open.",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "change-id"
-          }
-        },
-        "required": [
-          "id"
-        ]
-      }
-    },
-    "sf-change-confirm-expire": {
-      "summary": "An open card passed expires-at; said once per time.",
+    "sf-change-confirm-expired": {
+      "summary": "An open card passed expires-at; said once per time. The 1.0 name sf-change-confirm-expire follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "properties": {
@@ -356,7 +367,18 @@
     "aliases": [],
     "deprecations": [],
     "replacement": null,
-    "migrations": []
+    "migrations": [
+      {
+        "from": "1.0.0",
+        "to": "1.1.0",
+        "changes": [
+          "standard simai.smart-component 1.3.8: the element is made from component.json; dated aliases in aliases.json",
+          "sf-change-confirm-accept -> sf-change-confirm-answer until 2026-12-01 (event)",
+          "sf-change-confirm-decline -> sf-change-confirm-answer until 2026-12-01 (event)",
+          "sf-change-confirm-expire -> sf-change-confirm-expired until 2026-12-01 (event)"
+        ]
+      }
+    ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
@@ -364,15 +386,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/change-confirm/index.js",
-        "sha256": "8f913c18bdf01d35a78121e5ecffe9fdef7b8a73a1e964b66efb48359f35393a"
+        "sha256": "8c9d6f84252dd3c442aac66abe44552b5d57c65514e56b06ce1ef645e833fa34"
       },
       {
         "path": "src/smart/change-confirm/js/templates/default.js",
-        "sha256": "51677ab97a50457f541e99cd5c9712d7761374df90f3dbfe41d75975e74f5140"
+        "sha256": "e9c777964501e69ca4f26a528c23ff389341196328f299457b5dd470800fdfb0"
       },
       {
         "path": "src/smart/change-confirm/js/templates/default.css",
-        "sha256": "c9f320398261308dcab6185c935b4ea13ebc97ba3fa0409256a700f9f4e08554"
+        "sha256": "98ef4416f74a6ea2a1743a23415d4f95ed9f8cada469122dfc2674979e174b52"
       },
       {
         "path": "src/smart/change-confirm/rule.js",
@@ -380,7 +402,23 @@
       },
       {
         "path": "src/smart/change-confirm/docs.md",
-        "sha256": "d704981299fe18958b2e73e33da5bdd32fe3fecbef75ca906c25c5ec8ab18bf7"
+        "sha256": "a184f4967a87ce1a9f53bd860ee60de499cc975bbdda2f3798adb55e9984d1da"
+      },
+      {
+        "path": "src/smart/change-confirm/component.json",
+        "sha256": "1a3f35c93697373728f4a60e5e18c6ece5266e2b386757fb000d5e24d343f76e"
+      },
+      {
+        "path": "src/smart/change-confirm/aliases.json",
+        "sha256": "bb216a77643e2fb27cb59c7dfa4813c1115c167349263f6974ec9adb54981000"
+      },
+      {
+        "path": "src/smart/change-confirm/lang/en.json",
+        "sha256": "d9a6014908094a9609cef75a22b35911ca3f747fc1409dd289360023afb6a2fc"
+      },
+      {
+        "path": "src/smart/change-confirm/lang/ru.json",
+        "sha256": "622176fb7ce5624eb80b507385d4cd4039ec10da405470d48283edba9be3859d"
       }
     ],
     "generated_runtime": []

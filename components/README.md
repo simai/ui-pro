@@ -65,7 +65,14 @@ same paths ui-source's tests do. A file here may not replace a ui-source file.
 ```bash
 node scripts/test.mjs                 # the package's own suite in the overlay
 node scripts/run-browser-probes.mjs <free build output> <package build output>
+node scripts/run-manifest-probes.mjs <free build output> <package build output> [folder ...]
 ```
+
+A component on standard `simai.smart-component` 1.3.8 holds its contract in
+`component.json` (with `lang/`, `aliases.json`, `examples.json` and
+`probe.json`); `run-manifest-probes.mjs` runs every `probe.json` through
+ui-source's one manifest probe runner, on a page that declares the package. The
+free output may be a product output root or the `distr` of the ui distribution.
 
 `scripts/overlay.mjs` looks for ui-source beside the ui-pro checkout, or at
 `UI_SOURCE_ROOT`, or wherever `--ui-source` says.

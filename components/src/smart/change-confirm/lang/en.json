@@ -1,0 +1,22 @@
+{
+  "title": "Change confirmation",
+  "runtime": {
+    "accept-text": "Confirm",
+    "accepted-text": "Applied",
+    "accepting-text": "Applying…",
+    "after-text": "Will be",
+    "before-text": "Was",
+    "changes-label": "What will change",
+    "decline-text": "Decline",
+    "declined-text": "Declined",
+    "declining-text": "Declining…",
+    "empty-value-text": "empty",
+    "expired-text": "The time to confirm has passed",
+    "until-text": "Confirm by {time}"
+  },
+  "events": {
+    "expired": {
+      "label": "Expired"
+    }
+  }
+}

@@ -17,6 +17,9 @@ import "./default.css";
 //
 // The status line is a polite live region and also the place focus goes when
 // the button that had it disappears (index.js, answer()).
+//
+// The answers call the actions confirm and cancel, which a page reaches as
+// data-sf-action="<id>.confirm" and "<id>.cancel" (§8, §19.4).
 const ICON = {open: "schedule", pending: "schedule", accepted: "check_circle", declined: "cancel", expired: "timer_off"};
 
 const value = (context, text) => {
@@ -74,7 +77,7 @@ export function renderChangeConfirmTemplate(context) {
                             text=${context.acceptText}
                             data-action="accept"
                             ?disabled=${context.disabled}
-                            @click=${() => component.answer("accept")}
+                            @click=${() => component.confirm()}
                     ></sf-button>
                     <sf-button
                             appearance="outline"
@@ -83,7 +86,7 @@ export function renderChangeConfirmTemplate(context) {
                             text=${context.declineText}
                             data-action="decline"
                             ?disabled=${context.disabled}
-                            @click=${() => component.answer("decline")}
+                            @click=${() => component.cancel()}
                     ></sf-button>
                 </div>
             </footer>

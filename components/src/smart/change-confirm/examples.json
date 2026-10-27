@@ -1,0 +1,171 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Переименовать раздел",
+      "settings": {
+        "heading": "Переименовать раздел",
+        "change-id": "c1",
+        "changes": [
+          {
+            "label": "Название",
+            "before": "Новости",
+            "after": "События"
+          },
+          {
+            "label": "Адрес",
+            "before": "/news/",
+            "after": "/events/"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Переименовать раздел",
+        "host": {
+          "state": "open"
+        }
+      }
+    },
+    {
+      "name": "untitled",
+      "title": "Без заголовка",
+      "settings": {
+        "change-id": "c2",
+        "changes": [
+          {
+            "label": "Цена",
+            "before": null,
+            "after": "1200"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Что изменится"
+      }
+    },
+    {
+      "name": "pending",
+      "title": "Ответ отправлен",
+      "settings": {
+        "heading": "Переименовать раздел",
+        "change-id": "c1",
+        "state": "pending",
+        "changes": [
+          {
+            "label": "Название",
+            "before": "Новости",
+            "after": "События"
+          },
+          {
+            "label": "Адрес",
+            "before": "/news/",
+            "after": "/events/"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Переименовать раздел"
+      }
+    },
+    {
+      "name": "accepted",
+      "title": "Применено",
+      "settings": {
+        "heading": "Переименовать раздел",
+        "change-id": "c1",
+        "state": "accepted",
+        "changes": [
+          {
+            "label": "Название",
+            "before": "Новости",
+            "after": "События"
+          },
+          {
+            "label": "Адрес",
+            "before": "/news/",
+            "after": "/events/"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Переименовать раздел",
+        "texts": {
+          ".sf-change-confirm__status span": "Применено"
+        }
+      }
+    },
+    {
+      "name": "declined",
+      "title": "Отклонено",
+      "settings": {
+        "heading": "Переименовать раздел",
+        "change-id": "c1",
+        "state": "declined",
+        "changes": [
+          {
+            "label": "Название",
+            "before": "Новости",
+            "after": "События"
+          },
+          {
+            "label": "Адрес",
+            "before": "/news/",
+            "after": "/events/"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Переименовать раздел",
+        "texts": {
+          ".sf-change-confirm__status span": "Отклонено"
+        }
+      }
+    },
+    {
+      "name": "expired",
+      "title": "Время истекло",
+      "settings": {
+        "heading": "Переименовать раздел",
+        "change-id": "c1",
+        "expires-at": "2020-01-01T00:00:00Z",
+        "changes": [
+          {
+            "label": "Название",
+            "before": "Новости",
+            "after": "События"
+          },
+          {
+            "label": "Адрес",
+            "before": "/news/",
+            "after": "/events/"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Переименовать раздел",
+        "events": [
+          "expired"
+        ]
+      }
+    },
+    {
+      "name": "assistant-offer",
+      "title": "Предложение ассистента",
+      "settings": {
+        "heading": "Изменить статус задачи",
+        "change-id": "p7",
+        "decline-text": "Отменить",
+        "changes": [
+          {
+            "label": "Статус",
+            "before": "В работе",
+            "after": "Готово"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Изменить статус задачи"
+      }
+    }
+  ]
+}
