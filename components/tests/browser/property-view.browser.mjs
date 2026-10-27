@@ -1065,7 +1065,7 @@ try {
     // Framework's component stylesheets reach the field controls.
     const root = view;
     const read = () => ({
-      sectionItems: root.querySelectorAll('.sf-property-view-sections sf-tree-item').length,
+      sectionItems: root.querySelectorAll('.sf-property-view-sections .sf-tree-item[data-sf-entry]').length,
       groups: [...root.querySelectorAll('.sf-property-view-group')].map((node) => node.dataset.group),
       fields: [...root.querySelectorAll('.sf-property-view-field')].map((node) => node.dataset.field),
       // Which element drew each value: the renderer set's choice, not the host's.
@@ -1100,14 +1100,16 @@ try {
     // A tab answers a press. The rail is an sf-tree asked for a single
     // selection, and that tree moved only its tab stop on a click: the sections
     // could be walked with the arrows and chosen with the space bar, and
-    // pressing one did nothing at all.
-    const tabs = [...root.querySelectorAll('.sf-property-view-sections sf-tree-item')];
+    // pressing one did nothing at all. sf-tree 2.0.0 draws its rows itself, flat,
+    // as class markup (.sf-tree-item[data-sf-entry], the value in data-value)
+    // rather than as sf-tree-item elements.
+    const tabs = [...root.querySelectorAll('.sf-property-view-sections .sf-tree-item[data-sf-entry]')];
     const pressed = tabs[tabs.length - 1];
     (pressed?.querySelector('.sf-tree-item-container') ?? pressed)
       ?.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
     await new Promise((done) => setTimeout(done, 400));
     const switched = {
-      asked: pressed?.getAttribute('value') ?? null,
+      asked: pressed?.getAttribute('data-value') ?? null,
       showing: view.selectedSection ?? null,
       groups: [...root.querySelectorAll('.sf-property-view-group')].map((node) => node.dataset.group),
     };
@@ -1118,7 +1120,7 @@ try {
       ?.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
     await new Promise((done) => setTimeout(done, 400));
 
-    const singleSections = single.querySelectorAll('.sf-property-view-sections sf-tree-item').length;
+    const singleSections = single.querySelectorAll('.sf-property-view-sections .sf-tree-item[data-sf-entry]').length;
     const singleList = single.querySelector('.sf-property-view-sections');
 
     // Rare: hidden, then shown, and the host is not asked again -- showing rare
