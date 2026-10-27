@@ -2741,10 +2741,12 @@ class SfPropertyView extends PropertyViewElement {
         this.requestComponentUpdate("configuring");
         // Arranging shows every group; those not read yet are read now.
         this._readShownGroups("started");
+        this._focusAfterRender(".sf-property-view-configure-bar");
         return true;
     }
 
     stopConfiguringView() {
+        const wasConfiguring = this.configuring;
         this.configuring = false;
         this._bindSectionDropTarget();
         this.layerDraft = null;
@@ -2752,6 +2754,28 @@ class SfPropertyView extends PropertyViewElement {
         this.resetAsked = false;
         this.entryErrors = new Map();
         this.requestComponentUpdate("configuring");
+        if (wasConfiguring) this._focusAfterRender('[data-action="menu"]');
+    }
+
+    // Where the keyboard goes when the mode changes. The menu that started
+    // arranging closes and the bar that ends it goes away, and each left the
+    // focus on the page's body, so a keyboard user started again from the top
+    // (simai.main keyboard QA, 2026-10-28). Entering, the focus goes to the
+    // arranging bar's first control; leaving, to the panel's menu, where the
+    // mode was entered from.
+    _focusAfterRender(selector) {
+        const focusable = "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])";
+        this.whenRendered(() => requestAnimationFrame(() => {
+            const root = this.panelContent?.() ?? this;
+            const area = [...(root?.querySelectorAll?.(selector) ?? [])].pop() ?? null;
+            const target = area?.matches?.(focusable) ? area : area?.querySelector?.(focusable);
+            if (!target || !target.isConnected) return;
+            const active = document.activeElement;
+            // Only where the focus was lost: a person who has already moved on
+            // keeps where they went.
+            if (active && active !== document.body && root?.contains?.(active)) return;
+            target.focus({preventScroll: true});
+        }), {next: true});
     }
 
     // Leaving the mode with the arrangement a person started from. Not the same

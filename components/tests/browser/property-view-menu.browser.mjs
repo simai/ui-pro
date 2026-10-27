@@ -236,6 +236,28 @@ try {
       expected: 'no view.save, and the mode left'});
   }
 
+  // Entering and leaving the arrangement keeps the keyboard somewhere: both
+  // left the focus on the body (simai.main keyboard QA, 2026-10-28).
+  const focusTrail = await page.evaluate(async () => {
+    const view = document.getElementById('view');
+    const wait = (ms) => new Promise((done) => setTimeout(done, ms));
+    const root = () => view.panelContent?.() ?? view;
+    document.activeElement?.blur?.();
+    view.startConfiguringView?.();
+    await wait(500);
+    const entered = Boolean(document.activeElement?.closest?.('.sf-property-view-configure-bar'));
+    const done = root().querySelector('[data-action="done-configuring"] button, [data-action="done-configuring"]');
+    done?.focus?.();
+    done?.click?.();
+    await wait(500);
+    const left = Boolean(document.activeElement?.closest?.('[data-action="menu"]'));
+    return {entered, left, active: document.activeElement?.tagName ?? null};
+  });
+  if (!focusTrail.entered || !focusTrail.left) {
+    note({case: 'arranging moves the focus in and back out', got: focusTrail,
+      expected: "the arranging bar's first control on entering, the panel's menu on Done"});
+  }
+
   // A link inside a field's value does its own thing only: downloading a
   // stored file also opened the group for editing (simai.main, 2026-10-28).
   const linkPress = await page.evaluate(async () => {
@@ -313,7 +335,7 @@ try {
     note({case: "a host's menu items are rows of the standard menu", got: hostedMenu});
   }
 
-  console.log(JSON.stringify({probe: 'property-view-menu', menu, views, chosen, chooser, barMenu, naming, untouched, linkPress, hostedMenu, failures}, null, 2));
+  console.log(JSON.stringify({probe: 'property-view-menu', menu, views, chosen, chooser, barMenu, naming, untouched, focusTrail, linkPress, hostedMenu, failures}, null, 2));
 } finally {
   await browser.close();
 }

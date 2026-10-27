@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.7.5",
+  "version": "1.7.6",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1268,6 +1268,13 @@
         "changes": [
           "The manifest composes the Pro table by its id, smart.data-view, alone; smart.table, its former name, is no longer listed beside it. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.7.5",
+        "to": "1.7.6",
+        "changes": [
+          "Entering the arrangement moves the focus to the arranging bar's first control, and Done or cancel moves it back to the panel's menu, where it is lost otherwise; a focus a person has already moved inside the panel is left alone. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1277,7 +1284,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "7ef5d9b2330e3ad11fcd5c9c5c8b859769ddedce811bf65f06cd938a73197666"
+        "sha256": "7fe67820dc5e0747147ec94fa93f389d757970dc785c94a024c32a3fe3e412a7"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
