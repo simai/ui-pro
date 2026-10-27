@@ -134,6 +134,18 @@ const TableElement = elementFromManifest(manifest, {
     aliases,
 });
 
+
+// Whether a row of the current set would stand at another index in the next:
+// a row kept by id and drawn elsewhere is a layout shift.
+function rowsWouldMove(current, next) {
+    const at = new Map();
+    current.forEach((row, index) => { if (row?.id !== undefined && row?.id !== null) at.set(String(row.id), index); });
+    return next.some((row, index) => {
+        if (row?.id === undefined || row?.id === null) return false;
+        const was = at.get(String(row.id));
+        return was !== undefined && was !== index;
+    });
+}
 class SfTable extends TableElement {
     static get sfPorts() {
         return SF_TABLE_PORTS;
@@ -6775,9 +6787,25 @@ class SfTable extends TableElement {
         );
     }
 
+    // Which drawing of the rows is on screen: a new result set whose kept rows
+    // would move is drawn as new rows (setRows "result"), so the template keys
+    // rows by this and their id.
+    rowsGeneration() {
+        return this._rowsGeneration ?? 0;
+    }
+
     setRows(rows = [], reason = "rows") {
         const currentRows = this.getTableData().rows || [];
         const nextRows = typeof rows === "function" ? rows(currentRows) : rows;
+        // A new result set (a search, a filter, another page: reason
+        // "result") is drawn as new rows when a row it keeps would stand
+        // elsewhere. Keyed by id alone, the kept rows were moved to their new
+        // places, and the browser counted every one as a layout shift (stand
+        // 25 D12: CLS 0.17 per search); new rows are drawn, not shifted. The
+        // swap is one render, so the old rows go and the new come in one frame.
+        if (reason === "result" && Array.isArray(nextRows) && rowsWouldMove(currentRows, nextRows)) {
+            this._rowsGeneration = (this._rowsGeneration ?? 0) + 1;
+        }
         return this.setTableData(
             {
                 rows: this.normalizeRows(nextRows),

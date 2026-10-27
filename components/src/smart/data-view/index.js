@@ -1262,6 +1262,9 @@ class SfDataView extends DataViewElement {
             } else {
                 this.appended = null;
                 this.records = next;
+                // A new result set: the table draws it as new rows where a
+                // kept one would move (sf-table setRows "result").
+                this._newResult = true;
             }
         }
         if (Array.isArray(data.columns)) this.columns = data.columns.map(projectColumn);
@@ -1881,7 +1884,8 @@ class SfDataView extends DataViewElement {
                 // on the row itself.
                 table.addRows?.(this.appended);
             } else {
-                table.setRows?.(this.cappedRecords);
+                table.setRows?.(this.cappedRecords, this._newResult ? "result" : "rows");
+                this._newResult = false;
             }
             const first = this.query.sort[0];
             table.setSort?.(first?.key ?? null, first?.direction ?? null);

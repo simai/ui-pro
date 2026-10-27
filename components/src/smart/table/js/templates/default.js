@@ -779,7 +779,7 @@ export function renderTableTemplate(context) {
                             <sf-button appearance="link" size="1/2" text=${context.component.text('treeMore')}
                                        @click=${() => context.component.requestTreeMore(row)}></sf-button>
                         </li>`)
-                    : keyed(`item:${row.id ?? rowIndex}`, html`
+                    : keyed(`item:${context.component.rowsGeneration?.() ?? 0}:${row.id ?? rowIndex}`, html`
                         <li class="sf-table-list-item"
                             data-row-id=${context.component.getRowKey(row, rowIndex)}
                             data-selected=${row.select?.component?.props?.checked === true ? '' : nothing}
@@ -902,7 +902,7 @@ export function renderTableTemplate(context) {
             });
             return html(rowStrings(kinds), ...values);
         };
-        return html`<tbody data-busy=${busy ? '' : nothing} data-sf-window=${slice ? `${slice.first}-${slice.last}` : nothing}>${slice ? spacer(slice.before, 'before') : nothing}${slice && slice.first % 2 === 0 ? spacer(0, 'parity') : nothing}${repeat(shown, (row, at) => (row.__tree?.more ? `more:${row.id}` : `row:${row.id ?? row.value ?? (at + offset)}`), (row, at) => (row.__tree?.more ? renderMoreRow(context, columns, row) : renderRow(row, at)))}${slice ? spacer(slice.after, 'after') : nothing}</tbody>`;
+        return html`<tbody data-busy=${busy ? '' : nothing} data-sf-window=${slice ? `${slice.first}-${slice.last}` : nothing}>${slice ? spacer(slice.before, 'before') : nothing}${slice && slice.first % 2 === 0 ? spacer(0, 'parity') : nothing}${repeat(shown, (row, at) => (row.__tree?.more ? `more:${row.id}` : `row:${component.rowsGeneration?.() ?? 0}:${row.id ?? row.value ?? (at + offset)}`), (row, at) => (row.__tree?.more ? renderMoreRow(context, columns, row) : renderRow(row, at)))}${slice ? spacer(slice.after, 'after') : nothing}</tbody>`;
     }
 
     // The first cell of a tree row: indented by its level, with the button that
