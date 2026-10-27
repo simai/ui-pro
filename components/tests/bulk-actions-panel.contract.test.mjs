@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import {URL} from 'node:url';
+import {pagination, render} from './fixtures/pagination-harness.mjs';
 
 const root = new URL('../', import.meta.url);
 const read = (path) => readFile(new URL(path, root), 'utf8');
@@ -41,13 +42,15 @@ test('the panel carries the four controls the owner asked for', async () => {
     /text=\$\{context\.actionApplyText\}\s*\?disabled=\$\{!context\.action\}/u,
     'apply is out of reach until an action is chosen',
   );
-  // It names the number when there is one. With the count unknown the label
-  // stays bare until marking the box has asked for it.
-  assert.match(
-    markup,
-    /label=\$\{context\.countKnown\s*\? `\$\{context\.actionForAllLabel\} \(\$\{context\.total\}\)`\s*: context\.actionForAllLabel\}/u,
-    'for-all names how many it would touch',
-  );
+  // It names the number when there is one, an estimate as «~N» (gate 29).
+  // With the count unknown the label stays bare until marking the box has
+  // asked for it.
+  const forAll = async (settings) => /<sf-checkbox\s+label=([^\n]*?)\s+\?checked=/u.exec((await render(await pagination({
+    selectedCount: 2, actions: 'archive:Archive', showActionForAll: true, ...settings,
+  }))).markup)?.[1];
+  assert.equal(await forAll({total: 450}), '{action-for-all-label} (450)', 'for-all names how many it would touch');
+  assert.equal(await forAll({total: 450, totalExact: false}), '{action-for-all-label} (~450)');
+  assert.equal(await forAll({countKnown: false}), '{action-for-all-label}');
   assert.match(
     markup,
     /sf-pagination-actions-clear"[\s\S]*?icon="close"[\s\S]*?@click=\$\{\(\) => component\.clearSelection\(\)\}/u,

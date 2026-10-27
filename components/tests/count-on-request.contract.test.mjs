@@ -2,16 +2,14 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import test from 'node:test';
 import {URL} from 'node:url';
+import {pagination, render} from './fixtures/pagination-harness.mjs';
 
 const root = new URL('../', import.meta.url);
 const read = (path) => readFile(new URL(path, root), 'utf8');
 const json = async (path) => JSON.parse(await read(path));
 
 test('the mode is the host answer, not a setting', async () => {
-  const [view, pagination] = await Promise.all([
-    read('src/smart/data-view/index.js'),
-    read('src/smart/pagination/index.js'),
-  ]);
+  const view = await read('src/smart/data-view/index.js');
 
   // A total in the answer means there is a number; no total means there is a
   // link. Nothing configures this: a host that stops counting should not need
@@ -21,11 +19,21 @@ test('the mode is the host answer, not a setting', async () => {
     /if \(Number\.isSafeInteger\(data\.total\) && data\.total >= 0\) \{\s*this\.total = data\.total;\s*this\.countKnown = true;\s*\} else if \(typeof data\.has_next === "boolean"\) \{/u,
   );
   assert.doesNotMatch(view, /count-mode|countMode/u, 'no mode input of its own');
-  assert.match(
-    pagination,
-    /get hasNext\(\) \{\s*return this\.countKnown \? this\.current < this\.pageCount : this\.hasNextPage;/u,
-    'without a count, has_next is the only thing that says there is more',
-  );
+});
+
+test('without a count, has_next is the only thing that says there is more', async () => {
+  // The pagination's own reading of the answer, not its source: a count
+  // decides when there is one, has_next alone when there is none.
+  assert.equal((await pagination({countKnown: false, current: 3, hasNext: true})).hasNext, true);
+  assert.equal((await pagination({countKnown: false, current: 3})).hasNext, false, 'no has_next, no more');
+  assert.equal((await pagination({countKnown: false, current: 3, total: 0, hasNext: true})).hasNext, true,
+    'a total the host did not give does not stop the list');
+  assert.equal((await pagination({total: 30, pageSize: 10, current: 3, hasNext: true})).hasNext, false,
+    'an exact count is the answer when there is one');
+  assert.equal((await pagination({total: 30, pageSize: 10, current: 2})).hasNext, true);
+  // An estimate (total_exact false, gate 29) may be short of the truth, so
+  // has_next still says there is more past it.
+  assert.equal((await pagination({total: 30, totalExact: false, pageSize: 10, current: 3, hasNext: true})).hasNext, true);
 });
 
 test('a number that has been answered stays until the query changes', async () => {
@@ -49,17 +57,29 @@ test('a number that has been answered stays until the query changes', async () =
 });
 
 test('the number is asked for only when a host can answer, and only once at a time', async () => {
-  const [view, pagination] = await Promise.all([
-    read('src/smart/data-view/index.js'),
-    read('src/smart/pagination/index.js'),
-  ]);
+  const view = await read('src/smart/data-view/index.js');
+  const counts = (element) => element.events.filter((event) => event.name === 'count');
 
-  assert.match(
-    pagination,
-    /requestCount\(reason = "total"\) \{\s*if \(this\.countKnown \|\| !this\.canCount \|\| this\.counting\) \{\s*return this;/u,
-    'no link without the capability, and no second request while one is in flight',
-  );
-  assert.match(pagination, /this\.setState\(\{ counting: true \}\);\s*this\.sfEmit\("count"/u);
+  const cannot = await pagination({countKnown: false});
+  cannot.requestCount();
+  assert.equal(counts(cannot).length, 0, 'no request without the capability');
+
+  const can = await pagination({countKnown: false, canCount: true, current: 4, pageSize: 20});
+  can.requestCount();
+  assert.equal(can.counting, true, 'the wait is shown while the request is in flight');
+  assert.deepEqual(counts(can).map((event) => event.detail), [{reason: 'total', current: 4, 'page-size': 20}]);
+  can.requestCount();
+  can.requestCount('last-page');
+  assert.equal(counts(can).length, 1, 'no second request while one is in flight');
+
+  const exact = await pagination({total: 450, canCount: true});
+  exact.requestCount();
+  assert.equal(counts(exact).length, 0, 'a number that is there is not asked for');
+
+  // An estimate is a number nobody should act on: it can still be counted.
+  const estimate = await pagination({total: 450, totalExact: false, canCount: true});
+  estimate.requestCount();
+  assert.equal(counts(estimate).length, 1, 'an estimate can be asked to become the number');
   assert.match(
     view,
     /canCount: Boolean\(this\.hostPort\?\.capabilities\?\.includes\("count-on-request"\)\)/u,
@@ -69,17 +89,30 @@ test('the number is asked for only when a host can answer, and only once at a ti
 
 test('the three answers to "how many" are rendered, and nothing else is', async () => {
   const markup = await read('src/smart/pagination/js/templates/default.js');
+  const totalText = (rendered) => /<div class="sf-pagination-total flex items-cross-center">([\s\S]*?)<\/div>\s*<\/div>/u
+    .exec(rendered.markup)?.[1] ?? '';
 
-  assert.match(markup, /\$\{context\.countKnown\s*\? html`[\s\S]*?\$\{context\.totalLabel\} \$\{context\.total\}/u, 'the number');
-  assert.match(markup, /context\.counting[\s\S]*?<sf-spinner size=\$\{context\.size\} aria-label=\$\{context\.countingLabel\}/u, 'a short wait');
-  assert.match(
-    markup,
-    /context\.canCount[\s\S]*?class="sf-pagination-count-request"[\s\S]*?text=\$\{context\.showCountLabel\}[\s\S]*?@click=\$\{\(\) => component\.requestCount\("total"\)\}/u,
-    'or an offer to find out',
-  );
+  // The number.
+  const number = await render(await pagination({total: 450, canCount: true}));
+  assert.match(totalText(number), /\{total-label\} 450\s/u, 'the number');
+  assert.doesNotMatch(number.markup, /sf-pagination-count-request|<sf-spinner/u, 'and nothing to ask for');
+  // A short wait.
+  const waiting = await render(await pagination({countKnown: false, canCount: true, counting: true}));
+  assert.match(totalText(waiting), /<sf-spinner size=1 aria-label=\{counting-label\}>/u, 'a short wait');
+  assert.doesNotMatch(waiting.markup, /sf-pagination-count-request/u);
+  // Or an offer to find out, which asks for the total.
+  const offerElement = await pagination({countKnown: false, canCount: true});
+  const offer = await render(offerElement);
+  assert.match(totalText(offer), /class="sf-pagination-count-request"[\s\S]*?text=\{show-count-label\}/u, 'or an offer to find out');
+  offer.press(/class="sf-pagination-count-request"/u);
+  assert.deepEqual(offerElement.events.map((event) => [event.name, event.detail.reason]), [['count', 'total']]);
   // A host that cannot count is offered nothing: a link that answers
   // "unavailable" is worse than no link.
-  assert.match(markup, /: ""\s*\}\s*<\/div>/u);
+  const cannot = await render(await pagination({countKnown: false}));
+  assert.equal(totalText(cannot).trim(), '', 'no number, no wait, no link');
+  // An estimate (gate 29) reads «~N», with the offer beside it.
+  const estimate = await render(await pagination({total: 450, totalExact: false, canCount: true}));
+  assert.match(totalText(estimate), /\{total-label\} ~450\s[\s\S]*class="sf-pagination-count-request"/u);
   // The marked count left the footer in round four: the band of bulk controls
   // says how many are marked, and only while something is. Saying it twice gave
   // a footer that read «Отмечено: 0/450» at rest and «0/0» before the first
@@ -95,22 +128,27 @@ test('the three answers to "how many" are rendered, and nothing else is', async 
 });
 
 test('the last page is asked for, because nobody has its number yet', async () => {
-  const [pagination, view] = await Promise.all([
-    read('src/smart/pagination/index.js'),
-    read('src/smart/data-view/index.js'),
-  ]);
+  const view = await read('src/smart/data-view/index.js');
 
-  assert.match(
-    pagination,
-    /lastPage\(\) \{\s*if \(!this\.countKnown\) \{\s*return this\.requestCount\("last-page"\);/u,
-  );
+  const unknown = await pagination({countKnown: false, canCount: true, current: 2});
+  unknown.lastPage();
+  assert.deepEqual(unknown.events.map((event) => [event.name, event.detail.reason]), [['count', 'last-page']],
+    'the count is asked for, and no page is reported');
+  assert.equal(unknown.current, 2);
   assert.match(view, /if \(reason === "last-page"\) this\.pagination\?\.lastPage\?\.\(\);/u, 'and the jump follows the answer');
+  // Once the number is there the jump is a page like any other.
+  const counted = await pagination({total: 95, pageSize: 10, current: 2});
+  counted.lastPage();
+  assert.equal(counted.current, 10);
+  assert.deepEqual(counted.events.map((event) => [event.name, event.detail.current]), [['change', 10]]);
   // Clamping to a page count derived from nothing would be worse than letting
   // the host answer an exhausted page with no records.
-  assert.match(
-    pagination,
-    /const next = this\.countKnown\s*\? Math\.min\(Math\.max\(parsed, 1\), this\.pageCount\)\s*: Math\.max\(parsed, 1\);/u,
-  );
+  const unclamped = await pagination({countKnown: false, current: 2});
+  assert.deepEqual(unclamped.goToPage(7), {outcome: 'applied'});
+  assert.equal(unclamped.current, 7, 'without a count no page is clamped');
+  const clamped = await pagination({total: 30, pageSize: 10, current: 1});
+  clamped.goToPage(7);
+  assert.equal(clamped.current, 3, 'with an exact count the last page is the limit');
 });
 
 test('for-all asks for the number it will be applied against', async () => {
@@ -173,32 +211,39 @@ test('the pagination declares every new word and the element it now renders', as
 });
 
 test('a marked row still counts when the total does not', async () => {
-  const pagination = await read('src/smart/pagination/index.js');
-
   // The marked count was capped by the total. With no total that cap is zero,
   // so a marked row read as none and the panel of bulk controls never appeared.
   // The built bytes are what showed it.
-  assert.match(
-    pagination,
-    /return this\.countKnown \? Math\.min\(atLeastNone, this\.total\) : atLeastNone;/u,
-  );
+  assert.equal((await pagination({countKnown: false, total: 0, selectedCount: 3})).selectedCount, 3);
+  assert.equal((await pagination({total: 2, selectedCount: 3})).selectedCount, 2, 'an exact total still caps it');
+  assert.equal((await pagination({total: 2, totalExact: false, selectedCount: 3})).selectedCount, 3,
+    'an estimate does not');
+  const panel = await render(await pagination({countKnown: false, total: 0, selectedCount: 3, actions: 'archive:Archive'}));
+  assert.match(panel.markup, /<span class="sf-pagination-actions-count">\s*\{selected-label\} 3\s*<\/span>/u,
+    'and the panel is there');
 });
 
 test('nothing is clamped by a count that does not exist', async () => {
-  const pagination = await read('src/smart/pagination/index.js');
+  const source = await read('src/smart/pagination/index.js');
 
   // Three clamps read the total, and with no total each one quietly broke the
   // mode: the marked count became zero, the page was pinned to the first, and a
   // page count of one was reported to the host as fact. Each is now conditional,
   // and the page count is said out loud as unknown.
-  assert.match(
-    pagination,
-    /return this\.countKnown \? Math\.min\(atLeastFirst, this\.pageCount\) : atLeastFirst;/u,
-    'the page being read is not pinned to the first',
-  );
-  assert.match(
-    pagination,
-    /get knownPageCount\(\) \{\s*return this\.countKnown \? this\.pageCount : null;/u,
-  );
-  assert.doesNotMatch(pagination, /pageCount: this\.pageCount,/u, 'no event tells a host there is one page');
+  const unknown = await pagination({countKnown: false, total: 0, current: 3, hasNext: true});
+  assert.equal(unknown.current, 3, 'the page being read is not pinned to the first');
+  assert.equal(unknown.knownPageCount, null);
+  assert.equal((await pagination({total: 30, pageSize: 10, current: 9})).current, 3, 'an exact count still holds it');
+  assert.equal((await pagination({total: 30, totalExact: false, pageSize: 10, current: 9})).current, 9,
+    'an estimate does not');
+  assert.equal((await pagination({total: 30, totalExact: false})).knownPageCount, null, 'nor gives a page count');
+
+  // No event tells a host there is one page.
+  unknown.goToPage(4);
+  unknown.showMore();
+  unknown.setPageSize(50);
+  assert.deepEqual(unknown.events.map((event) => [event.name, event.detail['page-count']]),
+    [['change', null], ['load-more', null], ['size-change', null]]);
+  assert.equal(unknown.current, 4, 'and a new page size keeps the page being read');
+  assert.doesNotMatch(source, /pageCount: this\.pageCount,/u, 'no template context names a page count it does not have');
 });

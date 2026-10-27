@@ -1867,7 +1867,7 @@
       },
       {
         "path": "src/smart/pagination/index.js",
-        "sha256": "e6ac0cb86e8021a0d708bfe4a3b5f261e588fac77628c182ede7695ce268534e"
+        "sha256": "88a4d91ec25466151b0004b74fbf8be463acc5c270406bebaface5011624ad76"
       }
     ],
     "generated_runtime": []
