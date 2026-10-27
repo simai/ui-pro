@@ -68,7 +68,7 @@ test('a pinned offset is measured on the page, never derived from a declared wid
     /getStickyCellStyle[\s\S]{0,700}?Number\.parseFloat/u,
     'no declared-width arithmetic is left in the pinned offsets',
   );
-  assert.match(source, /afterRender\(\) \{[\s\S]{0,700}?\n        this\.measurePinnedColumns\(\);/u, 'measured on every render');
+  assert.match(source, /afterRender\(\) \{[\s\S]{0,2200}?\n        this\.measurePinnedColumns\(\);/u, 'measured on every render');
   // The inline style places the cell and says nothing about its colour: it used
   // to paint the table surface, which beat every row state and left the pinned
   // columns white under a selected or hovered row.

@@ -42,5 +42,5 @@ test('actions false and a hidden column in the table settings still hide it', ()
 test('the manifest declares row-actions with its default', () => {
     assert.deepEqual(manifest.inputs.properties['row-actions'], {type: 'boolean', default: true});
     assert.ok(manifest.composition.declarative.props.includes('row-actions'));
-    assert.equal(manifest.version, '1.9.0');
+    assert.equal(manifest.version, '1.10.0');
 });

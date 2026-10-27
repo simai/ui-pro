@@ -1909,8 +1909,10 @@ class SfDataView extends HTMLElement {
     _openReference(event) {
         if (!this.hostPort || !this.hostOffers("row-actions")) return;
         event.preventDefault();
-        const {href, ...detail} = event.detail ?? {};
-        return this._raise("record.open", {...detail, href}).then((answer) => {
+        // The table's detail is camelCase on the element (standard 1.3.8 §3.2);
+        // the port's payload is snake_case.
+        const {href, recordId, record_id: recordIdBefore, ...detail} = event.detail ?? {};
+        return this._raise("record.open", {...detail, record_id: recordId ?? recordIdBefore ?? null, href}).then((answer) => {
             if (!["applied", "accepted", "opened"].includes(answer?.answer) && href) globalThis.location?.assign?.(href);
         });
     }
@@ -1942,7 +1944,10 @@ class SfDataView extends HTMLElement {
         }
         if (event.type === "sf-table-cell-set") return this.setCell(event.detail ?? {});
         if (event.type === "sf-table-rows-reorder") return this.reorderRows(event.detail ?? {});
-        if (event.type === "sf-table-search-change") return this.changeQuery({search: String(event.detail ?? "")}, "search");
+        if (event.type === "sf-table-search-change") {
+            const search = typeof event.detail === "object" && event.detail !== null ? event.detail.search : event.detail;
+            return this.changeQuery({search: String(search ?? "")}, "search");
+        }
         if (event.type === "sf-table-filter-change") return this.changeQuery({filters: copy(event.detail?.filters ?? event.detail?.values ?? event.detail ?? {})}, "filter");
         if (event.type === "sf-table-sort-change") {
             const sort = event.detail?.direction ? [copy(event.detail)] : [];

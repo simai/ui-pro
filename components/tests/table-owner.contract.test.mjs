@@ -94,16 +94,20 @@ test('Smart Table implements its declared loading, empty, error and retry states
 
   assert.match(table, /attribute: "data-state"/);
   assert.match(table, /values: \["auto", "loading", "populated", "empty", "error"\]/);
-  for (const eventName of [
-    'sf-table-search-change',
-    'sf-table-filter-change',
-    'sf-table-template-save',
-    'sf-table-column-settings-change',
-    'sf-table-retry',
+  // Sent by verb through the manifest (standard 1.3.8 §8); the registry lists
+  // the DOM names, the old ones as aliases of the new.
+  for (const [verb, eventName] of [
+    ['search-change', 'sf-table-search-change'],
+    ['filter-change', 'sf-table-filter-change'],
+    ['template-save', 'sf-table-template-save'],
+    ['save', 'sf-table-save'],
+    ['refresh', 'sf-table-refresh'],
   ]) {
-    assert.match(table, new RegExp(`dispatchTableEvent\\('${eventName}'`));
+    assert.match(table, new RegExp(`emitTableEvent\\('${verb}'`));
     assert.ok(manifest.events[eventName]);
   }
+  // The old names stay listed: they are still delivered, as dated aliases.
+  assert.ok(manifest.events['sf-table-column-settings-change'] && manifest.events['sf-table-retry']);
   assert.equal(manifest.inputs.properties['data-state'].default, 'auto');
   assert.ok(manifest.methods.setDataState);
   assert.ok(manifest.methods.requestRetry);

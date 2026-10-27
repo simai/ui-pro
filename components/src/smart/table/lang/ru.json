@@ -1,0 +1,132 @@
+{
+  "title": "Таблица",
+  "events": {
+    "column-settings-reset": {
+      "label": "Настройки столбцов сброшены"
+    },
+    "filter-change": {
+      "label": "Фильтр изменён"
+    },
+    "search-change": {
+      "label": "Поиск изменён"
+    },
+    "sort-change": {
+      "label": "Порядок изменён"
+    },
+    "template-delete": {
+      "label": "Шаблон удалён"
+    },
+    "template-save": {
+      "label": "Шаблон сохранён"
+    },
+    "template-select": {
+      "label": "Шаблон выбран"
+    },
+    "toolbar-action": {
+      "label": "Действие панели"
+    },
+    "reference-open": {
+      "label": "Открыть связанную запись"
+    },
+    "rows-drag": {
+      "label": "Строки перетащены"
+    },
+    "cell-set": {
+      "label": "Значение в ячейке изменено"
+    },
+    "view-change": {
+      "label": "Вид таблицы изменён"
+    },
+    "window": {
+      "label": "Показаны строки"
+    }
+  },
+  "runtime": {
+    "actions-column-label": "Действия",
+    "apply-text": "Применить",
+    "clear-text": "Очистить",
+    "close-text": "Закрыть",
+    "column-move-label": "Переместить столбец",
+    "column-search-empty-text": "Поля не найдены",
+    "column-search-placeholder": "Поиск по полям",
+    "context-create-options-label": "Варианты создания",
+    "context-field-filter-label": "Настройка фильтра",
+    "context-filter-settings-label": "Настройки фильтра",
+    "context-row-actions-label": "Действия со строкой",
+    "context-save-template-label": "Сохранение шаблона фильтра",
+    "context-table-settings-label": "Настройки таблицы",
+    "context-template-actions-label": "Действия с шаблоном",
+    "context-view-actions-label": "Действия с представлением",
+    "create-options-label": "Варианты создания",
+    "create-text": "Создать",
+    "default-template-text": "По умолчанию",
+    "delete-action-text": "Удалить",
+    "edit-action-text": "Редактировать",
+    "empty-text": "Нет данных",
+    "error-text": "Не удалось загрузить данные",
+    "field-word-text": "поле",
+    "fields-tab-text": "Поля",
+    "filter-apply-text": "Применить",
+    "filter-settings-label": "Настройки фильтра",
+    "filter-text": "Фильтр",
+    "list-filter-label": "Фильтр, активных условий: {count}",
+    "loading-text": "Загрузка данных",
+    "make-default-label": "Сделать по умолчанию",
+    "menu-label": "Меню",
+    "operator-any": "Любая дата",
+    "operator-between": "Диапазон",
+    "operator-contains": "Содержит",
+    "operator-eq": "Точно",
+    "operator-gt": "Больше чем",
+    "operator-gte": "Больше или равно",
+    "operator-in": "В списке",
+    "operator-lt": "Меньше чем",
+    "operator-lte": "Меньше или равно",
+    "operator-month": "Месяц",
+    "operator-starts-with": "Начинается с",
+    "operator-today": "Сегодня",
+    "operator-week": "Неделя",
+    "pin-column-label": "Закрепить столбец",
+    "rename-text": "Переименовать",
+    "reset-both-text": "Сбросить поиск и фильтры",
+    "reset-filters-text": "Сбросить фильтры",
+    "reset-search-text": "Очистить поиск",
+    "reset-text": "Сбросить",
+    "restore-text": "Восстановить",
+    "retry-text": "Повторить",
+    "row-actions-label": "Действия со строкой",
+    "save-for-everyone-label": "Сохранить для всех",
+    "save-template-label": "Сохранение шаблона фильтра",
+    "search-placeholder": "Поиск",
+    "select-all-label": "Выбрать все строки",
+    "select-row-label": "Выбрать строку",
+    "settings-column-label": "Настройки",
+    "settings-fields-tab": "Поля",
+    "settings-view-tab": "Вид",
+    "sort-ascending": "по возрастанию",
+    "sort-descending": "по убыванию",
+    "sort-label": "Сортировка",
+    "sort-none": "Как задано источником",
+    "template-actions-label": "Действия с шаблоном",
+    "template-move-label": "Переместить шаблон",
+    "template-name-placeholder": "Название",
+    "template-pin-label": "Закрепить шаблон сверху",
+    "templates-tab-text": "Шаблоны",
+    "tree-collapse": "Свернуть",
+    "tree-expand": "Развернуть",
+    "tree-more": "Показать ещё",
+    "unpin-column-label": "Открепить столбец",
+    "untitled-template-text": "Все записи",
+    "view-action-text": "Посмотреть",
+    "view-density": "Строки",
+    "view-density-compact": "Компактно",
+    "view-density-normal": "Обычно",
+    "view-density-spacious": "Просторно",
+    "view-everywhere": "Для всех моих таблиц",
+    "view-lines": "Линии между столбцами",
+    "view-reset": "Сбросить вид",
+    "view-single-line": "Текст в одну строку",
+    "view-sticky-head": "Закреплять фильтр и шапку",
+    "view-stripes": "Чередовать строки"
+  }
+}

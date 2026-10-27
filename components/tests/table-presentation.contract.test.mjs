@@ -46,9 +46,12 @@ test('a row says whether it is selected, and the look follows from that', async 
     declarations(),
   ]);
 
+  // The row's strings are composed per arrangement of cells (§18.4): the
+  // attribute is the first hole, filled from the row's box.
+  assert.match(template, /const pieces = \['<tr data-selected=', ROW_HOLE,/u);
   assert.match(
     template,
-    /<tr data-selected=\$\{row\.select\?\.component\?\.props\?\.checked === true \? '' : nothing\}/u,
+    /const values = \[\s*row\.select\?\.component\?\.props\?\.checked === true \? '' : nothing,/u,
     'the row carries the state instead of the style reading the checkbox in a cell',
   );
   // `aria-selected` is not used: a plain table's rows are not grid rows, and the

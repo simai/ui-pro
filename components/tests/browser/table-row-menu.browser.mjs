@@ -83,13 +83,13 @@ try {
   await page.waitForFunction(() => /Главная/u.test(document.querySelector('#list tbody')?.textContent ?? ''), null, {timeout: 8000});
 
   // The row's menu button, in the settings column.
-  const button = page.locator('#list tbody tr td sf-icon-button[icon="menu"] button').first();
+  const button = page.locator('#list tbody tr td button[data-sf-row-menu]').first();
   await button.click();
   await page.waitForTimeout(250);
   const opened = await page.evaluate(() => {
     const menu = document.querySelector('sf-context-menu[data-sf-table-menu="row"]');
     const surface = menu?.querySelector('.sf-context-menu');
-    const trigger = document.querySelector('#list tbody tr td sf-icon-button[icon="menu"] button');
+    const trigger = document.querySelector('#list tbody tr td button[data-sf-row-menu]');
     const box = surface?.getBoundingClientRect();
     const at = trigger?.getBoundingClientRect();
     return {
@@ -123,7 +123,11 @@ try {
     raised: window.raised,
     menus: document.querySelectorAll('sf-context-menu').length,
     open: document.querySelector('sf-context-menu[data-sf-table-menu="row"]')?.isOpen ?? null,
-    focus: document.activeElement?.closest?.('sf-icon-button')?.getAttribute('icon') ?? document.activeElement?.tagName ?? null,
+    // The row's menu button is the icon button's class markup since standard
+    // 1.3.8 §18.4 (a cell that only shows a control is markup): data-sf-row-menu.
+    focus: document.activeElement?.closest?.('sf-icon-button')?.getAttribute('icon')
+      ?? (document.activeElement?.hasAttribute?.('data-sf-row-menu') ? 'menu' : null)
+      ?? document.activeElement?.tagName ?? null,
   }));
   const raised = after.raised[0];
   if (!raised || raised.intent !== 'record.mutate' || raised.action !== 'publish:en' || raised.ids?.join() !== 'home') {

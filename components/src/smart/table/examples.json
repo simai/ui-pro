@@ -1,0 +1,114 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Записи",
+      "settings": {
+        "aria-label": "Записи",
+        "table-settings-key": "docs.records",
+        "columns": [
+          {
+            "key": "title",
+            "label": "Название",
+            "sortable": true
+          },
+          {
+            "key": "status",
+            "label": "Статус"
+          }
+        ],
+        "rows": [
+          {
+            "id": "1",
+            "title": "Портал клиента",
+            "status": "Опубликовано",
+            "revision": "r1"
+          },
+          {
+            "id": "2",
+            "title": "Каталог товаров",
+            "status": "Черновик",
+            "revision": "r1"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Записи",
+        "values": {
+          "selection": []
+        }
+      },
+      "from": "studio.fixture.json"
+    },
+    {
+      "name": "loading",
+      "title": "Первая загрузка",
+      "settings": {
+        "aria-label": "Записи",
+        "data-state": "loading"
+      },
+      "expect": {
+        "name": "Записи"
+      }
+    },
+    {
+      "name": "empty",
+      "title": "Пусто",
+      "settings": {
+        "aria-label": "Записи",
+        "data-state": "empty",
+        "columns": [
+          {
+            "key": "title",
+            "label": "Название"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Записи"
+      }
+    },
+    {
+      "name": "current",
+      "title": "Открытая запись",
+      "settings": {
+        "aria-label": "Записи",
+        "current": "2",
+        "columns": [
+          {
+            "key": "title",
+            "label": "Название"
+          }
+        ],
+        "rows": [
+          {
+            "id": "1",
+            "title": "Первая"
+          },
+          {
+            "id": "2",
+            "title": "Вторая"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Записи",
+        "values": {
+          "selected": "2"
+        }
+      }
+    },
+    {
+      "name": "many",
+      "title": "Тысяча записей (окно)",
+      "settings": {
+        "aria-label": "Записи",
+        "x-rows": "1 000 generated rows, as probe.json p1 makes them"
+      },
+      "expect": {
+        "name": "Записи"
+      },
+      "x-note": "§18.4: the window draws the rows in view; gate 17 runs on this shape (probe.json p1, p4, p7)"
+    }
+  ]
+}

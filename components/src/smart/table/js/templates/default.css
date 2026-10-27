@@ -1212,3 +1212,22 @@ sf-table tbody tr[data-sf-drop-before] > td {
 sf-table tbody tr[data-sf-drop-after] > td {
   box-shadow: inset 0 calc(-2 * var(--sf-px)) 0 var(--sf-primary);
 }
+
+/* Many entries (standard 1.3.8 §18.4): the spacer rows that stand for the
+   rows not drawn hold their height and nothing else. */
+@layer sf.components {
+  sf-table tbody tr.sf-table-window-spacer,
+  sf-table tbody tr.sf-table-window-spacer:hover {
+    background: none;
+  }
+  sf-table tbody tr.sf-table-window-spacer > td {
+    padding: 0;
+    border: 0;
+  }
+  /* The spacers already keep every drawn row where it was: the browser's own
+     scroll anchoring would move the page a second time when the range moves. */
+  sf-table tbody[data-sf-window],
+  sf-table tbody[data-sf-window] > tr {
+    overflow-anchor: none;
+  }
+}

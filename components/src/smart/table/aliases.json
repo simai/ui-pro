@@ -1,0 +1,196 @@
+{
+  "$comment": "Dated aliases of sf-table for the shim (core/js/aliases.js, standard §16 item 20, vocabulary §9). mode: same-detail (the shim sends the new and the old name), detail-adds (the old name gets the larger new detail), split (the old detail from the element's adapter, sfAliasAdapters), host-attribute (no shim).",
+  "component": "sf-table",
+  "since": "2026-10-27",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "aria-label",
+      "to": null,
+      "kind": "attribute",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "host-attribute",
+      "section": "§3.1, §4.8",
+      "note": "stays a host attribute, read for the accessible name; no shim"
+    },
+    {
+      "from": "sf-table-action-intent",
+      "to": "sf-table-apply",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5 apply {action, scope, ids, revisions}; the old detail {action_id, record_ids} is made by the element's adapter (vocabulary §9: sf-table-action-intent → sf-table-apply)"
+    },
+    {
+      "from": "sf-table-create-intent",
+      "to": "sf-table-create",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5 create; the detail {item} is unchanged"
+    },
+    {
+      "from": "sf-port-output",
+      "to": "sf-table-select",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5 select {ids}; the composition port's old detail {port: selection, value} is made by the element's adapter"
+    },
+    {
+      "from": "sf-table-query-intent",
+      "to": "sf-table-query",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5.1: sf-table-query-intent → sf-table-query; the detail {reason, context, sequence} is unchanged"
+    },
+    {
+      "from": "sf-table-retry",
+      "to": "sf-table-refresh",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5 refresh (table-retry)"
+    },
+    {
+      "from": "sf-table-tree-toggle",
+      "to": "sf-table-expand",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5 expand; the detail {id, expanded} is unchanged"
+    },
+    {
+      "from": "sf-table-tree-more",
+      "to": "sf-table-load-more",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5 load-more; the new detail adds direction: after to {parent, cursor}"
+    },
+    {
+      "from": "sf-table-rows-reorder",
+      "to": "sf-table-move",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5 move; the detail {ids, before, order} is unchanged"
+    },
+    {
+      "from": "sf-table-column-settings-change",
+      "to": "sf-table-save",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5 save {kind: columns}; the new detail adds kind to {reason, columnSettings, tableSettingsKey}",
+      "when": {
+        "kind": "columns"
+      }
+    },
+    {
+      "from": "sf-table:column-settings-change",
+      "to": "sf-table-save",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "vocabulary §5.1: sf-table:column-settings-change → sf-table-save {kind: columns}; a colon name (§8)",
+      "when": {
+        "kind": "columns"
+      }
+    },
+    {
+      "from": "onColumnSettingsChange",
+      "to": "sf-table-save",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "a camelCase name outside §8 (simai/ui-pro#1); ui-admin listens to it (src/main.ts, src/smart-component-catalog.ts)",
+      "when": {
+        "kind": "columns"
+      }
+    },
+    {
+      "from": "onSearchEnd",
+      "to": "sf-table-search-change",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "a camelCase name outside §8 (simai/ui-pro#1); its detail was the search text itself, made by the element's adapter; ui-admin listens to it (src/main.ts, src/smart-component-catalog.ts)"
+    },
+    {
+      "from": "onTemplateSave",
+      "to": "sf-table-template-save",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "a camelCase name outside §8 (simai/ui-pro#1); ui-admin listens to it"
+    },
+    {
+      "from": "onFilterUpdate",
+      "to": "sf-table-filter-change",
+      "kind": "event",
+      "component": "sf-table",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, §16 item 20, vocabulary §9",
+      "note": "a camelCase name outside §8 (simai/ui-pro#1); ui-admin listens to it"
+    }
+  ]
+}

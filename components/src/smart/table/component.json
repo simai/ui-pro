@@ -1,0 +1,770 @@
+{
+  "$comment": "sf-table from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/table (convert-1.3.8.mjs over ui-pro 9cbe061); every x-todo decided in x-decisions.",
+  "id": "smart.data-view",
+  "tag": "sf-table",
+  "version": "1.10.0",
+  "kind": "leaf",
+  "family": "table",
+  "settings": {
+    "selectable": {
+      "type": "boolean",
+      "default": true
+    },
+    "settings": {
+      "type": "boolean",
+      "default": true
+    },
+    "actions": {
+      "type": "boolean",
+      "default": true
+    },
+    "row-actions": {
+      "type": "boolean",
+      "default": true
+    },
+    "creatable": {
+      "type": "boolean",
+      "default": true
+    },
+    "filter-templates": {
+      "type": "boolean",
+      "default": true
+    },
+    "settings-menu": {
+      "type": "boolean",
+      "default": true
+    },
+    "pagin": {
+      "type": "boolean",
+      "default": false
+    },
+    "filter-text": {
+      "type": "string",
+      "default-from": "runtime.filter-text"
+    },
+    "clear-text": {
+      "type": "string",
+      "default-from": "runtime.clear-text"
+    },
+    "search-placeholder": {
+      "type": "string",
+      "default-from": "runtime.search-placeholder"
+    },
+    "create-text": {
+      "type": "string",
+      "default-from": "runtime.create-text"
+    },
+    "pagination-total": {
+      "type": "number",
+      "default": 10
+    },
+    "pagination-page-size": {
+      "type": "number",
+      "default": 10
+    },
+    "page-sizes": {
+      "type": "string",
+      "default": "10,20,30,40"
+    },
+    "context-menu-columns": {
+      "type": "number",
+      "default": 1
+    },
+    "remember-widths": {
+      "type": "boolean",
+      "default": false
+    },
+    "table-settings-key": {
+      "type": "string",
+      "default": ""
+    },
+    "data-state": {
+      "type": "enum",
+      "values": [
+        "auto",
+        "loading",
+        "ready",
+        "populated",
+        "empty",
+        "error"
+      ],
+      "default": "auto",
+      "x-alias": {
+        "populated": "ready"
+      }
+    },
+    "loading-text": {
+      "type": "string",
+      "default-from": "runtime.loading-text"
+    },
+    "empty-text": {
+      "type": "string",
+      "default-from": "runtime.empty-text"
+    },
+    "error-text": {
+      "type": "string",
+      "default-from": "runtime.error-text"
+    },
+    "retry-text": {
+      "type": "string",
+      "default-from": "runtime.retry-text"
+    },
+    "toolbar": {
+      "type": "boolean",
+      "default": true
+    },
+    "pin-column-label": {
+      "type": "string",
+      "default-from": "runtime.pin-column-label"
+    },
+    "unpin-column-label": {
+      "type": "string",
+      "default-from": "runtime.unpin-column-label"
+    },
+    "column-move-label": {
+      "type": "string",
+      "default-from": "runtime.column-move-label"
+    },
+    "column-search-placeholder": {
+      "type": "string",
+      "default-from": "runtime.column-search-placeholder"
+    },
+    "column-search-empty-text": {
+      "type": "string",
+      "default-from": "runtime.column-search-empty-text"
+    },
+    "vertical-scroll": {
+      "type": "enum",
+      "values": [
+        "self",
+        "page"
+      ],
+      "default": "self"
+    },
+    "filter-apply-text": {
+      "type": "string",
+      "default-from": "runtime.filter-apply-text"
+    },
+    "layout": {
+      "type": "enum",
+      "values": [
+        "auto",
+        "table",
+        "list"
+      ],
+      "default": "table"
+    },
+    "list-below": {
+      "type": "number",
+      "default": 600
+    },
+    "list-fields": {
+      "type": "number",
+      "default": 3
+    },
+    "size": {
+      "type": "enum",
+      "values": [
+        "1/2",
+        "1"
+      ],
+      "default": "1"
+    },
+    "preferences-key": {
+      "type": "string",
+      "default": ""
+    },
+    "row-actions-visible": {
+      "type": "enum",
+      "values": [
+        "hover",
+        "always"
+      ],
+      "default": "hover"
+    },
+    "drag-rows": {
+      "type": "boolean",
+      "default": false
+    },
+    "row-reorder": {
+      "type": "boolean",
+      "default": false
+    },
+    "inline-edit": {
+      "type": "boolean",
+      "default": false
+    },
+    "active-filter-fields": {
+      "type": "list",
+      "entries": {
+        "key": "id"
+      }
+    },
+    "bulk-actions": {
+      "type": "list"
+    },
+    "columns": {
+      "type": "list",
+      "of": {
+        "key": "string",
+        "label": "string"
+      },
+      "x-shape": "columns[].key and columns[].label are the package's (ui-pro 9cbe061 table/smart.manifest.json item_contract.package_owned); width, order, visibility and pinning are a person's column settings; constant columns in a manifest give only the key, the label lives in lang roles.<role>.columns.<key> (standard 1.3.8 §11.3)"
+    },
+    "create-items": {
+      "type": "list"
+    },
+    "filter-fields": {
+      "type": "list"
+    },
+    "rows": {
+      "type": "list",
+      "entries": {
+        "key": "id",
+        "changes": "revision"
+      },
+      "of": {
+        "id": "id",
+        "revision": {
+          "type": "string",
+          "optional": true
+        }
+      },
+      "x-shape": "one entry per row: its id, its revision, and one field per column key; the vocabulary's items (§2.1), written by the host or the data view"
+    },
+    "table-data": {
+      "type": "object"
+    },
+    "table-settings": {
+      "type": "object"
+    },
+    "templates": {
+      "type": "list"
+    },
+    "toolbar-actions": {
+      "type": "list"
+    },
+    "sort": {
+      "type": "list",
+      "of": {
+        "key": "string",
+        "direction": {
+          "type": "enum",
+          "values": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      "controlled": true,
+      "x-shape": "vocabulary 1.1.5 §2.1 sort: [{key, direction}], the host's echo; a person's click is the event sort-change"
+    },
+    "current": {
+      "type": "string",
+      "default": "",
+      "x-shape": "the id of the row the page has open; the row carries aria-current"
+    }
+  },
+  "values": {
+    "selected": {
+      "type": "id",
+      "optional": true,
+      "summary": "the current row's id"
+    },
+    "selection": {
+      "type": "list",
+      "default": [],
+      "summary": "the marked rows' ids, in row order"
+    }
+  },
+  "events": {
+    "select": {
+      "carries": {
+        "ids": "list"
+      }
+    },
+    "apply": {
+      "carries": {
+        "action": "string",
+        "scope": {
+          "type": "enum",
+          "values": [
+            "entry",
+            "selection",
+            "filter"
+          ]
+        },
+        "ids": "list",
+        "revisions": "object"
+      }
+    },
+    "save": {
+      "carries": {
+        "kind": {
+          "type": "enum",
+          "values": [
+            "columns"
+          ]
+        },
+        "reason": "string"
+      },
+      "x-detail": "also columnSettings and tableSettingsKey (camelCase on the element, §3.2)"
+    },
+    "column-settings-reset": {
+      "carries": {
+        "target": "string"
+      },
+      "own-verb": true,
+      "x-detail": "also tableSettingsKey"
+    },
+    "create": {
+      "carries": {
+        "item": "string"
+      }
+    },
+    "filter-change": {
+      "carries": {
+        "values": "object",
+        "tags": "object"
+      },
+      "own-verb": true,
+      "x-detail": "also templateKey, templateLabel and the selected template's data"
+    },
+    "query": {
+      "carries": {
+        "reason": "string",
+        "context": "object",
+        "sequence": "number"
+      }
+    },
+    "refresh": {
+      "carries": {}
+    },
+    "search-change": {
+      "carries": {
+        "search": "string"
+      },
+      "own-verb": true
+    },
+    "sort-change": {
+      "carries": {
+        "key": "string",
+        "direction": {
+          "type": "enum",
+          "values": [
+            "asc",
+            "desc",
+            null
+          ],
+          "nullable": true
+        }
+      },
+      "own-verb": true
+    },
+    "template-delete": {
+      "carries": {
+        "key": "string"
+      },
+      "own-verb": true
+    },
+    "template-save": {
+      "carries": {},
+      "own-verb": true
+    },
+    "template-select": {
+      "carries": {
+        "key": "string"
+      },
+      "own-verb": true
+    },
+    "toolbar-action": {
+      "carries": {
+        "action": "string",
+        "href": "string"
+      },
+      "cancelable": true,
+      "own-verb": true
+    },
+    "reference-open": {
+      "carries": {
+        "field": "string",
+        "value": "object",
+        "href": "string"
+      },
+      "cancelable": true,
+      "own-verb": true,
+      "x-detail": "also recordId, the row's id"
+    },
+    "expand": {
+      "carries": {
+        "id": "id",
+        "expanded": "boolean"
+      }
+    },
+    "load-more": {
+      "carries": {
+        "direction": {
+          "type": "enum",
+          "values": [
+            "after"
+          ]
+        },
+        "parent": "object",
+        "cursor": "string"
+      }
+    },
+    "rows-drag": {
+      "carries": {
+        "ids": "list",
+        "source": "string"
+      },
+      "own-verb": true
+    },
+    "move": {
+      "carries": {
+        "ids": "list",
+        "before": "object",
+        "order": "list"
+      }
+    },
+    "cell-set": {
+      "carries": {
+        "id": "object",
+        "key": "string",
+        "value": "object",
+        "revision": "object"
+      },
+      "own-verb": true
+    },
+    "view-change": {
+      "carries": {
+        "view": "object",
+        "everywhere": "boolean"
+      },
+      "own-verb": true
+    },
+    "window": {
+      "carries": {
+        "first": "number",
+        "last": "number"
+      },
+      "own-verb": true
+    }
+  },
+  "actions": {
+    "add-rows": {
+      "with": {
+        "rows": "list"
+      }
+    },
+    "apply-query-result": {
+      "with": {
+        "sequence": "number",
+        "rows": "list"
+      }
+    },
+    "clear-selection": {},
+    "request-action-intent": {
+      "with": {
+        "action-id": "string",
+        "record-ids": "list"
+      },
+      "emits": "apply"
+    },
+    "request-create-intent": {
+      "with": {
+        "item-id": {
+          "type": "string",
+          "optional": true,
+          "nullable": true
+        }
+      },
+      "emits": "create"
+    },
+    "request-retry": {
+      "emits": "refresh"
+    },
+    "set-sort": {
+      "with": {
+        "key": {
+          "type": "string",
+          "nullable": true
+        },
+        "direction": {
+          "type": "enum",
+          "values": [
+            "asc",
+            "desc"
+          ],
+          "nullable": true
+        }
+      }
+    },
+    "toggle-tree-row": {
+      "with": {
+        "row": "object"
+      },
+      "emits": "expand"
+    },
+    "request-tree-more": {
+      "with": {
+        "row": "object"
+      },
+      "emits": "load-more"
+    },
+    "focus-row": {
+      "with": {
+        "id": "id"
+      }
+    }
+  },
+  "selection": "many",
+  "window": true,
+  "side-effects": [
+    "network"
+  ],
+  "keyboard": {
+    "host": {
+      "Tab": "reach",
+      "Shift+Tab": "reach",
+      "Escape": "close"
+    },
+    "row": {
+      "ArrowDown": "focus:next",
+      "ArrowUp": "focus:prev",
+      "Home": "focus:first",
+      "End": "focus:last",
+      "Enter": "open",
+      "Space": "toggle:selected"
+    }
+  },
+  "port": {
+    "id": "simai.dataview-port",
+    "version": "1.0.0",
+    "contract": "src/core/contracts/ports/simai.dataview-port/1.0.0/port.json"
+  },
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
+    }
+  },
+  "presentation": {
+    "skeleton": {
+      "file": "skeleton.html",
+      "repeat": {
+        "rows": "pagination-page-size"
+      },
+      "$comment": "the loading rows are drawn by the template too (js/templates/default.js SKELETON_ROWS); skeleton.html is the static first paint, settings only"
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs/docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "grid",
+    "name": {
+      "from": [
+        "aria-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Escape": "close",
+      "ArrowDown": "focus:next",
+      "ArrowUp": "focus:prev",
+      "Home": "focus:first",
+      "End": "focus:last",
+      "Enter": "open",
+      "Space": "toggle:selected"
+    },
+    "announces": {}
+  },
+  "host-states": {
+    "data-sf-view-stripes": "boolean",
+    "data-sf-page-scroll": "boolean"
+  },
+  "css-variables": {
+    "--sf-table-head--background-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-table-row--background-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-table--cell-spacing": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-table-cell--line-clamp": {
+      "type": "number",
+      "state": "default"
+    },
+    "--sf-table-context-menu--z-index": {
+      "type": "number",
+      "state": "open"
+    },
+    "--sf-table-context-menu--max-width": {
+      "type": "length",
+      "state": "open"
+    }
+  },
+  "x-summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "table",
+    "manifest": "simai/ui-pro@9cbe061 components/src/smart/table/smart.manifest.json",
+    "converted": "control/smart-architecture/stands/17-ports-migration/out/table.component.json"
+  },
+  "x-words": [
+    "filter-text",
+    "clear-text",
+    "search-placeholder",
+    "create-text",
+    "loading-text",
+    "empty-text",
+    "error-text",
+    "retry-text",
+    "pin-column-label",
+    "unpin-column-label",
+    "column-move-label",
+    "column-search-placeholder",
+    "column-search-empty-text",
+    "filter-apply-text"
+  ],
+  "x-port": {
+    "sha256": "208db0e9709639c46f25830cac255f35d7d8c50ea4dfb1c578adc0055798c46e",
+    "supports": [
+      "1.0.0"
+    ]
+  },
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "Reject unknown columns, filters, sorts and action IDs",
+        "Treat every row and structured cell as untrusted render data",
+        "Never accept record ownership or access flags from the browser"
+      ],
+      "network_policy": "host-only"
+    },
+    "ownership": {
+      "source": "simai/ui-admin",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "query authorization",
+        "field/operator invention",
+        "record access decisions",
+        "domain mutations",
+        "cross-user preference selection",
+        "HTTP endpoint invention"
+      ]
+    },
+    "presentation": {
+      "skeleton": {
+        "shape": "rows",
+        "while_loading": "template"
+      },
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop-wide",
+        "desktop-local-scroll",
+        "mobile-stacked-toolbar",
+        "mobile-horizontal-table-scroll",
+        "viewport-bounded-overlays"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use the whole Data View for an admin collection that needs server search, filters, table preferences, actions or pagination.",
+      "do_not": [
+        "Do not rebuild the toolbar, table and pagination from unrelated primitives",
+        "Do not let the browser own query or access semantics",
+        "Do not send arbitrary field, operator, route or action identifiers to the backend"
+      ],
+      "required_reads": [
+        "contracts",
+        "events",
+        "persistence",
+        "ownership",
+        "backend",
+        "scenarios"
+      ],
+      "minimal_example": "<sf-table aria-label=\"Записи\" table-settings-key=\"package.records\"></sf-table>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-browser-probes.mjs <free output> <package output>"
+      ]
+    }
+  },
+  "x-renamed": [
+    "settings.aria-label: a host attribute, read by the base, never a setting (§3.1)",
+    "events.sf-port-output → port-output (the DOM name without sf-<tag>-)",
+    "events.sf-table-action → apply (vocabulary §5 apply)",
+    "events.sf-table-column-settings-change → save (vocabulary §5.1)",
+    "events.column-settings-reset: 1 carried field(s) held the element, not data (§8)",
+    "events.sf-table-column-settings-reset → column-settings-reset (the DOM name without sf-<tag>-)",
+    "events.sf-table-create → create (vocabulary §5 create)",
+    "events.sf-table-filter-change → filter-change (the DOM name without sf-<tag>-)",
+    "events.sf-table-query → query (vocabulary §5.1)",
+    "events.sf-table-retry → refresh (vocabulary §5 refresh)",
+    "events.sf-table-search-change → search-change (the DOM name without sf-<tag>-)",
+    "events.sf-table-sort-change → sort-change (the DOM name without sf-<tag>-)",
+    "events.sf-table-template-delete → template-delete (the DOM name without sf-<tag>-)",
+    "events.sf-table-template-save → template-save (the DOM name without sf-<tag>-)",
+    "events.sf-table-template-select → template-select (the DOM name without sf-<tag>-)",
+    "events.sf-table-toolbar-action → toolbar-action (the DOM name without sf-<tag>-)",
+    "events.sf-table-tree-toggle → expand (vocabulary §5 expand)",
+    "events.sf-table-tree-more → load-more (vocabulary §5 load-more)",
+    "events.sf-table-rows-drag → rows-drag (the DOM name without sf-<tag>-)",
+    "events.sf-table-rows-reorder → move (vocabulary §5 move)",
+    "events.sf-table-cell-set → cell-set (the DOM name without sf-<tag>-)",
+    "settings.filter-text: its default words move to lang/en.json runtime.filter-text (§11, §16 item 44)",
+    "settings.clear-text: its default words move to lang/en.json runtime.clear-text (§11, §16 item 44)",
+    "settings.search-placeholder: its default words move to lang/en.json runtime.search-placeholder (§11, §16 item 44)",
+    "settings.create-text: its default words move to lang/en.json runtime.create-text (§11, §16 item 44)",
+    "settings.loading-text: its default words move to lang/en.json runtime.loading-text (§11, §16 item 44)",
+    "settings.empty-text: its default words move to lang/en.json runtime.empty-text (§11, §16 item 44)",
+    "settings.error-text: its default words move to lang/en.json runtime.error-text (§11, §16 item 44)",
+    "settings.retry-text: its default words move to lang/en.json runtime.retry-text (§11, §16 item 44)",
+    "settings.pin-column-label: its default words move to lang/en.json runtime.pin-column-label (§11, §16 item 44)",
+    "settings.unpin-column-label: its default words move to lang/en.json runtime.unpin-column-label (§11, §16 item 44)",
+    "settings.column-move-label: its default words move to lang/en.json runtime.column-move-label (§11, §16 item 44)",
+    "settings.column-search-placeholder: its default words move to lang/en.json runtime.column-search-placeholder (§11, §16 item 44)",
+    "settings.column-search-empty-text: its default words move to lang/en.json runtime.column-search-empty-text (§11, §16 item 44)",
+    "settings.filter-apply-text: its default words move to lang/en.json runtime.filter-apply-text (§11, §16 item 44)"
+  ],
+  "x-decisions": {
+    "shape": "leaf, with reasons (§7, the smaller mechanism). Its toolbar, filter, column settings and row menus are controls of its own state with no rule between them, and §18.4 asks the opposite of parts for its cells: a cell that only shows a value is class markup, a Smart element only while edited. Its rows are entries (§18), not roles. Stand 24 placed a table of this interface as a leaf inside the record browser; nothing it measured needs the table to be an assembly.",
+    "version": "1.9.0 → 1.10.0, a minor while the old event names hold dated aliases (§4.10); the major when they expire on 2026-12-01.",
+    "events": "named by vocabulary 1.1.5: select {ids} (was sf-port-output {port, value}), apply {action, scope, ids, revisions} (was sf-table-action-intent {action_id, record_ids}), save {kind: columns, …} (was sf-table-column-settings-change, sf-table:column-settings-change, onColumnSettingsChange), create (was -create-intent), query (was -query-intent), refresh (was -retry), expand (was -tree-toggle), load-more (was -tree-more), move (was -rows-reorder). Each old name follows once through aliases.json, split rows through sfAliasAdapters with their old detail, and is noted in SF.deprecations when a listener reads it. The alias table's sf-table-action-intent → sf-table-apply is taken (vocabulary §9); the converter's sf-port-output → sf-table-port-output is not: the selection is the vocabulary's select.",
+    "own-verb-words": "search-change, sort-change, filter-change, template-save, template-select, template-delete, column-settings-reset, toolbar-action, reference-open, rows-drag, cell-set, view-change and window keep their DOM names and are verbs of the table alone; their words are lang events.<verb>.label.",
+    "camelCase-events": "simai/ui-pro#1: onSearchEnd, onTemplateSave, onFilterUpdate and onColumnSettingsChange are no longer sent by the table; they are dated aliases of search-change, template-save, filter-change and save (ui-admin src/main.ts and src/smart-component-catalog.ts listen to them until 2026-12-01). search-change carries {search} now (§8: detail is an object); onSearchEnd keeps the bare text through its adapter.",
+    "column-settings": "simai/ui-pro#1: getColumnSettings() merges the host's and the person's settings once per change of either and answers from the memo while drawing; the system columns and the column a box is named by are read once per list, not per row.",
+    "window": "§18.4, simai/ui-pro#2: window: true. From 300 rows (quality profile 1.3.6-1 window_from_entries) the table draws the rows in view and 20 more on each side, between two spacer rows of the rest's height; aria-rowcount and aria-rowindex keep the whole count. The range follows any scroll box and the page, and is reported as the fact window {first, last}. The arrows, Home and End move between all rows, drawing an undrawn one first. One changed row (updateRowByKey) is drawn again in place and measures no width.",
+    "cells": "§18.4: a cell that only shows a value is class markup: the row's box is the checkbox's class markup over a native input, the row menu the icon button's class markup over a native button, a value a span. A row's template is composed once per arrangement of its cells, so a drawn row holds no Lit marker per cell: 27 nodes a row where it held 108. Host components, typed values, links, trees and editable cells keep the full renderer.",
+    "item-shape": "rows is the vocabulary's items: {id, revision, <column key>…} with entries {key: id, changes: revision}; columns names key and label; sort is [{key, direction}] (vocabulary 1.1.5 §2.1), the host's echo, controlled. The other list settings (bulk-actions, create-items, filter-fields, active-filter-fields, templates, toolbar-actions, table-data, table-settings) are the properties their set-<name> helpers always wrote (x-todo setter).",
+    "settings-not-taken": "items, message, search, filters, views and saved-view of the converter's x-target are not added: the data view holds the query and the host's words, and rows already is the list. A table placed by an assembly binds rows, columns, sort and current.",
+    "carries": "a carried field is one the detail holds under that very name (SF.Assembly checks it at load and on every event, §4.10); camelCase fields beside them are named in x-detail.",
+    "state": "the data state is the setting data-state with the vocabulary's ready (populated read as its alias, gate 26); the value state is not declared, because the Smart base's public state is its render store until §16.7 renames it.",
+    "reserved-name": "sfPortInput stays the composition router's entry and is not part of this interface (§3.1: no sf names).",
+    "actions": "the actions answer outcomes and take their parameters as one object or positionally (§4.4); focus-row {id} is new. tree-column-key, a reader, is not an action. setters stay helpers.",
+    "persistence": "the person's column settings and view are kept by the host (save) and, without one, in SF.Preferences under preferences-key or table-settings-key; nothing is a persisted key of an assembly (§7.5).",
+    "key-effects": "the host: Tab reaches the table, Escape closes its open menu; a row: ArrowDown, ArrowUp, Home, End move the focus, Enter opens the record, Space marks the row.",
+    "a11y": "role grid named by aria-label; a windowed table keeps aria-rowcount and each row's aria-rowindex; the open row carries aria-current.",
+    "template": "templates.default names the Lit template js/templates/default.js, the migration form §5.2 allows; skeleton.html is the static first paint, one row per pagination-page-size.",
+    "css-variables": "the six public variables the sheet already reads; per-state colours of a selected and a current row are a later look pass (§6).",
+    "examples": "examples.json from studio.fixture.json plus loading, empty, current and many; probe.json drives the window, the box, apply, the keys, the search alias, current and one changed row (gate 16, gate 17).",
+    "side-effects": "network: a filter field whose options come from an endpoint is read page by page with fetch (same origin, the field's own URL, aborted with the menu); nothing else leaves the page.",
+    "docs": "docs/docs.md, where the folder keeps it."
+  }
+}

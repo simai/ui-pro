@@ -26,7 +26,7 @@ function table() {
         events: [],
         state: {createItems: [], toolbarActions: [], sort: {key: null, direction: null}},
         set(patch) { Object.assign(this.state, patch); return this; },
-        dispatchTableEvent(name, detail) { this.events.push({name, detail}); return this; },
+        emitTableEvent(name, detail) { this.events.push({name: `sf-table-${name}`, detail}); return true; },
         setCreateItems, requestCreateIntent, getSort, setSort, toggleSort,
         setToolbarActions, getToolbarActions, isSameSiteHref,
     };
@@ -38,8 +38,8 @@ test('create button and menu items emit a create intent with the chosen item', (
     owner.setCreateItems([{id: 'page', name: 'Страница'}, {id: 'folder', name: 'Раздел'}]);
     owner.requestCreateIntent('folder');
     assert.deepEqual(owner.events, [
-        {name: 'sf-table-create-intent', detail: {item: null}},
-        {name: 'sf-table-create-intent', detail: {item: 'folder'}},
+        {name: 'sf-table-create', detail: {item: null}},
+        {name: 'sf-table-create', detail: {item: 'folder'}},
     ]);
     assert.ok(Object.isFrozen(owner.events[1].detail));
     assert.throws(() => owner.requestCreateIntent('unknown'), TypeError);
@@ -106,7 +106,7 @@ test('headers expose aria-sort and a native button for sortable columns', () => 
 
 test('template Apply emits template-select only when the selected template changes', () => {
     assert.match(source, /selectedKey = selectedTemplate\?\.key && selectedTemplate\.key !== previousKey/);
-    assert.match(source, /this\.dispatchTableEvent\('sf-table-template-select',\s*Object\.freeze\(\{key: selectedKey\}\)\)/);
+    assert.match(source, /this\.emitTableEvent\('template-select',\s*Object\.freeze\(\{key: selectedKey\}\)\)/);
 });
 
 // A heading is dragged with SF.Sortable.attach (owner, 2026-10-13), which
@@ -159,7 +159,7 @@ test('drawer events bubble, and on* helpers keep only their own drawer events', 
 
 test('deleting saved templates on Apply raises one delete intent per template', () => {
     assert.match(source, /deletedKeys = filter\.templates\s*\n\s*\.filter\(\(template\) => template\.deleted && template\.key\)/);
-    assert.match(source, /for \(const key of deletedKeys\) \{\s*this\.dispatchTableEvent\('sf-table-template-delete', Object\.freeze\(\{key\}\)\);/);
+    assert.match(source, /for \(const key of deletedKeys\) \{\s*this\.emitTableEvent\('template-delete', Object\.freeze\(\{key\}\)\);/);
 });
 
 test('two tables on one page share no id, no settings key and no portal', () => {
@@ -215,7 +215,7 @@ test('the toolbar actions are the host list, and nothing without one', () => {
     assert.doesNotMatch(template, /menu: 'table-settings'/u);
     // The event names the action, and an href item goes there unless the host
     // takes the navigation over.
-    assert.match(source, /new CustomEvent\('sf-table-toolbar-action', \{[\s\S]*?cancelable: true/u);
+    assert.match(source, /this\.emitTableEvent\('toolbar-action', [\s\S]*?\{cancelable: true\}\)/u);
     assert.match(source, /if \(allowed && action\.href && this\.isSameSiteHref\(action\.href\)\)/u);
     assert.match(source, /case 'toolbar-actions':\s*\n\s*return this\.renderToolbarActionsContextMenu\(data\)/u);
 });

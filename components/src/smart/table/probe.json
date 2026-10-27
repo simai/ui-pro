@@ -1,0 +1,259 @@
+{
+  "component": "sf-table",
+  "probe": "sf-table against component.json (standard simai.smart-component 1.3.8 §12, gate 20; §18.4 many entries)",
+  "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is the SIMAI Framework's tests/browser/manifest-probes.browser.mjs through tests/browser/package-manifest-probes.browser.mjs",
+  "page": {
+    "lang": "ru",
+    "body": [
+      "<main style=\"width: 1100px\">",
+      "  <sf-table id=\"t\" aria-label=\"Записи\" table-settings-key=\"probe.table\"></sf-table>",
+      "</main>"
+    ]
+  },
+  "probes": [
+    {
+      "id": "p1-window",
+      "title": "1 000 rows: only the rows in view and a margin are drawn, at most thirty nodes a row; a scroll moves the window and sf-table-window reports it",
+      "covers": "§18.4 window, gate 17 nodes per entry, events.window",
+      "steps": [
+        {
+          "script": "(() => { const t = document.getElementById('t'); t.setColumns([{key: 'title', label: 'Название', sortable: true}, {key: 'status', label: 'Статус'}, {key: 'amount', label: 'Сумма', type: 'number'}]); t.setRows(Array.from({length: 1000}, (_, i) => ({id: String(i + 1), title: 'Запись ' + (i + 1), status: ['active', 'done'][i % 2], amount: i * 3, revision: 'r1', actions: ['view', 'publish']}))); return true; })()",
+          "wait": 900,
+          "check": "(() => { const t = document.getElementById('t'); const drawn = t.querySelectorAll('tbody tr[data-row-id]').length; const body = t.querySelector('tbody'); let nodes = 0; const w = document.createTreeWalker(body, NodeFilter.SHOW_ALL); while (w.nextNode()) nodes++; return drawn > 10 && drawn <= 100 && t.querySelector('table').getAttribute('aria-rowcount') === '1001' && nodes / drawn <= 30; })()"
+        },
+        {
+          "script": "(() => { const t = document.getElementById('t'); window.__windows = []; t.addEventListener('sf-table-window', (event) => window.__windows.push(event.detail)); const row = t.querySelector('tbody tr[data-row-id]').getBoundingClientRect().height; window.scrollTo({top: t.querySelector('tbody').getBoundingClientRect().top + window.scrollY + row * 500, behavior: 'instant'}); return true; })()",
+          "wait": 800,
+          "check": "(() => { const t = document.getElementById('t'); const seen = [...t.querySelectorAll('tbody tr[data-row-id]')].map((row) => Number(row.dataset.rowId)); const last = window.__windows.at(-1); return window.__windows.length >= 1 && last.first > 300 && !seen.includes(1) && seen.length <= 100 && seen.every((id) => id - 1 >= last.first && id - 1 <= last.last); })()"
+        }
+      ]
+    },
+    {
+      "id": "p2-select",
+      "title": "a row's box: sf-table-select {ids} once, the composition port's sf-port-output once after it with its old detail, noted with its dates",
+      "covers": "events.select, values.selection, aliases sf-port-output, §18.4 a box is class markup",
+      "steps": [
+        {
+          "script": "(() => { const t = document.getElementById('t'); t.setColumns([{key: 'title', label: 'Название', sortable: true}, {key: 'status', label: 'Статус'}, {key: 'amount', label: 'Сумма', type: 'number'}]); t.setRows(Array.from({length: 3}, (_, i) => ({id: String(i + 1), title: 'Запись ' + (i + 1), status: ['active', 'done'][i % 2], amount: i * 3, revision: 'r1', actions: ['view', 'publish']}))); return true; })()",
+          "wait": 700,
+          "check": "!document.querySelector('#t tbody sf-checkbox') && Boolean(document.querySelector('#t tbody tr[data-row-id=\"2\"] input[data-sf-row-box]'))"
+        },
+        {
+          "user": "click:#t tbody tr[data-row-id=\"2\"] input[data-sf-row-box]",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-table-select",
+                "count": 1,
+                "detail": {
+                  "ids": [
+                    "2"
+                  ]
+                }
+              },
+              {
+                "name": "sf-port-output",
+                "count": 1,
+                "detail": {
+                  "port": "selection",
+                  "value": [
+                    "2"
+                  ]
+                }
+              }
+            ],
+            "values": {
+              "#t.selection": [
+                "2"
+              ]
+            },
+            "journal": [
+              {
+                "from": "sf-port-output",
+                "to": "sf-table-select",
+                "since": "2026-10-27",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          },
+          "check": "document.querySelector('#t tbody tr[data-row-id=\"2\"]').hasAttribute('data-selected')"
+        }
+      ]
+    },
+    {
+      "id": "p3-apply",
+      "title": "request-action-intent answers applied and sends sf-table-apply {action, scope: entry, ids, revisions}; sf-table-action-intent follows with {action_id, record_ids}",
+      "covers": "actions.request-action-intent emits apply, aliases sf-table-action-intent",
+      "steps": [
+        {
+          "script": "(() => { const t = document.getElementById('t'); t.setColumns([{key: 'title', label: 'Название', sortable: true}, {key: 'status', label: 'Статус'}, {key: 'amount', label: 'Сумма', type: 'number'}]); t.setRows(Array.from({length: 3}, (_, i) => ({id: String(i + 1), title: 'Запись ' + (i + 1), status: ['active', 'done'][i % 2], amount: i * 3, revision: 'r1', actions: ['view', 'publish']}))); return true; })()",
+          "wait": 700
+        },
+        {
+          "action": {
+            "name": "request-action-intent",
+            "with": {
+              "action-id": "publish",
+              "record-ids": [
+                "3"
+              ]
+            }
+          },
+          "target": "#t",
+          "expect": {
+            "returns": {
+              "outcome": "applied"
+            },
+            "events": [
+              {
+                "name": "sf-table-apply",
+                "count": 1,
+                "detail": {
+                  "action": "publish",
+                  "scope": "entry",
+                  "ids": [
+                    "3"
+                  ],
+                  "revisions": {
+                    "3": "r1"
+                  }
+                }
+              },
+              {
+                "name": "sf-table-action-intent",
+                "count": 1,
+                "detail": {
+                  "action_id": "publish",
+                  "record_ids": [
+                    "3"
+                  ]
+                }
+              }
+            ],
+            "journal": [
+              {
+                "from": "sf-table-action-intent",
+                "to": "sf-table-apply"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p4-keys",
+      "title": "the arrows, Home and End move between rows; End reaches the last of 1 000 rows, which is drawn first",
+      "covers": "keyboard.row ArrowDown focus:next, ArrowUp focus:prev, Home focus:first, End focus:last",
+      "steps": [
+        {
+          "script": "(() => { const t = document.getElementById('t'); t.setColumns([{key: 'title', label: 'Название', sortable: true}, {key: 'status', label: 'Статус'}, {key: 'amount', label: 'Сумма', type: 'number'}]); t.setRows(Array.from({length: 1000}, (_, i) => ({id: String(i + 1), title: 'Запись ' + (i + 1), status: ['active', 'done'][i % 2], amount: i * 3, revision: 'r1', actions: ['view', 'publish']}))); return true; })()",
+          "wait": 900
+        },
+        {
+          "script": "(document.querySelector('#t tbody tr[data-row-id=\"1\"]').focus(), true)",
+          "wait": 100
+        },
+        {
+          "user": "keyboard:ArrowDown",
+          "wait": 200,
+          "check": "document.activeElement?.dataset?.rowId === '2'"
+        },
+        {
+          "user": "keyboard:ArrowUp",
+          "wait": 200,
+          "check": "document.activeElement?.dataset?.rowId === '1'"
+        },
+        {
+          "user": "keyboard:End",
+          "wait": 900,
+          "check": "document.activeElement?.dataset?.rowId === '1000' && document.activeElement.getAttribute('aria-rowindex') === '1001'"
+        },
+        {
+          "user": "keyboard:Home",
+          "wait": 900,
+          "check": "document.activeElement?.dataset?.rowId === '1'"
+        }
+      ]
+    },
+    {
+      "id": "p5-search",
+      "title": "a cleared search is sf-table-search-change {search}; onSearchEnd follows once with the text as its detail, noted",
+      "covers": "events.search-change, aliases onSearchEnd (simai/ui-pro#1)",
+      "steps": [
+        {
+          "script": "(() => { const t = document.getElementById('t'); t.setColumns([{key: 'title', label: 'Название', sortable: true}, {key: 'status', label: 'Статус'}, {key: 'amount', label: 'Сумма', type: 'number'}]); t.setRows(Array.from({length: 3}, (_, i) => ({id: String(i + 1), title: 'Запись ' + (i + 1), status: ['active', 'done'][i % 2], amount: i * 3, revision: 'r1', actions: ['view', 'publish']}))); return true; })()",
+          "wait": 700
+        },
+        {
+          "script": "(document.getElementById('t').resetQuery('search'), true)",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-table-search-change",
+                "count": 1,
+                "detail": {
+                  "search": ""
+                }
+              },
+              {
+                "name": "onSearchEnd",
+                "count": 1
+              }
+            ],
+            "journal": [
+              {
+                "from": "onSearchEnd",
+                "to": "sf-table-search-change"
+              }
+            ]
+          },
+          "check": "window.__heard.find((one) => one.name === 'onSearchEnd')?.detail === ''"
+        }
+      ]
+    },
+    {
+      "id": "p6-current",
+      "title": "current marks the open row with aria-current, sends nothing and moves no focus",
+      "covers": "settings.current",
+      "steps": [
+        {
+          "script": "(() => { const t = document.getElementById('t'); t.setColumns([{key: 'title', label: 'Название', sortable: true}, {key: 'status', label: 'Статус'}, {key: 'amount', label: 'Сумма', type: 'number'}]); t.setRows(Array.from({length: 3}, (_, i) => ({id: String(i + 1), title: 'Запись ' + (i + 1), status: ['active', 'done'][i % 2], amount: i * 3, revision: 'r1', actions: ['view', 'publish']}))); return true; })()",
+          "wait": 700
+        },
+        {
+          "script": "(document.getElementById('t').current = '2', true)",
+          "wait": 300,
+          "expect": {
+            "events": [
+              {
+                "name": "sf-table-select",
+                "count": 0
+              },
+              {
+                "name": "sf-table-apply",
+                "count": 0
+              }
+            ]
+          },
+          "check": "document.querySelector('#t tbody tr[data-row-id=\"2\"]').getAttribute('aria-current') === 'true' && document.getElementById('t').getAttribute('current') === '2' && !document.querySelector('#t tbody tr[data-row-id=\"1\"]').hasAttribute('aria-current')"
+        }
+      ]
+    },
+    {
+      "id": "p7-one-row",
+      "title": "one row changed is drawn again in place: the same element, the new text",
+      "covers": "§18.4 one entry redrawn in place, gate 17",
+      "steps": [
+        {
+          "script": "(() => { const t = document.getElementById('t'); t.setColumns([{key: 'title', label: 'Название', sortable: true}, {key: 'status', label: 'Статус'}, {key: 'amount', label: 'Сумма', type: 'number'}]); t.setRows(Array.from({length: 1000}, (_, i) => ({id: String(i + 1), title: 'Запись ' + (i + 1), status: ['active', 'done'][i % 2], amount: i * 3, revision: 'r1', actions: ['view', 'publish']}))); return true; })()",
+          "wait": 900
+        },
+        {
+          "script": "(() => { window.__row = document.querySelector('#t tbody tr[data-row-id=\"3\"]'); document.getElementById('t').updateRowByKey('id', '3', {title: 'Изменено', revision: 'r2'}); return true; })()",
+          "wait": 300,
+          "check": "document.querySelector('#t tbody tr[data-row-id=\"3\"]') === window.__row && window.__row.textContent.includes('Изменено')"
+        }
+      ]
+    }
+  ]
+}

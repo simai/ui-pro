@@ -15,7 +15,7 @@ test('page language: no package component falls back to Russian', async () => {
     'src/smart/admin-menu/index.js': [/pageText\(MENU_TRANSLATIONS, key, node/],
     // The list spoke only Russian until 2026-10-10, so an English page came out
     // a patchwork: a record panel that had switched above a toolbar that had not.
-    'src/smart/table/index.js': [/const TABLE_TEXT = \{/, /pageText\(TABLE_TEXT, key, this\)/],
+    'src/smart/table/index.js': [/const TABLE_TEXT = \{\n    en: camelWords\(en\.runtime\),/, /pageText\(TABLE_TEXT, key, this\)/],
     'src/smart/data-view/index.js': [/pageText\(DATA_VIEW_TEXT, "\w+", this\)/],
     'src/smart/admin-menu/js/templates/default.js': [/documentElement\?\.lang \|\| "en"/],
   };

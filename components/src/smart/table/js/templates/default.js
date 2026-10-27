@@ -623,6 +623,50 @@ function renderLinkCell(value) {
 }
 
 
+// A row's markup, composed per arrangement of its cells (standard 1.3.8
+// §18.4, simai/ui-pro#2). A row of plain cells is one Lit template with no
+// part per cell: its strings are made once for each sequence of cell kinds
+// (a box, the row menu, a text, an empty cell, a full cell) and kept, so Lit
+// parses each arrangement once and a drawn row holds no marker per cell --
+// about twenty-five nodes where a template per cell held forty-six. The
+// fragments are fixed; a cell's values are bound, never written as HTML.
+// This is the migration form (§16) until template.html is compiled.
+const ROW_HOLE = Symbol("row-hole");
+const ROW_STRINGS = new Map();
+function rowStrings(kinds) {
+    const signature = kinds.join("|");
+    const known = ROW_STRINGS.get(signature);
+    if (known) return known;
+    const pieces = ['<tr data-selected=', ROW_HOLE, ' draggable=', ROW_HOLE, ' aria-level=', ROW_HOLE,
+        ' aria-expanded=', ROW_HOLE, ' aria-setsize=', ROW_HOLE, ' aria-posinset=', ROW_HOLE, ' aria-busy=', ROW_HOLE,
+        ' aria-rowindex=', ROW_HOLE, ' data-row-id=', ROW_HOLE, ' data-current=', ROW_HOLE, ' aria-current=', ROW_HOLE,
+        ' tabindex="-1" @mousedown=', ROW_HOLE, ' @click=', ROW_HOLE, ' @dblclick=', ROW_HOLE, ' @keydown=', ROW_HOLE, '>'];
+    for (const kind of kinds) {
+        pieces.push('<td data-key=', ROW_HOLE, ' data-item=', ROW_HOLE, ' data-sf-pinned=', ROW_HOLE, ' style=', ROW_HOLE, '>');
+        if (kind === 'box') {
+            pieces.push('<label class=', ROW_HOLE, '><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value=', ROW_HOLE,
+                ' .checked=', ROW_HOLE, ' aria-label=', ROW_HOLE, ' @change=', ROW_HOLE, '></span></label>');
+        } else if (kind === 'menu') {
+            pieces.push('<button type="button" class=', ROW_HOLE, ' aria-label=', ROW_HOLE, ' value="menu" data-sf-row-menu @click=', ROW_HOLE,
+                '><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button>');
+        } else if (kind === 'text') {
+            pieces.push('<span class=', ROW_HOLE, ' title=', ROW_HOLE, ' .textContent=', ROW_HOLE, '></span>');
+        } else if (kind === 'node') {
+            pieces.push(ROW_HOLE);
+        }
+        pieces.push('</td>');
+    }
+    pieces.push('</tr>');
+    const strings = [''];
+    for (const piece of pieces) {
+        if (piece === ROW_HOLE) strings.push('');
+        else strings[strings.length - 1] += piece;
+    }
+    const made = Object.freeze(Object.assign(strings, {raw: Object.freeze(strings.slice())}));
+    ROW_STRINGS.set(signature, made);
+    return made;
+}
+
 export function renderTableTemplate(context) {
     const {state} = context.component;
 
@@ -789,36 +833,76 @@ export function renderTableTemplate(context) {
     // repeat, not keyed: a sort moves the rows it already drew. keyed at each
     // position redrew every row and every value in it when the order changed --
     // four hundred elements for one click (owner, 2026-10-15).
+    //
+    // Many entries (standard simai.smart-component 1.3.8 §18.4, gate 17;
+    // simai/ui-pro#2). From the quality profile's threshold on (300 rows) the
+    // table draws only the rows in view and a margin, with one spacer row
+    // above and one below holding the height of the rest; the component keeps
+    // the range (windowSlice) and moves it with the scroll. A cell that only
+    // shows a value is class markup: the row's box is the checkbox's class
+    // markup over a native input, the row's menu the icon button's class
+    // markup over a native button, and text a span -- no Smart element per
+    // cell, so a row is about twenty-five nodes instead of a hundred and eight.
     function renderRows(context, columns, rows, {busy = false} = {}) {
-        const treeColumn = context.component.treeColumnKey?.(columns);
+        const component = context.component;
+        const treeColumn = component.treeColumnKey?.(columns);
         const titleColumn = columns.find((column) => column?.role === 'title' && !column.system)?.key ?? null;
-        return html`
-            <tbody data-busy=${busy ? '' : nothing}>
-            ${repeat(rows, (row, rowIndex) => (row.__tree?.more ? `more:${row.id}` : `row:${row.id ?? row.value ?? rowIndex}`), (row, rowIndex) => row.__tree?.more ? renderMoreRow(context, columns, row) : html`
-                <tr data-selected=${row.select?.component?.props?.checked === true ? '' : nothing}
-                    draggable=${(context.component.hasAttribute('drag-rows') || context.component.getAttribute('row-reorder') === 'true') && !row.__tree?.more ? 'true' : nothing}
-                    aria-level=${row.__tree ? String(row.__tree.level + 1) : nothing}
-                    aria-expanded=${row.__tree?.hasChildren ? String(row.__tree.expanded === true) : nothing}
-                    aria-setsize=${row.__tree ? String(row.__tree.setsize) : nothing}
-                    aria-posinset=${row.__tree ? String(row.__tree.posinset) : nothing}
-                    aria-busy=${row.__tree?.loading ? 'true' : nothing}
-                    data-row-id=${context.component.getRowKey(row, rowIndex)}
-                    data-current=${context.component.isCurrentRow(row, rowIndex) ? '' : nothing}
-                    tabindex="-1"
-                    @mousedown=${(event) => context.component.handleRowPointerDown(event)}
-                    @click=${(event) => context.component.handleRowClick(event, row, rowIndex)}
-                    @dblclick=${(event) => context.component.handleRowOpen(event, row)}
-                    @keydown=${(event) => context.component.handleRowKeydown(event, row)}>
-                    ${repeat(columns, (column) => `cell:${column.key}`, (column, index) => html`
-                        <td data-key="${column.key}" data-item="${row.id}_${column.key}"
-                            data-sf-pinned=${context.component.isPinnedColumn(column) ? '' : nothing}
-                            style=${context.component.getStickyCellStyle(columns, index) || nothing}>${column.key === treeColumn
-                                ? renderTreeCell(context, row, column.key === titleColumn ? renderTitleLink(context, row, renderCellValue(row, column)) : renderCellValue(row, column))
-                                : column.key === titleColumn ? renderTitleLink(context, row, renderCellValue(row, column)) : renderCellValue(row, column)}</td>
-                    `)}
-                </tr>
-            `)}
-            </tbody>`;
+        const slice = component.windowSlice?.(rows) ?? null;
+        const shown = slice ? rows.slice(slice.first, slice.last + 1) : rows;
+        const offset = slice ? slice.first : 0;
+        const span = String(Math.max(columns.length, 1));
+        const draggable = (component.hasAttribute('drag-rows') || component.getAttribute('row-reorder') === 'true');
+        const sticky = columns.map((column, index) => component.getStickyCellStyle(columns, index) || nothing);
+        const pinned = columns.map((column) => (component.isPinnedColumn(column) ? '' : nothing));
+        // The stripes are nth-child: a spacer of no height keeps the parity of
+        // the drawn rows the parity they have in the whole list.
+        const spacer = (height, key) => html`<tr class="sf-table-window-spacer" aria-hidden="true" data-sf-window-spacer=${key}><td colspan=${span} style=${`block-size: ${Math.max(0, Math.round(height))}px`}></td></tr>`;
+        const fullCell = (row, column) => (column.key === treeColumn
+            ? renderTreeCell(context, row, column.key === titleColumn ? renderTitleLink(context, row, renderCellValue(row, column)) : renderCellValue(row, column))
+            : column.key === titleColumn ? renderTitleLink(context, row, renderCellValue(row, column)) : renderCellValue(row, column));
+        const renderRow = (row, at) => {
+            const index = at + offset;
+            const current = component.isCurrentRow(row, index);
+            const kinds = [];
+            const values = [
+                row.select?.component?.props?.checked === true ? '' : nothing,
+                draggable && !row.__tree?.more ? 'true' : nothing,
+                row.__tree ? String(row.__tree.level + 1) : nothing,
+                row.__tree?.hasChildren ? String(row.__tree.expanded === true) : nothing,
+                row.__tree ? String(row.__tree.setsize) : nothing,
+                row.__tree ? String(row.__tree.posinset) : nothing,
+                row.__tree?.loading ? 'true' : nothing,
+                slice ? String(index + 2) : nothing,
+                component.getRowKey(row, index),
+                current ? '' : nothing,
+                current ? 'true' : nothing,
+                component.rowPointerDown,
+                (event) => component.handleRowClick(event, row, index),
+                (event) => component.handleRowOpen(event, row),
+                (event) => component.handleRowKeydown(event, row),
+            ];
+            columns.forEach((column, cellIndex) => {
+                const mark = component.rowMarkupCell?.(row, column) ?? null;
+                values.push(column.key, `${row.id}_${column.key}`, pinned[cellIndex], sticky[cellIndex]);
+                if (mark?.kind === 'box') {
+                    kinds.push('box');
+                    values.push(`sf-checkbox sf-checkbox--size-${mark.size} flex content-main-between cursor-pointer`, mark.value, mark.checked, mark.label, mark.change);
+                } else if (mark?.kind === 'menu') {
+                    kinds.push('menu');
+                    values.push(`sf-icon-button sf-icon-button--size-${mark.size} sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface`, mark.label, mark.click);
+                } else if (mark?.kind === 'text') {
+                    kinds.push('text');
+                    values.push(mark.className, mark.title ?? nothing, mark.text);
+                } else if (mark?.kind === 'empty') {
+                    kinds.push('empty');
+                } else {
+                    kinds.push('node');
+                    values.push(fullCell(row, column));
+                }
+            });
+            return html(rowStrings(kinds), ...values);
+        };
+        return html`<tbody data-busy=${busy ? '' : nothing} data-sf-window=${slice ? `${slice.first}-${slice.last}` : nothing}>${slice ? spacer(slice.before, 'before') : nothing}${slice && slice.first % 2 === 0 ? spacer(0, 'parity') : nothing}${repeat(shown, (row, at) => (row.__tree?.more ? `more:${row.id}` : `row:${row.id ?? row.value ?? (at + offset)}`), (row, at) => (row.__tree?.more ? renderMoreRow(context, columns, row) : renderRow(row, at)))}${slice ? spacer(slice.after, 'after') : nothing}</tbody>`;
     }
 
     // The first cell of a tree row: indented by its level, with the button that
@@ -1085,6 +1169,7 @@ export function renderTableTemplate(context) {
                             class="table border-separate border-spacing-0 min-w-full ${context.component?.hasContentWidths ? 'sf-table-content-sized' : 'w-max'} table-fixed transition"
                             role=${context.component.isTree?.() ? 'treegrid' : nothing}
                             aria-label=${context.ariaLabel || nothing}
+                            aria-rowcount=${context.component.windowRowCount?.() ?? nothing}
                     >
                         ${renderColgroup(context)}
                         ${renderHead(context)}

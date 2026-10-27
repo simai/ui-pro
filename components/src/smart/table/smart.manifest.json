@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "title": "Data view",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -363,6 +363,11 @@
         "type": "boolean",
         "default": false,
         "description": "A boolean cell the record names in `editable` is a checkbox; pressing it emits sf-table-cell-set {id, key, value, revision} and the cell waits for the host. A data view sets it when the host offers inline-edit."
+      },
+      "current": {
+        "type": "string",
+        "default": "",
+        "description": "The id of the row the page has open: that row carries aria-current and data-current. Writing it marks the row; it does not focus it and sends no event (component.json settings.current)."
       }
     }
   },
@@ -1476,6 +1481,173 @@
           "revision": {}
         }
       }
+    },
+    "sf-table-apply": {
+      "summary": "A row's or the selection's action, vocabulary §5 apply: {action, scope: entry | selection, ids, revisions}. The host decides; emission is not success. The old name sf-table-action-intent follows once with its old detail until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "action",
+          "scope",
+          "ids"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "entry",
+              "selection",
+              "filter"
+            ]
+          },
+          "ids": {
+            "type": "array"
+          },
+          "revisions": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-select": {
+      "summary": "The marked rows changed, vocabulary §5 select {ids}: once per change of the explicit selection, clearing included. The old name sf-port-output follows once with its old detail until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-save": {
+      "summary": "The person's column settings, vocabulary §5 save {kind: columns, reason, columnSettings, tableSettingsKey}. The old name sf-table-column-settings-change follows once with its old detail until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "const": "columns"
+          },
+          "columnSettings": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-create": {
+      "summary": "The create button or one of its kinds, vocabulary §5 create {item}. The old name sf-table-create-intent follows once with its old detail until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "item": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-query": {
+      "summary": "A context query of the composition input port, vocabulary §5.1 query {reason, context, sequence}. The old name sf-table-query-intent follows once with its old detail until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "sequence": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-refresh": {
+      "summary": "The retry button of a failed list, vocabulary §5 refresh. The old name sf-table-retry follows once with its old detail until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    "sf-table-expand": {
+      "summary": "A tree row opened or closed, vocabulary §5 expand {id, expanded}. The old name sf-table-tree-toggle follows once with its old detail until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {},
+          "expanded": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-load-more": {
+      "summary": "The next page of a tree level, vocabulary §5 load-more {direction: after, parent, cursor}. The old name sf-table-tree-more follows once with its old detail until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "direction": {
+            "const": "after"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-move": {
+      "summary": "Rows put in another order, vocabulary §5 move {ids, before, order}. The old name sf-table-rows-reorder follows once with its old detail until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-window": {
+      "summary": "The rows drawn of a long list changed (standard 1.3.8 §18.4): {first, last}, row indexes in the list.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "first",
+          "last"
+        ],
+        "properties": {
+          "first": {
+            "type": "integer"
+          },
+          "last": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": true
+      }
     }
   },
   "state": {
@@ -1826,6 +1998,15 @@
         "changes": [
           "Add row-actions: row-actions=\"false\" hides the row action column while actions keeps the create button, for hosts whose row menu is the only entry to a row's actions."
         ]
+      },
+      {
+        "from": "1.9.0",
+        "to": "1.10.0",
+        "changes": [
+          "From component.json (standard simai.smart-component 1.3.8): events by the vocabulary's verbs -- sf-table-apply, -select, -save, -create, -query, -refresh, -expand, -load-more, -move -- with the old names as dated aliases until 2026-12-01 (aliases.json); onSearchEnd, onTemplateSave, onFilterUpdate, onColumnSettingsChange and sf-table:column-settings-change follow once each, noted in SF.deprecations.",
+          "Many entries (§18.4, simai/ui-pro#2): from 300 rows only the rows in view and a margin are drawn, reported as sf-table-window {first, last}; a plain cell is class markup; one changed row is redrawn in place.",
+          "The data state ready, populated its alias; current marks the open row (aria-current); actions answer outcomes."
+        ]
       }
     ]
   },
@@ -1835,15 +2016,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "b4948eec8ad5ab61f906442ab67d96b7ba0c8f997c973c62438636530d0221d6"
+        "sha256": "1e63911808ffe84f37c836defecb593116d02d237787eee010491fc1c50f65a5"
       },
       {
         "path": "src/smart/table/js/templates/default.js",
-        "sha256": "572f833e11dc4b2f7a6134381168678a8f3ae9bce78d1a7422c10e3db821fa80"
+        "sha256": "ed693d211775dea9f022a60032ee9fad60696154a9a2bd59039eff9f0308d006"
       },
       {
         "path": "src/smart/table/js/templates/default.css",
-        "sha256": "83c01b7c6548e64346ff44bebbabd45d895762f93fbcee036dec5412a2ad889f"
+        "sha256": "ffa0481584cdfed3ae98d17f7cd63396ec3aefa0846ec5ae33847c314259c0d5"
       },
       {
         "path": "src/smart/helpers/option-badge.js",
