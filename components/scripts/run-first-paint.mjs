@@ -2,25 +2,28 @@
 // Usage: node scripts/run-first-paint.mjs snapshot|check|gate <free output> <package output> [folder ...] [--overlay <directory>]
 //
 // The first paint of the package components (standard simai.smart-component
-// 1.3.8 §5.4, §7.3, gate 24), with ui-source's own tools at the pinned
+// 1.3.9 §5.4, §7.3, gate 24), with ui-source's own tools at the pinned
 // revision, from the overlay:
 //
 //   snapshot  scripts/snapshot-first-paint.mjs: renders every example from the
 //             built bytes and writes src/smart/<folder>/static/ here (the
 //             static markup, the skeletons, static/sheets.json);
-//   check     the same with --check: fails when a committed snapshot is stale
-//             or missing;
+//   check     the same with --check: fails when a committed snapshot is stale,
+//             missing or over its size;
 //   gate      tests/browser/first-paint-gate.browser.mjs: the first paint
-//             holds still through the HTML and sheets, the code and the data,
-//             at 1280 and 390 px.
+//             holds still through the HTML and sheets, the code and the data
+//             (late settings, or the fake port an example declares), at 1280
+//             and 390 px.
 //
-// The free tools' page declares no package; this script gives their shared
-// library the one line that does (SF_BOOT_CONFIG.packages.larena), in copies
-// beside them in the overlay, and refuses to run when that line is not where
-// it was (the tools moved on and this script must follow). The outputs are
-// combined as scripts/run-manifest-probes.mjs combines them.
+// The tools take the package as a declaration (ui-source first-paint-lib.mjs
+// readConfig, since c020caa): this script writes it -- the package output
+// served under /distr/smart/ after the free output, as the package's sheets
+// address the free ones beside them -- and passes --config. Nothing of the
+// tools is copied or edited. <free output> is a product output root
+// (core/core, smart/smart, ...) or the `distr` of the ui distribution; a
+// distr is laid out as a product root with symbolic links.
 import {spawnSync} from 'node:child_process';
-import {cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync} from 'node:fs';
+import {cpSync, existsSync, mkdirSync, rmSync, symlinkSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {PACKAGE_COMPONENTS, PACKAGE_ROOT, materializeOverlay} from './overlay.mjs';
 
@@ -35,53 +38,30 @@ const free = resolve(freeInput);
 const built = resolve(packageInput);
 if (!existsSync(join(built, 'smart', 'rule.js'))) throw new Error(`the package output has no smart/rule.js: ${built}`);
 if (!existsSync(overlay)) materializeOverlay(overlay);
+if (!existsSync(join(overlay, 'scripts', 'first-paint-lib.mjs'))) throw new Error(`${overlay} holds no ui-source first-paint tools`);
 const own = folders.length ? folders : PACKAGE_COMPONENTS;
 for (const folder of own) if (!PACKAGE_COMPONENTS.includes(folder)) throw new Error(`${folder} is not a package component`);
 
-// One output root in the product layout, the package inside smart/smart.
-const products = {core: ['core', 'core'], rule: ['core', 'rule'], component: ['component', 'component'], smart: ['smart', 'smart'], utility: ['utility', 'utility']};
-const layout = existsSync(join(free, 'core', 'core', 'js', 'core.js')) ? 'product' : existsSync(join(free, 'core', 'js', 'core.js')) ? 'distr' : '';
-if (!layout) throw new Error(`no core/js/core.js under ${free} (a product output root or a ui distr)`);
-const combined = join(overlay, '.first-paint-output');
-rmSync(combined, {force: true, recursive: true});
-for (const [product, [folder, inner]] of Object.entries(products)) {
-  const from = layout === 'product' ? join(free, folder, inner) : join(free, product);
-  if (!existsSync(from)) throw new Error(`the free output has no ${product}: ${free}`);
-  mkdirSync(join(combined, folder), {recursive: true});
-  if (product === 'smart') cpSync(from, join(combined, folder, inner), {recursive: true});
-  else symlinkSync(from, join(combined, folder, inner));
-}
-for (const entry of readdirSync(join(built, 'smart'))) {
-  const destination = join(combined, 'smart', 'smart', entry);
-  if (existsSync(destination)) throw new Error(`the package output would replace the free smart/${entry}`);
-  cpSync(join(built, 'smart', entry), destination, {recursive: true});
-}
-
-// The free tools, their library declaring the package.
-const copy = (from, to, replacements) => {
-  let text = readFileSync(join(overlay, from), 'utf8');
-  for (const [anchor, next] of replacements) {
-    if (text.split(anchor).length !== 2) throw new Error(`${from}: "${anchor.slice(0, 60)}" moved; this script must follow it`);
-    text = text.replace(anchor, () => next);
+// The free output as a product root: as given, or a distr linked into one.
+let root = free;
+if (!existsSync(join(free, 'core', 'core', 'js', 'core.js'))) {
+  if (!existsSync(join(free, 'core', 'js', 'core.js'))) throw new Error(`no core/js/core.js under ${free} (a product output root or a ui distr)`);
+  root = join(overlay, '.first-paint-output');
+  rmSync(root, {force: true, recursive: true});
+  const products = {core: ['core', 'core'], rule: ['core', 'rule'], component: ['component', 'component'], smart: ['smart', 'smart'], utility: ['utility', 'utility']};
+  for (const [product, [folder, inner]] of Object.entries(products)) {
+    if (!existsSync(join(free, product))) throw new Error(`the free output has no ${product}: ${free}`);
+    mkdirSync(join(root, folder), {recursive: true});
+    symlinkSync(join(free, product), join(root, folder, inner));
   }
-  writeFileSync(join(overlay, to), text);
-};
-copy('scripts/first-paint-lib.mjs', 'scripts/.first-paint-lib.package.mjs', [
-  ["  preloader: {enabled: false},\n};", "  preloader: {enabled: false},\n  packages: {larena: {base: '/distr/smart/'}},\n};"],
-]);
-copy('scripts/first-paint-skeleton.mjs', 'scripts/.first-paint-skeleton.package.mjs', [
-  ["from './first-paint-lib.mjs';", "from './.first-paint-lib.package.mjs';"],
-]);
-copy('scripts/snapshot-first-paint.mjs', 'scripts/.snapshot-first-paint.package.mjs', [
-  ["from './first-paint-lib.mjs';", "from './.first-paint-lib.package.mjs';"],
-  ["from './first-paint-skeleton.mjs';", "from './.first-paint-skeleton.package.mjs';"],
-]);
-copy('tests/browser/first-paint-gate.browser.mjs', 'tests/browser/.first-paint-gate.package.browser.mjs', [
-  ["from '../../scripts/first-paint-lib.mjs';", "from '../../scripts/.first-paint-lib.package.mjs';"],
-]);
+}
 
-const tool = mode === 'gate' ? 'tests/browser/.first-paint-gate.package.browser.mjs' : 'scripts/.snapshot-first-paint.package.mjs';
-const result = spawnSync(process.execPath, [tool, combined, ...own, ...(mode === 'check' ? ['--check'] : [])], {cwd: overlay, stdio: 'inherit'});
+// The package, declared.
+const config = join(overlay, '.first-paint-config.json');
+writeFileSync(config, `${JSON.stringify({packages: {larena: {output: join(built, 'smart'), base: '/distr/smart/'}}}, null, 2)}\n`);
+
+const tool = mode === 'gate' ? 'tests/browser/first-paint-gate.browser.mjs' : 'scripts/snapshot-first-paint.mjs';
+const result = spawnSync(process.execPath, [tool, root, `--config=${config}`, ...own, ...(mode === 'check' ? ['--check'] : [])], {cwd: overlay, stdio: 'inherit'});
 
 // A snapshot is written in the overlay's folders; it belongs to this repository's.
 if (mode === 'snapshot') {

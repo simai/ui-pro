@@ -7,8 +7,15 @@ SF.RuleLoader["cl-table"] = {
   // lazy: rendered later -- filter editors, cell editors, menus -- fetched after the page is ready (2026-10-12).
   relation: [
     { name: "cl-checkbox" },
-    // A colour property draws sf-color in a cell as well as in a card.
-    { name: "cl-color", lazy: true },
+    // The cells drawn with another Smart element come with the table, not
+    // after the rows: a reference (sf-reference-link), a file
+    // (sf-file-preview) and a colour (sf-color, in a cell as well as in a
+    // card). Fetched lazily, each upgraded some 600 ms after the rows had
+    // drawn and moved the row (stand 24: CLS 0.0145 at 1280 when the data
+    // arrived).
+    { name: "cl-reference-link" },
+    { name: "cl-file-preview" },
+    { name: "cl-color" },
     // A string whose variant is a phone draws sf-country-code. The rule fence
     // reads a component's own templates, and this element comes from the shared
     // renderer set instead -- so nothing would have caught its absence until a

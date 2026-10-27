@@ -13,7 +13,170 @@
           "state": "ready"
         }
       },
-      "x-port": "the reference host of ui-admin (src/ports/polygon-host.mjs)"
+      "x-port": "the reference host of ui-admin (src/ports/polygon-host.mjs)",
+      "port": {
+        "capabilities": [
+          "row-actions"
+        ],
+        "answers": {
+          "query.change": {
+            "answer": "applied",
+            "data": {
+              "records": [
+                {
+                  "id": "r-001",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Портал клиента",
+                  "owner": {
+                    "value": "u-1",
+                    "label": "Анна Захарова",
+                    "href": "#u-1"
+                  },
+                  "attachment": {
+                    "value": "f-1",
+                    "label": "договор.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-1"
+                  },
+                  "accent": "#2f6feb"
+                },
+                {
+                  "id": "r-002",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Каталог товаров",
+                  "owner": {
+                    "value": "u-2",
+                    "label": "Илья Петров",
+                    "href": "#u-2"
+                  },
+                  "attachment": {
+                    "value": "f-2",
+                    "label": "схема.png",
+                    "mime": "image/png",
+                    "href": "#f-2"
+                  },
+                  "accent": "#1a7f37"
+                },
+                {
+                  "id": "r-003",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Личный кабинет",
+                  "owner": {
+                    "value": "u-3",
+                    "label": "Мария Соколова",
+                    "href": "#u-3"
+                  },
+                  "attachment": {
+                    "value": "f-3",
+                    "label": "отчёт.docx",
+                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "href": "#f-3"
+                  },
+                  "accent": "#bf3989"
+                },
+                {
+                  "id": "r-004",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Склад",
+                  "owner": {
+                    "value": "u-4",
+                    "label": "Олег Иванов",
+                    "href": "#u-4"
+                  },
+                  "attachment": {
+                    "value": "f-4",
+                    "label": "накладная.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-4"
+                  },
+                  "accent": "#9a6700"
+                },
+                {
+                  "id": "r-005",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Сайт",
+                  "owner": {
+                    "value": "u-5",
+                    "label": "Ирина Белова",
+                    "href": "#u-5"
+                  },
+                  "attachment": {
+                    "value": "f-5",
+                    "label": "логотип.svg",
+                    "mime": "image/svg+xml",
+                    "href": "#f-5"
+                  },
+                  "accent": "#cf222e"
+                }
+              ],
+              "columns": [
+                {
+                  "key": "title",
+                  "label": "Название",
+                  "property_type": "string",
+                  "role": "title"
+                },
+                {
+                  "key": "owner",
+                  "label": "Ответственный",
+                  "property_type": "record"
+                },
+                {
+                  "key": "attachment",
+                  "label": "Файл",
+                  "property_type": "file"
+                },
+                {
+                  "key": "accent",
+                  "label": "Цвет",
+                  "property_type": "color"
+                }
+              ],
+              "total": 5,
+              "echo": {
+                "filters_chosen": {},
+                "filters": {},
+                "filters_rejected": [],
+                "search": "",
+                "sort": [],
+                "page": 1,
+                "per_page": 25
+              },
+              "column_settings": {
+                "layers": {
+                  "personal": {
+                    "revision": "p1",
+                    "columns": {}
+                  }
+                },
+                "target": {
+                  "kind": "personal",
+                  "revision": "p1"
+                }
+              }
+            }
+          },
+          "*": {
+            "answer": "applied"
+          }
+        },
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the rows it answers -- a reference, a file and a colour per row -- draw where the skeleton stood."
+      }
     },
     {
       "name": "embedded",
@@ -25,6 +188,169 @@
       },
       "expect": {
         "name": "Связанные"
+      },
+      "port": {
+        "capabilities": [
+          "row-actions"
+        ],
+        "answers": {
+          "query.change": {
+            "answer": "applied",
+            "data": {
+              "records": [
+                {
+                  "id": "r-001",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Портал клиента",
+                  "owner": {
+                    "value": "u-1",
+                    "label": "Анна Захарова",
+                    "href": "#u-1"
+                  },
+                  "attachment": {
+                    "value": "f-1",
+                    "label": "договор.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-1"
+                  },
+                  "accent": "#2f6feb"
+                },
+                {
+                  "id": "r-002",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Каталог товаров",
+                  "owner": {
+                    "value": "u-2",
+                    "label": "Илья Петров",
+                    "href": "#u-2"
+                  },
+                  "attachment": {
+                    "value": "f-2",
+                    "label": "схема.png",
+                    "mime": "image/png",
+                    "href": "#f-2"
+                  },
+                  "accent": "#1a7f37"
+                },
+                {
+                  "id": "r-003",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Личный кабинет",
+                  "owner": {
+                    "value": "u-3",
+                    "label": "Мария Соколова",
+                    "href": "#u-3"
+                  },
+                  "attachment": {
+                    "value": "f-3",
+                    "label": "отчёт.docx",
+                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "href": "#f-3"
+                  },
+                  "accent": "#bf3989"
+                },
+                {
+                  "id": "r-004",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Склад",
+                  "owner": {
+                    "value": "u-4",
+                    "label": "Олег Иванов",
+                    "href": "#u-4"
+                  },
+                  "attachment": {
+                    "value": "f-4",
+                    "label": "накладная.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-4"
+                  },
+                  "accent": "#9a6700"
+                },
+                {
+                  "id": "r-005",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Сайт",
+                  "owner": {
+                    "value": "u-5",
+                    "label": "Ирина Белова",
+                    "href": "#u-5"
+                  },
+                  "attachment": {
+                    "value": "f-5",
+                    "label": "логотип.svg",
+                    "mime": "image/svg+xml",
+                    "href": "#f-5"
+                  },
+                  "accent": "#cf222e"
+                }
+              ],
+              "columns": [
+                {
+                  "key": "title",
+                  "label": "Название",
+                  "property_type": "string",
+                  "role": "title"
+                },
+                {
+                  "key": "owner",
+                  "label": "Ответственный",
+                  "property_type": "record"
+                },
+                {
+                  "key": "attachment",
+                  "label": "Файл",
+                  "property_type": "file"
+                },
+                {
+                  "key": "accent",
+                  "label": "Цвет",
+                  "property_type": "color"
+                }
+              ],
+              "total": 5,
+              "echo": {
+                "filters_chosen": {},
+                "filters": {},
+                "filters_rejected": [],
+                "search": "",
+                "sort": [],
+                "page": 1,
+                "per_page": 25
+              },
+              "column_settings": {
+                "layers": {
+                  "personal": {
+                    "revision": "p1",
+                    "columns": {}
+                  }
+                },
+                "target": {
+                  "kind": "personal",
+                  "revision": "p1"
+                }
+              }
+            }
+          },
+          "*": {
+            "answer": "applied"
+          }
+        },
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the rows it answers -- a reference, a file and a colour per row -- draw where the skeleton stood."
       }
     },
     {
@@ -39,6 +365,169 @@
         "values": {
           "selected": "r-005"
         }
+      },
+      "port": {
+        "capabilities": [
+          "row-actions"
+        ],
+        "answers": {
+          "query.change": {
+            "answer": "applied",
+            "data": {
+              "records": [
+                {
+                  "id": "r-001",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Портал клиента",
+                  "owner": {
+                    "value": "u-1",
+                    "label": "Анна Захарова",
+                    "href": "#u-1"
+                  },
+                  "attachment": {
+                    "value": "f-1",
+                    "label": "договор.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-1"
+                  },
+                  "accent": "#2f6feb"
+                },
+                {
+                  "id": "r-002",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Каталог товаров",
+                  "owner": {
+                    "value": "u-2",
+                    "label": "Илья Петров",
+                    "href": "#u-2"
+                  },
+                  "attachment": {
+                    "value": "f-2",
+                    "label": "схема.png",
+                    "mime": "image/png",
+                    "href": "#f-2"
+                  },
+                  "accent": "#1a7f37"
+                },
+                {
+                  "id": "r-003",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Личный кабинет",
+                  "owner": {
+                    "value": "u-3",
+                    "label": "Мария Соколова",
+                    "href": "#u-3"
+                  },
+                  "attachment": {
+                    "value": "f-3",
+                    "label": "отчёт.docx",
+                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "href": "#f-3"
+                  },
+                  "accent": "#bf3989"
+                },
+                {
+                  "id": "r-004",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Склад",
+                  "owner": {
+                    "value": "u-4",
+                    "label": "Олег Иванов",
+                    "href": "#u-4"
+                  },
+                  "attachment": {
+                    "value": "f-4",
+                    "label": "накладная.pdf",
+                    "mime": "application/pdf",
+                    "href": "#f-4"
+                  },
+                  "accent": "#9a6700"
+                },
+                {
+                  "id": "r-005",
+                  "revision": "r1",
+                  "actions": [
+                    "view"
+                  ],
+                  "title": "Сайт",
+                  "owner": {
+                    "value": "u-5",
+                    "label": "Ирина Белова",
+                    "href": "#u-5"
+                  },
+                  "attachment": {
+                    "value": "f-5",
+                    "label": "логотип.svg",
+                    "mime": "image/svg+xml",
+                    "href": "#f-5"
+                  },
+                  "accent": "#cf222e"
+                }
+              ],
+              "columns": [
+                {
+                  "key": "title",
+                  "label": "Название",
+                  "property_type": "string",
+                  "role": "title"
+                },
+                {
+                  "key": "owner",
+                  "label": "Ответственный",
+                  "property_type": "record"
+                },
+                {
+                  "key": "attachment",
+                  "label": "Файл",
+                  "property_type": "file"
+                },
+                {
+                  "key": "accent",
+                  "label": "Цвет",
+                  "property_type": "color"
+                }
+              ],
+              "total": 5,
+              "echo": {
+                "filters_chosen": {},
+                "filters": {},
+                "filters_rejected": [],
+                "search": "",
+                "sort": [],
+                "page": 1,
+                "per_page": 25
+              },
+              "column_settings": {
+                "layers": {
+                  "personal": {
+                    "revision": "p1",
+                    "columns": {}
+                  }
+                },
+                "target": {
+                  "kind": "personal",
+                  "revision": "p1"
+                }
+              }
+            }
+          },
+          "*": {
+            "answer": "applied"
+          }
+        },
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the rows it answers -- a reference, a file and a colour per row -- draw where the skeleton stood."
       }
     }
   ]

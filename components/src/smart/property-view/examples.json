@@ -15,7 +15,71 @@
           "section": "main"
         }
       },
-      "x-port": "the reference host of ui-admin (src/ports/polygon-host.mjs)"
+      "x-port": "the reference host of ui-admin (src/ports/polygon-host.mjs)",
+      "port": {
+        "answers": {
+          "record.load": {
+            "answer": "applied",
+            "record": {
+              "record_id": "r-001",
+              "revision": "1",
+              "title": "Портал клиента",
+              "sections": [
+                {
+                  "key": "main",
+                  "label": "Основное",
+                  "groups": [
+                    {
+                      "key": "g",
+                      "label": "Карточка",
+                      "fields": [
+                        {
+                          "key": "title",
+                          "label": "Название",
+                          "propertyType": "string",
+                          "value": "Портал клиента"
+                        },
+                        {
+                          "key": "owner",
+                          "label": "Ответственный",
+                          "propertyType": "record",
+                          "value": {
+                            "value": "u-1",
+                            "label": "Анна Захарова",
+                            "href": "#u-1"
+                          }
+                        },
+                        {
+                          "key": "attachment",
+                          "label": "Договор",
+                          "propertyType": "file",
+                          "value": {
+                            "value": "f-1",
+                            "label": "договор.pdf",
+                            "mime": "application/pdf",
+                            "href": "#f-1"
+                          }
+                        },
+                        {
+                          "key": "accent",
+                          "label": "Цвет",
+                          "propertyType": "color",
+                          "value": "#2f6feb"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "*": {
+            "answer": "unavailable",
+            "reason": "unknown-intent"
+          }
+        },
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the record it answers draws where the loading card stood."
+      }
     },
     {
       "name": "panel",
@@ -27,6 +91,70 @@
       },
       "expect": {
         "name": "Запись"
+      },
+      "port": {
+        "answers": {
+          "record.load": {
+            "answer": "applied",
+            "record": {
+              "record_id": "r-001",
+              "revision": "1",
+              "title": "Портал клиента",
+              "sections": [
+                {
+                  "key": "main",
+                  "label": "Основное",
+                  "groups": [
+                    {
+                      "key": "g",
+                      "label": "Карточка",
+                      "fields": [
+                        {
+                          "key": "title",
+                          "label": "Название",
+                          "propertyType": "string",
+                          "value": "Портал клиента"
+                        },
+                        {
+                          "key": "owner",
+                          "label": "Ответственный",
+                          "propertyType": "record",
+                          "value": {
+                            "value": "u-1",
+                            "label": "Анна Захарова",
+                            "href": "#u-1"
+                          }
+                        },
+                        {
+                          "key": "attachment",
+                          "label": "Договор",
+                          "propertyType": "file",
+                          "value": {
+                            "value": "f-1",
+                            "label": "договор.pdf",
+                            "mime": "application/pdf",
+                            "href": "#f-1"
+                          }
+                        },
+                        {
+                          "key": "accent",
+                          "label": "Цвет",
+                          "propertyType": "color",
+                          "value": "#2f6feb"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "*": {
+            "answer": "unavailable",
+            "reason": "unknown-intent"
+          }
+        },
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the record it answers draws where the loading card stood."
       }
     },
     {
@@ -40,6 +168,70 @@
       },
       "expect": {
         "name": "Запись"
+      },
+      "port": {
+        "answers": {
+          "record.load": {
+            "answer": "applied",
+            "record": {
+              "record_id": "r-001",
+              "revision": "1",
+              "title": "Портал клиента",
+              "sections": [
+                {
+                  "key": "main",
+                  "label": "Основное",
+                  "groups": [
+                    {
+                      "key": "g",
+                      "label": "Карточка",
+                      "fields": [
+                        {
+                          "key": "title",
+                          "label": "Название",
+                          "propertyType": "string",
+                          "value": "Портал клиента"
+                        },
+                        {
+                          "key": "owner",
+                          "label": "Ответственный",
+                          "propertyType": "record",
+                          "value": {
+                            "value": "u-1",
+                            "label": "Анна Захарова",
+                            "href": "#u-1"
+                          }
+                        },
+                        {
+                          "key": "attachment",
+                          "label": "Договор",
+                          "propertyType": "file",
+                          "value": {
+                            "value": "f-1",
+                            "label": "договор.pdf",
+                            "mime": "application/pdf",
+                            "href": "#f-1"
+                          }
+                        },
+                        {
+                          "key": "accent",
+                          "label": "Цвет",
+                          "propertyType": "color",
+                          "value": "#2f6feb"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "*": {
+            "answer": "unavailable",
+            "reason": "unknown-intent"
+          }
+        },
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the record it answers draws where the loading card stood."
       }
     },
     {
@@ -53,6 +245,70 @@
       },
       "expect": {
         "name": "Запись"
+      },
+      "port": {
+        "answers": {
+          "record.load": {
+            "answer": "applied",
+            "record": {
+              "record_id": "r-001",
+              "revision": "1",
+              "title": "Портал клиента",
+              "sections": [
+                {
+                  "key": "main",
+                  "label": "Основное",
+                  "groups": [
+                    {
+                      "key": "g",
+                      "label": "Карточка",
+                      "fields": [
+                        {
+                          "key": "title",
+                          "label": "Название",
+                          "propertyType": "string",
+                          "value": "Портал клиента"
+                        },
+                        {
+                          "key": "owner",
+                          "label": "Ответственный",
+                          "propertyType": "record",
+                          "value": {
+                            "value": "u-1",
+                            "label": "Анна Захарова",
+                            "href": "#u-1"
+                          }
+                        },
+                        {
+                          "key": "attachment",
+                          "label": "Договор",
+                          "propertyType": "file",
+                          "value": {
+                            "value": "f-1",
+                            "label": "договор.pdf",
+                            "mime": "application/pdf",
+                            "href": "#f-1"
+                          }
+                        },
+                        {
+                          "key": "accent",
+                          "label": "Цвет",
+                          "propertyType": "color",
+                          "value": "#2f6feb"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "*": {
+            "answer": "unavailable",
+            "reason": "unknown-intent"
+          }
+        },
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3, and the record it answers draws where the loading card stood."
       }
     }
   ]

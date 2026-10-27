@@ -109,6 +109,74 @@
         "name": "Записи"
       },
       "x-note": "§18.4: the window draws the rows in view; gate 17 runs on this shape (probe.json p1, p4, p7)"
+    },
+    {
+      "name": "typed-cells",
+      "title": "Ссылка, файл и цвет в ячейках",
+      "settings": {
+        "aria-label": "Решения",
+        "columns": [
+          {
+            "key": "title",
+            "label": "Название"
+          },
+          {
+            "key": "owner",
+            "label": "Ответственный",
+            "propertyType": "record"
+          },
+          {
+            "key": "attachment",
+            "label": "Файл",
+            "propertyType": "file"
+          },
+          {
+            "key": "accent",
+            "label": "Цвет",
+            "propertyType": "color"
+          }
+        ],
+        "rows": [
+          {
+            "id": "1",
+            "revision": "r1",
+            "title": "Портал клиента",
+            "owner": {
+              "value": "u-1",
+              "label": "Анна Захарова",
+              "href": "#u-1"
+            },
+            "attachment": {
+              "value": "f-1",
+              "label": "договор.pdf",
+              "mime": "application/pdf",
+              "href": "#f-1"
+            },
+            "accent": "#2f6feb"
+          },
+          {
+            "id": "2",
+            "revision": "r1",
+            "title": "Каталог товаров",
+            "owner": {
+              "value": "u-2",
+              "label": "Илья Петров",
+              "href": "#u-2"
+            },
+            "attachment": {
+              "value": "f-2",
+              "label": "схема.png",
+              "mime": "image/png",
+              "href": "#f-2"
+            },
+            "accent": "#1a7f37"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Решения"
+      },
+      "x-first-paint": "The cells sf-table draws with other Smart elements (sf-reference-link, sf-file-preview, sf-color): their code comes with the table's, so the rows do not move when they arrive (stand 24: CLS 0.0145 at 1280)."
     }
   ]
 }
