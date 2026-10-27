@@ -2318,6 +2318,12 @@ class SfPropertyView extends PropertyViewElement {
             this.requestComponentUpdate("editing");
             return this;
         }
+        // A group's cancel is a fact too (simai.main, 2026-10-27): a host that
+        // tracks unsaved work -- a page's beforeunload, a dirty mark -- learns
+        // from the event that the group's entries were dropped, rather than
+        // from the button's text or the panel's internals. The same event as
+        // the whole-object cancel, with the group it was for.
+        const group = this.editing;
         this.editing = null;
         this.changed.clear();
         this._clearInputs();
@@ -2325,6 +2331,9 @@ class SfPropertyView extends PropertyViewElement {
         this.conflict = null;
         this.confirmation = null;
         this.requestComponentUpdate("editing");
+        if (group) {
+            this.dispatchEvent(new CustomEvent("sf-property-view-cancel", {bubbles: true, composed: true, detail: {mode: this.mode, scope: "group", section: group.section, group: group.group}}));
+        }
         return this;
     }
 

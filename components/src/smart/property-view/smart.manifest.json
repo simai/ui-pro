@@ -1036,15 +1036,27 @@
       }
     },
     "sf-property-view-cancel": {
-      "summary": "A surface open all at once (edit, create) was cancelled; what the person typed is dropped and the host decides where that leads. A panel closes.",
+      "summary": "An edit was cancelled; what the person typed is dropped. A surface open all at once (edit, create) leaves scope absent and the host decides where that leads (a panel closes); a single group's cancel (since 1.7.0) carries scope group with its section and group, so a host tracking unsaved work learns the entries were dropped.",
       "payload": {
         "type": "object",
         "properties": {
           "mode": {
             "enum": [
+              "view",
               "edit",
               "create"
             ]
+          },
+          "scope": {
+            "enum": [
+              "group"
+            ]
+          },
+          "section": {
+            "type": "string"
+          },
+          "group": {
+            "type": "string"
           }
         }
       }
@@ -1230,7 +1242,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "8ccd294832ead99750229000aaefd3082990eb2acece6637bbb89ad824461a5c"
+        "sha256": "d07dcd41cdf4f3f23d1ad677db6874b2acefb29b9ba40adba8bacc3f471ae04c"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
