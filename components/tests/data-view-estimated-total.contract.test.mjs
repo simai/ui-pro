@@ -17,7 +17,7 @@ test('an estimated total is shown as ~N and is never confirmed', async () => {
   assert.match(view, /\.replace\("\{total\}", this\._shownTotal\(this\.total\)\)/u, '«N of ~M» in the show-all band');
   assert.match(view, /\$\{pagination\.actionForAllLabel\} \(\$\{this\._shownTotal\(total\)\}\)/u, 'the for-all label');
   assert.match(view, /totalExact: this\.totalExact, hasNext: this\.hasNext/u, 'the page row is told too');
-  assert.match(view, /applyUnderFilter\(actionId, confirmedTotal\) \{\s*\/\/[^\n]*\n\s*if \(!this\.totalExact\) \{\s*return this\.count\("action-for-all"\)/u,
+  assert.match(view, /applyUnderFilter\(actionId, confirmedTotal\) \{(?:\s*\/\/[^\n]*\n)+\s*if \(!this\.totalExact\) \{\s*return this\.count\("action-for-all"\)/u,
     'an action under the filter counts first when the number is an estimate');
   assert.match(view, /this\.totalExact = answer\.data\.total_exact !== false;/u, 'a count answer settles it');
 });

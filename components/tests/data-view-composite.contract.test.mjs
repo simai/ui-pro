@@ -283,3 +283,49 @@ test('selected bulk reaches the host with revisions even when its action differs
   await view._onEvent({type: 'sf-pagination-apply', target, detail: {action: 'bulk_delete', scope: 'selection'}});
   assert.equal(calls.length, 2, 'row action denial and missing selected records remain local');
 });
+
+// Stand 24 S15 (P1): an action under the filter on an estimated total counts,
+// shows the exact number and waits. The person confirmed «~N», not the
+// counted number, so nothing is written until that number is confirmed.
+test('a filter-wide action on an estimate shows the exact count and waits for a new confirmation', async () => {
+  const view = new DataView(); connect(view);
+  const raised = [];
+  view.setHostPort({version: '1.12.0', capabilities: ['bulk-under-filter', 'count-on-request'], raise: (intent, payload) => {
+    raised.push({intent, payload});
+    if (intent === 'query.count') return {answer: 'applied', data: {total: 19, total_exact: true}};
+    if (intent === 'bulk.apply_under_filter') return {answer: 'applied'};
+    return {...applied('one', payload), data: {...applied('one', payload).data, total: 1000, total_exact: false}};
+  }});
+  await tick();
+  assert.equal(view.totalExact, false, 'the host answered an estimate');
+  const first = await view.applyUnderFilter('archive', 1000);
+  assert.deepEqual(raised.map((one) => one.intent).filter((one) => one !== 'query.change'), ['query.count'], 'counted, nothing written');
+  assert.equal(first.answer, 'conflict');
+  assert.equal(first.current_total, 19, 'the exact number to confirm');
+  assert.equal(view.total, 19);
+  assert.equal(view.totalExact, true);
+  assert.throws(() => view.applyUnderFilter('archive', 1000), /Confirm the current total/u, 'the estimate confirmed earlier writes nothing');
+  const second = await view.applyUnderFilter('archive', 19);
+  assert.equal(second.answer, 'applied');
+  const write = raised.find((one) => one.intent === 'bulk.apply_under_filter');
+  assert.equal(write.payload.confirmed_total, 19, 'the number the person confirmed goes to the host');
+});
+
+// Stand 24 P2: «Для всех (N)» shows when the host can act on all.
+test('the page row offers the filter-wide action when the host can act on all', async () => {
+  const view = new DataView(); connect(view);
+  const pagination = view.pagination;
+  pagination.removeAttribute ??= function (name) { this.attributes.delete(name); };
+  view.setHostPort({version: '1.12.0', capabilities: ['bulk-under-filter'], raise: (_intent, payload) => applied('one', payload)});
+  await tick();
+  assert.equal(pagination.getAttribute('show-action-for-all'), 'true');
+  view.setHostPort({version: '1.12.0', capabilities: [], raise: (_intent, payload) => applied('one', payload)});
+  await tick();
+  assert.equal(pagination.getAttribute('show-action-for-all'), null, 'taken back when the host stops offering it');
+
+  const given = new DataView(); connect(given);
+  given.pagination.setAttribute('show-action-for-all', 'false');
+  given.setHostPort({version: '1.12.0', capabilities: ['bulk-under-filter'], raise: (_intent, payload) => applied('one', payload)});
+  await tick();
+  assert.equal(given.pagination.getAttribute('show-action-for-all'), 'false', 'a page that wrote it decides');
+});

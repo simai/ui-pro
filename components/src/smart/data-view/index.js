@@ -564,6 +564,7 @@ class SfDataView extends DataViewElement {
             this.append(pagination);
         }
         this._applyBulkActions();
+        this._applyForAll();
     }
 
     connectedCallback() {
@@ -795,8 +796,31 @@ class SfDataView extends DataViewElement {
             );
         }
         this.hostPort = host;
+        this._applyForAll();
         if (this.isConnected) this.refresh("host-connected");
         return this;
+    }
+
+    // «Для всех (N)»: the page row offers the filter-wide action when the host
+    // can act on all (bulk-under-filter), on the view's own page row and on a
+    // page's that does not say otherwise (stand 24 P2: the box never showed,
+    // since nothing set show-action-for-all). A page that writes the
+    // attribute decides; what the view wrote it takes back when the host
+    // stops offering it.
+    _applyForAll() {
+        const pagination = this.pagination;
+        if (!pagination?.setAttribute) return;
+        const mine = pagination.getAttribute("data-sf-view-for-all") !== null;
+        if (!mine && pagination.getAttribute("show-action-for-all") !== null) return;
+        if (this.hostOffers("bulk-under-filter")) {
+            if (!mine) {
+                pagination.setAttribute("show-action-for-all", "true");
+                pagination.setAttribute("data-sf-view-for-all", "");
+            }
+        } else if (mine) {
+            pagination.removeAttribute?.("show-action-for-all");
+            pagination.removeAttribute?.("data-sf-view-for-all");
+        }
     }
 
     // `message` is for the live region only: it is announced, never laid out.
@@ -1562,6 +1586,7 @@ class SfDataView extends DataViewElement {
     }
 
     _renderProjection() {
+        this._applyForAll();
         if (this._current !== undefined && this.table && this.table.current !== this._current) this.table.current = this._current;
         // The saved-view controls appear when the host keeps saved views and
         // not before: this is the only place that runs both when a host is set
@@ -1910,11 +1935,19 @@ class SfDataView extends DataViewElement {
     }
 
     applyUnderFilter(actionId, confirmedTotal) {
-        // An estimate is not a number anyone can confirm: count first.
+        // An estimate is not a number anyone can confirm: count first, show the
+        // exact number and stop. The person confirmed «~N», not this number,
+        // so nothing is written until they confirm it (standard 1.3.8 §19.4;
+        // stand 24 S15: the counted number went to the host at once, more
+        // records than the person agreed to when the estimate was low). The
+        // answer is the conflict a moved count gives: current_total is the
+        // number to confirm.
         if (!this.totalExact) {
-            return this.count("action-for-all").then((answer) => (this.totalExact && answer?.answer === "applied"
-                ? this.applyUnderFilter(actionId, this.total)
-                : answer));
+            return this.count("action-for-all").then((answer) => {
+                if (!(this.totalExact && answer?.answer === "applied")) return answer;
+                this._renderBulkBand();
+                return {answer: "conflict", reason: "total-counted", current_total: this.total};
+            });
         }
         if (!Number.isSafeInteger(confirmedTotal) || confirmedTotal !== this.total) {
             throw new TypeError("Confirm the current total before a filter-wide action");
