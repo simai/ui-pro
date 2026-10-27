@@ -743,13 +743,12 @@ function renderSectionTree(context, sections) {
         closedIcon: section.icon ? String(section.icon) : '',
     }));
 
-    // selection stays "single", a dated alias of "one" (sf-tree 2.0, until
-    // 2026-12-01): sf-tree's smart.manifest.json at ui-source 1fb5fde still
-    // declares only none/single/multiple, and the Framework's declared-enum check
-    // refuses a value the manifest does not list. Move to "one" when it does.
+    // selection "one": sf-tree 2.0's name for a single choice; its manifest
+    // declares it since sf-tree 2.0.1 ("single" is a former value until
+    // 2026-12-01).
     return html`
         <sf-tree
-                selection="single"
+                selection="one"
                 .items=${items}
                 @sf-tree-select=${(event) => {
                     // sf-tree 2.0 (standard 1.3.8 §8): select carries the entry's

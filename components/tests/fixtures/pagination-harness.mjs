@@ -80,10 +80,15 @@ let loaded;
 /** The pagination class and its template renderer, from the overlay's sources. */
 export async function loadPagination() {
   loaded ??= (async () => {
-    const [index, template, manifest] = await Promise.all([
+    const [index, template, manifest, en, ru] = await Promise.all([
       read('src/smart/pagination/index.js'),
       read('src/smart/pagination/js/templates/default.js'),
       read('src/smart/pagination/component.json'),
+      // The words are read at module level since sf-pagination 1.2.1 (its
+      // former camelCase keys are derived from them), so they are the real
+      // files, not empty stand-ins.
+      read('src/smart/pagination/lang/en.json'),
+      read('src/smart/pagination/lang/ru.json'),
     ]);
     const element = stripImports(index, 7, 'src/smart/pagination/index.js')
       .replace(/^SfPagination\.define\("sf-pagination"\);$/mu, 'export default SfPagination;');
@@ -91,7 +96,7 @@ export async function loadPagination() {
       throw new Error('src/smart/pagination/index.js: SfPagination.define("sf-pagination") not found');
     }
     const {default: SfPagination} = await asModule(
-      `${BASE}\nconst manifest = ${manifest};\nconst aliases = {};\nconst en = {};\nconst ru = {};\n${element}`,
+      `${BASE}\nconst manifest = ${manifest};\nconst aliases = {};\nconst en = ${en};\nconst ru = ${ru};\n${element}`,
     );
     const {renderPaginationTemplate} = await asModule(
       `const html = (strings, ...values) => ({strings, values});\nconst nothing = undefined;\n${stripImports(template, 1, 'src/smart/pagination/js/templates/default.js')}`,
