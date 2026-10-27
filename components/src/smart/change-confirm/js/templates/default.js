@@ -69,14 +69,19 @@ export function renderChangeConfirmTemplate(context) {
                             <span>${context.statusText}</span>`
                         : nothing}
                 </p>
-                <div class="sf-change-confirm__actions" ?hidden=${!context.open}>
+                <!-- While the answer is applied (pending) the answers stay where they
+                     were: the pressed one busy, with the button's own spinner and
+                     aria-busy, the other disabled, so the card does not jump and
+                     the person sees which answer is on its way. -->
+                <div class="sf-change-confirm__actions" ?hidden=${!context.open && !context.pending}>
                     <sf-button
                             appearance="outline"
                             scheme="primary"
                             size="1/2"
                             text=${context.acceptText}
                             data-action="accept"
-                            ?disabled=${context.disabled}
+                            ?loading=${context.pressed === true}
+                            ?disabled=${context.disabled && context.pressed !== true}
                             @click=${() => component.confirm()}
                     ></sf-button>
                     <sf-button
@@ -85,7 +90,8 @@ export function renderChangeConfirmTemplate(context) {
                             size="1/2"
                             text=${context.declineText}
                             data-action="decline"
-                            ?disabled=${context.disabled}
+                            ?loading=${context.pressed === false}
+                            ?disabled=${context.disabled && context.pressed !== false}
                             @click=${() => component.cancel()}
                     ></sf-button>
                 </div>

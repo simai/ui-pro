@@ -2,8 +2,9 @@
 // Usage: node this-file /absolute/path/to/output
 // sf-change-confirm on the built bytes:
 // - the values read as «field: was …, will be …», as text, empty ones named;
-// - Confirm reports the change and waits (pending, both answers gone, the
-//   status saying so, focus on it); the host's outcome is then all there is;
+// - Confirm reports the change and waits (pending: the answers stay, the pressed
+//   one busy -- aria-busy and the button's spinner -- and the other disabled;
+//   the status saying so, focus on it); the host's outcome is then all there is;
 // - a host that cancels the event keeps the question open, focus back on the
 //   first answer; Decline is reported the same way;
 // - the keyboard answers as the pointer does (Tab, Space, Enter);
@@ -75,6 +76,10 @@ try {
       // The words, not the glyph's ligature beside them.
       status: (card.querySelector('.sf-change-confirm__status > span')?.textContent ?? '').replace(/\s+/g, ' ').trim(),
       actions: !card.querySelector('.sf-change-confirm__actions').hidden,
+      buttons: [...card.querySelectorAll('.sf-change-confirm__actions button')].map((node) => ({
+        busy: node.getAttribute('aria-busy') === 'true', disabled: node.disabled,
+        spinner: Boolean(node.querySelector('.sf-button-spinner')),
+      })),
       focus: document.activeElement?.className ?? null,
       events: window.events.slice(),
     };
@@ -109,9 +114,15 @@ try {
   await page.click('#card [data-action="accept"]');
   await page.waitForTimeout(200);
   let now = await read();
-  if (now.state !== 'pending' || now.actions || now.status !== 'Применяется…' || !String(now.focus).includes('sf-change-confirm__status')
+  if (now.state !== 'pending' || !now.actions || now.status !== 'Применяется…' || !String(now.focus).includes('sf-change-confirm__status')
       || JSON.stringify(now.events) !== JSON.stringify([{name: 'accept', id: 'c1'}])) {
     note({case: 'Confirm reports the change and waits, focus on what happens', got: now});
+  }
+  // The waiting look (owner, 2026-10-28, q-a49e2045c1): the pressed answer busy
+  // with its spinner, the other disabled and not busy.
+  if (!(now.buttons[0]?.busy && now.buttons[0]?.spinner && now.buttons[0]?.disabled)
+      || now.buttons[1]?.busy || !now.buttons[1]?.disabled) {
+    note({case: 'while the answer is applied the pressed button is busy and the other disabled', got: now.buttons});
   }
   await page.evaluate(() => { document.getElementById('card').state = 'accepted'; });
   await page.waitForTimeout(150);
@@ -130,6 +141,9 @@ try {
   await page.waitForTimeout(200);
   now = await read();
   if (now.state !== 'pending' || now.status !== 'Отклоняется…' || now.events.at(-1)?.name !== 'decline') note({case: 'Decline is reported and waits', got: now});
+  if (now.buttons[0]?.busy || !now.buttons[0]?.disabled || !(now.buttons[1]?.busy && now.buttons[1]?.spinner)) {
+    note({case: 'while a decline is applied the decline button is busy and confirm disabled', got: now.buttons});
+  }
   await page.evaluate(() => { document.getElementById('card').state = 'declined'; });
   await page.waitForTimeout(150);
   now = await read();

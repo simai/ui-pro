@@ -157,6 +157,10 @@ class SfChangeConfirm extends ChangeConfirmElement {
             declineText: this.getProp("declineText") || this.sfWord("decline-text"),
             statusText: this.statusText(shown),
             open: shown === "open",
+            pending: shown === "pending",
+            // Which answer is on its way: true, false, or null when the host
+            // set pending itself.
+            pressed: shown === "pending" ? this._pressed : null,
             disabled: this.getProp("disabled") || shown !== "open",
         };
     }
