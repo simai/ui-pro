@@ -64,7 +64,7 @@ try {
       const log = document.createElement('sf-message-log');
       log.id = 'log';
       if (empty) log.innerHTML = '<div slot="empty"><p id="greeting">Начните разговор</p></div>';
-      log.addEventListener('sf-message-log-load-earlier', (event) => window.events.push(event.detail));
+      log.addEventListener('sf-message-log-load-more', (event) => window.events.push({before: event.detail.before}));
       box.append(log);
       if (renderer) {
         window.drawn = [];
@@ -86,7 +86,7 @@ try {
         return {
           id: `m${index + 100}`,
           author: own ? 'me' : 'anna',
-          author_name: own ? 'Я' : 'Анна',
+          'author-name': own ? 'Я' : 'Анна',
           own,
           text: `Сообщение ${index + 100}. ${'Длинный текст строки. '.repeat(index % 3 + 1)}`,
         };
@@ -139,7 +139,7 @@ try {
   if (side.column - side.ownRight > 40) note({case: 'the reader\'s own message sits on the end side', got: side});
 
   // 2. Markup in a message is text.
-  await page.evaluate(() => document.getElementById('log').upsert({id: 'html', author: 'anna', author_name: 'Анна', text: '<b id="bold">жирный</b>'}));
+  await page.evaluate(() => document.getElementById('log').upsert({id: 'html', author: 'anna', 'author-name': 'Анна', text: '<b id="bold">жирный</b>'}));
   await frames(3);
   const markup = await page.evaluate(() => ({element: Boolean(document.getElementById('bold')), text: document.querySelector('[data-id="html"] .sf-message-log__text')?.textContent}));
   if (markup.element || markup.text !== '<b id="bold">жирный</b>') note({case: 'markup in a message is shown as text', got: markup});
@@ -155,7 +155,7 @@ try {
     return item.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
   });
   await page.evaluate(() => document.getElementById('log').prependMessages(
-    Array.from({length: 20}, (_, index) => ({id: `e${index}`, author: 'anna', author_name: 'Анна', text: `Ранее ${index}`})), {hasMore: true}));
+    Array.from({length: 20}, (_, index) => ({id: `e${index}`, author: 'anna', 'author-name': 'Анна', text: `Ранее ${index}`})), {hasMore: true}));
   await frames(2);
   const anchorAfter = await page.evaluate(() => {
     const scroller = document.querySelector('#log .sf-message-log');
@@ -178,7 +178,7 @@ try {
   if (disabled !== true) note({case: 'the earlier button waits while a request is out', got: disabled});
   await page.evaluate(() => {
     const log = document.getElementById('log');
-    log.addEventListener('sf-message-log-load-earlier', (event) => event.preventDefault(), {once: true});
+    log.addEventListener('sf-message-log-load-more', (event) => event.preventDefault(), {once: true});
     log.earlierFailed();
   });
   await frames(2);
@@ -190,7 +190,7 @@ try {
 
   // 5. Following the bottom.
   await make({hasMore: false});
-  await page.evaluate(() => document.getElementById('log').upsert({id: 'n1', author: 'anna', author_name: 'Анна', text: 'Новое снизу'}));
+  await page.evaluate(() => document.getElementById('log').upsert({id: 'n1', author: 'anna', 'author-name': 'Анна', text: 'Новое снизу'}));
   await frames(4);
   await page.waitForTimeout(400);
   now = await state();
@@ -198,7 +198,7 @@ try {
   if (now.announced !== 'Анна: Новое снизу') note({case: 'a finished message from someone else is announced once', got: now.announced});
   await page.evaluate(() => { document.querySelector('#log .sf-message-log').scrollTop = 200; });
   await frames(2);
-  await page.evaluate(() => document.getElementById('log').upsert({id: 'n2', author: 'anna', author_name: 'Анна', text: 'Пока читаю выше'}));
+  await page.evaluate(() => document.getElementById('log').upsert({id: 'n2', author: 'anna', 'author-name': 'Анна', text: 'Пока читаю выше'}));
   await frames(4);
   await page.waitForTimeout(300);
   now = await state();
@@ -213,15 +213,15 @@ try {
   await page.evaluate(() => {
     const log = document.getElementById('log');
     log.querySelector('.sf-message-log__announcer').textContent = '';
-    log.upsert({id: 'n1', author: 'anna', author_name: 'Анна', text: 'Новое снизу', extra: 1});
-    log.upsert({id: 'p1', author: 'anna', author_name: 'Анна', text: 'Пишет…', pending: true});
+    log.upsert({id: 'n1', author: 'anna', 'author-name': 'Анна', text: 'Новое снизу', extra: 1});
+    log.upsert({id: 'p1', author: 'anna', 'author-name': 'Анна', text: 'Пишет…', growing: true});
   });
   await page.waitForTimeout(150);
   now = await state();
   if (now.announced) note({case: 'the same words are not said twice, a pending message is not said', got: now.announced});
   const busy = await page.evaluate(() => document.querySelector('.sf-message-log__item[data-id="p1"]').getAttribute('aria-busy'));
   if (busy !== 'true') note({case: 'a pending message is busy', got: busy});
-  await page.evaluate(() => document.getElementById('log').upsert({id: 'p1', author: 'anna', author_name: 'Анна', text: 'Готово'}));
+  await page.evaluate(() => document.getElementById('log').upsert({id: 'p1', author: 'anna', 'author-name': 'Анна', text: 'Готово'}));
   await page.waitForTimeout(150);
   now = await state();
   if (now.announced !== 'Анна: Готово') note({case: 'a pending message is announced when it is finished', got: now.announced});
@@ -274,7 +274,7 @@ try {
   });
   if (!kept) note({case: 'an unchanged message keeps its node and the focus inside it'});
   // A new message of the same author changes the neighbour's run: it is drawn again.
-  await page.evaluate(() => document.getElementById('log').upsert({id: 'm106', author: 'anna', author_name: 'Анна', text: 'ещё'}));
+  await page.evaluate(() => document.getElementById('log').upsert({id: 'm106', author: 'anna', 'author-name': 'Анна', text: 'ещё'}));
   await frames(2);
   const neighbour = await page.evaluate(() => ({
     m105: document.querySelector('.sf-message-log__item[data-id="m105"]').classList.contains('sf-message-log__item--last'),
@@ -284,8 +284,8 @@ try {
   // A local key the server numbered keeps its place.
   const replaced = await page.evaluate(() => {
     const log = document.getElementById('log');
-    log.upsert({id: 'local-1', author: 'me', own: true, text: 'отправляю', pending: true});
-    log.upsert({id: 'x1', author: 'anna', author_name: 'Анна', text: 'после'});
+    log.upsert({id: 'local-1', author: 'me', own: true, text: 'отправляю', growing: true});
+    log.upsert({id: 'x1', author: 'anna', 'author-name': 'Анна', text: 'после'});
     log.upsert({id: '501', author: 'me', own: true, text: 'отправлено'}, undefined, {replaces: 'local-1'});
     return log.messages.map((one) => one.id).slice(-2);
   });
@@ -298,7 +298,7 @@ try {
     column: getComputedStyle(document.querySelector('.sf-message-log__column')).display,
   }));
   if (!empty.greeting || empty.column !== 'none') note({case: 'an empty conversation shows the empty slot', got: empty});
-  await page.evaluate(() => document.getElementById('log').upsert({id: 'first', author: 'anna', author_name: 'Анна', text: 'Привет'}));
+  await page.evaluate(() => document.getElementById('log').upsert({id: 'first', author: 'anna', 'author-name': 'Анна', text: 'Привет'}));
   await frames(3);
   const filled = await page.evaluate(() => ({greeting: Boolean(document.getElementById('greeting')?.offsetParent), items: document.querySelectorAll('.sf-message-log__item').length}));
   if (filled.greeting || filled.items !== 1) note({case: 'the first message replaces the empty slot', got: filled});

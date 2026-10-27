@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Message log",
   "summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
   "kind": "composite",
@@ -57,6 +57,15 @@
         ],
         "default": "polite",
         "description": "polite: a finished message from someone else is announced once. off: the host announces through announce(), or nothing is."
+      },
+      "changes": {
+        "type": "string",
+        "enum": [
+          "content",
+          "revision"
+        ],
+        "default": "content",
+        "description": "How two writes of one message compare (§18.4)."
       }
     }
   },
@@ -171,19 +180,19 @@
     "css_variables": {
       "type": "object",
       "properties": {
-        "--sf-message-log--column": {
+        "--sf-message-log-column-width": {
           "type": "string"
         },
-        "--sf-message-log--inset": {
+        "--sf-message-log-inset": {
           "type": "string"
         },
-        "--sf-message-log--gap-run": {
+        "--sf-message-log-run-gap": {
           "type": "string"
         },
-        "--sf-message-log--gap-turn": {
+        "--sf-message-log-turn-gap": {
           "type": "string"
         },
-        "--sf-message-log--fade": {
+        "--sf-message-log-fade-size": {
           "type": "string"
         }
       }
@@ -417,24 +426,6 @@
         "type": "null"
       }
     },
-    "remove": {
-      "summary": "Remove one message.",
-      "arguments": [
-        {
-          "name": "id",
-          "required": true,
-          "schema": {
-            "type": [
-              "string",
-              "number"
-            ]
-          }
-        }
-      ],
-      "returns": {
-        "type": "null"
-      }
-    },
     "redraw": {
       "summary": "Draw one message again, or all of them, after the renderer's own inputs changed.",
       "arguments": [
@@ -527,11 +518,44 @@
       "returns": {
         "type": "null"
       }
+    },
+    "detach": {
+      "summary": "Take one message off; a stream it was ends cancelled. remove(id) is read until 2026-12-01.",
+      "arguments": [
+        {
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "cancel": {
+      "summary": "Stop drawing a growing message now; the stream ends cancelled.",
+      "arguments": [
+        {
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
     }
   },
   "events": {
-    "sf-message-log-load-earlier": {
-      "summary": "Earlier history is wanted (the button, ArrowUp on the first message, or the top reached while has-more). Cancelling it is the same as earlierFailed().",
+    "sf-message-log-load-more": {
+      "summary": "Earlier history is asked for: {direction: before, before}. Cancelling it is earlierFailed(). The 1.0 name sf-message-log-load-earlier follows until 2026-12-01.",
       "payload": {
         "type": "object",
         "properties": {
@@ -541,10 +565,83 @@
               "null"
             ],
             "description": "The id of the first message shown."
+          },
+          "direction": {
+            "const": "before"
           }
         },
         "required": [
           "before"
+        ]
+      }
+    },
+    "sf-message-log-begun": {
+      "summary": "A growing message arrived (vocabulary §5.2).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "sf-message-log-chunk": {
+      "summary": "A growing message changed and was drawn again, in place.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "sf-message-log-completed": {
+      "summary": "It stopped growing whole.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "sf-message-log-failed": {
+      "summary": "It stopped growing with an error: {id, reason, message}.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "sf-message-log-cancelled": {
+      "summary": "The stream was stopped: cancel, wait stopped, the message taken off, the conversation replaced.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
         ]
       }
     }
@@ -654,7 +751,17 @@
     "aliases": [],
     "deprecations": [],
     "replacement": null,
-    "migrations": []
+    "migrations": [
+      {
+        "from": "1.0.0",
+        "to": "1.1.0",
+        "changes": [
+          "standard simai.smart-component 1.3.8: the element is made from component.json; dated aliases in aliases.json",
+          "sf-message-log-load-earlier -> sf-message-log-load-more until 2026-12-01 (event)",
+          "remove -> detach until 2026-12-01 (action)"
+        ]
+      }
+    ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
@@ -662,7 +769,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/message-log/index.js",
-        "sha256": "fc9a856ef3fbf976b964a676af5abf23806821ead8650cf3aa65a140a429547c"
+        "sha256": "a530fbb7293626550792bccf072877ada0efbd7b65f721fd137a27064c51c77b"
       },
       {
         "path": "src/smart/message-log/js/templates/default.js",
@@ -670,7 +777,7 @@
       },
       {
         "path": "src/smart/message-log/js/templates/default.css",
-        "sha256": "c162c0f4484842088e76c1406b3da2152d30ce4d7960dfc5c1ac68d101fa441d"
+        "sha256": "a7e6dbeae24bd068d757f99f258d4862ef0867d0ab577f8f8ec47f5e9e8ec953"
       },
       {
         "path": "src/smart/message-log/rule.js",
@@ -678,7 +785,23 @@
       },
       {
         "path": "src/smart/message-log/docs.md",
-        "sha256": "b99f2fce4c8864a8801834af39b96cb7e6d510bc619f51bff1db285290be9ee0"
+        "sha256": "6465214dcdcedbbae2be72626310958398cb12a35fee46de218c6a0964cf7687"
+      },
+      {
+        "path": "src/smart/message-log/component.json",
+        "sha256": "7b7fb4477636a088ff7ae9802c31a01c809379c3d1709c83c27b0813866534d3"
+      },
+      {
+        "path": "src/smart/message-log/aliases.json",
+        "sha256": "bcd954b76fb52d7b51e837fefc96ea567ca7defa40b0bcea7d9eca12cd1a9667"
+      },
+      {
+        "path": "src/smart/message-log/lang/en.json",
+        "sha256": "44f2adf27e325701d953e6d929f6b014ff05f66cad0605ea8f8d026f115eafcb"
+      },
+      {
+        "path": "src/smart/message-log/lang/ru.json",
+        "sha256": "1488cbc2c62e2fc51257bd86c3b64f9482b3755809930e997287518e91d89252"
       }
     ],
     "generated_runtime": []

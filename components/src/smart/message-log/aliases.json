@@ -1,0 +1,31 @@
+{
+  "$comment": "Dated aliases of sf-message-log for the shim (core/js/aliases.js, standard §16 item 20). remove(id) is read by the element itself: remove is Element.prototype.remove, and remove() without an argument must stay the browser's, so no shim row may wrap it (its row below is refused by the shim by design: mode component).",
+  "component": "sf-message-log",
+  "since": "2026-10-27",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "sf-message-log-load-earlier",
+      "to": "sf-message-log-load-more",
+      "kind": "event",
+      "component": "sf-message-log",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "cancelable": true,
+      "section": "§8, vocabulary §5 load-more",
+      "note": "{before} becomes {direction: before, before}; one cancel for both names"
+    },
+    {
+      "from": "remove",
+      "to": "detach",
+      "kind": "action",
+      "component": "sf-message-log",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "component",
+      "section": "§3.1, §16 item 26",
+      "note": "remove(id) detaches and is noted; remove() is Element.remove()"
+    }
+  ]
+}
