@@ -1246,7 +1246,7 @@
       },
       {
         "path": "src/smart/property-view/rule.js",
-        "sha256": "0e6ba0d63d477bfc0b5bf46797e2c1e574b6c937458669869fb2fb7f3a972d31"
+        "sha256": "3ae44ccacf2df11091100625ab758aafa5c9a3ee02f21dcd0dc7233fe3f99953"
       },
       {
         "path": "src/core/contracts/ports/simai.property-view-port/1.4.0/port.json",

@@ -10,6 +10,11 @@ SF.RuleLoader["cl-property-view"] = {
   mode: "smart",
   js: true,
   css: true,
+  // Lazy (standard 1.3.8 §7.2.1; stand 24 P3): what only an edit, a press or an
+  // opened group draws -- the field editors, the drag of the arranging mode,
+  // the anchored surfaces and a related group's data view -- is not fetched
+  // with the panel. Opening a read-only record loads the reading parts; the
+  // Loader brings an editor when its tag is drawn, and the rest in idle time.
   relation: [
     { name: "icons" },
     // The panel draws an <sf-icon> of its own now -- the chevron that folds the
@@ -37,24 +42,24 @@ SF.RuleLoader["cl-property-view"] = {
     { name: "cl-empty-state" },
     { name: "cl-progress-scale" },
     // A number with a range draws sf-range-slider, from the shared renderer set.
-    { name: "cl-range-slider" },
+    { name: "cl-range-slider", lazy: true },
     { name: "cl-file-preview" },
-    { name: "cl-file-upload" },
-    { name: "cl-progress-bar" },
-    { name: "cl-input" },
-    { name: "cl-textarea" },
-    { name: "cl-dropdown" },
-    { name: "cl-datepicker" },
-    { name: "cl-switch" },
-    { name: "cl-checkbox" },
-    { name: "cl-button-group" },
+    { name: "cl-file-upload", lazy: true },
+    { name: "cl-progress-bar", lazy: true },
+    { name: "cl-input", lazy: true },
+    { name: "cl-textarea", lazy: true },
+    { name: "cl-dropdown", lazy: true },
+    { name: "cl-datepicker", lazy: true },
+    { name: "cl-switch", lazy: true },
+    { name: "cl-checkbox", lazy: true },
+    { name: "cl-button-group", lazy: true },
     { name: "cl-list-item" },
     { name: "cl-spinner" },
     // Configuring the view drags fields between groups and groups between
     // sections, and the drag is sf-sortable's. Without the relation the lists
     // would render as undefined elements -- present in the DOM, inert to a
     // pointer, and indistinguishable from a feature that silently does nothing.
-    { name: "cl-sortable" },
+    { name: "cl-sortable", lazy: true },
     // A colour property draws sf-color, in a cell and in a card alike.
     { name: "cl-color" },
     // A string whose variant is a phone draws sf-country-code. The rule fence
@@ -74,15 +79,15 @@ SF.RuleLoader["cl-property-view"] = {
     // and page row through cl-data-view. Without the relation the group would hold
     // an undefined element: present, empty, and indistinguishable from a host that
     // answered with no records.
-    { name: "cl-data-view" },
+    { name: "cl-data-view", lazy: true },
     // The table the related group slots into that data view. Slotted rather than
     // left to the data view's own fallback, because fallback content lives in a
     // shadow tree where the page's stylesheets do not reach -- a consumer saw a
     // list with its icon ligatures showing as text.
-    { name: "cl-table" },
+    { name: "cl-table", lazy: true },
     // Every anchored surface this panel opens -- a field's settings, the list of
     // fields an area can take, the head's menu -- is an sf-popover.
-    { name: "cl-popover" },
+    { name: "cl-popover", lazy: true },
     // Sections laid out as a row of tabs rather than a list beside the fields.
     { name: "cl-tabs" },
   ],
