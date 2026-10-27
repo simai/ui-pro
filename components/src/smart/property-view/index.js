@@ -2617,7 +2617,9 @@ class SfPropertyView extends PropertyViewElement {
             const under = globalThis.document?.elementFromPoint?.(x, y);
             // While the view is arranged the sections are rows of their own, so a
             // field may be dropped on a tab the same way it is dropped on a group.
-            const item = under?.closest?.("[data-section-tab], sf-tree-item[value]");
+            // sf-tree 2.0 draws its entries as rows of class markup, each named
+            // by data-value (the section key).
+            const item = under?.closest?.("[data-section-tab], .sf-tree-item[data-value]");
             // Another panel's list is not this panel's drop target. The drawer
             // moves the content out of the element, so asking `closest` for an
             // sf-property-view finds nothing at all -- which is why the first
@@ -2634,18 +2636,18 @@ class SfPropertyView extends PropertyViewElement {
                 if (session?.group && !["field", "group"].includes(session.group)) return null;
                 const item = sectionAt(x, y);
                 if (!item) return null;
-                const key = item.getAttribute("data-section-tab") ?? item.getAttribute("value");
+                const key = item.getAttribute("data-section-tab") ?? item.getAttribute("data-value");
                 if (key === this.selectedSection) return null;
-                // A Smart element is laid out as `display: contents`, so the
-                // host's own rect is empty and the indicator would be drawn as a
-                // line of no size. The rendered row inside it is what has a shape.
+                // A tree row's own box holds its children too; the line the
+                // indicator marks is the row's container.
                 const shown = item.matches("[data-section-tab]")
                     ? item
-                    : item.querySelector(".sf-tree-item-container") || item.firstElementChild || item;
+                    : item.querySelector(":scope > .sf-tree-item-container") || item;
                 return {
                     descriptor: {section: key},
                     rect: shown.getBoundingClientRect(),
-                    label: item.getAttribute("label") || item.textContent?.trim() || key,
+                    label: item.querySelector(":scope > .sf-tree-item-container > .sf-tree-item-name")?.textContent?.trim()
+                        || item.textContent?.trim() || key,
                 };
             },
             drop: (session, descriptor) => {

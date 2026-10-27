@@ -1065,7 +1065,7 @@ try {
     // Framework's component stylesheets reach the field controls.
     const root = view;
     const read = () => ({
-      sectionItems: root.querySelectorAll('.sf-property-view-sections sf-tree-item').length,
+      sectionItems: root.querySelectorAll('.sf-property-view-sections .sf-tree-item').length,
       groups: [...root.querySelectorAll('.sf-property-view-group')].map((node) => node.dataset.group),
       fields: [...root.querySelectorAll('.sf-property-view-field')].map((node) => node.dataset.field),
       // Which element drew each value: the renderer set's choice, not the host's.
@@ -1097,28 +1097,29 @@ try {
     });
 
     const before = read();
-    // A tab answers a press. The rail is an sf-tree asked for a single
-    // selection, and that tree moved only its tab stop on a click: the sections
+    // A tab answers a press. Since sf-tree 2.0 the rail's entries are rows
+    // of class markup (.sf-tree-item[data-value]), not sf-tree-item elements.
+    // The rail is an sf-tree asked for a single selection, and that tree moved only its tab stop on a click: the sections
     // could be walked with the arrows and chosen with the space bar, and
     // pressing one did nothing at all.
-    const tabs = [...root.querySelectorAll('.sf-property-view-sections sf-tree-item')];
+    const tabs = [...root.querySelectorAll('.sf-property-view-sections .sf-tree-item')];
     const pressed = tabs[tabs.length - 1];
-    (pressed?.querySelector('.sf-tree-item-container') ?? pressed)
+    (pressed?.querySelector(':scope > .sf-tree-item-container') ?? pressed)
       ?.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
     await new Promise((done) => setTimeout(done, 400));
     const switched = {
-      asked: pressed?.getAttribute('value') ?? null,
+      asked: pressed?.getAttribute('data-value') ?? null,
       showing: view.selectedSection ?? null,
       groups: [...root.querySelectorAll('.sf-property-view-group')].map((node) => node.dataset.group),
     };
 
     // Back to the first section, because everything measured below reads the
     // groups this record opens on.
-    (tabs[0]?.querySelector('.sf-tree-item-container') ?? tabs[0])
+    (tabs[0]?.querySelector(':scope > .sf-tree-item-container') ?? tabs[0])
       ?.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
     await new Promise((done) => setTimeout(done, 400));
 
-    const singleSections = single.querySelectorAll('.sf-property-view-sections sf-tree-item').length;
+    const singleSections = single.querySelectorAll('.sf-property-view-sections .sf-tree-item').length;
     const singleList = single.querySelector('.sf-property-view-sections');
 
     // Rare: hidden, then shown, and the host is not asked again -- showing rare

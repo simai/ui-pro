@@ -732,13 +732,19 @@ function renderSectionTree(context, sections) {
         closedIcon: section.icon ? String(section.icon) : '',
     }));
 
+    // selection stays "single", a dated alias of "one" (sf-tree 2.0, until
+    // 2026-12-01): sf-tree's smart.manifest.json at ui-source 1fb5fde still
+    // declares only none/single/multiple, and the Framework's declared-enum check
+    // refuses a value the manifest does not list. Move to "one" when it does.
     return html`
         <sf-tree
                 selection="single"
                 .items=${items}
-                @sf-tree-selection-change=${(event) => {
-                    const value = event.detail?.value;
-                    if (value) context.component.selectSection(String(value));
+                @sf-tree-select=${(event) => {
+                    // sf-tree 2.0 (standard 1.3.8 §8): select carries the entry's
+                    // id, which is the section key given as its value.
+                    const id = event.detail?.id;
+                    if (id) context.component.selectSection(String(id));
                 }}
         ></sf-tree>
     `;
@@ -777,8 +783,8 @@ function renderSectionTabsArranged(context, sections) {
     `;
 }
 
-// A rare section says so in its own name. sf-tree-item takes a label string and
-// reads anything slotted into it as text -- markup put there printed lit's own
+// A rare section says so in its own name. A tree row takes a label string and
+// draws it as text -- markup put into sf-tree-item once printed lit's own
 // markers into the list -- so a trailing mark of its own is a gap in that
 // component rather than something to work around here.
 function sectionName(context, section) {
@@ -1197,8 +1203,8 @@ function onPhoneSectionList(context, sections) {
 }
 
 // The section being arranged, named where its areas are. The section list is
-// drawn with sf-tree-item, which takes a label as a string and reads anything
-// slotted into it as text, so neither a pencil nor a field can stand in the list
+// drawn by sf-tree, whose rows take a label as a string and nothing else
+// (sf-tree 2.0 draws class markup, not sf-tree-item elements), so neither a pencil nor a field can stand in the list
 // itself -- and a section shown as a tab has no list at all. The name of the
 // place you are arranging belongs above the things you are arranging anyway.
 function renderSectionBar(context, section, count) {
