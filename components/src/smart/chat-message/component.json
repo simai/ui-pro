@@ -1,0 +1,278 @@
+{
+  "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
+  "id": "smart.chat-message",
+  "tag": "sf-chat-message",
+  "version": "1.0.0",
+  "kind": "leaf",
+  "family": "chat",
+  "settings": {
+    "message": {
+      "type": "object",
+      "optional": true,
+      "x-markup": "the message: for the template default an API.md Message ({id, role: user|assistant, status, html, text, sources, verification, stage, notices, proposal, brief, feedback, summary, limit_resets_at, finished_at, attachments}), for the template person a conversation message ({id, body, authorName, createdAt, isEdited, isDeleted, canEdit, canDelete, files, local}); a property or the JSON island; its texts are drawn as text and its html is sanitized"
+    },
+    "display": {
+      "type": "object",
+      "default": {},
+      "x-markup": "what the host knows that the server does not, the 0.3 property view: wait (delayed|stopped|network), busy, feedback ({value, reason, note, asking, draft}), retried, note (confirm|cancel|repeat) and code, sources_open, brief ({live, answer}) and brief_draft; for the template person own, first, last, showName, editing ({body}) and askDelete. Drafts in it (feedback.draft, brief_draft, editing.body) are written in place, so a host that keeps the object keeps them across redraws"
+    },
+    "features": {
+      "type": "object",
+      "default": {
+        "feedback": true,
+        "proposals": true,
+        "memory": true,
+        "brief": false
+      },
+      "x-markup": "what the surface offers: the rating, a proposal's card, the memory notices and the task brief (API.md v1.2, off unless asked)"
+    }
+  },
+  "values": {},
+  "events": {
+    "retry": {
+      "carries": {
+        "id": {
+          "type": "id",
+          "optional": true
+        },
+        "key": {
+          "type": "string",
+          "optional": true
+        },
+        "kind": {
+          "type": "string",
+          "optional": true
+        }
+      },
+      "cancelable": true,
+      "x-summary": "«Повторить» (vocabulary §5 retry): a failed answer {id}; a person's unsent message {key} (its client key); a person's failed file {id, key, kind: file}."
+    },
+    "check": {
+      "carries": {
+        "id": "id"
+      },
+      "cancelable": true,
+      "x-summary": "«Обновить» on a stopped, delayed or lost wait: ask the host whether the answer came (the chat's own check, vocabulary 1.1.3 §5.1)."
+    },
+    "rate": {
+      "carries": {
+        "id": "id",
+        "value": "string",
+        "reason": {
+          "type": "string",
+          "optional": true,
+          "nullable": true
+        },
+        "note": {
+          "type": "string",
+          "optional": true
+        }
+      },
+      "cancelable": true,
+      "x-summary": "«Полезно» or «Не полезно» {id, value: up|down} (vocabulary §5 rate); «Отправить» in the «why» card {id, value: down, reason, note}. The buttons show the rating at once; the host keeps it in display.feedback."
+    },
+    "cancel": {
+      "carries": {
+        "id": "id",
+        "kind": "string"
+      },
+      "cancelable": true,
+      "x-summary": "«Не сейчас» or Escape in the «why» card {id, kind: rate} (vocabulary §5 cancel): the plain «not helpful» stays."
+    },
+    "drafted": {
+      "carries": {
+        "id": "id",
+        "reason": {
+          "type": "string",
+          "nullable": true
+        },
+        "note": "string"
+      },
+      "own-verb": true,
+      "x-summary": "The «why» card's choice or note changed {id, reason, note} (a fact; the draft is also kept in display.feedback.draft)."
+    },
+    "toggle": {
+      "carries": {
+        "id": "id",
+        "kind": "string",
+        "open": "boolean"
+      },
+      "x-summary": "A local part opened or closed (vocabulary §5 toggle): the sources list {kind: sources} (the host remembers it as display.sources_open); for the template person the editor {kind: edit} and the delete question {kind: delete}, which the host holds as display.editing and display.askDelete."
+    },
+    "copied": {
+      "carries": {
+        "id": "id",
+        "done": "boolean"
+      },
+      "own-verb": true,
+      "x-summary": "The answer was copied, with its sources as a list {id, done}; the action row says it politely."
+    },
+    "submit": {
+      "carries": {
+        "id": "id",
+        "text": "string"
+      },
+      "cancelable": true,
+      "x-summary": "A brief's answer goes out as a message (vocabulary §5 submit; API.md v1.2): an option, the person's own words, several answers joined by «; » with «—» for a skipped one, or the card's «Да»."
+    },
+    "save": {
+      "carries": {
+        "id": "id",
+        "values": "object"
+      },
+      "cancelable": true,
+      "x-summary": "The template person: an edited message {id, values: {body}} (vocabulary §5 save, port message.edit). Unchanged or empty text is a toggle {kind: edit, open: false} instead."
+    },
+    "delete": {
+      "carries": {
+        "ids": "list"
+      },
+      "cancelable": true,
+      "x-summary": "The template person: «Удалить» confirmed {ids: [id]} (vocabulary §5 delete, port message.delete)."
+    }
+  },
+  "actions": {},
+  "slots": {},
+  "keyboard": {
+    "host": {
+      "Tab": "reach"
+    }
+  },
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16); it places the view's node (js/view/message.js)."
+    },
+    "person": {
+      "file": "js/templates/person.js",
+      "$comment": "A conversation between people (D31 inventory §3: people.js is a template, not a tag); it places js/view/person.js's node."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "article",
+    "name": {
+      "from": [
+        "runtime.assistant",
+        "runtime.you",
+        "runtime.people-you"
+      ]
+    },
+    "keys": {
+      "Tab": "reach"
+    },
+    "x-keys": "A message is an article named «Помощник» or «Вы» (the template person: the author or «Вы»); a pending answer is aria-busy. Copy, rating, sources and footnotes are native buttons with names; a footnote opens the sources at its source and focuses it; the result of copy and rating is said by a polite region in the action row; a failure and a lost connection are role=alert. In the «why» card Enter sends and Escape puts it away; in a brief Enter in «Свой вариант» answers; in the editor of the template person Enter saves, Shift+Enter breaks the line and Escape cancels; the delete question takes the focus on «Отмена»."
+  },
+  "host-states": {},
+  "css-variables": {
+    "--sf-chat-message-width": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-chat-message-text-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-chat-message-muted-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-chat-message-bubble-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-chat-message-border-color": {
+      "type": "color",
+      "state": "default"
+    }
+  },
+  "x-summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "chat-message",
+    "manifest": "simai/ui-chat@10d376b components/src/smart/chat-message/smart.manifest.json (0.3.1)",
+    "converted": "by hand (D31 step 5): convert-1.3.8.mjs reads stand 17's output, which has no chat component"
+  },
+  "x-words": [],
+  "x-renamed": [
+    "properties.view → the setting display (view is a name the base reserves, §3.1); the old property a dated setting alias until 2026-12-01",
+    "events.sf-chat-action {action, ...} → one event per verb (vocabulary §5.1 one name per verb), the old name a dated split alias until 2026-12-01 whose adapter puts action back: retry {id} → retry {id}; check {id} → check {id}; feedback {id, value} → rate {id, value}; feedback-send {id, reason, note} → rate {id, value: down, reason, note}; feedback-skip {id} → cancel {id, kind: rate}; feedback-draft {id, reason, note} → drafted; sources {id, open} → toggle {id, kind: sources, open}; copy {id, done} → copied {id, done}; brief-answer {id, text} → submit {id, text}",
+    "the template person (ui-chat people.js, the pilot's renderPersonMessage, which had no element): edit → save {id, values: {body}}, delete → delete {ids}, retry {clientKey} → retry {key}, retry-file {messageId, fileKey} → retry {id, key, kind: file}, edit-start / edit-cancel → toggle {kind: edit, open}, delete-ask / delete-cancel → toggle {kind: delete, open}; new names only, nothing to alias",
+    "words: the message's keys of ui-chat's strings.js → lang/<locale>.json runtime words, the dotted key in kebab-case (stage.queued → stage-queued, brief.otherLabel → brief-other-label); the view keeps calling ctx.words with the 0.3 keys and the element maps them (wordName)",
+    "css: component/chat/css/chat.css and people.css → js/templates/default.css; the --sf-chat--* tokens → --sf-chat-message--*, set on .sf-chat-message-host (and .sf-chat-surface, :host for a page or a widget without the element) instead of :root; five public variables --sf-chat-message-<name> under the ones a host adapted"
+  ],
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "message html (sanitized: SF.sanitizeHtml, else the component's copy)",
+        "message texts, source titles and excerpts (drawn as text)",
+        "source URLs (http and https only)",
+        "file names (drawn as text)",
+        "download addresses (the host's, used as given)"
+      ],
+      "network_policy": "host-only"
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "fetching or polling the chat API",
+        "sending a rating, an answer or an edit",
+        "deciding a proposal",
+        "access decisions"
+      ]
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-chat-message for one chat message: a window places it in sf-message-log through the log's renderMessage hook; a page that shows one message (a preview) places it alone. The template person draws a conversation between people.",
+      "do_not": [
+        "Do not stack sf-chat-message elements into a conversation yourself; sf-message-log keeps the reading position and the announcements",
+        "Do not put trusted markup into message.html; it is sanitized, and only the allow-list survives",
+        "Do not decide a proposal in the message; answer sf-change-confirm-answer in the window"
+      ],
+      "required_reads": [
+        "settings",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-chat-message></sf-chat-message> with element.message = {id: 'msg_03', role: 'assistant', status: 'completed', text: 'Ежегодный отпуск — 28 календарных дней.'}",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-manifest-probes.mjs <free output> <package output> chat-message"
+      ]
+    }
+  },
+  "x-decisions": [
+    "version: 0.3.1 in simai/ui-chat → 1.0.0 here: the first release in ui-pro, with the events renamed under dated aliases (simai.linkage 1.0.0: the files changed).",
+    "shape: a leaf (D31 inventory §3). sf-message-log stays a chat-agnostic feed; the window sets log.renderMessage to place an sf-chat-message per message (or to call the exported renderMessage for the widget), so the chat's fields (sources, verification, stage, rating, brief) never enter the shared log.",
+    "the view stays plain DOM (js/view/message.js, js/view/person.js, the 0.3 render.js and people.js with their imports changed), built once per change and handed to Lit as one node, as ui-chat's ChatElement did: an open «why» card, a brief's typed answer and a proposal's pressed card keep their nodes and focus, and the site widget and the pilot, which have no Framework runtime, can call renderMessage from a pinned ui-pro revision.",
+    "people: the template person (D31 inventory §3: a second template of the same component, not a tag), selected by the attribute template=person; display carries own, first, last, showName, editing and askDelete as people.js's view did.",
+    "file chip: sf-chat-composer owns it (js/templates/parts.js, step 4); the message imports it by relative path, as sf-data-view imports from table, renders it into its DOM with Lit and adds, for a sent file with href, the download link and the HEAD check: on 404 or 410 the name loses its link and the line says «Файл удалён» (role=status). The composer's files are not changed; its chip rules and the message's are both unscoped class markup, so the message scopes its own to .sf-chat-message and .sf-chat-person.",
+    "sanitize: SF.sanitizeHtml(html, {codeLanguage: true, document}) and SF.safeHref when the page has them (pair ui-89834691fb9d, ui-source 4d711d2), else js/view/sanitize.js, ui-chat's copy with the same allow-list (incl. h2 h3 h4 del). ui-pro pins ui-source 170d551 (ui-352b472995b1), which lacks them. REMOVE the copy and the fallback (message.js sanitizer, safeHref) once framework.lock.json pins ui-89834691fb9d or later; the probe's sanitize cases then run against the Framework's.",
+    "proposal: the message places sf-change-confirm (attributes heading, heading-level 2, change-id, state, expires-at, changes as JSON, accept-text «Подтвердить», decline-text «Отменить»), one card per code kept across redraws; its sf-change-confirm-answer bubbles through the message to the window, which sends the proposal's command. The chat's other words for the card («Отменено», the expiry sentence) are registered by the window (ui-chat chat-core/larena.js registerLarenaWords), not by the message: registering another component's words is a page's act.",
+    "events: sf-chat-action {action, ...} is split by verb (vocabulary §5.1): retry, check, rate, cancel, toggle, submit (§5, chat 1.1.3 check) and two facts of the chat's own, drafted and copied (own-verb). copy and sources are local (D31 inventory §1) but stay as facts, since the window keeps an open sources list across redraws. The old name follows until 2026-12-01 as split rows whose adapter makes the 0.3 detail; the person's events had no element before and have no alias.",
+    "display: the 0.3 property view, renamed because view is a name the base reserves; a dated setting alias keeps el.view until 2026-12-01. Setting message, display or features (even the same object again) redraws the view, as the 0.3 setters did.",
+    "words: lang/ru.json and lang/en.json, runtime only, ru the source language; the view asks for the 0.3 dotted keys and the element maps them to the kebab names (wordName). The copy label of a highlighted code block is the word code-copy.",
+    "network: host-only. The one request is the HEAD check of a sent file's own download address before following it (Mirai24 27.10: a file deleted from «Мои файлы» keeps its attachment); the address is the host's, never built here.",
+    "first paint (§5.4): no late data. The message comes with the host's state; the printed markup is the message as drawn. The element reads no clock: times are the message's own (finished_at, createdAt, limit_resets_at, read_at) in the reader's zone, so a snapshot depends on the zone it was taken in (the examples avoid times).",
+    "css-variables: five public variables in the Framework's form (single dash, read with the token as fallback, never set): the reading column, the text, the muted text, the bubble and the edges. Their fallbacks are the tokens chat.css gave the same places."
+  ]
+}

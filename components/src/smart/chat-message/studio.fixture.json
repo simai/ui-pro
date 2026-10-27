@@ -1,0 +1,23 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "message-reference",
+  "component": "smart.chat-message",
+  "title": "Message reference",
+  "summary": "Deterministic reference fixture for sf-chat-message: a completed answer with markup, two sources and the verified mark.",
+  "locale": "ru",
+  "props": {
+    "message": {
+      "id": "msg_03",
+      "role": "assistant",
+      "status": "completed",
+      "verification": "verified",
+      "html": "<p>Ежегодный отпуск — <strong>28 календарных дней</strong>[1].</p>",
+      "text": "Ежегодный отпуск — 28 календарных дней[1].",
+      "sources": [
+        {"n": 1, "kind": "base", "title": "Положение об отпусках"}
+      ]
+    }
+  },
+  "children": [],
+  "state": "default"
+}

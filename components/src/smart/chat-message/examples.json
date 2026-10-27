@@ -1,0 +1,381 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Ответ с разметкой, источниками и отметкой проверки",
+      "settings": {
+        "message": {
+          "id": "msg_03",
+          "role": "assistant",
+          "status": "completed",
+          "verification": "verified",
+          "html": "<h2>Отпуск</h2><p>Ежегодный отпуск — <strong>28 календарных дней</strong>[1]. Перенос — по заявлению[2].</p><h3>Части отпуска</h3><p>Одна часть — <em>не меньше 14 дней</em>; правило <del>2019</del> года отменено.</p><h4>Где смотреть</h4><ul><li>Статья <code>ТК РФ 115</code></li><li><a href=\"https://example.com/plan.png\">Изображение: график отпусков</a></li></ul><table><thead><tr><th>Стаж</th><th>Дней</th></tr></thead><tbody><tr><td>до года</td><td>14</td></tr></tbody></table>",
+          "text": "Ежегодный отпуск — 28 календарных дней[1]. Перенос — по заявлению[2].",
+          "sources": [
+            {
+              "n": 1,
+              "kind": "base",
+              "title": "Положение об отпусках",
+              "excerpt": "Работнику предоставляется ежегодный основной оплачиваемый отпуск продолжительностью 28 календарных дней. Отпуск может быть разделён на части по соглашению сторон, при этом хотя бы одна из частей должна быть не менее 14 календарных дней."
+            },
+            {
+              "n": 2,
+              "kind": "web",
+              "title": "Трудовой кодекс, статья 124",
+              "url": "https://example.com/tk/124"
+            }
+          ],
+          "summary": {
+            "text": "Нашёл 2 источника, проверил ответ"
+          }
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-markup h2": "Отпуск",
+          ".sf-chat-chip--verified": "Проверен по источникам",
+          ".sf-chat-message__summary": "Нашёл 2 источника, проверил ответ"
+        }
+      }
+    },
+    {
+      "name": "waiting",
+      "title": "Ответ пишется: строка этапа",
+      "settings": {
+        "message": {
+          "id": "msg_04",
+          "role": "assistant",
+          "status": "running",
+          "stage": "writing"
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-stages__label": "Пишу ответ"
+        }
+      }
+    },
+    {
+      "name": "stopped",
+      "title": "Ожидание остановлено: «Обновить»",
+      "settings": {
+        "message": {
+          "id": "msg_05",
+          "role": "assistant",
+          "status": "running",
+          "stage": "searching"
+        },
+        "display": {
+          "wait": "stopped"
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-notice__action": "Обновить"
+        }
+      }
+    },
+    {
+      "name": "limit",
+      "title": "Лимит исчерпан",
+      "settings": {
+        "message": {
+          "id": "msg_06",
+          "role": "assistant",
+          "status": "limit",
+          "text": "Лимит вопросов на месяц исчерпан."
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-notice__text": "Лимит вопросов на месяц исчерпан."
+        }
+      }
+    },
+    {
+      "name": "failed",
+      "title": "Ошибка: «Повторить»",
+      "settings": {
+        "message": {
+          "id": "msg_07",
+          "role": "assistant",
+          "status": "failed",
+          "text": "Не удалось получить ответ."
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-notice__action": "Повторить"
+        }
+      }
+    },
+    {
+      "name": "question",
+      "title": "Вопрос с файлами",
+      "settings": {
+        "message": {
+          "id": "msg_01",
+          "role": "user",
+          "text": "Проверьте договор, пожалуйста",
+          "attachments": [
+            {
+              "id": "att_1",
+              "name": "Договор.pdf",
+              "bytes": 48213,
+              "href": "/files/att_1"
+            },
+            {
+              "id": "att_2",
+              "name": "Приложение.docx",
+              "bytes": 1572864
+            }
+          ]
+        }
+      },
+      "expect": {
+        "name": "Вы",
+        "texts": {
+          ".sf-chat-message__bubble": "Проверьте договор, пожалуйста",
+          ".sf-chat-attachment__link": "Договор.pdf"
+        }
+      }
+    },
+    {
+      "name": "proposal",
+      "title": "Предложение изменения",
+      "settings": {
+        "message": {
+          "id": "msg_08",
+          "role": "assistant",
+          "status": "completed",
+          "text": "Подготовил изменение отпуска.",
+          "proposal": {
+            "code": "P-17",
+            "title": "Перенести отпуск",
+            "state": "presented",
+            "changes": [
+              {
+                "field": "Начало",
+                "was": "1 июля",
+                "will_be": "15 июля"
+              }
+            ]
+          }
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-message__plain": "Подготовил изменение отпуска."
+        }
+      }
+    },
+    {
+      "name": "brief-questions",
+      "title": "Уточняющие вопросы с вариантами",
+      "settings": {
+        "features": {
+          "feedback": true,
+          "proposals": true,
+          "memory": true,
+          "brief": true
+        },
+        "message": {
+          "id": "msg_09",
+          "role": "assistant",
+          "status": "completed",
+          "text": "Нужно уточнить.",
+          "brief": {
+            "decision": "ask",
+            "lead": "Чтобы подготовить заявление, уточню два момента.",
+            "questions": [
+              {
+                "text": "С какого числа отпуск?",
+                "options": [
+                  {
+                    "label": "С 1 июля",
+                    "detail": "как в графике"
+                  },
+                  {
+                    "label": "С 15 июля"
+                  }
+                ],
+                "recommended": 0
+              },
+              {
+                "text": "Нужны ли отпускные заранее?",
+                "options": [
+                  {
+                    "label": "Да"
+                  },
+                  {
+                    "label": "Нет"
+                  }
+                ],
+                "blocking": false
+              }
+            ]
+          }
+        },
+        "display": {
+          "brief": {
+            "live": true
+          }
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-message__plain": "Чтобы подготовить заявление, уточню два момента.",
+          ".sf-chat-brief__hint": "Ответьте на обязательные вопросы"
+        }
+      }
+    },
+    {
+      "name": "brief-card",
+      "title": "Карточка «Как я понял задачу»",
+      "settings": {
+        "features": {
+          "feedback": true,
+          "proposals": true,
+          "memory": true,
+          "brief": true
+        },
+        "message": {
+          "id": "msg_10",
+          "role": "assistant",
+          "status": "completed",
+          "text": "Проверьте, правильно ли я понял.",
+          "brief": {
+            "decision": "card",
+            "card": {
+              "goal": "Перенести отпуск на две недели",
+              "result": "Заявление на перенос",
+              "steps": [
+                "Найти график",
+                "Подготовить заявление"
+              ],
+              "assumptions": [
+                "Руководитель согласен"
+              ],
+              "confirm": "Да"
+            }
+          }
+        },
+        "display": {
+          "brief": {
+            "live": true
+          }
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-brief__text": "Как я понял задачу",
+          ".sf-chat-brief__send": "Да"
+        }
+      }
+    },
+    {
+      "name": "feedback-reason",
+      "title": "«Не полезно»: что не так",
+      "settings": {
+        "message": {
+          "id": "msg_11",
+          "role": "assistant",
+          "status": "completed",
+          "text": "Отпуск — 28 дней."
+        },
+        "display": {
+          "feedback": {
+            "value": "down",
+            "asking": true,
+            "draft": {
+              "reason": null,
+              "note": ""
+            }
+          }
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-reason__title": "Что не так с ответом?"
+        }
+      }
+    },
+    {
+      "name": "person",
+      "title": "Сообщение собеседника (шаблон person)",
+      "template": "person",
+      "attributes": {
+        "template": "person"
+      },
+      "settings": {
+        "message": {
+          "id": 41,
+          "body": "Посмотрите график, пожалуйста",
+          "authorName": "Анна Смирнова",
+          "canEdit": false,
+          "canDelete": false,
+          "files": [
+            {
+              "id": 7,
+              "name": "График.xlsx",
+              "size": 20480,
+              "state": "ready",
+              "downloadUrl": "/files/7"
+            }
+          ]
+        },
+        "display": {
+          "own": false,
+          "first": true,
+          "last": true,
+          "showName": true
+        }
+      },
+      "expect": {
+        "name": "Анна Смирнова",
+        "texts": {
+          ".sf-chat-person__name": "Анна Смирнова",
+          ".sf-chat-person__bubble": "Посмотрите график, пожалуйста"
+        }
+      }
+    },
+    {
+      "name": "person-own",
+      "title": "Своё сообщение с действиями (шаблон person)",
+      "template": "person",
+      "attributes": {
+        "template": "person"
+      },
+      "settings": {
+        "message": {
+          "id": 42,
+          "body": "Хорошо, посмотрю",
+          "authorName": "Вы",
+          "isEdited": true,
+          "canEdit": true,
+          "canDelete": true
+        },
+        "display": {
+          "own": true,
+          "first": true,
+          "last": true
+        }
+      },
+      "expect": {
+        "name": "Вы",
+        "texts": {
+          ".sf-chat-person__bubble": "Хорошо, посмотрю"
+        }
+      }
+    }
+  ]
+}

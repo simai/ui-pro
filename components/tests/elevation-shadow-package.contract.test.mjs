@@ -10,7 +10,7 @@ import {resolve} from 'node:path';
 // with the component, so it is written here.
 const root = resolve(import.meta.dirname, '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
-const PACKAGE = ['table', 'data-view', 'property-view', 'admin-menu', 'message-log', 'thread-list', 'change-confirm', 'chat-interlocutor', 'chat-composer'];
+const PACKAGE = ['table', 'data-view', 'property-view', 'admin-menu', 'message-log', 'thread-list', 'change-confirm', 'chat-interlocutor', 'chat-composer', 'chat-message'];
 const exemptions = [
 ];
 
