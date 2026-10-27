@@ -406,7 +406,7 @@
       ],
       "returns": {
         "type": "object",
-        "description": "The element, for chaining."
+        "description": "The outcome of connect-port, whose alias this is: {outcome: \"applied\"}, or refused with no-port, other-port or port-unsupported."
       }
     },
     "setSearchResults": {
@@ -443,7 +443,7 @@
       }
     },
     "connectPort": {
-      "summary": "The base action connect-port {port}: hands the navigation port; answers an outcome. setHostPort is its alias.",
+      "summary": "The Framework's base action connect-port {port} (standard 1.3.8 §4.1, §4.9): hands the navigation port, kept as sfPort; answers an outcome (refused other-port for another port, port-unsupported for a version the menu does not take). setHostPort is its alias.",
       "arguments": [
         {
           "name": "port",
@@ -1030,11 +1030,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
-        "sha256": "6a0e7fbdee41f6b36627c245cdefe4e27b7cacbf22daa9f288faf2fd11b5ea8c"
+        "sha256": "ef23bc0f94793378c2f30693ccf33e5d9ce7b4790d283fd35dded821bcc185af"
       },
       {
         "path": "src/smart/admin-menu/js/templates/default.js",
-        "sha256": "9986cd031ca422f4cc4830e7ba53acd84d13a91358787dd300639ede86422bcb"
+        "sha256": "217361050bc6b383fb04b1bc92eeb048f3eb852609e206e092d3df846b7965ea"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
@@ -1058,7 +1058,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
-        "sha256": "72b30e32a4c86a5cacd87bc766dbb88da5eb6a13223fbae9071df0d88c7a4aed"
+        "sha256": "8a6eaff10c62a5b3d6c8c0b0ecb91e94084a2a0599da1b138330aaf76a5f1b13"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",

@@ -306,7 +306,7 @@
           "expect": {
             "returns": {
               "outcome": "refused",
-              "reason": "port-unsupported"
+              "reason": "other-port"
             }
           }
         }

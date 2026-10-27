@@ -2366,21 +2366,13 @@ class SfAdminMenu extends AdminMenuElement {
         return this._navigation?.load("requested") ?? Promise.resolve();
     }
 
-    // The base action connect-port {port} (§4.1, §4.9): the page or an
-    // assembly hands the port; answers an outcome. setHostPort is its alias.
-    connectPort(params) {
-        const port = params && typeof params === "object" && "port" in params && typeof params.raise !== "function" ? params.port : params;
-        try {
-            this.setHostPort(port);
-            return {outcome: "applied"};
-        } catch {
-            return {outcome: "refused", reason: "port-unsupported"};
-        }
-    }
-
-    // A host adapter exposes {port, version, capabilities, raise(intent, payload)}.
-    // Only the navigation port is taken: the `items` menu has no port at all.
-    setHostPort(host) {
+    // The port arrives by the base action connect-port {port} (§4.1, §4.9;
+    // the Framework's connectPort, with setHostPort its alias), which keeps it
+    // as sfPort and runs this hook. A host adapter exposes {port, version,
+    // capabilities, raise(intent, payload)}; only the navigation port is taken,
+    // the `items` menu has no port at all. Throwing refuses it
+    // (port-unsupported) and the base does not keep it.
+    onPortConnected(host) {
         if (!host || typeof host.raise !== "function" || host.port !== NAVIGATION_PORT
             || !SUPPORTED_NAVIGATION_VERSIONS.includes(host.version)) {
             throw new TypeError(
@@ -2400,7 +2392,6 @@ class SfAdminMenu extends AdminMenuElement {
             this._navigation.load("host-connected");
         }
         this.requestComponentUpdate("navigation-port");
-        return this;
     }
 
     beforeRender() {
