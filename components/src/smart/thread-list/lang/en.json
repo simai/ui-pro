@@ -11,6 +11,8 @@
     "empty-text": "No conversations yet",
     "label": "Conversations",
     "loading-text": "Loading conversations",
+    "pinned": "Pinned",
+    "pinned-text": "Pinned",
     "rename-label": "New name",
     "rename-text": "Rename",
     "today": "Today",

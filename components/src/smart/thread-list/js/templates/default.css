@@ -189,6 +189,17 @@
     line-height: var(--sf-label-medium--height);
   }
 
+  /* A pinned conversation says so in a quiet line of its own, under the
+     caption: the heading «Pinned» is not read with the row. */
+  .sf-thread-list__pinned {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-small--size);
+    line-height: var(--sf-label-small--height);
+  }
+
   .sf-thread-list__unread { flex: none; }
 
   /* The row's «⋯»: an icon button of the step below the row, centred in the

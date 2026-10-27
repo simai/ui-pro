@@ -79,7 +79,13 @@ list.addEventListener('sf-thread-list-apply', (event) => {
 
 ## The thread
 
-`{id, title, updated-at, archived?, caption?, unread?, avatar?: {image-url?, text?}}`.
+`{id, title, updated-at, archived?, pinned?, caption?, unread?, avatar?: {image-url?, text?}}`.
+A pinned conversation (`pinned: true`, Mirai24 API v1.1) leads the list under its own
+heading «Закреплённые» (`pinned`) and carries a quiet «Закреплён» line
+(`pinned-text`); without groups (`group-by="none"`) the pinned ones simply lead.
+Pinning and unpinning are the host's row actions: it offers them in `actions`
+(`{id: "pin", text: "Закрепить"}`), hears them as `sf-thread-list-apply` and
+gives the list the entry with `pinned` changed.
 The list keeps only the conversations of the shown view: with `archived` the
 archived ones, without it the rest. A title is cut at 120 characters when renamed.
 The 1.0 spellings `updated_at` and `avatar.image_url` are read until 2026-12-01 and
@@ -154,7 +160,7 @@ corrected through `SF.language.register('sf-thread-list', 'ru', {'create-text': 
 Keys: `label`, `create-text`, `today`, `yesterday`, `earlier`, `actions-label`,
 `rename-text`, `rename-label`, `archive-text`, `unarchive-text`, `archive-view`,
 `back-text`, `empty-text`, `archive-empty-text`, `loading-text`, `untitled-text`,
-`unread-label`.
+`unread-label`, `pinned`, `pinned-text`.
 
 Under a finger (`pointer: coarse`) every target is at least 44px (`--sf-d1`):
 a row, «Новый разговор» and the other row-like commands, and a row's «⋯».

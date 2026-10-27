@@ -22,6 +22,7 @@ const row = (context, thread) => {
     const unread = Number(thread.unread) > 0 ? Math.floor(Number(thread.unread)) : 0;
     const current = thread.id === context.selected;
     const avatar = thread.avatar && typeof thread.avatar === "object" ? thread.avatar : null;
+    const pinned = thread.pinned === true;
 
     if (context.editing === thread.id) {
         return html`
@@ -70,6 +71,7 @@ const row = (context, thread) => {
                 <span class="sf-thread-list__text">
                     <span class="sf-thread-list__title">${title}</span>
                     ${caption ? html`<span class="sf-thread-list__caption">${caption}</span>` : nothing}
+                    ${pinned ? html`<span class="sf-thread-list__pinned">${context.pinnedText}</span>` : nothing}
                 </span>
                 ${unread
                     ? html`<sf-badge class="sf-thread-list__unread" size="1/3" scheme="primary"

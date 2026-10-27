@@ -42,7 +42,9 @@ import aliases from "./aliases.json";
 import en from "./lang/en.json";
 import ru from "./lang/ru.json";
 
-const GROUPS = ["today", "yesterday", "earlier"];
+// A pinned conversation leads, under its own heading, before the days
+// (Mirai24 API v1.1: `pinned` on an entry; owner, 2026-10-28).
+const GROUPS = ["pinned", "today", "yesterday", "earlier"];
 // A title longer than this is not a title; the field stops there, as the
 // server that stores it most likely does.
 const TITLE_LIMIT = 120;
@@ -232,6 +234,7 @@ class SfThreadList extends ThreadListElement {
     // ── what is drawn ────────────────────────────────────────────────────────
 
     groupOf(thread, today) {
+        if (thread.pinned === true) return "pinned";
         const date = new Date(thread["updated-at"]);
         if (Number.isNaN(date.getTime())) return "earlier";
         if (dayKey(date) === dayKey(today)) return "today";
@@ -241,7 +244,11 @@ class SfThreadList extends ThreadListElement {
     }
 
     groups() {
-        if (this.getProp("groupBy") === "none") return [{key: "all", heading: "", threads: this._threads}];
+        // Without groups the pinned ones still lead, in their own order.
+        if (this.getProp("groupBy") === "none") {
+            const pinned = this._threads.filter((thread) => thread.pinned === true);
+            return [{key: "all", heading: "", threads: [...pinned, ...this._threads.filter((thread) => thread.pinned !== true)]}];
+        }
         const today = new Date();
         const byGroup = new Map(GROUPS.map((key) => [key, []]));
         for (const thread of this._threads) byGroup.get(this.groupOf(thread, today)).push(thread);
@@ -285,6 +292,7 @@ class SfThreadList extends ThreadListElement {
             archiveView: this.sfWord("archive-view"),
             renameLabel: this.sfWord("rename-label"),
             untitledText: this.sfWord("untitled-text"),
+            pinnedText: this.sfWord("pinned-text"),
             actionsLabel: (title) => this.text("actions-label", {title}),
             unreadLabel: (count) => this.text("unread-label", {count}),
             hasFooter: this.hasSlotContent("footer"),
