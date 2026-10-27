@@ -27,10 +27,10 @@ const styles = [
   'smart/smart/sortable/css/sortable.css',
 ].map((p) => join(out, p));
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icons/js/icons.js',
-  'smart/smart/buttons/js/buttons.js', 'smart/smart/icon-buttons/js/icon-buttons.js',
+  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
+  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
   'smart/smart/copy-button/js/copy-button.js',
-  'smart/smart/inputs/js/inputs.js', 'smart/smart/switch/js/switch.js',
+  'smart/smart/input/js/input.js', 'smart/smart/switch/js/switch.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/button-group/js/button-group.js',
   'smart/smart/context-menu/js/context-menu.js',

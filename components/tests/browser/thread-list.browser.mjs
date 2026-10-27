@@ -26,8 +26,8 @@ const styles = [
   'smart/smart/thread-list/css/thread-list.css',
 ].map((p) => join(out, p));
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icons/js/icons.js',
-  'smart/smart/badges/js/badges.js', 'smart/smart/avatar/js/avatar.js',
+  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
+  'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js',
   'smart/smart/context-menu/js/context-menu.js',
   'smart/smart/thread-list/js/thread-list.js',
 ].map((p) => join(out, p));

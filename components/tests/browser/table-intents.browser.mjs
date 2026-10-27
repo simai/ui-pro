@@ -153,7 +153,8 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   const byText = Object.fromEntries(badges.map((badge) => [badge.text, badge]));
   check(badges.length === 4, `${tag}: four badge options`, badges);
   check(byText['Готово']?.scheme === 'success' && /sf-badge--tonal/.test(byText['Готово']?.classes) && byText['Готово']?.icon === 'check', `${tag}: scheme badge with icon`, byText['Готово']);
-  check(byText['Отменено']?.scheme === 'danger', `${tag}: danger badge`, byText['Отменено']);
+  // The option says danger, the former name of the badge scheme error.
+  check(byText['Отменено']?.scheme === 'error', `${tag}: danger badge`, byText['Отменено']);
   check(byText['Черновик']?.scheme === 'neutral' && byText['Черновик']?.background !== byText['Прочее']?.background, `${tag}: hex badge tinted`, [byText['Черновик'], byText['Прочее']]);
   check(byText['Прочее']?.scheme === 'neutral', `${tag}: invalid colour falls back to neutral`, byText['Прочее']);
   await page.screenshot({ path: resolve(outputDir, `table-intents-${theme}-${dir}.png`) });

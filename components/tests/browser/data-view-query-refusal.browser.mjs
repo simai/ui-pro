@@ -27,12 +27,12 @@ const styles = [
   'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icons/js/icons.js',
-  'smart/smart/buttons/js/buttons.js', 'smart/smart/icon-buttons/js/icon-buttons.js',
+  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
+  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/list-item/js/list-item.js',
-  'smart/smart/dropdown/js/dropdown.js', 'smart/smart/inputs/js/inputs.js',
+  'smart/smart/dropdown/js/dropdown.js', 'smart/smart/input/js/input.js',
   'smart/smart/spinner/js/spinner.js', 'smart/smart/context-menu/js/context-menu.js',
-  'smart/smart/tabs/js/tabs.js', 'smart/smart/tags/js/tags.js',
+  'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/empty-state/js/empty-state.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
   'smart/smart/data-view/js/data-view.js',
@@ -42,7 +42,7 @@ const LIMIT = 40;
 const TOO_LONG = `Строка поиска длиннее ${LIMIT} символов <b>сократите</b>`;
 const LONG = 'длинный поиск '.repeat(5).trim();
 const SHORT = 'длинный';
-const search = 'sf-table#t input[name=sf_table_search]';
+const search = 'sf-table#t sf-input[name=sf_table_search] input';
 
 const failures = [];
 const note = (detail) => failures.push(detail);

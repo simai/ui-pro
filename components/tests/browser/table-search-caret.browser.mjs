@@ -21,7 +21,7 @@ await page.setViewportSize({ width: 1100, height: 760 });
 await page.goto(`${labUrl}?${new URLSearchParams({ assets: assetsUrl, smart: smartUrl, dir: 'ltr', theme: 'light' })}`);
 await page.waitForFunction(() => document.documentElement.dataset.ready === 'true');
 
-const search = 'sf-table#table input[name=sf_table_search]';
+const search = 'sf-table#table sf-input[name=sf_table_search] input';
 await page.waitForSelector(search);
 
 // The rule that closes the race: nothing animates while the field has focus.

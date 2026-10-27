@@ -22,8 +22,8 @@ const styles = [
   'smart/smart/change-confirm/css/change-confirm.css',
 ].map((p) => join(out, p));
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icons/js/icons.js',
-  'smart/smart/buttons/js/buttons.js',
+  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
+  'smart/smart/button/js/button.js',
   'smart/smart/change-confirm/js/change-confirm.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));

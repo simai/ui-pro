@@ -21,13 +21,13 @@ import {chromium} from 'playwright';
 if (!process.argv[2]) throw new Error('Build output root is required');
 const out = resolve(process.argv[2]);
 const styles = ['core/core/css/core.css', 'core/core/css/utility.full.css',
-  'smart/smart/tags/css/tags.css', 'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css'].map((p) => join(out, p));
+  'smart/smart/tag/css/tag.css', 'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css'].map((p) => join(out, p));
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icons/js/icons.js',
-  'smart/smart/buttons/js/buttons.js', 'smart/smart/icon-buttons/js/icon-buttons.js',
+  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
+  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/context-menu/js/context-menu.js', 'smart/smart/list-item/js/list-item.js',
-  'smart/smart/pagination/js/pagination.js', 'smart/smart/tags/js/tags.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
+  'smart/smart/pagination/js/pagination.js', 'smart/smart/tag/js/tag.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
