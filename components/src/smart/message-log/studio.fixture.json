@@ -1,0 +1,23 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "reference",
+  "component": "smart.message-log",
+  "title": "Message log reference",
+  "summary": "Deterministic reference fixture for sf-message-log. Messages arrive from the host through setMessages with its renderMessage; the fixture shows the empty state.",
+  "locale": "ru",
+  "props": {
+    "label": "Переписка",
+    "live": "polite"
+  },
+  "children": [
+    {
+      "element": "p",
+      "props": {
+        "slot": "empty"
+      },
+      "text": "Сообщений пока нет",
+      "children": []
+    }
+  ],
+  "state": "default"
+}

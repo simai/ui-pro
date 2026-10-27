@@ -1,0 +1,39 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "reference",
+  "component": "smart.change-confirm",
+  "title": "Change confirm reference",
+  "summary": "Deterministic reference fixture for sf-change-confirm: a proposed change waiting for an answer.",
+  "locale": "ru",
+  "props": {
+    "heading": "Изменить настройки рассылки",
+    "heading-level": "3",
+    "state": "open",
+    "change-id": "chg-1",
+    "accept-text": "Применить",
+    "decline-text": "Отклонить",
+    "changes": [
+      {
+        "label": "Частота",
+        "before": "Раз в неделю",
+        "after": "Каждый день"
+      },
+      {
+        "label": "Время",
+        "before": "09:00",
+        "after": "18:00"
+      }
+    ]
+  },
+  "children": [
+    {
+      "element": "p",
+      "props": {
+        "slot": "description"
+      },
+      "text": "Ассистент предлагает изменить две настройки.",
+      "children": []
+    }
+  ],
+  "state": "default"
+}

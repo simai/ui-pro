@@ -1,0 +1,23 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "reference",
+  "component": "smart.thread-list",
+  "title": "Thread list reference",
+  "summary": "Deterministic reference fixture for sf-thread-list. Threads arrive from the host through setThreads; the fixture shows the frame and its footer.",
+  "locale": "ru",
+  "props": {
+    "label": "Беседы",
+    "group-by": "day"
+  },
+  "children": [
+    {
+      "element": "p",
+      "props": {
+        "slot": "footer"
+      },
+      "text": "Беседы хранятся 30 дней",
+      "children": []
+    }
+  ],
+  "state": "default"
+}

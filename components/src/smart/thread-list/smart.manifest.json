@@ -693,7 +693,9 @@
     "module": null
   },
   "artifacts": {
-    "fixtures": [],
+    "fixtures": [
+      "studio.fixture.json"
+    ],
     "scenarios": []
   },
   "readiness": {
