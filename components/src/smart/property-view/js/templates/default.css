@@ -8,6 +8,22 @@
     display: block;
   }
 
+  /* The record holds its box (first paint, standard 1.3.9 §5.4): inline or as
+     the page, it fills the region the page gives it, and the record -- its
+     arrangement, how many groups and fields, on a phone the list of its
+     sections -- grows inside its own scroll area, so nothing outside it moves
+     when the record arrives. In a region of no set height it is as tall as its
+     content, as before. The panel is a drawer over the page and holds its own
+     box. */
+  sf-property-view:not([panel]),
+  sf-property-view[full] {
+    /* Over the base's display: contents, which would leave no box to hold. */
+    display: block !important;
+    block-size: 100%;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
   /* A stack of windows. Each depth is inset a little further so the one below
      stays partly visible, which is what makes it a stack rather than a
      replacement: a person can see they are two records deep. Only the top window

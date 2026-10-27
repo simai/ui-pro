@@ -2695,6 +2695,21 @@ class SfTable extends TableElement {
         if ((this._remeasureTries ?? 0) >= 3) return;
         this._remeasureTries = (this._remeasureTries ?? 0) + 1;
         const token = (this._remeasureToken = (this._remeasureToken ?? 0) + 1);
+        // Every element in the cells defined (sf-table relates them eagerly):
+        // the widths are read again the moment they have drawn, in the same
+        // task, before the frame is painted -- read two frames later, the
+        // columns moved by a few pixels after the rows had been shown (gate 24
+        // phase 3, sf-data-view at 1280).
+        const drawing = [...table.querySelectorAll('tbody td *')]
+            .filter((element) => pending.has(element.localName) && typeof element.whenRendered === 'function');
+        if ([...pending].every((name) => customElements.get(name)) && drawing.length) {
+            Promise.all(drawing.map((element) => (element.isRendered === true ? null : element.whenRendered())))
+                .then(() => {
+                    if (token !== this._remeasureToken || !this.isConnected) return;
+                    if (this.measureContentWidths()) this.widthsChanged();
+                });
+            return;
+        }
         Promise.all([...pending].map((name) => customElements.whenDefined(name)))
             .then(() => new Promise((settle) => requestAnimationFrame(() => requestAnimationFrame(settle))))
             .then(() => {

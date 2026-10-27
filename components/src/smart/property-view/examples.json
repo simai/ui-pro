@@ -162,7 +162,9 @@
           }
         },
         "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. The record has the shape the skeleton stands for -- three sections, three groups of three fields -- so the gate measures the skeleton's geometry against real groups."
-      }
+      },
+      "parent": "<div class=\"flex flex-col\" style=\"block-size: 40rem\"></div>",
+      "x-first-paint": "The page's content region: the record fills it before and after the host answers, and its groups scroll inside."
     },
     {
       "name": "panel",
@@ -641,7 +643,9 @@
           }
         },
         "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. The record has the shape the skeleton stands for -- three sections, three groups of three fields -- so the gate measures the skeleton's geometry against real groups."
-      }
+      },
+      "parent": "<div class=\"flex flex-col\" style=\"block-size: 40rem\"></div>",
+      "x-first-paint": "The page's content region: the record fills it before and after the host answers, and its groups scroll inside."
     }
   ]
 }

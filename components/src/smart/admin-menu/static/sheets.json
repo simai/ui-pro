@@ -13,6 +13,7 @@
     "component/icon-buttons/css/icon-buttons.min.css",
     "component/icons/css/icons.min.css",
     "component/inputs/css/inputs.min.css",
+    "component/skeleton/css/skeleton.min.css",
     "core/css/core.css",
     "smart/admin-menu/css/admin-menu.min.css",
     "smart/icon-button/css/icon-button.min.css",
@@ -52,6 +53,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/skeleton/css/skeleton.min.css",
       "core/css/core.css",
       "smart/admin-menu/css/admin-menu.min.css",
       "smart/icon-button/css/icon-button.min.css",
@@ -70,6 +72,7 @@
       "utility/position/default/css/default.min.css",
       "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css",
+      "utility/width/default/css/default.min.css",
       "utility/z-index/default/css/default.min.css"
     ],
     "reference": [

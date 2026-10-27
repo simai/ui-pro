@@ -2,7 +2,7 @@
   "$comment": "The source of sf-admin-menu's interface (standard simai.smart-component 1.3.8). Taken from simai/ui-control control/smart-architecture/migration/out/admin-menu (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.admin-menu",
   "tag": "sf-admin-menu",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "kind": "leaf",
   "family": "menu",
   "settings": {
@@ -120,6 +120,12 @@
       "type": "string",
       "default": "",
       "x-summary": "the row the page is on, by its key: it is marked current and its root's column follows it; empty: the row whose address the page is at (stand 24 A1)"
+    },
+    "source": {
+      "type": "enum",
+      "values": ["items", "port"],
+      "default": "items",
+      "x-summary": "where the entries come from: items (the setting and the element's children) or port (simai.admin-navigation-port, which the host connects); with port the menu is its navigation skeleton until the host answers, never the empty items menu (first paint, standard 1.3.9 §5.4)"
     },
     "open": {
       "type": "boolean",
@@ -632,6 +638,7 @@
     "examples: examples.json from studio.fixture.json and studio.scenario.json plus the search panel and the navigation shell over a port; probe.json drives the per-verb events through a port, the old intent name, the settings reset and the menu search (gate 16, gate 20).",
     "css-variables: five public variables the navigation shell reads with the role tokens as fallback; the items menu's look is the free admin-menu class's, whose variables are internal.",
     "side-effects: portal (the context menu is drawn in #sf-admin-menu-portal at the end of body).",
-    "version 1.3.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3."
+    "version 1.3.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3.",
+    "version 1.4.0: source (items | port): a menu whose entries come from the navigation port is its navigation skeleton -- six rows in the real row markup, both columns on a wide screen and one on a phone by the stylesheet -- from the first paint until the host answers, never the empty items menu; the menu fills its region and its rows scroll inside, so its box holds when the host answers (gate 24 phase 3)."
   ]
 }

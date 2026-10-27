@@ -14,9 +14,10 @@ import {pageText} from "../../core/js/page-language";
 import {
     NavigationController,
     NAVIGATION_PORT,
+    NAVIGATION_TEXT,
     SUPPORTED_NAVIGATION_VERSIONS,
 } from "./js/navigation/controller";
-import {renderNavigationTemplate} from "./js/navigation/template";
+import {renderNavigationSkeleton, renderNavigationTemplate} from "./js/navigation/template";
 import {wordsOf} from "./js/words.js";
 
 // Prefer the helper Core published; an isolated bundle uses its own copy.
@@ -327,6 +328,13 @@ class SfAdminMenu extends AdminMenuElement {
         if (this._navigation) {
             super.connectedCallback();
             this._navigation.load("connected");
+            return;
+        }
+        // Entries from the port the host has not connected yet: the menu is
+        // its navigation skeleton until it does, never the empty items menu
+        // (first paint, standard 1.3.9 §5.4).
+        if (this.awaitsNavigationPort) {
+            super.connectedCallback();
             return;
         }
         this.bindSearchShortcut();
@@ -2338,8 +2346,19 @@ class SfAdminMenu extends AdminMenuElement {
         });
     }
 
+    get awaitsNavigationPort() {
+        return !this._navigation && this.getAttribute("source") === "port";
+    }
+
+    // The navigation skeleton before a port; its columns follow the viewport
+    // in the stylesheet, as the answered menu's do (controller.js WIDE_MEDIA_QUERY).
+    navigationSkeletonContext() {
+        return {text: (key) => pageText(NAVIGATION_TEXT, key, this, "sf-admin-menu")};
+    }
+
     template() {
         if (this._navigation) return renderNavigationTemplate(this._navigation.context());
+        if (this.awaitsNavigationPort) return renderNavigationSkeleton(this.navigationSkeletonContext());
         return renderAdminMenuTemplate(this.templateContext());
     }
 

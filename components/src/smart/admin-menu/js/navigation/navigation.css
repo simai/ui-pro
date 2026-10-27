@@ -66,6 +66,21 @@
     flex: 0 0 auto;
   }
 
+  /* The skeleton (renderNavigationSkeleton): both columns on a wide screen,
+     the first the whole width on a phone, by the viewport alone. */
+  @media not all and (min-width: 48rem) {
+    .sf-admin-nav--skeleton {
+      inline-size: 100%;
+    }
+    .sf-admin-nav--skeleton .sf-admin-nav-first {
+      inline-size: 100%;
+      border-inline-end: 0;
+    }
+    .sf-admin-nav--skeleton .sf-admin-nav-second {
+      display: none;
+    }
+  }
+
   /* On a phone each column is a whole screen. */
   .sf-admin-nav[data-wide="false"] {
     inline-size: 100%;

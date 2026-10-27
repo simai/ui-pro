@@ -88,7 +88,9 @@
     {
       "name": "navigation-port",
       "title": "Меню над портом навигации",
-      "settings": {},
+      "settings": {
+        "source": "port"
+      },
       "host": {
         "aria-label": "Меню"
       },
@@ -135,7 +137,9 @@
         "events": [
           "refresh"
         ]
-      }
+      },
+      "parent": "<div class=\"flex\" style=\"block-size: 40rem\"></div>",
+      "x-first-paint": "The menu's region, as an admin shell gives it a column the page's height: the menu fills it before and after the host answers, and its rows scroll inside."
     }
   ]
 }

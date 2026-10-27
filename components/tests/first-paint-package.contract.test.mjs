@@ -79,3 +79,26 @@ test('sf-table brings the cells it draws with other Smart elements with it, not 
   const table = describe(smart, 'table');
   assert.ok(table.examples.some((one) => one.name === 'typed-cells'), 'an example with those cells');
 });
+
+test('a port-fed component holds its box: it fills its region and its data scrolls inside', () => {
+  const css = (path) => readFileSync(join(smart, path), 'utf8');
+  assert.match(css('table/js/templates/default.css'), /sf-data-view \{\s*display: block;\s*block-size: 100%;\s*overflow: auto;/u, 'sf-data-view, before its code');
+  assert.match(readFileSync(join(smart, 'data-view', 'index.js'), 'utf8'), /:host \{ display: block; block-size: 100%; overflow: auto;/u, 'sf-data-view, its shadow layout');
+  assert.match(css('property-view/js/templates/default.css'), /sf-property-view:not\(\[panel\]\),\s*sf-property-view\[full\] \{\s*\/\*[^*]*\*\/\s*display: block !important;\s*block-size: 100%;\s*overflow: auto;/u);
+  assert.match(css('admin-menu/js/navigation/navigation.css'), /\.sf-admin-nav--skeleton \.sf-admin-nav-second \{\s*display: none;/u, 'the skeleton keeps one column on a phone');
+  // Each such example puts the component in a region, as a page does.
+  for (const [folder, names] of [['data-view', ['reference', 'open-record', 'embedded']], ['property-view', ['reference', 'full']], ['admin-menu', ['navigation-port']]]) {
+    const component = describe(smart, folder);
+    for (const name of names) assert.match(component.examples.find((one) => one.name === name).parent ?? '', /block-size: \d+rem/u, `${folder}/${name}`);
+  }
+});
+
+test('sf-admin-menu over a navigation port prints its skeleton, never the empty items menu', () => {
+  const admin = describe(smart, 'admin-menu');
+  assert.deepEqual(admin.manifest.settings.source.values, ['items', 'port']);
+  const example = admin.examples.find((one) => one.name === 'navigation-port');
+  assert.equal(example.settings.source, 'port');
+  const html = readFileSync(exampleFiles(admin, example).html, 'utf8');
+  assert.match(html, /class="sf-admin-nav sf-admin-nav--skeleton" aria-busy="true"/u);
+  assert.equal((html.match(/class="sf-admin-nav-item"/gu) ?? []).length, 12, 'six rows in each column');
+});

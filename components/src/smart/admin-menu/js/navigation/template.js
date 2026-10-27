@@ -287,19 +287,31 @@ function renderSecondColumn(context) {
     </div>`;
 }
 
+// The menu until the host answers (and before a host is connected, for a menu
+// whose entries come from the port): its own rows with bars where the icon and
+// the name go (simai.interaction-rules, loading-is-a-skeleton), in the columns
+// the answered menu takes -- on a wide screen the first column and the open
+// root's, on a phone one column the whole width -- so the menu's box is the
+// same before and after the answer. The column fills its region; its rows
+// scroll inside it. The word is for a screen reader only.
+export const SKELETON_ROWS = 6;
+export function renderNavigationSkeleton({text}) {
+    const widths = ["w-3/4", "w-1/2", "w-2/3", "w-1/2", "w-3/4", "w-2/5"];
+    const row = (width) => html`<div class="sf-admin-nav-item"><div class="sf-admin-nav-row sf-admin-nav-row--first" aria-hidden="true">
+        <div class="sf-skeleton sf-skeleton--animation-pulse"><div class="sf-skeleton-circle sf-skeleton-icon"></div></div>
+        <div class="sf-skeleton sf-skeleton--animation-pulse" style="flex:1"><div class="sf-skeleton-text sf-skeleton-text--size-1/2 ${width}"></div></div></div></div>`;
+    const column = (name) => html`<div class=${`sf-admin-nav-${name}`}><div class="sf-admin-nav-scroll">
+        <div class="sf-admin-nav-rows">${Array.from({length: SKELETON_ROWS}, (_, at) => row(widths[at % widths.length]))}</div></div></div>`;
+    // Both columns are printed; the stylesheet keeps one, the whole width,
+    // below 48rem (navigation.css), since a printed skeleton knows no viewport.
+    return html`<nav class="sf-admin-nav sf-admin-nav--skeleton" aria-busy="true">
+        ${column("first")}${column("second")}
+        <span class="sr-only" role="status">${text("loading")}</span></nav>`;
+}
+
 export function renderNavigationTemplate(context) {
     const {status, text, controller, wide, screen, compact} = context;
-    if (status === "loading") {
-        // Loading is the menu's skeleton -- rows of bars where the rows will be
-        // (simai.interaction-rules, loading-is-a-skeleton), the word for a
-        // screen reader only.
-        const bar = (width) => html`<div class="sf-admin-nav-row sf-admin-nav-row--first" aria-hidden="true">
-            <div class="sf-skeleton sf-skeleton--animation-pulse"><div class="sf-skeleton-circle sf-skeleton-icon"></div></div>
-            <div class="sf-skeleton sf-skeleton--animation-pulse" style="flex:1"><div class="sf-skeleton-text sf-skeleton-text--size-1/2 ${width}"></div></div></div>`;
-        return html`<nav class="sf-admin-nav" aria-busy="true"><div class="sf-admin-nav-first">
-            ${["w-3/4", "w-1/2", "w-2/3", "w-1/2", "w-3/4"].map(bar)}
-            <span class="sr-only" role="status">${text("loading")}</span></div></nav>`;
-    }
+    if (status === "loading") return renderNavigationSkeleton(context);
     if (status !== "ready") {
         // A menu that could not load says so as every component does, with
         // «Повторить» asking again.
