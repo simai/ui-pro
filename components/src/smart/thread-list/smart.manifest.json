@@ -770,7 +770,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "a93bcc61624a4d7c27717199950551096beb009d",
+    "source_revision": "4a724a3005919045c8ce06ce318d9f539e5f623f",
     "source_artifacts": [
       {
         "path": "src/smart/thread-list/index.js",
@@ -794,7 +794,7 @@
       },
       {
         "path": "src/smart/thread-list/component.json",
-        "sha256": "975a723898c02da432d7f49a0229a28b4933e86b13ccd0480ce0fa98b1238b72"
+        "sha256": "90532299e8fcdae69564f0b437b9e772f64fa8004e44dd43b9935a75fd162172"
       },
       {
         "path": "src/smart/thread-list/aliases.json",

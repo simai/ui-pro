@@ -1056,7 +1056,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "b8414d53b71e6e39fff408148ecee956643061a6",
+    "source_revision": "4a724a3005919045c8ce06ce318d9f539e5f623f",
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
@@ -1100,7 +1100,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "b126be5e62181641eabd10f2f548b8491d5c9d0deea0a48eaf70ac859a33e923"
+        "sha256": "be2d4f6bfb1387ac457493d66a299527da8c4caa5131acdae47f514859e60a57"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",
