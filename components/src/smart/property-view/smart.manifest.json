@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -59,7 +59,6 @@
       "smart.sortable",
       "smart.spinner",
       "smart.switch",
-      "smart.table",
       "smart.tabs",
       "smart.tag",
       "smart.textarea",
@@ -1261,6 +1260,13 @@
         "to": "1.7.4",
         "changes": [
           "Inline and as the page the view fills its region (display block over the base's display: contents) and its arrangement scrolls inside, so a port-fed record holds its box from the first paint (gate 24). Nothing to change for a host."
+        ]
+      },
+      {
+        "from": "1.7.4",
+        "to": "1.7.5",
+        "changes": [
+          "The manifest composes the Pro table by its id, smart.data-view, alone; smart.table, its former name, is no longer listed beside it. Nothing to change for a host."
         ]
       }
     ]
