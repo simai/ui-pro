@@ -136,6 +136,28 @@ a lookup that is not inline is shown read-only, as a record is.
  "value": {"value": "RU", "label": "Россия"}}
 ```
 
+## Reading one group at a time
+
+A host on port 1.15.0 that announces the capability `group-load` is read a
+group at a time. The first read is `group.load` with `group: null`: the host
+answers the record's head, the whole arrangement — every section and group,
+each group not read yet with `fields: []` and its `field_count` — and the
+fields of the group the panel opens on, naming it in `group`. When a section
+starts (it is selected, the view is arranged, or every group is open), each of
+its groups not read at the record's revision is asked for with `group.load`
+and `reason: "started"`. A group still on its way is drawn as `field_count`
+skeleton lines, never as an empty group.
+
+The record has one revision, never one per group. Every group read answers it,
+and `group.save` sends it. A read that answers a newer revision leaves the
+groups read earlier to be read again the next time they are shown. A
+`conflict` keeps what the person typed and reads what is shown again at the
+revision the answer carries; `refused` with `reason: "unknown-group"` reads
+the arrangement again.
+
+A host without `group-load` is never asked for a group: `record.load` is asked
+once per revision and every section is served from that one answer, as before.
+
 ## A save the host confirms first
 
 A save that reaches past the object — one that moves every record of a type —

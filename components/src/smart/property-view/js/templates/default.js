@@ -577,11 +577,22 @@ function renderGroup(context, section, group) {
     // mechanism already publishes. Its id carries the kind and the container, so
     // one listener can tell a field dropped into a group from a group dropped into
     // a section.
-    const rows = html`${fields.map((field) => renderField(context, field, editing, String(section.key ?? ''), groupKey))}`;
+    // A group read by itself (port 1.15.0, group-load) and not read yet holds
+    // no fields but says how many: it is drawn as that many skeleton lines, and
+    // busy, until its read answers -- never as an empty group.
+    const waiting = !Array.isArray(group.fields) || group.fields.length === 0
+        ? Number.isInteger(group.field_count) && group.field_count > 0 ? group.field_count : 0
+        : 0;
+    const reading = waiting > 0 || Boolean(context.component.isGroupReading?.(groupKey));
+    const rows = waiting > 0
+        ? html`${Array.from({length: waiting}, (_, at) => html`<div class="sf-skeleton sf-skeleton--animation-pulse" aria-hidden="true">
+            <div class="sf-skeleton-text sf-skeleton-text--size-1 ${SKELETON_WIDTHS[at % SKELETON_WIDTHS.length]}"></div></div>`)}`
+        : html`${fields.map((field) => renderField(context, field, editing, String(section.key ?? ''), groupKey))}`;
 
     return html`
         <section class="sf-property-view-group bg-surface-0 flex flex-col gap-2 ${editing ? 'sf-property-view-group--editing' : ''}"
                  data-group=${groupKey}
+                 aria-busy=${reading ? 'true' : nothing}
                  data-sf-sortable-item=${configuring ? groupKey : nothing}
                  data-hidden=${configuring && group.hidden ? 'true' : nothing}
                  data-columns=${group.columns === 2 ? '2' : '1'}>

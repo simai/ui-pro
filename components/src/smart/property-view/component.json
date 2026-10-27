@@ -498,8 +498,8 @@
   },
   "port": {
     "id": "simai.property-view-port",
-    "version": "1.14.0",
-    "contract": "src/core/contracts/ports/simai.property-view-port/1.14.0/port.json"
+    "version": "1.15.0",
+    "contract": "src/core/contracts/ports/simai.property-view-port/1.15.0/port.json"
   },
   "templates": {
     "default": {
@@ -647,7 +647,8 @@
       "1.11.0",
       "1.12.0",
       "1.13.0",
-      "1.14.0"
+      "1.14.0",
+      "1.15.0"
     ]
   },
   "x-kept": {

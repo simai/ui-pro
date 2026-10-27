@@ -31,7 +31,7 @@ import {fieldConditions} from "./js/conditions.js";
 // keeps its list -- a guard naming a narrower set than the published versions is
 // a component refusing a host it asked to move. The contract test beside this
 // file compares the list with the manifest.
-const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0"];
+const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0", "1.15.0"];
 
 // The surface's mode (owner, 2026-10-14). view: show the object, never offer
 // a change. auto: show it and offer what this person may do. edit: every group
@@ -49,6 +49,12 @@ const OPTIONS_PAGE_LIMIT = 20;
 // The property types picked from a list the host pages: the records and people,
 // and since 1.14.0 a lookup whose list is not inline.
 const PAGED_TYPES = ["record", "relation", "user", "lookup"];
+// A group the host has not read yet (port 1.15.0, group.load): its fields are
+// empty and its field_count says how many it holds. An empty group is a group
+// with field_count 0 or none, never one waiting for its read.
+const groupNotRead = (group) => Number.isInteger(group?.field_count) && group.field_count > 0
+    && (!Array.isArray(group.fields) || group.fields.length === 0);
+
 const versionAtLeast = (version, minimum) => {
     const parts = (value) => String(value ?? "").split(".").map((part) => Number.parseInt(part, 10) || 0);
     const [a, b] = [parts(version), parts(minimum)];
@@ -263,6 +269,17 @@ class SfPropertyView extends PropertyViewElement {
         this.arrangementEntered = null;
         this.resetAsked = false;
         this.epoch = 0;
+        // Reading by group (port 1.15.0, capability group-load): the revision of
+        // the record each group's fields were read at. A group read at another
+        // revision than the record's now is read again the next time it is shown;
+        // the record has one revision, never one per group.
+        this.groupReads = new Map();
+        this.groupsReading = new Set();
+        // A group refused as unknown-group, by the revision it was refused at:
+        // the arrangement is read again once for it, and an arrangement that
+        // still names it does not make the panel ask again at that revision.
+        this.groupsRefused = new Map();
+        this.groupEpoch = 0;
         this.message = "";
         // Which group is open, and what has been changed in it. Only changed
         // fields are held: a save carries what was touched and nothing else, so it
@@ -1635,12 +1652,34 @@ class SfPropertyView extends PropertyViewElement {
         }
     }
 
+    // Whether the host reads one group at a time (port 1.15.0 §4.9). Without
+    // the capability record.load is asked once per revision and every group is
+    // served from that one answer, as before 1.15.0. A create has no record to
+    // read a group of.
+    get readsByGroup() {
+        return Boolean(this.hostPort?.capabilities?.includes("group-load")) && this.mode !== "create";
+    }
+
     async load(reason = "requested") {
         this._setState("loading", pageText(PROPERTY_VIEW_TEXT, "stateLoading", this));
         this.loadFailure = null;
         const epoch = ++this.epoch;
         const creating = this.mode === "create";
-        const answer = await this._raise("record.load", {
+        const byGroup = this.readsByGroup;
+        if (byGroup) {
+            this.groupEpoch += 1;
+            this.groupReads = new Map();
+            this.groupsReading = new Set();
+        }
+        // With group-load the first read is a group: group null answers the
+        // group the panel opens on, with the whole arrangement and every other
+        // group's field count, and names the group it carries.
+        const answer = byGroup ? await this._raise("group.load", {
+            record_id: this.recordId || null,
+            collection: this.collection || null,
+            group: null,
+            reason,
+        }, {stale: () => epoch !== this.epoch}) : await this._raise("record.load", {
             record_id: creating ? null : this.recordId || null,
             collection: this.collection || null,
             reason,
@@ -1665,14 +1704,15 @@ class SfPropertyView extends PropertyViewElement {
             this.sfEmit("failed", {reason: String(answer.reason ?? ""), message: String(answer.message ?? "")});
             return answer;
         }
-        this.record = answer.record ?? null;
+        this.record = byGroup ? {...(answer.record ?? {}), revision: answer.revision ?? answer.record?.revision ?? null} : answer.record ?? null;
         // Copied, not held by reference. Configuring moves a field between groups
         // in this array before the host answers -- «applied immediately» is what
         // the request asks for -- and a component that did that to the object the
         // host handed it would be rearranging the host's own data. A host that
         // caches its answer would find its record silently rewritten by a drag it
         // had not accepted yet.
-        this.sections = Array.isArray(answer.record?.sections) ? copy(answer.record.sections) : [];
+        this.sections = [];
+        this._takeSections(this.record);
         this.view = answer.record?.view ?? null;
         // A target the person may no longer write cannot stay selected: the rights
         // travel with the answer, so they can change between two loads.
@@ -1682,9 +1722,133 @@ class SfPropertyView extends PropertyViewElement {
         this.layerDraft = this.configuring ? this._layerCopy(this.viewTarget) : null;
         this.entryErrors = new Map();
         const known = this.sections.some((section) => String(section.key) === this.selectedSection);
-        if (!known) this.selectedSection = this.sections.length ? String(this.sections[0].key) : null;
+        // The section the answered group is in, when the panel had none chosen.
+        const answered = byGroup && answer.group !== undefined && answer.group !== null
+            ? this.sections.find((section) => (section.groups ?? []).some((group) => String(group.key) === String(answer.group)))
+            : null;
+        if (!known) {
+            this.selectedSection = answered ? String(answered.key)
+                : this.sections.length ? String(this.sections[0].key) : null;
+        }
         this._setState("ready");
+        if (byGroup) this._readShownGroups("started");
         return answer;
+    }
+
+    // What an answer carries is the record from now on. Reading by group, a
+    // group the answer did not read (fields empty, a field_count) keeps the
+    // fields it was read with, and the revision it was read at says whether it
+    // is read again when it is next shown.
+    _takeSections(record) {
+        if (!Array.isArray(record?.sections)) return;
+        const incoming = copy(record.sections);
+        if (!this.readsByGroup) {
+            this.sections = incoming;
+            return;
+        }
+        const revision = record.revision === undefined || record.revision === null ? "" : String(record.revision);
+        const held = new Map(this.sections.flatMap((section) => (section.groups ?? []).map((group) => [String(group.key), group])));
+        for (const section of incoming) {
+            const groups = Array.isArray(section.groups) ? section.groups : [];
+            groups.forEach((group, index) => {
+                const key = String(group.key);
+                if (!groupNotRead(group)) {
+                    this.groupReads.set(key, revision);
+                    return;
+                }
+                const mine = held.get(key);
+                if (mine && this.groupReads.has(key)) groups[index] = {...group, fields: mine.fields};
+            });
+        }
+        this.sections = incoming;
+    }
+
+    // The groups on screen: every group of an open-all surface or of the view
+    // being arranged, otherwise the groups of the section being read.
+    _shownGroups() {
+        const shown = this.openAll || this.configuring
+            ? this.sections
+            : this.sections.filter((section) => String(section.key) === this.selectedSection);
+        return shown.flatMap((section) => (section.groups ?? []).map((group) => ({section: String(section.key), group: String(group.key)})));
+    }
+
+    // A section that starts asks group.load for each of its groups not read at
+    // the record's revision (§7.2.1, reason started). Each answer is merged into
+    // the arrangement; a newer revision leaves the other groups to be read
+    // again when next shown, and a group the record no longer holds
+    // (unknown-group) reads the arrangement again.
+    _readShownGroups(reason = "started", {force = false} = {}) {
+        if (!this.readsByGroup || !this.record) return [];
+        const current = this.revision;
+        const reads = [];
+        for (const {section, group} of this._shownGroups()) {
+            if (this.groupsReading.has(group)) continue;
+            if (this.groupsRefused.get(group) === current) continue;
+            if (!force && this.groupReads.get(group) === current) continue;
+            reads.push(this._readGroup(section, group, reason));
+        }
+        return reads;
+    }
+
+    async _readGroup(section, group, reason) {
+        const epoch = this.groupEpoch;
+        this.groupsReading.add(group);
+        this.requestComponentUpdate("group-reading");
+        const answer = await this._raise("group.load", {
+            record_id: this.recordId || null,
+            collection: this.collection || null,
+            section,
+            group,
+            reason,
+        }, {stale: () => epoch !== this.groupEpoch});
+        if (epoch !== this.groupEpoch) return null;
+        this.groupsReading.delete(group);
+        if (!answer) return null;
+        if (answer.answer === "refused" && answer.reason === "unknown-group") {
+            const refusedAt = this.revision;
+            if (this.groupsRefused.get(group) === refusedAt) return answer;
+            this.groupsRefused.set(group, refusedAt);
+            await this.load("requested");
+            return answer;
+        }
+        if (answer.answer !== "applied") {
+            this.requestComponentUpdate("group-reading");
+            return answer;
+        }
+        const revision = answer.revision ?? answer.record?.revision ?? this.record?.revision ?? null;
+        this.record = {...this.record, ...(answer.record ?? {}), revision};
+        this._takeSections(this.record);
+        this.requestComponentUpdate("group-read");
+        return answer;
+    }
+
+    // Is this group's read still on its way (port 1.15.0)? The template draws
+    // the group as loading meanwhile.
+    isGroupReading(key) {
+        return this.groupsReading.has(String(key));
+    }
+
+    // A conflict carries the record's current revision: what the person typed
+    // is kept, and what is shown is read again at that revision -- the groups
+    // on screen by group.load, or the whole record once by record.load.
+    async _rereadAfterConflict(answer) {
+        if (this.readsByGroup) {
+            if (answer?.revision !== undefined && answer.revision !== null && this.record) {
+                this.record = {...this.record, revision: answer.revision};
+            }
+            return Promise.all(this._readShownGroups("requested", {force: true}));
+        }
+        const epoch = this.epoch;
+        const read = await this._raise("record.load", {
+            record_id: this.recordId || null,
+            collection: this.collection || null,
+            reason: "requested",
+        }, {stale: () => epoch !== this.epoch});
+        if (!read || read.answer !== "applied" || !read.record) return read;
+        this.record = read.record;
+        this._takeSections(read.record);
+        this.requestComponentUpdate("conflict-reread");
+        return read;
     }
 
     // The two the file editor asks of a host, and the capability that decides
@@ -1888,6 +2052,9 @@ class SfPropertyView extends PropertyViewElement {
     selectSection(key) {
         this.selectedSection = String(key);
         this.requestComponentUpdate("section");
+        // A section that starts reads the groups it has not read at this
+        // revision (port 1.15.0, group-load).
+        this._readShownGroups("started");
         return this;
     }
 
@@ -2138,8 +2305,9 @@ class SfPropertyView extends PropertyViewElement {
         if (!answer) return null;
         if (this._askedToConfirm(answer)) return answer;
         if (answer.answer === "applied") {
-            this.record = answer.record ?? this.record;
-            this.sections = Array.isArray(answer.record?.sections) ? answer.record.sections : this.sections;
+            this.record = answer.record ? {...answer.record, revision: answer.revision ?? answer.record.revision}
+                : {...this.record, revision: answer.revision ?? this.record?.revision ?? null};
+            this._takeSections(this.record);
             this.editing = null;
             this.changed.clear();
         this._clearInputs();
@@ -2155,6 +2323,12 @@ class SfPropertyView extends PropertyViewElement {
             // show the newer object would be the component deciding for them.
             this.conflict = answer.message || this.conflictText;
             this.requestComponentUpdate("conflict");
+            await this._rereadAfterConflict(answer);
+            return answer;
+        }
+        if (answer.answer === "refused" && answer.reason === "unknown-group") {
+            // The arrangement moved under the panel (a view changed elsewhere).
+            await this.load("requested");
             return answer;
         }
         if (answer.answer === "refused") {
@@ -2209,7 +2383,7 @@ class SfPropertyView extends PropertyViewElement {
                     this.setAttribute("mode", "auto");
                     if (answer.record) {
                         this.record = answer.record;
-                        this.sections = Array.isArray(answer.record.sections) ? copy(answer.record.sections) : this.sections;
+                        this._takeSections(answer.record);
                         this.view = answer.record.view ?? this.view;
                         this._setState("ready");
                     } else {
@@ -2219,7 +2393,7 @@ class SfPropertyView extends PropertyViewElement {
                 return answer;
             }
             this.record = answer.record ?? this.record;
-            this.sections = Array.isArray(answer.record?.sections) ? copy(answer.record.sections) : this.sections;
+            this._takeSections(answer.record);
             this._setState("ready");
             this.announceSaved(answer);
             return answer;
@@ -2366,7 +2540,7 @@ class SfPropertyView extends PropertyViewElement {
             return answer;
         }
         this.record = answer.record ?? this.record;
-        this.sections = Array.isArray(answer.record?.sections) ? copy(answer.record.sections) : this.sections;
+        this._takeSections(answer.record);
         this.view = answer.record?.view ?? this.view;
         this.layerDraft = this.configuring ? this._layerCopy(this.viewTarget) : null;
         this._setState("ready");
@@ -2395,7 +2569,7 @@ class SfPropertyView extends PropertyViewElement {
             return answer;
         }
         this.record = answer.record ?? this.record;
-        this.sections = Array.isArray(answer.record?.sections) ? copy(answer.record.sections) : this.sections;
+        this._takeSections(answer.record);
         this.view = answer.record?.view ?? this.view;
         this.editing = null;
         this.changed.clear();
@@ -2475,6 +2649,8 @@ class SfPropertyView extends PropertyViewElement {
         this.entryErrors = new Map();
         this.cancelEdit();
         this.requestComponentUpdate("configuring");
+        // Arranging shows every group; those not read yet are read now.
+        this._readShownGroups("started");
         return true;
     }
 

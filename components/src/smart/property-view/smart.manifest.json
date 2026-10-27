@@ -124,9 +124,9 @@
       },
       "host_port": {
         "port": "simai.property-view-port",
-        "version": "1.14.0",
-        "path": "src/core/contracts/ports/simai.property-view-port/1.14.0/port.json",
-        "sha256": "bc1ccf1449a7d90c07fbf33daaf82b0ee31c8e6761f81c0e517c9da68e437576",
+        "version": "1.15.0",
+        "path": "src/core/contracts/ports/simai.property-view-port/1.15.0/port.json",
+        "sha256": "d9cc3f4394d3ad4038bb13d9f3be984b2d2f0da80b19813d7ee3e4b7d0a9376a",
         "supported_versions": [
           "1.0.0",
           "1.1.0",
@@ -141,7 +141,8 @@
           "1.11.0",
           "1.12.0",
           "1.13.0",
-          "1.14.0"
+          "1.14.0",
+          "1.15.0"
         ]
       }
     }
@@ -1209,7 +1210,8 @@
         "from": "1.4.0",
         "to": "1.5.0",
         "changes": [
-          "From component.json (standard simai.smart-component 1.3.8): sf-property-view-saved {id, revision} after an applied save and sf-property-view-failed {reason, message} after a record that could not be read; open and delete by the vocabulary's verbs with -open-record and -delete-record as dated aliases; close is a cancelable request; a panel honours hidden and open, and full draws it in place; the loading skeleton draws the section tabs; the actions answer outcomes."
+          "From component.json (standard simai.smart-component 1.3.8): sf-property-view-saved {id, revision} after an applied save and sf-property-view-failed {reason, message} after a record that could not be read; open and delete by the vocabulary's verbs with -open-record and -delete-record as dated aliases; close is a cancelable request; a panel honours hidden and open, and full draws it in place; the loading skeleton draws the section tabs; the actions answer outcomes.",
+          "Port 1.15.0 (1.14.0 and earlier keep working): a host that announces group-load is asked group.load -- group null first, for the arrangement and the group the panel opens on, then each group of a section when the section starts (§7.2.1, reason started); a group not read yet draws its field_count as skeleton lines. Without group-load record.load is asked once per revision and every group is served from it. One revision per record, sent with group.save; a conflict keeps the input and reads what is shown again at the answer's revision; unknown-group reads the arrangement again."
         ]
       }
     ]
@@ -1220,11 +1222,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "80f294c01bebc255f7b8e27d5d1da9551553f9a710d970102c7205546151ecce"
+        "sha256": "de2129a4d7d8f779335f5bd1b4eefd237b88b6e59d560b44775e2d95af743569"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "97118371dc9c79143fad40a746133666138bb36ca85fe2b716965d318fbb374f"
+        "sha256": "ba3129112ceaafa3c102857e1936b39929a9548a946665998e16a5bd3aac4244"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",
@@ -1252,7 +1254,7 @@
       },
       {
         "path": "src/smart/property-view/docs.md",
-        "sha256": "ebd16d2ee0cc3ef392f06a1b57719cefeb662bebfc9d8c74d2f9c66c7df6e0ff"
+        "sha256": "8838cf8924a62c1e1f0a50efdf7235c56854fdb69c1c155999fc2a51a7ca4a89"
       }
     ],
     "generated_runtime": []
