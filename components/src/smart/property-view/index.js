@@ -15,6 +15,12 @@
 // shadow boundary. sf-data-view avoids this by slotting its children and says so
 // beside the slot. A consumer found it on their stand.
 import SfBaseElement from "../../core/js/smart-base";
+import {elementFromManifest} from "../../core/js/element-manifest";
+import {answerActions, settingSetters} from "../table/js/manifest-actions.js";
+import manifest from "./component.json";
+import aliases from "./aliases.json";
+import en from "./lang/en.json";
+import ru from "./lang/ru.json";
 import {ICON_CHOICES} from "./js/icon-choices.js";
 import {pageText} from "../../core/js/page-language";
 import {renderPropertyViewTemplate} from "./js/templates/default";
@@ -120,176 +126,26 @@ const copy = (value) => {
 // carried Russian defaults instead, so an English page drew a panel entirely
 // in Russian -- beside an sf-color inside it that followed the rule and said
 // «inherited». A product still overrides any of these by attribute.
+// The words are the language files' (lang/<locale>.json, standard 1.3.8 §11),
+// read under the camelCase keys a product registers more languages by.
+const camelWords = (words = {}) => Object.fromEntries(Object.entries(words)
+    .map(([key, word]) => [key.replace(/-([a-z0-9])/gu, (_, letter) => letter.toUpperCase()), word]));
 const PROPERTY_VIEW_TEXT = {
-    en: {
-        emptyText: "not filled in",
-        emptyRecordText: "This record has nothing to show",
-        editText: "edit",
-        saveText: "Save",
-        cancelText: "Cancel",
-        createText: "Create",
-        readOnlyText: "You can only view this record",
-        deleteText: "Delete",
-        changedText: "Fields changed",
-        errorsText: "Errors",
-        dateTimeDateLabel: "{label}: date",
-        dateTimeTimeLabel: "{label}: time",
-        timePlaceholderText: "hh:mm",
-        dateMissingText: "Enter the date",
-        dateInvalidText: "The date is not a calendar date",
-        timeMissingText: "Enter the time",
-        timeInvalidText: "Enter the time as hh:mm, from 00:00 to 23:59",
-        conflictText: "The record changed; read it again",
-        confirmSaveText: "Confirm and save",
-        keepEditingText: "Keep editing",
-        sectionsLabel: "Sections",
-        closeLabel: "Close",
-        statePortNotConnected: "The record port is not connected",
-        stateLoadFailed: "The record could not be read",
-        stateLoading: "Reading the record",
-        stateUnavailable: "The record is unavailable",
-        saveFailedText: "The save failed",
-        viewSaveFailedText: "The view could not be saved",
-        viewResetFailedText: "The view could not be reset",
-        copyLinkLabel: "Copy link",
-        linkCopiedLabel: "Link copied",
-        openFullLabel: "Open as a page",
-        configureText: "Arrange the view",
-        doneConfiguringText: "Done",
-        resetViewText: "Reset",
-        resetViewAskText: "Reset the whole view?",
-        cancelConfiguringText: "Cancel",
-        personalLayerText: "Personal",
-        addViewText: "Add a view",
-        newViewText: "New view",
-        deleteViewText: "Remove the view",
-        lastSharedViewText: "The only view everyone has",
-        viewProfileLabel: "View",
-        sharedLayerText: "Everyone's",
-        widthText: "Full width",
-        fieldLabelText: "Name",
-        sectionIconText: "Section glyph",
-        variantText: "Template",
-        hintText: "Hint",
-        hiddenText: "Hide",
-        configureHintText: "Drag fields between groups and onto a section on the left. Applied at once.",
-        configureHintNarrowText: "Drag fields between groups. Applied at once.",
-        fieldSettingsText: "Field settings",
-        shownText: "Shown",
-        showRareText: "Show rare fields",
-        hideRareText: "Hide rare fields",
-        rareText: "rare",
-        unplacedTitle: "Not placed",
-        moveUpText: "Move up",
-        moveDownText: "Move down",
-        addFieldText: "Add a field",
-        inThisGroupText: "In this area",
-        renameText: "Rename",
-        saveNameText: "Save the name",
-        cancelNameText: "Leave the name",
-        removeFieldText: "Remove from this area",
-        removeGroupText: "Remove this area",
-        removeSectionText: "Remove this section",
-        addGroupText: "Add an area",
-        addSectionText: "Add a section",
-        newGroupTitle: "New area",
-        newSectionTitle: "New section",
-        noMatchText: "Nothing matches",
-        unplacedHintText: "Fields this view does not show. Drag one into a group to place it, or drag a field here to take it out.",
-        viewConflictText: "The view changed and was read again",
-        viewDeniedText: "You may not change this layer",
-        backLabel: "Back",
-        favouriteLabel: "Favourite",
-        menuLabel: "More",
-        inheritedText: "by default",
-    },
-    ru: {
-        emptyText: "не заполнено",
-        emptyRecordText: "В этой записи нечего показать",
-        editText: "изменить",
-        saveText: "Сохранить",
-        cancelText: "Отменить",
-        createText: "Создать",
-        readOnlyText: "Эту запись можно только смотреть",
-        deleteText: "Удалить",
-        changedText: "Изменено полей",
-        errorsText: "Ошибок",
-        dateTimeDateLabel: "{label}: дата",
-        dateTimeTimeLabel: "{label}: время",
-        timePlaceholderText: "чч:мм",
-        dateMissingText: "Укажите дату",
-        dateInvalidText: "Дата указана неверно",
-        timeMissingText: "Укажите время",
-        timeInvalidText: "Укажите время в виде чч:мм, от 00:00 до 23:59",
-        conflictText: "Запись изменилась, обновите её",
-        confirmSaveText: "Подтвердить и сохранить",
-        keepEditingText: "Вернуться к правке",
-        sectionsLabel: "Разделы",
-        closeLabel: "Закрыть",
-        statePortNotConnected: "Порт записи не подключён",
-        stateLoadFailed: "Не удалось загрузить запись",
-        stateLoading: "Загрузка записи",
-        stateUnavailable: "Запись недоступна",
-        saveFailedText: "Не удалось сохранить",
-        viewSaveFailedText: "Не удалось сохранить вид",
-        viewResetFailedText: "Не удалось сбросить вид",
-        copyLinkLabel: "Копировать ссылку",
-        linkCopiedLabel: "Ссылка скопирована",
-        openFullLabel: "Открыть на всю страницу",
-        configureText: "Настроить вид",
-        doneConfiguringText: "Готово",
-        resetViewText: "Сбросить",
-        resetViewAskText: "Сбросить весь вид?",
-        cancelConfiguringText: "Отменить",
-        personalLayerText: "Персональный",
-        addViewText: "Добавить вид",
-        newViewText: "Новый вид",
-        deleteViewText: "Удалить вид",
-        lastSharedViewText: "Единственный общий вид",
-        viewProfileLabel: "Вид",
-        sharedLayerText: "Для всех",
-        widthText: "На всю ширину",
-        fieldLabelText: "Название",
-        sectionIconText: "Значок раздела",
-        variantText: "Вид",
-        hintText: "Подсказка",
-        hiddenText: "Скрыть",
-        configureHintText: "Перетаскивайте поля между группами и на разделы слева. Применяется сразу.",
-        configureHintNarrowText: "Перетаскивайте поля между группами. Применяется сразу.",
-        fieldSettingsText: "Настройки поля",
-        shownText: "Показывать",
-        showRareText: "Показать редкие поля",
-        hideRareText: "Скрыть редкие поля",
-        rareText: "редкое",
-        unplacedTitle: "Не размещённые",
-        moveUpText: "Выше",
-        moveDownText: "Ниже",
-        addFieldText: "Добавить поле",
-        inThisGroupText: "В этой области",
-        renameText: "Переименовать",
-        saveNameText: "Сохранить название",
-        cancelNameText: "Оставить название",
-        removeFieldText: "Убрать из области",
-        removeGroupText: "Удалить область",
-        removeSectionText: "Удалить раздел",
-        addGroupText: "Добавить область",
-        addSectionText: "Добавить раздел",
-        newGroupTitle: "Новая область",
-        newSectionTitle: "Новый раздел",
-        noMatchText: "Ничего не найдено",
-        unplacedHintText: "Поля, которых нет в этом виде. Перетащите поле в группу, чтобы разместить, или сюда, чтобы убрать.",
-        viewConflictText: "Вид изменился, он перезагружен",
-        viewDeniedText: "Нет права менять этот слой",
-        backLabel: "Назад",
-        favouriteLabel: "В избранное",
-        menuLabel: "Ещё",
-        inheritedText: "по умолчанию",
-    },
+    en: camelWords(en.runtime),
+    ru: camelWords(ru.runtime),
 };
+
 
 const SECTION_ICONS = ICON_CHOICES;
 
-class SfPropertyView extends SfBaseElement {
+// sf-property-view from its component.json (standard simai.smart-component
+// 1.3.8 §3, §4, §8, §11): its own props below keep their parsers; what they
+// do not name is the manifest's. The actions answer outcomes
+// (../table/js/manifest-actions.js), the events take the vocabulary's
+// verbs, and the old names follow once through the dated aliases.
+const PropertyViewElement = elementFromManifest(manifest, {base: SfBaseElement, lang: {en, ru}, source: "ru", aliases});
+
+class SfPropertyView extends PropertyViewElement {
     static get props() {
         return {
             templateName: {attribute: "template", default: "default"},
@@ -580,16 +436,13 @@ class SfPropertyView extends SfBaseElement {
             collection: this.collection || null,
             revision: this.record?.revision ?? null,
         });
-        this.dispatchEvent(new CustomEvent("sf-property-view-delete-record", {
-            bubbles: true,
-            composed: true,
-            detail: {
-                record_id: this.recordId || null,
-                collection: this.collection || null,
-                revision: this.record?.revision ?? null,
-                answer: answer?.answer ?? null,
-            },
-        }));
+        // Vocabulary §5 delete; sf-property-view-delete-record follows once (aliases.json).
+        this.sfEmit("delete", {
+            record_id: this.recordId || null,
+            collection: this.collection || null,
+            revision: this.record?.revision ?? null,
+            answer: answer?.answer ?? null,
+        });
         if (!answer) return false;
         if (answer.answer === "applied") {
             this.closePanel("deleted");
@@ -626,8 +479,47 @@ class SfPropertyView extends SfBaseElement {
         return this.getAttribute("sections-label") || pageText(PROPERTY_VIEW_TEXT, "sectionsLabel", this);
     }
 
+    // A panel is a drawer over the page; `full` (the record as the page,
+    // stand 24's record panel) draws it in place instead.
     get panel() {
-        return this.getBooleanAttr("panel", false);
+        return this.getBooleanAttr("panel", false) && !this.full;
+    }
+
+    get full() {
+        return this.getBooleanAttr("full", false);
+    }
+
+    set full(value) {
+        this.toggleAttribute("full", Boolean(value));
+    }
+
+    // A panel shows while its element is not hidden and not closed by `open`
+    // (simai/ui-pro#4; standard 1.3.8 §7.2.2, §19): a page or an assembly
+    // closes it by `hidden` or open=false and brings it back by the same.
+    get panelOpen() {
+        return this.panel && !this.hidden && this.getAttribute("open") !== "false";
+    }
+
+    syncPanelOpen() {
+        const at = openPanels.indexOf(this);
+        if (this.panelOpen && this.isConnected && at < 0) {
+            openPanels.push(this);
+            restackPanels();
+        } else if (!this.panelOpen && at >= 0) {
+            openPanels.splice(at, 1);
+            restackPanels();
+        }
+        this.requestComponentUpdate("panel-open");
+    }
+
+    // ---------- the manifest's values (§4) ----------
+
+    get revision() {
+        return this.record?.revision === undefined || this.record?.revision === null ? "" : String(this.record.revision);
+    }
+
+    get section() {
+        return this.selectedSection ?? "";
     }
 
     get panelSize() {
@@ -1256,13 +1148,14 @@ class SfPropertyView extends SfBaseElement {
     }
 
     static get observedAttributes() {
-        return [...(super.observedAttributes ?? []), "record-id"];
+        return [...(super.observedAttributes ?? []), "record-id", "hidden", "open", "full"];
     }
 
     attributeChangedCallback(name, previous, next) {
         super.attributeChangedCallback?.(name, previous, next);
         if (previous === next || !this.isConnected) return;
         if (name === "record-id") this.load("record-id-changed");
+        if (name === "hidden" || name === "open" || name === "full") this.syncPanelOpen();
     }
 
     onConnected() {
@@ -1275,7 +1168,7 @@ class SfPropertyView extends SfBaseElement {
             this.setAttribute("data-state", "loading");
             this.setAttribute("aria-busy", "true");
         }
-        if (this.panel && !openPanels.includes(this)) {
+        if (this.panelOpen && !openPanels.includes(this)) {
             openPanels.push(this);
             restackPanels();
         }
@@ -1380,8 +1273,11 @@ class SfPropertyView extends SfBaseElement {
             this.requestComponentUpdate("viewport");
         };
         this.wideMedia?.addEventListener?.("change", this._onWideChange);
-        if (this.hostPort) this.load("connected");
-        else this._requestHostPort();
+        // A view placed before it is told its record (an assembly binds
+        // record-id after it places the part) asks the host nothing yet: the
+        // record-id it is given reads it (attributeChangedCallback).
+        if (this.hostPort && (this.recordId || this.mode === "create")) this.load("connected");
+        else if (!this.hostPort) this._requestHostPort();
     }
 
     // The shared convention for a component that takes a host port: ask for one
@@ -1459,7 +1355,7 @@ class SfPropertyView extends SfBaseElement {
             );
         }
         this.hostPort = host;
-        if (this.isConnected) this.load("host-connected");
+        if (this.isConnected && (this.recordId || this.mode === "create")) this.load("host-connected");
         return this;
     }
 
@@ -1549,6 +1445,11 @@ class SfPropertyView extends SfBaseElement {
             // The first load draws the fields it waits for; a failed one says
             // why in sf-empty-state.
             loading: this.getAttribute("data-state") === "loading" && !this.record,
+            panel: this.panel,
+            panelOpen: this.panelOpen,
+            // The record's own name heads a panel the page gave no label: the
+            // host answers it with the record (port 1.14.0 record.label).
+            recordLabel: this.record?.label ? String(this.record.label) : "",
             loadFailure: this.record ? null : this.loadFailure ?? null,
             editText: this.editText,
             saveText: this.saveText,
@@ -1759,6 +1660,9 @@ class SfPropertyView extends SfBaseElement {
             // no access; anything else could not load, with «Повторить».
             this.loadFailure = {kind: answer.answer === "refused" ? "no-access" : "error", text: answer.message || ""};
             this._setState("error", answer.message || pageText(PROPERTY_VIEW_TEXT, "stateUnavailable", this));
+            // The fact a screen reads a missing record from (vocabulary §4):
+            // sf-property-view-failed {reason, message}.
+            this.sfEmit("failed", {reason: String(answer.reason ?? ""), message: String(answer.message ?? "")});
             return answer;
         }
         this.record = answer.record ?? null;
@@ -1855,10 +1759,8 @@ class SfPropertyView extends SfBaseElement {
             field: String(field.key ?? ""),
             value,
         }, {stale: () => !this.isConnected});
-        this.dispatchEvent(new CustomEvent("sf-property-view-open-record", {
-            bubbles: true, composed: true,
-            detail: {field: String(field.key ?? ""), value, answer: answer?.answer ?? null},
-        }));
+        // Vocabulary §5 open; sf-property-view-open-record follows once (aliases.json).
+        this.sfEmit("open", {field: String(field.key ?? ""), value, answer: answer?.answer ?? null});
         return answer;
     }
 
@@ -1878,11 +1780,10 @@ class SfPropertyView extends SfBaseElement {
     closePanel(reason = "close") {
         this._commitFocusedEntry();
         const unsaved = this.unsavedFields;
-        this.dispatchEvent(new CustomEvent("sf-property-view-close", {
-            bubbles: true, composed: true,
-            detail: {reason, record_id: this.recordId || null, unsaved_fields: unsaved},
-        }));
-        return this;
+        // A cancelable request (vocabulary §5 close, standard 1.3.8 §19.3): the
+        // page decides whether it closes; a listener may refuse it.
+        const allowed = this.sfEmit("close", {reason, record_id: this.recordId || null, unsaved_fields: unsaved}, {cancelable: true});
+        return allowed ? {outcome: "applied"} : {outcome: "refused", reason: "prevented"};
     }
 
     // What would be lost by closing: every changed field, and every entry that
@@ -1954,9 +1855,9 @@ class SfPropertyView extends SfBaseElement {
         if (!address) return null;
         // An intent, not a navigation: the component does not know whether the
         // consumer routes by href, by a client router or by replacing a region.
-        this.dispatchEvent(new CustomEvent("sf-property-view-open-full", {
-            bubbles: true, composed: true, detail: {address, record_id: this.recordId || null},
-        }));
+        // Vocabulary §5 open-full {id}; the address and record_id stay for the
+        // listeners that read them.
+        this.sfEmit("open-full", {id: this.recordId || null, address, record_id: this.recordId || null});
         return this;
     }
 
@@ -2208,6 +2109,15 @@ class SfPropertyView extends SfBaseElement {
     //
     // `confirm` is the digest of a confirmation the host asked for (port
     // 1.14.0): the same save raised again once the person has read what it does.
+    // The fact after an applied save (simai/ui-pro#4; vocabulary §4, §5 save):
+    // sf-property-view-saved {id, revision}. A page that refreshes its list on
+    // a save listens here instead of wrapping the host port.
+    announceSaved(answer) {
+        const id = this.recordId || answer?.record_id || answer?.record?.record_id || null;
+        const revision = answer?.revision ?? answer?.record?.revision ?? this.record?.revision ?? null;
+        this.sfEmit("saved", {id, revision: revision === null ? "" : String(revision)});
+    }
+
     async saveGroup({confirm = null} = {}) {
         if (this.openAll) return this.saveAll({confirm});
         if (this.editing && this.inputErrors.size) return this._inputsInvalid();
@@ -2236,6 +2146,7 @@ class SfPropertyView extends SfBaseElement {
             this.errors.clear();
             this.conflict = null;
             this._setState("ready");
+            this.announceSaved(answer);
             return answer;
         }
         if (answer.answer === "conflict") {
@@ -2310,6 +2221,7 @@ class SfPropertyView extends SfBaseElement {
             this.record = answer.record ?? this.record;
             this.sections = Array.isArray(answer.record?.sections) ? copy(answer.record.sections) : this.sections;
             this._setState("ready");
+            this.announceSaved(answer);
             return answer;
         }
         if (answer.answer === "conflict") {
@@ -3161,6 +3073,8 @@ class SfPropertyView extends SfBaseElement {
     }
 }
 
+answerActions(SfPropertyView, manifest);
+settingSetters(SfPropertyView, manifest);
 SfPropertyView.define("sf-property-view");
 
 export {SfPropertyView, SUPPORTED_PORT_VERSIONS};

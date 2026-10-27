@@ -78,9 +78,11 @@ test('an entry that is not a value yet stops both saves and is said under the fi
   // Every place a change is dropped drops the drafts with it.
   assert.equal((view.match(/this\.changed\.clear\(\);\n\s+this\._clearInputs\(\);/gu) ?? []).length,
     (view.match(/this\.changed\.clear\(\);/gu) ?? []).length);
+  // The words are the language files' since standard 1.3.8 §11 (lang/<locale>.json).
   for (const language of ['en', 'ru']) {
-    for (const key of ['dateTimeDateLabel', 'dateTimeTimeLabel', 'timePlaceholderText', 'dateMissingText', 'dateInvalidText', 'timeMissingText', 'timeInvalidText']) {
-      assert.match(view, new RegExp(`\\n        ${key}: "`, 'u'), `${language} ${key}`);
+    const words = JSON.parse(read(`src/smart/property-view/lang/${language}.json`)).runtime;
+    for (const key of ['date-time-date-label', 'date-time-time-label', 'time-placeholder-text', 'date-missing-text', 'date-invalid-text', 'time-missing-text', 'time-invalid-text']) {
+      assert.ok(words[key], `${language} ${key}`);
     }
   }
 });

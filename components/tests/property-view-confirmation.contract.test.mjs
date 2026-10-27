@@ -52,7 +52,11 @@ test('the bar asks, in both bars, in both languages', () => {
   assert.match(bar, /role="alert">\$\{context\.confirmation\.text\}/u);
   assert.match(bar, /data-action="confirm-save"[\s\S]*context\.component\.confirmSave\(\)/u);
   assert.match(bar, /data-action="keep-editing"[\s\S]*context\.component\.cancelConfirmation\(\)/u);
-  for (const key of ['confirmSaveText', 'keepEditingText']) {
-    assert.equal((view.match(new RegExp(`\\n        ${key}: "`, 'gu')) ?? []).length, 2, `${key} in en and ru`);
+  // The words are the language files' since standard 1.3.8 §11 (lang/<locale>.json).
+  for (const key of ['confirm-save-text', 'keep-editing-text']) {
+    for (const language of ['en', 'ru']) {
+      const words = JSON.parse(read(`src/smart/property-view/lang/${language}.json`)).runtime;
+      assert.ok(words[key], `${key} in ${language}`);
+    }
   }
 });

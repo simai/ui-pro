@@ -1,0 +1,59 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Запись",
+      "settings": {
+        "aria-label": "Запись",
+        "record-id": "r-001",
+        "collection": "workbench.solutions",
+        "sections-as": "tabs"
+      },
+      "expect": {
+        "name": "Запись",
+        "values": {
+          "section": "main"
+        }
+      },
+      "x-port": "the reference host of ui-admin (src/ports/polygon-host.mjs)"
+    },
+    {
+      "name": "panel",
+      "title": "Запись в панели",
+      "settings": {
+        "panel": true,
+        "panel-label": "Запись",
+        "record-id": "r-001"
+      },
+      "expect": {
+        "name": "Запись"
+      }
+    },
+    {
+      "name": "panel-closed",
+      "title": "Панель закрыта",
+      "settings": {
+        "panel": true,
+        "panel-label": "Запись",
+        "record-id": "r-001",
+        "open": false
+      },
+      "expect": {
+        "name": "Запись"
+      }
+    },
+    {
+      "name": "full",
+      "title": "Запись целиком",
+      "settings": {
+        "panel": true,
+        "full": true,
+        "panel-label": "Запись",
+        "record-id": "r-001"
+      },
+      "expect": {
+        "name": "Запись"
+      }
+    }
+  ]
+}

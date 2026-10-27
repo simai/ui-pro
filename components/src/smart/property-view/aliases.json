@@ -1,0 +1,43 @@
+{
+  "$comment": "Dated aliases of sf-property-view for the shim (core/js/aliases.js, standard §16 item 20).",
+  "component": "sf-property-view",
+  "since": "2026-10-27",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "aria-label",
+      "to": null,
+      "kind": "attribute",
+      "component": "sf-property-view",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "host-attribute",
+      "section": "§3.1, §4.8",
+      "note": "stays a host attribute, read for the accessible name; no shim"
+    },
+    {
+      "from": "sf-property-view-open-record",
+      "to": "sf-property-view-open",
+      "kind": "event",
+      "component": "sf-property-view",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, vocabulary §5 open",
+      "note": "ui-admin listens to it (src/polygon.ts:124); the detail {field, value, answer} is unchanged"
+    },
+    {
+      "from": "sf-property-view-delete-record",
+      "to": "sf-property-view-delete",
+      "kind": "event",
+      "component": "sf-property-view",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, vocabulary §5 delete",
+      "note": "the detail {record_id, collection, revision, answer} is unchanged"
+    }
+  ]
+}

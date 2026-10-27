@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -557,6 +557,16 @@
         "type": "string",
         "default": "The only view everyone has",
         "description": "Why removing is not offered for the last shared view: a scope with none has nothing for a person who has made none of their own. Shown on the control that is not offered rather than as a refusal after the press."
+      },
+      "full": {
+        "type": "boolean",
+        "default": false,
+        "description": "The record as the page: a panel draws in place instead of over the page (component.json settings.full)."
+      },
+      "open": {
+        "type": "boolean",
+        "default": true,
+        "description": "A panel shows while open and not hidden; open=false or hidden closes its drawer and takes it off the stack, and the same brings it back (component.json settings.open, simai/ui-pro#4)."
       }
     }
   },
@@ -1036,6 +1046,65 @@
           }
         }
       }
+    },
+    "sf-property-view-saved": {
+      "summary": "The fact after an applied save (group.save or record.save), vocabulary §4: {id, revision}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {},
+          "revision": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-property-view-failed": {
+      "summary": "The fact after a record that could not be read, {reason, message}: the host's code (record-unknown for a stale link) and its sentence.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-property-view-open": {
+      "summary": "A referenced record was asked open, vocabulary §5 open: {field, value, answer}. The old sf-property-view-open-record follows once until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "value": {},
+          "answer": {}
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-property-view-delete": {
+      "summary": "The record's delete was asked and answered, vocabulary §5 delete: {record_id, collection, revision, answer}. The old sf-property-view-delete-record follows once until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "record_id": {},
+          "answer": {}
+        },
+        "additionalProperties": true
+      }
     }
   },
   "state": {
@@ -1135,7 +1204,15 @@
     "aliases": [],
     "deprecations": [],
     "replacement": null,
-    "migrations": []
+    "migrations": [
+      {
+        "from": "1.4.0",
+        "to": "1.5.0",
+        "changes": [
+          "From component.json (standard simai.smart-component 1.3.8): sf-property-view-saved {id, revision} after an applied save and sf-property-view-failed {reason, message} after a record that could not be read; open and delete by the vocabulary's verbs with -open-record and -delete-record as dated aliases; close is a cancelable request; a panel honours hidden and open, and full draws it in place; the loading skeleton draws the section tabs; the actions answer outcomes."
+        ]
+      }
+    ]
   },
   "provenance": {
     "source_repository": "simai/ui-source",
@@ -1143,11 +1220,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "d36aa33cfc735aa0107902b732c3ca8ee00041c9924c7be6d5b678c36ccef7ec"
+        "sha256": "23c48900a199510d1dad9b1d2a1eea3426382d3b09c4ef678129b8aba76aaa65"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "59936ba267338dec7d4fa0b11e51e401b2501e552f1cf3e8b92568e5df17b5c0"
+        "sha256": "f5e1211a44decb451ecc4341f036e4d5e5d06775f3dcb99637295dd41386273d"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",
@@ -1175,7 +1252,7 @@
       },
       {
         "path": "src/smart/property-view/docs.md",
-        "sha256": "b302b689ca2802a48f808320a309b35f161ae6dac87d53df99bacafd0531c2dd"
+        "sha256": "ebd16d2ee0cc3ef392f06a1b57719cefeb662bebfc9d8c74d2f9c66c7df6e0ff"
       }
     ],
     "generated_runtime": []
