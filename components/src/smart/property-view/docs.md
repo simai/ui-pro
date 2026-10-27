@@ -204,3 +204,15 @@ field's own affordances, the related-records group and configuring the view each
 arrive as their own published pair, in that order. The port version rises with
 them, and the accepted versions live in one list in `index.js` that a contract
 test compares with the manifest.
+
+## С версии 1.5.0 (стандарт simai.smart-component 1.3.8)
+
+- Интерфейс описан в `component.json`, слова — в `lang/ru.json` и `lang/en.json`.
+- После применённого сохранения приходит `sf-property-view-saved {id, revision}`; запись, которую хост не смог отдать
+  (например, по устаревшей ссылке), — `sf-property-view-failed {reason, message}`.
+- Панель (`panel`) открыта, пока элемент не скрыт: `hidden` или `open="false"` закрывают её, снятие — открывает тот же
+  элемент снова. `full` показывает запись на месте, без выезжающей панели.
+- `sf-property-view-close` — отменяемый запрос: страница решает, закрывать ли.
+- `sf-property-view-open` и `sf-property-view-delete` заменили `-open-record` и `-delete-record`; старые имена приходят
+  следом до 2026-12-01.
+- Пока запись загружается, скелетон рисует и полосу вкладок разделов (`sections-as="tabs"`).

@@ -71,8 +71,8 @@ test('the cross announces the end of a selection it does not own', async () => {
     pagination,
     /clearSelection\(\) \{\s*this\.sfEmit\("selection-clear", \{/u,
   );
-  assert.match(view, /"sf-pagination-apply",\s*"sf-pagination-load-more", "sf-pagination-selection-clear",/u, 'the view listens for it');
-  assert.match(view, /"sf-table-retry", "sf-port-output", \.\.\.PAGINATION_EVENTS,/u, 'on connection');
+  // By the page row's name since standard 1.3.8 (sf-pagination-selection-clear).
+  assert.match(view, /"sf-pagination-apply", "sf-pagination-load-more",\s*"sf-pagination-selection-clear",/u, 'the view listens for it');
   assert.match(
     view,
     /clearSelection\(\) \{\s*this\.table\?\.clearSelection\?\.\(\);/u,

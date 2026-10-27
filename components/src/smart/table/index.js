@@ -1,4 +1,10 @@
 import SfBaseElement from "../../core/js/smart-base";
+import {elementFromManifest} from "../../core/js/element-manifest";
+import {settingSetters} from "./js/manifest-actions.js";
+import manifest from "./component.json";
+import aliases from "./aliases.json";
+import en from "./lang/en.json";
+import ru from "./lang/ru.json";
 import {renderTableTemplate, columnStyle} from "./js/templates/default";
 import {optionBadgeProps} from "../helpers/option-badge.js";
 import {renderCellField, renderFilterField} from "../field-renderers/index.js";
@@ -40,184 +46,16 @@ function verticalScroller(element) {
     return null;
 }
 
+// The words are the language files' (lang/<locale>.json, standard 1.3.8 §11),
+// read here under the camelCase keys a product registers more languages by
+// (SF.language.register("sf-table", code, {filterText: …})).
+const camelWords = (words = {}) => Object.fromEntries(Object.entries(words)
+    .map(([key, word]) => [key.replace(/-([a-z0-9])/gu, (_, letter) => letter.toUpperCase()), word]));
 const TABLE_TEXT = {
-    en: {
-        filterText: "Filter",
-        clearText: "Clear",
-        searchPlaceholder: "Search",
-        createText: "Create",
-        pinColumnLabel: "Pin the column",
-        templateMoveLabel: "Move the template",
-        templatePinLabel: "Keep the template at the top",
-        templateActionsLabel: "Template actions",
-        unpinColumnLabel: "Unpin the column",
-        loadingText: "Loading",
-        emptyText: "No data",
-        errorText: "The data could not be loaded",
-        retryText: "Try again",
-        settingsFieldsTab: "Fields",
-        settingsViewTab: "View",
-        viewDensity: "Rows",
-        viewDensityCompact: "Compact",
-        viewDensityNormal: "Normal",
-        viewDensitySpacious: "Spacious",
-        viewStripes: "Alternate rows",
-        viewLines: "Lines between columns",
-        viewSingleLine: "Text on one line",
-        viewStickyHead: "Keep the filter and the head in view",
-        viewEverywhere: "For all my tables",
-        viewReset: "Reset the view",
-        resetSearchText: "Clear the search",
-        resetFiltersText: "Reset the filters",
-        resetBothText: "Reset the search and filters",
-        columnMoveLabel: "Move the column",
-        filterApplyText: "Apply",
-        columnSearchPlaceholder: "Search the fields",
-        columnSearchEmptyText: "No field matches",
-        editActionText: "Edit",
-        viewActionText: "View",
-        deleteActionText: "Delete",
-        actionsColumnLabel: "Actions",
-        settingsColumnLabel: "Settings",
-        selectAllLabel: "Select every row",
-        defaultTemplateText: "Default",
-        fieldsTabText: "Fields",
-        templatesTabText: "Templates",
-        untitledTemplateText: "All records",
-        saveTemplateLabel: "Save the filter as a template",
-        filterSettingsLabel: "Filter settings",
-        fieldWordText: "field",
-        rowActionsLabel: "Row actions",
-        treeExpand: "Expand",
-        listFilterLabel: "Filter, {count} active",
-        sortLabel: "Sort",
-        sortNone: "As the host orders it",
-        sortAscending: "ascending",
-        sortDescending: "descending",
-        closeText: "Close",
-        treeCollapse: "Collapse",
-        treeMore: "Show more",
-        createOptionsLabel: "Ways to create",
-        resetText: "Reset",
-        contextSaveTemplateLabel: "Saving the filter as a template",
-        contextFilterSettingsLabel: "Filter settings",
-        contextFieldFilterLabel: "Filtering by",
-        contextRowActionsLabel: "Row actions",
-        contextCreateOptionsLabel: "Ways to create",
-        contextViewActionsLabel: "View actions",
-        contextTableSettingsLabel: "Table settings",
-        templateNamePlaceholder: "Name",
-        makeDefaultLabel: "Make it the default",
-        saveForEveryoneLabel: "Save for everyone",
-        applyText: "Apply",
-        renameText: "Rename",
-        restoreText: "Restore",
-        selectRowLabel: "Select the row",
-        menuLabel: "Menu",
-        contextTemplateActionsLabel: "Template actions",
-        operatorEq: "Exactly",
-        operatorGt: "Greater than",
-        operatorGte: "Greater or equal",
-        operatorLt: "Less than",
-        operatorLte: "Less or equal",
-        operatorBetween: "Range",
-        operatorContains: "Contains",
-        operatorStartsWith: "Starts with",
-        operatorAny: "Any date",
-        operatorToday: "Today",
-        operatorWeek: "This week",
-        operatorMonth: "This month",
-        operatorIn: "In the list",
-    },
-    ru: {
-        filterText: "Фильтр",
-        clearText: "Очистить",
-        searchPlaceholder: "Поиск",
-        createText: "Создать",
-        pinColumnLabel: "Закрепить столбец",
-        templateMoveLabel: "Переместить шаблон",
-        templatePinLabel: "Закрепить шаблон сверху",
-        templateActionsLabel: "Действия с шаблоном",
-        unpinColumnLabel: "Открепить столбец",
-        loadingText: "Загрузка данных",
-        emptyText: "Нет данных",
-        errorText: "Не удалось загрузить данные",
-        retryText: "Повторить",
-        settingsFieldsTab: "Поля",
-        settingsViewTab: "Вид",
-        viewDensity: "Строки",
-        viewDensityCompact: "Компактно",
-        viewDensityNormal: "Обычно",
-        viewDensitySpacious: "Просторно",
-        viewStripes: "Чередовать строки",
-        viewLines: "Линии между столбцами",
-        viewSingleLine: "Текст в одну строку",
-        viewStickyHead: "Закреплять фильтр и шапку",
-        viewEverywhere: "Для всех моих таблиц",
-        viewReset: "Сбросить вид",
-        resetSearchText: "Очистить поиск",
-        resetFiltersText: "Сбросить фильтры",
-        resetBothText: "Сбросить поиск и фильтры",
-        columnMoveLabel: "Переместить столбец",
-        filterApplyText: "Применить",
-        columnSearchPlaceholder: "Поиск по полям",
-        columnSearchEmptyText: "Поля не найдены",
-        editActionText: "Редактировать",
-        viewActionText: "Посмотреть",
-        deleteActionText: "Удалить",
-        actionsColumnLabel: "Действия",
-        settingsColumnLabel: "Настройки",
-        selectAllLabel: "Выбрать все строки",
-        defaultTemplateText: "По умолчанию",
-        fieldsTabText: "Поля",
-        templatesTabText: "Шаблоны",
-        untitledTemplateText: "Все записи",
-        saveTemplateLabel: "Сохранение шаблона фильтра",
-        filterSettingsLabel: "Настройки фильтра",
-        fieldWordText: "поле",
-        rowActionsLabel: "Действия со строкой",
-        treeExpand: "Развернуть",
-        listFilterLabel: "Фильтр, активных условий: {count}",
-        sortLabel: "Сортировка",
-        sortNone: "Как задано источником",
-        sortAscending: "по возрастанию",
-        sortDescending: "по убыванию",
-        closeText: "Закрыть",
-        treeCollapse: "Свернуть",
-        treeMore: "Показать ещё",
-        createOptionsLabel: "Варианты создания",
-        resetText: "Сбросить",
-        contextSaveTemplateLabel: "Сохранение шаблона фильтра",
-        contextFilterSettingsLabel: "Настройки фильтра",
-        contextFieldFilterLabel: "Настройка фильтра",
-        contextRowActionsLabel: "Действия со строкой",
-        contextCreateOptionsLabel: "Варианты создания",
-        contextViewActionsLabel: "Действия с представлением",
-        contextTableSettingsLabel: "Настройки таблицы",
-        templateNamePlaceholder: "Название",
-        makeDefaultLabel: "Сделать по умолчанию",
-        saveForEveryoneLabel: "Сохранить для всех",
-        applyText: "Применить",
-        renameText: "Переименовать",
-        restoreText: "Восстановить",
-        selectRowLabel: "Выбрать строку",
-        menuLabel: "Меню",
-        contextTemplateActionsLabel: "Действия с шаблоном",
-        operatorEq: "Точно",
-        operatorGt: "Больше чем",
-        operatorGte: "Больше или равно",
-        operatorLt: "Меньше чем",
-        operatorLte: "Меньше или равно",
-        operatorBetween: "Диапазон",
-        operatorContains: "Содержит",
-        operatorStartsWith: "Начинается с",
-        operatorAny: "Любая дата",
-        operatorToday: "Сегодня",
-        operatorWeek: "Неделя",
-        operatorMonth: "Месяц",
-        operatorIn: "В списке",
-    },
+    en: camelWords(en.runtime),
+    ru: camelWords(ru.runtime),
 };
+
 
 const SYSTEM_COLUMN_KEYS = new Set(["select", "settings", "actions"]);
 
@@ -255,6 +93,17 @@ function checkedRecordIds(value) {
 // portal are all derived from this counter, never from the component name.
 let tableInstances = 0;
 
+
+// Many entries (standard simai.smart-component 1.3.8 §18.4; the quality
+// profile 1.3.6-1, gate 17): from this many rows the table draws only the rows
+// in view and a margin around them. The row height is measured from a drawn
+// row; until one is drawn it is guessed.
+const WINDOW_FROM = 300;
+const WINDOW_MARGIN = 20;
+const WINDOW_INITIAL = 60;
+const ROW_HEIGHT_GUESS = 40;
+const LONG_TEXT_CELL_TYPES = new Set(['text', 'textarea', 'markdown', 'html']);
+
 // The box a cell value is drawn in: a Smart element that is display: contents
 // (sf-tag) has none of its own, so its first child is the one measured and
 // folded.
@@ -262,7 +111,20 @@ function cellValueBox(item) {
     return getComputedStyle(item).display === 'contents' ? (item.firstElementChild ?? item) : item;
 }
 
-class SfTable extends SfBaseElement {
+// sf-table from its component.json (standard simai.smart-component 1.3.8 §3,
+// §4, §8, §11, §18): the settings are attributes and properties, the actions
+// answer outcomes, the events take the vocabulary's verbs and the old names
+// follow once through the dated aliases (aliases.json). The table's own props
+// below keep their parsers and defaults; what they do not name is the
+// manifest's.
+const TableElement = elementFromManifest(manifest, {
+    base: SfBaseElement,
+    lang: {en, ru},
+    source: "ru",
+    aliases,
+});
+
+class SfTable extends TableElement {
     static get sfPorts() {
         return SF_TABLE_PORTS;
     }
@@ -271,6 +133,8 @@ class SfTable extends SfBaseElement {
         return {
             templateName: {attribute: "template", default: "default"},
             ariaLabel: {attribute: "aria-label", default: "Data table"},
+            // The row the page has open (component.json settings.current).
+            current: {attribute: "current", default: ""},
             selectable: {type: Boolean, default: true},
             // Who owns the vertical scroll. `self` keeps the rows in their own
             // scroll area, which is what a host that bounds the table's height
@@ -423,6 +287,11 @@ class SfTable extends SfBaseElement {
         super();
 
         this._emptyContext = null;
+        // One handler for every row's press, not a closure per row and render.
+        this.rowPointerDown = (event) => this.handleRowPointerDown(event);
+        this._windowRange = null;
+        this._windowed = false;
+        this._rowHeight = 0;
         // The empty state's actions: retry and create are the table's own;
         // anything else (the data view's query reset) goes on up.
         this.addEventListener("sf-empty-state-action", (event) => {
@@ -653,6 +522,108 @@ class SfTable extends SfBaseElement {
         };
     }
 
+    // ---------- the manifest's list settings and values (§4, §18) ----------
+    // Each list setting is the property its set-<name> helper writes.
+
+    get rows() { return this.getTableData().rows || []; }
+
+    set rows(rows) { this.setRows(Array.isArray(rows) ? rows : []); }
+
+    get columns() { return this.getTableData().columns || []; }
+
+    set columns(columns) { this.setColumns(Array.isArray(columns) ? columns : []); }
+
+    get tableData() { return this.getTableData(); }
+
+    set tableData(data) { this.setTableData(data && typeof data === "object" ? data : {}); }
+
+    get tableSettings() { return this.getColumnSettings(); }
+
+    set tableSettings(data) { this.setTableSettings(data && typeof data === "object" ? data : {}); }
+
+    get bulkActions() { return this.state?.bulkActions ?? []; }
+
+    set bulkActions(actions) { this.setBulkActions(actions); }
+
+    get createItems() { return this.state?.createItems ?? []; }
+
+    set createItems(items) { this.setCreateItems(items); }
+
+    get toolbarActions() { return this.getToolbarActions(); }
+
+    set toolbarActions(items) { this.setToolbarActions(items); }
+
+    get filterFields() { return this.getFilterFields(); }
+
+    set filterFields(fields) { this.setFilterFields(fields); }
+
+    get activeFilterFields() { return this.getActiveFilterFieldKeys(); }
+
+    set activeFilterFields(keys) { this.setActiveFilterFields(keys); }
+
+    get templates() { return this.getFilterTemplates(); }
+
+    set templates(data) { this.setTemplates(data); }
+
+    // The host's echo of the order (§4.3 controlled; vocabulary 1.1.5 §2.1):
+    // [{key, direction}], the main column first.
+    get sort() {
+        const {key, direction} = this.state?.sort ?? {};
+        return key && direction ? [{key, direction}] : [];
+    }
+
+    set sort(list) {
+        const first = Array.isArray(list) ? list[0] : list;
+        const key = first?.key ?? first?.field ?? null;
+        const direction = first?.direction ?? first?.dir ?? null;
+        if (key && ["asc", "desc"].includes(direction)) this.setSort(key, direction);
+        else this.setSort(null, null);
+    }
+
+    // The row the page has open: marked aria-current, not focused.
+    get current() { return this._currentRowId ?? ""; }
+
+    set current(id) {
+        const value = id === null || id === undefined ? "" : String(id);
+        this._currentRowId = value || null;
+        if ((this.getAttribute("current") ?? "") !== value) {
+            if (value) this.setAttribute("current", value);
+            else this.removeAttribute("current");
+        } else {
+            this.requestComponentUpdate("current");
+        }
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (name === "current" && oldValue !== newValue) this._currentRowId = newValue || null;
+        super.attributeChangedCallback?.(name, oldValue, newValue);
+    }
+
+    get selected() { return this._currentRowId ?? undefined; }
+
+    get selection() { return this.getSelectedRecordIds(); }
+
+    // Whether an action was called with its parameters as one object (§4.4).
+    isActionParameters(value, names) {
+        return value !== null && typeof value === "object" && !Array.isArray(value)
+            && Object.getPrototypeOf(value) === Object.prototype && names.some((name) => Object.hasOwn(value, name));
+    }
+
+    focusRowAction({id} = {}) {
+        if (id === null || id === undefined || id === "") return {outcome: "refused", reason: "empty"};
+        this.focusRow(String(id), {reveal: true});
+        return {outcome: "applied"};
+    }
+
+    // The old names whose detail §8 changed (split rows of aliases.json).
+    sfAliasAdapters() {
+        return {
+            "sf-table-action-intent": (detail) => Object.freeze({action_id: detail.action, record_ids: detail.ids}),
+            "sf-port-output": (detail) => Object.freeze({port: "selection", value: detail.ids}),
+            onSearchEnd: (detail) => detail.search,
+        };
+    }
+
     getActions() {
         if (this.getProp('actions')) {
             return this.ACTIONS_SETTINGS_ROW.map((action) => {
@@ -740,25 +711,26 @@ class SfTable extends SfBaseElement {
         // Said at once, not after this render: the host's answer (a data view
         // marking the rows loading) then lands in the same frame, and a search
         // costs one render before its rows, not two (rules of the road, rule 1).
-        this.dispatchEvent(new CustomEvent('onSearchEnd', {
-            bubbles: true,
-            composed: true,
-            detail: this.state.search.value,
-        }));
-        this.dispatchTableEvent('sf-table-search-change', this.state.search.value);
+        // The old camelCase onSearchEnd is a dated alias of this name
+        // (aliases.json, simai/ui-pro#1): it follows once with its old detail.
+        this.emitTableEvent('search-change', {search: this.state.search.value});
         return this;
     }
 
-    dispatchTableEvent(name, detail = null) {
-        this.dispatchEvent(new CustomEvent(name, {
-            bubbles: true,
-            composed: true,
-            detail,
-        }));
-        return this;
+    // Every event by its verb, as the manifest declares it (standard 1.3.8
+    // §8): the DOM name is <tag>-<verb>, and the old names follow once
+    // through the dated aliases (aliases.json), noted in SF.deprecations when
+    // a listener reads them. Answers false when a listener refused a
+    // cancelable request.
+    emitTableEvent(verb, detail = {}, options = {}) {
+        return this.sfEmit(verb, detail, options);
     }
 
-    requestActionIntent(actionId, recordIds) {
+    requestActionIntent(actionId, recordIds, options = {}) {
+        // An action takes its parameters as one object too (standard 1.3.8 §4.4).
+        if (this.isActionParameters?.(actionId, ["action-id", "actionId"])) {
+            ({actionId, recordIds} = {actionId: actionId["action-id"] ?? actionId.actionId, recordIds: actionId["record-ids"] ?? actionId.recordIds});
+        }
         if (typeof actionId !== 'string' || !actionId.trim()
             || !Array.isArray(recordIds) || recordIds.length === 0
             || Array.from(recordIds).some((id) => !(
@@ -766,11 +738,19 @@ class SfTable extends SfBaseElement {
             ))) {
             throw new TypeError('Action intent requires an opaque action ID and nonempty typed record IDs');
         }
-        const detail = Object.freeze({
-            action_id: actionId,
-            record_ids: Object.freeze([...recordIds]),
-        });
-        return this.dispatchTableEvent('sf-table-action-intent', detail);
+        const ids = Object.freeze([...recordIds]);
+        const rows = this.getTableData().rows || [];
+        const revisions = {};
+        for (const id of ids) {
+            const revision = rows.find((row) => row?.id === id)?.revision;
+            if (revision !== undefined && revision !== null) revisions[id] = revision;
+        }
+        // Vocabulary §5 apply (§18.3): one row's own action is scope entry, a
+        // bulk one scope selection. The old sf-table-action-intent follows
+        // with its {action_id, record_ids} (a split row and its adapter).
+        const scope = options?.scope ?? (ids.length === 1 ? "entry" : "selection");
+        this.emitTableEvent('apply', Object.freeze({action: actionId, scope, ids, revisions: Object.freeze(revisions)}));
+        return {outcome: "applied"};
     }
 
     getSelectedRecordIds() {
@@ -798,7 +778,7 @@ class SfTable extends SfBaseElement {
                 text=${action.name} ?disabled=${selected.length === 0}
                 @click=${() => {
                     const ids = this.getSelectedRecordIds();
-                    if (ids.length) this.requestActionIntent(action.id, ids);
+                    if (ids.length) this.requestActionIntent(action.id, ids, {scope: "selection"});
                 }}></sf-button>`)}
         </div>`;
     }
@@ -817,10 +797,12 @@ class SfTable extends SfBaseElement {
     }
 
     requestCreateIntent(itemId = null) {
+        if (this.isActionParameters?.(itemId, ["item-id", "itemId"])) itemId = itemId["item-id"] ?? itemId.itemId ?? null;
         if (itemId !== null && !this.state.createItems.some((item) => item.id === itemId)) {
             throw new TypeError(`sf-table has no create item ${String(itemId)}`);
         }
-        return this.dispatchTableEvent('sf-table-create-intent', Object.freeze({item: itemId}));
+        this.emitTableEvent('create', Object.freeze({item: itemId}));
+        return {outcome: "applied"};
     }
 
     // The actions of the view itself, set by the host: the toolbar's control is
@@ -868,13 +850,7 @@ class SfTable extends SfBaseElement {
         if (!action) {
             throw new TypeError(`sf-table has no toolbar action ${String(actionId)}`);
         }
-        const event = new CustomEvent('sf-table-toolbar-action', {
-            bubbles: true,
-            composed: true,
-            cancelable: true,
-            detail: Object.freeze({action: action.id, href: action.href ?? null}),
-        });
-        const allowed = this.dispatchEvent(event);
+        const allowed = this.emitTableEvent('toolbar-action', Object.freeze({action: action.id, href: action.href ?? null}), {cancelable: true});
         if (allowed && action.href && this.isSameSiteHref(action.href)) {
             window.location.assign(action.href);
         }
@@ -925,7 +901,7 @@ class SfTable extends SfBaseElement {
         const choose = (key, direction) => {
             this.closeContextMenu();
             this.setSort(key, direction);
-            this.dispatchTableEvent('sf-table-sort-change', Object.freeze({key, direction}));
+            this.emitTableEvent('sort-change', Object.freeze({key, direction}));
         };
         const choices = new Map();
         const option = (text, key, direction) => {
@@ -998,13 +974,16 @@ class SfTable extends SfBaseElement {
     }
 
     setSort(key = null, direction = null) {
+        if (this.isActionParameters?.(key, ["key", "direction"])) ({key = null, direction = null} = key);
         if (key === null || direction === null) {
-            return this.set({sort: {key: null, direction: null}});
+            this.set({sort: {key: null, direction: null}});
+            return {outcome: "applied"};
         }
         if (typeof key !== 'string' || !key || !['asc', 'desc'].includes(direction)) {
             throw new TypeError('Sort requires a column key and direction asc or desc');
         }
-        return this.set({sort: {key, direction}});
+        this.set({sort: {key, direction}});
+        return {outcome: "applied"};
     }
 
     toggleSort(key) {
@@ -1014,7 +993,7 @@ class SfTable extends SfBaseElement {
             : current.direction === 'desc' ? null
             : 'asc';
         this.setSort(direction ? key : null, direction);
-        return this.dispatchTableEvent('sf-table-sort-change', Object.freeze({key, direction}));
+        return this.emitTableEvent('sort-change', Object.freeze({key, direction}));
     }
 
     // Pointer capture sends the click that ends a column drag or resize to the
@@ -1041,11 +1020,9 @@ class SfTable extends SfBaseElement {
         const key = JSON.stringify(ids.map((id) => [typeof id, id]));
         if (key === this._selectionPortKey) return this;
         this._selectionPortKey = key;
-        this.dispatchEvent(new CustomEvent("sf-port-output", {
-            bubbles: true,
-            composed: true,
-            detail: Object.freeze({port: "selection", value: Object.freeze([...ids])}),
-        }));
+        // Vocabulary §5 select {ids} (§18.2); the composition port's
+        // sf-port-output {port: selection, value} follows once (a split row).
+        this.emitTableEvent("select", Object.freeze({ids: Object.freeze([...ids])}));
         return this;
     }
 
@@ -1143,10 +1120,7 @@ class SfTable extends SfBaseElement {
         const value = row?.[field];
         const href = link.getAttribute("href");
         if (!href || href.startsWith("#") || link.target === "_blank" || link.hasAttribute("download")) return;
-        const asked = this.dispatchEvent(new CustomEvent("sf-table-reference-open", {
-            bubbles: true, composed: true, cancelable: true,
-            detail: {record_id: row?.id ?? null, field, value: value ?? null, href},
-        }));
+        const asked = this.emitTableEvent("reference-open", {recordId: row?.id ?? null, field, value: value ?? null, href}, {cancelable: true});
         // Only a listener that takes it (cancels the event) keeps the page.
         if (!asked) event.preventDefault();
     }
@@ -1206,7 +1180,7 @@ class SfTable extends SfBaseElement {
             event.dataTransfer.setData("application/x-sf-records+json", JSON.stringify({ids, source}));
             event.dataTransfer.setData("text/plain", ids.join(", "));
             event.dataTransfer.effectAllowed = "copyMove";
-            this.dispatchTableEvent("sf-table-rows-drag", Object.freeze({ids, source}));
+            this.emitTableEvent("rows-drag", Object.freeze({ids, source}));
         }, {signal});
         // Reordering inside the list: a row dragged over another goes before
         // it, or after it from its lower half; the drop says which rows moved
@@ -1256,7 +1230,7 @@ class SfTable extends SfBaseElement {
             const place = before === null ? now.length : now.indexOf(before);
             const order = [...now.slice(0, place), ...ids, ...now.slice(place)];
             if (order.join("\u0000") === keys.join("\u0000")) return;
-            this.dispatchTableEvent("sf-table-rows-reorder", Object.freeze({ids: [...ids], before, order}));
+            this.emitTableEvent("move", Object.freeze({ids: [...ids], before, order}));
         }, {signal});
         table.addEventListener("dragend", () => {
             this._reorderDrag = null;
@@ -1274,12 +1248,180 @@ class SfTable extends SfBaseElement {
         return key !== "" && String(this._currentRowId ?? "") === key;
     }
 
+    // ---------- many entries (§18.4) ----------
+
+    // The rows drawn now, when the list is long enough to be windowed: the
+    // range, and the heights of the spacers that stand for the rest.
+    windowSlice(rows = []) {
+        const count = rows.length;
+        if (count < WINDOW_FROM || this.isList) {
+            this._windowed = false;
+            this._windowCount = count;
+            return null;
+        }
+        this._windowed = true;
+        this._windowCount = count;
+        const height = this._rowHeight || ROW_HEIGHT_GUESS;
+        const range = this.clampWindow(this._windowRange ?? {first: 0, last: WINDOW_INITIAL - 1}, count);
+        this._windowRange = range;
+        return {
+            first: range.first,
+            last: range.last,
+            before: range.first * height,
+            after: Math.max(0, count - 1 - range.last) * height,
+        };
+    }
+
+    clampWindow({first = 0, last = 0} = {}, count = 0) {
+        const lastIndex = Math.max(0, count - 1);
+        const from = Math.min(Math.max(0, Math.floor(first)), lastIndex);
+        const to = Math.min(Math.max(from, Math.floor(last)), lastIndex);
+        return {first: from, last: to};
+    }
+
+    // aria-rowcount of a windowed table: every row, the head's included.
+    windowRowCount() {
+        return this._windowed ? String((this._windowCount ?? 0) + 1) : null;
+    }
+
+    // Which rows a person can see: the body's place against the viewport and
+    // the table's own scroll box, in row heights.
+    seenRows(count) {
+        const body = this.refs.table?.value?.tBodies?.[0];
+        if (!body || !count) return null;
+        const box = body.getBoundingClientRect();
+        let top = 0;
+        let bottom = globalThis.innerHeight || document.documentElement.clientHeight || 0;
+        const scroll = this.refs.scroll?.value;
+        if (scroll) {
+            const clip = scroll.getBoundingClientRect();
+            top = Math.max(top, clip.top);
+            bottom = Math.min(bottom, clip.bottom);
+        }
+        const height = this._rowHeight || ROW_HEIGHT_GUESS;
+        const lastIndex = count - 1;
+        const first = Math.min(lastIndex, Math.max(0, Math.floor((top - box.top) / height)));
+        const last = Math.min(lastIndex, Math.max(first, Math.ceil((bottom - box.top) / height)));
+        return {first, last};
+    }
+
+    // After a render and on every scroll: measure a drawn row, and move the
+    // range when the rows in view come near its edge. Answers whether the
+    // range moved.
+    syncWindow() {
+        if (!this._windowed) return false;
+        const table = this.refs.table?.value;
+        const drawn = table?.querySelectorAll?.("tbody tr[data-row-id]") ?? [];
+        let moved = false;
+        if (drawn.length) {
+            // The average of the drawn rows: a row of two lines among rows of
+            // one does not throw the spacers off.
+            const first = drawn[0].getBoundingClientRect();
+            const last = drawn[drawn.length - 1].getBoundingClientRect();
+            const height = (last.bottom - first.top) / drawn.length;
+            if (height > 0 && Math.abs(height - (this._rowHeight || 0)) > 0.5) {
+                this._rowHeight = height;
+                moved = true;
+            }
+        }
+        const count = this._windowCount ?? 0;
+        const seen = this.seenRows(count);
+        if (!seen) return false;
+        const range = this._windowRange ?? {first: 0, last: WINDOW_INITIAL - 1};
+        const lowEdge = range.first > 0 ? range.first + WINDOW_MARGIN / 2 : 0;
+        const highEdge = range.last < count - 1 ? range.last - WINDOW_MARGIN / 2 : count - 1;
+        if (seen.first < lowEdge || seen.last > highEdge) {
+            this._windowRange = this.clampWindow({first: seen.first - WINDOW_MARGIN, last: seen.last + WINDOW_MARGIN}, count);
+            moved = true;
+        }
+        if (!moved) return false;
+        this._windowOnly = true;
+        this.requestComponentUpdate("window");
+        const {first, last} = this._windowRange;
+        if (this._reportedWindow !== `${first}-${last}`) {
+            this._reportedWindow = `${first}-${last}`;
+            this.emitTableEvent("window", {first, last});
+        }
+        return true;
+    }
+
+    bindWindowScroll() {
+        if (this._windowScrollAbort) return;
+        this._windowScrollAbort = new AbortController();
+        const signal = this._windowScrollAbort.signal;
+        const onScroll = () => {
+            if (!this._windowed || this._windowFrame) return;
+            this._windowFrame = requestAnimationFrame(() => {
+                this._windowFrame = 0;
+                if (this.isConnected) this.syncWindow();
+            });
+        };
+        // Any scroll box between the rows and the page moves them: listened
+        // once, in the capture phase, on the document.
+        document.addEventListener("scroll", onScroll, {capture: true, passive: true, signal});
+        globalThis.addEventListener?.("resize", onScroll, {passive: true, signal});
+    }
+
+    unbindWindowScroll() {
+        this._windowScrollAbort?.abort();
+        this._windowScrollAbort = null;
+        if (this._windowFrame) cancelAnimationFrame(this._windowFrame);
+        this._windowFrame = 0;
+    }
+
+    // A cell that only shows a value is class markup (§18.4): what kind of
+    // markup this one is, or null for a cell the full renderer draws.
+    rowMarkupCell(row, column) {
+        const key = column?.key;
+        if (!key || !row) return null;
+        const size = this.size === "1/2" ? "1/2" : "1";
+        if (key === "select") {
+            const cell = row.select?.component;
+            if (cell?.type !== "checkbox" || typeof cell.props?.["@change"] !== "function") return null;
+            return {kind: "box", size, checked: cell.props.checked === true, value: String(cell.props.value ?? row.id ?? ""),
+                label: cell.props.ariaLabel ?? "", change: cell.props["@change"]};
+        }
+        if (key === "settings") {
+            const cell = row.settings?.component;
+            if (cell?.type !== "icon-button" || cell.props?.icon !== "menu" || typeof cell.props?.["@click"] !== "function") return null;
+            return {kind: "menu", size, label: cell.props.ariaLabel ?? this.text("menuLabel"), click: cell.props["@click"]};
+        }
+        // The actions cell keeps one kind whether its buttons show or not: a
+        // row whose arrangement changes is drawn anew, and the focus that
+        // brought the buttons in would leave with the old row.
+        if (column.system || column.component || column.renderer === "link" || column.role === "title") return null;
+        if (this.isTree() || row.path || this.cellEditable(row, column)) return null;
+        const value = row[key];
+        if (value === null || typeof value === "undefined") return {kind: "empty"};
+        if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") return null;
+        if (LONG_TEXT_CELL_TYPES.has(column.propertyType ?? column.property_type ?? column.type) && typeof value !== "boolean") {
+            const text = String(value);
+            return {kind: "text", className: "sf-table-cell-clip", text, title: text};
+        }
+        const typed = this.getTypedCellValue(column, value);
+        if (typed !== null && typeof typed !== "undefined") {
+            if (typeof typed !== "string" && typeof typed !== "number") return null;
+            return {kind: "text", className: "sf-table-cell-bare", text: String(typed)};
+        }
+        if (typeof value === "boolean") return null;
+        const text = String(value);
+        return {kind: "text", className: "sf-table-cell-text", text, title: text.length > 80 ? text : null};
+    }
+
+    // The rows a keyboard walks: the drawn and the undrawn, never a «show
+    // more» line.
+    keyboardRows() {
+        return (this.getTableData().rows || []).filter((row) => row && !row.__tree?.more);
+    }
+
     // The current row is marked in the page rather than through state. Going
     // through state re-rendered the rows on every click, and a render between a
     // box's click and its change event swallowed the change — one click on a
     // row was enough to lose a Shift-range selection. The field is read back by
     // the template, so a later render keeps the mark.
-    focusRow(rowId) {
+    focusRow(rowId, {reveal = false} = {}) {
+        // The action focus-row {id} (component.json) answers an outcome.
+        if (rowId && typeof rowId === "object") return this.focusRowAction(rowId);
         if (rowId == null || rowId === "") return this;
         this._currentRowId = String(rowId);
         const table = this.refs.table?.value;
@@ -1289,7 +1431,23 @@ class SfTable extends SfBaseElement {
             marked.removeAttribute("data-current");
         }
         const row = table.querySelector(selector);
+        if (!row && this._windowed) {
+            // A row outside the drawn range: the range moves to it, and the row
+            // takes the focus once it is drawn (§18.4).
+            const rows = this.getTableData().rows || [];
+            const index = rows.findIndex((one, at) => this.getRowKey(one, at) === String(rowId));
+            if (index >= 0) {
+                this._windowRange = this.clampWindow({first: index - WINDOW_MARGIN, last: index + WINDOW_MARGIN}, rows.length);
+                this._pendingFocusRow = String(rowId);
+                this._windowOnly = true;
+                this.requestComponentUpdate("window");
+            }
+            return this;
+        }
         row?.setAttribute("data-current", "");
+        // At once, not smoothly: a page that scrolls smoothly would move the
+        // window back to where it passes before it arrives.
+        if (reveal) row?.scrollIntoView?.({block: "nearest", behavior: "instant"});
         row?.focus?.({preventScroll: true});
         return this;
     }
@@ -1316,8 +1474,12 @@ class SfTable extends SfBaseElement {
     // A table is a tree when its rows carry __tree, which the data view writes
     // from the host's levels. The table only draws it and says what a person
     // asked for; which nodes exist and what opening one means is the view's.
+    // Read for every cell of a draw: answered once per list (the rows array is
+    // replaced, never edited in place).
     isTree() {
-        return (this.getTableData?.().rows ?? []).some((row) => row?.__tree);
+        const rows = this.getTableData?.().rows ?? [];
+        if (this._treeMemo?.rows !== rows) this._treeMemo = {rows, tree: rows.some((row) => row?.__tree)};
+        return this._treeMemo.tree;
     }
 
     // The column a tree hangs from: the one the host marked as the title, or
@@ -1329,13 +1491,17 @@ class SfTable extends SfBaseElement {
     }
 
     toggleTreeRow(row) {
-        if (!row?.__tree?.hasChildren) return this;
-        return this.dispatchTableEvent("sf-table-tree-toggle", Object.freeze({id: row.id, expanded: row.__tree.expanded === true}));
+        if (this.isActionParameters?.(row, ["row"]) && !row.__tree) row = row.row;
+        if (!row?.__tree?.hasChildren) return {outcome: "refused", reason: "no-children"};
+        this.emitTableEvent("expand", Object.freeze({id: row.id, expanded: row.__tree.expanded === true}));
+        return {outcome: "applied"};
     }
 
     requestTreeMore(row) {
-        if (!row?.__tree?.more) return this;
-        return this.dispatchTableEvent("sf-table-tree-more", Object.freeze({parent: row.__tree.parent, cursor: row.__tree.cursor ?? null}));
+        if (this.isActionParameters?.(row, ["row"]) && !row.__tree) row = row.row;
+        if (!row?.__tree?.more) return {outcome: "refused", reason: "no-more"};
+        this.emitTableEvent("load-more", Object.freeze({direction: "after", parent: row.__tree.parent, cursor: row.__tree.cursor ?? null}));
+        return {outcome: "applied"};
     }
 
     handleRowKeydown(event, row) {
@@ -1352,6 +1518,18 @@ class SfTable extends SfBaseElement {
         if (event.key === "Enter") {
             return this.handleRowOpen({target: event.currentTarget}, row);
         }
+        // The arrows, Home and End move between rows, drawn or not (§4.6,
+        // §18.4): a row outside the window is drawn and then focused.
+        if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key) && !event.altKey && !event.metaKey && !event.ctrlKey) {
+            const rows = this.keyboardRows();
+            const at = rows.findIndex((one) => String(one?.id ?? one?.value) === String(row?.id ?? row?.value));
+            const to = {ArrowDown: at + 1, ArrowUp: at - 1, Home: 0, End: rows.length - 1}[event.key];
+            if (at >= 0 && to >= 0 && to < rows.length && to !== at) {
+                event.preventDefault?.();
+                this.focusRow(this.getRowKey(rows[to], to), {reveal: true});
+            }
+            return this;
+        }
         if (event.key === " " || event.key === "Spacebar") {
             event.preventDefault?.();
             const checked = row?.select?.component?.props?.checked !== true;
@@ -1363,13 +1541,14 @@ class SfTable extends SfBaseElement {
     clearSelection() {
         this._selectionAnchorId = null;
         this.set({settingsChecked: false, selectIndeterminate: false});
-        if (!this.getSelectedRecordIds().length) return this;
-        return this.updateRows((row) => ({
+        if (!this.getSelectedRecordIds().length) return {outcome: "applied"};
+        this.updateRows((row) => ({
             ...row,
             selected: false,
             checked: false,
             select: this.getDefaultRowCell(this.TABLE_SELECT_COLUMN, {...row, selected: false, checked: false}),
         }), "select-clear");
+        return {outcome: "applied"};
     }
 
     // Composition input port. Only declared ports are accepted; the table never
@@ -1393,7 +1572,7 @@ class SfTable extends SfBaseElement {
         this._pendingQuerySequence = sequence;
         this._abandonedQuery = false;
         this.setDataState("loading");
-        return this.dispatchTableEvent("sf-table-query-intent", Object.freeze({
+        return this.emitTableEvent("query", Object.freeze({
             reason: "context",
             context: this._routeContext,
             sequence,
@@ -1450,13 +1629,14 @@ class SfTable extends SfBaseElement {
     // Latest result wins: only the answer to the newest pending context query
     // is applied, and at most once.
     applyQueryResult(sequence, rows) {
+        if (this.isActionParameters?.(sequence, ["sequence", "rows"])) ({sequence, rows} = sequence);
         if (!Number.isSafeInteger(sequence) || sequence !== this._pendingQuerySequence || !Array.isArray(rows)) {
-            return false;
+            return {outcome: "refused", reason: "stale"};
         }
         this._pendingQuerySequence = null;
         this.setRows(rows);
         this.setDataState("auto");
-        return true;
+        return {outcome: "applied"};
     }
 
     getQueryContext() {
@@ -2040,14 +2220,7 @@ class SfTable extends SfBaseElement {
             template || this.getFilterTemplateByKey(key, filter),
             filter,
         );
-        this.dispatchEvent(
-            new CustomEvent("onTemplateSave", {
-                bubbles: true,
-                composed: true,
-                detail,
-            }),
-        );
-        this.dispatchTableEvent('sf-table-template-save', detail);
+        this.emitTableEvent('template-save', detail);
 
         return this;
     }
@@ -2081,14 +2254,7 @@ class SfTable extends SfBaseElement {
         const detail = this.withFilterFieldSettings(
             filteredTemplates.length === 1 ? filteredTemplates[0] : filteredTemplates,
         );
-        this.dispatchEvent(
-            new CustomEvent("onTemplateSave", {
-                bubbles: true,
-                composed: true,
-                detail,
-            }),
-        );
-        this.dispatchTableEvent('sf-table-template-save', detail);
+        this.emitTableEvent('template-save', detail);
 
         return this;
     }
@@ -2846,12 +3012,7 @@ class SfTable extends SfBaseElement {
         };
 
         const detail = this.withFilterFieldSettings(template);
-        this.dispatchEvent(new CustomEvent('onTemplateSave', {
-            bubbles: true,
-            composed: true,
-            detail,
-        }));
-        this.dispatchTableEvent('sf-table-template-save', detail);
+        this.emitTableEvent('template-save', detail);
         this.tempSettings = null;
         this.closeContextMenu();
     }
@@ -2994,9 +3155,22 @@ class SfTable extends SfBaseElement {
         return pending?.visible ?? setting.visible ?? column.visible !== false;
     }
 
+    // The person's and the host's column settings, merged. It is asked for
+    // hundreds of times in one draw -- every column, every pinned cell -- so
+    // the merge is made once per change of either source and read from the
+    // memo while drawing (simai/ui-pro#1). Both sources are replaced, never
+    // edited in place, so their identity says when they changed.
     getColumnSettings() {
         const dataSettings = this.getTableData().columnSettings;
         const stateSettings = this.state?.columnSettings;
+        const memo = this._columnSettingsMemo;
+        if (memo && memo.data === dataSettings && memo.state === stateSettings) return memo.value;
+        const value = this.mergedColumnSettings(dataSettings, stateSettings);
+        this._columnSettingsMemo = {data: dataSettings, state: stateSettings, value};
+        return value;
+    }
+
+    mergedColumnSettings(dataSettings, stateSettings) {
         const normalizedDataSettings =
             dataSettings && typeof dataSettings === "object" && !Array.isArray(dataSettings)
                 ? dataSettings
@@ -3075,7 +3249,7 @@ class SfTable extends SfBaseElement {
             const {columnSettings, widths, ...rest} = preferences()?.read(this.viewPreferenceKey) ?? {};
             preferences()?.write(this.viewPreferenceKey, rest);
         }
-        return this.dispatchTableEvent("sf-table-column-settings-reset", Object.freeze({
+        return this.emitTableEvent("column-settings-reset", Object.freeze({
             target: "personal",
             tableSettingsKey: this.getTableSettingsKey?.() ?? null,
         }));
@@ -3091,21 +3265,10 @@ class SfTable extends SfBaseElement {
             tableSettingsKey: this.getTableSettingsKey()
         };
 
-        this.dispatchEvent(
-            new CustomEvent("sf-table:column-settings-change", {
-                bubbles: true,
-                composed: true,
-                detail,
-            }),
-        );
-        this.dispatchTableEvent('sf-table-column-settings-change', detail);
-        this.dispatchEvent(
-            new CustomEvent("onColumnSettingsChange", {
-                bubbles: true,
-                composed: true,
-                detail,
-            }),
-        );
+        // Vocabulary §5 save {kind: columns}; sf-table-column-settings-change,
+        // sf-table:column-settings-change and onColumnSettingsChange follow
+        // once each with the same fields (detail-adds rows).
+        this.emitTableEvent('save', {kind: "columns", ...detail});
 
         return this;
     }
@@ -3783,7 +3946,7 @@ class SfTable extends SfBaseElement {
         this._pendingCells ??= new Set();
         this._pendingCells.add(`${id}\u0000${column.key}`);
         this.requestComponentUpdate("cell-pending");
-        this.dispatchTableEvent("sf-table-cell-set", Object.freeze({
+        this.emitTableEvent("cell-set", Object.freeze({
             id: row.id ?? id, key: column.key, value,
             revision: row._revision ?? row.revision ?? null,
         }));
@@ -4177,10 +4340,10 @@ class SfTable extends SfBaseElement {
                                         this.dispatchFilterTemplatesSave(changedTemplates);
                                     }
                                     for (const key of deletedKeys) {
-                                        this.dispatchTableEvent('sf-table-template-delete', Object.freeze({key}));
+                                        this.emitTableEvent('template-delete', Object.freeze({key}));
                                     }
                                     if (selectedKey) {
-                                        this.dispatchTableEvent('sf-table-template-select',
+                                        this.emitTableEvent('template-select',
                                                 Object.freeze({key: selectedKey}));
                                     }
                                 });
@@ -4263,12 +4426,7 @@ class SfTable extends SfBaseElement {
                                     };
                                 }, () => {
                                     const detail = this.filterUpdate();
-                                    this.dispatchEvent(new CustomEvent('onFilterUpdate', {
-                                        bubbles: true,
-                                        composed: true,
-                                        detail,
-                                    }));
-                                    this.dispatchTableEvent('sf-table-filter-change', detail);
+                                    this.emitTableEvent('filter-change', detail);
                                 });
                             }
 
@@ -4301,12 +4459,7 @@ class SfTable extends SfBaseElement {
                 };
             }, () => {
                 const detail = this.filterUpdate();
-                this.dispatchEvent(new CustomEvent('onFilterUpdate', {
-                    bubbles: true,
-                    composed: true,
-                    detail,
-                }));
-                this.dispatchTableEvent('sf-table-filter-change', detail);
+                this.emitTableEvent('filter-change', detail);
             });
             return this;
         }
@@ -4332,12 +4485,7 @@ class SfTable extends SfBaseElement {
 
         }, () => {
             const detail = this.filterUpdate();
-            this.dispatchEvent(new CustomEvent('onFilterUpdate', {
-                bubbles: true,
-                composed: true,
-                detail,
-            }));
-            this.dispatchTableEvent('sf-table-filter-change', detail);
+            this.emitTableEvent('filter-change', detail);
         });
 
         return this;
@@ -4879,7 +5027,7 @@ class SfTable extends SfBaseElement {
         preferences()?.write(key, {...(preferences()?.read(key) ?? {}), v: 1, ...patch});
     }
 
-    rememberWidths(widths = {}) {
+    storeRememberedWidths(widths = {}) {
         this.writeTablePreference(this.rememberedWidthsKey, {widths: {...this.readRememberedWidths(), ...widths}});
     }
 
@@ -5067,7 +5215,7 @@ class SfTable extends SfBaseElement {
         }
         this.applyTableView();
         this.requestComponentUpdate("table-view");
-        this.dispatchTableEvent("sf-table-view-change", Object.freeze({view: this.tableView, everywhere}));
+        this.emitTableEvent("view-change", Object.freeze({view: this.tableView, everywhere}));
         return this;
     }
 
@@ -5301,7 +5449,7 @@ class SfTable extends SfBaseElement {
             ...(frozenWidths || {}),
             [key]: `${Math.round(width)}px`,
         };
-        this.rememberWidths(nextWidths);
+        this.storeRememberedWidths(nextWidths);
         const settingsPatch = Object.fromEntries(
             Object.entries(nextWidths).map(([columnKey, columnWidth]) => [
                 columnKey,
@@ -6231,7 +6379,11 @@ class SfTable extends SfBaseElement {
     // moving through the column hears each box by the row's first data cell,
     // instead of a run of unnamed checkboxes it cannot tell apart.
     getRowSelectLabel(row) {
-        const column = this.getColumnItems().find((item) => item?.key && !item.system && item.key !== "select" && item.key !== "settings");
+        const batch = this._labelColumnBatch;
+        const column = batch && "column" in batch
+            ? batch.column
+            : this.getColumnItems().find((item) => item?.key && !item.system && item.key !== "select" && item.key !== "settings");
+        if (batch) batch.column = column;
         const raw = column ? row?.[column.key] : undefined;
         const value = raw !== null && typeof raw === "object" ? (raw.text ?? raw.label ?? raw.value ?? "") : raw;
         const text = String(value ?? "").trim() || String(row?.id ?? "").trim();
@@ -6468,14 +6620,20 @@ class SfTable extends SfBaseElement {
         return null;
     }
 
-    normalizeRow(row = {}) {
+    normalizeRow(row = {}, systemColumns = this.getSystemColumns()) {
         if (!row || typeof row !== "object" || Array.isArray(row)) {
+            return row;
+        }
+        // A row that already carries its system cells is kept as it is: a
+        // change of one row copies that row alone, not the ten thousand others
+        // (standard 1.3.8 §18.4, gate 17 «one entry changed»).
+        if (systemColumns.every((column) => !column?.key || column.visible === false || typeof row[column.key] !== "undefined")) {
             return row;
         }
 
         const nextRow = {...row};
 
-        this.getSystemColumns().forEach((column) => {
+        systemColumns.forEach((column) => {
 
             if (!column?.key || typeof nextRow[column.key] !== "undefined" || column.visible === false) {
                 return;
@@ -6490,8 +6648,18 @@ class SfTable extends SfBaseElement {
         return nextRow;
     }
 
+    // The system columns and the column a box is named by are read once for
+    // the whole list, not once per row: ten thousand rows asked for them ten
+    // thousand times (simai/ui-pro#2).
     normalizeRows(rows = []) {
-        return Array.isArray(rows) ? rows.map((row) => this.normalizeRow(row)) : [];
+        if (!Array.isArray(rows)) return [];
+        const systemColumns = this.getSystemColumns();
+        this._labelColumnBatch = {};
+        try {
+            return rows.map((row) => this.normalizeRow(row, systemColumns));
+        } finally {
+            this._labelColumnBatch = null;
+        }
     }
 
     setTableData(patch = {}, reason = "data") {
@@ -6579,12 +6747,14 @@ class SfTable extends SfBaseElement {
     }
 
     addRows(rows = [], reason = "rows") {
+        if (this.isActionParameters?.(rows, ["rows"])) rows = rows.rows ?? [];
         const nextRows = Array.isArray(rows) ? rows : [rows];
 
-        return this.setRows((currentRows) => [
+        this.setRows((currentRows) => [
             ...currentRows,
             ...nextRows.filter(Boolean),
         ], reason);
+        return {outcome: "applied"};
     }
 
     updateRowsByKey(key, value, patch = {}, reason = "rows") {
@@ -6613,7 +6783,11 @@ class SfTable extends SfBaseElement {
         );
     }
 
+    // One entry changed: that row is drawn again in place, and the widths
+    // measured from the content are kept (standard 1.3.8 §18.4, gate 17 «one
+    // entry changed ≤ 50 ms whatever the count»).
     updateRowByKey(key, value, patch = {}, reason = "row") {
+        this._entryOnly = true;
         return this.updateRowsByKey(key, value, patch, reason);
     }
 
@@ -6710,17 +6884,21 @@ class SfTable extends SfBaseElement {
         return this.getAttribute("template") || "default";
     }
 
+    // The vocabulary's data state is `ready`; `populated` is read as its
+    // alias (standard 1.3.8 gate 26), and the template keeps drawing it.
     get dataState() {
-        return this.getEnumAttr(
+        const state = this.getEnumAttr(
             'data-state',
-            ['loading', 'populated', 'empty', 'error'],
+            ['loading', 'ready', 'populated', 'empty', 'error'],
             'auto',
         );
+        return state === 'ready' ? 'populated' : state;
     }
 
     setDataState(state = 'auto') {
-        const normalized = ['loading', 'populated', 'empty', 'error'].includes(state)
-            ? state
+        const named = state === 'ready' ? 'populated' : state;
+        const normalized = ['loading', 'populated', 'empty', 'error'].includes(named)
+            ? named
             : 'auto';
 
         if (normalized === 'auto') {
@@ -6733,7 +6911,8 @@ class SfTable extends SfBaseElement {
     }
 
     requestRetry() {
-        return this.dispatchTableEvent('sf-table-retry');
+        this.emitTableEvent('refresh', {});
+        return {outcome: "applied"};
     }
 
     // Why there are no rows, as a data view knows it: {kind: 'no-access' |
@@ -6759,7 +6938,7 @@ class SfTable extends SfBaseElement {
             // A search the table did not hold (the view's own, or a host's) is
             // still cleared: the event goes either way.
             if (this.state.search?.value) this.updateSearchState({value: ""});
-            else this.dispatchTableEvent("sf-table-search-change", "");
+            else this.emitTableEvent("search-change", {search: ""});
         }
         return this;
     }
@@ -6789,6 +6968,7 @@ class SfTable extends SfBaseElement {
     }
 
     disconnectedCallback() {
+        this.unbindWindowScroll();
         // The row menu lives beside the page, not inside the table: it goes
         // with the table that made it.
         this._rowMenu?.close?.({restoreFocus: false});
@@ -6939,6 +7119,30 @@ class SfTable extends SfBaseElement {
 
     afterRender() {
         this.bindRowActionsEvents(this.refs.table?.value);
+        if (this._windowed) this.bindWindowScroll();
+        // A row the keyboard asked for outside the drawn range is drawn now:
+        // it is focused and scrolled into view, and the scroll that brings
+        // moves the range around it -- not the place the page was at before.
+        if (this._pendingFocusRow) {
+            const id = this._pendingFocusRow;
+            this._pendingFocusRow = null;
+            this._windowOnly = false;
+            this._entryOnly = false;
+            this.focusRow(id, {reveal: true});
+            return;
+        }
+        // A render that only moved the window, or changed one entry, draws
+        // rows of the same columns: their values are folded, no width is
+        // measured again.
+        if (this._windowOnly || this._entryOnly) {
+            this._windowOnly = false;
+            this._entryOnly = false;
+            this._layoutUnchanged = false;
+            this.fitCellValues();
+            this.measurePinnedColumns();
+            this.syncWindow();
+            return;
+        }
         // A render that only moved a row's buttons changed no width.
         if (this._layoutUnchanged) {
             this._layoutUnchanged = false;
@@ -6977,6 +7181,7 @@ class SfTable extends SfBaseElement {
         this.bindHoverEvent();
         this.bindColumnResizeEvent();
         this.bindColumnDragEvent();
+        this.syncWindow();
     }
 
     template() {
@@ -6984,4 +7189,5 @@ class SfTable extends SfBaseElement {
     }
 }
 
+settingSetters(SfTable, manifest);
 SfTable.define("sf-table");

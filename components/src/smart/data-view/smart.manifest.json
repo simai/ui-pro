@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "title": "Data view composite",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -256,6 +256,16 @@
         "type": "boolean",
         "default": false,
         "description": "Files dropped from the computer on the view are the host's to upload: a drop zone shows while they are over it, and sf-data-view-files-drop {files} says they were dropped."
+      },
+      "collection": {
+        "type": "string",
+        "default": "",
+        "description": "The host's collection id; the view's preference key falls back to it (component.json settings.collection)."
+      },
+      "current": {
+        "type": "string",
+        "default": "",
+        "description": "The id of the record the page has open: its row carries aria-current. Writing it sends nothing (component.json settings.current)."
       }
     }
   },
@@ -1176,6 +1186,52 @@
         },
         "additionalProperties": false
       }
+    },
+    "sf-data-view-open": {
+      "summary": "A row's view action asks to open its record, vocabulary §5 open {id}: a cancelable request; the host's record.open follows unless a listener refused it.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-data-view-deleted": {
+      "summary": "The fact after an applied delete, vocabulary §4: {ids}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sf-data-view-tree": {
+      "summary": "The tree's port intents announced, {intent, payload}; the old sf-table-tree-intent follows once until 2026-12-01 (aliases.json).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "intent"
+        ],
+        "properties": {
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "state": {
@@ -1275,7 +1331,15 @@
     "aliases": [],
     "deprecations": [],
     "replacement": null,
-    "migrations": []
+    "migrations": [
+      {
+        "from": "1.0.0",
+        "to": "1.1.0",
+        "changes": [
+          "From component.json (standard simai.smart-component 1.3.8): sf-data-view-open {id} (cancelable) before the host's record.open, sf-data-view-deleted {ids} after an applied delete, sf-data-view-tree with sf-table-tree-intent as its dated alias; values state (vocabulary), total, selected, selection; settings collection and current; the actions answer outcomes."
+        ]
+      }
+    ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
@@ -1283,7 +1347,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/data-view/index.js",
-        "sha256": "b7171026267f04c705630c85d866955863f93071592cdf9944656eca48e9768d"
+        "sha256": "e429b53fa4b2423beabc330c5aa2adac09b98d075e67287eacdd6e146c06fe2b"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",

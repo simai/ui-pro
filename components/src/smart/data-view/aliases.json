@@ -1,0 +1,31 @@
+{
+  "$comment": "Dated aliases of sf-data-view for the shim (core/js/aliases.js, standard §16 item 20).",
+  "component": "sf-data-view",
+  "since": "2026-10-27",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "aria-label",
+      "to": null,
+      "kind": "attribute",
+      "component": "sf-data-view",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "host-attribute",
+      "section": "§3.1, §4.8",
+      "note": "stays a host attribute, read for the accessible name; no shim"
+    },
+    {
+      "from": "sf-table-tree-intent",
+      "to": "sf-data-view-tree",
+      "kind": "event",
+      "component": "sf-data-view",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, vocabulary §9",
+      "note": "the view's announcement of the tree's port intents carried a table name; the detail {intent, payload} is unchanged"
+    }
+  ]
+}

@@ -277,8 +277,8 @@ try {
       await page.waitForTimeout(300);
       const asked = await page.evaluate(() => window.asked);
       console.log(JSON.stringify({asked}));
-      if (asked.length !== 1 || asked[0].field !== 'author' || asked[0].href !== '/admin/users/1/edit' || asked[0].record_id !== '7') {
-        note({case: 'reference link', got: asked, expected: 'one sf-table-reference-open {record_id 7, field author, href}'});
+      if (asked.length !== 1 || asked[0].field !== 'author' || asked[0].href !== '/admin/users/1/edit' || asked[0].recordId !== '7') {
+        note({case: 'reference link', got: asked, expected: 'one sf-table-reference-open {recordId 7, field author, href} (standard 1.3.8 §3.2: camelCase on the element)'});
       }
       if (page.url() !== before) note({case: 'reference link', expected: 'no page loaded when the view takes it'});
     }

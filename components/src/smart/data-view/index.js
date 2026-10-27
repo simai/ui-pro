@@ -6,26 +6,33 @@ import "../pagination/index.js";
 // table and the page row.
 import "../toast/index.js";
 import {pageText} from "../../core/js/page-language";
+import {elementFromManifest} from "../../core/js/element-manifest";
+import {installAliases} from "../../core/js/aliases.js";
+import {answerActions, settingSetters} from "../table/js/manifest-actions.js";
+import manifest from "./component.json";
+import aliases from "./aliases.json";
+import en from "./lang/en.json";
+import ru from "./lang/ru.json";
 import BundledPreferences from "../../core/js/preferences.js";
 import {acceptLevel, collapse, createTree, expandKnown, hasLevel, knownRecords, markLoading, visibleRows} from "./js/tree.js";
+const LISTENED = Object.freeze([
+    "sf-table-search-change", "sf-table-filter-change", "sf-table-sort-change", "sf-table-save",
+    "sf-table-apply", "sf-table-refresh", "sf-table-select", "sf-table-column-settings-reset",
+    "sf-table-expand", "sf-table-load-more", "sf-table-reference-open", "sf-table-cell-set", "sf-table-move",
+    "sf-pagination-change", "sf-pagination-size-change", "sf-pagination-apply", "sf-pagination-load-more",
+    "sf-pagination-selection-clear", "sf-pagination-count", "sf-pagination-action-change",
+    "sf-pagination-action-for-all-change", "sf-data-view-saved-view-intent",
+]);
+// The table's and the page row's events by their names since standard 1.3.8
+// (vocabulary 1.1.5): the old names they still send until 2026-12-01 are not
+// listened to, so each act is taken once.
 const EVENTS = Object.freeze({
-    "sf-table-query-intent": "query.change",
+    "sf-table-query": "query.change",
     "sf-table-template-select": "view.open",
     "sf-table-template-save": "view.save",
     "sf-table-template-delete": "view.delete",
-    "sf-table-create-intent": "view.create_record",
+    "sf-table-create": "view.create_record",
 });
-
-// What the page row says, by the names it sends them under since SIMAI
-// Framework standard 1.3.8 (events take the tag). The former names --
-// sf-page-change, sf-action-apply, sf-count-request, … -- still follow each
-// one, with their old detail, until the Framework retires them; the view reads
-// the new ones and their detail ("page-size", scope).
-const PAGINATION_EVENTS = [
-    "sf-pagination-change", "sf-pagination-size-change", "sf-pagination-apply",
-    "sf-pagination-load-more", "sf-pagination-selection-clear", "sf-pagination-count",
-    "sf-pagination-action-change", "sf-pagination-action-for-all-change",
-];
 
 let instanceNumber = 0;
 // Every port version this composite accepts, in one place. The list used to be
@@ -65,7 +72,9 @@ function hostMessage(answer) {
 const ACCESS_REFUSALS = new Set(["forbidden", "access_denied", "scope_denied"]);
 function isAccessRefusal(reason) {
     if (reason == null || reason === "") return true;
-    const code = String(reason);
+    // Larena writes the codes with underscores; ui-admin's reference host with
+    // hyphens (access-denied, stand 24 U2): both are the same refusal.
+    const code = String(reason).replace(/-/gu, "_");
     return ACCESS_REFUSALS.has(code) || code.endsWith("_access_denied") || code.endsWith("_scope_denied");
 }
 
@@ -94,96 +103,15 @@ const portAtLeast = (version, minimum) => {
     }
     return true;
 };
+// The words are the language files' (lang/<locale>.json, standard 1.3.8 §11),
+// read under the camelCase keys a product registers more languages by.
+const camelWords = (words = {}) => Object.fromEntries(Object.entries(words)
+    .map(([key, word]) => [key.replace(/-([a-z0-9])/gu, (_, letter) => letter.toUpperCase()), word]));
 const DATA_VIEW_TEXT = {
-    en: {
-        showAll: "Show all",
-        unnamedAction: "Action",
-        emptyText: "No data",
-        dropFiles: "Drop the files here to upload them",
-        closeNoticeLabel: "Close the message",
-        statePortNotConnected: "The data port is not connected",
-        stateUnavailable: "The data is temporarily unavailable",
-        stateLoadFailed: "The data could not be loaded",
-        stateLoading: "Loading",
-        stateQueryFailed: "The request could not be completed",
-        noticeFetchFailed: "The data could not be fetched. Try again.",
-        noticeLoadFailed: "The data could not be loaded.",
-        currentViewText: "Current",
-        ofTotal: "{shown} of {total}",
-        layoutLabel: "Data view",
-        recordsLabel: "Records",
-        noticeActionNotAllowed: "That action is not available for the chosen record.",
-        noticeCapabilityNotProvided: "The host does not support that action.",
-        noticePortNotConnected: "The data source is not connected.",
-        noticeSavedViewLevels: "Shared views need a newer port.",
-        noticeConfirmRequired: "The action has to be confirmed first.",
-        noticeNotConfirmed: "The action was cancelled.",
-        noticeNoBaseRevision: "The settings cannot be saved yet: the view has no current version of them. Read the view again.",
-        noticeRecordInvalid: "The record was not found.",
-        noticeForbidden: "You may not do this.",
-        noticeStaleRevision: "Someone changed this in the meantime. Read the view again and repeat the action.",
-        noticeConflict: "The data changed. Read the view again and repeat the action.",
-        noticeRefused: "The action was refused.",
-        noticeUnavailable: "The action is unavailable.",
-        noticeFailed: "The action was not carried out.",
-        moveAction: "Move…",
-        createChildAction: "Add a nested one",
-        moveTitle: "Move «{label}»",
-        moveRoot: "To the top level",
-        movePlace: "Place",
-        moveFirst: "First",
-        moveLast: "Last",
-        moveApply: "Move",
-        moveNoTargets: "There is nowhere this record can be moved.",
-        confirmTitle: "Confirm the change",
-        confirmApply: "Confirm",
-        cancel: "Cancel",
-    },
-    ru: {
-        showAll: "Показать все",
-        unnamedAction: "Действие",
-        emptyText: "Нет данных",
-        dropFiles: "Отпустите, чтобы загрузить файлы сюда",
-        closeNoticeLabel: "Закрыть сообщение",
-        statePortNotConnected: "Порт данных не подключён",
-        stateUnavailable: "Данные временно недоступны",
-        stateLoadFailed: "Не удалось загрузить данные",
-        stateLoading: "Загрузка данных",
-        stateQueryFailed: "Запрос не выполнен",
-        noticeFetchFailed: "Не удалось получить данные. Повторите попытку.",
-        noticeLoadFailed: "Не удалось загрузить данные.",
-        currentViewText: "Текущий",
-        ofTotal: "{shown} из {total}",
-        layoutLabel: "Представление данных",
-        recordsLabel: "Записи",
-        noticeActionNotAllowed: "Это действие недоступно для выбранной записи.",
-        noticeCapabilityNotProvided: "Хост не поддерживает это действие.",
-        noticePortNotConnected: "Источник данных не подключён.",
-        noticeSavedViewLevels: "Общие виды требуют более новой версии порта.",
-        noticeConfirmRequired: "Действие нужно сначала подтвердить.",
-        noticeNotConfirmed: "Действие отменено.",
-        noticeNoBaseRevision: "Настройки пока нельзя сохранить: у представления нет их текущей версии. Обновите представление.",
-        noticeRecordInvalid: "Запись не найдена.",
-        noticeForbidden: "Недостаточно прав для этого действия.",
-        noticeStaleRevision: "Данные успели изменить. Обновите представление и повторите действие.",
-        noticeConflict: "Данные изменились. Обновите представление и повторите действие.",
-        noticeRefused: "Действие отклонено.",
-        noticeUnavailable: "Действие недоступно.",
-        noticeFailed: "Действие не выполнено.",
-        moveAction: "Переместить…",
-        createChildAction: "Добавить вложенную",
-        moveTitle: "Переместить «{label}»",
-        moveRoot: "На верхний уровень",
-        movePlace: "Место",
-        moveFirst: "Первым",
-        moveLast: "Последним",
-        moveApply: "Переместить",
-        moveNoTargets: "Эту запись некуда переместить.",
-        confirmTitle: "Подтвердите изменение",
-        confirmApply: "Подтвердить",
-        cancel: "Отмена",
-    },
+    en: camelWords(en.runtime),
+    ru: camelWords(ru.runtime),
 };
+
 // The parts this element draws itself and a consumer can leave out. `status` is
 // absent on purpose and cannot be switched off: a list that could not say a load
 // failed would be a list that looks empty when it is broken, and an embedded one
@@ -235,7 +163,20 @@ function hasValue(value) {
     return true;
 }
 
-class SfDataView extends HTMLElement {
+// sf-data-view from its component.json (standard simai.smart-component 1.3.8
+// §3, §4, §8, §11): a leaf over plain HTMLElement (it draws into its own
+// shadow root), its settings and values made by core/js/element-manifest.js,
+// its actions answering outcomes (../table/js/manifest-actions.js), its events by the
+// vocabulary's verbs with the old names as dated aliases (aliases.json).
+class PlainElement extends HTMLElement {
+    connectedCallback() {}
+}
+const DataViewElement = elementFromManifest(manifest, {base: PlainElement, lang: {en, ru}, source: "ru", aliases});
+
+// The vocabulary's data state (§3) for the view's own words for it.
+const DATA_STATES = {loading: "loading", populated: "ready", empty: "empty", error: "error", "no-access": "refused", unavailable: "unavailable"};
+
+class SfDataView extends DataViewElement {
     constructor() {
         super();
         this.instanceId = `sf-data-view-${++instanceNumber}`;
@@ -278,8 +219,8 @@ class SfDataView extends HTMLElement {
         this.shadowRoot.innerHTML = `
           <style>
             :host { display: block; }
-            [part="layout"] { display: grid; gap: var(--sf-space-3); }
-            [part="toolbar"] { display: flex; flex-wrap: wrap; gap: var(--sf-space-2); }
+            [part="layout"] { display: grid; gap: var(--sf-data-view-gap, var(--sf-space-3)); }
+            [part="toolbar"] { display: flex; flex-wrap: wrap; gap: var(--sf-data-view-toolbar-gap, var(--sf-space-2)); }
             /* Hidden means hidden: the toolbar's own display beat the hidden
                attribute, and a related list in a record panel (chrome="")
                showed the bare fallback search above its rows (Larena,
@@ -290,10 +231,10 @@ class SfDataView extends HTMLElement {
             [part="drop"] {
               position: absolute; inset: 0; z-index: 20;
               display: grid; place-items: center;
-              border: var(--sf-focus--width, 2px) dashed var(--sf-primary);
+              border: var(--sf-focus--width, 2px) dashed var(--sf-data-view-drop-border-color, var(--sf-primary));
               border-radius: var(--sf-radius--surface);
-              background: color-mix(in srgb, var(--sf-primary-container) 80%, transparent);
-              color: var(--sf-on-primary-container);
+              background: var(--sf-data-view-drop-background-color, color-mix(in srgb, var(--sf-primary-container) 80%, transparent));
+              color: var(--sf-data-view-drop-color, var(--sf-on-primary-container));
               font: var(--sf-font-weight-medium) var(--sf-text-size-1) / var(--sf-text-height-1) var(--sf-text--family);
               pointer-events: none;
             }
@@ -367,6 +308,51 @@ class SfDataView extends HTMLElement {
             <slot name="dialog"></slot>
           </section>`;
     }
+
+    // ---------- the manifest's values and settings (§4) ----------
+
+    get total() { return this._total ?? 0; }
+
+    set total(value) { this._total = value; }
+
+    // The vocabulary's data state of the list (§3): ready for populated,
+    // refused for no access.
+    get state() {
+        if (this._queryRefused) return "refused";
+        return DATA_STATES[this._dataState] ?? "idle";
+    }
+
+    // The row the page has open, marked in the table (aria-current).
+    get current() { return this._current ?? ""; }
+
+    set current(id) {
+        this._current = id === null || id === undefined ? "" : String(id);
+        if (this.table) this.table.current = this._current;
+    }
+
+    get selected() { return this._current || undefined; }
+
+    // The actions offered for the marked rows, [{id, label}] (component.json
+    // settings.bulk-actions). A page writes them on its page row's markup
+    // (actions="publish:Опубликовать|…"); an assembly that places the bare view
+    // gives them here, their words from its language file (§11.3), and the view
+    // hands them to its page row.
+    get bulkActions() { return this._bulkActions ?? []; }
+
+    set bulkActions(list) {
+        this._bulkActions = Array.isArray(list) ? list.filter((item) => item && (item.id ?? item.value)) : [];
+        this._applyBulkActions();
+    }
+
+    _applyBulkActions() {
+        const pagination = this.pagination;
+        if (!pagination || !this._bulkActions?.length) return;
+        const clean = (text) => String(text ?? "").replace(/[|:]/gu, " ").trim();
+        const markup = this._bulkActions.map((item) => `${clean(item.id ?? item.value)}:${clean(item.label ?? item.text ?? item.id ?? item.value)}`).join("|");
+        if (pagination.getAttribute("actions") !== markup) pagination.setAttribute("actions", markup);
+    }
+
+    get selection() { return this.table?.selection ?? []; }
 
     get table() {
         const slot = this.shadowRoot.querySelector('slot[name="content"]');
@@ -544,19 +530,42 @@ class SfDataView extends HTMLElement {
         });
     }
 
+    // A view placed with no table and no page row of the page's own (an
+    // assembly places the bare tag) makes them as its light children, slotted,
+    // where the page's stylesheets reach them: the fallbacks inside the shadow
+    // root are drawn without the table's sheet. The documented markup gives
+    // them, and then nothing is made.
+    _ownParts() {
+        if (!this.querySelector(':scope > sf-table[slot="content"], :scope > [slot="content"]')) {
+            const table = document.createElement("sf-table");
+            table.slot = "content";
+            table.setAttribute("aria-label", pageText(DATA_VIEW_TEXT, "recordsLabel", this));
+            table.toggleAttribute("data-sf-view-made", true);
+            this.append(table);
+        }
+        if (!this.querySelector(':scope > [slot="pagination"]')) {
+            const pagination = document.createElement("sf-pagination");
+            pagination.slot = "pagination";
+            pagination.setAttribute("top", "false");
+            pagination.setAttribute("bottom", "false");
+            pagination.toggleAttribute("data-sf-view-made", true);
+            this.append(pagination);
+        }
+        this._applyBulkActions();
+    }
+
     connectedCallback() {
+        super.connectedCallback();
+        if (this.getAttribute("data-sf-instance")) this._ownParts();
+        // Dated aliases (§16.20), installed once per element as the Smart base does.
+        if (!this.__sfAliases) this.__sfAliases = installAliases(this, aliases, {tag: this.localName, adapters: {}});
         this._bindFileDrop();
         this.epoch += 1;
         // The key reaches the table before its first paint.
         this._applyPreferences();
         this._controller = new AbortController();
         const events = [
-            ...Object.keys(EVENTS), "sf-table-search-change", "sf-table-filter-change",
-            "sf-table-sort-change", "sf-table-column-settings-change", "sf-table-action-intent",
-            "sf-table-retry", "sf-port-output", ...PAGINATION_EVENTS,
-            "sf-table-column-settings-reset",
-            "sf-table-tree-toggle", "sf-table-tree-more", "sf-table-reference-open", "sf-data-view-saved-view-intent",
-            "sf-table-cell-set", "sf-table-rows-reorder",
+            ...Object.keys(EVENTS), ...LISTENED,
         ];
         for (const name of events) this.shadowRoot.addEventListener(name, this._bound);
         for (const name of events) this.addEventListener(name, this._bound);
@@ -611,12 +620,7 @@ class SfDataView extends HTMLElement {
         this._controller?.abort();
         this._controller = null;
         const events = [
-            ...Object.keys(EVENTS), "sf-table-search-change", "sf-table-filter-change",
-            "sf-table-sort-change", "sf-table-column-settings-change", "sf-table-action-intent",
-            "sf-table-retry", "sf-port-output", ...PAGINATION_EVENTS,
-            "sf-table-column-settings-reset",
-            "sf-table-tree-toggle", "sf-table-tree-more", "sf-table-reference-open", "sf-data-view-saved-view-intent",
-            "sf-table-cell-set", "sf-table-rows-reorder",
+            ...Object.keys(EVENTS), ...LISTENED,
         ];
         for (const name of events) this.shadowRoot.removeEventListener(name, this._bound);
         for (const name of events) this.removeEventListener(name, this._bound);
@@ -736,6 +740,7 @@ class SfDataView extends HTMLElement {
 
     // `message` is for the live region only: it is announced, never laid out.
     _setState(state, message = "") {
+        this._dataState = state;
         this.setAttribute("data-state", state);
         this.setAttribute("aria-busy", state === "loading" ? "true" : "false");
         if (this.table && state === "empty") this.table.emptyContext = this._emptyContext();
@@ -803,9 +808,8 @@ class SfDataView extends HTMLElement {
         // The tree's intents are announced as the one event the port names
         // for them, so a page can watch them without standing in the way.
         if (TREE_INTENTS.has(intent)) {
-            this.dispatchEvent(new CustomEvent("sf-table-tree-intent", {
-                bubbles: true, composed: true, detail: {intent, payload: copy(payload)},
-            }));
+            // sf-data-view-tree; the old sf-table-tree-intent follows once (aliases.json).
+            this.sfEmit("tree", {intent, payload: copy(payload)});
         }
         const epoch = this.epoch;
         const sequence = query ? payload.sequence : null;
@@ -1496,6 +1500,7 @@ class SfDataView extends HTMLElement {
     }
 
     _renderProjection() {
+        if (this._current !== undefined && this.table && this.table.current !== this._current) this.table.current = this._current;
         // The saved-view controls appear when the host keeps saved views and
         // not before: this is the only place that runs both when a host is set
         // and when data arrives, which is when the answer can have changed.
@@ -1852,8 +1857,20 @@ class SfDataView extends HTMLElement {
         if (!Number.isSafeInteger(confirmedTotal) || confirmedTotal !== this.total) {
             throw new TypeError("Confirm the current total before a filter-wide action");
         }
+        // A count that moved meanwhile is a conflict carrying the current total
+        // (vocabulary §3.1): the page row shows that number at once, so the
+        // person confirms what is there now, not what was.
         return this._raise("bulk.apply_under_filter", {
             action_id: actionId, filters: copy(this.query.filters), confirmed_total: confirmedTotal,
+        }).then((answer) => {
+            const current = answer?.current_total ?? answer?.data?.total;
+            if (answer?.answer === "conflict" && Number.isSafeInteger(current) && current >= 0) {
+                this.total = current;
+                this.totalExact = true;
+                this.pagination?.setState?.({total: current, countKnown: true, totalExact: true});
+                this._renderBulkBand();
+            }
+            return answer;
         });
     }
 
@@ -1907,9 +1924,24 @@ class SfDataView extends HTMLElement {
             this._showAnswer("record.mutate", {answer: "refused", reason: "action-not-allowed"});
             return;
         }
-        if (!selectedBulk && ids.length === 1 && detail.action_id === "view") return this._raise("record.open", detail);
+        // Opening a record is a request a page or an assembly takes
+        // (vocabulary §5 open {id}): sf-data-view-open, then the host's
+        // record.open unless a listener refused it (preventDefault).
+        if (!selectedBulk && ids.length === 1 && detail.action_id === "view") {
+            const allowed = this.sfEmit("open", {id: ids[0]}, {cancelable: true});
+            return allowed ? this._raise("record.open", detail) : null;
+        }
         const revisions = Object.fromEntries(chosen.map((record) => [String(record.id), record.revision]));
-        return this._raise(selectedBulk || ids.length > 1 ? "bulk.apply_selected" : "record.mutate", {...detail, revisions});
+        const written = this._raise(selectedBulk || ids.length > 1 ? "bulk.apply_selected" : "record.mutate", {...detail, revisions});
+        // The fact a screen closes a deleted record on (vocabulary §4: a
+        // fact after applied): sf-data-view-deleted {ids}.
+        if (detail.action_id === "delete") {
+            return Promise.resolve(written).then((answer) => {
+                if (answer?.answer === "applied") this.sfEmit("deleted", {ids: [...ids]});
+                return answer;
+            });
+        }
+        return written;
     }
 
     // A value pointing at another record opens it in the host's panel without
@@ -1919,8 +1951,10 @@ class SfDataView extends HTMLElement {
     _openReference(event) {
         if (!this.hostPort || !this.hostOffers("row-actions")) return;
         event.preventDefault();
-        const {href, ...detail} = event.detail ?? {};
-        return this._raise("record.open", {...detail, href}).then((answer) => {
+        // The table's detail is camelCase on the element (standard 1.3.8 §3.2);
+        // the port's payload is snake_case.
+        const {href, recordId, record_id: recordIdBefore, ...detail} = event.detail ?? {};
+        return this._raise("record.open", {...detail, record_id: recordId ?? recordIdBefore ?? null, href}).then((answer) => {
             if (!["applied", "accepted", "opened"].includes(answer?.answer) && href) globalThis.location?.assign?.(href);
         });
     }
@@ -1951,8 +1985,11 @@ class SfDataView extends HTMLElement {
             if (key) return this.deleteView(key);
         }
         if (event.type === "sf-table-cell-set") return this.setCell(event.detail ?? {});
-        if (event.type === "sf-table-rows-reorder") return this.reorderRows(event.detail ?? {});
-        if (event.type === "sf-table-search-change") return this.changeQuery({search: String(event.detail ?? "")}, "search");
+        if (event.type === "sf-table-move") return this.reorderRows(event.detail ?? {});
+        if (event.type === "sf-table-search-change") {
+            const search = typeof event.detail === "object" && event.detail !== null ? event.detail.search : event.detail;
+            return this.changeQuery({search: String(search ?? "")}, "search");
+        }
         if (event.type === "sf-table-filter-change") return this.changeQuery({filters: copy(event.detail?.filters ?? event.detail?.values ?? event.detail ?? {})}, "filter");
         if (event.type === "sf-table-sort-change") {
             const sort = event.detail?.direction ? [copy(event.detail)] : [];
@@ -1961,9 +1998,10 @@ class SfDataView extends HTMLElement {
         }
         if (event.type === "sf-pagination-change") return this.changeQuery({page: event.detail?.current}, "page-change");
         if (event.type === "sf-pagination-size-change") {
-            const pageSize = event.detail?.["page-size"];
-            if (Number.isInteger(pageSize)) this._keepPreference({pageSize});
-            return this.changeQuery({per_page: pageSize}, "page-size-change");
+            const size = event.detail?.["page-size"];
+            if (Number.isInteger(size)) this._keepPreference({pageSize: size});
+            // Another page size reads the list from its first page.
+            return this.changeQuery({per_page: size, page: 1}, "page-size-change");
         }
         if (event.type === "sf-pagination-load-more") return this.changeQuery({page: this.query.page + 1}, "show-more");
         if (event.type === "sf-pagination-count") return this.count(event.detail?.reason ?? "total");
@@ -1977,26 +2015,25 @@ class SfDataView extends HTMLElement {
             this._renderBulkBand();
             return undefined;
         }
-        if (event.type === "sf-table-retry") return this.refresh("retry");
+        if (event.type === "sf-table-refresh") return this.refresh("retry");
         if (event.type === "sf-table-reference-open") return this._openReference(event);
-        if (event.type === "sf-table-tree-toggle") {
+        if (event.type === "sf-table-expand") {
             const id = event.detail?.id;
             return event.detail?.expanded ? this.collapseNode(id) : this.expandNode(id);
         }
-        if (event.type === "sf-table-tree-more") return this.loadMoreNodes(event.detail?.parent, event.detail?.cursor);
-        if (event.type === "sf-table-action-intent") return this._action(event.detail);
-        if (event.type === "sf-table-column-settings-change") {
+        if (event.type === "sf-table-load-more") return this.loadMoreNodes(event.detail?.parent, event.detail?.cursor);
+        if (event.type === "sf-table-apply") return this._action({action_id: event.detail?.action, record_ids: event.detail?.ids}, {selectedBulk: event.detail?.scope === "selection"});
+        if (event.type === "sf-table-save") {
             return this.saveColumnSettings(event.detail?.columnSettings ?? event.detail, {
                 shared: event.detail?.target === "shared", base_revision: event.detail?.base_revision,
             });
         }
         if (event.type === "sf-pagination-apply") {
-            // The scope says which rows: the marked ones, or all under the filter.
             if (event.detail?.scope === "filter") return this.applyUnderFilter(event.detail.action, event.detail.total);
             return this._action({action_id: event.detail?.action, record_ids: this.table?.getSelectedRecordIds?.() ?? []}, {selectedBulk: true});
         }
-        if (event.type === "sf-port-output") {
-            this.pagination?.setState?.({selectedCount: event.detail?.value?.length ?? 0});
+        if (event.type === "sf-table-select") {
+            this.pagination?.setState?.({selectedCount: event.detail?.ids?.length ?? 0});
             this._renderBulkBand();
             return;
         }
@@ -2018,6 +2055,8 @@ class SfDataView extends HTMLElement {
 // Not a Smart base element, so it carries the same brand by hand: quiet when
 // the component arrives twice, loud when something else holds the tag.
 SfDataView.sfElementBrand = "simai.smart-base.v1";
+answerActions(SfDataView, manifest);
+settingSetters(SfDataView, manifest);
 const definedDataView = customElements.get("sf-data-view");
 if (!definedDataView) customElements.define("sf-data-view", SfDataView);
 else if (definedDataView.sfElementBrand !== SfDataView.sfElementBrand) {

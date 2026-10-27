@@ -11,7 +11,7 @@ const template = () => read('src/smart/table/js/templates/default.js');
 test('a click moves the row the person is on, and nothing else', async () => {
   const [source, markup] = await Promise.all([element(), template()]);
 
-  assert.match(markup, /@click=\$\{\(event\) => context\.component\.handleRowClick\(event, row, rowIndex\)\}/u);
+  assert.match(markup, /\(event\) => component\.handleRowClick\(event, row, index\)/u);
   // Wherever in the row the click lands. Skipping clicks on anything
   // interactive was the first answer, and a consumer whose cells are links
   // found it: clicking the only content a cell has moved nothing. A control
@@ -48,7 +48,7 @@ test('a click moves the row the person is on, and nothing else', async () => {
   // selection. The template reads the field back, so a later render keeps it.
   assert.match(
     source,
-    /focusRow\(rowId\) \{[\s\S]*?this\._currentRowId = String\(rowId\);[\s\S]*?removeAttribute\("data-current"\)[\s\S]*?setAttribute\("data-current", ""\)/u,
+    /focusRow\(rowId, \{reveal = false\} = \{\}\) \{[\s\S]*?this\._currentRowId = String\(rowId\);[\s\S]*?removeAttribute\("data-current"\)[\s\S]*?setAttribute\("data-current", ""\)/u,
   );
   assert.doesNotMatch(source, /currentRowId: null,/u, 'the current row is not table state');
   assert.match(markup, /tabindex="-1"/u, 'the row can take focus, so the keyboard can act on it');

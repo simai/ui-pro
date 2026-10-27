@@ -3,11 +3,11 @@ import fs from 'node:fs';
 import test from 'node:test';
 
 const source = fs.readFileSync(new URL('../src/smart/table/index.js', import.meta.url), 'utf8');
-const intent = source.split('    requestActionIntent(actionId, recordIds) {')[1]
+const intent = source.split('    requestActionIntent(actionId, recordIds, options = {}) {')[1]
     .split('\n    getSelectedRecordIds(')[0].trim().replace(/\}\s*$/, '');
 const rows = source.split('    getActionRowItems(row = {}, actions = this.ACTIONS_SETTINGS_ROW) {')[1]
     .split('\n    getDefaultRowCell(')[0].trim().replace(/\}\s*$/, '');
-const request = new Function('actionId', 'recordIds', intent);
+const request = new Function('actionId', 'recordIds', 'options = {}', intent);
 const rowActions = new Function('row', 'actions', rows);
 const selectedBody = source.split('    getSelectedRecordIds() {')[1]
     .split('\n    setBulkActions(')[0].trim().replace(/\}\s*$/, '');
@@ -20,7 +20,9 @@ function instance() {
     return {
         events: [],
         requestActionIntent: request,
-        dispatchTableEvent(name, detail) { this.events.push({name, detail}); return this; },
+        rows: [],
+        getTableData() { return {rows: this.rows}; },
+        emitTableEvent(name, detail) { this.events.push({name, detail}); return true; },
         openContextMenu(event, data) { this.menu = data; },
     };
 }
@@ -28,12 +30,16 @@ function instance() {
 test('row and bulk intents preserve complete typed IDs and immutable snapshots', () => {
     const owner = instance();
     const ids = ['товар_α_01', 0, 42, '0'];
-    assert.equal(owner.requestActionIntent('view', ids), owner);
+    owner.rows = [{id: 42, revision: 'r7'}];
+    // Vocabulary §5 apply (standard 1.3.8 §18.3); the action answers an outcome.
+    assert.deepEqual(owner.requestActionIntent('view', ids), {outcome: 'applied'});
     ids[0] = 'changed';
-    assert.deepEqual(owner.events, [{name: 'sf-table-action-intent',
-        detail: {action_id: 'view', record_ids: ['товар_α_01', 0, 42, '0']}}]);
+    assert.deepEqual(owner.events, [{name: 'apply',
+        detail: {action: 'view', scope: 'selection', ids: ['товар_α_01', 0, 42, '0'], revisions: {42: 'r7'}}}]);
     assert.ok(Object.isFrozen(owner.events[0].detail));
-    assert.ok(Object.isFrozen(owner.events[0].detail.record_ids));
+    assert.ok(Object.isFrozen(owner.events[0].detail.ids));
+    owner.requestActionIntent('view', ['товар_α_01']);
+    assert.equal(owner.events[1].detail.scope, 'entry', 'one row\'s own action is scope entry');
 });
 
 test('invalid requests emit nothing, including sparse and unsafe integer IDs', () => {
@@ -54,11 +60,11 @@ test('row activation captures data identity and emits once without target scrapi
     const actionA = rowActions.call(a, {id: 'row_Русский_1'}, [definition])[0];
     const actionB = rowActions.call(b, {id: 0}, [definition])[0];
     actionA.component.props['@click']({target: {dataset: {item: 'wrong_split'}}});
-    assert.deepEqual(a.events[0].detail.record_ids, ['row_Русский_1']);
+    assert.deepEqual(a.events[0].detail.ids, ['row_Русский_1']);
     assert.equal(a.events.length, 1);
     assert.equal(b.events.length, 0);
     actionB.component.props['@click']({});
-    assert.deepEqual(b.events[0].detail.record_ids, [0]);
+    assert.deepEqual(b.events[0].detail.ids, [0]);
     assert.equal(definition.component.props['@click'], undefined);
 });
 
@@ -94,7 +100,7 @@ test('bulk selection reads typed identities from instance data, never DOM string
     a.getTableData = () => ({rows});
     assert.deepEqual(selected.call(a), ['товар_01', 0]);
     a.requestActionIntent('delete', selected.call(a));
-    assert.deepEqual(a.events[0].detail.record_ids, ['товар_01', 0]);
+    assert.deepEqual(a.events[0].detail.ids, ['товар_01', 0]);
     const b = {getTableData: () => ({rows: []})};
     assert.deepEqual(selected.call(b), []);
 });

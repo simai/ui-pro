@@ -1,0 +1,809 @@
+{
+  "$comment": "sf-property-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/property-view; every x-todo decided in x-decisions.",
+  "id": "smart.property-view",
+  "tag": "sf-property-view",
+  "version": "1.5.0",
+  "kind": "leaf",
+  "family": "record",
+  "implements": [
+    "record-view@1"
+  ],
+  "settings": {
+    "add-field-text": {
+      "type": "string",
+      "default-from": "runtime.add-field-text"
+    },
+    "add-group-text": {
+      "type": "string",
+      "default-from": "runtime.add-group-text"
+    },
+    "add-section-text": {
+      "type": "string",
+      "default-from": "runtime.add-section-text"
+    },
+    "back-label": {
+      "type": "string",
+      "default-from": "runtime.back-label"
+    },
+    "cancel-configuring-text": {
+      "type": "string",
+      "default-from": "runtime.cancel-configuring-text"
+    },
+    "cancel-name-text": {
+      "type": "string",
+      "default-from": "runtime.cancel-name-text"
+    },
+    "cancel-text": {
+      "type": "string",
+      "default-from": "runtime.cancel-text"
+    },
+    "changed-text": {
+      "type": "string",
+      "default-from": "runtime.changed-text"
+    },
+    "close-label": {
+      "type": "string",
+      "default-from": "runtime.close-label"
+    },
+    "collection": {
+      "type": "string",
+      "default": ""
+    },
+    "collection-icon": {
+      "type": "icon",
+      "default": ""
+    },
+    "collection-label": {
+      "type": "string",
+      "default": ""
+    },
+    "configure-hint-narrow-text": {
+      "type": "string",
+      "default-from": "runtime.configure-hint-narrow-text"
+    },
+    "configure-hint-text": {
+      "type": "string",
+      "default-from": "runtime.configure-hint-text"
+    },
+    "configure-text": {
+      "type": "string",
+      "default-from": "runtime.configure-text"
+    },
+    "conflict-text": {
+      "type": "string",
+      "default-from": "runtime.conflict-text"
+    },
+    "copy-link-label": {
+      "type": "string",
+      "default-from": "runtime.copy-link-label"
+    },
+    "delete-text": {
+      "type": "string",
+      "default-from": "runtime.delete-text"
+    },
+    "done-configuring-text": {
+      "type": "string",
+      "default-from": "runtime.done-configuring-text"
+    },
+    "edit-text": {
+      "type": "string",
+      "default-from": "runtime.edit-text"
+    },
+    "empty-record-text": {
+      "type": "string",
+      "default-from": "runtime.empty-record-text"
+    },
+    "empty-text": {
+      "type": "string",
+      "default-from": "runtime.empty-text"
+    },
+    "errors-text": {
+      "type": "string",
+      "default-from": "runtime.errors-text"
+    },
+    "favourite": {
+      "type": "boolean",
+      "default": false
+    },
+    "favourite-label": {
+      "type": "string",
+      "default-from": "runtime.favourite-label"
+    },
+    "field-label-text": {
+      "type": "string",
+      "default-from": "runtime.field-label-text"
+    },
+    "field-settings-text": {
+      "type": "string",
+      "default-from": "runtime.field-settings-text"
+    },
+    "hidden-text": {
+      "type": "string",
+      "default-from": "runtime.hidden-text"
+    },
+    "hide-rare-text": {
+      "type": "string",
+      "default-from": "runtime.hide-rare-text"
+    },
+    "hint-text": {
+      "type": "string",
+      "default-from": "runtime.hint-text"
+    },
+    "in-this-group-text": {
+      "type": "string",
+      "default-from": "runtime.in-this-group-text"
+    },
+    "inherited-text": {
+      "type": "string",
+      "default-from": "runtime.inherited-text"
+    },
+    "link-copied-label": {
+      "type": "string",
+      "default-from": "runtime.link-copied-label"
+    },
+    "menu-label": {
+      "type": "string",
+      "default-from": "runtime.menu-label"
+    },
+    "move-down-text": {
+      "type": "string",
+      "default-from": "runtime.move-down-text"
+    },
+    "move-up-text": {
+      "type": "string",
+      "default-from": "runtime.move-up-text"
+    },
+    "new-group-title": {
+      "type": "string",
+      "default-from": "runtime.new-group-title"
+    },
+    "new-section-title": {
+      "type": "string",
+      "default-from": "runtime.new-section-title"
+    },
+    "no-match-text": {
+      "type": "string",
+      "default-from": "runtime.no-match-text"
+    },
+    "open-full-label": {
+      "type": "string",
+      "default-from": "runtime.open-full-label"
+    },
+    "panel": {
+      "type": "boolean",
+      "default": false
+    },
+    "panel-label": {
+      "type": "string",
+      "default": ""
+    },
+    "panel-size": {
+      "type": "enum",
+      "values": [
+        "1/2",
+        "1",
+        "2",
+        "full"
+      ],
+      "default": "1"
+    },
+    "size": {
+      "type": "enum",
+      "values": [
+        "1",
+        "1/2"
+      ],
+      "default": "1"
+    },
+    "mode": {
+      "type": "enum",
+      "values": [
+        "view",
+        "auto",
+        "edit",
+        "create"
+      ],
+      "default": "auto"
+    },
+    "panel-width": {
+      "type": "string",
+      "default": ""
+    },
+    "personal-layer-text": {
+      "type": "string",
+      "default-from": "runtime.personal-layer-text"
+    },
+    "rare-text": {
+      "type": "string",
+      "default-from": "runtime.rare-text"
+    },
+    "record-id": {
+      "type": "id",
+      "default": ""
+    },
+    "remove-field-text": {
+      "type": "string",
+      "default-from": "runtime.remove-field-text"
+    },
+    "remove-group-text": {
+      "type": "string",
+      "default-from": "runtime.remove-group-text"
+    },
+    "remove-section-text": {
+      "type": "string",
+      "default-from": "runtime.remove-section-text"
+    },
+    "rename-text": {
+      "type": "string",
+      "default-from": "runtime.rename-text"
+    },
+    "reset-view-ask-text": {
+      "type": "string",
+      "default-from": "runtime.reset-view-ask-text"
+    },
+    "reset-view-text": {
+      "type": "string",
+      "default-from": "runtime.reset-view-text"
+    },
+    "save-name-text": {
+      "type": "string",
+      "default-from": "runtime.save-name-text"
+    },
+    "save-text": {
+      "type": "string",
+      "default-from": "runtime.save-text"
+    },
+    "section-icon-text": {
+      "type": "string",
+      "default-from": "runtime.section-icon-text"
+    },
+    "section-icons": {
+      "type": "string",
+      "default": ""
+    },
+    "sections-as": {
+      "type": "enum",
+      "values": [
+        "list",
+        "tabs"
+      ],
+      "default": "list"
+    },
+    "sections-label": {
+      "type": "string",
+      "default-from": "runtime.sections-label"
+    },
+    "shared-layer-text": {
+      "type": "string",
+      "default-from": "runtime.shared-layer-text"
+    },
+    "show-rare": {
+      "type": "boolean",
+      "default": false
+    },
+    "show-rare-text": {
+      "type": "string",
+      "default-from": "runtime.show-rare-text"
+    },
+    "shown-text": {
+      "type": "string",
+      "default-from": "runtime.shown-text"
+    },
+    "unplaced-hint-text": {
+      "type": "string",
+      "default-from": "runtime.unplaced-hint-text"
+    },
+    "unplaced-title": {
+      "type": "string",
+      "default-from": "runtime.unplaced-title"
+    },
+    "variant-text": {
+      "type": "string",
+      "default-from": "runtime.variant-text"
+    },
+    "view-conflict-text": {
+      "type": "string",
+      "default-from": "runtime.view-conflict-text"
+    },
+    "view-denied-text": {
+      "type": "string",
+      "default-from": "runtime.view-denied-text"
+    },
+    "width-text": {
+      "type": "string",
+      "default-from": "runtime.width-text"
+    },
+    "view-profile-label": {
+      "type": "string",
+      "default-from": "runtime.view-profile-label"
+    },
+    "add-view-text": {
+      "type": "string",
+      "default-from": "runtime.add-view-text"
+    },
+    "new-view-text": {
+      "type": "string",
+      "default-from": "runtime.new-view-text"
+    },
+    "delete-view-text": {
+      "type": "string",
+      "default-from": "runtime.delete-view-text"
+    },
+    "last-shared-view-text": {
+      "type": "string",
+      "default-from": "runtime.last-shared-view-text"
+    },
+    "full": {
+      "type": "boolean",
+      "default": false,
+      "x-shape": "the record as the page: a panel draws in place instead of over the page"
+    },
+    "open": {
+      "type": "boolean",
+      "default": true,
+      "x-shape": "a panel shows while open and not hidden; open=false or hidden closes it, and the same brings it back"
+    }
+  },
+  "values": {
+    "revision": {
+      "type": "string",
+      "summary": "the record's revision, one for every group (§4.9)"
+    },
+    "section": {
+      "type": "string",
+      "summary": "the key of the section on screen"
+    }
+  },
+  "events": {
+    "close": {
+      "carries": {
+        "reason": {
+          "type": "enum",
+          "values": [
+            "close",
+            "escape",
+            "cancelled",
+            "deleted",
+            "api"
+          ]
+        }
+      },
+      "cancelable": true,
+      "x-detail": "also record_id and unsaved_fields"
+    },
+    "open-full": {
+      "carries": {
+        "id": "id",
+        "address": "string"
+      },
+      "x-detail": "also record_id"
+    },
+    "saved": {
+      "carries": {
+        "id": "id",
+        "revision": "string"
+      }
+    },
+    "failed": {
+      "carries": {
+        "reason": "string",
+        "message": "string"
+      }
+    },
+    "open": {
+      "carries": {
+        "field": "string",
+        "value": "object",
+        "answer": "string"
+      }
+    },
+    "delete": {
+      "carries": {
+        "collection": "string",
+        "revision": "string",
+        "answer": "string"
+      },
+      "x-detail": "also record_id"
+    },
+    "created": {
+      "carries": {
+        "collection": "string"
+      },
+      "x-detail": "also record_id"
+    },
+    "cancel": {
+      "carries": {
+        "mode": {
+          "type": "enum",
+          "values": [
+            "edit",
+            "create"
+          ]
+        }
+      }
+    },
+    "state": {
+      "carries": {
+        "state": "string",
+        "message": "string"
+      },
+      "own-verb": true
+    },
+    "address-copy": {
+      "carries": {},
+      "own-verb": true
+    },
+    "favourite": {
+      "carries": {
+        "collection": "string",
+        "favourite": "boolean"
+      },
+      "own-verb": true,
+      "x-detail": "also record_id"
+    }
+  },
+  "actions": {
+    "refresh": {},
+    "load": {
+      "with": {
+        "reason": {
+          "type": "string",
+          "optional": true
+        }
+      }
+    },
+    "edit-group": {
+      "with": {
+        "section": "string",
+        "group": "string"
+      }
+    },
+    "cancel-edit": {},
+    "save-group": {
+      "with": {
+        "options": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "concurrency": "drop"
+    },
+    "select-section": {
+      "with": {
+        "key": "string"
+      }
+    },
+    "close-panel": {
+      "with": {
+        "reason": {
+          "type": "string",
+          "optional": true
+        }
+      }
+    },
+    "copy-address": {},
+    "open-full-page": {},
+    "confirm-save": {},
+    "cancel-confirmation": {}
+  },
+  "side-effects": [
+    "locks-page",
+    "portal"
+  ],
+  "keyboard": {
+    "host": {
+      "Tab": "reach",
+      "Escape": "close"
+    }
+  },
+  "port": {
+    "id": "simai.property-view-port",
+    "version": "1.14.0",
+    "contract": "src/core/contracts/ports/simai.property-view-port/1.14.0/port.json"
+  },
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
+    }
+  },
+  "presentation": {
+    "skeleton": {
+      "file": "skeleton.html"
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "region",
+    "name": {
+      "from": [
+        "panel-label",
+        "aria-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Escape": "close"
+    }
+  },
+  "css-variables": {
+    "--sf-property-view--sections-width": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-property-view--title-size": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-property-view--label-size": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-property-view--value-size": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-property-view--group-size": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-property-view--edge-room": {
+      "type": "length",
+      "state": "open"
+    }
+  },
+  "host-states": {
+    "data-state": "string",
+    "aria-busy": "string"
+  },
+  "x-summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "property-view",
+    "manifest": "simai/ui-pro@9cbe061 components/src/smart/property-view/smart.manifest.json",
+    "converted": "control/smart-architecture/stands/17-ports-migration/out/property-view.component.json"
+  },
+  "x-words": [
+    "add-field-text",
+    "add-group-text",
+    "add-section-text",
+    "back-label",
+    "cancel-configuring-text",
+    "cancel-name-text",
+    "cancel-text",
+    "changed-text",
+    "close-label",
+    "collection-label",
+    "configure-hint-narrow-text",
+    "configure-hint-text",
+    "configure-text",
+    "conflict-text",
+    "copy-link-label",
+    "delete-text",
+    "done-configuring-text",
+    "edit-text",
+    "empty-record-text",
+    "empty-text",
+    "errors-text",
+    "favourite-label",
+    "field-label-text",
+    "field-settings-text",
+    "hidden-text",
+    "hide-rare-text",
+    "hint-text",
+    "in-this-group-text",
+    "inherited-text",
+    "link-copied-label",
+    "menu-label",
+    "move-down-text",
+    "move-up-text",
+    "new-group-title",
+    "new-section-title",
+    "no-match-text",
+    "open-full-label",
+    "panel-label",
+    "personal-layer-text",
+    "rare-text",
+    "remove-field-text",
+    "remove-group-text",
+    "remove-section-text",
+    "rename-text",
+    "reset-view-ask-text",
+    "reset-view-text",
+    "save-name-text",
+    "save-text",
+    "sections-label",
+    "shared-layer-text",
+    "show-rare-text",
+    "shown-text",
+    "unplaced-hint-text",
+    "unplaced-title",
+    "variant-text",
+    "view-conflict-text",
+    "view-denied-text",
+    "width-text",
+    "view-profile-label",
+    "add-view-text",
+    "new-view-text",
+    "delete-view-text",
+    "last-shared-view-text"
+  ],
+  "x-port": {
+    "sha256": "bc1ccf1449a7d90c07fbf33daaf82b0ee31c8e6761f81c0e517c9da68e437576",
+    "supports": [
+      "1.0.0",
+      "1.1.0",
+      "1.2.0",
+      "1.3.0",
+      "1.4.0",
+      "1.5.0",
+      "1.6.0",
+      "1.7.0",
+      "1.8.0",
+      "1.10.0",
+      "1.11.0",
+      "1.12.0",
+      "1.13.0",
+      "1.14.0"
+    ]
+  },
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "record",
+        "sections",
+        "field values"
+      ],
+      "network_policy": "deny"
+    },
+    "ownership": {
+      "source": "simai/ui-admin",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "access decisions",
+        "database writes",
+        "unspecified transport",
+        "choosing a component for a property type"
+      ]
+    },
+    "presentation": {
+      "skeleton": {
+        "shape": "record",
+        "while_loading": "template"
+      },
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "ru",
+        "en"
+      ],
+      "responsive": [
+        "The section list and the fields stack below the tablet breakpoint; child components own their own responsive behaviour"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use to show and edit the fields of one object -- a record, site settings, a user -- where the host owns the values and the arrangement.",
+      "do_not": [
+        "Do not pass a component or a CSS class for a field value: pass its property type and let the renderer set decide.",
+        "Do not expect the component to hold a value or a revision between reads.",
+        "Do not filter rare fields out of the answer: mark them and send them, or toggling the view twice shows two different objects."
+      ],
+      "required_reads": [
+        "host_port",
+        "events",
+        "ownership",
+        "compatibility",
+        "docs"
+      ],
+      "minimal_example": "<sf-property-view collection=\"storage\" record-id=\"42\" aria-label=\"Запись\"></sf-property-view>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-browser-probes.mjs <free output> <package output>"
+      ]
+    }
+  },
+  "x-renamed": [
+    "events.sf-property-view-state → state (the DOM name without sf-<tag>-)",
+    "events.sf-property-view-close → close (vocabulary §5 close)",
+    "events.sf-property-view-address-copy → address-copy (the DOM name without sf-<tag>-)",
+    "events.sf-property-view-open-full → open-full (vocabulary §5 open-full)",
+    "events.sf-property-view-delete-record → delete (vocabulary §5 delete)",
+    "events.sf-property-view-open-record → open (vocabulary §5 open)",
+    "events.sf-host-port-request: retires — the runtime hands the port to the parts that declare it (§4.9, 1.3.7); the page answers no request",
+    "events.sf-property-view-favourite → favourite (the DOM name without sf-<tag>-)",
+    "events.sf-property-view-menu → menu (the DOM name without sf-<tag>-)",
+    "events.sf-property-view-created → created (the DOM name without sf-<tag>-)",
+    "events.sf-property-view-cancel → cancel (the DOM name without sf-<tag>-)",
+    "settings.add-field-text: its default words move to lang/en.json runtime.add-field-text (§11, §16 item 44)",
+    "settings.add-group-text: its default words move to lang/en.json runtime.add-group-text (§11, §16 item 44)",
+    "settings.add-section-text: its default words move to lang/en.json runtime.add-section-text (§11, §16 item 44)",
+    "settings.back-label: its default words move to lang/en.json runtime.back-label (§11, §16 item 44)",
+    "settings.cancel-configuring-text: its default words move to lang/en.json runtime.cancel-configuring-text (§11, §16 item 44)",
+    "settings.cancel-name-text: its default words move to lang/en.json runtime.cancel-name-text (§11, §16 item 44)",
+    "settings.cancel-text: its default words move to lang/en.json runtime.cancel-text (§11, §16 item 44)",
+    "settings.changed-text: its default words move to lang/en.json runtime.changed-text (§11, §16 item 44)",
+    "settings.close-label: its default words move to lang/en.json runtime.close-label (§11, §16 item 44)",
+    "settings.configure-hint-narrow-text: its default words move to lang/en.json runtime.configure-hint-narrow-text (§11, §16 item 44)",
+    "settings.configure-hint-text: its default words move to lang/en.json runtime.configure-hint-text (§11, §16 item 44)",
+    "settings.configure-text: its default words move to lang/en.json runtime.configure-text (§11, §16 item 44)",
+    "settings.conflict-text: its default words move to lang/en.json runtime.conflict-text (§11, §16 item 44)",
+    "settings.copy-link-label: its default words move to lang/en.json runtime.copy-link-label (§11, §16 item 44)",
+    "settings.delete-text: its default words move to lang/en.json runtime.delete-text (§11, §16 item 44)",
+    "settings.done-configuring-text: its default words move to lang/en.json runtime.done-configuring-text (§11, §16 item 44)",
+    "settings.edit-text: its default words move to lang/en.json runtime.edit-text (§11, §16 item 44)",
+    "settings.empty-record-text: its default words move to lang/en.json runtime.empty-record-text (§11, §16 item 44)",
+    "settings.empty-text: its default words move to lang/en.json runtime.empty-text (§11, §16 item 44)",
+    "settings.errors-text: its default words move to lang/en.json runtime.errors-text (§11, §16 item 44)",
+    "settings.favourite-label: its default words move to lang/en.json runtime.favourite-label (§11, §16 item 44)",
+    "settings.field-label-text: its default words move to lang/en.json runtime.field-label-text (§11, §16 item 44)",
+    "settings.field-settings-text: its default words move to lang/en.json runtime.field-settings-text (§11, §16 item 44)",
+    "settings.hidden-text: its default words move to lang/en.json runtime.hidden-text (§11, §16 item 44)",
+    "settings.hide-rare-text: its default words move to lang/en.json runtime.hide-rare-text (§11, §16 item 44)",
+    "settings.hint-text: its default words move to lang/en.json runtime.hint-text (§11, §16 item 44)",
+    "settings.in-this-group-text: its default words move to lang/en.json runtime.in-this-group-text (§11, §16 item 44)",
+    "settings.inherited-text: its default words move to lang/en.json runtime.inherited-text (§11, §16 item 44)",
+    "settings.link-copied-label: its default words move to lang/en.json runtime.link-copied-label (§11, §16 item 44)",
+    "settings.menu-label: its default words move to lang/en.json runtime.menu-label (§11, §16 item 44)",
+    "settings.move-down-text: its default words move to lang/en.json runtime.move-down-text (§11, §16 item 44)",
+    "settings.move-up-text: its default words move to lang/en.json runtime.move-up-text (§11, §16 item 44)",
+    "settings.new-group-title: its default words move to lang/en.json runtime.new-group-title (§11, §16 item 44)",
+    "settings.new-section-title: its default words move to lang/en.json runtime.new-section-title (§11, §16 item 44)",
+    "settings.no-match-text: its default words move to lang/en.json runtime.no-match-text (§11, §16 item 44)",
+    "settings.open-full-label: its default words move to lang/en.json runtime.open-full-label (§11, §16 item 44)",
+    "settings.personal-layer-text: its default words move to lang/en.json runtime.personal-layer-text (§11, §16 item 44)",
+    "settings.rare-text: its default words move to lang/en.json runtime.rare-text (§11, §16 item 44)",
+    "settings.remove-field-text: its default words move to lang/en.json runtime.remove-field-text (§11, §16 item 44)",
+    "settings.remove-group-text: its default words move to lang/en.json runtime.remove-group-text (§11, §16 item 44)",
+    "settings.remove-section-text: its default words move to lang/en.json runtime.remove-section-text (§11, §16 item 44)",
+    "settings.rename-text: its default words move to lang/en.json runtime.rename-text (§11, §16 item 44)",
+    "settings.reset-view-ask-text: its default words move to lang/en.json runtime.reset-view-ask-text (§11, §16 item 44)",
+    "settings.reset-view-text: its default words move to lang/en.json runtime.reset-view-text (§11, §16 item 44)",
+    "settings.save-name-text: its default words move to lang/en.json runtime.save-name-text (§11, §16 item 44)",
+    "settings.save-text: its default words move to lang/en.json runtime.save-text (§11, §16 item 44)",
+    "settings.sections-label: its default words move to lang/en.json runtime.sections-label (§11, §16 item 44)",
+    "settings.shared-layer-text: its default words move to lang/en.json runtime.shared-layer-text (§11, §16 item 44)",
+    "settings.show-rare-text: its default words move to lang/en.json runtime.show-rare-text (§11, §16 item 44)",
+    "settings.shown-text: its default words move to lang/en.json runtime.shown-text (§11, §16 item 44)",
+    "settings.unplaced-hint-text: its default words move to lang/en.json runtime.unplaced-hint-text (§11, §16 item 44)",
+    "settings.unplaced-title: its default words move to lang/en.json runtime.unplaced-title (§11, §16 item 44)",
+    "settings.variant-text: its default words move to lang/en.json runtime.variant-text (§11, §16 item 44)",
+    "settings.view-conflict-text: its default words move to lang/en.json runtime.view-conflict-text (§11, §16 item 44)",
+    "settings.view-denied-text: its default words move to lang/en.json runtime.view-denied-text (§11, §16 item 44)",
+    "settings.width-text: its default words move to lang/en.json runtime.width-text (§11, §16 item 44)",
+    "settings.view-profile-label: its default words move to lang/en.json runtime.view-profile-label (§11, §16 item 44)",
+    "settings.add-view-text: its default words move to lang/en.json runtime.add-view-text (§11, §16 item 44)",
+    "settings.new-view-text: its default words move to lang/en.json runtime.new-view-text (§11, §16 item 44)",
+    "settings.delete-view-text: its default words move to lang/en.json runtime.delete-view-text (§11, §16 item 44)",
+    "settings.last-shared-view-text: its default words move to lang/en.json runtime.last-shared-view-text (§11, §16 item 44)"
+  ],
+  "x-decisions": {
+    "shape": "leaf, with reasons (§7, the smaller mechanism). Stand 24 is the measured assembly of the record panel (sf-record-panel: sf-record-source, sf-record-head, sf-alert, sf-tabs and one sf-field-group per section, started when its tab opens; 35/35 scenarios) and the view takes its interface: record-id, collection, full, close, open-full, saved, failed, refresh. It does not become that assembly now: three of its parts (sf-record-source, sf-record-head, sf-field-group) are stand-ins with no real component, and the converter's 27 placed parts are the field renderer set the view draws for its own fields, not roles. Stand 24 on these real parts places this leaf where it placed the assembly.",
+    "version": "1.4.0 → 1.5.0, a minor while sf-property-view-open-record and -delete-record hold dated aliases (§4.10).",
+    "events": "saved {id, revision} is the fact after an applied group.save or record.save (simai/ui-pro#4 item 1; vocabulary §4), failed {reason, message} the fact after a record that could not be read (a stale link: record-unknown). open (was open-record) and delete (was delete-record) take the vocabulary's verbs; the old names follow once. close is a cancelable request (vocabulary §5 close, §19.3): the view closes nothing itself, and its close-panel action answers refused when a listener refused it. The details keep their snake_case fields (record_id, unsaved_fields) until the next major; the manifest names them kebab-case.",
+    "panel": "simai/ui-pro#4 item 2: a panel shows while it is not hidden and open is not false; hidden or open=false closes its drawer and takes it off the stack, and the same brings it back, so a page or an assembly keeps one element (§7.2.2 if and hidden). full draws the record in place of the drawer (stand 24's open in full).",
+    "group-load": "simai/ui-pro#3 item 1: §4.9's fallback path is the path today -- record.load once per revision, every section served from that answer, and only the open section drawn. group.load {record_id, group, reason} behind group-load waits for property-view-port 1.15.0, which no host speaks yet; the stand's synthesised one is not taken into the component.",
+    "skeleton": "simai/ui-pro#3 items 2-4: the loading skeleton draws the section tabs' strip in the box the tabs take (sections-as tabs), so nothing moves when the record comes; skeleton.html is the static first paint before any code; the smart manifest's while_loading: template is this file.",
+    "record-head": "a panel the page gave no panel-label is headed by the record's own label (record.label of the port's answer), not its id.",
+    "first-read": "a view placed before it is told its record (an assembly binds record-id after it places the part) asks the host nothing until it has one: stand 24 counted one record.load per opened record.",
+    "own-verb-words": "state, address-copy and favourite are verbs of the view alone; their words are lang events.<verb>.label. The converter's menu is not an event the view sends, and is not declared.",
+    "carries": "a carried field is one the detail holds under that very name (SF.Assembly checks it on every event); the snake_case fields beside them are named in x-detail.",
+    "values": "revision (one per record, §4.9) and section (the open section's key); the vocabulary's data state stays the attribute data-state: the value state is not declared, because the Smart base's public state is its render store until §16.7 renames it.",
+    "actions": "refresh (load again), load, edit-group, cancel-edit, save-group (concurrency drop), select-section, close-panel, copy-address, open-full-page, confirm-save and cancel-confirmation answer outcomes and take one object or positional parameters (../table/js/manifest-actions.js); the field helpers stay the element's.",
+    "a11y-name": "panel-label, else aria-label; a panel without either is named by the record's heading inside it.",
+    "persistence": "the person's arrangement of the view is kept by the host (view layers); nothing is an assembly key (§7.5).",
+    "item-shape": "a record's sections hold groups and groups fields, as port 1.14.0 answers them; the port's shapes are the adapter's, not this interface's.",
+    "section-icon-text": "the converter typed it icon with an English default; it is the words of the icon chooser's label, lang runtime.section-icon-text.",
+    "side-effects": "locks-page and portal: as a panel it opens sf-drawer, which moves its panel to the end of body and holds the page.",
+    "template": "templates.default names the Lit template js/templates/default.js, the migration form §5.2 allows.",
+    "css-variables": "the six variables the sheet reads for the sections' width, the type ladder and the edge room.",
+    "examples": "examples.json from the docs: a record, a panel, a full record, a closed panel; probe.json drives saved, failed, hidden and open, full, close refused, and the skeleton's tabs.",
+    "docs": "docs.md, where the folder keeps it."
+  }
+}

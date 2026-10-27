@@ -1,0 +1,132 @@
+{
+  "title": "Table",
+  "events": {
+    "column-settings-reset": {
+      "label": "Column settings reset"
+    },
+    "filter-change": {
+      "label": "Filter changed"
+    },
+    "search-change": {
+      "label": "Search changed"
+    },
+    "sort-change": {
+      "label": "Order changed"
+    },
+    "template-delete": {
+      "label": "Template deleted"
+    },
+    "template-save": {
+      "label": "Template saved"
+    },
+    "template-select": {
+      "label": "Template chosen"
+    },
+    "toolbar-action": {
+      "label": "Toolbar action"
+    },
+    "reference-open": {
+      "label": "Open the linked record"
+    },
+    "rows-drag": {
+      "label": "Rows dragged"
+    },
+    "cell-set": {
+      "label": "Cell value changed"
+    },
+    "view-change": {
+      "label": "Table view changed"
+    },
+    "window": {
+      "label": "Rows shown"
+    }
+  },
+  "runtime": {
+    "actions-column-label": "Actions",
+    "apply-text": "Apply",
+    "clear-text": "Clear",
+    "close-text": "Close",
+    "column-move-label": "Move the column",
+    "column-search-empty-text": "No field matches",
+    "column-search-placeholder": "Search the fields",
+    "context-create-options-label": "Ways to create",
+    "context-field-filter-label": "Filtering by",
+    "context-filter-settings-label": "Filter settings",
+    "context-row-actions-label": "Row actions",
+    "context-save-template-label": "Saving the filter as a template",
+    "context-table-settings-label": "Table settings",
+    "context-template-actions-label": "Template actions",
+    "context-view-actions-label": "View actions",
+    "create-options-label": "Ways to create",
+    "create-text": "Create",
+    "default-template-text": "Default",
+    "delete-action-text": "Delete",
+    "edit-action-text": "Edit",
+    "empty-text": "No data",
+    "error-text": "The data could not be loaded",
+    "field-word-text": "field",
+    "fields-tab-text": "Fields",
+    "filter-apply-text": "Apply",
+    "filter-settings-label": "Filter settings",
+    "filter-text": "Filter",
+    "list-filter-label": "Filter, {count} active",
+    "loading-text": "Loading",
+    "make-default-label": "Make it the default",
+    "menu-label": "Menu",
+    "operator-any": "Any date",
+    "operator-between": "Range",
+    "operator-contains": "Contains",
+    "operator-eq": "Exactly",
+    "operator-gt": "Greater than",
+    "operator-gte": "Greater or equal",
+    "operator-in": "In the list",
+    "operator-lt": "Less than",
+    "operator-lte": "Less or equal",
+    "operator-month": "This month",
+    "operator-starts-with": "Starts with",
+    "operator-today": "Today",
+    "operator-week": "This week",
+    "pin-column-label": "Pin the column",
+    "rename-text": "Rename",
+    "reset-both-text": "Reset the search and filters",
+    "reset-filters-text": "Reset the filters",
+    "reset-search-text": "Clear the search",
+    "reset-text": "Reset",
+    "restore-text": "Restore",
+    "retry-text": "Try again",
+    "row-actions-label": "Row actions",
+    "save-for-everyone-label": "Save for everyone",
+    "save-template-label": "Save the filter as a template",
+    "search-placeholder": "Search",
+    "select-all-label": "Select every row",
+    "select-row-label": "Select the row",
+    "settings-column-label": "Settings",
+    "settings-fields-tab": "Fields",
+    "settings-view-tab": "View",
+    "sort-ascending": "ascending",
+    "sort-descending": "descending",
+    "sort-label": "Sort",
+    "sort-none": "As the host orders it",
+    "template-actions-label": "Template actions",
+    "template-move-label": "Move the template",
+    "template-name-placeholder": "Name",
+    "template-pin-label": "Keep the template at the top",
+    "templates-tab-text": "Templates",
+    "tree-collapse": "Collapse",
+    "tree-expand": "Expand",
+    "tree-more": "Show more",
+    "unpin-column-label": "Unpin the column",
+    "untitled-template-text": "All records",
+    "view-action-text": "View",
+    "view-density": "Rows",
+    "view-density-compact": "Compact",
+    "view-density-normal": "Normal",
+    "view-density-spacious": "Spacious",
+    "view-everywhere": "For all my tables",
+    "view-lines": "Lines between columns",
+    "view-reset": "Reset the view",
+    "view-single-line": "Text on one line",
+    "view-sticky-head": "Keep the filter and the head in view",
+    "view-stripes": "Alternate rows"
+  }
+}

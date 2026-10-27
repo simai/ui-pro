@@ -1,0 +1,45 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Решения",
+      "settings": {
+        "aria-label": "Решения",
+        "collection": "workbench.solutions"
+      },
+      "expect": {
+        "name": "Решения",
+        "values": {
+          "state": "ready"
+        }
+      },
+      "x-port": "the reference host of ui-admin (src/ports/polygon-host.mjs)"
+    },
+    {
+      "name": "embedded",
+      "title": "Связанный список в записи",
+      "settings": {
+        "aria-label": "Связанные",
+        "chrome": "",
+        "row-cap": 5
+      },
+      "expect": {
+        "name": "Связанные"
+      }
+    },
+    {
+      "name": "open-record",
+      "title": "Открытая запись",
+      "settings": {
+        "aria-label": "Решения",
+        "current": "r-005"
+      },
+      "expect": {
+        "name": "Решения",
+        "values": {
+          "selected": "r-005"
+        }
+      }
+    }
+  ]
+}

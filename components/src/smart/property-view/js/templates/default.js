@@ -1093,7 +1093,7 @@ function renderPanelHead(context) {
     return html`
         <header class="sf-property-view-head flex flex-col gap-1">
             <div class="sf-property-view-title-row flex items-cross-center gap-1 min-w-0">
-                <h2 class="sf-property-view-title min-w-0 overflow-hidden">${context.panelLabel || context.recordId || ''}</h2>
+                <h2 class="sf-property-view-title min-w-0 overflow-hidden">${context.panelLabel || context.recordLabel || context.recordId || ''}</h2>
                 <!-- One glyph, filled when the record is a favourite and outlined
                      when it is not: a star that changes shape as well as fill
                      says two things where one will do (owner, 2026-10-08). The
@@ -1397,7 +1397,17 @@ const SKELETON_WIDTHS = ['w-1/3', 'w-2/3', 'w-1/2', 'w-3/4', 'w-2/5'];
 function renderLoading(context) {
     const bar = (at, size) => html`<div class="sf-skeleton sf-skeleton--animation-pulse" aria-hidden="true">
         <div class="sf-skeleton-text sf-skeleton-text--size-${size} ${SKELETON_WIDTHS[at % SKELETON_WIDTHS.length]}"></div></div>`;
+    // The section tabs are drawn with the skeleton, in the box the tabs take
+    // (simai/ui-pro#3): they came only with the data before, and the record
+    // moved down by their height when it arrived. A list of sections beside
+    // the record keeps its rail the same way.
+    const tabs = context.wide && context.sectionsAs === 'tabs'
+        ? html`<div class="sf-property-view-tabs sf-property-view-tabs--skeleton flex items-cross-center gap-2" aria-hidden="true" data-sf-skeleton="tabs">
+            ${[0, 1, 2].map((at) => html`<div class="flex-none" style="inline-size: 6rem">${bar(at + 3, '1')}</div>`)}
+        </div>`
+        : nothing;
     return html`
+        ${tabs}
         <div class="sf-property-view-loading flex flex-col gap-4" data-state="loading">
             ${[0, 1, 2].map((group) => html`<div class="flex flex-col gap-2">
                 ${bar(group, '1')}
@@ -1524,7 +1534,7 @@ export function renderPropertyViewTemplate(context) {
     // full-screen drawer is off the screen.
     return html`
         <sf-drawer
-                open
+                ?open=${context.panelOpen}
                 placement="inline-end"
                 modal="true"
                 overlay="true"
