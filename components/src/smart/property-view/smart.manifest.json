@@ -1139,7 +1139,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "2020a6ba568c32013452023bc041f034a53b0b87",
+    "source_revision": "e0f43fdb15a4e0892f7c0e05b346111e00b0876c",
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",

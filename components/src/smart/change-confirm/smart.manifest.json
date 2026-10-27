@@ -360,7 +360,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "663f141d1bd7fb36c01a911fa016fb51bfe60617",
+    "source_revision": "e0f43fdb15a4e0892f7c0e05b346111e00b0876c",
     "source_artifacts": [
       {
         "path": "src/smart/change-confirm/index.js",
