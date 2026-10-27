@@ -173,9 +173,9 @@ class PlainElement extends HTMLElement {
 }
 const DataViewElement = elementFromManifest(manifest, {base: PlainElement, lang: {en, ru}, source: "ru", aliases});
 
-// The first paint's rows when the list has no cap (sf-table's page, its
-// pagination-page-size default), how many fields a record of the compact list
-// shows under its title (sf-table list-fields).
+// The first paint's rows when nothing says how many the page asks for (sf-table's
+// page, its pagination-page-size default), how many fields a record of the
+// compact list shows under its title (sf-table list-fields).
 const FIRST_PAINT_ROWS = 10;
 const FIRST_PAINT_LIST_FIELDS = 3;
 
@@ -569,6 +569,7 @@ class SfDataView extends DataViewElement {
     }
 
     connectedCallback() {
+        this._readPrintedPageSize();
         super.connectedCallback();
         if (this.getAttribute("data-sf-instance")) this._ownParts();
         // Dated aliases (§16.20), installed once per element as the Smart base does.
@@ -587,6 +588,7 @@ class SfDataView extends DataViewElement {
         this.shadowRoot.querySelector("[data-view]").addEventListener("change", this._bound);
         this.shadowRoot.querySelector("[data-save]").addEventListener("click", this._bound);
         this.shadowRoot.querySelector("[data-delete]").addEventListener("click", this._bound);
+        this._seedPageSize();
         this._renderProjection();
         this._startFirstPaint();
         if (this.hostPort) this.refresh("connected");
@@ -595,10 +597,46 @@ class SfDataView extends DataViewElement {
 
     // ---------- the first paint (standard 1.3.8 §5.4) ----------
 
-    // The rows the skeleton holds: the cap of an embedded list, else a page of
-    // the table's (sf-table pagination-page-size, 10).
+    // The rows the skeleton holds: the page the query asks for (a kept page
+    // size, else the page size the page printed on its page row), no more than
+    // the cap of an embedded list; else the cap; else a page of the table's
+    // (sf-table pagination-page-size, 10). A skeleton of 10 rows over a page
+    // of 20 grows the list when the rows come (stand 25 D1).
     get firstPaintRows() {
-        return this.rowCap || FIRST_PAINT_ROWS;
+        const asked = this._declaredPageSize();
+        const cap = this.rowCap;
+        if (asked && cap) return Math.min(asked, cap);
+        return asked || cap || FIRST_PAINT_ROWS;
+    }
+
+    // The page size somebody declared: the person's kept one, or the page
+    // row's page-size as the page printed it. Zero when
+    // nobody did -- the query's own 25 is the view's default, not a request.
+    _declaredPageSize() {
+        if (this._pageSizeDeclared) return Number(this.query.per_page) || 0;
+        return this._printedPageSize || 0;
+    }
+
+    // The page size the page printed on its page row, read once, before
+    // anything of the view's writes its own page size there (the page row's
+    // state, from the first projection on).
+    _readPrintedPageSize() {
+        if (this._printedPageSize !== undefined) return;
+        const row = this.querySelector?.(':scope > sf-pagination[slot="pagination"]');
+        if (!row) return;
+        const printed = Number.parseInt(row.getAttribute("page-size") ?? "", 10);
+        this._printedPageSize = Number.isInteger(printed) && printed > 0 ? printed : 0;
+    }
+
+    // The first query asks for the page the page printed (its page row's
+    // page-size), unless the person kept another: the skeleton, the request
+    // and the page row then agree on one number before the host answers.
+    _seedPageSize() {
+        if (this._pageSizeDeclared || this._answered) return;
+        const size = this._declaredPageSize();
+        if (!size) return;
+        this.query.per_page = size;
+        this._pageSizeDeclared = true;
     }
 
     // How many columns the skeleton stands for (expected-columns): the shape
@@ -1092,7 +1130,10 @@ class SfDataView extends DataViewElement {
         const kept = key ? preferences()?.read(key) : null;
         if (!kept) return;
         if (Array.isArray(kept.sort) && !this.query.sort?.length) this.query.sort = copy(kept.sort);
-        if (Number.isInteger(kept.pageSize) && kept.pageSize > 0) this.query.per_page = kept.pageSize;
+        if (Number.isInteger(kept.pageSize) && kept.pageSize > 0) {
+            this.query.per_page = kept.pageSize;
+            this._pageSizeDeclared = true;
+        }
     }
 
     _keepPreference(patch) {
@@ -1639,6 +1680,7 @@ class SfDataView extends DataViewElement {
     }
 
     _renderProjection() {
+        this._readPrintedPageSize();
         this._applyForAll();
         if (this._current !== undefined && this.table && this.table.current !== this._current) this.table.current = this._current;
         // The saved-view controls appear when the host keeps saved views and
