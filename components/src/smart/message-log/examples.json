@@ -1,0 +1,121 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Переписка людей",
+      "settings": {
+        "messages": [
+          {
+            "id": "m1",
+            "author": "anna",
+            "author-name": "Анна",
+            "text": "Добрый день!"
+          },
+          {
+            "id": "m2",
+            "author": "anna",
+            "author-name": "Анна",
+            "text": "Отчёт готов?"
+          },
+          {
+            "id": "m3",
+            "author": "me",
+            "own": true,
+            "text": "Да, отправил утром."
+          }
+        ]
+      },
+      "expect": {
+        "name": "Переписка"
+      }
+    },
+    {
+      "name": "growing",
+      "title": "Ответ ассистента пишется",
+      "settings": {
+        "messages": [
+          {
+            "id": "q1",
+            "author": "me",
+            "own": true,
+            "text": "Как вернуть товар?"
+          },
+          {
+            "id": "a1",
+            "author": "assistant",
+            "author-name": "Ассистент",
+            "text": "Чтобы вернуть товар,",
+            "growing": true,
+            "revision": "3"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Переписка",
+        "events": [
+          "begun"
+        ]
+      }
+    },
+    {
+      "name": "earlier",
+      "title": "Есть более ранние",
+      "settings": {
+        "messages": [
+          {
+            "id": "m1",
+            "author": "anna",
+            "author-name": "Анна",
+            "text": "Добрый день!"
+          },
+          {
+            "id": "m2",
+            "author": "anna",
+            "author-name": "Анна",
+            "text": "Отчёт готов?"
+          },
+          {
+            "id": "m3",
+            "author": "me",
+            "own": true,
+            "text": "Да, отправил утром."
+          }
+        ],
+        "has-more": true,
+        "label": "Чат с Анной"
+      },
+      "expect": {
+        "name": "Чат с Анной"
+      }
+    },
+    {
+      "name": "empty",
+      "title": "Пусто",
+      "settings": {
+        "messages": []
+      },
+      "expect": {
+        "name": "Переписка"
+      }
+    },
+    {
+      "name": "by-revision",
+      "title": "Сравнение по версии",
+      "settings": {
+        "messages": [
+          {
+            "id": "r1",
+            "author": "anna",
+            "author-name": "Анна",
+            "text": "Версия 1",
+            "revision": "1"
+          }
+        ],
+        "changes": "revision"
+      },
+      "expect": {
+        "name": "Переписка"
+      }
+    }
+  ]
+}

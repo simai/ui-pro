@@ -16,72 +16,50 @@
 // to `open` when the answer could not be delivered. Once settled, the card keeps
 // only its outcome: no buttons that can no longer mean anything.
 //
+// From its component.json (standard simai.smart-component 1.3.8 §3, §4, §8,
+// §11, §19.4): the settings are attributes and properties made by
+// core/js/element-manifest.js, its words are lang/<locale>.json, the actions
+// answer outcomes, and the person's answer is the vocabulary's `answer {id,
+// accepted}`; the old names sf-change-confirm-accept, -decline and -expire
+// follow until 2026-12-01 (aliases.json). It is a confirm surface in the §19.4
+// sense: an assembly's `ask` opens it and waits for the answer.
+//
 // It renders into its own light DOM, like every Smart component: a document
 // stylesheet does not cross a shadow boundary.
 import SfBaseElement from "../../core/js/smart-base";
-import {pageLocale, pageText} from "../../core/js/page-language";
+import {elementFromManifest} from "../../core/js/element-manifest";
+import {noteDeprecated} from "../../core/js/deprecations";
+import {instancePath, partId} from "../../core/js/instance-path";
+import {pageLocale} from "../../core/js/page-language";
 import {renderChangeConfirmTemplate} from "./js/templates/default.js";
+import manifest from "./component.json";
+import aliases from "./aliases.json";
+import en from "./lang/en.json";
+import ru from "./lang/ru.json";
 
-const STATES = ["open", "pending", "accepted", "declined", "expired"];
-
-// The Framework speaks English by default and the page's language otherwise. A
-// product corrects one word through SF.language.register('sf-change-confirm', ...)
-// or the two answers through accept-text / decline-text, which are the words a
-// context most often wants its own of («Отменить» for an assistant's offer,
-// «Отклонить» for a colleague's).
-const CHANGE_CONFIRM_TEXT = {
-    en: {
-        changesLabel: "What will change",
-        beforeText: "Was",
-        afterText: "Will be",
-        acceptText: "Confirm",
-        declineText: "Decline",
-        acceptingText: "Applying…",
-        decliningText: "Declining…",
-        acceptedText: "Applied",
-        declinedText: "Declined",
-        expiredText: "The time to confirm has passed",
-        untilText: "Confirm by {time}",
-        emptyValueText: "empty",
-    },
-    ru: {
-        changesLabel: "Что изменится",
-        beforeText: "Было",
-        afterText: "Станет",
-        acceptText: "Подтвердить",
-        declineText: "Отклонить",
-        acceptingText: "Применяется…",
-        decliningText: "Отклоняется…",
-        acceptedText: "Применено",
-        declinedText: "Отклонено",
-        expiredText: "Время подтверждения истекло",
-        untilText: "Подтвердить можно до {time}",
-        emptyValueText: "пусто",
-    },
-};
+const STATES = manifest.settings.state.values;
+const applied = () => ({outcome: "applied"});
+const refused = (reason) => ({outcome: "refused", reason});
 
 // A timer longer than this is not a timer setTimeout keeps: past 2^31-1 ms it
 // fires at once. An offer valid for longer than 24 days is checked again daily.
 const LONGEST_WAIT = 24 * 60 * 60 * 1000;
 
-let headingIds = 0;
+const ChangeConfirmElement = elementFromManifest(manifest, {
+    base: SfBaseElement,
+    lang: {en, ru},
+    source: "ru",
+    aliases,
+});
 
-class SfChangeConfirm extends SfBaseElement {
+class SfChangeConfirm extends ChangeConfirmElement {
     static get props() {
         return {
+            ...super.props,
             templateName: {attribute: "template", default: "default"},
-            heading: {default: ""},
-            headingLevel: {attribute: "heading-level", default: "3", values: ["2", "3", "4", "5", "6"]},
-            state: {default: "open", values: STATES},
-            // ISO 8601. Past it an open offer reads as expired, and the element
-            // says so once with sf-change-confirm-expire.
-            expiresAt: {attribute: "expires-at", default: ""},
-            // The host's name for this change, carried back in every event.
-            changeId: {attribute: "change-id", default: ""},
-            disabled: {type: Boolean, default: false},
-            acceptText: {attribute: "accept-text", default: ""},
-            declineText: {attribute: "decline-text", default: ""},
-            changes: {type: Array, default: []},
+            // The list is a property (the usual case: a host has objects) or
+            // the `changes` attribute in JSON (markup, the Studio).
+            changes: {attribute: "changes", type: Array, default: []},
         };
     }
 
@@ -90,18 +68,19 @@ class SfChangeConfirm extends SfBaseElement {
         this._pressed = null;
         this._timer = null;
         this._expiredSaid = false;
-        this._headingId = `sf-change-confirm-heading-${(headingIds += 1)}`;
         this._changes = null;
+        this._asks = [];
+        // A value set as a property before the element was defined is an own
+        // property that would hide the accessor; it is taken through it.
+        if (Object.prototype.hasOwnProperty.call(this, "changes")) {
+            const early = this.changes;
+            delete this.changes;
+            this.changes = early;
+        }
     }
 
-    text(key, values = {}) {
-        const words = pageText(CHANGE_CONFIRM_TEXT, key, this);
-        return words.replace(/\{(\w+)\}/g, (match, name) => (name in values ? String(values[name]) : match));
-    }
-
-    // The list may be given as a property (the usual case: a host has objects)
-    // or as the `changes` attribute in JSON (markup, the Studio). A property
-    // wins; the attribute is read through the base's declared prop.
+    // A property wins over the attribute, which is read through the base's
+    // declared prop.
     get changes() {
         const value = this._changes ?? this.getProp("changes");
         return Array.isArray(value) ? value : [];
@@ -113,16 +92,12 @@ class SfChangeConfirm extends SfBaseElement {
     }
 
     get state() {
-        const value = this.getProp("state");
+        const value = this.getAttribute("state");
         return STATES.includes(value) ? value : "open";
     }
 
     set state(value) {
         this.setAttribute("state", STATES.includes(value) ? value : "open");
-    }
-
-    get changeId() {
-        return this.getProp("changeId");
     }
 
     // An open offer past its time is expired whatever the attribute says: the
@@ -131,12 +106,17 @@ class SfChangeConfirm extends SfBaseElement {
     get expired() {
         if (this.state === "expired") return true;
         if (this.state !== "open") return false;
-        const until = Date.parse(this.getProp("expiresAt") || "");
+        const until = Date.parse(this.getAttribute("expires-at") || "");
         return Number.isFinite(until) && Date.now() >= until;
     }
 
     get shownState() {
         return this.expired ? "expired" : this.state;
+    }
+
+    // The heading's id is the card's path (§7.1.1), never a counter.
+    get headingId() {
+        return partId(instancePath(this, {kind: "sf-change-confirm"}), "heading");
     }
 
     formatTime(value) {
@@ -149,13 +129,13 @@ class SfChangeConfirm extends SfBaseElement {
     }
 
     statusText(shown) {
-        if (shown === "pending") return this.text(this._pressed === "decline" ? "decliningText" : "acceptingText");
-        if (shown === "accepted") return this.text("acceptedText");
-        if (shown === "declined") return this.text("declinedText");
-        if (shown === "expired") return this.text("expiredText");
-        const until = this.getProp("expiresAt");
+        if (shown === "pending") return this.sfWord(this._pressed === false ? "declining-text" : "accepting-text");
+        if (shown === "accepted") return this.sfWord("accepted-text");
+        if (shown === "declined") return this.sfWord("declined-text");
+        if (shown === "expired") return this.sfWord("expired-text");
+        const until = this.getAttribute("expires-at");
         const time = until ? this.formatTime(until) : "";
-        return time ? this.text("untilText", {time}) : "";
+        return time ? this.sfWord("until-text", {vars: {time}}) : "";
     }
 
     templateContext() {
@@ -163,18 +143,18 @@ class SfChangeConfirm extends SfBaseElement {
         return {
             component: this,
             state: shown,
-            headingId: this._headingId,
+            headingId: this.headingId,
             heading: this.getProp("heading"),
             headingLevel: this.getProp("headingLevel"),
             hasDescription: this.hasSlotContent("description"),
             description: this.hasSlotContent("description") ? this.getSlotContent("description") : null,
             changes: this.changes,
-            changesLabel: this.text("changesLabel"),
-            beforeText: this.text("beforeText"),
-            afterText: this.text("afterText"),
-            emptyValueText: this.text("emptyValueText"),
-            acceptText: this.getProp("acceptText") || this.text("acceptText"),
-            declineText: this.getProp("declineText") || this.text("declineText"),
+            changesLabel: this.sfWord("changes-label"),
+            beforeText: this.sfWord("before-text"),
+            afterText: this.sfWord("after-text"),
+            emptyValueText: this.sfWord("empty-value-text"),
+            acceptText: this.getProp("acceptText") || this.sfWord("accept-text"),
+            declineText: this.getProp("declineText") || this.sfWord("decline-text"),
             statusText: this.statusText(shown),
             open: shown === "open",
             disabled: this.getProp("disabled") || shown !== "open",
@@ -213,7 +193,7 @@ class SfChangeConfirm extends SfBaseElement {
         clearTimeout(this._timer);
         this._timer = null;
         if (!this.isConnected || this.state !== "open") return;
-        const until = Date.parse(this.getProp("expiresAt") || "");
+        const until = Date.parse(this.getAttribute("expires-at") || "");
         if (!Number.isFinite(until)) return;
         const wait = until - Date.now();
         if (wait <= 0) {
@@ -229,34 +209,89 @@ class SfChangeConfirm extends SfBaseElement {
 
     expire() {
         this.requestComponentUpdate("expired");
+        this.settleAsks({accepted: false, reason: "expired"});
         if (this._expiredSaid) return;
         this._expiredSaid = true;
-        this.dispatchEvent(new CustomEvent("sf-change-confirm-expire", {
-            bubbles: true, composed: true, detail: {id: this.changeId},
-        }));
+        this.sfEmit("expired", {id: this.changeId});
     }
 
-    /** Answer as the person would: kind is "accept" or "decline". */
-    answer(kind) {
-        if (kind !== "accept" && kind !== "decline") return false;
-        if (this.shownState !== "open" || this.getProp("disabled")) return false;
+    // ── actions (§4.4) ──────────────────────────────────────────────────────
+
+    /**
+     * Puts the question again. Asked by an assembly -- a call that hands a
+     * signal -- it answers when the person answers or the time runs out, with
+     * {accepted, reason, value} (§19.4).
+     */
+    open(params = {}, {signal} = {}) {
+        if (this.state !== "open") this.state = "open";
+        return signal ? this.waitForAnswer(signal) : applied();
+    }
+
+    /** The person's answer as a call: {accepted: true} confirms, false declines. */
+    answer(params = {}) {
+        const accepted = this.readAnswer(params);
+        if (accepted === null) return refused("unknown");
+        if (this.shownState !== "open") return refused("closed");
+        if (this.getProp("disabled")) return refused("disabled");
         const focusWasInside = this.contains(this.ownerDocument.activeElement);
-        this._pressed = kind;
+        this._pressed = accepted;
         this.setAttribute("state", "pending");
-        const event = new CustomEvent(`sf-change-confirm-${kind}`, {
-            bubbles: true, composed: true, cancelable: true, detail: {id: this.changeId},
-        });
-        const delivered = this.dispatchEvent(event);
+        const delivered = this.sfEmit("answer", {id: this.changeId, accepted});
         // A cancelled event is a host that did not take the answer: the
         // question stands, and the person may answer again.
         if (!delivered) {
             this._pressed = null;
             this.setAttribute("state", "open");
+        } else {
+            this.settleAsks({accepted, reason: accepted ? "close" : "cancelled"});
         }
         // The pressed button is gone with the answers; focus moves to the
         // sentence that says what happened rather than falling to the page.
         if (focusWasInside) this.whenRendered(() => this.focusStatus(), {next: true});
-        return delivered;
+        return delivered ? applied() : refused("prevented");
+    }
+
+    /** The acceptance (§19.4): data-sf-action="<id>.confirm". */
+    confirm() {
+        return this.answer({accepted: true});
+    }
+
+    /** The declining answer (vocabulary §5 cancel): data-sf-action="<id>.cancel". */
+    cancel() {
+        return this.answer({accepted: false});
+    }
+
+    // answer("accept") and answer("decline") were the 1.0 form; read until the
+    // aliases' day and noted, so a host sees what it still leans on.
+    readAnswer(params) {
+        if (params && typeof params === "object" && typeof params.accepted === "boolean") return params.accepted;
+        const kind = typeof params === "string" ? params : params?.accepted;
+        if (kind === "accept" || kind === "decline") {
+            noteDeprecated({
+                component: "sf-change-confirm", tag: "sf-change-confirm", kind: "action",
+                from: `answer("${kind}")`, to: `answer({accepted: ${kind === "accept"}})`,
+                since: aliases.since, remove_after: aliases.remove_after,
+            });
+            return kind === "accept";
+        }
+        return null;
+    }
+
+    waitForAnswer(signal) {
+        return new Promise((resolve) => {
+            const ask = {resolve};
+            this._asks.push(ask);
+            signal?.addEventListener?.("abort", () => {
+                this._asks = this._asks.filter((one) => one !== ask);
+                resolve({outcome: "cancelled"});
+            }, {once: true});
+        });
+    }
+
+    settleAsks({accepted, reason}) {
+        const asks = this._asks;
+        this._asks = [];
+        for (const ask of asks) ask.resolve({outcome: "applied", value: {accepted, reason, value: null}});
     }
 
     focusStatus() {

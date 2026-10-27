@@ -1,0 +1,76 @@
+{
+  "$comment": "Dated aliases of sf-thread-list for the shim (core/js/aliases.js, standard §16 item 20). create, rename, archive and load-more keep their DOM names (archive and load-more gain the vocabulary's ids and direction beside the old fields). setLoading and setStatus became the settings loading and status: the component reads them and notes each call (no shim row can map a method to a setting).",
+  "component": "sf-thread-list",
+  "since": "2026-10-27",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "sf-thread-list-select",
+      "to": "sf-thread-list-open",
+      "kind": "event",
+      "component": "sf-thread-list",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, vocabulary §5 open"
+    },
+    {
+      "from": "sf-thread-list-unarchive",
+      "to": "sf-thread-list-restore",
+      "kind": "event",
+      "component": "sf-thread-list",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "cancelable": false,
+      "section": "§8, vocabulary §5 restore",
+      "note": "{id} becomes {ids, id}"
+    },
+    {
+      "from": "sf-thread-list-action",
+      "to": "sf-thread-list-apply",
+      "kind": "event",
+      "component": "sf-thread-list",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "cancelable": false,
+      "section": "§8, §18.3, vocabulary §5 apply",
+      "note": "{id, action} becomes {action, scope: entry, ids, id}"
+    },
+    {
+      "from": "sf-thread-list-view",
+      "to": "sf-thread-list-toggle",
+      "kind": "event",
+      "component": "sf-thread-list",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, §3.1 (view is reserved)"
+    },
+    {
+      "from": "setLoading",
+      "to": null,
+      "kind": "action",
+      "component": "sf-thread-list",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "retired",
+      "section": "§4.4",
+      "note": "the setting loading; the method stays until the date and notes each call"
+    },
+    {
+      "from": "setStatus",
+      "to": null,
+      "kind": "action",
+      "component": "sf-thread-list",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "retired",
+      "section": "§4.4",
+      "note": "the setting status; the method stays until the date and notes each call"
+    }
+  ]
+}

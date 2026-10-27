@@ -1,0 +1,381 @@
+{
+  "component": "sf-message-log",
+  "probe": "sf-message-log against component.json (standard simai.smart-component 1.3.8 §12, gate 20)",
+  "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+  "page": {
+    "lang": "ru",
+    "body": [
+      "<main>",
+      "  <div id=\"box\" style=\"display: flex; flex-direction: column; block-size: 420px; inline-size: 640px\"><sf-message-log id=\"log\"></sf-message-log></div>",
+      "</main>",
+      "<script>customElements.whenDefined('sf-message-log').then(() => {const log = document.querySelector('#log');log.renderMessage = (message) => { const node = document.createElement('article'); node.className = 'host-message'; node.textContent = message.text; const button = document.createElement('button'); button.type = 'button'; button.className = 'copy'; button.textContent = 'Копировать'; node.append(' ', button); return node; };log.setMessages([{\"id\": \"m1\", \"author\": \"anna\", \"author-name\": \"Анна\", \"text\": \"Добрый день!\"}, {\"id\": \"m2\", \"author\": \"anna\", \"author-name\": \"Анна\", \"text\": \"Отчёт готов?\"}, {\"id\": \"m3\", \"author\": \"me\", \"own\": true, \"text\": \"Да, отправил утром.\"}], {hasMore: true});});</script>"
+    ]
+  },
+  "probes": [
+    {
+      "id": "p1-arrows-home-end",
+      "title": "from a focused message ArrowUp and ArrowDown go to the neighbour, Home and End to the first and last loaded",
+      "covers": "keyboard.row ArrowUp focus:prev, ArrowDown focus:next, Home focus:first, End focus:last, accessibility.name runtime.region-label",
+      "steps": [
+        {
+          "script": "(document.querySelector('#log').focusItem(document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]')), true)",
+          "wait": 60,
+          "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]').querySelector('article') && document.querySelector('#log').querySelector('[role=region]').getAttribute('aria-label') === 'Переписка'"
+        },
+        {
+          "user": "keyboard:ArrowUp",
+          "wait": 60,
+          "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article')"
+        },
+        {
+          "user": "keyboard:End",
+          "wait": 60,
+          "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m3\"]').querySelector('article')"
+        },
+        {
+          "user": "keyboard:Home",
+          "wait": 60,
+          "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article')"
+        },
+        {
+          "user": "keyboard:ArrowDown",
+          "wait": 60,
+          "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]').querySelector('article')"
+        }
+      ]
+    },
+    {
+      "id": "p2-load-more",
+      "title": "ArrowUp on the first message asks load-more {direction: before, before} once and the old load-earlier once, noted; a refused request lets the button be pressed again",
+      "covers": "events.load-more, aliases sf-message-log-load-earlier, actions.request-earlier, earlier-failed",
+      "steps": [
+        {
+          "script": "(document.querySelector('#log').focusItem(document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]')), true)",
+          "wait": 60
+        },
+        {
+          "user": "keyboard:ArrowUp",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-message-log-load-more",
+                "count": 1,
+                "detail": {
+                  "direction": "before",
+                  "before": "m1"
+                }
+              },
+              {
+                "name": "sf-message-log-load-earlier",
+                "count": 1,
+                "detail": {
+                  "before": "m1"
+                }
+              }
+            ],
+            "journal": [
+              {
+                "from": "sf-message-log-load-earlier",
+                "to": "sf-message-log-load-more",
+                "since": "2026-10-27",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "name": "request-earlier"
+          },
+          "target": "#log",
+          "expect": {
+            "returns": {
+              "outcome": "refused",
+              "reason": "loading"
+            }
+          }
+        },
+        {
+          "action": {
+            "name": "earlier-failed"
+          },
+          "target": "#log",
+          "expect": {
+            "returns": {
+              "outcome": "applied"
+            }
+          }
+        },
+        {
+          "script": "(document.addEventListener('sf-message-log-load-more', (event) => event.preventDefault(), {once: true}), document.querySelector('#log').requestEarlier())",
+          "expect": {
+            "returns": {
+              "outcome": "refused",
+              "reason": "prevented"
+            }
+          },
+          "check": "!document.querySelector('#log').querySelector('.sf-message-log__earlier button').disabled"
+        }
+      ]
+    },
+    {
+      "id": "p3-stream-in-place",
+      "title": "a growing reply: begun once; each chunk is chunk {id, revision} and redraws that entry only, in place -- the item and the focused button stay; the end is completed and the busy mark goes",
+      "covers": "events.begun, events.chunk, events.completed (§10.8), §18.4 in place, migration item 31",
+      "steps": [
+        {
+          "script": "(document.querySelector('#log').upsert({id: 'g1', author: 'assistant', 'author-name': 'Ассистент', text: 'Чтобы', revision: '1', growing: true}), true)",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-message-log-begun",
+                "count": 1,
+                "detail": {
+                  "id": "g1"
+                }
+              },
+              {
+                "name": "sf-message-log-chunk",
+                "count": 0
+              }
+            ]
+          },
+          "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]').getAttribute('aria-busy') === 'true'"
+        },
+        {
+          "script": "(window.__item = document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]'), window.__copy = document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]').querySelector('.copy'), window.__copy.focus(), window.__others = [...document.querySelector('#log').querySelectorAll('.sf-message-log__item:not([data-id=\"g1\"]) article')], true)",
+          "wait": 60
+        },
+        {
+          "script": "(document.querySelector('#log').upsert({id: 'g1', author: 'assistant', 'author-name': 'Ассистент', text: 'Чтобы вернуть', revision: '2', growing: true}), document.querySelector('#log').upsert({id: 'g1', author: 'assistant', 'author-name': 'Ассистент', text: 'Чтобы вернуть товар,', revision: '3', growing: true}), true)",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-message-log-chunk",
+                "count": 2,
+                "detail": {
+                  "id": "g1",
+                  "revision": "2"
+                }
+              }
+            ]
+          },
+          "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]') === window.__item && document.activeElement === window.__copy && document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]').querySelector('article').firstChild.data === 'Чтобы вернуть товар,' && window.__others.every((node) => node.isConnected)"
+        },
+        {
+          "script": "(document.querySelector('#log').upsert({id: 'g1', author: 'assistant', 'author-name': 'Ассистент', text: 'Чтобы вернуть товар, откройте заказ.', revision: '4', growing: false}), true)",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-message-log-completed",
+                "count": 1,
+                "detail": {
+                  "id": "g1"
+                }
+              },
+              {
+                "name": "sf-message-log-chunk",
+                "count": 0
+              }
+            ]
+          },
+          "check": "!document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]').hasAttribute('aria-busy') && document.activeElement === window.__copy"
+        }
+      ]
+    },
+    {
+      "id": "p4-cancel",
+      "title": "cancel {id} ends a growing reply cancelled at once and draws none of the growth that follows; the busy mark goes",
+      "covers": "actions.cancel, events.cancelled (vocabulary §5.2)",
+      "steps": [
+        {
+          "script": "(document.querySelector('#log').upsert({id: 'g2', author: 'assistant', 'author-name': 'Ассистент', text: 'Сейчас', revision: '1', growing: true}), true)",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-message-log-begun",
+                "count": 1
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "name": "cancel",
+            "with": {
+              "id": "g2"
+            }
+          },
+          "target": "#log",
+          "expect": {
+            "returns": {
+              "outcome": "applied"
+            },
+            "events": [
+              {
+                "name": "sf-message-log-cancelled",
+                "count": 1,
+                "detail": {
+                  "id": "g2"
+                }
+              }
+            ]
+          },
+          "check": "!document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g2\"]').hasAttribute('aria-busy')"
+        },
+        {
+          "script": "document.querySelector('#log').upsert({id: 'g2', author: 'assistant', 'author-name': 'Ассистент', text: 'Сейчас расскажу', revision: '2', growing: true})",
+          "expect": {
+            "returns": {
+              "outcome": "refused",
+              "reason": "cancelled"
+            },
+            "events": [
+              {
+                "name": "sf-message-log-chunk",
+                "count": 0
+              },
+              {
+                "name": "sf-message-log-cancelled",
+                "count": 0
+              },
+              {
+                "name": "sf-message-log-completed",
+                "count": 0
+              }
+            ]
+          },
+          "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g2\"]').querySelector('article').firstChild.data === 'Сейчас'"
+        },
+        {
+          "action": {
+            "name": "cancel",
+            "with": {
+              "id": "m1"
+            }
+          },
+          "target": "#log",
+          "expect": {
+            "returns": {
+              "outcome": "refused",
+              "reason": "not-growing"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "p5-failed-and-stopped",
+      "title": "a reply that ends with an error is failed {id, reason, message}; one the host marks wait stopped is cancelled",
+      "covers": "events.failed, events.cancelled, wait (vocabulary §5.1)",
+      "steps": [
+        {
+          "script": "(document.querySelector('#log').upsert({id: 'g3', author: 'assistant', 'author-name': 'Ассистент', text: 'Ищу', revision: '1', growing: true}), document.querySelector('#log').upsert({id: 'g3', author: 'assistant', 'author-name': 'Ассистент', text: 'Ищу', revision: '2', growing: false, error: {reason: 'timeout', message: 'Нет ответа'}}), true)",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-message-log-begun",
+                "count": 1
+              },
+              {
+                "name": "sf-message-log-failed",
+                "count": 1,
+                "detail": {
+                  "id": "g3",
+                  "reason": "timeout",
+                  "message": "Нет ответа"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#log').upsert({id: 'g4', author: 'assistant', 'author-name': 'Ассистент', text: 'Думаю', revision: '1', growing: true}), document.querySelector('#log').upsert({id: 'g4', author: 'assistant', 'author-name': 'Ассистент', text: 'Думаю', revision: '2', growing: false, wait: 'stopped'}), true)",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-message-log-cancelled",
+                "count": 1,
+                "detail": {
+                  "id": "g4"
+                }
+              },
+              {
+                "name": "sf-message-log-completed",
+                "count": 0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p6-messages-setting",
+      "title": "the messages setting is compared by key: by content a changed entry is redrawn in place, by revision an unchanged revision is not drawn again; one that left is taken off",
+      "covers": "settings.messages entries, settings.changes (§18.4)",
+      "steps": [
+        {
+          "script": "(window.__m1 = document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]'), document.querySelector('#log').messages = [{id: 'm1', author: 'anna', 'author-name': 'Анна', text: 'Добрый день!!'}, {id: 'm3', author: 'me', own: true, text: 'Да, отправил утром.'}], true)",
+          "wait": 120,
+          "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]') === window.__m1 && document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article').firstChild.data === 'Добрый день!!' && !document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]') && document.querySelector('#log').messages.length === 2"
+        },
+        {
+          "script": "(document.querySelector('#log').setAttribute('changes', 'revision'), document.querySelector('#log').messages = [{id: 'm1', revision: '7', text: 'А'}, {id: 'm3', own: true, text: 'Да, отправил утром.'}], document.querySelector('#log').messages = [{id: 'm1', revision: '7', text: 'Б'}, {id: 'm3', own: true, text: 'Да, отправил утром.'}], true)",
+          "wait": 120,
+          "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article').firstChild.data === 'А'"
+        },
+        {
+          "script": "(document.querySelector('#log').messages = [{id: 'm1', revision: '8', text: 'Б'}, {id: 'm3', own: true, text: 'Да, отправил утром.'}], true)",
+          "wait": 120,
+          "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article').firstChild.data === 'Б'"
+        }
+      ]
+    },
+    {
+      "id": "p7-remove-detach",
+      "title": "remove(id), the 1.0 name, still takes a message off and is noted; detach answers outcomes; remove() without an id stays the browser's",
+      "covers": "actions.detach, aliases remove",
+      "steps": [
+        {
+          "script": "document.querySelector('#log').remove('m2')",
+          "expect": {
+            "returns": {
+              "outcome": "applied"
+            },
+            "journal": [
+              {
+                "from": "remove",
+                "kind": "action",
+                "to": "detach",
+                "since": "2026-10-27",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          },
+          "check": "!document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]') && document.querySelector('#log').isConnected"
+        },
+        {
+          "action": {
+            "name": "detach",
+            "with": {
+              "id": "m2"
+            }
+          },
+          "target": "#log",
+          "expect": {
+            "returns": {
+              "outcome": "refused",
+              "reason": "unknown"
+            }
+          }
+        },
+        {
+          "script": "(document.querySelector('#log').remove(), !document.querySelector('#log'))",
+          "expect": {
+            "returns": true
+          }
+        }
+      ]
+    }
+  ]
+}

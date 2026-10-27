@@ -22,15 +22,33 @@
 //   - reaching the top while there is more asks the host for it, once.
 // It fetches nothing and decides nothing: every request leaves as an event.
 //
-// The items are built by hand and kept, not diffed. A list that re-rendered its
-// messages through lit on every change would lose the scroll anchor while
-// history is prepended and take focus away from a button inside a message the
-// person is pressing. The frame (the earlier button, the jump button, the live
-// region) is the template; the column of items is one node the template places
-// and never replaces.
+// A message that grows -- an assistant's reply arriving in parts -- is a stream
+// (standard simai.smart-component 1.3.8 §10.8, vocabulary 1.1.5 §5.2): the
+// entry carries `growing` while the other side writes it, and the log reports
+// begun, one chunk per change it draws, and exactly one of completed, failed or
+// cancelled. cancel {id} stops drawing the growth at once and ends the stream
+// cancelled; telling the other side to stop is the host's (the chat's stop).
+//
+// The items are built by hand and kept, not diffed by lit. A changed message is
+// drawn again *in place* (§18.4): its item element stays, and while the focus
+// or a selection is inside it the new drawing is laid over the old nodes
+// instead of replacing them, so a button the person is on keeps the focus
+// through every chunk. The frame (the earlier button, the jump button, the
+// live region) is the template; the column of items is one node the template
+// places and never replaces.
+//
+// From its component.json (§3, §4, §8, §11, §18.4): the settings are
+// attributes and properties made by core/js/element-manifest.js, the words are
+// lang/<locale>.json, the actions answer outcomes; the old name
+// sf-message-log-load-earlier follows load-more until 2026-12-01 (aliases.json).
 import SfBaseElement from "../../core/js/smart-base";
-import {pageText} from "../../core/js/page-language";
+import {elementFromManifest} from "../../core/js/element-manifest";
+import {noteDeprecated} from "../../core/js/deprecations";
 import {renderMessageLogTemplate} from "./js/templates/default.js";
+import manifest from "./component.json";
+import aliases from "./aliases.json";
+import en from "./lang/en.json";
+import ru from "./lang/ru.json";
 
 // Within this distance of an edge counts as being there. 96px is about two
 // lines of text and a message's action row: closer than that, a person reading
@@ -43,27 +61,8 @@ const NEAR_TOP = 240;
 // reader reading a long answer in one breath is not a summary of it.
 const ANNOUNCE_LIMIT = 240;
 
-// The Framework speaks English by default and the page's language otherwise
-// (src/core/js/page-language). A product corrects a word through
-// SF.language.register('sf-message-log', ...), not by forking the dictionary.
-const MESSAGE_LOG_TEXT = {
-    en: {
-        regionLabel: "Conversation",
-        logLabel: "Messages",
-        earlierText: "Show earlier messages",
-        loadingEarlierText: "Loading earlier messages",
-        latestLabel: "To the latest message",
-        youText: "You",
-    },
-    ru: {
-        regionLabel: "Переписка",
-        logLabel: "Сообщения",
-        earlierText: "Показать предыдущие сообщения",
-        loadingEarlierText: "Загружаю предыдущие сообщения",
-        latestLabel: "К последнему сообщению",
-        youText: "Вы",
-    },
-};
+const applied = () => ({outcome: "applied"});
+const refused = (reason) => ({outcome: "refused", reason});
 
 const reducedMotion = () => globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
@@ -78,27 +77,102 @@ const stable = (value) => JSON.stringify(value, (key, item) => (item && typeof i
 
 const keyOf = (message) => String(message?.id ?? "");
 
-class SfMessageLog extends SfBaseElement {
-    static get props() {
+// The 1.0 spellings a host still writes, read until the aliases' day and
+// noted (§16 item 20, §18.1).
+const legacy = (kind, from, to) => noteDeprecated({
+    component: "sf-message-log", tag: "sf-message-log", kind, from, to,
+    since: aliases.since, remove_after: aliases.remove_after,
+});
+
+// Vocabulary 1.1.5 §2.2: `growing` -- the other side is still writing this
+// entry. `pending` was its 1.0 name in this component.
+const isGrowing = (message) => {
+    if (typeof message?.growing === "boolean") return message.growing;
+    if (message?.pending === true) {
+        legacy("entry-field", "pending", "growing");
+        return true;
+    }
+    return false;
+};
+
+const authorName = (message) => {
+    if (message?.["author-name"] !== undefined) return String(message["author-name"] ?? "");
+    if (message?.author_name !== undefined) {
+        legacy("entry-field", "author_name", "author-name");
+        return String(message.author_name ?? "");
+    }
+    return "";
+};
+
+const authorOf = (message) => String(message?.author ?? authorName(message));
+
+// `wait` (the chat's word, vocabulary §5.1): delayed | stopped | network |
+// none; a null wait is none.
+const waitOf = (message, view) => {
+    const value = view?.wait ?? message?.wait ?? null;
+    return value === null || value === undefined || value === "" ? "none" : String(value);
+};
+
+// How a stream ended, read from the entry the host gave last: stopped is
+// cancelled, an error is failed, anything else is completed.
+const endOf = (message, view) => {
+    if (waitOf(message, view) === "stopped") return {fact: "cancelled"};
+    const error = message?.error;
+    if (error || message?.status === "failed" || message?.status === "error") {
         return {
-            templateName: {attribute: "template", default: "default"},
-            hasMore: {attribute: "has-more", type: Boolean, default: false},
-            // The region's accessible name. Empty: «Conversation» in the page's
-            // language. A page with two logs names them apart.
-            label: {default: ""},
-            // `polite`: a message that arrives finished, or finishes, from
-            // someone else is read out once. `off`: the host announces itself
-            // (announce()) or not at all. Named for aria-live, which is what it
-            // decides.
-            live: {default: "polite", values: ["polite", "off"]},
+            fact: "failed",
+            reason: String((error && typeof error === "object" ? error.reason : error) || message?.reason || "failed"),
+            message: String((error && typeof error === "object" ? error.message : "") || message?.message || ""),
         };
+    }
+    return {fact: "completed"};
+};
+
+// Lays a new drawing over the nodes already shown, keeping every node whose
+// place and kind did not change -- the one with the focus among them. Text
+// is written, attributes are brought level, extra nodes go, missing ones come.
+function overlay(target, source) {
+    if (target.nodeType !== source.nodeType || target.nodeName !== source.nodeName) {
+        target.replaceWith(source);
+        return;
+    }
+    if (target.nodeType === 3 || target.nodeType === 8) {
+        if (target.data !== source.data) target.data = source.data;
+        return;
+    }
+    if (target.nodeType === 1) {
+        for (const {name} of [...target.attributes]) if (!source.hasAttribute(name)) target.removeAttribute(name);
+        for (const {name, value} of [...source.attributes]) if (target.getAttribute(name) !== value) target.setAttribute(name, value);
+        if ("value" in target && "value" in source && target.value !== source.value && target !== target.ownerDocument.activeElement) target.value = source.value;
+    }
+    const kept = [...target.childNodes];
+    const given = [...source.childNodes];
+    given.forEach((node, index) => {
+        if (kept[index]) overlay(kept[index], node);
+        else target.append(node);
+    });
+    for (const extra of kept.slice(given.length)) extra.remove();
+}
+
+const LogElement = elementFromManifest(manifest, {
+    base: SfBaseElement,
+    lang: {en, ru},
+    source: "ru",
+    aliases,
+});
+
+class SfMessageLog extends LogElement {
+    static get props() {
+        return {...super.props, templateName: {attribute: "template", default: "default"}};
     }
 
     constructor() {
         super();
-        // id -> {message, view, node, content, flags}. Insertion order is not
-        // display order; the column's children are.
+        // id -> {message, view, node, flags, fingerprint}. Insertion order is
+        // not display order; the column's children are.
         this._items = new Map();
+        // id -> {cancelled}: the streams that have begun and not ended.
+        this._streams = new Map();
         this._loadingEarlier = false;
         this._settling = false;
         this._pendingLatest = null;
@@ -106,32 +180,25 @@ class SfMessageLog extends SfBaseElement {
         this._renderMessage = null;
         this._announceMessage = null;
         this._column = null;
+        if (Object.prototype.hasOwnProperty.call(this, "messages")) {
+            const early = this.messages;
+            delete this.messages;
+            this.messages = early;
+        }
     }
 
     // ── words ────────────────────────────────────────────────────────────────
 
-    text(key) {
-        return pageText(MESSAGE_LOG_TEXT, key, this);
-    }
-
     get regionLabel() {
-        return this.getProp("label") || this.text("regionLabel");
-    }
-
-    get hasMore() {
-        return this.getProp("hasMore");
-    }
-
-    set hasMore(value) {
-        this.toggleAttribute("has-more", Boolean(value));
+        return this.getAttribute("label") || this.sfWord("region-label");
     }
 
     // ── host-provided rendering ──────────────────────────────────────────────
 
     /**
      * (message, context) => Node | string | null. context: {view, previous,
-     * next, first, last, own, index, document, log}. A string is drawn as text,
-     * never parsed. Setting it redraws every message.
+     * next, first, last, own, growing, index, document, log}. A string is drawn
+     * as text, never parsed. Setting it redraws every message.
      */
     get renderMessage() {
         return this._renderMessage;
@@ -185,9 +252,9 @@ class SfMessageLog extends SfBaseElement {
             component: this,
             column: this.column,
             regionLabel: this.regionLabel,
-            logLabel: this.text("logLabel"),
-            earlierText: this._loadingEarlier ? this.text("loadingEarlierText") : this.text("earlierText"),
-            latestLabel: this.text("latestLabel"),
+            logLabel: this.sfWord("log-label"),
+            earlierText: this._loadingEarlier ? this.sfWord("loading-earlier-text") : this.sfWord("earlier-text"),
+            latestLabel: this.sfWord("latest-label"),
             hasMore: this.hasMore,
             loadingEarlier: this._loadingEarlier,
             empty: this._items.size === 0,
@@ -201,7 +268,7 @@ class SfMessageLog extends SfBaseElement {
 
     afterRender(changed) {
         super.afterRender?.(changed);
-        this.column.setAttribute("aria-label", this.text("logLabel"));
+        this.column.setAttribute("aria-label", this.sfWord("log-label"));
         if (this._pendingLatest) {
             const options = this._pendingLatest;
             this._pendingLatest = null;
@@ -210,43 +277,115 @@ class SfMessageLog extends SfBaseElement {
         this.syncJump();
     }
 
-    // ── the conversation ─────────────────────────────────────────────────────
+    // ── the conversation as a setting (§18.4) ────────────────────────────────
+
+    /** The messages in display order, as the host gave them. */
+    get messages() {
+        return [...this.column.children].map((node) => this._items.get(node.dataset.id)?.message).filter(Boolean);
+    }
+
+    /**
+     * The whole conversation, as a binding carries it. Compared by key with
+     * what is shown: an entry that left is taken off, a new or changed one is
+     * drawn in its place (changed by `changes`: revision or content), the rest
+     * keep their nodes. An empty log takes it as setMessages does.
+     */
+    set messages(value) {
+        const list = (Array.isArray(value) ? value : []).filter((message) => keyOf(message));
+        if (!this._items.size) {
+            this.setMessages(list, {hasMore: this.hasMore});
+            return;
+        }
+        const wanted = new Set(list.map(keyOf));
+        for (const key of [...this._items.keys()]) if (!wanted.has(key)) this.detach({id: key});
+        let previous = null;
+        for (const message of list) {
+            const key = keyOf(message);
+            if (this._items.has(key)) this.upsert(message);
+            else this.insertAfter(message, previous);
+            previous = this._items.get(key)?.node ?? previous;
+        }
+    }
+
+    // A new entry the setting carries in the middle of what is shown stands
+    // where the list puts it, not at the end.
+    insertAfter(message, previousNode) {
+        const atEnd = !previousNode || previousNode === this.column.lastElementChild;
+        if (atEnd) {
+            this.upsert(message);
+            return;
+        }
+        const node = this.place(message, {});
+        previousNode.after(node);
+        this.syncRuns();
+        this.track(this._items.get(keyOf(message)), null);
+        this.maybeAnnounce(this._items.get(keyOf(message)));
+        this.refreshFrame("insert");
+    }
+
+    // Two entries are the same message by `changes` (§18.4): revision -- the
+    // host raises it with every change, a growing entry with every chunk -- or
+    // content, the entry's fields and its view. An entry without a revision
+    // is compared by content either way.
+    same(existing, message, view) {
+        // A stream's end is never an equal write, whatever the revision says.
+        if (isGrowing(message) !== isGrowing(existing.message)) return false;
+        if (this.changes === "revision" && message?.revision !== undefined && existing.message?.revision !== undefined) {
+            return String(message.revision) === String(existing.message.revision) && stable(view) === stable(existing.view);
+        }
+        return existing.fingerprint === stable([message, view]);
+    }
+
+    // ── actions (§4.4) ───────────────────────────────────────────────────────
 
     /** Replace the whole conversation and show its end. */
-    setMessages(messages = [], {hasMore = false} = {}) {
+    setMessages(messages = [], options = {}) {
+        if (messages && !Array.isArray(messages) && Array.isArray(messages.messages)) {
+            options = messages.options ?? {};
+            messages = messages.messages;
+        }
         // Another conversation: nothing said about the last one stays to be
         // found, and nothing said about it is said again.
         this._announced.clear();
         const announcer = this.announcer;
         if (announcer) announcer.textContent = "";
+        for (const key of this._streams.keys()) this.endStream(key, {fact: "cancelled"});
         this._items.clear();
         this.column.replaceChildren();
-        for (const message of messages) {
-            if (this._items.has(keyOf(message))) continue;
+        for (const message of Array.isArray(messages) ? messages : []) {
+            if (!keyOf(message) || this._items.has(keyOf(message))) continue;
             this.column.append(this.place(message, {}));
         }
         // What a conversation holds when it opens has been said already, by
         // whoever wrote it; only what changes from now on is news.
-        for (const item of this._items.values()) this._announced.set(keyOf(item.message), this.announcementOf(item));
+        for (const item of this._items.values()) {
+            this._announced.set(keyOf(item.message), this.announcementOf(item));
+            this.track(item, null);
+        }
         this.syncRuns();
         this._loadingEarlier = false;
-        this.hasMore = hasMore;
+        this.hasMore = Boolean(options?.hasMore ?? options?.["has-more"]);
         this.refreshFrame("messages");
         // Until the end of the new conversation is in view, reaching the top is
         // not a request for earlier history: the column starts at the top for
         // one frame, and that frame used to ask for a page nobody wanted.
         this._settling = true;
         this.scrollToLatest({instant: true, settle: true});
+        return applied();
     }
 
     /** Earlier history above, without moving what is being read. Ends the earlier request. */
-    prependMessages(messages = [], {hasMore = false} = {}) {
+    prependMessages(messages = [], options = {}) {
+        if (messages && !Array.isArray(messages) && Array.isArray(messages.messages)) {
+            options = messages.options ?? {};
+            messages = messages.messages;
+        }
         const scroller = this.scroller;
         const before = scroller ? scroller.scrollHeight - scroller.scrollTop : 0;
         const fragment = this.ownerDocument.createDocumentFragment();
-        for (const message of messages) {
+        for (const message of Array.isArray(messages) ? messages : []) {
             const key = keyOf(message);
-            if (this._items.has(key)) continue;
+            if (!key || this._items.has(key)) continue;
             fragment.append(this.place(message, {}));
             this._announced.set(key, this.announcementOf(this._items.get(key)));
         }
@@ -256,8 +395,9 @@ class SfMessageLog extends SfBaseElement {
         // distance from the end before and after the history above it grew.
         if (scroller) scroller.scrollTop = scroller.scrollHeight - before;
         this._loadingEarlier = false;
-        this.hasMore = hasMore;
+        this.hasMore = Boolean(options?.hasMore ?? options?.["has-more"]);
         this.refreshFrame("prepend");
+        return applied();
     }
 
     /**
@@ -268,68 +408,171 @@ class SfMessageLog extends SfBaseElement {
      * now numbered -- so it keeps its place instead of moving to the end.
      */
     upsert(message, view, {replaces = null} = {}) {
+        if (message && message.message && typeof message.message === "object" && message.id === undefined) {
+            ({message, view, options: {replaces = null} = {}} = message);
+        }
         const key = keyOf(message);
-        if (!key) return;
+        if (!key) return refused("no-id");
         const previousKey = replaces != null && this._items.has(String(replaces)) ? String(replaces) : key;
         const existing = this._items.get(previousKey);
+        const stream = this._streams.get(previousKey);
+        // A stream the person cancelled draws nothing more of it, its end
+        // included: what they stopped at stays (vocabulary §5.1, the server may
+        // still finish the reply). A write after the end is drawn as any is.
+        if (existing && stream?.cancelled) {
+            if (!isGrowing(message)) this._streams.delete(previousKey);
+            return refused("cancelled");
+        }
         const nextView = view ?? existing?.view ?? {};
         const atBottom = this.isNearBottom();
         if (existing && previousKey !== key) {
             this._items.delete(previousKey);
             this._announced.set(key, this._announced.get(previousKey));
             this._announced.delete(previousKey);
+            if (stream) {
+                this._streams.delete(previousKey);
+                this._streams.set(key, stream);
+            }
+            existing.node.dataset.id = key;
+            this._items.set(key, existing);
         }
-        if (existing && previousKey === key && existing.fingerprint === stable([message, nextView])) {
+        if (existing && this.same(existing, message, nextView)) {
             existing.message = message;
-            return;
+            return applied();
         }
-        const node = this.place(message, nextView);
-        if (existing) existing.node.replaceWith(node);
-        else this.column.append(node);
-        this.syncRuns();
-        this.maybeAnnounce(this._items.get(key));
+        const before = existing ? {message: existing.message, view: existing.view} : null;
+        if (existing) {
+            existing.message = message;
+            existing.view = nextView;
+            existing.fingerprint = stable([message, nextView]);
+            this.syncItem(existing);
+            // In place (§18.4): the item element stays, only its drawing changes.
+            this.draw(existing, ...this.neighbours(existing));
+            this.syncRuns();
+        } else {
+            this.column.append(this.place(message, nextView));
+            this.syncRuns();
+        }
+        const item = this._items.get(key);
+        this.track(item, before);
+        this.maybeAnnounce(item);
         this.refreshFrame("upsert");
         const followed = atBottom || (!existing && message.own === true);
         if (followed) requestAnimationFrame(() => this.scrollToLatest());
         else this.syncJump();
+        return applied();
     }
 
     /** Merge into the view of a message already shown. */
     setView(id, view = {}) {
+        if (id && typeof id === "object") ({id, view = {}} = id);
         const item = this._items.get(String(id));
-        if (item) this.upsert(item.message, {...item.view, ...view});
+        if (!item) return refused("unknown");
+        return this.upsert(item.message, {...item.view, ...view});
     }
 
-    remove(id) {
-        const key = String(id);
+    /** Take one message off. A stream it was ends cancelled. */
+    detach(params) {
+        const key = String(params && typeof params === "object" ? params.id : params);
         const item = this._items.get(key);
-        if (!item) return;
+        if (!item) return refused("unknown");
+        if (this._streams.has(key)) this.endStream(key, {fact: "cancelled"});
         item.node.remove();
         this._items.delete(key);
         this._announced.delete(key);
         this.syncRuns();
-        this.refreshFrame("remove");
+        this.refreshFrame("detach");
+        return applied();
     }
 
-    /** Draw one message again, or every one: after the renderer's own inputs changed. */
-    redraw(id = null) {
+    // remove(id) was 1.0's detach. Without an argument it is the browser's
+    // own Element.remove(): the element leaves the page.
+    remove(...args) {
+        if (!args.length) return super.remove();
+        legacy("action", "remove", "detach");
+        return this.detach({id: args[0]});
+    }
+
+    /**
+     * Stop drawing a growing message (vocabulary §5.2 cancel {id}): what the
+     * person sees stays where it is, its busy mark goes, and the stream ends
+     * cancelled now. Telling the other side to stop writing is the host's.
+     */
+    cancel(params) {
+        const key = String(params && typeof params === "object" ? params.id : params ?? "");
+        const stream = this._streams.get(key);
+        if (!stream) return refused(this._items.has(key) ? "not-growing" : "unknown");
+        if (stream.cancelled) return refused("cancelled");
+        stream.cancelled = true;
+        const item = this._items.get(key);
+        if (item) {
+            item.view = {...item.view, wait: "stopped"};
+            item.fingerprint = stable([item.message, item.view]);
+            item.node.removeAttribute("aria-busy");
+            this.draw(item, ...this.neighbours(item));
+        }
+        this.sfEmit("cancelled", {id: key});
+        return applied();
+    }
+
+    /** Draw one message, or every one, again: after the renderer's own inputs changed. */
+    redraw(params = null) {
+        const id = params && typeof params === "object" ? params.id : params;
         const keys = id == null ? [...this._items.keys()] : [String(id)];
         for (const key of keys) {
             const item = this._items.get(key);
-            if (!item) continue;
-            const node = this.place(item.message, item.view);
-            item.node.replaceWith(node);
+            if (item) this.draw(item, ...this.neighbours(item));
         }
         this.syncRuns();
+        return applied();
     }
 
-    /** The messages in display order, as the host gave them. */
-    get messages() {
-        return [...this.column.children].map((node) => this._items.get(node.dataset.id)?.message).filter(Boolean);
-    }
-
+    /** The 1.0 setter of has-more. */
     setHasMore(value) {
-        this.hasMore = value;
+        this.hasMore = Boolean(value);
+        return applied();
+    }
+
+    // ── streams (§10.8, vocabulary §5.2) ─────────────────────────────────────
+
+    // After an entry arrived or changed: a growing entry not yet followed has
+    // begun; a followed one that changed is a chunk; one that stopped growing
+    // has ended. A stream the person cancelled has ended already.
+    track(item, before) {
+        if (!item) return;
+        const key = keyOf(item.message);
+        const growing = isGrowing(item.message);
+        const stream = this._streams.get(key);
+        if (!stream) {
+            if (!growing) return;
+            this._streams.set(key, {cancelled: false, chunks: 0});
+            this.sfEmit("begun", {id: key});
+            return;
+        }
+        if (growing) {
+            if (before && !stream.cancelled) {
+                stream.chunks += 1;
+                const detail = {id: key};
+                if (item.message.revision !== undefined) detail.revision = item.message.revision;
+                this.sfEmit("chunk", detail);
+            }
+            return;
+        }
+        if (stream.cancelled) {
+            this._streams.delete(key);
+            return;
+        }
+        this.endStream(key, endOf(item.message, item.view));
+    }
+
+    endStream(key, {fact, reason, message}) {
+        const stream = this._streams.get(key);
+        if (!stream) return;
+        this._streams.delete(key);
+        if (stream.cancelled) return;
+        if (fact === "failed") this.sfEmit("failed", {id: key, reason: reason || "failed", message: message || ""});
+        else if (fact === "cancelled") this.sfEmit("cancelled", {id: key});
+        else this.sfEmit("completed", {id: key});
     }
 
     // ── items ────────────────────────────────────────────────────────────────
@@ -339,11 +582,26 @@ class SfMessageLog extends SfBaseElement {
         const node = this.ownerDocument.createElement("div");
         node.className = "sf-message-log__item";
         node.dataset.id = key;
-        if (message.own === true) node.classList.add("sf-message-log__item--own");
-        if (message.pending === true) node.setAttribute("aria-busy", "true");
         const item = {message, view: view ?? {}, node, flags: null, fingerprint: stable([message, view ?? {}])};
         this._items.set(key, item);
+        this.syncItem(item);
         return node;
+    }
+
+    // What the item element itself says: whose side it is on, and whether the
+    // other side is still writing it (aria-busy, vocabulary §2.2 growing).
+    syncItem(item) {
+        item.node.classList.toggle("sf-message-log__item--own", item.message.own === true);
+        const busy = isGrowing(item.message) && !this._streams.get(keyOf(item.message))?.cancelled;
+        if (busy) item.node.setAttribute("aria-busy", "true");
+        else item.node.removeAttribute("aria-busy");
+    }
+
+    neighbours(item) {
+        return [
+            this._items.get(item.node.previousElementSibling?.dataset.id)?.message ?? null,
+            this._items.get(item.node.nextElementSibling?.dataset.id)?.message ?? null,
+        ];
     }
 
     // Runs are consecutive messages of one author. They are computed over the
@@ -376,6 +634,7 @@ class SfMessageLog extends SfBaseElement {
     }
 
     draw(item, previous, next) {
+        if (!item.flags) return;
         const context = {
             view: item.view,
             previous,
@@ -383,6 +642,7 @@ class SfMessageLog extends SfBaseElement {
             first: item.flags.first,
             last: item.flags.last,
             own: item.message.own === true,
+            growing: isGrowing(item.message),
             index: item.flags.index,
             document: this.ownerDocument,
             log: this,
@@ -397,7 +657,16 @@ class SfMessageLog extends SfBaseElement {
             content = this.renderDefault(item.message, context);
         }
         const node = content instanceof Node ? content : this.ownerDocument.createTextNode(content == null ? "" : String(content));
-        item.node.replaceChildren(node);
+        const shown = item.node.firstChild;
+        // The person is inside this message -- the focus on its button, a
+        // selection in its text: the new drawing is laid over the old nodes,
+        // which stay, and the focus and the selection with them (§18.4).
+        const active = this.ownerDocument.activeElement;
+        const selection = this.ownerDocument.getSelection?.();
+        const inside = (active && active !== item.node && item.node.contains(active))
+            || (selection && selection.rangeCount > 0 && !selection.isCollapsed && item.node.contains(selection.anchorNode));
+        if (shown && inside && item.node.childNodes.length === 1 && !(node instanceof DocumentFragment)) overlay(shown, node);
+        else item.node.replaceChildren(node);
     }
 
     // Without a renderer a message is its author and its text: enough for a
@@ -407,7 +676,7 @@ class SfMessageLog extends SfBaseElement {
         const doc = this.ownerDocument;
         const article = doc.createElement("article");
         article.className = "sf-message-log__message";
-        const name = own ? this.text("youText") : String(message.author_name ?? "");
+        const name = own ? this.sfWord("you-text") : authorName(message);
         if (name) article.setAttribute("aria-label", name);
         if (first && name && !own) {
             const author = doc.createElement("p");
@@ -435,17 +704,17 @@ class SfMessageLog extends SfBaseElement {
             }
         }
         // By default: a finished message from someone else, its author and its
-        // words. One's own message is not news to oneself; a pending one is not
+        // words. One's own message is not news to oneself; a growing one is not
         // finished.
-        if (item.message.own === true || item.message.pending === true) return "";
+        if (item.message.own === true || isGrowing(item.message)) return "";
         const words = String(item.message.text ?? "").replace(/\s+/g, " ").trim();
         if (!words) return "";
-        const author = String(item.message.author_name ?? "").trim();
+        const author = authorName(item.message).trim();
         return author ? `${author}: ${words}` : words;
     }
 
     maybeAnnounce(item) {
-        if (!item || this.getProp("live") === "off") return;
+        if (!item || this.live === "off") return;
         const key = keyOf(item.message);
         const said = this.announcementOf(item);
         if (!said || this._announced.get(key) === said) return;
@@ -454,9 +723,10 @@ class SfMessageLog extends SfBaseElement {
     }
 
     /** Say something once through the log's polite live region. */
-    announce(words) {
+    announce(params) {
+        const words = params && typeof params === "object" ? params.text : params;
         const announcer = this.announcer;
-        if (!announcer) return;
+        if (!announcer) return refused("not-drawn");
         const whole = String(words ?? "").replace(/\s+/g, " ").trim();
         const said = whole.length > ANNOUNCE_LIMIT ? `${whole.slice(0, ANNOUNCE_LIMIT)}…` : whole;
         // A changed text is what a screen reader hears; clearing first makes a
@@ -465,6 +735,7 @@ class SfMessageLog extends SfBaseElement {
         setTimeout(() => {
             announcer.textContent = said;
         }, 60);
+        return applied();
     }
 
     // ── position ─────────────────────────────────────────────────────────────
@@ -493,25 +764,33 @@ class SfMessageLog extends SfBaseElement {
 
     /** Ask the host for earlier history; the earlier button and reaching the top do this. */
     requestEarlier() {
-        if (this._loadingEarlier || !this.hasMore) return;
+        if (this._loadingEarlier) return refused("loading");
+        if (!this.hasMore) return refused("no-more");
         const before = this.column.firstElementChild?.dataset.id ?? null;
         this._loadingEarlier = true;
         this.refreshFrame("earlier");
-        const event = new CustomEvent("sf-message-log-load-earlier", {bubbles: true, composed: true, cancelable: true, detail: {before}});
-        if (!this.dispatchEvent(event)) this.earlierFailed();
+        // Vocabulary §5 load-more {direction: before}; `before` names the first
+        // message shown, as 1.0's sf-message-log-load-earlier did.
+        if (!this.sfEmit("load-more", {direction: "before", before})) {
+            this.earlierFailed();
+            return refused("prevented");
+        }
+        return applied();
     }
 
     /** The host could not load earlier history: the button is pressable again. */
     earlierFailed() {
         this._loadingEarlier = false;
         this.refreshFrame("earlier");
+        return applied();
     }
 
-    scrollToLatest({instant = false, focus = false, settle = false} = {}) {
+    scrollToLatest(params = {}) {
+        const {instant = false, focus = false, settle = false} = params?.options ?? params ?? {};
         const scroller = this.scroller;
         if (!scroller) {
             this._pendingLatest = {instant, focus, settle};
-            return;
+            return applied();
         }
         requestAnimationFrame(() => {
             scroller.scrollTo({top: scroller.scrollHeight, behavior: instant || reducedMotion() ? "instant" : "smooth"});
@@ -520,6 +799,7 @@ class SfMessageLog extends SfBaseElement {
             if (focus) this.focusItem(this.column.lastElementChild);
             if (settle) requestAnimationFrame(() => { this._settling = false; });
         });
+        return applied();
     }
 
     // ── keyboard ─────────────────────────────────────────────────────────────
@@ -570,7 +850,5 @@ class SfMessageLog extends SfBaseElement {
         this.requestComponentUpdate(reason);
     }
 }
-
-const authorOf = (message) => String(message?.author ?? message?.author_name ?? "");
 
 SfMessageLog.define("sf-message-log");

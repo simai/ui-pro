@@ -1,0 +1,416 @@
+{
+  "$comment": "The source of sf-message-log's element plumbing (core/js/element-manifest.js). Taken from simai/ui-control control/smart-architecture/migration/out/message-log (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); standard simai.smart-component 1.3.8, vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
+  "id": "smart.message-log",
+  "tag": "sf-message-log",
+  "version": "1.1.0",
+  "kind": "leaf",
+  "family": "feed",
+  "settings": {
+    "messages": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "id": "id",
+        "author": {
+          "type": "string",
+          "optional": true
+        },
+        "author-name": {
+          "type": "string",
+          "optional": true
+        },
+        "own": {
+          "type": "boolean",
+          "optional": true
+        },
+        "text": {
+          "type": "string",
+          "optional": true
+        },
+        "revision": {
+          "type": "string",
+          "optional": true
+        },
+        "growing": {
+          "type": "boolean",
+          "optional": true
+        },
+        "wait": {
+          "type": "enum",
+          "values": [
+            "delayed",
+            "stopped",
+            "network",
+            "none"
+          ],
+          "nullable": true,
+          "optional": true
+        },
+        "error": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "entries": {
+        "key": "id",
+        "changes": "content"
+      },
+      "x-markup": "a property; written whole it is compared by key with what is shown (§18.4) -- a new or changed entry is drawn in place, the rest keep their nodes. Every other field is the renderer's. author_name and pending, the 1.0 spellings, are read until 2026-12-01 and noted"
+    },
+    "changes": {
+      "type": "enum",
+      "values": [
+        "content",
+        "revision"
+      ],
+      "default": "content",
+      "x-summary": "how two writes of one entry are compared (§18.4): content (the entry's fields and its view) or revision (the host raises it with every change, a growing entry with every chunk)"
+    },
+    "has-more": {
+      "type": "boolean",
+      "default": false
+    },
+    "label": {
+      "type": "string",
+      "default-from": "runtime.region-label"
+    },
+    "live": {
+      "type": "enum",
+      "values": [
+        "polite",
+        "off"
+      ],
+      "default": "polite"
+    }
+  },
+  "values": {},
+  "events": {
+    "load-more": {
+      "carries": {
+        "direction": {
+          "type": "enum",
+          "values": [
+            "before"
+          ]
+        },
+        "before": {
+          "type": "id",
+          "nullable": true
+        }
+      },
+      "cancelable": true,
+      "x-summary": "earlier history is asked for: the earlier button, ArrowUp on the first message, the top reached while has-more. Refused (preventDefault) it is earlier-failed"
+    },
+    "begun": {
+      "carries": {
+        "id": "id"
+      },
+      "x-summary": "a growing entry arrived: the other side writes it (§10.8)"
+    },
+    "chunk": {
+      "carries": {
+        "id": "id",
+        "revision": {
+          "type": "string",
+          "optional": true
+        }
+      },
+      "x-summary": "a growing entry changed and was drawn again, in place"
+    },
+    "completed": {
+      "carries": {
+        "id": "id"
+      },
+      "x-summary": "the entry stopped growing whole"
+    },
+    "failed": {
+      "carries": {
+        "id": "id",
+        "reason": "string",
+        "message": "string"
+      },
+      "x-summary": "the entry stopped growing with an error (its error {reason, message}, or status failed)"
+    },
+    "cancelled": {
+      "carries": {
+        "id": "id"
+      },
+      "x-summary": "the stream was stopped: cancel {id}, the entry wait stopped, the entry taken off, or the conversation replaced"
+    }
+  },
+  "actions": {
+    "set-messages": {
+      "with": {
+        "messages": "list",
+        "options": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "replace the conversation and show its end; nothing it holds is announced (the conversation and has-more change together, §7.2)"
+    },
+    "prepend-messages": {
+      "with": {
+        "messages": "list",
+        "options": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "earlier history above, without moving what is read; ends the earlier request"
+    },
+    "upsert": {
+      "with": {
+        "message": "object",
+        "view": {
+          "type": "object",
+          "optional": true
+        },
+        "options": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "add at the end or redraw in place; options.replaces keeps the place of a local key; refused cancelled for a cancelled stream until its end"
+    },
+    "set-view": {
+      "with": {
+        "id": "id",
+        "view": "object"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ]
+    },
+    "detach": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "take one message off; a stream it was ends cancelled"
+    },
+    "cancel": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "vocabulary §5.2 cancel {id}: stop drawing a growing entry now -- its growth and its end -- its busy mark goes, the stream ends cancelled; telling the other side to stop is the host's"
+    },
+    "redraw": {
+      "with": {
+        "id": {
+          "type": "id",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ]
+    },
+    "request-earlier": {
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ]
+    },
+    "earlier-failed": {
+      "x-outcomes": [
+        "applied"
+      ]
+    },
+    "scroll-to-latest": {
+      "with": {
+        "options": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ]
+    },
+    "announce": {
+      "with": {
+        "text": "string"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ]
+    }
+  },
+  "slots": {
+    "empty": {}
+  },
+  "keyboard": {
+    "host": {
+      "Tab": "reach"
+    },
+    "row": {
+      "ArrowUp": "focus:prev",
+      "ArrowDown": "focus:next",
+      "Home": "focus:first",
+      "End": "focus:last"
+    }
+  },
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16). The frame only: the items are the column the component keeps."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "region",
+    "name": {
+      "from": [
+        "label",
+        "runtime.region-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "ArrowUp": "focus:prev",
+      "ArrowDown": "focus:next",
+      "Home": "focus:first",
+      "End": "focus:last"
+    },
+    "x-keys": "the region is one Tab stop and scrolls with the usual keys; from a focused message the arrows go to the neighbour, Home and End to the first and last loaded; ArrowUp on the first asks load-more. Keys on a message's own controls stay theirs"
+  },
+  "host-states": {},
+  "css-variables": {
+    "--sf-message-log-column-width": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-message-log-inset": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-message-log-run-gap": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-message-log-turn-gap": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-message-log-fade-size": {
+      "type": "length",
+      "state": "default"
+    }
+  },
+  "x-summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "message-log",
+    "manifest": "simai/ui-pro@9cbe061 components/src/smart/message-log/smart.manifest.json",
+    "converted": "control/smart-architecture/stands/17-ports-migration/out/message-log.component.json"
+  },
+  "x-words": [
+    "label"
+  ],
+  "x-renamed": [
+    "events.sf-message-log-load-earlier → load-more {direction: before, before} (vocabulary §5 load-more); the old name a dated detail-adds alias, one cancel for both",
+    "actions.remove → detach: remove is Element.prototype.remove (§3.1, §16 item 26); remove(id) is still read and noted, remove() is the browser's",
+    "entry fields: author_name → author-name, pending → growing (§18.1, vocabulary §2.2); the old spellings are read until 2026-12-01 and noted",
+    "css: the five --sf-message-log--* hooks become public variables --sf-message-log-<name>; the old hooks stay the internal layer"
+  ],
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "message text and author names (drawn as text by the default renderer)",
+        "whatever the host renderer draws is the host renderer's to sanitise"
+      ],
+      "network_policy": "deny"
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "fetching or polling messages",
+        "interpreting who an author is",
+        "rendering untrusted markup",
+        "access decisions"
+      ]
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile",
+        "reduced-motion"
+      ],
+      "skeleton": {
+        "shape": "none",
+        "while_loading": "none"
+      }
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-message-log for any conversation the host feeds -- a person and an assistant, or people with each other -- when the reading position, history loading upwards and announcing new messages matter. Promoted from simai/ui-chat sf-chat-message-list (owner decision 2026-10-25).",
+      "do_not": [
+        "Do not fetch or poll from the element; the host owns the messages and every request leaves as an event",
+        "Do not pass markup as message text; draw it in renderMessage with your own sanitiser",
+        "Do not encode roles such as user and assistant into the log: authors are data (author, own)"
+      ],
+      "required_reads": [
+        "inputs",
+        "contracts",
+        "methods",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-message-log label=\"Переписка\"></sf-message-log>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-browser-probes.mjs <free output> <package output>"
+      ]
+    }
+  },
+  "x-decisions": [
+    "version: 1.0.0 → 1.1.0, a minor while the old names hold dated aliases (§4.10).",
+    "shape (§7): a leaf. The report reads it as a declared composite placing only drawing helpers (two sf-buttons of its frame); the messages are the host's renderer's nodes, not parts in roles. No key has two writers and no rule runs between parts: keys, roles and rules would add nothing (the smaller mechanism).",
+    "streams (§10.8, vocabulary §5.2): the entry key growing (1.0: pending) marks a message the other side still writes. The log sends begun {id} when one arrives, chunk {id, revision?} for each change it draws, and exactly one of completed, failed {id, reason, message} or cancelled {id} when it stops growing (wait stopped is cancelled, an error is failed). cancel {id} stops drawing the growth at once and ends the stream cancelled -- a host without the port's reply-cancel only stops waiting (vocabulary §5.2); the chat's stop {conversation, id?} stays the host's port call.",
+    "redraw in place (§18.4, migration item 31; stand 23 b found the focus dropped to body on every chunk at index.js:286-287, where the item node was replaced): the item element is kept for the life of the message, and while the focus or a selection is inside it the renderer's new drawing is laid over the old nodes (text written, attributes levelled, nodes of the same kind kept), so the focus and the selection stay. Otherwise the drawing is replaced: a host renderer's listeners are those of its latest drawing except while the person is inside the message.",
+    "entries (§18.4): messages is a list setting with entries {key: id, changes: content}; the setting changes chooses revision or content. content is the default because stand 23 b measured that a host keeping the revision while the body grows delivered 2 of 30 chunks under revision.",
+    "wait (vocabulary 1.1.5 §5.1): delayed | stopped | network | none; null is none. A view or an entry with wait stopped ends its stream cancelled.",
+    "load-earlier becomes the vocabulary's load-more {direction: before}, keeping before (the first message shown) and the cancel.",
+    "key-effects: the arrows, Home and End move between messages (focus:*), on the row element; Enter and Space are a message's own controls'.",
+    "a11y-name: label, else the runtime word region-label («Переписка»).",
+    "item-shape: messages names the fields the log reads with `of`; every other field is the renderer's.",
+    "actions answer outcomes (§4.4); set-messages and prepend-messages stay actions: the list and has-more change together and the reading position moves with them.",
+    "template: templates.default names the Lit template js/templates/default.js (the frame), the migration form §5.2 allows.",
+    "examples: examples.json from the conversations a host shows (people, an assistant's reply growing, empty); probe.json drives the arrows and Home/End, the earlier request and its old name, a stream begun/chunk/completed, cancel, and the focus through a chunk (gate 16, gate 20).",
+    "css-variables: the five hooks the sheet already had, as public variables in the Framework's form; --sf-message-log--* stay the internal layer.",
+    "side-effects: none."
+  ]
+}

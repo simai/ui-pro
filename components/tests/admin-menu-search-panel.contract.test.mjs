@@ -33,7 +33,7 @@ test('the submenu header takes the place of the logo, with the arrow in the icon
   const [markup, css] = await Promise.all([template(), styles()]);
 
 
-  assert.match(markup, /back: "Назад к меню"/u, 'the name says where the arrow goes');
+  assert.match(markup, /back: "menu-translations-back"/u, 'the name says where the arrow goes');
   // The height is measured, because the logo is the host's and its height is
   // whatever the host's image is. A fixed token would have made the two headers
   // equal only by luck.
@@ -88,7 +88,7 @@ test('the host answers one request, and only the last one is shown', async () =>
 
   assert.match(
     source,
-    /this\.dispatchEvent\(new CustomEvent\("sf-admin-menu-search", \{[\s\S]*?detail: Object\.freeze\(\{query, requestId\}\)/u,
+    /this\.sfEmit\("query", Object\.freeze\(\{kind: "menu", query, requestId\}\)\)/u,
   );
   assert.match(source, /\}, 250\);/u, 'after a pause, not on every keystroke');
   assert.match(

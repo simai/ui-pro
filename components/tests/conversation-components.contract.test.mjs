@@ -33,6 +33,15 @@ const code = (path) => read(path)
 const sources = (name) => ['index.js', 'js/templates/default.js', 'js/templates/default.css', 'rule.js']
   .map((file) => `src/smart/${name}/${file}`);
 
+// A component moved to standard simai.smart-component 1.3.8 holds its
+// contract in component.json (settings, events, actions, words in lang/,
+// dated aliases in aliases.json); the element is made from it by
+// core/js/element-manifest.js. The checks below read that form where it is.
+const migrated = (name) => existsSync(resolve(root, `src/smart/${name}/component.json`));
+const contract = (name) => json(`src/smart/${name}/component.json`);
+const own = (name) => [`src/smart/${name}/component.json`, `src/smart/${name}/aliases.json`,
+  `src/smart/${name}/lang/en.json`, `src/smart/${name}/lang/ru.json`];
+
 // The keys of `static get props()`, with the attribute each one answers to.
 const declaredProps = (source) => {
   const start = source.indexOf('static get props()');
@@ -99,6 +108,14 @@ test('the stylesheets read Framework tokens or their own public variables, nothi
   const declared = new Set([...core.matchAll(/(--sf-[a-z0-9\\/-]+)\s*:/gu)].map(([, token]) => token.replace(/\\/gu, '')));
   for (const name of Object.keys(COMPONENTS)) {
     const css = read(`src/smart/${name}/js/templates/default.css`);
+    // 1.3.8 (§6): the public variables are component.json's css-variables, in
+    // the Framework's form --sf-<component>-<name>: read, never set.
+    const publicVariables = migrated(name) ? Object.keys(contract(name)['css-variables']) : [];
+    for (const variable of publicVariables) {
+      assert.match(variable, new RegExp(`^--sf-${name}-[a-z]+(-[a-z]+)*$`, 'u'), `${name}: public variable ${variable}`);
+      assert.match(css, new RegExp(`var\\(\\s*${variable}\\b`, 'u'), `${name}: the sheet reads ${variable}`);
+      assert.doesNotMatch(css, new RegExp(`${variable}\\s*:`, 'u'), `${name}: the sheet sets ${variable}`);
+    }
     const own = new Set([...css.matchAll(/(--sf-[a-z0-9\\/-]+)\s*:/gu)].map(([, token]) => token.replace(/\\/gu, '')));
     for (const own_token of own) {
       // A sheet declares only its own public hooks, --sf-<component>--<part>,
@@ -109,7 +126,7 @@ test('the stylesheets read Framework tokens or their own public variables, nothi
     }
     for (const [, token] of css.matchAll(/var\(\s*(--sf-[a-z0-9\\/-]+)/gu)) {
       const plain = token.replace(/\\/gu, '');
-      if (own.has(plain)) continue;
+      if (own.has(plain) || publicVariables.includes(plain)) continue;
       // A Smart button's own hook is set on it, not read: the one the log sets
       // is the icon button's public background.
       if (plain === '--sf-icon-button-background-color') continue;
@@ -117,7 +134,8 @@ test('the stylesheets read Framework tokens or their own public variables, nothi
     }
     // Five to ten public variables a component offers (owner, 2026-10-13).
     own.delete('--sf-icon-button-background-color');
-    assert.ok(own.size >= 5 && own.size <= 10, `${name}: ${own.size} public CSS variables`);
+    const offered = migrated(name) ? publicVariables.length : own.size;
+    assert.ok(offered >= 5 && offered <= 10, `${name}: ${offered} public CSS variables`);
   }
 });
 
@@ -131,6 +149,11 @@ test('the rule, the manifest and the folder name one component', () => {
     assert.match(rule, /css: true/u, `${name}: the template's sheet ships`);
     assert.equal(manifest.id, id);
     assert.equal(manifest.custom_element, element);
+    if (migrated(name)) {
+      assert.equal(contract(name).id, id);
+      assert.equal(contract(name).tag, element);
+      assert.equal(contract(name).version, manifest.version, `${name}: the two manifests carry one version`);
+    }
     assert.match(read(`src/smart/${name}/index.js`), new RegExp(`\\.define\\("${element}"\\)`, 'u'));
     // What the rule fetches is what the manifest says the component is built
     // from: a Smart relation cl-x is the registry's smart.x.
@@ -142,7 +165,7 @@ test('the rule, the manifest and the folder name one component', () => {
 });
 
 test('every declared attribute is in the manifest with the same default and values, and in the docs', () => {
-  for (const name of Object.keys(COMPONENTS)) {
+  for (const name of Object.keys(COMPONENTS).filter((one) => !migrated(one))) {
     const source = read(`src/smart/${name}/index.js`);
     const inputs = json(`src/smart/${name}/smart.manifest.json`).inputs.properties;
     const docs = read(`src/smart/${name}/docs.md`);
@@ -159,8 +182,43 @@ test('every declared attribute is in the manifest with the same default and valu
   }
 });
 
+test('a 1.3.8 component: every setting is in the docs, the element is made from component.json', () => {
+  for (const name of Object.keys(COMPONENTS).filter(migrated)) {
+    const source = read(`src/smart/${name}/index.js`);
+    const docs = read(`src/smart/${name}/docs.md`);
+    assert.match(source, /elementFromManifest\(manifest, \{/u, `${name}: elementFromManifest`);
+    assert.match(source, /import manifest from "\.\/component\.json"/u, `${name}: the manifest is imported`);
+    assert.match(source, /import aliases from "\.\/aliases\.json"/u, `${name}: the aliases are imported`);
+    for (const setting of Object.keys(contract(name).settings)) assert.match(docs, new RegExp(`\`${setting}\``, 'u'), `${name}: ${setting} is not in docs.md`);
+    // No module counter makes an id (§7.1.1, simai/ui-source#41).
+    assert.doesNotMatch(code(`src/smart/${name}/index.js`), /let \w+Ids? = 0/u, `${name}: a counter id`);
+  }
+});
+
+test('a 1.3.8 component sends only the events it declares, by verb; the docs name the new and the old names', () => {
+  for (const name of Object.keys(COMPONENTS).filter(migrated)) {
+    const source = code(`src/smart/${name}/index.js`);
+    const manifest = contract(name);
+    const docs = read(`src/smart/${name}/docs.md`);
+    const sent = [...new Set([...source.matchAll(/sfEmit\(\s*"([a-z-]+)"/gu)].map(([, verb]) => verb))].sort();
+    assert.deepEqual(sent, Object.keys(manifest.events).sort(), `${name}: sent and declared events`);
+    assert.doesNotMatch(source, /new CustomEvent\(\s*[`"']sf-/u, `${name}: an event made by hand`);
+    for (const verb of sent) assert.match(docs, new RegExp(`\`${manifest.tag}-${verb}\``, 'u'), `${name}: ${manifest.tag}-${verb} is not in docs.md`);
+    const aliases = json(`src/smart/${name}/aliases.json`).aliases;
+    for (const row of aliases.filter((one) => one.kind === 'event' && one.to)) {
+      assert.match(docs, new RegExp(`\`${row.from}\``, 'u'), `${name}: the old name ${row.from} is not in docs.md`);
+      assert.equal(row.since, '2026-10-27');
+      assert.equal(row.remove_after, '2026-12-01');
+    }
+    // An own verb has its word in every language (§8, §11).
+    for (const [verb, event] of Object.entries(manifest.events).filter(([, one]) => one['own-verb'])) {
+      for (const language of ['en', 'ru']) assert.ok(json(`src/smart/${name}/lang/${language}.json`).events?.[verb]?.label, `${name}: lang/${language} events.${verb}.label`);
+    }
+  }
+});
+
 test('every event the source dispatches is in the manifest and the docs, and nothing else is', () => {
-  for (const name of Object.keys(COMPONENTS)) {
+  for (const name of Object.keys(COMPONENTS).filter((one) => !migrated(one))) {
     const source = read(`src/smart/${name}/index.js`);
     const manifest = json(`src/smart/${name}/smart.manifest.json`);
     const docs = read(`src/smart/${name}/docs.md`);
@@ -175,7 +233,16 @@ test('every event the source dispatches is in the manifest and the docs, and not
 });
 
 test('every word is offered in English and Russian, and the docs name every key', () => {
-  for (const [name, {dictionary: constant}] of Object.entries(COMPONENTS)) {
+  for (const name of Object.keys(COMPONENTS).filter(migrated)) {
+    const words = (language) => Object.keys(json(`src/smart/${name}/lang/${language}.json`).runtime);
+    assert.ok(words('en').length >= 5, `${name}: the words are found`);
+    assert.deepEqual(words('ru').sort(), words('en').sort(), `${name}: the same keys in both languages`);
+    const source = code(`src/smart/${name}/index.js`);
+    assert.doesNotMatch(source, /\|\| ['"]ru['"]\)|documentElement\.lang|pageText\(/u, `${name}: its own language rule`);
+    const docs = read(`src/smart/${name}/docs.md`);
+    for (const key of words('en')) assert.match(docs, new RegExp(`\`${key}\``, 'u'), `${name}: the word ${key} is not in docs.md`);
+  }
+  for (const [name, {dictionary: constant}] of Object.entries(COMPONENTS).filter(([one]) => !migrated(one))) {
     const source = read(`src/smart/${name}/index.js`);
     const {en, ru} = dictionary(source, constant);
     assert.ok(en.size >= 5, `${name}: the dictionary is found`);
@@ -196,7 +263,8 @@ test('the manifests hash the files they name, and name their own folder', () => 
   for (const name of Object.keys(COMPONENTS)) {
     const manifest = json(`src/smart/${name}/smart.manifest.json`);
     const paths = manifest.provenance.source_artifacts.map((artifact) => artifact.path).sort();
-    assert.deepEqual(paths, [...sources(name), `src/smart/${name}/docs.md`].sort(), `${name}: provenance`);
+    const named = [...sources(name), `src/smart/${name}/docs.md`, ...(migrated(name) ? own(name) : [])];
+    assert.deepEqual(paths, named.sort(), `${name}: provenance`);
     assert.equal(manifest.provenance.source_repository, 'simai/ui-pro');
   }
 });
@@ -216,7 +284,8 @@ test('the message log draws a message through the host, as text when the host do
 
 test('the change confirmation applies nothing and keeps the question open when the host refuses the answer', () => {
   const source = read('src/smart/change-confirm/index.js');
-  assert.match(source, /cancelable: true, detail: \{id: this\.changeId\}/u);
+  assert.equal(contract('change-confirm').events.answer.cancelable, true);
+  assert.match(source, /const delivered = this\.sfEmit\("answer", \{id: this\.changeId, accepted\}\);/u);
   assert.match(source, /if \(!delivered\) \{\s*this\._pressed = null;\s*this\.setAttribute\("state", "open"\);/u);
   // Both answers weigh the same.
   const template = read('src/smart/change-confirm/js/templates/default.js');

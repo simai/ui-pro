@@ -1,0 +1,410 @@
+{
+  "$comment": "The source of sf-thread-list's element plumbing (core/js/element-manifest.js). Taken from simai/ui-control control/smart-architecture/migration/out/thread-list (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); standard simai.smart-component 1.3.8, vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
+  "id": "smart.thread-list",
+  "tag": "sf-thread-list",
+  "version": "1.1.0",
+  "kind": "leaf",
+  "family": "list",
+  "settings": {
+    "threads": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "id": "id",
+        "title": {
+          "type": "string",
+          "optional": true
+        },
+        "updated-at": {
+          "type": "date",
+          "optional": true
+        },
+        "caption": {
+          "type": "string",
+          "optional": true
+        },
+        "unread": {
+          "type": "number",
+          "integer": true,
+          "min": 0,
+          "optional": true
+        },
+        "avatar": {
+          "type": "object",
+          "optional": true
+        },
+        "archived": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "entries": {
+        "key": "id",
+        "changes": "content"
+      },
+      "x-markup": "a property (a host has objects); newest first by updated-at; avatar is {image-url, text}; title, caption and avatar text are text, never markup. updated_at and avatar.image_url, the 1.0 spellings, are read until 2026-12-01 and noted"
+    },
+    "has-more": {
+      "type": "boolean",
+      "default": false
+    },
+    "archived": {
+      "type": "boolean",
+      "default": false
+    },
+    "no-create": {
+      "type": "boolean",
+      "default": false
+    },
+    "no-manage": {
+      "type": "boolean",
+      "default": false
+    },
+    "no-archive": {
+      "type": "boolean",
+      "default": false
+    },
+    "group-by": {
+      "type": "enum",
+      "values": [
+        "day",
+        "none"
+      ],
+      "default": "day"
+    },
+    "label": {
+      "type": "string",
+      "default-from": "runtime.label"
+    },
+    "loading": {
+      "type": "boolean",
+      "default": false,
+      "x-summary": "while the first page loads: the shape of the list instead of words (was setLoading)"
+    },
+    "status": {
+      "type": "string",
+      "default": "",
+      "x-summary": "a sentence in place of the list, an error the host could not recover from; empty clears it (was setStatus)"
+    },
+    "actions": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "id": "id",
+        "text": "string",
+        "icon": {
+          "type": "icon",
+          "optional": true
+        }
+      },
+      "x-summary": "the host's own row actions after «Rename» and «Archive»; chosen, one leaves as apply {action, scope: entry, ids}"
+    }
+  },
+  "values": {
+    "selected": {
+      "type": "id",
+      "default": "",
+      "controlled": true,
+      "summary": "the open conversation; a press asks for it with open {id} and the host writes it back"
+    }
+  },
+  "events": {
+    "create": {
+      "carries": {}
+    },
+    "open": {
+      "carries": {
+        "id": "id"
+      }
+    },
+    "rename": {
+      "carries": {
+        "id": "id",
+        "title": "string"
+      }
+    },
+    "archive": {
+      "carries": {
+        "ids": "list",
+        "id": "id"
+      }
+    },
+    "restore": {
+      "carries": {
+        "ids": "list",
+        "id": "id"
+      }
+    },
+    "apply": {
+      "carries": {
+        "action": "string",
+        "scope": {
+          "type": "enum",
+          "values": [
+            "entry"
+          ]
+        },
+        "ids": "list",
+        "id": "id"
+      }
+    },
+    "load-more": {
+      "carries": {
+        "direction": {
+          "type": "enum",
+          "values": [
+            "after"
+          ]
+        }
+      }
+    },
+    "toggle": {
+      "carries": {
+        "archived": "boolean"
+      }
+    }
+  },
+  "actions": {
+    "set-threads": {
+      "with": {
+        "threads": "list",
+        "has-more": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "the whole list and whether more follows, together (§7.2 values that go together); ends a page request"
+    },
+    "append-threads": {
+      "with": {
+        "threads": "list",
+        "has-more": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "the next page; ids already shown are kept where they are"
+    },
+    "upsert": {
+      "with": {
+        "thread": "object"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "a new or changed conversation moves where its date puts it"
+    },
+    "remove-thread": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ]
+    },
+    "more-failed": {
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "the next page could not be loaded: reaching the end asks again"
+    },
+    "rename": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "opens the rename field in place (F2)"
+    },
+    "open-menu": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "opens the row's actions (Shift+F10, the menu key, the «⋯» button)"
+    }
+  },
+  "slots": {
+    "footer": {}
+  },
+  "selection": "one",
+  "keyboard": {
+    "host": {
+      "Tab": "reach"
+    },
+    "row": {
+      "ArrowUp": "focus:prev",
+      "ArrowDown": "focus:next",
+      "Home": "focus:first",
+      "End": "focus:last",
+      "Enter": "open",
+      "Space": "open",
+      "F2": "rename",
+      "Shift+F10": "open-menu",
+      "ContextMenu": "open-menu"
+    }
+  },
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "navigation",
+    "name": {
+      "from": [
+        "label",
+        "runtime.label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "ArrowUp": "focus:prev",
+      "ArrowDown": "focus:next",
+      "Home": "focus:first",
+      "End": "focus:last",
+      "Enter": "select",
+      "Space": "select",
+      "F2": "open",
+      "Shift+F10": "open",
+      "ContextMenu": "open"
+    },
+    "x-keys": "Enter and Space open the row (a native button); F2 opens the rename field, where Enter commits and Escape reverts; Shift+F10 and the menu key open the row's actions; one Tab stop for the list"
+  },
+  "host-states": {},
+  "css-variables": {
+    "--sf-thread-list-inset": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-thread-list-row-height": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-thread-list-radius": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-thread-list-hover-background-color": {
+      "type": "color",
+      "state": "hover"
+    },
+    "--sf-thread-list-current-background-color": {
+      "type": "color",
+      "state": "current"
+    }
+  },
+  "x-summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "thread-list",
+    "manifest": "simai/ui-pro@9cbe061 components/src/smart/thread-list/smart.manifest.json",
+    "converted": "control/smart-architecture/stands/17-ports-migration/out/thread-list.component.json"
+  },
+  "x-words": [
+    "label"
+  ],
+  "x-renamed": [
+    "events.sf-thread-list-select → open {id} (vocabulary §5 open); the old name a dated same-detail alias",
+    "events.sf-thread-list-unarchive → restore {ids, id} (vocabulary §5 restore); the old name a dated detail-adds alias",
+    "events.sf-thread-list-action → apply {action, scope: entry, ids, id} (vocabulary §5 apply, standard §18.3: one row's own action); the old name a dated detail-adds alias",
+    "events.sf-thread-list-view → toggle {archived}; the old name a dated same-detail alias",
+    "events archive and load-more keep their DOM names; their details gain the vocabulary's ids and direction (the old fields stay)",
+    "settings: loading and status replace setLoading() and setStatus(), which are read until 2026-12-01 and noted",
+    "entry fields: updated_at → updated-at, avatar.image_url → avatar.image-url (§18.1 kebab-case); the old spellings are read until 2026-12-01 and noted"
+  ],
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "titles and captions (drawn as text)",
+        "avatar image URLs (passed to sf-avatar)"
+      ],
+      "network_policy": "deny"
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "fetching conversations",
+        "deciding which conversation is open",
+        "access decisions"
+      ]
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile",
+        "hover-none"
+      ],
+      "skeleton": {
+        "shape": "rows",
+        "while_loading": "template"
+      }
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-thread-list for a list of conversations -- an assistant's or people's chats -- the host feeds through setThreads and upsert. Promoted from simai/ui-chat sf-chat-thread-list (owner decision 2026-10-25).",
+      "do_not": [
+        "Do not fetch from the element; the host answers sf-thread-list-load-more",
+        "Do not expect the list to move selected on a click; set it when the conversation is open",
+        "Do not put markup in titles or captions; they are text"
+      ],
+      "required_reads": [
+        "inputs",
+        "contracts",
+        "methods",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-thread-list selected=\"t1\"></sf-thread-list>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-browser-probes.mjs <free output> <package output>"
+      ]
+    }
+  },
+  "x-decisions": [
+    "version: 1.0.0 → 1.1.0, a minor while the old names hold dated aliases (§4.10).",
+    "shape (§7): a leaf. The report counts sf-avatar and sf-context-menu as placed parts; both are its own drawing -- the avatar shows a row's picture, the one context menu is the rows' shared surface, filled and opened by the list itself. No rule runs between them and no key would be bound by two writers, so keys, roles and rules would restate what the template already does (the smaller mechanism).",
+    "events (vocabulary 1.1.5 §5): create, open {id}, rename {id, title}, archive {ids}, restore {ids}, apply {action, scope: entry, ids} (§18.3: a row's own action), load-more {direction: after}, toggle {archived}. Each detail keeps the 1.0 field id beside ids, so the renamed names follow in detail-adds mode and the kept names lose nothing.",
+    "own-verb-words: none left -- action became the vocabulary's apply.",
+    "setter (§4.4): setLoading and setStatus become the settings loading and status; the methods stay until 2026-12-01 and note each call. set-threads stays an action: the list and has-more change together and a page request ends with them (§7.2 values that go together); the setting threads is the same list for a binding.",
+    "threads (§18.4): a list setting with entries {key: id, changes: content}; the rows are keyed by id, so a changed conversation redraws its own row in place and keeps the focus.",
+    "selected is a controlled value (§4.3): a press asks open {id}; the host writes selected back.",
+    "key-effects: arrows, Home and End move between rows (focus:*), Enter and Space open (select, a native button), F2 opens the rename field and Shift+F10 / the menu key the row's actions (open), as the keyboard map (row) names the actions rename and open-menu.",
+    "a11y-name: label, else the runtime word label («Разговоры»), or archive-view while the archive is shown.",
+    "item-shape: threads and actions name their fields with `of`; entry fields are kebab-case (§18.1), the 1.0 snake spellings read until the aliases' day.",
+    "template: templates.default names the Lit template js/templates/default.js, the migration form §5.2 allows.",
+    "skeleton (§5.4): the loading shape is the template's own, drawn while `loading`; a skeleton.html for server markup waits for the static markup build (§5.4), a leftover of this migration.",
+    "examples: examples.json from the conversations a host shows (grouped, ungrouped, the archive, loading, empty); probe.json drives the arrows, Enter, F2, Escape and Shift+F10 and the old names (gate 16, gate 20).",
+    "css-variables: the five hooks the sheet already had, as public variables in the Framework's form, the hover and current rows each with its own (§6 a variable per state); the 1.0 --sf-thread-list--* hooks stay the internal layer.",
+    "side-effects: none. The context menu draws as sf-context-menu does (its own layer)."
+  ]
+}

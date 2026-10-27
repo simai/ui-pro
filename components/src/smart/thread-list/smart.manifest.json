@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.thread-list",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "title": "Thread list",
   "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "kind": "composite",
@@ -84,6 +84,16 @@
         "type": "string",
         "default": "",
         "description": "The navigation's accessible name; empty is Conversations, or Archive, in the page's language."
+      },
+      "loading": {
+        "type": "boolean",
+        "default": false,
+        "description": "The shape of the list while the first page loads."
+      },
+      "status": {
+        "type": "string",
+        "default": "",
+        "description": "A sentence in place of the list (an error); empty clears it."
       }
     }
   },
@@ -175,19 +185,19 @@
     "css_variables": {
       "type": "object",
       "properties": {
-        "--sf-thread-list--inset": {
+        "--sf-thread-list-inset": {
           "type": "string"
         },
-        "--sf-thread-list--row-height": {
+        "--sf-thread-list-row-height": {
           "type": "string"
         },
-        "--sf-thread-list--radius": {
+        "--sf-thread-list-radius": {
           "type": "string"
         },
-        "--sf-thread-list--hover": {
+        "--sf-thread-list-hover-background-color": {
           "type": "string"
         },
-        "--sf-thread-list--current": {
+        "--sf-thread-list-current-background-color": {
           "type": "string"
         }
       }
@@ -413,7 +423,7 @@
       }
     },
     "setLoading": {
-      "summary": "While the first page loads: the shape of the list, and the list busy.",
+      "summary": "While the first page loads: the shape of the list, and the list busy. Deprecated: the setting loading (until 2026-12-01).",
       "arguments": [
         {
           "name": "loading",
@@ -428,7 +438,7 @@
       }
     },
     "setStatus": {
-      "summary": "A sentence in place of the list (an error); empty clears it.",
+      "summary": "A sentence in place of the list (an error); empty clears it. Deprecated: the setting status (until 2026-12-01).",
       "arguments": [
         {
           "name": "message",
@@ -499,8 +509,8 @@
         "additionalProperties": false
       }
     },
-    "sf-thread-list-select": {
-      "summary": "A conversation was opened. The list does not move selected itself; the host sets it.",
+    "sf-thread-list-open": {
+      "summary": "A conversation is asked for (vocabulary open); the host writes selected back. The 1.0 name sf-thread-list-select follows until 2026-12-01.",
       "payload": {
         "type": "object",
         "properties": {
@@ -534,12 +544,18 @@
       }
     },
     "sf-thread-list-archive": {
-      "summary": "Archive was chosen for a conversation.",
+      "summary": "Archive {ids, id} (vocabulary archive; id stays for 1.0 listeners).",
       "payload": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -547,13 +563,19 @@
         ]
       }
     },
-    "sf-thread-list-unarchive": {
-      "summary": "Restore was chosen for an archived conversation.",
+    "sf-thread-list-restore": {
+      "summary": "Restore {ids, id} (vocabulary restore). The 1.0 name sf-thread-list-unarchive follows until 2026-12-01.",
       "payload": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -561,8 +583,8 @@
         ]
       }
     },
-    "sf-thread-list-action": {
-      "summary": "One of the host's own row actions was chosen.",
+    "sf-thread-list-apply": {
+      "summary": "One of the host's row actions: {action, scope: entry, ids, id} (vocabulary apply). The 1.0 name sf-thread-list-action follows until 2026-12-01.",
       "payload": {
         "type": "object",
         "properties": {
@@ -571,6 +593,15 @@
           },
           "action": {
             "type": "string"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scope": {
+            "const": "entry"
           }
         },
         "required": [
@@ -580,15 +611,19 @@
       }
     },
     "sf-thread-list-load-more": {
-      "summary": "The end of the list came into view while has-more: the next page is wanted. moreFailed() lets it ask again.",
+      "summary": "The end came into view while has-more: {direction: after}.",
       "payload": {
         "type": "object",
-        "properties": {},
+        "properties": {
+          "direction": {
+            "const": "after"
+          }
+        },
         "additionalProperties": false
       }
     },
-    "sf-thread-list-view": {
-      "summary": "The archive, or the way back from it, was pressed.",
+    "sf-thread-list-toggle": {
+      "summary": "The archive, or the way back. The 1.0 name sf-thread-list-view follows until 2026-12-01.",
       "payload": {
         "type": "object",
         "properties": {
@@ -693,9 +728,7 @@
     "module": null
   },
   "artifacts": {
-    "fixtures": [
-      "studio.fixture.json"
-    ],
+    "fixtures": [],
     "scenarios": []
   },
   "readiness": {
@@ -719,7 +752,19 @@
     "aliases": [],
     "deprecations": [],
     "replacement": null,
-    "migrations": []
+    "migrations": [
+      {
+        "from": "1.0.0",
+        "to": "1.1.0",
+        "changes": [
+          "standard simai.smart-component 1.3.8: the element is made from component.json; dated aliases in aliases.json",
+          "sf-thread-list-select -> sf-thread-list-open until 2026-12-01 (event)",
+          "sf-thread-list-unarchive -> sf-thread-list-restore until 2026-12-01 (event)",
+          "sf-thread-list-action -> sf-thread-list-apply until 2026-12-01 (event)",
+          "sf-thread-list-view -> sf-thread-list-toggle until 2026-12-01 (event)"
+        ]
+      }
+    ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
@@ -727,15 +772,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/thread-list/index.js",
-        "sha256": "83d158bb8be8a2df6416dc273ecdd02581e09e1480c2c947db6a9547afa74880"
+        "sha256": "beaa6938cb5d2add0a3005a3d4a5d580e1503e5d6407e5879090afd9d59244c6"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.js",
-        "sha256": "f071ed1a022c14fd2de6d40c46d0bbeb0f06f655ffe8c544277a272481d40548"
+        "sha256": "682dce62ec5f7f5e77f03b019234aaea39d7018361a28871f1a1eeac6768777b"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.css",
-        "sha256": "726ac665a4343baddc3f914564ab0b0098d690a1a4d633bb77a9f34af59eae29"
+        "sha256": "80fbc3c1e87e06286580128455d6b9b252e5ba2d4da65512758c7445a1e091d5"
       },
       {
         "path": "src/smart/thread-list/rule.js",
@@ -743,7 +788,23 @@
       },
       {
         "path": "src/smart/thread-list/docs.md",
-        "sha256": "e6fd36cb57c9fcda9bde7f344b2a48f69128397750a15d3f2dce809e87326e49"
+        "sha256": "7ee8d15668b3d90a5292467fe8b2a162f4dc53aacabb900cf3bfd79353f54f5f"
+      },
+      {
+        "path": "src/smart/thread-list/component.json",
+        "sha256": "11d6c478f059bf3c3903ad17660b398c6a430047d2f1c55219e35b2ebbe6d009"
+      },
+      {
+        "path": "src/smart/thread-list/aliases.json",
+        "sha256": "16a825edb297c6eaef64032a286a6ce74a3ea29ae8b0818313bfb977316e92d1"
+      },
+      {
+        "path": "src/smart/thread-list/lang/en.json",
+        "sha256": "0df8ae541851159b899f92cf64bd204829d3b1c5b4789a79509f60d57dc760bc"
+      },
+      {
+        "path": "src/smart/thread-list/lang/ru.json",
+        "sha256": "1ca6b2d8b77f7b94c16d16902fde638e414667df0b3bbfab48fdbc77a74c319a"
       }
     ],
     "generated_runtime": []

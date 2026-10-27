@@ -1,20 +1,23 @@
 @layer sf.components {
   /* sf-change-confirm. The host is display: contents; .sf-change-confirm is
-     the card the page places. Every value is a Framework token; the public
-     adaptation points are the --sf-change-confirm--* variables:
-       --sf-change-confirm--radius       the card's corner
-       --sf-change-confirm--inset        its padding
-       --sf-change-confirm--gap          between its rows
-       --sf-change-confirm--before-fill  the old value's ground
-       --sf-change-confirm--after-fill   the new value's ground
-       --sf-change-confirm--after-ink    the new value's text */
+     the card the page places. Every value is a Framework token. The public
+     variables (component.json css-variables) are read here and never set, on
+     the card or any ancestor (public-variables.v1 rule):
+       --sf-change-confirm-radius                   the card's corner
+       --sf-change-confirm-inset                    its padding
+       --sf-change-confirm-gap                      between its rows
+       --sf-change-confirm-before-background-color  the old value's ground
+       --sf-change-confirm-after-background-color   the new value's ground
+       --sf-change-confirm-after-color              the new value's text
+     The --sf-change-confirm--* hooks of 1.0 stay the internal layer they
+     feed, so a page that set one on the card still wins. */
   .sf-change-confirm {
-    --sf-change-confirm--radius: var(--sf-radius-2);
-    --sf-change-confirm--inset: var(--sf-space-1\/2) var(--sf-space-1);
-    --sf-change-confirm--gap: var(--sf-space-1\/2);
-    --sf-change-confirm--before-fill: var(--sf-surface-container);
-    --sf-change-confirm--after-fill: var(--sf-primary-container);
-    --sf-change-confirm--after-ink: var(--sf-on-primary-container);
+    --sf-change-confirm--radius: var(--sf-change-confirm-radius, var(--sf-radius-2));
+    --sf-change-confirm--inset: var(--sf-change-confirm-inset, var(--sf-space-1\/2) var(--sf-space-1));
+    --sf-change-confirm--gap: var(--sf-change-confirm-gap, var(--sf-space-1\/2));
+    --sf-change-confirm--before-fill: var(--sf-change-confirm-before-background-color, var(--sf-surface-container));
+    --sf-change-confirm--after-fill: var(--sf-change-confirm-after-background-color, var(--sf-primary-container));
+    --sf-change-confirm--after-ink: var(--sf-change-confirm-after-color, var(--sf-on-primary-container));
 
     display: flex;
     flex-direction: column;

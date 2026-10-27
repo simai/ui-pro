@@ -1,0 +1,46 @@
+{
+  "$comment": "Dated aliases of sf-change-confirm for the shim (core/js/aliases.js, standard §16 item 20). The two answers fold into sf-change-confirm-answer: each old name is sent only for its `when`, with the new detail (detail-adds: the old {id} is inside {id, accepted}), and the cancel is shared.",
+  "component": "sf-change-confirm",
+  "since": "2026-10-27",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "sf-change-confirm-accept",
+      "to": "sf-change-confirm-answer",
+      "kind": "event",
+      "component": "sf-change-confirm",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "when": {"accepted": true},
+      "cancelable": true,
+      "section": "§8, vocabulary §5 answer, §9",
+      "note": "{id} becomes {id, accepted}; sent only when accepted is true"
+    },
+    {
+      "from": "sf-change-confirm-decline",
+      "to": "sf-change-confirm-answer",
+      "kind": "event",
+      "component": "sf-change-confirm",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "when": {"accepted": false},
+      "cancelable": true,
+      "section": "§8, vocabulary §5 answer, §9",
+      "note": "{id} becomes {id, accepted}; sent only when accepted is false"
+    },
+    {
+      "from": "sf-change-confirm-expire",
+      "to": "sf-change-confirm-expired",
+      "kind": "event",
+      "component": "sf-change-confirm",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, vocabulary §5.1",
+      "note": "a fact takes the past form; {id} is unchanged"
+    }
+  ]
+}

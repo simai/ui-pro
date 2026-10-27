@@ -1,0 +1,22 @@
+{
+  "title": "Thread list",
+  "runtime": {
+    "actions-label": "Actions for “{title}”",
+    "archive-empty-text": "The archive is empty",
+    "archive-text": "Archive",
+    "archive-view": "Archive",
+    "back-text": "Back to conversations",
+    "create-text": "New conversation",
+    "earlier": "Earlier",
+    "empty-text": "No conversations yet",
+    "label": "Conversations",
+    "loading-text": "Loading conversations",
+    "rename-label": "New name",
+    "rename-text": "Rename",
+    "today": "Today",
+    "unarchive-text": "Restore from archive",
+    "unread-label": "{count} unread",
+    "untitled-text": "Untitled",
+    "yesterday": "Yesterday"
+  }
+}

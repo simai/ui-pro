@@ -51,12 +51,14 @@ try {
       const card = document.createElement('sf-change-confirm');
       card.id = 'card';
       for (const [name, value] of Object.entries(attributes)) card.setAttribute(name, value);
-      for (const name of ['accept', 'decline', 'expire']) {
-        card.addEventListener(`sf-change-confirm-${name}`, (event) => {
-          window.events.push({name, ...event.detail});
-          if (cancel === name) event.preventDefault();
-        });
-      }
+      // The 1.1 names (vocabulary answer {id, accepted}; the fact expired),
+      // read back as the person's two answers and the expiry.
+      card.addEventListener('sf-change-confirm-answer', (event) => {
+        const name = event.detail.accepted ? 'accept' : 'decline';
+        window.events.push({name, id: event.detail.id});
+        if (cancel === name) event.preventDefault();
+      });
+      card.addEventListener('sf-change-confirm-expired', (event) => window.events.push({name: 'expire', id: event.detail.id}));
       box.append(card);
       card.changes = changes ?? [
         {label: 'Название', before: 'Новости', after: 'События'},
@@ -115,8 +117,8 @@ try {
   await page.waitForTimeout(150);
   now = await read();
   if (now.state !== 'accepted' || now.actions || now.status !== 'Применено') note({case: 'the host\'s outcome is all there is', got: now});
-  const again = await page.evaluate(() => document.getElementById('card').answer('decline'));
-  if (again !== false) note({case: 'a settled card answers nothing more'});
+  const again = await page.evaluate(() => document.getElementById('card').answer({accepted: false}));
+  if (again?.outcome !== 'refused') note({case: 'a settled card answers nothing more'});
 
   // 3. A host that cancels keeps the question open.
   await make({attributes: {'change-id': 'c2'}, cancel: 'accept'});
@@ -159,8 +161,8 @@ try {
   now = await read();
   if (now.state !== 'expired' || now.actions || now.status !== 'Время подтверждения истекло'
       || JSON.stringify(now.events) !== JSON.stringify([{name: 'expire', id: 'c5'}])) note({case: 'past its time the answers go, said once', got: now});
-  const late = await page.evaluate(() => document.getElementById('card').answer('accept'));
-  if (late !== false) note({case: 'an expired offer cannot be confirmed'});
+  const late = await page.evaluate(() => document.getElementById('card').answer({accepted: true}));
+  if (late?.outcome !== 'refused') note({case: 'an expired offer cannot be confirmed'});
   // The host reopens with a new time: the question is back.
   const later = await page.evaluate(() => new Date(Date.now() + 60 * 60 * 1000).toISOString());
   await page.evaluate((value) => document.getElementById('card').setAttribute('expires-at', value), later);
@@ -172,7 +174,7 @@ try {
   await make({attributes: {'change-id': 'c6', disabled: ''}, changes: [{label: 'Адрес', before: 'https://example.test/'.repeat(1), after: 'https://example.test/очень-длинный-путь-без-пробелов-'.repeat(8)}]});
   const disabled = await page.evaluate(() => ({
     buttons: [...document.querySelectorAll('#card .sf-change-confirm__actions button')].map((node) => node.disabled),
-    answered: document.getElementById('card').answer('accept'),
+    answered: document.getElementById('card').answer({accepted: true}).outcome === 'applied',
     overflow: (() => { const card = document.querySelector('#card .sf-change-confirm'); return card.scrollWidth > card.clientWidth; })(),
   }));
   if (JSON.stringify(disabled) !== JSON.stringify({buttons: [true, true], answered: false, overflow: false})) note({case: 'disabled answers, and a long value wraps', got: disabled});

@@ -26,9 +26,21 @@
 // conversation», «Restore» instead of «Archive». Which list it holds is the
 // host's call. `no-create` takes «New conversation» away, `no-manage` a row's
 // actions and `no-archive` the archive: what a host does not offer is not shown.
+//
+// From its component.json (standard simai.smart-component 1.3.8 §3, §4, §8,
+// §11, §18): the settings are attributes and properties made by
+// core/js/element-manifest.js, its words are lang/<locale>.json, the actions
+// answer outcomes, and the events take the vocabulary's verbs (open, restore,
+// apply, toggle); the old names sf-thread-list-select, -unarchive, -action and
+// -view follow until 2026-12-01 (aliases.json).
 import SfBaseElement from "../../core/js/smart-base";
-import {pageText} from "../../core/js/page-language";
+import {elementFromManifest} from "../../core/js/element-manifest";
+import {noteDeprecated} from "../../core/js/deprecations";
 import {renderThreadListTemplate} from "./js/templates/default.js";
+import manifest from "./component.json";
+import aliases from "./aliases.json";
+import en from "./lang/en.json";
+import ru from "./lang/ru.json";
 
 const GROUPS = ["today", "yesterday", "earlier"];
 // A title longer than this is not a title; the field stops there, as the
@@ -37,77 +49,65 @@ const TITLE_LIMIT = 120;
 // The next page is asked for this far before the end of the list is in view.
 const MORE_MARGIN = "200px";
 
-// The Framework speaks English by default and the page's language otherwise. A
-// product that calls them «chats» rather than «conversations» says so once,
-// through SF.language.register('sf-thread-list', 'ru', {createText: 'Новый чат'}).
-const THREAD_LIST_TEXT = {
-    en: {
-        label: "Conversations",
-        createText: "New conversation",
-        today: "Today",
-        yesterday: "Yesterday",
-        earlier: "Earlier",
-        actionsLabel: "Actions for “{title}”",
-        renameText: "Rename",
-        renameLabel: "New name",
-        archiveText: "Archive",
-        unarchiveText: "Restore from archive",
-        archiveView: "Archive",
-        backText: "Back to conversations",
-        emptyText: "No conversations yet",
-        archiveEmptyText: "The archive is empty",
-        loadingText: "Loading conversations",
-        untitledText: "Untitled",
-        unreadLabel: "{count} unread",
-    },
-    ru: {
-        label: "Разговоры",
-        createText: "Новый разговор",
-        today: "Сегодня",
-        yesterday: "Вчера",
-        earlier: "Раньше",
-        actionsLabel: "Действия с «{title}»",
-        renameText: "Переименовать",
-        renameLabel: "Новое название",
-        archiveText: "В архив",
-        unarchiveText: "Вернуть из архива",
-        archiveView: "Архив",
-        backText: "К разговорам",
-        emptyText: "Разговоров пока нет",
-        archiveEmptyText: "В архиве пусто",
-        loadingText: "Загружаю разговоры",
-        untitledText: "Без названия",
-        unreadLabel: "Непрочитанных: {count}",
-    },
+const applied = () => ({outcome: "applied"});
+const refused = (reason) => ({outcome: "refused", reason});
+
+// The 1.0 forms a host still writes, read until the aliases' day and noted
+// (§16 item 20): a setter that became a setting, an entry field in snake case
+// that became kebab-case (§18.1).
+const legacy = (kind, from, to) => noteDeprecated({
+    component: "sf-thread-list", tag: "sf-thread-list", kind, from, to,
+    since: aliases.since, remove_after: aliases.remove_after,
+});
+
+// One conversation as the list holds it: id a string, the fields kebab-case.
+const normalThread = (thread) => {
+    const {updated_at: updatedAt, ...rest} = thread;
+    const out = {...rest, id: String(thread.id)};
+    if (out["updated-at"] === undefined && updatedAt !== undefined) {
+        legacy("entry-field", "updated_at", "updated-at");
+        out["updated-at"] = updatedAt;
+    }
+    if (thread.avatar && typeof thread.avatar === "object") {
+        const {image_url: imageUrl, ...avatar} = thread.avatar;
+        if (avatar["image-url"] === undefined && imageUrl !== undefined) {
+            legacy("entry-field", "avatar.image_url", "avatar.image-url");
+            avatar["image-url"] = imageUrl;
+        }
+        out.avatar = avatar;
+    }
+    return out;
 };
+
+// set-threads(list, {hasMore}) is the 1.0 call; set-threads({threads,
+// has-more}) the manifest's (§4.4: one object in declared order).
+const pageArguments = (first, second) => {
+    if (first && !Array.isArray(first) && typeof first === "object" && Array.isArray(first.threads)) {
+        return {threads: first.threads, hasMore: Boolean(first["has-more"] ?? first.hasMore)};
+    }
+    return {threads: Array.isArray(first) ? first : [], hasMore: Boolean(second?.hasMore ?? second?.["has-more"])};
+};
+
+const ThreadListElement = elementFromManifest(manifest, {
+    base: SfBaseElement,
+    lang: {en, ru},
+    source: "ru",
+    aliases,
+});
 
 const dayKey = (date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 
 // Newest first by the last change; a thread without a readable date goes last
 // rather than first, where an unknown date would otherwise sort a string.
 const byUpdated = (a, b) => {
-    const left = Date.parse(a.updated_at ?? "");
-    const right = Date.parse(b.updated_at ?? "");
+    const left = Date.parse(a["updated-at"] ?? "");
+    const right = Date.parse(b["updated-at"] ?? "");
     return (Number.isFinite(right) ? right : -Infinity) - (Number.isFinite(left) ? left : -Infinity);
 };
 
-class SfThreadList extends SfBaseElement {
+class SfThreadList extends ThreadListElement {
     static get props() {
-        return {
-            templateName: {attribute: "template", default: "default"},
-            selected: {default: ""},
-            hasMore: {attribute: "has-more", type: Boolean, default: false},
-            archived: {type: Boolean, default: false},
-            noCreate: {attribute: "no-create", type: Boolean, default: false},
-            noManage: {attribute: "no-manage", type: Boolean, default: false},
-            // No archive at all: no way to it, and no «Archive» among a row's
-            // actions. A people's chat may have none.
-            noArchive: {attribute: "no-archive", type: Boolean, default: false},
-            groupBy: {attribute: "group-by", default: "day", values: ["day", "none"]},
-            // The navigation's accessible name. Empty: «Conversations», or
-            // «Archive» while the archive is shown, in the page's language.
-            label: {default: ""},
-        };
+        return {...super.props, templateName: {attribute: "template", default: "default"}};
     }
 
     constructor() {
@@ -115,58 +115,46 @@ class SfThreadList extends SfBaseElement {
         this._threads = [];
         this._actions = [];
         this._loadingMore = false;
-        this._loading = false;
-        this._status = "";
         this._editing = null;
         this._tabStop = null;
         this._restoreFocus = false;
         this._menuFor = null;
         this._observer = null;
         this._observed = null;
+        // A value set as a property before the element was defined is an own
+        // property that would hide the accessor; it is taken through it.
+        for (const name of ["threads", "actions"]) {
+            if (!Object.prototype.hasOwnProperty.call(this, name)) continue;
+            const early = this[name];
+            delete this[name];
+            this[name] = early;
+        }
     }
 
     // ── words ────────────────────────────────────────────────────────────────
 
-    text(key, values = {}) {
-        const words = pageText(THREAD_LIST_TEXT, key, this);
-        return words.replace(/\{(\w+)\}/g, (match, name) => (name in values ? String(values[name]) : match));
+    text(key, vars = {}) {
+        return this.sfWord(key, {vars});
     }
 
     // ── state the host sets ──────────────────────────────────────────────────
 
-    get selected() {
-        return this.getProp("selected") || "";
-    }
-
-    set selected(id) {
-        if (id) this.setAttribute("selected", String(id));
-        else this.removeAttribute("selected");
-    }
-
-    get archived() {
-        return this.getProp("archived");
-    }
-
-    set archived(value) {
-        this.toggleAttribute("archived", Boolean(value));
-    }
-
-    get hasMore() {
-        return this.getProp("hasMore");
-    }
-
-    set hasMore(value) {
-        this.toggleAttribute("has-more", Boolean(value));
-    }
-
-    /** The conversations shown, newest first, as the host gave them. */
+    /** The conversations shown, newest first, as the host gave them (§18.4: entries by id). */
     get threads() {
         return this._threads.map((thread) => ({...thread}));
     }
 
+    set threads(value) {
+        const archived = this.archived;
+        this._threads = (Array.isArray(value) ? value : [])
+            .filter((thread) => thread && thread.id != null && Boolean(thread.archived) === archived)
+            .map(normalThread);
+        this.requestComponentUpdate("threads");
+    }
+
     /**
      * Row actions of the host's own, after «Rename» and «Archive»: [{id, text,
-     * icon?}]. Chosen, one leaves as sf-thread-list-action {id, action}.
+     * icon?}]. Chosen, one leaves as sf-thread-list-apply {action, scope: entry, ids}.
      */
     get actions() {
         return this._actions.map((action) => ({...action}));
@@ -178,56 +166,64 @@ class SfThreadList extends SfBaseElement {
             : [];
     }
 
-    setThreads(threads = [], {hasMore = false} = {}) {
-        const archived = this.archived;
-        this._threads = threads
-            .filter((thread) => thread && thread.id != null && Boolean(thread.archived) === archived)
-            .map((thread) => ({...thread, id: String(thread.id)}));
-        this._loading = false;
+    // ── actions (§4.4) ───────────────────────────────────────────────────────
+
+    /** The whole list and whether more follows, together; ends a page request. */
+    setThreads(first = [], second = {}) {
+        const {threads, hasMore} = pageArguments(first, second);
+        this.threads = threads;
         this._loadingMore = false;
+        if (this.loading) this.loading = false;
         this.hasMore = hasMore;
-        this.requestComponentUpdate("threads");
+        return applied();
     }
 
-    appendThreads(threads = [], {hasMore = false} = {}) {
+    appendThreads(first = [], second = {}) {
+        const {threads, hasMore} = pageArguments(first, second);
         const known = new Set(this._threads.map((thread) => thread.id));
-        this.setThreads([...this._threads, ...threads.filter((thread) => thread && !known.has(String(thread.id)))], {hasMore});
+        return this.setThreads([...this._threads, ...threads.filter((thread) => thread && !known.has(String(thread.id)))], {hasMore});
     }
 
     /** A new or changed conversation moves to where its date puts it. */
-    upsert(thread) {
-        if (!thread || thread.id == null) return;
+    upsert(params) {
+        const thread = params?.thread && typeof params.thread === "object" && params.id === undefined ? params.thread : params;
+        if (!thread || thread.id == null) return refused("no-id");
         const id = String(thread.id);
         const rest = this._threads.filter((one) => one.id !== id);
-        this.setThreads([{...thread, id}, ...rest].sort(byUpdated), {hasMore: this.hasMore});
+        return this.setThreads([normalThread(thread), ...rest].sort(byUpdated), {hasMore: this.hasMore});
     }
 
-    removeThread(id) {
-        this.setThreads(this._threads.filter((thread) => thread.id !== String(id)), {hasMore: this.hasMore});
+    removeThread(params) {
+        const id = String(params?.id ?? params);
+        if (!this._threads.some((thread) => thread.id === id)) return refused("unknown");
+        return this.setThreads(this._threads.filter((thread) => thread.id !== id), {hasMore: this.hasMore});
     }
 
-    /** While the first page loads: the shape of the list instead of words. */
+    /** The 1.0 setter of `loading`; noted. */
     setLoading(loading) {
-        this._loading = Boolean(loading);
-        if (this._loading) this._status = "";
-        this.requestComponentUpdate("loading");
+        legacy("action", "setLoading", "loading");
+        this.loading = Boolean(loading);
+        if (this.loading) this.status = "";
+        return applied();
     }
 
-    /** A sentence in place of the list (an error the host could not recover from); empty clears it. */
+    /** The 1.0 setter of `status`; noted. */
     setStatus(message) {
-        this._status = String(message ?? "");
-        this.requestComponentUpdate("status");
+        legacy("action", "setStatus", "status");
+        this.status = String(message ?? "");
+        return applied();
     }
 
     /** The next page could not be loaded: reaching the end asks again. */
     moreFailed() {
         this._loadingMore = false;
+        return applied();
     }
 
     // ── what is drawn ────────────────────────────────────────────────────────
 
     groupOf(thread, today) {
-        const date = new Date(thread.updated_at);
+        const date = new Date(thread["updated-at"]);
         if (Number.isNaN(date.getTime())) return "earlier";
         if (dayKey(date) === dayKey(today)) return "today";
         const yesterday = new Date(today);
@@ -241,7 +237,7 @@ class SfThreadList extends SfBaseElement {
         const byGroup = new Map(GROUPS.map((key) => [key, []]));
         for (const thread of this._threads) byGroup.get(this.groupOf(thread, today)).push(thread);
         return GROUPS.filter((key) => byGroup.get(key).length)
-            .map((key) => ({key, heading: this.text(key), threads: byGroup.get(key)}));
+            .map((key) => ({key, heading: this.sfWord(key), threads: byGroup.get(key)}));
     }
 
     // Exactly one conversation is in the Tab order: the one last moved to, else
@@ -256,29 +252,32 @@ class SfThreadList extends SfBaseElement {
     templateContext() {
         const archived = this.archived;
         const manage = !this.getProp("noManage");
-        const empty = !this._loading && this._threads.length === 0;
+        const loading = this.loading;
+        const empty = !loading && this._threads.length === 0;
         return {
             component: this,
-            label: this.getProp("label") || this.text(archived ? "archiveView" : "label"),
+            // The setting's own words win; without them the word follows what
+            // is shown, the conversations or the archive.
+            label: this.getAttribute("label") || this.sfWord(archived ? "archive-view" : "label"),
             archived,
             canCreate: !archived && !this.getProp("noCreate"),
             canArchive: !this.getProp("noArchive"),
             manage,
-            loading: this._loading,
-            loadingText: this.text("loadingText"),
+            loading,
+            loadingText: this.sfWord("loading-text"),
             groups: this.groups(),
             grouped: this.getProp("groupBy") !== "none",
             selected: this.selected,
             tabStop: this.tabStop(),
             editing: this._editing,
-            status: this._status || (empty ? this.text(archived ? "archiveEmptyText" : "emptyText") : ""),
-            createText: this.text("createText"),
-            backText: this.text("backText"),
-            archiveView: this.text("archiveView"),
-            renameLabel: this.text("renameLabel"),
-            untitledText: this.text("untitledText"),
-            actionsLabel: (title) => this.text("actionsLabel", {title}),
-            unreadLabel: (count) => this.text("unreadLabel", {count}),
+            status: this.status || (empty ? this.sfWord(archived ? "archive-empty-text" : "empty-text") : ""),
+            createText: this.sfWord("create-text"),
+            backText: this.sfWord("back-text"),
+            archiveView: this.sfWord("archive-view"),
+            renameLabel: this.sfWord("rename-label"),
+            untitledText: this.sfWord("untitled-text"),
+            actionsLabel: (title) => this.text("actions-label", {title}),
+            unreadLabel: (count) => this.text("unread-label", {count}),
             hasFooter: this.hasSlotContent("footer"),
             footer: this.hasSlotContent("footer") ? this.getSlotContent("footer") : null,
             titleLimit: TITLE_LIMIT,
@@ -307,6 +306,18 @@ class SfThreadList extends SfBaseElement {
         }
     }
 
+    // has-more turning on while the end is already in view is a request for
+    // the next page: the end is watched again, and a watch that starts on a
+    // visible end reports it at once.
+    attributeChangedCallback(name, previous, next) {
+        super.attributeChangedCallback?.(name, previous, next);
+        if (name === "has-more" && next !== null && previous === null) {
+            this._observer?.disconnect();
+            this._observed = null;
+            this.requestComponentUpdate("has-more");
+        }
+    }
+
     onDisconnected() {
         this._observer?.disconnect();
         this._observer = null;
@@ -329,13 +340,9 @@ class SfThreadList extends SfBaseElement {
     }
 
     requestMore() {
-        if (this._loadingMore || this._loading || !this.hasMore) return;
+        if (this._loadingMore || this.loading || !this.hasMore) return;
         this._loadingMore = true;
-        this.emit("sf-thread-list-load-more");
-    }
-
-    emit(name, detail = {}) {
-        return this.dispatchEvent(new CustomEvent(name, {bubbles: true, composed: true, cancelable: true, detail}));
+        this.sfEmit("load-more", {direction: "after"});
     }
 
     links() {
@@ -350,16 +357,18 @@ class SfThreadList extends SfBaseElement {
     // ── what a person does ───────────────────────────────────────────────────
 
     create() {
-        this.emit("sf-thread-list-create");
+        this.sfEmit("create", {});
     }
 
+    // A press asks for the conversation (selected is controlled, §4.3): the
+    // host opens it and writes selected back.
     open(id) {
         this._tabStop = id;
-        this.emit("sf-thread-list-select", {id});
+        this.sfEmit("open", {id});
     }
 
     showArchive(archived) {
-        this.emit("sf-thread-list-view", {archived: Boolean(archived)});
+        this.sfEmit("toggle", {archived: Boolean(archived)});
     }
 
     onKey(event) {
@@ -396,22 +405,27 @@ class SfThreadList extends SfBaseElement {
     }
 
     /** Open the row's actions, as the «⋯» button and Shift+F10 do. */
-    openMenu(id, anchor) {
+    openMenu(params, anchorGiven = null) {
+        const id = String(params?.id ?? params ?? "");
         const thread = this._threads.find((one) => one.id === id);
         const menu = this.querySelector(".sf-thread-list__menu");
-        if (!thread || !menu || this.getProp("noManage")) return;
+        if (this.getProp("noManage")) return refused("no-manage");
+        if (!thread || !menu) return refused("unknown");
+        const item = [...this.querySelectorAll(".sf-thread-list__item")].find((one) => one.dataset.id === id);
+        const anchor = anchorGiven instanceof Element ? anchorGiven : item?.querySelector(".sf-thread-list__more") ?? item ?? this;
         this._menuFor = id;
-        menu.setAttribute("aria-label", this.text("actionsLabel", {title: thread.title || this.text("untitledText")}));
+        menu.setAttribute("aria-label", this.text("actions-label", {title: thread.title || this.sfWord("untitled-text")}));
         menu.entries = [
-            {id: "rename", text: this.text("renameText"), icon: "edit", shortcut: "F2"},
+            {id: "rename", text: this.sfWord("rename-text"), icon: "edit", shortcut: "F2"},
             ...(this.getProp("noArchive") ? [] : [this.archived
-                ? {id: "unarchive", text: this.text("unarchiveText"), icon: "unarchive"}
-                : {id: "archive", text: this.text("archiveText"), icon: "archive"}]),
+                ? {id: "unarchive", text: this.sfWord("unarchive-text"), icon: "unarchive"}
+                : {id: "archive", text: this.sfWord("archive-text"), icon: "archive"}]),
             ...this._actions.map((action) => ({id: `action:${action.id}`, text: action.text, ...(action.icon ? {icon: action.icon} : {})})),
         ];
         // The Loader brings sf-context-menu when the page is ready (the rule
         // fetches it lazily); a press before that waits for it.
         customElements.whenDefined("sf-context-menu").then(() => menu.toggleFor(anchor));
+        return applied();
     }
 
     onMenu(detail = {}) {
@@ -419,16 +433,21 @@ class SfThreadList extends SfBaseElement {
         const choice = String(detail.id ?? detail.entry?.id ?? "");
         if (!id || !choice) return;
         if (choice === "rename") setTimeout(() => this.rename(id), 0);
-        else if (choice === "archive") this.emit("sf-thread-list-archive", {id});
-        else if (choice === "unarchive") this.emit("sf-thread-list-unarchive", {id});
-        else if (choice.startsWith("action:")) this.emit("sf-thread-list-action", {id, action: choice.slice("action:".length)});
+        // Vocabulary §5: archive and restore take ids; a row's own action is
+        // apply {action, scope: entry, ids} (§18.3). id stays for the 1.0 names.
+        else if (choice === "archive") this.sfEmit("archive", {ids: [id], id});
+        else if (choice === "unarchive") this.sfEmit("restore", {ids: [id], id});
+        else if (choice.startsWith("action:")) this.sfEmit("apply", {action: choice.slice("action:".length), scope: "entry", ids: [id], id});
     }
 
     /** Rename in place: Enter keeps, Escape gives up, leaving the field keeps. */
-    rename(id) {
-        if (this.getProp("noManage") || !this._threads.some((thread) => thread.id === String(id))) return;
-        this._editing = String(id);
+    rename(params) {
+        const id = String(params?.id ?? params ?? "");
+        if (this.getProp("noManage")) return refused("no-manage");
+        if (!this._threads.some((thread) => thread.id === id)) return refused("unknown");
+        this._editing = id;
         this.requestComponentUpdate("rename");
+        return applied();
     }
 
     finishRename(keep, input) {
@@ -443,7 +462,7 @@ class SfThreadList extends SfBaseElement {
             // Shown at once; the host that cannot keep it says so by upserting
             // the conversation with its old title.
             thread.title = title;
-            this.emit("sf-thread-list-rename", {id, title});
+            this.sfEmit("rename", {id, title});
         }
         this.requestComponentUpdate("rename");
     }

@@ -15,6 +15,10 @@
 снова `open`, если ответ не удалось доставить. Хост, отменивший событие
 (`preventDefault()`), оставляет вопрос открытым.
 
+Ответ человека — событие `sf-change-confirm-answer` с `{id, accepted}` (глагол
+`answer` словаря 1.1.5). Сборка спрашивает карточку шагом `ask` (§19.4): `open`
+ждёт ответа и отвечает `{accepted, reason, value}`.
+
 Она не знает ни текста команды, ни формата кода, ни сервера: всё это осталось
 в ui-chat.
 
@@ -30,17 +34,14 @@
 ```js
 const card = document.querySelector('sf-change-confirm');
 card.changes = [{label: 'Название', before: 'Новости', after: 'События'}];
-card.addEventListener('sf-change-confirm-accept', async (event) => {
+card.addEventListener('sf-change-confirm-answer', async (event) => {
+  const {id, accepted} = event.detail;
   try {
-    await api.apply(event.detail.id);
-    card.state = 'accepted';
+    await (accepted ? api.apply(id) : api.reject(id));
+    card.state = accepted ? 'accepted' : 'declined';
   } catch {
     card.state = 'open';
   }
-});
-card.addEventListener('sf-change-confirm-decline', async (event) => {
-  await api.reject(event.detail.id);
-  card.state = 'declined';
 });
 ```
 
@@ -51,7 +52,7 @@ card.addEventListener('sf-change-confirm-decline', async (event) => {
 | `heading` | `""` | What the change is; without one the card is named «Что изменится». |
 | `heading-level` | `3` | The heading's level, 2–6, where the card is placed. |
 | `state` | `open` | `open`, `pending`, `accepted`, `declined`, `expired`. |
-| `expires-at` | `""` | ISO 8601. Past it an open card reads as expired. |
+| `expires-at` | — | ISO 8601 date. Past it an open card reads as expired. |
 | `change-id` | `""` | The host's name for the change, carried back in every event. |
 | `disabled` | `false` | The answers are shown and cannot be pressed. |
 | `accept-text` | «Подтвердить» / «Confirm» | The accepting answer. |
@@ -64,19 +65,27 @@ card.addEventListener('sf-change-confirm-decline', async (event) => {
 reads as «пусто». Without a list the card still asks — a change with no values to
 show (a deletion) is a heading and the answers.
 
-## Methods
+## Actions
 
-| Method | Meaning |
+Each answers an outcome (`{outcome: 'applied'}` or `{outcome: 'refused', reason}`).
+
+| Action | Meaning |
 |:---|:---|
-| `answer(kind)` | `accept` or `decline`, as the person would; `false` when the card is not open, is disabled, or the host cancelled. |
+| `answer({accepted})` | As the person would: `true` confirms, `false` declines. Refused `closed`, `disabled` or `prevented` (the host cancelled the event). `answer('accept')` and `answer('decline')` are read until 2026-12-01 and noted in `SF.deprecations`. |
+| `confirm()` | The acceptance; a page button reaches it as `data-sf-action="<id>.confirm"`. |
+| `cancel()` | The declining answer; `data-sf-action="<id>.cancel"`. |
+| `open()` | Puts the question again. Asked by an assembly (`ask`), it waits for the answer: `{accepted, reason: close \| cancelled \| expired, value: null}`. |
 
 ## Events
 
 | Event | Detail | When |
 |:---|:---|:---|
-| `sf-change-confirm-accept` | `{id}` | Confirmed. Cancelable: cancelled, the question stays open. |
-| `sf-change-confirm-decline` | `{id}` | Declined. Cancelable. |
-| `sf-change-confirm-expire` | `{id}` | An open card passed `expires-at`; said once per time. |
+| `sf-change-confirm-answer` | `{id, accepted}` | The person answered. Cancelable: cancelled, the question stays open. |
+| `sf-change-confirm-expired` | `{id}` | An open card passed `expires-at`; said once per time. |
+
+The 1.0 names follow until 2026-12-01 and each use is noted in `SF.deprecations`:
+`sf-change-confirm-accept` and `sf-change-confirm-decline` (the answer with
+`accepted` true or false; one cancel for both names) and `sf-change-confirm-expire`.
 
 ## Slots
 
@@ -94,19 +103,24 @@ to the page, and back to the first answer when the host cancels.
 
 ## CSS variables
 
+Public variables, set on the card or any ancestor; the component never sets them.
+
 | Variable | Default |
 |:---|:---|
-| `--sf-change-confirm--radius` | `var(--sf-radius-2)` |
-| `--sf-change-confirm--inset` | `var(--sf-space-1\/2) var(--sf-space-1)` |
-| `--sf-change-confirm--gap` | `var(--sf-space-1\/2)` |
-| `--sf-change-confirm--before-fill` | `var(--sf-surface-container)` |
-| `--sf-change-confirm--after-fill` | `var(--sf-primary-container)` |
-| `--sf-change-confirm--after-ink` | `var(--sf-on-primary-container)` |
+| `--sf-change-confirm-radius` | `var(--sf-radius-2)` |
+| `--sf-change-confirm-inset` | `var(--sf-space-1\/2) var(--sf-space-1)` |
+| `--sf-change-confirm-gap` | `var(--sf-space-1\/2)` |
+| `--sf-change-confirm-before-background-color` | `var(--sf-surface-container)` |
+| `--sf-change-confirm-after-background-color` | `var(--sf-primary-container)` |
+| `--sf-change-confirm-after-color` | `var(--sf-on-primary-container)` |
+
+The 1.0 hooks `--sf-change-confirm--radius`, `--inset`, `--gap`, `--before-fill`,
+`--after-fill` and `--after-ink` stay the internal layer these feed.
 
 ## Words
 
-English by default, the page's language otherwise; corrected through
-`SF.language.register('sf-change-confirm', 'ru', {…})`. Keys: `changesLabel`,
-`beforeText`, `afterText`, `acceptText`, `declineText`, `acceptingText`,
-`decliningText`, `acceptedText`, `declinedText`, `expiredText`, `untilText`,
-`emptyValueText`.
+English by default, the page's language otherwise (`lang/en.json`,
+`lang/ru.json`); corrected through `SF.language.register('sf-change-confirm', 'ru', {…})`.
+Keys: `changes-label`, `before-text`, `after-text`, `accept-text`, `decline-text`,
+`accepting-text`, `declining-text`, `accepted-text`, `declined-text`,
+`expired-text`, `until-text`, `empty-value-text`.

@@ -3,21 +3,22 @@
      .sf-message-log is what the page's layout places: give its container a
      height and the log scrolls inside it.
 
-     Every value is a Framework token. The public adaptation points are the five
-     --sf-message-log--* variables below; a host sets those, not rules:
-       --sf-message-log--column    the reading column's width
-       --sf-message-log--inset     the column's inline inset
-       --sf-message-log--gap-run   between messages of one author
-       --sf-message-log--gap-turn  between one author's run and the next
-       --sf-message-log--fade      how far the top edge fades
+     Every value is a Framework token. The public variables (component.json
+     css-variables) are read here and never set; a host sets those, not rules:
+       --sf-message-log-column-width  the reading column's width
+       --sf-message-log-inset         the column's inline inset
+       --sf-message-log-run-gap       between messages of one author
+       --sf-message-log-turn-gap      between one author's run and the next
+       --sf-message-log-fade-size     how far the top edge fades
+     The --sf-message-log--* hooks of 1.0 stay the internal layer they feed.
      What a message looks like is the host's renderer, or the plain default at
      the end of this file. */
   .sf-message-log {
-    --sf-message-log--column: var(--sf-layout-reading-width);
-    --sf-message-log--inset: var(--sf-space-3);
-    --sf-message-log--gap-run: var(--sf-space-1\/4);
-    --sf-message-log--gap-turn: var(--sf-space-1\/2);
-    --sf-message-log--fade: var(--sf-space-1);
+    --sf-message-log--column: var(--sf-message-log-column-width, var(--sf-layout-reading-width));
+    --sf-message-log--inset: var(--sf-message-log-inset, var(--sf-space-3));
+    --sf-message-log--gap-run: var(--sf-message-log-run-gap, var(--sf-space-1\/4));
+    --sf-message-log--gap-turn: var(--sf-message-log-turn-gap, var(--sf-space-1\/2));
+    --sf-message-log--fade: var(--sf-message-log-fade-size, var(--sf-space-1));
 
     position: relative;
     display: flex;

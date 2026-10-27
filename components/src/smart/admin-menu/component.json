@@ -1,0 +1,608 @@
+{
+  "$comment": "The source of sf-admin-menu's interface (standard simai.smart-component 1.3.8). Taken from simai/ui-control control/smart-architecture/migration/out/admin-menu (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
+  "id": "smart.admin-menu",
+  "tag": "sf-admin-menu",
+  "version": "1.2.0",
+  "kind": "leaf",
+  "family": "menu",
+  "settings": {
+    "brand": {
+      "type": "string",
+      "default": ""
+    },
+    "logo": {
+      "type": "string",
+      "default": ""
+    },
+    "logo-href": {
+      "type": "string",
+      "default": "#"
+    },
+    "searchable": {
+      "type": "boolean",
+      "default": false
+    },
+    "collapsible": {
+      "type": "boolean",
+      "default": false
+    },
+    "settings": {
+      "type": "boolean",
+      "default": true
+    },
+    "settings-title": {
+      "type": "string",
+      "default-from": "runtime.settings-title"
+    },
+    "persistence-mode": {
+      "type": "enum",
+      "values": [
+        "local",
+        "external"
+      ],
+      "default": "local"
+    },
+    "settings-mode": {
+      "type": "enum",
+      "values": [
+        "user",
+        "system"
+      ],
+      "default": "user"
+    },
+    "settings-revision": {
+      "type": "number",
+      "default": 0
+    },
+    "system-settings-revision": {
+      "type": "number",
+      "default": 0
+    },
+    "allow-system-settings": {
+      "type": "boolean",
+      "default": false
+    },
+    "search-placeholder": {
+      "type": "string",
+      "default-from": "runtime.search-placeholder"
+    },
+    "toggle-label": {
+      "type": "string",
+      "default-from": "runtime.toggle-label"
+    },
+    "panel-class": {
+      "type": "string",
+      "default": ""
+    },
+    "search-mode": {
+      "type": "enum",
+      "values": [
+        "row",
+        "panel"
+      ],
+      "default": "row"
+    },
+    "search-label": {
+      "type": "string",
+      "default-from": "runtime.search-label"
+    },
+    "search-shortcut": {
+      "type": "string",
+      "default": "mod+k"
+    },
+    "search-hint": {
+      "type": "string",
+      "default-from": "runtime.search"
+    },
+    "search-keys-hint": {
+      "type": "string",
+      "default-from": "runtime.search-keys-hint"
+    },
+    "search-title": {
+      "type": "string",
+      "default-from": "runtime.search"
+    },
+    "recent-results": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "key": "string",
+        "label": "string",
+        "items": "list",
+        "more": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "x-summary": "what the search panel offers before a query, groups of results (was setRecentResults)"
+    }
+  },
+  "values": {
+    "compact": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "events": {
+    "compact-change": {
+      "carries": {
+        "compact": "boolean",
+        "source": {
+          "type": "enum",
+          "values": [
+            "toggle",
+            "api"
+          ]
+        }
+      }
+    },
+    "query": {
+      "carries": {
+        "kind": {
+          "type": "enum",
+          "values": [
+            "menu",
+            "site",
+            "search"
+          ]
+        },
+        "query": "string",
+        "request-id": {
+          "type": "string",
+          "optional": true
+        },
+        "intent": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "x-summary": "a query is asked for: the menu's own search (kind menu; was sf-admin-menu-search), a site (sites.search) or the admin search (search.query)"
+    },
+    "settings-cancel": {
+      "carries": {
+        "target": {
+          "type": "enum",
+          "values": [
+            "user",
+            "system"
+          ]
+        },
+        "base-revision": "number"
+      }
+    },
+    "settings-mode-change": {
+      "carries": {
+        "target": {
+          "type": "enum",
+          "values": [
+            "user",
+            "system"
+          ]
+        }
+      }
+    },
+    "settings-refresh": {
+      "carries": {
+        "target": {
+          "type": "enum",
+          "values": [
+            "user",
+            "system"
+          ]
+        },
+        "base-revision": "number",
+        "profile": "object"
+      }
+    },
+    "settings-save": {
+      "carries": {
+        "target": {
+          "type": "enum",
+          "values": [
+            "user",
+            "system"
+          ]
+        },
+        "base-revision": "number",
+        "profile": "object"
+      }
+    },
+    "reset": {
+      "carries": {
+        "kind": {
+          "type": "enum",
+          "values": [
+            "settings",
+            "view"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "optional": true
+        },
+        "base-revision": {
+          "type": "number",
+          "optional": true
+        },
+        "id": {
+          "type": "id",
+          "optional": true
+        },
+        "intent": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "x-summary": "vocabulary reset: the settings level (kind settings; was sf-admin-menu-settings-reset) or a view (view.reset)"
+    },
+    "navigate": {
+      "carries": {
+        "id": "id",
+        "key": "string",
+        "href": {
+          "type": "string",
+          "nullable": true
+        },
+        "region": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-summary": "the host answered item.open, search.choose or session.sign-out applied: the page goes to href (region: the menu goes there itself)"
+    },
+    "refresh": {
+      "carries": {
+        "kind": "string",
+        "intent": "string",
+        "payload": "object",
+        "reason": {
+          "type": "string",
+          "nullable": true
+        },
+        "site": {
+          "type": "id",
+          "nullable": true
+        }
+      }
+    },
+    "open": {
+      "carries": {
+        "kind": "string",
+        "intent": "string",
+        "payload": "object",
+        "id": "id",
+        "href": {
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        },
+        "group": {
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        }
+      }
+    },
+    "toggle": {
+      "carries": {
+        "kind": "string",
+        "intent": "string",
+        "payload": "object",
+        "id": "id",
+        "on": "boolean"
+      }
+    },
+    "save": {
+      "carries": {
+        "kind": "string",
+        "intent": "string",
+        "payload": "object",
+        "values": {
+          "type": "object",
+          "optional": true
+        },
+        "id": {
+          "type": "id",
+          "nullable": true,
+          "optional": true
+        },
+        "revision": {
+          "type": "number",
+          "nullable": true,
+          "optional": true
+        }
+      }
+    },
+    "create": {
+      "carries": {
+        "kind": "string",
+        "intent": "string",
+        "payload": "object"
+      }
+    },
+    "rename": {
+      "carries": {
+        "kind": "string",
+        "intent": "string",
+        "payload": "object",
+        "id": "id",
+        "title": "string"
+      }
+    },
+    "delete": {
+      "carries": {
+        "kind": "string",
+        "intent": "string",
+        "payload": "object",
+        "ids": "list"
+      }
+    },
+    "read": {
+      "carries": {
+        "kind": "string",
+        "intent": "string",
+        "payload": "object",
+        "ids": "list"
+      }
+    },
+    "sign-out": {
+      "carries": {
+        "kind": "string",
+        "intent": "string",
+        "payload": "object"
+      },
+      "own-verb": true
+    }
+  },
+  "actions": {
+    "apply-external-settings-state": {
+      "with": {
+        "state": "object",
+        "target": {
+          "type": "enum",
+          "values": [
+            "user",
+            "system"
+          ]
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ]
+    },
+    "apply-settings-result": {
+      "with": {
+        "result": "object"
+      },
+      "x-outcomes": [
+        "applied"
+      ]
+    },
+    "apply-settings-error": {
+      "with": {
+        "error": "object"
+      },
+      "x-outcomes": [
+        "applied"
+      ]
+    },
+    "toggle-menu-settings": {
+      "x-outcomes": [
+        "applied"
+      ]
+    },
+    "refresh": {
+      "concurrency": "latest",
+      "x-outcomes": [
+        "applied",
+        "unavailable",
+        "cancelled"
+      ],
+      "x-summary": "read the menu again from the host (navigation.load); the items menu has nothing to read"
+    },
+    "set-search-results": {
+      "with": {
+        "request-id": "string",
+        "groups": {
+          "type": "list",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "the host's answer to query {kind: menu, request-id}; an older request-id is refused"
+    }
+  },
+  "side-effects": [
+    "portal"
+  ],
+  "keyboard": {
+    "host": {
+      "Tab": "reach",
+      "Enter": "select",
+      "Space": "select",
+      "Escape": "close"
+    },
+    "panel": {
+      "ArrowDown": "focus:next",
+      "ArrowUp": "focus:prev",
+      "Enter": "select",
+      "Escape": "close"
+    }
+  },
+  "port": {
+    "id": "simai.admin-navigation-port",
+    "version": "1.0.0",
+    "contract": "contracts/ports/simai.admin-navigation-port/1.0.0/port.json"
+  },
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit templates in JavaScript, the migration form of §5.2 (§16): js/templates/default.js draws the items menu, js/navigation/template.js the navigation shell over the port."
+    }
+  },
+  "styles": "js/navigation/navigation.css",
+  "examples": "examples.json",
+  "docs": "docs/docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "navigation",
+    "name": {
+      "from": [
+        "aria-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Enter": "select",
+      "Space": "select",
+      "Escape": "close",
+      "ArrowDown": "focus:next",
+      "ArrowUp": "focus:prev"
+    },
+    "x-keys": "native links and buttons (Tab, Enter, Space); Escape closes the open panel, the search panel or a context menu; in the search panel ArrowDown and ArrowUp move between results"
+  },
+  "host-states": {},
+  "css-variables": {
+    "--sf-admin-menu-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-admin-menu-first-background-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-admin-menu-second-background-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-admin-menu-border-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-admin-menu-padding": {
+      "type": "length",
+      "state": "default"
+    }
+  },
+  "x-summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "admin-menu",
+    "manifest": "simai/ui-pro@9cbe061 components/src/smart/admin-menu/smart.manifest.json",
+    "converted": "control/smart-architecture/stands/17-ports-migration/out/admin-menu.component.json"
+  },
+  "x-words": [
+    "settings-title",
+    "search-placeholder",
+    "toggle-label",
+    "search-label",
+    "search-hint",
+    "search-keys-hint",
+    "search-title"
+  ],
+  "x-renamed": [
+    "events.sf-admin-menu-intent → one event per verb (vocabulary 1.1.5 §5.1): refresh, open, toggle, save, query, create, rename, delete, reset and the own verb sign-out, each {kind, …vocabulary fields, intent, payload}; the old name follows each through split rows (the detail adapter makes {intent, payload}) until 2026-12-01",
+    "events.sf-admin-menu-search → query {kind: menu, query, requestId}; the old name a dated detail-adds alias sent for kind menu only",
+    "events.sf-admin-menu-settings-reset → reset {kind: settings, target, base_revision, baseRevision}; the old name a dated detail-adds alias sent for kind settings only",
+    "events.sf-admin-menu-navigate keeps its name and gains id (vocabulary navigate {id, href}) beside key",
+    "events: base_revision gains baseRevision (§3.2: camelCase on the element, base-revision in the manifest); base_revision stays until 2026-12-01",
+    "settings.recent-results replaces setRecentResults(), which stays until 2026-12-01 and notes each call",
+    "events.sf-host-port-request retires (§4.9): the page or an assembly hands the port with connect-port {port}; the request is still sent until 2026-12-01",
+    "settings.aria-label: a host attribute, read by the element, never a setting (§3.1)"
+  ],
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "Reject unknown item IDs",
+        "Reject package-owned field mutations",
+        "Treat labels, badges and URLs as untrusted render data"
+      ],
+      "network_policy": "host-only"
+    },
+    "ownership": {
+      "source": "simai/ui-admin",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "access decisions",
+        "route discovery",
+        "domain record semantics",
+        "cross-user identity selection",
+        "HTTP endpoint invention"
+      ]
+    },
+    "presentation": {
+      "skeleton": {
+        "shape": "menu",
+        "while_loading": "none"
+      },
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop-expanded",
+        "desktop-compact",
+        "mobile-full-width",
+        "viewport-bounded-context-menu",
+        "nested-columns"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use the complete component for product admin navigation with search, nesting, badges, compact mode or editable preferences.",
+      "do_not": [
+        "Do not rebuild the menu from primitive SF tags",
+        "Do not store Larena domain state in localStorage",
+        "Do not let the browser decide access or routes"
+      ],
+      "required_reads": [
+        "inputs",
+        "events",
+        "persistence",
+        "ownership",
+        "backend",
+        "scenarios"
+      ],
+      "minimal_example": "<sf-admin-menu aria-label=\"Admin menu\" searchable collapsible persistence-mode=\"external\"></sf-admin-menu>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-browser-probes.mjs <free output> <package output>"
+      ]
+    }
+  },
+  "x-decisions": [
+    "version: 1.1.0 → 1.2.0, a minor while the old names hold dated aliases (§4.10).",
+    "shape (§7): a leaf. The report counts context-menu, dropdown, empty-state, inputs, profile-picker, resizer and sortable as placed parts; each is drawn by the menu's own templates as a control of the menu's own state (a row's menu, the site switcher, the width handle, the edit-mode lists), wired privately, and talks to the host only through the menu's one port. No rule runs between two of them and no key would have two writers, so keys, roles and rules would restate what the controller does (the smaller mechanism). The navigation shell composes the free menu's parts by markup, not by roles.",
+    "alias-conflict: vocabulary 1.1.5 §5.1 decides sf-admin-menu-intent: one name per verb, split by detail.intent -- neither the alias table's planned sf-admin-menu nor the conversion's sf-admin-menu-request.",
+    "events (vocabulary §5): each port intent is a verb with a kind -- navigation.load refresh; item.open, site.switch, view.profile and search.choose open (kind item, site, view, search); favourite.toggle toggle; preference.* and view.save save; sites.search and search.query query; view.create create; view.rename rename; view.delete delete {ids}; view.reset reset; session.sign-out the own verb sign-out (its word is lang events.sign-out.label). The detail keeps the port's intent and payload, so a 1.0 listener loses nothing.",
+    "own-verb-words: search became the vocabulary's query (kind menu); request is not an event (the conversion read it from the old alias plan); sign-out is the one own verb.",
+    "setter (§4.4): setRecentResults becomes the setting recent-results; setCompact stays a method of the class (compact is a value a person changes; compact-change reports it, as 1.0 did).",
+    "persistence (§7.5): local (localStorage, the key per identity) or external (the host saves; settings-save, settings-refresh, settings-reset carry the base revision); unchanged, and named by persistence-mode.",
+    "port (§4.9): simai.admin-navigation-port; connect-port {port} is the base action (setHostPort its alias). sf-host-port-request is still sent until 2026-12-01 for the pages that answer it (ui-admin navigation.ts).",
+    "item-shape: recent-results names its groups' fields with `of`; the items menu's own item contract stays in docs.",
+    "existing-aliases: none shipped; every rename is in aliases.json with its dates.",
+    "words (§11): lang/en.json and lang/ru.json are the one source; js/words.js makes the navigation's, the settings menu's and the counter's dictionaries from them by the keys they always used.",
+    "template: templates.default names the Lit templates in JavaScript, the migration form §5.2 allows.",
+    "skeleton (§5.4): the menu draws its own loading row while the port answers navigation.load; a skeleton.html for server markup waits for the static markup build, a leftover of this migration.",
+    "actions: declared with their 1.0 returns (x-outcomes applied). Their outcome objects (§4.4) come with the major at the aliases' end, with the callers in ui-admin -- a leftover of this migration.",
+    "examples: examples.json from studio.fixture.json and studio.scenario.json plus the search panel and the navigation shell over a port; probe.json drives the per-verb events through a port, the old intent name, the settings reset and the menu search (gate 16, gate 20).",
+    "css-variables: five public variables the navigation shell reads with the role tokens as fallback; the items menu's look is the free admin-menu class's, whose variables are internal.",
+    "side-effects: portal (the context menu is drawn in #sf-admin-menu-portal at the end of body)."
+  ]
+}

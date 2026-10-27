@@ -18,6 +18,7 @@ import {closeMenu, openMenu, removeMenu, updateMenu} from "./menu";
 import {getInitials} from "../../../helpers/text";
 import {pageText} from "../../../../core/js/page-language";
 import BundledPreferences from "../../../../core/js/preferences.js";
+import {wordsOf} from "../words.js";
 
 export const NAVIGATION_PORT = "simai.admin-navigation-port";
 
@@ -46,168 +47,115 @@ export const PALETTE_SHORTCUT = IS_MAC ? "⌘K" : "Ctrl K";
 // The id prefix of the lists sf-sortable reorders in the edit mode.
 export const LIST_ID = "sf-admin-nav-list-";
 
-export const NAVIGATION_TEXT = {
-    en: {
-        loading: "Loading the menu…",
-        unavailable: "The menu is not available right now.",
-        retry: "Try again",
-        search: "Search",
-        favourites: "Favourites",
-        fold: "fold",
-        unfold: "show all",
-        notifications: "Notifications",
-        collapse: "Collapse",
-        expand: "Expand",
-        hideColumn: "Hide column",
-        back: "Back",
-        allSites: "Shared by all sites",
-        findInSection: "Find in section",
-        nothingFound: "Nothing found",
-        star: "Add to favourites",
-        unstar: "Remove from favourites",
-        chooseSite: "Choose a site",
-        findSite: "Find a site",
-        manageSites: "Manage sites",
-        moreSites: "Show more",
-        external: "opens in a new tab",
-        paletteHint: "Sections, records, actions…",
-        paletteNavigate: "choose",
-        paletteOpen: "open",
-        paletteClose: "close",
-        account: "Account",
-        theme: "Theme",
-        menuWidth: "Menu width",
-        columnWidth: "Column width",
-        themeLight: "Light",
-        themeDark: "Dark",
-        themeSystem: "As the system",
-        language: "Language",
-        findLanguage: "Find a language",
-        languageNote: "The admin's own language. The site's languages are in the site settings.",
-        menuProfile: "Menu profile",
-        signOut: "Sign out",
-        editMenu: "Edit menu",
-        configureMenu: "Configure the menu",
-        done: "Done",
-        profileLabel: "Profile:",
-        notePersonal: "Your profile: it changes for you alone. Applied at once.",
-        noteShared: "Shared profile: it changes for everyone on the site. Applied at once.",
-        resetToPackages: "Reset to the packages",
-        newProfile: "New profile…",
-        renameProfile: "Rename",
-        deleteProfile: "Delete",
-        sharedProfile: "For everyone on the site",
-        create: "Create",
-        cancel: "Cancel",
-        save: "Save",
-        show: "Show",
-        hide: "Hide",
-        more: "More",
-        rename: "Rename",
-        chooseIcon: "Choose an icon",
-        addSection: "Section",
-        newSection: "New section",
-        packageName: "Return the package's name",
-        deleteRow: "Delete",
-        drag: "Move",
-        add: "Add",
-        addDivider: "Divider",
-        addHeading: "Subheading",
-        addLink: "Link",
-        linkLabel: "Name",
-        linkHref: "Address",
-        profileName: "Profile name",
-        profileNameEmpty: "Give the profile a name.",
-        linkNameEmpty: "Give the link a name.",
-        hrefInvalid: "An address is a path on this site (/admin/...) or a full https:// address.",
-        hrefInsecure: "Only https:// addresses: an http:// link is not saved.",
-        refused: "Not saved: {reason}.",
-        newHeading: "Subheading",
-        conflict: "The menu was changed elsewhere. This is what is saved now.",
-        personalName: "Personal",
-    },
-    ru: {
-        loading: "Загружаем меню…",
-        unavailable: "Меню сейчас недоступно.",
-        retry: "Повторить",
-        search: "Поиск",
-        favourites: "Избранное",
-        fold: "свернуть",
-        unfold: "показать все",
-        notifications: "Уведомления",
-        collapse: "Свернуть",
-        expand: "Развернуть",
-        hideColumn: "Скрыть колонку",
-        back: "Назад",
-        allSites: "Общее для всех сайтов",
-        findInSection: "Найти в разделе",
-        nothingFound: "Ничего не найдено",
-        star: "В избранное",
-        unstar: "Убрать из избранного",
-        chooseSite: "Выбрать сайт",
-        findSite: "Найти сайт",
-        manageSites: "Управлять сайтами",
-        moreSites: "Показать ещё",
-        external: "откроется в новой вкладке",
-        paletteHint: "Разделы, записи, действия…",
-        paletteNavigate: "выбрать",
-        paletteOpen: "открыть",
-        paletteClose: "закрыть",
-        account: "Профиль пользователя",
-        theme: "Тема",
-        menuWidth: "Ширина меню",
-        columnWidth: "Ширина колонки",
-        themeLight: "Светлая",
-        themeDark: "Тёмная",
-        themeSystem: "Как в системе",
-        language: "Язык",
-        findLanguage: "Найти язык",
-        languageNote: "Язык интерфейса админки. Языки сайта — в настройках сайта.",
-        menuProfile: "Профиль меню",
-        signOut: "Выйти",
-        editMenu: "Правка меню",
-        configureMenu: "Настроить меню",
-        done: "Готово",
-        profileLabel: "Профиль:",
-        notePersonal: "Ваш профиль: меняется только у вас. Применяется сразу.",
-        noteShared: "Общий профиль: меняется у всех на сайте. Применяется сразу.",
-        resetToPackages: "Сбросить к пакетам",
-        newProfile: "Новый профиль…",
-        renameProfile: "Переименовать",
-        deleteProfile: "Удалить",
-        sharedProfile: "Для всех на сайте",
-        create: "Создать",
-        cancel: "Отменить",
-        save: "Сохранить",
-        show: "Показать",
-        hide: "Скрыть",
-        more: "Ещё",
-        rename: "Переименовать",
-        chooseIcon: "Выбрать иконку",
-        addSection: "Раздел",
-        newSection: "Новый раздел",
-        packageName: "Вернуть название пакета",
-        deleteRow: "Удалить",
-        drag: "Переместить",
-        add: "Добавить",
-        addDivider: "Разделитель",
-        addHeading: "Подзаголовок",
-        addLink: "Ссылка",
-        linkLabel: "Название",
-        linkHref: "Адрес",
-        profileName: "Название профиля",
-        profileNameEmpty: "Дайте профилю название.",
-        linkNameEmpty: "Дайте ссылке название.",
-        hrefInvalid: "Адрес — путь на этом сайте (/admin/...) или полный адрес https://.",
-        hrefInsecure: "Только адреса https://: ссылка http:// не сохраняется.",
-        refused: "Не сохранено: {reason}.",
-        newHeading: "Подзаголовок",
-        conflict: "Меню изменили в другом месте. Показано то, что сохранено сейчас.",
-        personalName: "Персональный",
-    },
-};
+export const NAVIGATION_TEXT = wordsOf({
+    loading: "loading",
+    unavailable: "unavailable",
+    retry: "retry",
+    search: "search",
+    favourites: "favourites",
+    fold: "fold",
+    unfold: "unfold",
+    notifications: "notifications",
+    collapse: "collapse",
+    expand: "expand",
+    hideColumn: "hide-column",
+    back: "back",
+    allSites: "all-sites",
+    findInSection: "find-in-section",
+    nothingFound: "nothing-found",
+    star: "star",
+    unstar: "unstar",
+    chooseSite: "choose-site",
+    findSite: "find-site",
+    manageSites: "manage-sites",
+    moreSites: "more-sites",
+    external: "external",
+    paletteHint: "palette-hint",
+    paletteNavigate: "palette-navigate",
+    paletteOpen: "palette-open",
+    paletteClose: "palette-close",
+    account: "account",
+    theme: "theme",
+    menuWidth: "menu-width",
+    columnWidth: "column-width",
+    themeLight: "theme-light",
+    themeDark: "theme-dark",
+    themeSystem: "theme-system",
+    language: "language",
+    findLanguage: "find-language",
+    languageNote: "language-note",
+    menuProfile: "menu-profile",
+    signOut: "sign-out",
+    editMenu: "edit-menu",
+    configureMenu: "configure-menu",
+    done: "done",
+    profileLabel: "profile-label",
+    notePersonal: "note-personal",
+    noteShared: "note-shared",
+    resetToPackages: "reset-to-packages",
+    newProfile: "new-profile",
+    renameProfile: "rename-profile",
+    deleteProfile: "delete-profile",
+    sharedProfile: "shared-profile",
+    create: "create",
+    cancel: "cancel",
+    save: "save",
+    show: "show",
+    hide: "hide",
+    more: "more",
+    rename: "rename",
+    chooseIcon: "choose-icon",
+    addSection: "add-section",
+    newSection: "new-section",
+    packageName: "package-name",
+    deleteRow: "delete-row",
+    drag: "drag",
+    add: "add",
+    addDivider: "add-divider",
+    addHeading: "add-heading",
+    addLink: "add-link",
+    linkLabel: "link-label",
+    linkHref: "link-href",
+    profileName: "profile-name",
+    profileNameEmpty: "profile-name-empty",
+    linkNameEmpty: "link-name-empty",
+    hrefInvalid: "href-invalid",
+    hrefInsecure: "href-insecure",
+    refused: "refused",
+    newHeading: "new-heading",
+    conflict: "conflict",
+    personalName: "personal-name",
+});
 
 const copy = (value) => (value === undefined ? undefined : JSON.parse(JSON.stringify(value)));
+
+// What a person asks of the host, told on the element by the vocabulary's verb
+// (vocabulary 1.1.5 §5.1: sf-admin-menu-intent splits into
+// sf-admin-menu-<verb>). Each port intent of simai.admin-navigation-port is a
+// verb with a kind; the detail carries the vocabulary's fields, and the port's
+// own intent and payload beside them, which is all the 1.0 name carried.
+const INTENT_VERBS = {
+    "navigation.load": ["refresh", "navigation", (p) => ({reason: p.reason ?? null, site: p.site ?? null})],
+    "item.open": ["open", "item", (p) => ({id: p.key, href: p.href ?? null})],
+    "favourite.toggle": ["toggle", "favourite", (p) => ({id: p.key, on: Boolean(p.on)})],
+    "preference.compact": ["save", "preference", (p) => ({values: {compact: p.compact}})],
+    "preference.widths": ["save", "preference", (p) => ({values: {widths: p.widths}})],
+    "preference.theme": ["save", "preference", (p) => ({values: {theme: p.theme}})],
+    "preference.language": ["save", "preference", (p) => ({values: {language: p.language}})],
+    "sites.search": ["query", "site", (p) => ({query: p.query ?? ""})],
+    "site.switch": ["open", "site", (p) => ({id: p.site})],
+    "view.profile": ["open", "view", (p) => ({id: p.profile})],
+    "view.create": ["create", "view", () => ({})],
+    "view.save": ["save", "view", (p) => ({id: p.profile ?? null, revision: p.revision ?? null})],
+    "view.reset": ["reset", "view", (p) => ({id: p.profile ?? null})],
+    "view.rename": ["rename", "view", (p) => ({id: p.profile, title: p.label ?? ""})],
+    "view.delete": ["delete", "view", (p) => ({ids: [p.profile]})],
+    "search.query": ["query", "search", (p) => ({query: p.query ?? ""})],
+    "search.choose": ["open", "search", (p) => ({id: p.key, group: p.group ?? null})],
+    "session.sign-out": ["sign-out", "session", () => ({})],
+    "notifications.load": ["refresh", "notifications", () => ({})],
+    "notifications.read": ["read", "notifications", (p) => ({ids: [].concat(p.ids ?? p.id ?? [])})],
+};
 
 
 // SF.Preferences, the Framework's one store of view preferences (core
@@ -399,15 +347,15 @@ export class NavigationController {
 
     // A host that throws is a host that did not answer; a person sees the same
     // «unavailable» as for a host that said so.
-    // Every intent is also announced as sf-admin-menu-intent on the element,
-    // which is the event the port names for all of them: a page can watch what a
-    // person asked of the host without standing between the two.
+    // Every intent is also told on the element by its verb (INTENT_VERBS), so
+    // a page can watch what a person asked of the host without standing
+    // between the two; sf-admin-menu-intent, the 1.0 name for all of them,
+    // follows each until 2026-12-01 (aliases.json, split).
     async raise(intent, payload = {}) {
-        this.element.dispatchEvent(new CustomEvent("sf-admin-menu-intent", {
-            bubbles: true,
-            composed: true,
-            detail: {intent, payload: copy(payload)},
-        }));
+        // An intent a later port adds is told as a refresh of its own kind
+        // until it has a verb here.
+        const [verb, kind, fields] = INTENT_VERBS[intent] ?? ["refresh", String(intent).split(".")[0], () => ({})];
+        this.element.sfEmit(verb, {kind, ...fields(payload ?? {}), intent, payload: copy(payload)});
         try {
             const answer = await this.port.raise(intent, copy(payload), {});
             return answer && typeof answer === "object" ? answer : {answer: "unavailable"};
@@ -674,11 +622,7 @@ export class NavigationController {
             // `region: true` tells a host listener the page is already on its
             // way, so it does not load it a second time.
             const region = Boolean(href && globalThis.SF?.RegionNavigation?.enabled);
-            this.element.dispatchEvent(new CustomEvent("sf-admin-menu-navigate", {
-                bubbles: true,
-                composed: true,
-                detail: {key: row.key, href, region},
-            }));
+            this.element.sfEmit("navigate", {id: row.key, key: row.key, href, region});
             if (region) globalThis.SF.RegionNavigation.navigate(new URL(href, globalThis.location.href).href);
         }
     }
@@ -698,12 +642,8 @@ export class NavigationController {
         this.keepPreference({compact: this.compact});
         this.update("compact");
         if (this.offers("preferences")) await this.raise("preference.compact", {compact: this.compact});
-        this.element.dispatchEvent(new CustomEvent("sf-admin-menu-compact-change", {
-            bubbles: true,
-            composed: true,
-            // The payload the manifest has always declared for this event.
-            detail: {compact: this.compact, source: "toggle"},
-        }));
+        // The payload the manifest has always declared for this event.
+        this.element.sfEmit("compact-change", {compact: this.compact, source: "toggle"});
     }
 
     // ─── the site switcher ───────────────────────────────────────────────────
@@ -843,11 +783,7 @@ export class NavigationController {
     async signOut() {
         const answer = await this.raise("session.sign-out", {});
         if (answer.answer !== "applied") return;
-        this.element.dispatchEvent(new CustomEvent("sf-admin-menu-navigate", {
-            bubbles: true,
-            composed: true,
-            detail: {key: "session.sign-out", href: answer.href ?? null},
-        }));
+        this.element.sfEmit("navigate", {id: "session.sign-out", key: "session.sign-out", href: answer.href ?? null});
     }
 
     // ─── the edit mode ───────────────────────────────────────────────────────
@@ -1293,11 +1229,7 @@ export class NavigationController {
             this.navigation = {...this.navigation, current: chosen.item.key};
             this.update("open");
         }
-        this.element.dispatchEvent(new CustomEvent("sf-admin-menu-navigate", {
-            bubbles: true,
-            composed: true,
-            detail: {key: chosen.item.key, href},
-        }));
+        this.element.sfEmit("navigate", {id: chosen.item.key, key: chosen.item.key, href});
     }
 
     onPaletteKey(event) {

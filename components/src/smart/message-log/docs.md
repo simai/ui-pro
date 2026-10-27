@@ -34,14 +34,15 @@ simai.chat нужен тот же порядок чтения для переп�
 
 ```js
 const log = document.querySelector('sf-message-log');
-log.renderMessage = (message, {first, own, view}) => {
+log.renderMessage = (message, {first, own, view, growing}) => {
   const node = document.createElement('article');
-  node.setAttribute('aria-label', own ? 'Вы' : message.author_name);
+  node.setAttribute('aria-label', own ? 'Вы' : message['author-name']);
   node.textContent = message.text;
   return node;
 };
 log.setMessages(await api.messages(threadId), {hasMore: true});
-log.addEventListener('sf-message-log-load-earlier', async (event) => {
+log.addEventListener('sf-message-log-load-more', async (event) => {
+  // {direction: 'before', before}: before is the first message shown
   const page = await api.messages(threadId, {before: event.detail.before});
   log.prependMessages(page.items, {hasMore: page.hasMore});
 });
@@ -50,6 +51,27 @@ log.upsert(message);
 // отправленное с локальным ключом получило номер сервера: место сохраняется
 log.upsert(saved, undefined, {replaces: localKey});
 ```
+
+Ответ, который пишется по частям, — поток (стандарт 1.3.8 §10.8, словарь 1.1.5
+§5.2): у сообщения `growing: true`, пока другая сторона его пишет; каждая часть —
+новое `upsert` (или новый `messages`) с более длинным текстом. Лог сообщает
+`sf-message-log-begun`, `-chunk` на каждую нарисованную часть и ровно одно из
+`-completed`, `-failed`, `-cancelled`. Кнопка «Остановить» хоста вызывает
+`log.cancel({id})`: рост больше не рисуется, поток кончается `cancelled` сразу, а
+сказать серверу остановиться — дело хоста (`stop {conversation, id?}` порта чата).
+
+```js
+log.addEventListener('sf-message-log-begun', (event) => composer.busy = true);
+for (const end of ['completed', 'failed', 'cancelled']) {
+  log.addEventListener(`sf-message-log-${end}`, () => composer.busy = false);
+}
+stopButton.onclick = () => { log.cancel({id: streamingId}); port.raise('wait.stop', {conversation_id}); };
+```
+
+Изменившееся сообщение перерисовывается **на месте** (§18.4): элемент сообщения
+остаётся тем же, а пока фокус или выделение внутри него, новый рисунок
+накладывается на старые узлы — фокус на кнопке внутри растущего ответа не
+сбрасывается.
 
 Высоту колонке даёт контейнер: хост компонента — `display: contents`, а
 `.sf-message-log` растягивается во flex-контейнере (`flex: 1`) и прокручивается
@@ -60,6 +82,7 @@ log.upsert(saved, undefined, {replaces: localKey});
 | Attribute | Default | Meaning |
 |:---|:---|:---|
 | `has-more` | `false` | Earlier history exists: the earlier button shows, the top asks for it. |
+| `changes` | `content` | How two writes of one message compare (§18.4): `content` (its fields and view) or `revision` (the host raises it with every change). |
 | `label` | «Переписка» / «Conversation» | The region's accessible name. |
 | `live` | `polite` | `polite`: a finished message from someone else is announced once. `off`: the host announces through `announce()`. |
 
@@ -69,40 +92,56 @@ log.upsert(saved, undefined, {replaces: localKey});
 |:---|:---|
 | `renderMessage(message, context)` | Returns a `Node`, a string (drawn as text) or `null`. `context`: `{view, previous, next, first, last, own, index, document, log}`. Setting it redraws every message. |
 | `announceMessage(message, context)` | Returns what is said when the message is new or finished; the same words for one message are said once. Default: `author_name: text` for a finished message that is not `own`. |
-| `messages` | Read-only: the messages in display order. |
+| `messages` | The messages in display order. Written whole, it is compared by key with what is shown: a message that left is taken off, a new or changed one drawn in its place, the rest keep their nodes (§18.4). |
 
 ## The message
 
 Plain data. The log reads `id` (required, the stable key), `author`, `own`,
-`pending`, and for the default renderer and announcement `author_name` and
-`text`. Every other field is the renderer's.
+`growing`, `revision`, `wait` (`delayed`, `stopped`, `network`, `none`; `null` is
+`none`), `error` (`{reason, message}`), and for the default renderer and
+announcement `author-name` and `text`. Every other field is the renderer's. The 1.0
+spellings `author_name` and `pending` are read until 2026-12-01 and noted in
+`SF.deprecations`.
 
-A message is drawn again when its data or its `view` changes (compared as
-sorted JSON), when its place in its author's run changes, or on `redraw(id)`.
-Otherwise its node is kept — with focus inside it.
+A message is drawn again when its data or its `view` changes (by `changes`), when
+its place in its author's run changes, or on `redraw(id)`. Its item element is kept
+either way, and its drawing too while the focus or a selection is inside it.
 
-## Methods
+## Actions
 
-| Method | Meaning |
+Each answers an outcome (`{outcome: 'applied'}` or `{outcome: 'refused', reason}`).
+
+| Action | Meaning |
 |:---|:---|
-| `setMessages(messages, {hasMore})` | Replace the conversation and show its end. Nothing it holds is announced. |
+| `setMessages(messages, {hasMore})` | Replace the conversation and show its end. Nothing it holds is announced; a stream it held ends cancelled. |
 | `prependMessages(messages, {hasMore})` | Earlier history above, without moving what is read; ends the earlier request. |
-| `upsert(message, view?, {replaces?})` | Add at the end or update in place. |
+| `upsert(message, view?, {replaces?})` | Add at the end or redraw in place. Refused `cancelled` for a cancelled stream until its end. |
 | `setView(id, view)` | Merge into a message's view. |
-| `remove(id)` | Remove one message. |
+| `detach(id)` | Take one message off; a stream it was ends cancelled. `remove(id)`, its 1.0 name, works until 2026-12-01 and is noted; `remove()` without an id is the browser's own. |
+| `cancel(id)` | Stop drawing a growing message now: its growth and its end; the busy mark goes and the stream ends cancelled. Refused `not-growing`, `unknown`. |
 | `redraw(id?)` | Draw one message, or all, again. |
-| `setHasMore(value)` | Whether earlier history exists. |
-| `requestEarlier()` | Ask for earlier history, as the button does. |
+| `requestEarlier()` | Ask for earlier history, as the button does. Refused `loading`, `no-more`, `prevented`. |
 | `earlierFailed()` | The host could not load it: the button is pressable again. |
 | `scrollToLatest({instant, focus})` | To the last message; with `focus`, focus goes there. |
-| `isAtLatest()` | Whether the end is in view. |
 | `announce(text)` | Say something once through the polite live region (cut at 240 characters). |
+
+`isAtLatest()` says whether the end is in view; `setHasMore(value)` is the
+`has-more` setting.
 
 ## Events
 
 | Event | Detail | When |
 |:---|:---|:---|
-| `sf-message-log-load-earlier` | `{before}` — the id of the first message shown | The earlier button, ArrowUp on the first message, or the top reached while `has-more`. Cancelling it is `earlierFailed()`. |
+| `sf-message-log-load-more` | `{direction: 'before', before}` — `before` is the id of the first message shown | The earlier button, ArrowUp on the first message, or the top reached while `has-more`. Cancelling it is `earlierFailed()`. |
+| `sf-message-log-begun` | `{id}` | A growing message arrived. |
+| `sf-message-log-chunk` | `{id, revision?}` | A growing message changed and was drawn again. |
+| `sf-message-log-completed` | `{id}` | It stopped growing whole. |
+| `sf-message-log-failed` | `{id, reason, message}` | It stopped growing with an error. |
+| `sf-message-log-cancelled` | `{id}` | The stream was stopped: `cancel`, `wait: 'stopped'`, the message taken off or the conversation replaced. |
+
+`sf-message-log-load-earlier`, the 1.0 name, follows `load-more` with the same
+detail until 2026-12-01 (one cancel for both names); each use is noted in
+`SF.deprecations`.
 
 What a person does inside a message (a rating, a retry) is the host renderer's
 own events.
@@ -123,13 +162,18 @@ Keys pressed on a message's own controls stay theirs.
 
 ## CSS variables
 
+Public variables, set on the log or any ancestor; the component never sets them.
+
 | Variable | Default |
 |:---|:---|
-| `--sf-message-log--column` | `var(--sf-layout-reading-width)` |
-| `--sf-message-log--inset` | `var(--sf-space-3)` |
-| `--sf-message-log--gap-run` | `var(--sf-space-1\/4)` |
-| `--sf-message-log--gap-turn` | `var(--sf-space-1\/2)` |
-| `--sf-message-log--fade` | `var(--sf-space-1)` |
+| `--sf-message-log-column-width` | `var(--sf-layout-reading-width)` |
+| `--sf-message-log-inset` | `var(--sf-space-3)` |
+| `--sf-message-log-run-gap` | `var(--sf-space-1\/4)` |
+| `--sf-message-log-turn-gap` | `var(--sf-space-1\/2)` |
+| `--sf-message-log-fade-size` | `var(--sf-space-1)` |
+
+The 1.0 hooks `--sf-message-log--column`, `--inset`, `--gap-run`, `--gap-turn` and
+`--fade` stay the internal layer these feed.
 
 Classes a renderer can rely on: `.sf-message-log__item` with `--own`, `--first`,
 `--last` (of a run) and `--end` (the last message of all).
@@ -137,6 +181,6 @@ Classes a renderer can rely on: `.sf-message-log__item` with `--own`, `--first`,
 ## Words
 
 English by default, the page's language otherwise. A product corrects a word
-through `SF.language.register('sf-message-log', 'ru', {latestLabel: '…'})`. Keys:
-`regionLabel`, `logLabel`, `earlierText`, `loadingEarlierText`, `latestLabel`,
-`youText`.
+through `SF.language.register('sf-message-log', 'ru', {'latest-label': '…'})`
+(`lang/en.json`, `lang/ru.json`). Keys: `region-label`, `log-label`, `earlier-text`,
+`loading-earlier-text`, `latest-label`, `you-text`.

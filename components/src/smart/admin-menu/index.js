@@ -1,4 +1,10 @@
 import SfBaseElement from "../../core/js/smart-base";
+import {elementFromManifest} from "../../core/js/element-manifest";
+import {noteDeprecated} from "../../core/js/deprecations";
+import manifest from "./component.json";
+import aliases from "./aliases.json";
+import en from "./lang/en.json";
+import ru from "./lang/ru.json";
 import {renderAdminMenuTemplate} from "./js/templates/default";
 import {html, render} from "lit";
 import {setParentSpace} from "../helpers/dom";
@@ -11,6 +17,7 @@ import {
     SUPPORTED_NAVIGATION_VERSIONS,
 } from "./js/navigation/controller";
 import {renderNavigationTemplate} from "./js/navigation/template";
+import {wordsOf} from "./js/words.js";
 
 // Prefer the helper Core published; an isolated bundle uses its own copy.
 const positioning = () => globalThis.SF?.Position || BundledPosition;
@@ -77,28 +84,16 @@ function sortItemsByOrder(items = []) {
 }
 
 const LEGACY_MENU_SETTINGS_STORAGE_KEY = "main-menu-settings";
-const MENU_TRANSLATIONS = {
-    en: {
-        save: "Save",
-        hide: "Hide",
-        show: "Show",
-        settingsTitle: "Menu settings",
-        searchPlaceholder: "Search sections",
-        toggleLabel: "Menu",
-        searchLabel: "Search the admin (Ctrl+K)",
-        searchKeysHint: "↑↓ select · Enter open · Esc close",
-    },
-    ru: {
-        save: "Сохранить",
-        hide: "Скрыть",
-        show: "Показать",
-        settingsTitle: "Настройки меню",
-        searchPlaceholder: "Поиск по разделам",
-        toggleLabel: "Меню",
-        searchLabel: "Поиск по админке (Ctrl+K)",
-        searchKeysHint: "↑↓ выбрать · Enter открыть · Esc закрыть",
-    },
-};
+const MENU_TRANSLATIONS = wordsOf({
+    save: "save",
+    hide: "hide",
+    show: "show",
+    settingsTitle: "settings-title",
+    searchPlaceholder: "search-placeholder",
+    toggleLabel: "toggle-label",
+    searchLabel: "search-label",
+    searchKeysHint: "search-keys-hint",
+});
 
 // What the person typed, compared the way a person means it: case does not
 // matter, ё reads as е, and the end of a word is dropped so that "роль" finds
@@ -151,9 +146,25 @@ function isSameSettings(left = {}, right = {}) {
     return true;
 }
 
-class SfAdminMenu extends SfBaseElement {
+// From its component.json (standard simai.smart-component 1.3.8 §3, §4, §8,
+// §11): the settings are declared there and their words are lang/<locale>.json
+// (js/words.js makes the menu's dictionaries from them); the class keeps its
+// own reading of each setting (props below), which the manifest's agree with.
+// The events take the vocabulary's verbs: what a person asks of the host is
+// sf-admin-menu-<verb> (open, toggle, save, query, create, rename, delete,
+// reset, refresh, sign-out) instead of one sf-admin-menu-intent, which follows
+// each of them until 2026-12-01 (aliases.json, split by the detail's intent).
+const AdminMenuElement = elementFromManifest(manifest, {
+    base: SfBaseElement,
+    lang: {en, ru},
+    source: "ru",
+    aliases,
+});
+
+class SfAdminMenu extends AdminMenuElement {
     static get props() {
         return {
+            ...super.props,
             templateName: {attribute: "template", default: "default"},
             brand: {default: ""},
             logo: {default: ""},
@@ -899,11 +910,34 @@ class SfAdminMenu extends SfBaseElement {
     // What the host offers an empty field: a recent list, named by the host,
     // standing until it sets another. It is not an answer to a query, so it has
     // no request id -- but it is read the same way and cleaned the same way.
-    setRecentResults(groups = []) {
+    // The panel's recent results before a query (the setting recent-results,
+    // §4.4: a writable setting, no set- action). setRecentResults is its 1.0
+    // setter, kept until 2026-12-01 and noted.
+    get recentResults() {
+        return this.state?.searchRecent ?? [];
+    }
+
+    set recentResults(groups) {
         this.set({searchRecent: this.cleanSearchGroups(groups)});
         this.syncSearchSelection();
+    }
 
+    setRecentResults(groups = []) {
+        noteDeprecated({
+            component: "sf-admin-menu", tag: "sf-admin-menu", kind: "action", from: "setRecentResults", to: "recentResults",
+            since: aliases.since, remove_after: aliases.remove_after,
+        });
+        this.recentResults = groups;
         return true;
+    }
+
+    // sf-admin-menu-intent, the 1.0 name of every request to the host, is
+    // made from the request it follows: {intent, payload}. A request the port
+    // did not raise (a settings reset, the menu's own search) has none.
+    sfAliasAdapters() {
+        return {
+            "sf-admin-menu-intent": (detail) => (detail && detail.intent ? {intent: detail.intent, payload: detail.payload} : undefined),
+        };
     }
 
     cleanSearchGroups(groups = []) {
@@ -941,11 +975,9 @@ class SfAdminMenu extends SfBaseElement {
             const requestId = `search-${++this._searchSequence}`;
             this._searchRequestId = requestId;
             this.set({searchPending: true});
-            this.dispatchEvent(new CustomEvent("sf-admin-menu-search", {
-                bubbles: true,
-                composed: true,
-                detail: Object.freeze({query, requestId}),
-            }));
+            // Vocabulary §5 query; sf-admin-menu-search, the 1.0 name, follows
+            // it for kind menu until 2026-12-01.
+            this.sfEmit("query", Object.freeze({kind: "menu", query, requestId}));
         }, 250);
 
         return this;
@@ -1199,7 +1231,7 @@ class SfAdminMenu extends SfBaseElement {
             settingsStatus: "idle",
             settingsError: "",
         }, "cancelMenuSettings");
-        this.emitSettingsEvent("sf-admin-menu-settings-cancel", {
+        this.emitSettingsEvent("settings-cancel", {
             target: this.getSettingsMode(),
             base_revision: this.getSettingsRevision(),
         });
@@ -1224,7 +1256,10 @@ class SfAdminMenu extends SfBaseElement {
         }
 
         this.set({settingsStatus: "saving", settingsError: ""}, "resetMenuSettings");
-        this.emitSettingsEvent("sf-admin-menu-settings-reset", {
+        // Vocabulary §5 reset; sf-admin-menu-settings-reset, the 1.0 name,
+        // follows it for kind settings until 2026-12-01.
+        this.emitSettingsEvent("reset", {
+            kind: "settings",
             target: this.getSettingsMode(),
             base_revision: this.getSettingsRevision(),
         });
@@ -1238,7 +1273,7 @@ class SfAdminMenu extends SfBaseElement {
         if (nextMode === this.getSettingsMode()) return;
         this.setState({settingsMode: nextMode});
         this.set({settingsStatus: "saving", settingsError: ""}, "settingsMode");
-        this.emitSettingsEvent("sf-admin-menu-settings-mode-change", {
+        this.emitSettingsEvent("settings-mode-change", {
             target: nextMode,
         });
     }
@@ -1246,7 +1281,7 @@ class SfAdminMenu extends SfBaseElement {
     refreshSettings() {
         if (this.isLocalPersistence()) return;
         this.set({settingsStatus: "saving", settingsError: ""}, "refreshSettings");
-        this.emitSettingsEvent("sf-admin-menu-settings-refresh", {
+        this.emitSettingsEvent("settings-refresh", {
             target: this.getSettingsMode(),
             base_revision: this.getSettingsRevision(),
             profile: this.buildSettingsProfile(),
@@ -1273,7 +1308,7 @@ class SfAdminMenu extends SfBaseElement {
     }
 
     emitCompactChange(source = "api") {
-        this.emitSettingsEvent("sf-admin-menu-compact-change", {
+        this.emitSettingsEvent("compact-change", {
             compact: Boolean(this.getProp("compact")),
             source,
         });
@@ -1344,7 +1379,7 @@ class SfAdminMenu extends SfBaseElement {
         }
 
         this.set({settingsStatus: "saving", settingsError: ""}, "saveMenuSettings");
-        this.emitSettingsEvent("sf-admin-menu-settings-save", {
+        this.emitSettingsEvent("settings-save", {
             target: this.getSettingsMode(),
             base_revision: this.getSettingsRevision(),
             profile: this.buildSettingsProfile(),
@@ -1490,12 +1525,12 @@ class SfAdminMenu extends SfBaseElement {
         this._compactBaseline = Boolean(this.getProp("compact"));
     }
 
-    emitSettingsEvent(name, detail = {}) {
-        this.dispatchEvent(new CustomEvent(name, {
-            bubbles: true,
-            composed: true,
-            detail,
-        }));
+    // A settings event by its verb (§8). The revision is the manifest's
+    // base-revision, baseRevision on the element (§3.2); base_revision, its 1.0
+    // spelling, stays in the detail until 2026-12-01.
+    emitSettingsEvent(verb, detail = {}) {
+        const revision = "base_revision" in detail ? {baseRevision: detail.base_revision} : {};
+        this.sfEmit(verb, {...detail, ...revision});
     }
 
     isLocalPersistence() {
@@ -2329,6 +2364,18 @@ class SfAdminMenu extends SfBaseElement {
     // to ask. The items menu has nothing to read and ignores it.
     refresh() {
         return this._navigation?.load("requested") ?? Promise.resolve();
+    }
+
+    // The base action connect-port {port} (§4.1, §4.9): the page or an
+    // assembly hands the port; answers an outcome. setHostPort is its alias.
+    connectPort(params) {
+        const port = params && typeof params === "object" && "port" in params && typeof params.raise !== "function" ? params.port : params;
+        try {
+            this.setHostPort(port);
+            return {outcome: "applied"};
+        } catch {
+            return {outcome: "refused", reason: "port-unsupported"};
+        }
     }
 
     // A host adapter exposes {port, version, capabilities, raise(intent, payload)}.
