@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.2.2",
+  "version": "1.2.1",
   "title": "Data view composite",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -1343,11 +1343,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "62d7a950c8a4cc72cea1f7c1446dcbdb7f69d6c8",
+    "source_revision": "e573d684cd476ccf793d0ddcefb4368c39dec910",
     "source_artifacts": [
       {
         "path": "src/smart/data-view/index.js",
-        "sha256": "3214573f08523c3e3e5dc7a32d6eed692591208a0335c31688de773d15b65136"
+        "sha256": "62167dccac37c91160e22409f65e0ed451fdea0e53829ad2c25fc39bc5f99686"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",

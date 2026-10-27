@@ -276,9 +276,7 @@
           }
         },
         "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers as many rows as the skeleton stands for (row-cap, else a page of 10), each with a reference, a file and a colour."
-      },
-      "parent": "<div class=\"flex flex-col\" style=\"block-size: 40rem\"></div>",
-      "x-first-paint": "The page's content region, as an admin page gives a list the room under its header: the view fills it before and after the host answers, and the rows scroll inside."
+      }
     },
     {
       "name": "embedded",
@@ -453,9 +451,7 @@
           }
         },
         "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers as many rows as the skeleton stands for (row-cap, else a page of 10), each with a reference, a file and a colour."
-      },
-      "parent": "<div class=\"flex flex-col\" style=\"block-size: 20rem\"></div>",
-      "x-first-paint": "The room a record gives a related list: the view fills it before and after the host answers, and the rows scroll inside."
+      }
     },
     {
       "name": "open-record",
@@ -732,9 +728,7 @@
           }
         },
         "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers as many rows as the skeleton stands for (row-cap, else a page of 10), each with a reference, a file and a colour."
-      },
-      "parent": "<div class=\"flex flex-col\" style=\"block-size: 40rem\"></div>",
-      "x-first-paint": "The page's content region, as an admin page gives a list the room under its header: the view fills it before and after the host answers, and the rows scroll inside."
+      }
     }
   ]
 }

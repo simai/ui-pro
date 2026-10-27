@@ -82,12 +82,13 @@ test('sf-table brings the cells it draws with other Smart elements with it, not 
 
 test('a port-fed component holds its box: it fills its region and its data scrolls inside', () => {
   const css = (path) => readFileSync(join(smart, path), 'utf8');
-  assert.match(css('table/js/templates/default.css'), /sf-data-view \{\s*display: block;\s*block-size: 100%;\s*overflow: auto;/u, 'sf-data-view, before its code');
-  assert.match(readFileSync(join(smart, 'data-view', 'index.js'), 'utf8'), /:host \{ display: block; block-size: 100%; overflow: auto;/u, 'sf-data-view, its shadow layout');
+  // sf-data-view is no scroll container: the page is its one scroll (owner,
+  // 2026-10-15, table-one-scroll); its rows are what must hold.
+  assert.doesNotMatch(readFileSync(join(smart, 'data-view', 'index.js'), 'utf8'), /:host \{[^}]*overflow/u);
   assert.match(css('property-view/js/templates/default.css'), /sf-property-view:not\(\[panel\]\),\s*sf-property-view\[full\] \{\s*\/\*[^*]*\*\/\s*display: block !important;\s*block-size: 100%;\s*overflow: auto;/u);
   assert.match(css('admin-menu/js/navigation/navigation.css'), /\.sf-admin-nav--skeleton \.sf-admin-nav-second \{\s*display: none;/u, 'the skeleton keeps one column on a phone');
   // Each such example puts the component in a region, as a page does.
-  for (const [folder, names] of [['data-view', ['reference', 'open-record', 'embedded']], ['property-view', ['reference', 'full']], ['admin-menu', ['navigation-port']]]) {
+  for (const [folder, names] of [['property-view', ['reference', 'full']], ['admin-menu', ['navigation-port']]]) {
     const component = describe(smart, folder);
     for (const name of names) assert.match(component.examples.find((one) => one.name === name).parent ?? '', /block-size: \d+rem/u, `${folder}/${name}`);
   }

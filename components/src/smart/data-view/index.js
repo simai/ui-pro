@@ -223,13 +223,7 @@ class SfDataView extends DataViewElement {
         this.attachShadow({mode: "open"});
         this.shadowRoot.innerHTML = `
           <style>
-            /* The view holds its box (first paint, standard 1.3.9 §5.4): it
-               fills the region the page gives it, and what the host answers --
-               rows, or cards on a phone, as tall as their columns make them --
-               grows inside its own scroll area, so nothing outside the view
-               moves when the data arrives. In a region of no set height it is
-               as tall as its content, as before. */
-            :host { display: block; block-size: 100%; overflow: auto; overscroll-behavior: contain; }
+            :host { display: block; }
             [part="layout"] { display: grid; gap: var(--sf-data-view-gap, var(--sf-space-3)); }
             [part="toolbar"] { display: flex; flex-wrap: wrap; gap: var(--sf-data-view-toolbar-gap, var(--sf-space-2)); }
             /* Hidden means hidden: the toolbar's own display beat the hidden
