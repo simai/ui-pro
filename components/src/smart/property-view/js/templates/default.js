@@ -10,10 +10,14 @@ import {renderDateTimeEdit} from '../datetime-edit.js';
 // of this composite built them inside a shadow root and every control came out
 // with its markup and none of its CSS.
 
-function renderFieldValue(context, field, editing) {
+function renderFieldValue(context, field, editing, {disabled = false} = {}) {
     const key = String(field.key ?? '');
     const editHost = {
         setFieldValue: (target, value) => context.component.changeField(target, value),
+        // A control that knows its entry is not a value yet says so here (port
+        // 1.16.0: a masked string that does not fill its mask); the view holds
+        // both saves until it is completed or cleared.
+        setFieldError: (target, message) => context.component.reportFieldError(target, message),
         ...(context.canUploadFiles
             ? {
                 getFieldUploads: (target) => context.component.getFieldUploads(target),
@@ -41,7 +45,9 @@ function renderFieldValue(context, field, editing) {
             field,
             context.changed.has(key) ? context.changed.get(key) : field.value,
             editHost,
-            {size: context.size},
+            // A field its condition turns off is drawn disabled where the set
+            // draws disabled apart from read-only (a choice as buttons).
+            {size: context.size, ...(disabled ? {disabled: true} : {})},
         )
         : renderViewField(field, field.value, context.hostPort, {size: context.size});
 
@@ -399,9 +405,13 @@ function renderField(context, field, editing, sectionKey = '', groupKey = '') {
     // A field as its conditions make it now (port 1.14.0): required or not,
     // enabled or drawn disabled as a readonly field is. Not while the view is
     // arranged: arranging places fields, it does not fill them in.
+    const disabled = !context.configuring && Boolean(field.when) && context.fieldDisabled(field);
     if (!context.configuring && field.when) field = context.conditionedField(field);
     const key = String(field.key ?? '');
-    const error = context.errors.get(key);
+    // A message the field's own control draws under itself (port 1.16.0: an
+    // incomplete masked string) is not drawn a second time here; it still
+    // counts among the errors beside Save, and still holds the save.
+    const error = context.controlErrors?.has(key) ? null : context.errors.get(key);
 
     const arrangementError = context.configuring ? context.entryError('field', key) : null;
 
@@ -440,7 +450,7 @@ function renderField(context, field, editing, sectionKey = '', groupKey = '') {
                         : nothing}
             </div>
             ${editing || context.configuring || field.readonly === true || !context.mayEdit || context.openAll
-                    ? html`<div class="sf-property-view-field-value min-w-0 flex items-cross-center gap-2 flex-wrap">${renderFieldValue(context, field, editing)}</div>`
+                    ? html`<div class="sf-property-view-field-value min-w-0 flex items-cross-center gap-2 flex-wrap">${renderFieldValue(context, field, editing, {disabled})}</div>`
                     : html`
                         <button
                                 type="button"
@@ -894,7 +904,7 @@ function renderOpenAllBar(context) {
                     size=${context.size}
                     text=${creating ? context.createText : context.saveText}
                     data-action=${creating ? 'create' : 'save'}
-                    ?disabled=${!creating && context.changed.size === 0}
+                    ?disabled=${(!creating && context.changed.size === 0) || context.inputsInvalid}
                     @click=${() => context.component.saveAll()}
             ></sf-button>
             <sf-button
@@ -941,7 +951,7 @@ function renderActions(context, {panel = false} = {}) {
                                 size=${context.size}
                                 text=${context.saveText}
                                 data-action="save"
-                                ?disabled=${context.changed.size === 0}
+                                ?disabled=${context.changed.size === 0 || context.inputsInvalid}
                                 @click=${() => context.component.saveGroup()}
                         ></sf-button>
                         <sf-button

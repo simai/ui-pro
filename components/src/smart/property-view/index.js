@@ -31,7 +31,7 @@ import {fieldConditions} from "./js/conditions.js";
 // keeps its list -- a guard naming a narrower set than the published versions is
 // a component refusing a host it asked to move. The contract test beside this
 // file compares the list with the manifest.
-const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0", "1.15.0"];
+const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0", "1.15.0", "1.16.0"];
 
 // The surface's mode (owner, 2026-10-14). view: show the object, never offer
 // a change. auto: show it and offer what this person may do. edit: every group
@@ -294,6 +294,11 @@ class SfPropertyView extends PropertyViewElement {
         // waits until they are put right.
         this.inputDrafts = new Map();
         this.inputErrors = new Map();
+        // The keys of inputErrors a field control reported itself (port 1.16.0:
+        // a masked string that does not fill its mask, through the renderer
+        // set's setFieldError). The control draws that message under itself, so
+        // the panel holds the save for it and does not draw it a second time.
+        this.controlErrors = new Set();
         this.conflict = null;
         // A save the host will make only once confirmed (port 1.14.0): what it
         // said the save will do and the digest it issued for it, held until the
@@ -1486,6 +1491,11 @@ class SfPropertyView extends PropertyViewElement {
             editing: this.editing,
             changed: this.changed,
             errors: this.inputErrors.size ? new Map([...this.errors, ...this.inputErrors]) : this.errors,
+            // An entry that is not a value yet holds both saves (port 1.16.0):
+            // Save is drawn disabled while there is one, with the count of what
+            // is wrong beside it and each message under its field.
+            inputsInvalid: this.inputErrors.size > 0,
+            controlErrors: this.controlErrors,
             dateTimeText: {
                 dateLabel: pageText(PROPERTY_VIEW_TEXT, "dateTimeDateLabel", this),
                 timeLabel: pageText(PROPERTY_VIEW_TEXT, "dateTimeTimeLabel", this),
@@ -1513,6 +1523,7 @@ class SfPropertyView extends PropertyViewElement {
             message: this.message,
             visible: (entries) => this.visible(entries),
             conditionedField: (field) => this.conditionedField(field),
+            fieldDisabled: (field) => this.fieldDisabled(field),
             canConfigureView: this.canConfigureView,
             configuring: this.configuring,
             unplaced: this.unplaced,
@@ -2203,6 +2214,40 @@ class SfPropertyView extends PropertyViewElement {
     _clearInputs() {
         this.inputDrafts.clear();
         this.inputErrors.clear();
+        this.controlErrors.clear();
+    }
+
+    // A field control that knows its entry is not a value yet (port 1.16.0,
+    // consumer simai.main): a masked string that does not fill its mask. The
+    // renderer set tells the host through setFieldError(field, message) on
+    // every keystroke, and null once the text is complete or cleared. Such an
+    // entry is held where a datetime's half-entered pair is held, in
+    // inputErrors, so the same rule stops both saves -- group.save and
+    // record.save («Изменить всё») -- and Save is drawn disabled while any field
+    // of the surface is incomplete. Each field is its own key, so one masked
+    // field completed does not release another still incomplete. What was typed
+    // is the change itself (the set writes the text as shown) and is kept.
+    reportFieldError(field, message) {
+        const key = String(field?.key ?? "");
+        if (!key) return this;
+        const before = this.inputErrors.get(key);
+        if (message) {
+            this.inputErrors.set(key, String(message));
+            this.controlErrors.add(key);
+        } else if (this.controlErrors.has(key)) {
+            this.inputErrors.delete(key);
+            this.controlErrors.delete(key);
+        }
+        if (this.inputErrors.get(key) !== before) this.requestComponentUpdate("errors");
+        return this;
+    }
+
+    // Whether a field's condition turns it off now (port 1.14.0 when.enabled).
+    // The renderer set draws such a field disabled where it draws disabled and
+    // read-only apart -- a choice as buttons (port 1.16.0) -- and as read-only
+    // everywhere else, as before.
+    fieldDisabled(field, values = this.fieldValues()) {
+        return Boolean(field?.when) && !fieldConditions(field, values).enabled;
     }
 
     // An entry that is not a value yet stops a save, and says so where it is.

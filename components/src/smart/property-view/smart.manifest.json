@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -124,9 +124,9 @@
       },
       "host_port": {
         "port": "simai.property-view-port",
-        "version": "1.15.0",
-        "path": "src/core/contracts/ports/simai.property-view-port/1.15.0/port.json",
-        "sha256": "d9cc3f4394d3ad4038bb13d9f3be984b2d2f0da80b19813d7ee3e4b7d0a9376a",
+        "version": "1.16.0",
+        "path": "src/core/contracts/ports/simai.property-view-port/1.16.0/port.json",
+        "sha256": "5e4a47b0ce0d7226a388d3f7b146f725d0db72aa1d1022fb59368ae4526f2d6a",
         "supported_versions": [
           "1.0.0",
           "1.1.0",
@@ -142,7 +142,8 @@
           "1.12.0",
           "1.13.0",
           "1.14.0",
-          "1.15.0"
+          "1.15.0",
+          "1.16.0"
         ]
       }
     }
@@ -1213,6 +1214,13 @@
           "From component.json (standard simai.smart-component 1.3.8): sf-property-view-saved {id, revision} after an applied save and sf-property-view-failed {reason, message} after a record that could not be read; open and delete by the vocabulary's verbs with -open-record and -delete-record as dated aliases; close is a cancelable request; a panel honours hidden and open, and full draws it in place; the loading skeleton draws the section tabs; the actions answer outcomes.",
           "Port 1.15.0 (1.14.0 and earlier keep working): a host that announces group-load is asked group.load -- group null first, for the arrangement and the group the panel opens on, then each group of a section when the section starts (§7.2.1, reason started); a group not read yet draws its field_count as skeleton lines. Without group-load record.load is asked once per revision and every group is served from it. One revision per record, sent with group.save; a conflict keeps the input and reads what is shown again at the answer's revision; unknown-group reads the arrangement again."
         ]
+      },
+      {
+        "from": "1.6.0",
+        "to": "1.7.0",
+        "changes": [
+          "Port 1.16.0 (1.15.0 and earlier keep working; consumer simai.main, agreed contract q-b0de123841): a string with field.mask is typed through the stock sf-input mask and saved as shown, fixed parts included; while any masked field of the surface is incomplete, Save is disabled -- group.save and record.save alike -- with the count of what is wrong beside it and the stock message under the field; each masked field is complete or not on its own; a cleared optional one saves null, or \"\" with nullable false. A choice with variant buttons is a segmented sf-button-group sized by field.size; pressing the chosen button again clears a field that is not required; read-only shows the choice, disabled by a condition draws the group disabled."
+        ]
       }
     ]
   },
@@ -1222,11 +1230,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "1b48f678a56113b5a1716e6f2ca8633f121efe10fee0d80c9acfef3afd12d7df"
+        "sha256": "8ccd294832ead99750229000aaefd3082990eb2acece6637bbb89ad824461a5c"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "aad0ffcf5c46cb2c72fb78c57d65b1eb7ee784bf68679fe919d8610f61e22d57"
+        "sha256": "a483bf0455b10ea419eaf58ba10084e803eb12bee08c3678b8e888519fd8e5ef"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",
@@ -1254,7 +1262,7 @@
       },
       {
         "path": "src/smart/property-view/docs.md",
-        "sha256": "8838cf8924a62c1e1f0a50efdf7235c56854fdb69c1c155999fc2a51a7ca4a89"
+        "sha256": "27a3aadb5e2cf44853e70814c3da5b95cb202ce391c23eec32e3722691cd07af"
       }
     ],
     "generated_runtime": []

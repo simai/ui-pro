@@ -136,6 +136,42 @@ a lookup that is not inline is shown read-only, as a record is.
  "value": {"value": "RU", "label": "Россия"}}
 ```
 
+## Masked strings and choices as buttons
+
+Port 1.16.0 (consumer simai.main) adds two ways of entering a value; a host on
+an earlier port sends neither and nothing changes for it.
+
+A `string` field with `mask` is typed through the stock sf-input mask, in the
+Framework grammar: `0` a digit, `a` a letter, `*` any character, `\` escapes
+the next one, every other character a fixed part shown in the field. The value
+saved is the text as shown, fixed parts included (`"+7 (912) 345-67-89"`). A
+cleared field saves `null`, or `""` when it declares `"nullable": false`.
+`required` stays a mark: the host validates.
+
+While any masked field of the surface does not fill its mask, Save is disabled
+— for one group (`group.save`) and for the whole record (`record.save`) alike
+— and the count of what is wrong stands beside it. The field itself says
+«Заполните поле полностью» once the person leaves it, and what was typed is
+kept. Each masked field is complete or not on its own.
+
+```json
+{"key": "phone", "label": "Телефон", "propertyType": "string", "mask": "+7 (000) 000-00-00",
+ "value": "+7 (912) 345-67-89"}
+```
+
+A `choice` with `"variant": "buttons"` is one segmented button group, a button
+per option, wrapping when it does not fit; `size` (`"1/2"`, `"1"`, `"2"`) sets
+its step, else the panel's. Pressing the chosen button again clears a field
+that is not required; a required one stays chosen. A read-only one shows the
+choice and lets nothing be pressed; one its condition turns off
+(`when.enabled`) is drawn disabled.
+
+```json
+{"key": "kind", "label": "Вид", "propertyType": "choice", "variant": "buttons", "size": "1/2",
+ "options": [{"value": "person", "label": "Физлицо"}, {"value": "company", "label": "Юрлицо"}],
+ "value": "person"}
+```
+
 ## Reading one group at a time
 
 A host on port 1.15.0 that announces the capability `group-load` is read a
