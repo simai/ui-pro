@@ -1908,8 +1908,8 @@
       "version": 2
     },
     "runtime_pair": {
-      "ui_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f",
-      "ui_smart_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f"
+      "ui_revision": "89834691fb9dce692be5353f3214df7aee3a7e27",
+      "ui_smart_revision": "89834691fb9dce692be5353f3214df7aee3a7e27"
     },
     "aliases": [
       "smart.table"
@@ -2020,19 +2020,19 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "0ff607f5789a180cf16c47d068b3d2df2b608447",
+    "source_revision": "2e2b177683a83574b55be990b9a48f6766f6f9ac",
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "5744f3b688e4e7e1f5d4a58e8da8d229688b72f840e881d830e5fd76268a3f86"
+        "sha256": "d6b264bc70f8efaae2f2a6514974af0ba298b1a7dc6dc9a88034ee31edfd43ce"
       },
       {
         "path": "src/smart/table/js/templates/default.js",
-        "sha256": "131ac77602ec9b5ee5da51c2f05ec12d393f59d585eb8ecb5797de4fc27d7209"
+        "sha256": "84e5e87c9151b439f9b2de12f6de19dfd8dc161781480b8b0dc1a607a3f36465"
       },
       {
         "path": "src/smart/table/js/templates/default.css",
-        "sha256": "4aec26cb3cd4dae6c98c9642947a7291eeb701c132ed6ac2e520134a53e836c7"
+        "sha256": "a555ba9196cc553a0e03968ba97a24674708d1643d8587992e95740ff93742c5"
       },
       {
         "path": "src/smart/helpers/option-badge.js",

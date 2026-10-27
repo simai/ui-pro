@@ -1331,8 +1331,8 @@
       "version": 2
     },
     "runtime_pair": {
-      "ui_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f",
-      "ui_smart_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f"
+      "ui_revision": "89834691fb9dce692be5353f3214df7aee3a7e27",
+      "ui_smart_revision": "89834691fb9dce692be5353f3214df7aee3a7e27"
     },
     "aliases": [],
     "deprecations": [],
@@ -1349,11 +1349,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "0ff607f5789a180cf16c47d068b3d2df2b608447",
+    "source_revision": "2e2b177683a83574b55be990b9a48f6766f6f9ac",
     "source_artifacts": [
       {
         "path": "src/smart/data-view/index.js",
-        "sha256": "cedb097fb49538b985b97e2e19a730e74951b364967ce3e295fcbec2112f561a"
+        "sha256": "205b5381b118d612022cc97103ab66239cdb7d061496389c8abc7935bfcf73ec"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",
@@ -1361,7 +1361,7 @@
       },
       {
         "path": "src/smart/data-view/docs.md",
-        "sha256": "84181a92a6cbec3c97565cc30f00a096bfc5c0a944058f85e5aab24b06afa8ce"
+        "sha256": "716ad0cfde4fe30affab3c04347f4502dddd1295bd311991bd421c1c932e7367"
       },
       {
         "path": "tests/fixtures/data-view-composite-lab.html",

@@ -1026,8 +1026,8 @@
       "version": 2
     },
     "runtime_pair": {
-      "ui_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f",
-      "ui_smart_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f"
+      "ui_revision": "89834691fb9dce692be5353f3214df7aee3a7e27",
+      "ui_smart_revision": "89834691fb9dce692be5353f3214df7aee3a7e27"
     },
     "aliases": [],
     "deprecations": [],
@@ -1074,11 +1074,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "4d595e0f9a0e9869367890c2fb4a8281b4626627",
+    "source_revision": "104f42a7cb9edaca7028efab671cc7e2ccbf8681",
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
-        "sha256": "6f1c613e340ac7be9ef316e2b0aea184922d3477866f5ab29a73de1a9453c7b7"
+        "sha256": "abfe4f03eebf13abba8aff0607325e302621855ed643d02258636df0d9c0c93a"
       },
       {
         "path": "src/smart/admin-menu/js/templates/default.js",
@@ -1090,7 +1090,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
-        "sha256": "0a3c7a6b4103d6b9722271b68e0b318d211c1fbf8c5ffc874f7f106327714b80"
+        "sha256": "a93f6efa74136d50e631adcac5d1ce594e9c429b912fd5e44fd4e4143decdde7"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/palette.js",
@@ -1106,7 +1106,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
-        "sha256": "924d7c436ddea10f63b12516a8c9d7cbc4f1360586fb83e915d8c1ca17ce6f89"
+        "sha256": "8f8a895944aeb6af13769b4c0b014b42c3c27045385b93af1fde14a58e22557a"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",
@@ -1118,7 +1118,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "c9189ba0f6978ca0e5b3fd665d0088a20587d63e2714e2aa3e8a7480ffa811a5"
+        "sha256": "87b684ed5d67a22cf6b6053e1c4ffc51ea6b8829daa6a3dc882fd582c94da9b0"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

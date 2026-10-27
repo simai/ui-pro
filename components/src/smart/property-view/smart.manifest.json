@@ -1212,8 +1212,8 @@
       "version": 2
     },
     "runtime_pair": {
-      "ui_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f",
-      "ui_smart_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f"
+      "ui_revision": "89834691fb9dce692be5353f3214df7aee3a7e27",
+      "ui_smart_revision": "89834691fb9dce692be5353f3214df7aee3a7e27"
     },
     "aliases": [],
     "deprecations": [],
@@ -1253,7 +1253,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "0ed9c4c1e22c3226c276522f375ed12db407bd37",
+    "source_revision": "28e73347cb8e9a25878a36e158d5f7f9e9884372",
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
