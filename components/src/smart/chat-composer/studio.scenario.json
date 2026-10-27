@@ -1,0 +1,37 @@
+{
+  "schema": "simai.smart-component-scenario.v1",
+  "id": "smoke",
+  "component": "smart.chat-composer",
+  "fixture": "composer-reference",
+  "viewport": "desktop",
+  "actions": [
+    {
+      "type": "invoke",
+      "method": "setFiles",
+      "arguments": [
+        [
+          {
+            "id": "att_1",
+            "localId": "f1",
+            "name": "Договор.pdf",
+            "bytes": 48213
+          }
+        ]
+      ]
+    }
+  ],
+  "assertions": [
+    {
+      "type": "upgraded"
+    },
+    {
+      "type": "visible"
+    },
+    {
+      "type": "no-console-error"
+    },
+    {
+      "type": "no-network"
+    }
+  ]
+}

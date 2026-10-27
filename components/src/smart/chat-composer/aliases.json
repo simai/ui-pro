@@ -1,0 +1,56 @@
+{
+  "$comment": "Dated aliases of sf-chat-composer for the shim (core/js/aliases.js, standard §16 item 20). The 0.3 events of simai/ui-chat follow the vocabulary's names; two need the element's detail adapters (sfAliasAdapters).",
+  "component": "sf-chat-composer",
+  "since": "2026-10-28",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "sf-chat-send",
+      "to": "sf-chat-composer-submit",
+      "kind": "event",
+      "component": "sf-chat-composer",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": true,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 detail {text, attachmentIds}: the element's adapter (sfAliasAdapters) makes it from {text, attachment-ids}"
+    },
+    {
+      "from": "sf-chat-stop",
+      "to": "sf-chat-composer-stop",
+      "kind": "event",
+      "component": "sf-chat-composer",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": true,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "an event takes its tag and a verb; the chat's own stop (vocabulary 1.1.3 §5.1); {} is unchanged"
+    },
+    {
+      "from": "sf-chat-files",
+      "to": "sf-chat-composer-attach",
+      "kind": "event",
+      "component": "sf-chat-composer",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": true,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "vocabulary §5 attach; {files, rejected} is unchanged"
+    },
+    {
+      "from": "sf-chat-action",
+      "to": "sf-chat-composer-detach",
+      "kind": "event",
+      "component": "sf-chat-composer",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": true,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 general action event {action: remove-attachment, id, name}: the element's adapter puts action back on {id, name}"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "title": "Chat composer",
+  "runtime": {
+    "attach-label": "Attach a file",
+    "bad-type-text": "this file type is not supported",
+    "busy-text": "Wait for the answer or stop waiting",
+    "count-text": "{count} of {max}",
+    "drop-text": "Drop to attach",
+    "field-label": "Message",
+    "file-label": "File {name}, {size}",
+    "hint-text": "Enter to send, Shift+Enter for a new line",
+    "placeholder-text": "Ask anything",
+    "remove-label": "Remove the file {name}",
+    "send-label": "Send",
+    "size-b-text": "{n} B",
+    "size-gb-text": "{n} GB",
+    "size-kb-text": "{n} KB",
+    "size-mb-text": "{n} MB",
+    "stop-label": "Stop waiting",
+    "too-big-text": "the file is larger than {size}",
+    "too-long-text": "The message is longer than {max} characters",
+    "too-many-text": {
+      "one": "you can attach only {max} file",
+      "other": "you can attach up to {max} files"
+    },
+    "uploading-text": "Uploading, {percent}%"
+  }
+}

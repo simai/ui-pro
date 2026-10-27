@@ -1,0 +1,272 @@
+@layer sf.components {
+  /* sf-chat-composer. The host is display: contents; .sf-chat-composer is
+     what a window places. Every value is a Framework token. The public
+     variables (component.json css-variables) are read here and never set, on
+     the element or any ancestor (public-variables.v1 rule):
+       --sf-chat-composer-background-color  the box's ground
+       --sf-chat-composer-border-color      the box's edge
+       --sf-chat-composer-hint-color        the hint and the count
+       --sf-chat-composer-height            the buttons' and one line's height
+     Their fallbacks are the tokens simai/ui-chat's chat.css and smart.css
+     gave the same places (--sf-chat--ink-muted, --sf-chat--touch, the
+     elevation-1 surface, the outline at 3:1), so the composer reads as it did
+     there. */
+  .sf-chat-composer {
+    --sf-chat-composer--muted: var(--sf-chat-composer-hint-color, var(--sf-on-surface-variant));
+    --sf-chat-composer--control: var(--sf-chat-composer-height, var(--sf-ui-1--control-height));
+    --sf-chat-composer--meta-size: var(--sf-label-medium--size);
+    --sf-chat-composer--meta-height: var(--sf-label-medium--height);
+    --sf-chat-composer--ui-size: var(--sf-label-large--size);
+    --sf-chat-composer--ui-height: var(--sf-label-large--height);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+    margin: 0;
+  }
+
+  /* Files stay one row, scrolled sideways: two of them must not take a
+     quarter of a phone's screen. */
+  .sf-chat-composer__files {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: var(--sf-space-1\/3);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .sf-chat-composer__files[hidden] { display: none; }
+
+  /* The box sets the nesting: its radius and its inset. One line and no
+     files -- a capsule, its round buttons concentric with it; taller -- the
+     corner is derived from what sits in it, the button's half plus the
+     inset, and the buttons and files inside take radius - inset. */
+  .sf-chat-composer__box {
+    --sf-chat-composer--radius: var(--sf-radius-rounded);
+    --sf-chat-composer--inset: var(--sf-space-1\/3);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+    padding: var(--sf-chat-composer--inset);
+    /* The field's edge at 3:1 against the page (WCAG 1.4.11). */
+    border: var(--sf-px) solid var(--sf-chat-composer-border-color, var(--sf-outline));
+    border-radius: var(--sf-chat-composer--radius);
+    background: var(--sf-chat-composer-background-color, var(--sf-elevation-1--surface));
+    box-shadow: var(--sf-elevation-1--shadow);
+    transition: border-color var(--sf-duration-fast), box-shadow var(--sf-duration-fast);
+  }
+
+  .sf-chat-composer__box--tall {
+    --sf-chat-composer--radius: calc(var(--sf-chat-composer--control) / 2 + var(--sf-chat-composer--inset));
+  }
+
+  .sf-chat-composer__row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .sf-chat-composer__box--tall .sf-chat-composer__row { align-items: flex-end; }
+
+  .sf-chat-composer__box .sf-icon-button {
+    --sf-icon-button-radius: max(var(--sf-radius--ui), calc(var(--sf-chat-composer--radius) - var(--sf-chat-composer--inset)));
+    min-inline-size: var(--sf-chat-composer--control);
+    min-block-size: var(--sf-chat-composer--control);
+    /* Stretched here, so centred here: the Framework's content-main-center
+       utility arrives by the Loader a moment later, and the icon would jump. */
+    justify-content: center;
+  }
+
+  /* The flush field draws no focus of its own; the box does, with the
+     Framework's ring, and only for the keyboard: a page that marks a
+     pointer's input (data-chat-input="pointer") gets a darker edge after a
+     click. Without a known input mode the ring shows. */
+  .sf-chat-composer__box:has(.sf-chat-composer__input:focus-visible) {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: var(--sf-focus--offset);
+  }
+
+  [data-chat-input='pointer'] .sf-chat-composer__box:has(.sf-chat-composer__input:focus-visible) {
+    outline: none;
+    border-color: var(--sf-chat-composer-border-color, var(--sf-outline));
+  }
+
+  /* In forced colours the field keeps the system outline (Framework, flush
+     surface); a second ring on the box would double it. */
+  @media (forced-colors: active) {
+    .sf-chat-composer__box:has(.sf-chat-composer__input:focus-visible) { outline: none; }
+  }
+
+  .sf-chat-composer--over .sf-chat-composer__box { border-color: var(--sf-outline-error); }
+
+  /* One line of text takes the buttons' own vertical inset, so the line and
+     the round buttons share one axis and the capsule stays concentric. The
+     label is a flex box: no baseline gap under the field. */
+  .sf-chat-composer__field {
+    display: flex;
+    flex: 1;
+    align-self: center;
+    min-inline-size: 0;
+    --sf-textarea-padding-inline: var(--sf-space-1\/4);
+    --sf-textarea-padding-block: calc((var(--sf-chat-composer--control) - var(--sf-text--height)) / 2);
+  }
+
+  .sf-chat-composer__input { flex: 1; }
+
+  /* No smaller than 16px on any width: iOS zooms the page into a smaller
+     field. The size ladder's 14px on phones loses to the floor: the same
+     element and selector shape as the Framework's size rule, one class more
+     (requested from the Framework as simai/ui-source#25 (c)). */
+  .sf-chat-composer__field.sf-textarea.sf-textarea--flush textarea.sf-chat-composer__input {
+    --sf-textarea-textarea--font-size: max(var(--sf-b6), var(--sf-text--size));
+  }
+
+  .sf-chat-composer__input:disabled { cursor: not-allowed; }
+
+  .sf-chat-composer__attach[hidden],
+  .sf-chat-composer__send[hidden],
+  .sf-chat-composer__stop[hidden],
+  .sf-chat-composer__count[hidden],
+  .sf-chat-composer__notice[hidden] { display: none; }
+
+  .sf-chat-composer__count {
+    align-self: center;
+    padding-inline: var(--sf-space-1\/4);
+    color: var(--sf-chat-composer--muted);
+    font-size: var(--sf-chat-composer--meta-size);
+    line-height: var(--sf-chat-composer--meta-height);
+    white-space: nowrap;
+  }
+
+  .sf-chat-composer--over .sf-chat-composer__count { color: var(--sf-error); }
+
+  .sf-chat-composer__notice {
+    margin: 0;
+    padding-inline: var(--sf-space-1\/2);
+    color: var(--sf-error);
+    font-size: var(--sf-chat-composer--meta-size);
+    line-height: var(--sf-chat-composer--meta-height);
+  }
+
+  .sf-chat-composer__hint {
+    margin: 0;
+    min-block-size: var(--sf-chat-composer--meta-height);
+    color: var(--sf-chat-composer--muted);
+    font-size: var(--sf-chat-composer--meta-size);
+    line-height: var(--sf-chat-composer--meta-height);
+    text-align: center;
+  }
+
+  .sf-chat-composer__drop {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-items: center;
+    border: calc(2 * var(--sf-px)) dashed var(--sf-outline-primary);
+    border-radius: inherit;
+    background: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
+    font-size: var(--sf-chat-composer--ui-size);
+    pointer-events: none;
+  }
+
+  .sf-chat-composer--dragging .sf-chat-composer__drop { display: grid; }
+
+  /* --- a file chip (the chat's attachment, as simai/ui-chat's chat.css) -- */
+
+  .sf-chat-attachment {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    max-inline-size: var(--sf-f6);
+    min-inline-size: 0;
+    min-block-size: var(--sf-ui-2--control-height);
+    padding-block: var(--sf-space-1\/4);
+    padding-inline: var(--sf-space-1\/3);
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    /* A file inside the box follows the box's corner, and passes the rule on
+       to its own icon and remove button. */
+    --sf-chat-attachment--radius: max(var(--sf-radius--ui), calc(var(--sf-chat-composer--radius) - var(--sf-chat-composer--inset)));
+    border-radius: var(--sf-chat-attachment--radius);
+    background: var(--sf-surface-0);
+    color: var(--sf-on-surface);
+  }
+
+  .sf-chat-attachment--error { border-color: var(--sf-outline-error); }
+
+  .sf-chat-attachment__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    inline-size: var(--sf-ui-1\/2--control-height);
+    block-size: var(--sf-ui-1\/2--control-height);
+    border-radius: max(var(--sf-radius--ui), calc(var(--sf-chat-attachment--radius) - var(--sf-space-1\/3)));
+    background: var(--sf-surface-container);
+    color: var(--sf-chat-composer--muted);
+  }
+
+  .sf-chat-attachment--error .sf-chat-attachment__icon { color: var(--sf-error); }
+
+  .sf-chat-attachment__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .sf-chat-attachment__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--sf-chat-composer--ui-size);
+    line-height: var(--sf-chat-composer--ui-height);
+  }
+
+  /* One line: a refusal's reason is shortened here and said in full in the
+     notice under the field. */
+  .sf-chat-attachment__meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--sf-chat-composer--muted);
+    font-size: var(--sf-chat-composer--meta-size);
+    line-height: var(--sf-chat-composer--meta-height);
+  }
+
+  .sf-chat-attachment--error .sf-chat-attachment__meta { color: var(--sf-error); }
+
+  .sf-chat-attachment__progress {
+    position: absolute;
+    inset-inline: var(--sf-space-1\/3);
+    inset-block-end: 0;
+    block-size: calc(2 * var(--sf-px));
+    border-radius: var(--sf-radius-circle);
+    background: linear-gradient(90deg, var(--sf-primary) calc(var(--sf-chat-attachment--progress, 0) * 100%), transparent 0);
+  }
+
+  .sf-chat-attachment__remove { flex: none; }
+
+  .sf-chat-composer__files .sf-chat-attachment__remove {
+    --sf-icon-button-radius: max(var(--sf-radius--ui), calc(var(--sf-chat-attachment--radius) - var(--sf-space-1\/3)));
+    border-radius: max(var(--sf-radius--ui), calc(var(--sf-chat-attachment--radius) - var(--sf-space-1\/3)));
+  }
+
+  /* Touch screens: every target at least the comfortable control, and no
+     keyboard to press Enter on, so the hint has nothing to say. */
+  @media (pointer: coarse) {
+    .sf-chat-composer {
+      --sf-chat-composer--control: var(--sf-chat-composer-height, var(--sf-ui-2--control-height));
+    }
+
+    .sf-chat-attachment__remove {
+      min-inline-size: var(--sf-ui-2--control-height);
+      min-block-size: var(--sf-ui-2--control-height);
+    }
+
+    .sf-chat-composer__hint:not(.sf-chat-composer__hint--busy) { display: none; }
+  }
+}
