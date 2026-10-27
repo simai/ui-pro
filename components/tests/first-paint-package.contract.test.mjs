@@ -45,17 +45,26 @@ test('sf-property-view: skeleton.html is the loading render the element draws', 
   assert.equal(inner(`<sf-property-view>${filled}</sf-property-view>`, 'sf-property-view'), inner(printed, 'sf-property-view'));
 });
 
-test('sf-data-view: its static markup is its skeleton, slotted as the first paint', () => {
+test('sf-data-view: its static markup is its skeleton, slotted as the first paint, in the shape of the data', () => {
   const component = describe(smart, 'data-view');
+  assert.equal(component.manifest.settings['expected-columns']?.default, 4, 'expected-columns, the skeleton\'s shape');
   for (const example of component.examples) {
     const printed = readFileSync(exampleFiles(component, example).html, 'utf8');
     assert.match(printed, /<div slot="first-paint"[^>]*class="sf-data-view-skeleton[^"]*"[^>]*data-sf-static>/u, `${example.name}: the printed skeleton`);
     const rows = Number(example.settings?.['row-cap']) || 10;
-    const bars = (printed.match(/class="sf-skeleton-text /gu) ?? []).length;
-    const chrome = example.settings?.chrome ?? 'toolbar pagination';
-    const extra = ['toolbar', 'pagination'].filter((part) => chrome.split(/\s+/u).includes(part)).length;
-    assert.equal(bars, rows + extra, `${example.name}: a bar per row and per chrome part`);
+    const columns = Number(example.settings?.['expected-columns']) || 4;
+    const table = printed.match(/<div class="sf-data-view-skeleton-table">([\s\S]*?)<\/div><div class="sf-data-view-skeleton-list">/u)?.[1] ?? '';
+    // The head and a row per row, a cell per expected column beside the chrome ones.
+    const lines = table.split(/(?=<div>)/u).filter(Boolean);
+    assert.equal(lines.length, rows + 1, `${example.name}: the head and ${rows} rows`);
+    for (const line of lines) assert.equal((line.match(/<span>/gu) ?? []).length, columns, `${example.name}: ${columns} cells a row`);
+    // The fake port answers that shape, so phase 3 checks the skeleton.
+    const data = example.port.answers['query.change'].data;
+    assert.equal(data.records.length, rows, `${example.name}: the port answers ${rows} rows`);
+    assert.equal(data.columns.length, columns, `${example.name}: the port answers ${columns} columns`);
   }
+  // Until the answer only the skeleton shows, before the code too.
+  assert.match(readFileSync(join(smart, 'table', 'js', 'templates', 'default.css'), 'utf8'), /sf-data-view\[data-sf-awaiting\] > :not\(\[slot="first-paint"\]\) \{[^}]*display: none !important;/u);
 });
 
 test('the port-fed components give gate 24 a fake port, so phase 3 checks their data', async () => {

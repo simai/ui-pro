@@ -1623,12 +1623,7 @@ class SfTable extends TableElement {
                 }
                 this.measurePinnedColumns();
             });
-            // SfBaseElement is display: contents, so its own box has no width.
-            // Observe the nearest visible container instead of the custom tag.
-            const candidates = [this.querySelector('.sf-table'), this.parentElement, this.getRootNode()?.host];
-            const target = candidates.find((element) => element?.getBoundingClientRect?.().width > 0)
-                ?? candidates.find(Boolean) ?? this;
-            this._responsiveObserver.observe(target);
+            this._observeResponsiveBox();
         }
         if (this._abandonedQuery && this._routeContext) {
             this._querySequence += 1;
@@ -7027,6 +7022,7 @@ class SfTable extends TableElement {
         this._responsiveObserver?.disconnect();
         this._responsiveObserver = null;
         this._responsiveWidth = 0;
+        this._responsiveTarget = null;
         this._preferenceUnsubscribe?.();
         this._preferenceUnsubscribe = null;
         this._preferenceKeyBound = undefined;
@@ -7162,7 +7158,24 @@ class SfTable extends TableElement {
         this.refs.items = new Map();
     }
 
+    // SfBaseElement is display: contents, so its own box has no width: the
+    // nearest visible container is observed instead of the custom tag. The
+    // box is chosen again once the one observed has left the document: a
+    // table printed by a server (its static markup) is replaced by the drawn
+    // one, and the width of a box no longer in the page never changes -- a
+    // list on a phone stayed a table, its width read as nothing (stand 24).
+    _observeResponsiveBox() {
+        if (!this._responsiveObserver || this._responsiveTarget?.isConnected) return;
+        const candidates = [this.querySelector('.sf-table'), this.parentElement, this.getRootNode()?.host];
+        const target = candidates.find((element) => element?.getBoundingClientRect?.().width > 0)
+            ?? candidates.find(Boolean) ?? this;
+        if (this._responsiveTarget) this._responsiveObserver.unobserve(this._responsiveTarget);
+        this._responsiveTarget = target;
+        this._responsiveObserver.observe(target);
+    }
+
     afterRender() {
+        this._observeResponsiveBox();
         this.bindRowActionsEvents(this.refs.table?.value);
         if (this._windowed) this.bindWindowScroll();
         // A row the keyboard asked for outside the drawn range is drawn now:

@@ -174,9 +174,10 @@ class PlainElement extends HTMLElement {
 const DataViewElement = elementFromManifest(manifest, {base: PlainElement, lang: {en, ru}, source: "ru", aliases});
 
 // The first paint's rows when the list has no cap (sf-table's page, its
-// pagination-page-size default) and the widths its bars take in turn.
+// pagination-page-size default), how many fields a record of the compact list
+// shows under its title (sf-table list-fields).
 const FIRST_PAINT_ROWS = 10;
-const FIRST_PAINT_WIDTHS = ["w-3/4", "w-2/3", "w-1/2", "w-3/4", "w-2/5"];
+const FIRST_PAINT_LIST_FIELDS = 3;
 
 // The vocabulary's data state (§3) for the view's own words for it.
 const DATA_STATES = {loading: "loading", populated: "ready", empty: "empty", error: "error", "no-access": "refused", unavailable: "unavailable"};
@@ -600,11 +601,27 @@ class SfDataView extends DataViewElement {
         return this.rowCap || FIRST_PAINT_ROWS;
     }
 
-    // Until the host's first answer the view shows its skeleton: a bar for the
-    // toolbar, a bar per row and a bar for the page row, as its chrome asks.
-    // It is light DOM, so a server prints it as the view's static markup and
-    // the page draws it before any code; the view adopts what was printed (its
-    // data-sf-static mark goes) rather than drawing a second one beside it.
+    // How many columns the skeleton stands for (expected-columns): the shape
+    // of the first paint, never a limit -- the host's answer brings its own
+    // columns. The page or server that renders a collection knows them.
+    get expectedColumns() {
+        const declared = Number.parseInt(this.getAttribute("expected-columns") ?? "", 10);
+        return Number.isFinite(declared) && declared > 0 ? declared : 4;
+    }
+
+    // Until the host's first answer the view shows its skeleton: the shape the
+    // list will have once the answer comes, so nothing moves when it does
+    // (standard 1.3.8 §5.4, gate 24). The toolbar and the page row as the data
+    // draws them; the table's head and a row per row it will draw (row-cap,
+    // else a page of 10), a cell per expected column, with the chrome columns
+    // (select, settings) the table will have; and the compact list the table
+    // turns into below its list-below width. The table chooses that in code,
+    // by measuring its container; a printed skeleton cannot measure, so the
+    // choice is the sheet's: a container query at the same width (sf-table's
+    // sheet, .sf-data-view-skeleton). It is light DOM, so a server prints it
+    // as the view's static markup and the page draws it before any code; the
+    // view adopts what was printed (its data-sf-static mark goes) rather than
+    // drawing a second one beside it.
     _startFirstPaint() {
         if (this._answered) return;
         this.setAttribute("data-sf-awaiting", "");
@@ -615,17 +632,53 @@ class SfDataView extends DataViewElement {
             return;
         }
         if (typeof document === "undefined") return;
-        const bar = (width) => `<div class="sf-skeleton sf-skeleton--animation-pulse"><div class="sf-skeleton-text sf-skeleton-text--size-${this.size} ${width}"></div></div>`;
         const skeleton = document.createElement("div");
         skeleton.setAttribute("slot", "first-paint");
         skeleton.setAttribute("aria-hidden", "true");
-        skeleton.className = "sf-data-view-skeleton flex flex-col gap-1";
-        skeleton.innerHTML = [
-            this.renders("toolbar") ? bar("w-1/3") : "",
-            ...Array.from({length: this.firstPaintRows}, (_, at) => bar(FIRST_PAINT_WIDTHS[at % FIRST_PAINT_WIDTHS.length])),
-            this.renders("pagination") ? bar("w-1/4") : "",
-        ].join("");
+        skeleton.className = "sf-data-view-skeleton sf-skeleton sf-skeleton--animation-pulse";
+        skeleton.setAttribute("data-size", this.size);
+        skeleton.innerHTML = this._firstPaintMarkup(skeleton);
         this.append(skeleton);
+    }
+
+    // The skeleton's markup, kept small (it is printed in every page that
+    // shows the view): a bar is an <i class="sf-skeleton-text">, a control
+    // block one marked data-control; the lengths and the bars' widths are the
+    // sheet's (sf-table's sheet, .sf-data-view-skeleton).
+    _firstPaintMarkup(skeleton) {
+        const table = this.querySelector(':scope > sf-table[slot="content"]');
+        const bar = '<i class="sf-skeleton-text"></i>';
+        const control = (kind = "") => `<i class="sf-skeleton-text" data-control${kind ? `="${kind}"` : ""}></i>`;
+        // What the data will draw: the table's toolbar unless the page turned
+        // it off (without a table of the page's, the view's own as its chrome
+        // asks), the chrome columns, and a table or the compact list.
+        const toolbar = table ? table.getAttribute("toolbar") !== "false" : this.renders("toolbar");
+        const ownToolbar = Boolean(table) && this.renders("toolbar") && Boolean(this.querySelector(':scope > [slot="toolbar"]'));
+        const select = this.renders("select");
+        const settings = this.renders("settings");
+        const layout = table?.getAttribute("layout") || (this.renders("toolbar") ? "auto" : "table");
+        skeleton.setAttribute("data-layout", ["auto", "table", "list"].includes(layout) ? layout : "table");
+        const columns = this.expectedColumns;
+        const rows = this.firstPaintRows;
+        const listFields = Number.parseInt(table?.getAttribute("list-fields") ?? "", 10);
+        const fields = Math.min(columns - 1, Number.isFinite(listFields) && listFields >= 0 ? listFields : FIRST_PAINT_LIST_FIELDS);
+        const row = (head) => `<div>${select ? `<span data-chrome>${bar}</span>` : ""}${settings ? `<span data-chrome>${head ? bar : control()}</span>` : ""}${`<span>${bar}</span>`.repeat(columns)}</div>`;
+        const record = `<div>${select ? bar : "<span></span>"}<div>${bar.repeat(fields + 1)}</div>${settings ? control() : "<span></span>"}</div>`;
+        const pageRow = `<nav class="sf-pagination sf-pagination--size-${this.size} flex flex-col"><div class="sf-pagination-main flex items-cross-center content-main-between">`
+            + `<div class="sf-pagination-left flex items-cross-center">${bar}</div>`
+            + `<div class="sf-pagination-container flex items-cross-center"><span class="sf-pagination-pages-label">${bar}</span>${control()}</div>`
+            + `<div class="sf-pagination-count flex items-cross-center">${bar}${control("field")}</div>`
+            + "</div></nav>";
+        return [
+            // An own toolbar slot is a row of the view's layout, even empty.
+            ownToolbar ? '<div class="sf-data-view-skeleton-own-toolbar"></div>' : "",
+            '<div class="sf-data-view-skeleton-records">',
+            toolbar ? `<div class="sf-data-view-skeleton-toolbar">${control("button")}${control("field")}</div>` : "",
+            `<div class="sf-data-view-skeleton-table">${row(true)}${Array.from({length: rows}, () => row(false)).join("")}</div>`,
+            `<div class="sf-data-view-skeleton-list">${record.repeat(rows)}</div>`,
+            "</div>",
+            this.renders("pagination") ? pageRow : "",
+        ].join("");
     }
 
     // The host answered (a list, an empty one, a refusal or a failure): the

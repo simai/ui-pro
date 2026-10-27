@@ -7,6 +7,11 @@
         "aria-label": "Решения",
         "collection": "workbench.solutions"
       },
+      "children": "<sf-table slot=\"content\" aria-label=\"Решения\"></sf-table><sf-pagination slot=\"pagination\"></sf-pagination>",
+      "first-paint": {
+        "max-bytes": 20480,
+        "why": "The view's skeleton (the toolbar, the head and a page of rows, the compact list for a phone, the page row) beside the table and the page row the page gives it as documented, each printed in its own resting markup and held out of view until the host's first answer."
+      },
       "expect": {
         "name": "Решения",
         "values": {
@@ -30,18 +35,9 @@
                     "view"
                   ],
                   "title": "Портал клиента",
-                  "owner": {
-                    "value": "u-1",
-                    "label": "Анна Захарова",
-                    "href": "#u-1"
-                  },
-                  "attachment": {
-                    "value": "f-1",
-                    "label": "договор.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-1"
-                  },
-                  "accent": "#2f6feb"
+                  "owner": "Анна Захарова, продажи",
+                  "status": "Опубликовано на сайте",
+                  "updated": "27 октября 2026, 14:05"
                 },
                 {
                   "id": "r-002",
@@ -50,18 +46,9 @@
                     "view"
                   ],
                   "title": "Каталог товаров",
-                  "owner": {
-                    "value": "u-2",
-                    "label": "Илья Петров",
-                    "href": "#u-2"
-                  },
-                  "attachment": {
-                    "value": "f-2",
-                    "label": "схема.png",
-                    "mime": "image/png",
-                    "href": "#f-2"
-                  },
-                  "accent": "#1a7f37"
+                  "owner": "Илья Петров, закупки",
+                  "status": "Черновик на согласовании",
+                  "updated": "26 октября 2026, 09:40"
                 },
                 {
                   "id": "r-003",
@@ -70,18 +57,9 @@
                     "view"
                   ],
                   "title": "Личный кабинет",
-                  "owner": {
-                    "value": "u-3",
-                    "label": "Мария Соколова",
-                    "href": "#u-3"
-                  },
-                  "attachment": {
-                    "value": "f-3",
-                    "label": "отчёт.docx",
-                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "href": "#f-3"
-                  },
-                  "accent": "#bf3989"
+                  "owner": "Мария Соколова, поддержка",
+                  "status": "Опубликовано на сайте",
+                  "updated": "24 октября 2026, 18:12"
                 },
                 {
                   "id": "r-004",
@@ -90,18 +68,9 @@
                     "view"
                   ],
                   "title": "Склад",
-                  "owner": {
-                    "value": "u-4",
-                    "label": "Олег Иванов",
-                    "href": "#u-4"
-                  },
-                  "attachment": {
-                    "value": "f-4",
-                    "label": "накладная.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-4"
-                  },
-                  "accent": "#9a6700"
+                  "owner": "Олег Иванов, склад",
+                  "status": "Снято с публикации",
+                  "updated": "21 октября 2026, 11:30"
                 },
                 {
                   "id": "r-005",
@@ -110,18 +79,9 @@
                     "view"
                   ],
                   "title": "Сайт",
-                  "owner": {
-                    "value": "u-5",
-                    "label": "Ирина Белова",
-                    "href": "#u-5"
-                  },
-                  "attachment": {
-                    "value": "f-5",
-                    "label": "логотип.svg",
-                    "mime": "image/svg+xml",
-                    "href": "#f-5"
-                  },
-                  "accent": "#cf222e"
+                  "owner": "Ирина Белова, маркетинг",
+                  "status": "Черновик на согласовании",
+                  "updated": "19 октября 2026, 16:55"
                 },
                 {
                   "id": "r-006",
@@ -130,18 +90,9 @@
                     "view"
                   ],
                   "title": "Портал клиента",
-                  "owner": {
-                    "value": "u-1",
-                    "label": "Анна Захарова",
-                    "href": "#u-1"
-                  },
-                  "attachment": {
-                    "value": "f-1",
-                    "label": "договор.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-1"
-                  },
-                  "accent": "#2f6feb"
+                  "owner": "Анна Захарова, продажи",
+                  "status": "Опубликовано на сайте",
+                  "updated": "27 октября 2026, 14:05"
                 },
                 {
                   "id": "r-007",
@@ -150,18 +101,9 @@
                     "view"
                   ],
                   "title": "Каталог товаров",
-                  "owner": {
-                    "value": "u-2",
-                    "label": "Илья Петров",
-                    "href": "#u-2"
-                  },
-                  "attachment": {
-                    "value": "f-2",
-                    "label": "схема.png",
-                    "mime": "image/png",
-                    "href": "#f-2"
-                  },
-                  "accent": "#1a7f37"
+                  "owner": "Илья Петров, закупки",
+                  "status": "Черновик на согласовании",
+                  "updated": "26 октября 2026, 09:40"
                 },
                 {
                   "id": "r-008",
@@ -170,18 +112,9 @@
                     "view"
                   ],
                   "title": "Личный кабинет",
-                  "owner": {
-                    "value": "u-3",
-                    "label": "Мария Соколова",
-                    "href": "#u-3"
-                  },
-                  "attachment": {
-                    "value": "f-3",
-                    "label": "отчёт.docx",
-                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "href": "#f-3"
-                  },
-                  "accent": "#bf3989"
+                  "owner": "Мария Соколова, поддержка",
+                  "status": "Опубликовано на сайте",
+                  "updated": "24 октября 2026, 18:12"
                 },
                 {
                   "id": "r-009",
@@ -190,18 +123,9 @@
                     "view"
                   ],
                   "title": "Склад",
-                  "owner": {
-                    "value": "u-4",
-                    "label": "Олег Иванов",
-                    "href": "#u-4"
-                  },
-                  "attachment": {
-                    "value": "f-4",
-                    "label": "накладная.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-4"
-                  },
-                  "accent": "#9a6700"
+                  "owner": "Олег Иванов, склад",
+                  "status": "Снято с публикации",
+                  "updated": "21 октября 2026, 11:30"
                 },
                 {
                   "id": "r-010",
@@ -210,18 +134,9 @@
                     "view"
                   ],
                   "title": "Сайт",
-                  "owner": {
-                    "value": "u-5",
-                    "label": "Ирина Белова",
-                    "href": "#u-5"
-                  },
-                  "attachment": {
-                    "value": "f-5",
-                    "label": "логотип.svg",
-                    "mime": "image/svg+xml",
-                    "href": "#f-5"
-                  },
-                  "accent": "#cf222e"
+                  "owner": "Ирина Белова, маркетинг",
+                  "status": "Черновик на согласовании",
+                  "updated": "19 октября 2026, 16:55"
                 }
               ],
               "columns": [
@@ -234,17 +149,17 @@
                 {
                   "key": "owner",
                   "label": "Ответственный",
-                  "property_type": "record"
+                  "property_type": "string"
                 },
                 {
-                  "key": "attachment",
-                  "label": "Файл",
-                  "property_type": "file"
+                  "key": "status",
+                  "label": "Статус",
+                  "property_type": "string"
                 },
                 {
-                  "key": "accent",
-                  "label": "Цвет",
-                  "property_type": "color"
+                  "key": "updated",
+                  "label": "Изменено",
+                  "property_type": "string"
                 }
               ],
               "total": 10,
@@ -275,7 +190,7 @@
             "answer": "applied"
           }
         },
-        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers as many rows as the skeleton stands for (row-cap, else a page of 10), each with a reference, a file and a colour."
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers the shape the skeleton stands for: as many rows (row-cap, else a page of 10) and as many columns (expected-columns, 4) as it draws, each field long enough to take its own line in the compact list."
       }
     },
     {
@@ -284,8 +199,10 @@
       "settings": {
         "aria-label": "Связанные",
         "chrome": "",
-        "row-cap": 5
+        "row-cap": 5,
+        "expected-columns": 2
       },
+      "children": "<sf-table slot=\"content\" aria-label=\"Связанные\" toolbar=\"false\"></sf-table>",
       "expect": {
         "name": "Связанные"
       },
@@ -305,18 +222,7 @@
                     "view"
                   ],
                   "title": "Портал клиента",
-                  "owner": {
-                    "value": "u-1",
-                    "label": "Анна Захарова",
-                    "href": "#u-1"
-                  },
-                  "attachment": {
-                    "value": "f-1",
-                    "label": "договор.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-1"
-                  },
-                  "accent": "#2f6feb"
+                  "status": "Опубликовано"
                 },
                 {
                   "id": "r-002",
@@ -325,18 +231,7 @@
                     "view"
                   ],
                   "title": "Каталог товаров",
-                  "owner": {
-                    "value": "u-2",
-                    "label": "Илья Петров",
-                    "href": "#u-2"
-                  },
-                  "attachment": {
-                    "value": "f-2",
-                    "label": "схема.png",
-                    "mime": "image/png",
-                    "href": "#f-2"
-                  },
-                  "accent": "#1a7f37"
+                  "status": "Черновик"
                 },
                 {
                   "id": "r-003",
@@ -345,18 +240,7 @@
                     "view"
                   ],
                   "title": "Личный кабинет",
-                  "owner": {
-                    "value": "u-3",
-                    "label": "Мария Соколова",
-                    "href": "#u-3"
-                  },
-                  "attachment": {
-                    "value": "f-3",
-                    "label": "отчёт.docx",
-                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "href": "#f-3"
-                  },
-                  "accent": "#bf3989"
+                  "status": "Опубликовано"
                 },
                 {
                   "id": "r-004",
@@ -365,18 +249,7 @@
                     "view"
                   ],
                   "title": "Склад",
-                  "owner": {
-                    "value": "u-4",
-                    "label": "Олег Иванов",
-                    "href": "#u-4"
-                  },
-                  "attachment": {
-                    "value": "f-4",
-                    "label": "накладная.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-4"
-                  },
-                  "accent": "#9a6700"
+                  "status": "Снято"
                 },
                 {
                   "id": "r-005",
@@ -385,18 +258,7 @@
                     "view"
                   ],
                   "title": "Сайт",
-                  "owner": {
-                    "value": "u-5",
-                    "label": "Ирина Белова",
-                    "href": "#u-5"
-                  },
-                  "attachment": {
-                    "value": "f-5",
-                    "label": "логотип.svg",
-                    "mime": "image/svg+xml",
-                    "href": "#f-5"
-                  },
-                  "accent": "#cf222e"
+                  "status": "Черновик"
                 }
               ],
               "columns": [
@@ -407,19 +269,9 @@
                   "role": "title"
                 },
                 {
-                  "key": "owner",
-                  "label": "Ответственный",
-                  "property_type": "record"
-                },
-                {
-                  "key": "attachment",
-                  "label": "Файл",
-                  "property_type": "file"
-                },
-                {
-                  "key": "accent",
-                  "label": "Цвет",
-                  "property_type": "color"
+                  "key": "status",
+                  "label": "Статус",
+                  "property_type": "string"
                 }
               ],
               "total": 5,
@@ -450,7 +302,7 @@
             "answer": "applied"
           }
         },
-        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers as many rows as the skeleton stands for (row-cap, else a page of 10), each with a reference, a file and a colour."
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers the shape the skeleton stands for: row-cap rows and the expected-columns (2) a related list in a record shows, each value one line; on a phone the two columns fit, so no sideways rail comes with the data."
       }
     },
     {
@@ -459,6 +311,11 @@
       "settings": {
         "aria-label": "Решения",
         "current": "r-005"
+      },
+      "children": "<sf-table slot=\"content\" aria-label=\"Решения\"></sf-table><sf-pagination slot=\"pagination\"></sf-pagination>",
+      "first-paint": {
+        "max-bytes": 20480,
+        "why": "The view's skeleton (the toolbar, the head and a page of rows, the compact list for a phone, the page row) beside the table and the page row the page gives it as documented, each printed in its own resting markup and held out of view until the host's first answer."
       },
       "expect": {
         "name": "Решения",
@@ -482,18 +339,9 @@
                     "view"
                   ],
                   "title": "Портал клиента",
-                  "owner": {
-                    "value": "u-1",
-                    "label": "Анна Захарова",
-                    "href": "#u-1"
-                  },
-                  "attachment": {
-                    "value": "f-1",
-                    "label": "договор.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-1"
-                  },
-                  "accent": "#2f6feb"
+                  "owner": "Анна Захарова, продажи",
+                  "status": "Опубликовано на сайте",
+                  "updated": "27 октября 2026, 14:05"
                 },
                 {
                   "id": "r-002",
@@ -502,18 +350,9 @@
                     "view"
                   ],
                   "title": "Каталог товаров",
-                  "owner": {
-                    "value": "u-2",
-                    "label": "Илья Петров",
-                    "href": "#u-2"
-                  },
-                  "attachment": {
-                    "value": "f-2",
-                    "label": "схема.png",
-                    "mime": "image/png",
-                    "href": "#f-2"
-                  },
-                  "accent": "#1a7f37"
+                  "owner": "Илья Петров, закупки",
+                  "status": "Черновик на согласовании",
+                  "updated": "26 октября 2026, 09:40"
                 },
                 {
                   "id": "r-003",
@@ -522,18 +361,9 @@
                     "view"
                   ],
                   "title": "Личный кабинет",
-                  "owner": {
-                    "value": "u-3",
-                    "label": "Мария Соколова",
-                    "href": "#u-3"
-                  },
-                  "attachment": {
-                    "value": "f-3",
-                    "label": "отчёт.docx",
-                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "href": "#f-3"
-                  },
-                  "accent": "#bf3989"
+                  "owner": "Мария Соколова, поддержка",
+                  "status": "Опубликовано на сайте",
+                  "updated": "24 октября 2026, 18:12"
                 },
                 {
                   "id": "r-004",
@@ -542,18 +372,9 @@
                     "view"
                   ],
                   "title": "Склад",
-                  "owner": {
-                    "value": "u-4",
-                    "label": "Олег Иванов",
-                    "href": "#u-4"
-                  },
-                  "attachment": {
-                    "value": "f-4",
-                    "label": "накладная.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-4"
-                  },
-                  "accent": "#9a6700"
+                  "owner": "Олег Иванов, склад",
+                  "status": "Снято с публикации",
+                  "updated": "21 октября 2026, 11:30"
                 },
                 {
                   "id": "r-005",
@@ -562,18 +383,9 @@
                     "view"
                   ],
                   "title": "Сайт",
-                  "owner": {
-                    "value": "u-5",
-                    "label": "Ирина Белова",
-                    "href": "#u-5"
-                  },
-                  "attachment": {
-                    "value": "f-5",
-                    "label": "логотип.svg",
-                    "mime": "image/svg+xml",
-                    "href": "#f-5"
-                  },
-                  "accent": "#cf222e"
+                  "owner": "Ирина Белова, маркетинг",
+                  "status": "Черновик на согласовании",
+                  "updated": "19 октября 2026, 16:55"
                 },
                 {
                   "id": "r-006",
@@ -582,18 +394,9 @@
                     "view"
                   ],
                   "title": "Портал клиента",
-                  "owner": {
-                    "value": "u-1",
-                    "label": "Анна Захарова",
-                    "href": "#u-1"
-                  },
-                  "attachment": {
-                    "value": "f-1",
-                    "label": "договор.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-1"
-                  },
-                  "accent": "#2f6feb"
+                  "owner": "Анна Захарова, продажи",
+                  "status": "Опубликовано на сайте",
+                  "updated": "27 октября 2026, 14:05"
                 },
                 {
                   "id": "r-007",
@@ -602,18 +405,9 @@
                     "view"
                   ],
                   "title": "Каталог товаров",
-                  "owner": {
-                    "value": "u-2",
-                    "label": "Илья Петров",
-                    "href": "#u-2"
-                  },
-                  "attachment": {
-                    "value": "f-2",
-                    "label": "схема.png",
-                    "mime": "image/png",
-                    "href": "#f-2"
-                  },
-                  "accent": "#1a7f37"
+                  "owner": "Илья Петров, закупки",
+                  "status": "Черновик на согласовании",
+                  "updated": "26 октября 2026, 09:40"
                 },
                 {
                   "id": "r-008",
@@ -622,18 +416,9 @@
                     "view"
                   ],
                   "title": "Личный кабинет",
-                  "owner": {
-                    "value": "u-3",
-                    "label": "Мария Соколова",
-                    "href": "#u-3"
-                  },
-                  "attachment": {
-                    "value": "f-3",
-                    "label": "отчёт.docx",
-                    "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "href": "#f-3"
-                  },
-                  "accent": "#bf3989"
+                  "owner": "Мария Соколова, поддержка",
+                  "status": "Опубликовано на сайте",
+                  "updated": "24 октября 2026, 18:12"
                 },
                 {
                   "id": "r-009",
@@ -642,18 +427,9 @@
                     "view"
                   ],
                   "title": "Склад",
-                  "owner": {
-                    "value": "u-4",
-                    "label": "Олег Иванов",
-                    "href": "#u-4"
-                  },
-                  "attachment": {
-                    "value": "f-4",
-                    "label": "накладная.pdf",
-                    "mime": "application/pdf",
-                    "href": "#f-4"
-                  },
-                  "accent": "#9a6700"
+                  "owner": "Олег Иванов, склад",
+                  "status": "Снято с публикации",
+                  "updated": "21 октября 2026, 11:30"
                 },
                 {
                   "id": "r-010",
@@ -662,18 +438,9 @@
                     "view"
                   ],
                   "title": "Сайт",
-                  "owner": {
-                    "value": "u-5",
-                    "label": "Ирина Белова",
-                    "href": "#u-5"
-                  },
-                  "attachment": {
-                    "value": "f-5",
-                    "label": "логотип.svg",
-                    "mime": "image/svg+xml",
-                    "href": "#f-5"
-                  },
-                  "accent": "#cf222e"
+                  "owner": "Ирина Белова, маркетинг",
+                  "status": "Черновик на согласовании",
+                  "updated": "19 октября 2026, 16:55"
                 }
               ],
               "columns": [
@@ -686,17 +453,17 @@
                 {
                   "key": "owner",
                   "label": "Ответственный",
-                  "property_type": "record"
+                  "property_type": "string"
                 },
                 {
-                  "key": "attachment",
-                  "label": "Файл",
-                  "property_type": "file"
+                  "key": "status",
+                  "label": "Статус",
+                  "property_type": "string"
                 },
                 {
-                  "key": "accent",
-                  "label": "Цвет",
-                  "property_type": "color"
+                  "key": "updated",
+                  "label": "Изменено",
+                  "property_type": "string"
                 }
               ],
               "total": 10,
@@ -727,7 +494,7 @@
             "answer": "applied"
           }
         },
-        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers as many rows as the skeleton stands for (row-cap, else a page of 10), each with a reference, a file and a colour."
+        "$comment": "A fake host (ui-source first-paint-lib.mjs portOf): gate 24 hands it over as phase 3. It answers the shape the skeleton stands for: as many rows (row-cap, else a page of 10) and as many columns (expected-columns, 4) as it draws, each field long enough to take its own line in the compact list."
       }
     }
   ]
