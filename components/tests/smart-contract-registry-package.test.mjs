@@ -35,7 +35,7 @@ test("CLI discovers and describes the whole data view", () => {
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-table");
   assert.equal(packet.conformance.compatibility.contract_schema.version, 2);
-  assert.equal(packet.identity.version, '1.11.3');
+  assert.equal(packet.identity.version, '1.11.4');
   assert.ok(packet.public_abi.methods.requestActionIntent);
   assert.ok(packet.public_abi.events['sf-table-action-intent']);
   for (const event of ['sf-table-create-intent', 'sf-table-template-select', 'sf-table-sort-change']) {

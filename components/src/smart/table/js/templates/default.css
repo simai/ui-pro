@@ -1266,11 +1266,16 @@ sf-table tbody tr[data-sf-drop-after] > td {
   }
 
   /* A bar is a line of the row's text (its line height, the letters' height
-     in the middle); a control block is as tall as the step's control. */
+     in the middle); a control block is as tall as the step's control. The
+     whole box is here, not only its lengths: the skeleton component's sheet
+     (which also sizes .sf-skeleton-text) arrives later through the Loader, and
+     a bar with no height of its own until then grows the list when it does. */
   .sf-data-view-skeleton .sf-skeleton-text {
     --sf-skeleton-text--height: var(--sf-text-size-1);
     --sf-skeleton-text--line: var(--sf-text-height-1);
     display: block;
+    block-size: var(--sf-skeleton-text--height);
+    margin-block: calc((var(--sf-skeleton-text--line) - var(--sf-skeleton-text--height)) / 2);
     inline-size: 50%;
     max-inline-size: 100%;
   }
