@@ -107,8 +107,9 @@ try {
     view.setHostPort({
       version: '1.7.0', capabilities: ['view-settings'],
       async raise(intent, payload) {
-        window.raised.push({intent, profile: payload?.profile});
+        window.raised.push({intent, profile: payload?.profile, label: payload?.label});
         if (intent === 'record.load') return {answer: 'applied', record: record('default')};
+        if (intent === 'view.create') return {answer: 'applied', record: record('mine')};
         if (intent === 'view.profile') return {answer: 'applied', record: record(payload.profile)};
         return {answer: 'applied'};
       },
@@ -186,6 +187,36 @@ try {
     .map((row) => `${row.querySelector('.sf-profile-picker-label')?.textContent.trim()}:${row.getAttribute('aria-checked')}`));
   if (barMenu.join() !== 'Обычный:false,Мой:true') note({case: 'the bar opens the views as radio rows', got: barMenu});
 
+  // «Add a view» asks for the name before anything is written (simai.main QA,
+  // 2026-10-27): it made «New view» at once, a host record nobody had named.
+  const naming = await page.evaluate(async () => {
+    const view = document.getElementById('view');
+    const wait = (ms) => new Promise((done) => setTimeout(done, ms));
+    view.startConfiguringView?.();
+    await wait(300);
+    const root = () => view.panelContent?.() ?? view;
+    const created = () => window.raised.filter((entry) => entry.intent === 'view.create');
+    const add = root().querySelector('[data-action="add-profile"]');
+    (add?.querySelector('button') ?? add)?.click();
+    await wait(300);
+    const row = root().querySelector('[data-action="new-profile"]');
+    const result = {button: Boolean(add), row: Boolean(row), createdOnPress: created().length};
+    const input = row?.querySelector('sf-input');
+    const field = input?.querySelector('input');
+    if (field) { field.value = 'Договоры'; field.dispatchEvent(new Event('input', {bubbles: true})); }
+    field?.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true, composed: true}));
+    await wait(400);
+    result.created = created().map((entry) => entry.label);
+    result.rowAfter = Boolean(root().querySelector('[data-action="new-profile"]'));
+    view.cancelConfiguringView?.();
+    return result;
+  });
+  if (!naming.button || !naming.row || naming.createdOnPress !== 0
+    || naming.created.join() !== 'Договоры' || naming.rowAfter) {
+    note({case: '«Add a view» asks for the name before it makes the view', got: naming,
+      expected: 'the press opens a naming row and raises nothing; Enter raises view.create once with the typed name and closes the row'});
+  }
+
   // A host's own items slotted into `menu` are rows of the same standard menu
   // (owner, 2026-10-14): they were a popover of link buttons.
   await page.evaluate(() => document.getElementById('view').remove());
@@ -238,7 +269,7 @@ try {
     note({case: "a host's menu items are rows of the standard menu", got: hostedMenu});
   }
 
-  console.log(JSON.stringify({probe: 'property-view-menu', menu, views, chosen, chooser, barMenu, hostedMenu, failures}, null, 2));
+  console.log(JSON.stringify({probe: 'property-view-menu', menu, views, chosen, chooser, barMenu, naming, hostedMenu, failures}, null, 2));
 } finally {
   await browser.close();
 }

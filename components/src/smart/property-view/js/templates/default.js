@@ -1361,15 +1361,63 @@ function renderViewProfiles(context) {
                     ></sf-icon-button>
                 </div>
             `)}
-            <sf-button
-                    appearance="outline"
-                    scheme="on-surface"
-                    size="1/2"
-                    text=${context.addViewText}
-                    data-action="add-profile"
-                    @click=${() => context.component.createViewProfile(context.newViewText)}
-            ></sf-button>
+            ${context.namingView ? renderNewViewName(context) : html`
+                <sf-button
+                        appearance="outline"
+                        scheme="on-surface"
+                        size="1/2"
+                        text=${context.addViewText}
+                        data-action="add-profile"
+                        @click=${() => context.component.startNamingView()}
+                ></sf-button>`}
         </section>
+    `;
+}
+
+// The name of a view about to be made, in the row the rename of an area uses.
+// Nothing is written until it is confirmed with a name.
+function renderNewViewName(context) {
+    const commit = (event) => {
+        const input = event.target?.closest?.('.sf-property-view-rename')?.querySelector('sf-input');
+        context.component.createViewProfile(input?.value ?? '');
+    };
+
+    return html`
+        <span class="sf-property-view-rename flex items-cross-center gap-1/4 min-w-0" data-action="new-profile">
+            <sf-input
+                    size="1/2"
+                    appearance="bordered"
+                    autofocus
+                    root-class="flex-auto min-w-0"
+                    data-action="new-profile-input"
+                    aria-label=${context.addViewText}
+                    placeholder=${context.newViewText}
+                    @keydown=${(event) => {
+                        if (event.key === 'Enter') commit(event);
+                        if (event.key === 'Escape') context.component.cancelNamingView();
+                    }}
+            ></sf-input>
+            <sf-icon-button
+                    size="1/2"
+                    appearance="link"
+                    scheme="on-surface"
+                    icon="check"
+                    data-action="new-profile-save"
+                    title=${context.saveNameText}
+                    aria-label=${context.saveNameText}
+                    @click=${commit}
+            ></sf-icon-button>
+            <sf-icon-button
+                    size="1/2"
+                    appearance="link"
+                    scheme="on-surface"
+                    icon="close"
+                    data-action="new-profile-cancel"
+                    title=${context.cancelNameText}
+                    aria-label=${context.cancelNameText}
+                    @click=${() => context.component.cancelNamingView()}
+            ></sf-icon-button>
+        </span>
     `;
 }
 

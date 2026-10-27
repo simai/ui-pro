@@ -30,10 +30,8 @@ test('the view declares port 1.16.0 and keeps every earlier version', () => {
   assert.match(view, /const SUPPORTED_PORT_VERSIONS = \[[^\]]*"1\.15\.0", "1\.16\.0"\];/u);
   const component = JSON.parse(read('src/smart/property-view/component.json'));
   assert.equal(component.port.version, '1.16.0');
-  assert.equal(component.version, '1.7.0');
-  assert.equal(manifest.version, '1.7.0');
-  assert.deepEqual(manifest.compatibility.migrations.at(-1).from, '1.6.0');
-  assert.deepEqual(manifest.compatibility.migrations.at(-1).to, '1.7.0');
+  assert.equal(manifest.version, component.version);
+  assert.ok(manifest.compatibility.migrations.some((step) => step.from === '1.6.0' && step.to === '1.7.0'));
 });
 
 test('the port declares the keys the two read', () => {

@@ -264,6 +264,9 @@ class SfPropertyView extends PropertyViewElement {
         // written until it is confirmed, so an area keeps its name while a
         // person is still deciding on another.
         this.renaming = null;
+        // Whether a new view's name is being typed. A view is a host record, so
+        // it is made only once it has a name, never as a placeholder to rename.
+        this.namingView = false;
         // What the arrangement was when the mode was entered, and whether a
         // reset has been asked for and is waiting to be confirmed.
         this.arrangementEntered = null;
@@ -1583,6 +1586,7 @@ class SfPropertyView extends PropertyViewElement {
             newGroupTitle: this.newGroupTitle,
             newSectionTitle: this.newSectionTitle,
             renaming: this.renaming,
+            namingView: this.namingView,
             noMatchText: this.noMatchText,
             unplacedHintText: this.unplacedHintText,
             panelMenuItems: this.panelMenuItems,
@@ -2569,11 +2573,29 @@ class SfPropertyView extends PropertyViewElement {
     createViewProfile(label, {shared = false} = {}) {
         const name = String(label ?? "").trim();
         if (!name) return null;
+        if (this.namingView) {
+            this.namingView = false;
+            this.requestComponentUpdate("view-naming");
+        }
         return this._viewProfileIntent("view.create", {
             label: name,
             shared: Boolean(shared),
             view: this.layerDraft ?? this._layerCopy(this.viewTarget),
         });
+    }
+
+    // «Add a view» asks for the name first. Making «New view» at once wrote a
+    // view nobody had named, switched to it, and left a placeholder behind
+    // when the person did not rename it (simai.main QA, 2026-10-27).
+    startNamingView() {
+        this.namingView = true;
+        this.requestComponentUpdate("view-naming");
+        return true;
+    }
+
+    cancelNamingView() {
+        this.namingView = false;
+        this.requestComponentUpdate("view-naming");
     }
 
     // A rename changes the label. The id is permanent, so anything pointing at
