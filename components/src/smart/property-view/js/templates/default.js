@@ -457,7 +457,15 @@ function renderField(context, field, editing, sectionKey = '', groupKey = '') {
                                 class="sf-property-view-field-value sf-property-view-field-open min-w-0 flex items-cross-center gap-1 text-start cursor-pointer"
                                 data-open-group=${groupKey}
                                 title=${context.editText}
-                                @click=${() => context.component.editGroup(sectionKey, groupKey)}
+                                @click=${(event) => {
+                                    // A link inside the value -- a file's download,
+                                    // a URL, an address -- does its own thing and
+                                    // nothing more: downloading a stored file also
+                                    // opened the group for editing (simai.main,
+                                    // 2026-10-28).
+                                    if (event.composedPath().some((node) => node.matches?.('a[href]'))) return;
+                                    context.component.editGroup(sectionKey, groupKey);
+                                }}
                         >
                             ${renderFieldValue(context, field, editing)}
                             <i class="sf-icon sf-icon--size-1/2 sf-property-view-pen" aria-hidden="true">edit</i>

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1248,6 +1248,13 @@
         "changes": [
           "Cancelling the arrangement mode with nothing changed raises no view.save: the layer is still the one entered with (same revision, or the same content), so nothing is written back. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.7.2",
+        "to": "1.7.3",
+        "changes": [
+          "A press on a link inside a field's value (a stored file's download, a URL) no longer opens the group for editing; the link does its own thing only. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1261,7 +1268,7 @@
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "5395d40b766c810a8f32d07c7310bd78b93fc24ab9f2832bb5eef0e14164e440"
+        "sha256": "3bddc4ace4c3e60052bf536f317b8035fa24cf0ae27c3f23e0838d6b4a0f16a3"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",
