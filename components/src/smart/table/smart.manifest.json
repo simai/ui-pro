@@ -2020,7 +2020,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "e0f43fdb15a4e0892f7c0e05b346111e00b0876c",
+    "source_revision": "cea30ac6877b0029188099dbeac081cf8853f716",
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
