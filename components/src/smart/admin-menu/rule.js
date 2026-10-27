@@ -12,12 +12,12 @@ SF.RuleLoader["cl-admin-menu"] = {
     { name: "icons" },
     { name: "inputs" },
     { name: "badges" },
-    { name: "cl-buttons" },
+    { name: "cl-button" },
     { name: "cl-context-menu", lazy: true },
-    { name: "cl-badges" },
-    { name: "cl-icons" },
-    { name: "cl-icon-buttons" },
-    { name: "cl-inputs" },
+    { name: "cl-badge" },
+    { name: "cl-icon" },
+    { name: "cl-icon-button" },
+    { name: "cl-input" },
     // The navigation shell's edit mode moves rows with sf-sortable; a tag the
     // menu renders is a tag it fetches.
     { name: "cl-sortable", lazy: true },

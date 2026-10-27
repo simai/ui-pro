@@ -324,7 +324,7 @@ function renderEmptyState(context, dataState) {
     if (component?.hasSlotContent?.('empty')) return component.getSlotContent('empty');
     const brick = component.emptyBrick(dataState);
     return html`<sf-empty-state kind=${brick.kind} size=${brick.size} heading-level=${brick.headingLevel}
-                                title=${brick.title || nothing} text=${brick.text || nothing} live=${brick.live || nothing}
+                                heading=${brick.title || nothing} text=${brick.text || nothing} live=${brick.live || nothing}
                                 .actions=${brick.actions}></sf-empty-state>`;
 }
 

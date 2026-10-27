@@ -818,7 +818,7 @@ export function renderAdminMenuTemplate(context) {
               }}
               placeholder="${context.searchPlaceholder || nothing}"
               name="sf_admin_search_input"
-              left-icon="search"
+              icon-start="search"
             ></sf-input>`
           : nothing}
       </div>

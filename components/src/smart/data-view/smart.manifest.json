@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Data view composite",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -29,11 +29,11 @@
   "exported_parts": [],
   "composition": {
     "uses": [
-      "smart.buttons",
+      "smart.button",
       "smart.checkbox",
       "smart.data-view",
       "smart.dropdown",
-      "smart.icon-buttons",
+      "smart.icon-button",
       "smart.pagination",
       "smart.toast"
     ],
@@ -78,8 +78,8 @@
       "slots": {
         "toolbar": {
           "accepts": [
-            "smart.buttons",
-            "smart.inputs",
+            "smart.button",
+            "smart.input",
             "smart.dropdown"
           ]
         },
@@ -1283,7 +1283,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/data-view/index.js",
-        "sha256": "a82ecdc60f395e1ad9ab17ea850d9238a9a2b38bb5a95f90a44be717f28827c0"
+        "sha256": "b7171026267f04c705630c85d866955863f93071592cdf9944656eca48e9768d"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",
@@ -1291,7 +1291,7 @@
       },
       {
         "path": "src/smart/data-view/docs.md",
-        "sha256": "9442395175c335a4c947e4ecb7aa860ce0b691276a21bac0d3a10e775049337b"
+        "sha256": "be142c3bbd75eb70a52365bdb31b11ce66523ed04c2fe4098806098f9f204316"
       },
       {
         "path": "tests/fixtures/data-view-composite-lab.html",

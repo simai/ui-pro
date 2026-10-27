@@ -66,14 +66,15 @@ test('the cross announces the end of a selection it does not own', async () => {
   // view directly. Neither keeps a copy that could drift from the boxes.
   assert.match(
     pagination,
-    /clearSelection\(\) \{\s*this\.emitComponentEvent\("selection-clear", \{/u,
+    /clearSelection\(\) \{\s*this\.sfEmit\("selection-clear", \{/u,
   );
-  assert.match(view, /"sf-action-apply", "sf-show-more", "sf-selection-clear",/u, 'the view listens for it');
+  assert.match(view, /"sf-pagination-apply",\s*"sf-pagination-load-more", "sf-pagination-selection-clear",/u, 'the view listens for it');
+  assert.match(view, /"sf-table-retry", "sf-port-output", \.\.\.PAGINATION_EVENTS,/u, 'on connection');
   assert.match(
     view,
     /clearSelection\(\) \{\s*this\.table\?\.clearSelection\?\.\(\);/u,
   );
-  assert.match(view, /if \(event\.type === "sf-selection-clear"\) return this\.clearSelection\(\);/u);
+  assert.match(view, /if \(event\.type === "sf-pagination-selection-clear"\) return this\.clearSelection\(\);/u);
   assert.doesNotMatch(pagination, /_selectedIds|selectionSet/u, 'the pagination keeps no selection of its own');
 });
 

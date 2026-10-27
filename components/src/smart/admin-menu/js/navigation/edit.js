@@ -49,11 +49,11 @@ export function renderEditBanner(context) {
             resettable message=${edit.message || ""}
             .profiles=${profilePickerEntries(controller)}
             .rights=${{create: {personal: kinds.personal, shared: kinds.shared}}}
-            @sf-profile-select=${(event) => controller.editProfile(event.detail.id)}
-            @sf-profile-create=${(event) => controller.createProfile(event.detail.label, event.detail.shared)}
-            @sf-profile-rename=${(event) => controller.renameProfile(event.detail.label, event.detail.id)}
-            @sf-profile-delete=${(event) => controller.deleteProfile(event.detail.id)}
-            @sf-profile-reset=${() => controller.resetProfile()}></sf-profile-picker>
+            @sf-profile-picker-select=${(event) => controller.editProfile(event.detail.id)}
+            @sf-profile-picker-create=${(event) => controller.createProfile(event.detail.label, event.detail.shared)}
+            @sf-profile-picker-rename=${(event) => controller.renameProfile(event.detail.label, event.detail.id)}
+            @sf-profile-picker-delete=${(event) => controller.deleteProfile(event.detail.id)}
+            @sf-profile-picker-reset=${() => controller.resetProfile()}></sf-profile-picker>
         <p class="sf-admin-nav-edit-note">${shared ? text("noteShared") : text("notePersonal")}</p>
     </div>`;
 }
@@ -183,7 +183,7 @@ function renderAdd(context, root) {
             ${edit.linkError ? html`<p class="sf-admin-nav-edit-message" role="alert">${edit.linkError}</p>` : nothing}
             <div class="sf-admin-nav-edit-actions">
                 <sf-button size="1/2" @click=${(event) => event.target.closest("form")?.requestSubmit()} text=${text("add")}></sf-button>
-                <sf-button size="1/2" appearance="ghost" scheme="on-surface"
+                <sf-button size="1/2" appearance="link" scheme="on-surface"
                     @click=${() => { controller.edit = {...controller.edit, adding: null, draft: null, linkError: ""}; controller.update("edit"); }} text=${text("cancel")}></sf-button>
             </div>
         </form>`;

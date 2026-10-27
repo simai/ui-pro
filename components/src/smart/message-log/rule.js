@@ -11,8 +11,8 @@ SF.RuleLoader["cl-message-log"] = {
   js: true,
   css: true,
   relation: [
-    { name: "cl-buttons" },
-    { name: "cl-icon-buttons" },
+    { name: "cl-button" },
+    { name: "cl-icon-button" },
     { name: "sr-only/default" },
   ],
 };

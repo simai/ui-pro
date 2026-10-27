@@ -333,7 +333,7 @@ try {
     await new Promise((done) => setTimeout(done, 250));
     const marked = read();
     const cleared = [];
-    element.addEventListener('sf-selection-clear', (event) => cleared.push(event.detail.selectedCount));
+    element.addEventListener('sf-pagination-selection-clear', (event) => cleared.push(event.detail['selected-count']));
     element.querySelector('.sf-pagination-actions-clear')?.click();
     await new Promise((done) => setTimeout(done, 150));
     const showMoreWithNext = Boolean(element.querySelector('.sf-pagination-more sf-button'));

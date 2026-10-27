@@ -14,11 +14,11 @@ SF.RuleLoader["cl-table"] = {
     // renderer set instead -- so nothing would have caught its absence until a
     // page showed an element that never upgraded.
     { name: "cl-country-code", lazy: true },
-    { name: "cl-buttons" },
-    { name: "cl-icon-buttons" },
+    { name: "cl-button" },
+    { name: "cl-icon-button" },
     { name: "icons" },
-    { name: "cl-inputs" },
-    { name: "cl-tags" },
+    { name: "cl-input" },
+    { name: "cl-tag" },
     { name: "cl-pagination" },
     { name: "cl-spinner" },
     // A table without rows says why in sf-empty-state (owner, 2026-10-14).
@@ -36,7 +36,7 @@ SF.RuleLoader["cl-table"] = {
     // A column's edge is the Framework's resize gesture (owner, 2026-10-14).
     { name: "cl-resizer", lazy: true },
     { name: "cl-avatar" },
-    { name: "cl-badges" },
+    { name: "cl-badge" },
     { name: "cl-list-item" },
     { name: "cl-modal", lazy: true },
     { name: "cl-range-slider", lazy: true },

@@ -127,10 +127,10 @@ function renderConfigureBar(context) {
                         && (!profile.shared || context.canDeleteViewProfile(profile.id)),
                 }))}
                 .rights=${{create: {personal: writable.includes('personal'), shared: writable.includes('shared')}}}
-                @sf-profile-select=${(event) => context.component.selectViewProfile(event.detail.id)}
-                @sf-profile-create=${(event) => context.component.createViewProfile(event.detail.label, {shared: event.detail.shared})}
-                @sf-profile-rename=${(event) => context.component.renameViewProfile(event.detail.id, event.detail.label)}
-                @sf-profile-delete=${(event) => context.component.deleteViewProfile(event.detail.id)}
+                @sf-profile-picker-select=${(event) => context.component.selectViewProfile(event.detail.id)}
+                @sf-profile-picker-create=${(event) => context.component.createViewProfile(event.detail.label, {shared: event.detail.shared})}
+                @sf-profile-picker-rename=${(event) => context.component.renameViewProfile(event.detail.id, event.detail.label)}
+                @sf-profile-picker-delete=${(event) => context.component.deleteViewProfile(event.detail.id)}
         ></sf-profile-picker>`;
 
     return html`
@@ -819,7 +819,7 @@ function renderSectionTabs(context, sections) {
                 active-index=${String(at)}
                 aria-label=${context.sectionsLabel}
                 items=${sections.map((section) => tabLabel(context, section)).join('|')}
-                @sf-tab-change=${(event) => {
+                @sf-tabs-change=${(event) => {
                     const section = sections[Number(event.detail?.current)];
                     if (section) context.component.selectSection(String(section.key));
                 }}
@@ -1165,8 +1165,8 @@ function renderPanelControls(context) {
                                 duration=${String(context.copyFeedbackMs)}
                                 data-action="copy-link"
                                 .propertyView=${context.component}
-                                @sf-copy=${() => context.component.announceAddressCopy(true)}
-                                @sf-copy-error=${() => context.component.announceAddressCopy(false)}
+                                @sf-copy-button-copied=${() => context.component.announceAddressCopy(true)}
+                                @sf-copy-button-copy-failed=${() => context.component.announceAddressCopy(false)}
                         ></sf-copy-button>`
                     : nothing}
             ${context.canOpenFullPage

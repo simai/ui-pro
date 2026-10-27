@@ -6,6 +6,7 @@ import {optionBadgeProps} from '../src/smart/helpers/option-badge.js';
 const source = fs.readFileSync(new URL('../src/smart/table/index.js', import.meta.url), 'utf8');
 const template = fs.readFileSync(new URL('../src/smart/table/js/templates/default.js', import.meta.url), 'utf8');
 const drawer = fs.readFileSync(new URL('../src/smart/drawer/index.js', import.meta.url), 'utf8');
+const elementManifest = fs.readFileSync(new URL('../src/core/js/element-manifest.js', import.meta.url), 'utf8');
 
 function method(text, signature, next) {
     return text.split(`    ${signature} {`)[1].split(`\n    ${next}`)[0].trim().replace(/\}\s*$/, '');
@@ -130,7 +131,9 @@ test('actions column is a system column', () => {
 
 test('badge option colours accept badge schemes and hex colours only', () => {
     assert.deepEqual(optionBadgeProps({color: 'success'}), {scheme: 'success', rootStyle: ''});
-    assert.deepEqual(optionBadgeProps({color: ' Danger '}), {scheme: 'danger', rootStyle: ''});
+    // danger is the former name of the badge scheme error (SIMAI Framework display group A).
+    assert.deepEqual(optionBadgeProps({color: ' Danger '}), {scheme: 'error', rootStyle: ''});
+    assert.deepEqual(optionBadgeProps({color: 'error'}), {scheme: 'error', rootStyle: ''});
     const hex = optionBadgeProps({color: '#16a34a'});
     assert.equal(hex.scheme, 'neutral');
     assert.match(hex.rootStyle, /color-mix\(in srgb, #16a34a 24%, transparent\)/);
@@ -140,18 +143,24 @@ test('badge option colours accept badge schemes and hex colours only', () => {
     assert.deepEqual(optionBadgeProps(), {scheme: 'neutral', rootStyle: ''});
 });
 
+// The drawer sends its events by verb through the Framework's sfEmit
+// (standard 1.3.8 §8: sf-drawer-open, sf-drawer-opened, ...), which bubbles and
+// crosses shadow roots; the on* helpers listen to the new names.
 test('drawer events bubble, and on* helpers keep only their own drawer events', () => {
-    assert.match(drawer, /new CustomEvent\(type, \{\s*bubbles: true,\s*composed: true,\s*cancelable,/);
-    assert.match(drawer, /new CustomEvent\(eventName, \{\s*bubbles: true,\s*composed: true,/);
-    const own = new Function('handler', method(drawer.replace(/^  /gm, '    '), 'ownDrawerHandler(handler)', 'onBeforeOpen('));
+    assert.match(drawer, /emitDrawerEvent\(verb, cancelable = false, extra = \{\}\) \{\s*return this\.sfEmit\(verb,/);
+    assert.match(elementManifest, /sfEmit\(verb, detail = \{\}, \{cancelable\} = \{\}\) \{[\s\S]*?bubbles: true,\s*composed: true,/);
+    const own = new Function('handler', method(drawer.replace(/^  /gm, '    '), 'ownDrawerHandler(handler)', 'onDrawerEvent('));
     const self = {};
     const calls = [];
-    const wrapped = own.call(self, function (event) { calls.push([this, event.detail.drawer]); });
-    wrapped({detail: {drawer: {}}});
-    wrapped({detail: {drawer: self}});
+    // A drawer's own event is the one it is the target of: a nested drawer's
+    // event bubbling through it is not.
+    const wrapped = own.call(self, function (event) { calls.push([this, event.target]); });
+    wrapped({target: {}});
+    wrapped({target: self});
     assert.deepEqual(calls, [[self, self]]);
-    for (const name of ['before-open', 'after-open', 'before-close', 'after-close']) {
-        assert.match(drawer, new RegExp(`addEventListener\\('drawer:${name}', this\\.ownDrawerHandler\\(handler\\), options\\)`));
+    assert.match(drawer, /addEventListener\(this\.sfEventName\(verb\), this\.ownDrawerHandler\(handler\), options\)/);
+    for (const [helper, verb] of [['onBeforeOpen', 'open'], ['onAfterOpen', 'opened'], ['onBeforeClose', 'close'], ['onAfterClose', 'closed']]) {
+        assert.match(drawer, new RegExp(`${helper}\\(handler, options\\) \\{ return this\\.onDrawerEvent\\('${verb}', handler, options\\); \\}`));
     }
 });
 

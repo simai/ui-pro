@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Message log",
   "summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
   "kind": "composite",
@@ -26,8 +26,8 @@
   "exported_parts": [],
   "composition": {
     "uses": [
-      "smart.buttons",
-      "smart.icon-buttons"
+      "smart.button",
+      "smart.icon-button"
     ],
     "public_parts": []
   },
@@ -674,7 +674,7 @@
       },
       {
         "path": "src/smart/message-log/rule.js",
-        "sha256": "fd7c7e078f2d67d4d3223810979eac02e6a065c01102efdbed03d7034789f28e"
+        "sha256": "d8dcd6f5dd44c91070d941b5f47cfd708e7e7f8838c0cf9e375425c3f47039ff"
       },
       {
         "path": "src/smart/message-log/docs.md",

@@ -59,7 +59,7 @@ test('the number is asked for only when a host can answer, and only once at a ti
     /requestCount\(reason = "total"\) \{\s*if \(this\.countKnown \|\| !this\.canCount \|\| this\.counting\) \{\s*return this;/u,
     'no link without the capability, and no second request while one is in flight',
   );
-  assert.match(pagination, /this\.setState\(\{ counting: true \}\);\s*this\.emitComponentEvent\("count-request"/u);
+  assert.match(pagination, /this\.setState\(\{ counting: true \}\);\s*this\.sfEmit\("count"/u);
   assert.match(
     view,
     /canCount: Boolean\(this\.hostPort\?\.capabilities\?\.includes\("count-on-request"\)\)/u,

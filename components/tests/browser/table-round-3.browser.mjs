@@ -354,7 +354,7 @@ try {
     const box = alert?.querySelector('.sf-toast')?.getBoundingClientRect?.() ?? alert?.getBoundingClientRect?.();
     return {
       shown: Boolean(alert), moved: region() - before,
-      title: alert?.getAttribute('title') ?? null,
+      title: alert?.getAttribute('heading') ?? alert?.getAttribute('title') ?? null,
       code: alert?.getAttribute('data-sf-code')
         ?? (window.SF?.notifications?.history?.()[0]?.source ?? '').replace(/^sf-data-view:/u, '') ?? null,
       text: (alert?.textContent ?? '').replace(/\s+/gu, ' ').trim().slice(0, 80),

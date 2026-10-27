@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.thread-list",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Thread list",
   "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "kind": "composite",
@@ -27,9 +27,9 @@
   "composition": {
     "uses": [
       "smart.avatar",
-      "smart.badges",
+      "smart.badge",
       "smart.context-menu",
-      "smart.icons"
+      "smart.icon"
     ],
     "public_parts": []
   },
@@ -737,7 +737,7 @@
       },
       {
         "path": "src/smart/thread-list/rule.js",
-        "sha256": "a9234c5b40a33e1877341f169012f19e9b0fbdd186dbc78ef3715e49af3564ba"
+        "sha256": "d98c6889fe3cc3c21e5ce55489a691c7d609db4cfa9509bcc8dfe111449ce9a3"
       },
       {
         "path": "src/smart/thread-list/docs.md",

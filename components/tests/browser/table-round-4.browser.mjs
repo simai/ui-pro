@@ -296,7 +296,7 @@ try {
     return {
       shown: Boolean(toast), duration: toast?.getAttribute('duration') ?? toast?.dataset.duration ?? null,
       closable: toast?.getAttribute('closable') ?? null,
-      title: toast?.getAttribute('title') ?? toast?.querySelector('.sf-toast-title, .sf-toast-text')?.textContent.trim() ?? null,
+      title: toast?.getAttribute('heading') ?? toast?.querySelector('.sf-toast-title, .sf-toast-text')?.textContent.trim() ?? null,
       code: toast?.getAttribute('data-sf-code') ?? window.SF?.notifications?.history?.()[0]?.source ?? null,
       coversToolbar: toolbar ? overlaps(toolbar.getBoundingClientRect()) : null,
       coversAControl: boxes.some((one) => overlaps(one)),

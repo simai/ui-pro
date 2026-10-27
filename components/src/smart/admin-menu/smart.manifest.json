@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -31,14 +31,14 @@
       "component.badges",
       "component.icons",
       "component.inputs",
-      "smart.badges",
-      "smart.buttons",
+      "smart.badge",
+      "smart.button",
       "smart.context-menu",
       "smart.dropdown",
       "smart.empty-state",
-      "smart.icon-buttons",
-      "smart.icons",
-      "smart.inputs",
+      "smart.icon",
+      "smart.icon-button",
+      "smart.input",
       "smart.profile-picker",
       "smart.resizer",
       "smart.sortable"
@@ -791,6 +791,14 @@
           "The conformance scenarios left the manifest (v2 keeps scenarios in artifacts) and are documented in docs/docs.md; studio.fixture.json and studio.scenario.json are the declared artifacts.",
           "No runtime behaviour changes."
         ]
+      },
+      {
+        "from": "1.1.0",
+        "to": "1.1.1",
+        "changes": [
+          "Follows SIMAI Framework release ui-92b4661762ca (standard 1.3.8 display groups A and B): the Loader relations and the composition name the renamed bundles and registry ids (cl-button, cl-badge, cl-icon, cl-icon-button, cl-input; smart.button, smart.badge, smart.icon, smart.icon-button, smart.input).",
+          "The navigation listens to sf-profile-picker-* and sf-resizer-resize, and to sf-context-menu-closed for a menu it opened; the search field takes icon-start and the edit form's cancel button the appearance link. No public attribute, property or event of sf-admin-menu changes."
+        ]
       }
     ]
   },
@@ -804,7 +812,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/templates/default.js",
-        "sha256": "d150fccc8be46141a687543ab667dc8c3550806750bf4c6597afc756d0c2aa8c"
+        "sha256": "0024f3acccbde74480677fde82aacfb65c73a826bebacecc40117f12c6ee8df0"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
@@ -824,15 +832,15 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/edit.js",
-        "sha256": "7ecf5fb5b47f429edfa7c5e34711030eb5f21e9b5d8fb7ce4f3a0ebaa4209aaf"
+        "sha256": "9a82358666fad3ba0aaa3437d5111c2d6f0adaa4f213acfcd8bff085f72a9cf2"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
-        "sha256": "77f6c2d53bb8e93ea1f97a1a083ba323dcafb9ac68cb70911c53430ee9d3fc9d"
+        "sha256": "a5474331561c1573c9f205616cd80c481c1401f28cc13bb6751edcdf1a094998"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",
-        "sha256": "2aae43917ea2de31b6837d96e782d31197eb5b74952d349a75480691784d40a2"
+        "sha256": "3a7404da443145378337ecd5f633e1c2afa43a2ab4430114050ceb2a8c1d5acc"
       },
       {
         "path": "src/component/admin-menu/scss/_css__admin_menu.scss",

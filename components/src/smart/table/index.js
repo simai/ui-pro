@@ -3901,7 +3901,7 @@ class SfTable extends SfBaseElement {
                 <sf-avatar
                         size=${this.size}
                         image-url="${option.imageUrl}"
-                        title="${option.title || option.label || ''}"
+                        heading="${option.title || option.label || ''}"
                 ></sf-avatar>
             `;
         }
@@ -3909,7 +3909,7 @@ class SfTable extends SfBaseElement {
         return html`
             <sf-avatar
                     size=${this.size}
-                    title="${option.avatarText || option.title || option.label || ''}"
+                    heading="${option.avatarText || option.title || option.label || ''}"
             ></sf-avatar>
         `;
     }

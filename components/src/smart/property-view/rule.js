@@ -15,15 +15,15 @@ SF.RuleLoader["cl-property-view"] = {
     // The panel draws an <sf-icon> of its own now -- the chevron that folds the
     // not-placed bin -- and a tag the panel renders is a tag the panel has to
     // fetch, whatever else on the page may already have fetched it.
-    { name: "cl-icons" },
-    { name: "cl-buttons" },
-    { name: "cl-icon-buttons" },
+    { name: "cl-icon" },
+    { name: "cl-button" },
+    { name: "cl-icon-button" },
     { name: "cl-drawer" },
     { name: "cl-tree" },
     { name: "cl-tree-item" },
     { name: "cl-avatar" },
-    { name: "cl-badges" },
-    { name: "cl-tags" },
+    { name: "cl-badge" },
+    { name: "cl-tag" },
     // The not-placed bin is the Framework's accordion, and a component this one
     // renders is a component this one fetches.
     { name: "accordion" },
@@ -41,7 +41,7 @@ SF.RuleLoader["cl-property-view"] = {
     { name: "cl-file-preview" },
     { name: "cl-file-upload" },
     { name: "cl-progress-bar" },
-    { name: "cl-inputs" },
+    { name: "cl-input" },
     { name: "cl-textarea" },
     { name: "cl-dropdown" },
     { name: "cl-datepicker" },

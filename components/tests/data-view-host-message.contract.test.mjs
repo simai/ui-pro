@@ -145,7 +145,7 @@ test('unavailable without a message keeps the general words and the notice', asy
     const toast = toastOf(view);
     assert.ok(toast, `a notice for message ${JSON.stringify(message)}`);
     assert.equal(toast.getAttribute('status'), 'error');
-    assert.equal(toast.getAttribute('title'), 'The data could not be fetched. Try again.');
+    assert.equal(toast.getAttribute('heading'), 'The data could not be fetched. Try again.');
     assert.equal(toast.getAttribute('data-sf-code'), 'down');
   }
 });
@@ -177,7 +177,7 @@ test('the message goes with the next answer that does not carry one', async () =
   assert.equal(view.table.emptyContext.message, undefined);
 });
 
-test('markup in the message is text: the view sets textContent, the brick a title attribute', () => {
+test('markup in the message is text: the view sets textContent, the brick a heading attribute', () => {
   const view = readFileSync(resolve(root, 'src/smart/data-view/index.js'), 'utf8');
   assert.match(view, /status\.textContent = message;/u);
   assert.doesNotMatch(view, /status\.innerHTML/u);
@@ -185,7 +185,7 @@ test('markup in the message is text: the view sets textContent, the brick a titl
   assert.match(table, /title: message \|\| this\.getAttribute\("error-text"\)/u);
   assert.match(table, /kind === "no-access"\) return \{kind, size, headingLevel, title: message,/u);
   const template = readFileSync(resolve(root, 'src/smart/table/js/templates/default.js'), 'utf8');
-  assert.match(template, /title=\$\{brick\.title \|\| nothing\}/u);
+  assert.match(template, /heading=\$\{brick\.title \|\| nothing\}/u);
 });
 
 test('the manifest declares the answer message and treats it as untrusted', () => {

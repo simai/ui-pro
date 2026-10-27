@@ -182,7 +182,7 @@ test('nothing found says so in the table, and a refusal says so in a notice', as
   assert.equal(toast.tagName, 'SF-TOAST');
   // A sentence, not a reason code -- the code is kept for the inspector and
   // is not shown.
-  assert.equal(toast.getAttribute('title'), 'That action is not available for the chosen record.');
+  assert.equal(toast.getAttribute('heading'), 'That action is not available for the chosen record.');
   assert.equal(toast.getAttribute('supporting-text'), null);
   assert.equal(toast.getAttribute('data-sf-code'), 'action-not-allowed');
   assert.equal(toast.getAttribute('closable'), 'true');
@@ -239,7 +239,7 @@ test('selected bulk reaches the host with revisions even when its action differs
   const target = {closest: () => view};
 
   view.table.getSelectedRecordIds = () => ['one', 'two'];
-  const result = await view._onEvent({type: 'sf-action-apply', target, detail: {action: 'bulk_delete'}});
+  const result = await view._onEvent({type: 'sf-pagination-apply', target, detail: {action: 'bulk_delete'}});
   assert.equal(result.answer, 'refused');
   assert.equal(result.reason, 'host-decides-bulk-permission');
   assert.equal(calls.length, 1);
@@ -248,7 +248,7 @@ test('selected bulk reaches the host with revisions even when its action differs
   assert.equal(JSON.stringify(calls[0].payload.revisions), JSON.stringify({one: 3, two: 5}));
 
   view.table.getSelectedRecordIds = () => ['one'];
-  await view._onEvent({type: 'sf-action-apply', target, detail: {action: 'bulk_delete'}});
+  await view._onEvent({type: 'sf-pagination-apply', target, detail: {action: 'bulk_delete'}});
   assert.equal(calls.length, 2, 'one selected row still uses the bulk host intent');
   assert.equal(calls[1].intent, 'bulk.apply_selected');
   assert.equal(JSON.stringify(calls[1].payload.revisions), JSON.stringify({one: 3}));
@@ -256,6 +256,6 @@ test('selected bulk reaches the host with revisions even when its action differs
   await view._onEvent({type: 'sf-table-action-intent', target,
     detail: {action_id: 'bulk_delete', record_ids: ['one']}});
   view.table.getSelectedRecordIds = () => ['one', 'missing'];
-  await view._onEvent({type: 'sf-action-apply', target, detail: {action: 'bulk_delete'}});
+  await view._onEvent({type: 'sf-pagination-apply', target, detail: {action: 'bulk_delete'}});
   assert.equal(calls.length, 2, 'row action denial and missing selected records remain local');
 });

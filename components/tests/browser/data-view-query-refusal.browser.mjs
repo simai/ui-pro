@@ -64,7 +64,7 @@ const look = () => page.evaluate((selector) => {
   const title = element?.querySelector('.sf-empty-state-title');
   const input = document.querySelector(selector);
   const band = [...view.querySelectorAll(':scope > [slot="notice"] sf-toast')]
-    .map((toast) => ({status: toast.getAttribute('status'), title: toast.getAttribute('title')}));
+    .map((toast) => ({status: toast.getAttribute('status'), title: toast.getAttribute('heading')}));
   const notified = window.notified.splice(0);
   return {
     state: view.getAttribute('data-state'),

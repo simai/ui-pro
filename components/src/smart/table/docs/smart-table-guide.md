@@ -978,11 +978,13 @@ this.pagination?.setState({
 });
 ```
 
-Обработчики:
+Обработчики (имена событий `sf-pagination` по стандарту 1.3.8; прежние
+`sf-page-change`, `sf-page-size-change` и `sf-show-more` SIMAI Framework ещё
+отправляет следом со старым `detail` до 2026-12-01):
 
-- `sf-page-change` - загрузить конкретную страницу;
-- `sf-page-size-change` - изменить page size, сбросить кеш колонок и полей;
-- `sf-show-more` - загрузить следующую страницу и добавить строки через `addRows()`.
+- `sf-pagination-change` - загрузить конкретную страницу (`detail.current`);
+- `sf-pagination-size-change` - изменить page size (`detail["page-size"]`), сбросить кеш колонок и полей;
+- `sf-pagination-load-more` - загрузить следующую страницу и добавить строки через `addRows()`.
 
 ## Рекомендуемый pipeline для админки
 

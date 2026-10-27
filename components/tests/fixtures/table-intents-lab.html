@@ -16,9 +16,9 @@
     window.SF_BOOT_CONFIG = {icons: {enabled: false}, preloader: {enabled: false}, smart: {base: true}, theme: false, packages: {larena: {base: `${view.get('smart')}/smart`}}};
     window.labEvents = [];
     for (const name of ['sf-table-create-intent', 'sf-table-sort-change', 'sf-table-template-select', 'sf-table-template-save',
-      'sf-table-column-settings-change', 'sf-table-template-delete', 'drawer:before-open', 'drawer:after-open', 'drawer:before-close', 'drawer:after-close', 'modal:after-open', 'modal:after-close', 'sf-action-for-all-change']) {
+      'sf-table-column-settings-change', 'sf-table-template-delete', 'sf-drawer-open', 'sf-drawer-opened', 'sf-drawer-close', 'sf-drawer-closed', 'sf-modal-opened', 'sf-modal-closed', 'sf-pagination-action-for-all-change']) {
       document.addEventListener(name, (event) => {
-        window.labEvents.push({name, detail: name.startsWith('drawer:') ? {drawerId: event.detail?.drawerId} : name.startsWith('modal:') ? {modalId: event.detail?.modal?.id} : name === 'sf-action-for-all-change' ? {actionForAll: event.detail?.actionForAll} : event.detail});
+        window.labEvents.push({name, detail: name.startsWith('sf-drawer-') ? {drawerId: event.detail?.drawerId} : name.startsWith('sf-modal-') ? {modalId: event.detail?.modalId} : name === 'sf-pagination-action-for-all-change' ? {actionForAll: event.detail?.['action-for-all']} : event.detail});
       });
     }
   </script>
@@ -31,16 +31,16 @@
     <sf-table id="table" aria-label="Записи" table-settings-key="lab.records"></sf-table>
     <sf-table id="second" aria-label="Вторая таблица"></sf-table>
   </main>
-  <sf-drawer id="outer" drawer-id="outer" modal="false" title="Запись">
+  <sf-drawer id="outer" drawer-id="outer" modal="false" heading="Запись">
     <div slot="content">
       <p>Содержимое записи</p>
-      <sf-drawer id="inner" drawer-id="inner" modal="false" title="Вложенная панель"><div slot="content">Вложенная</div></sf-drawer>
+      <sf-drawer id="inner" drawer-id="inner" modal="false" heading="Вложенная панель"><div slot="content">Вложенная</div></sf-drawer>
     </div>
   </sf-drawer>
   <sf-pagination id="pager" total="5" page-size="10" bottom="true" show-action-for-all
                  actions='[{"value":"archive","label":"Архивировать"}]'></sf-pagination>
-  <sf-modal id="m-outer" title="Внешнее окно">
-    <div slot="content"><p>Внешнее</p><sf-modal id="m-inner" title="Вложенное окно"><div slot="content">Вложенное</div></sf-modal></div>
+  <sf-modal id="m-outer" heading="Внешнее окно">
+    <div slot="content"><p>Внешнее</p><sf-modal id="m-inner" heading="Вложенное окно"><div slot="content">Вложенное</div></sf-modal></div>
   </sf-modal>
   <script>
     const core = document.createElement('script');
@@ -73,7 +73,7 @@
       window.labOuterHelper = [];
       document.getElementById('outer').onAfterOpen((event) => window.labOuterHelper.push(event.detail.drawerId));
       window.labModalHelper = [];
-      document.getElementById('m-outer').onAfterOpen((event) => window.labModalHelper.push(event.detail.modal.id));
+      document.getElementById('m-outer').onAfterOpen((event) => window.labModalHelper.push(event.detail.modalId));
       await new Promise((resolve) => setTimeout(resolve, 800));
       document.documentElement.dataset.ready = 'true';
     };

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "title": "Data view",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -32,14 +32,14 @@
   "composition": {
     "uses": [
       "smart.avatar",
-      "smart.badges",
-      "smart.buttons",
+      "smart.badge",
+      "smart.button",
       "smart.checkbox",
       "smart.context-menu",
       "smart.datepicker",
       "smart.dropdown",
-      "smart.icon-buttons",
-      "smart.inputs",
+      "smart.icon-button",
+      "smart.input",
       "smart.list-item",
       "smart.modal",
       "smart.pagination",
@@ -47,7 +47,7 @@
       "smart.range-slider",
       "smart.resizer",
       "smart.spinner",
-      "smart.tags"
+      "smart.tag"
     ],
     "public_parts": [],
     "declarative": {
@@ -1826,6 +1826,14 @@
         "changes": [
           "Add row-actions: row-actions=\"false\" hides the row action column while actions keeps the create button, for hosts whose row menu is the only entry to a row's actions."
         ]
+      },
+      {
+        "from": "1.9.0",
+        "to": "1.9.1",
+        "changes": [
+          "Follows SIMAI Framework release ui-92b4661762ca (standard 1.3.8 display groups A and B): the Loader relations and the composition name the renamed bundles and registry ids (cl-button, cl-icon-button, cl-input, cl-tag, cl-badge; smart.button, smart.icon-button, smart.input, smart.tag, smart.badge).",
+          "The empty brick takes heading and the filter's avatars heading, the names sf-empty-state and sf-avatar read since 1.3.8. No public attribute, property or event of sf-table changes."
+        ]
       }
     ]
   },
@@ -1835,11 +1843,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "b4948eec8ad5ab61f906442ab67d96b7ba0c8f997c973c62438636530d0221d6"
+        "sha256": "63d6e7569c9756f8bcbb4f49ae0c2ded2b0fb889b059ac9fa9fc88a3ace1ebb2"
       },
       {
         "path": "src/smart/table/js/templates/default.js",
-        "sha256": "572f833e11dc4b2f7a6134381168678a8f3ae9bce78d1a7422c10e3db821fa80"
+        "sha256": "932ec1cbd1b373a9a91fa7a5d93f80e78d6b640ec8f5392948c98aa4270d6538"
       },
       {
         "path": "src/smart/table/js/templates/default.css",
@@ -1847,19 +1855,19 @@
       },
       {
         "path": "src/smart/helpers/option-badge.js",
-        "sha256": "3d86eadce74690add49205be7bf4259d88847cb8a60821b4dae783584543000f"
+        "sha256": "ee43e3f6b7257a1b8c30a4d8b7774819cb697380aea8bd3b7a11ac53de74aa0f"
       },
       {
         "path": "src/smart/table/rule.js",
-        "sha256": "40f2148692155d80ae852d297cd3337cc0e2242fa24d9b2a5bfc0615e40aada7"
+        "sha256": "1689c7fd73e451efa0f864ebe48b46ec951298fb3189afbf732f3ffb741b0010"
       },
       {
         "path": "src/smart/table/docs/smart-table-guide.md",
-        "sha256": "bac17007e6868c412b769fda631c13d550b0df20b2e867e33b7ecb9ec506933e"
+        "sha256": "f3595cc9e9633b04c2d4da536941d06b61045dd205c9c894a48b742b997e5a4a"
       },
       {
         "path": "src/smart/pagination/index.js",
-        "sha256": "5bd5a0bb2a26c582d436f25d0cc428017bbc20370a614a0a8bafcf74c9f43a34"
+        "sha256": "e6ac0cb86e8021a0d708bfe4a3b5f261e588fac77628c182ede7695ce268534e"
       }
     ],
     "generated_runtime": []

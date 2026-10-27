@@ -213,11 +213,11 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await page.locator('#pager sf-checkbox').first().locator('label').first().waitFor();
   await page.locator('#pager sf-checkbox').first().locator('label').first().click();
   await page.waitForTimeout(250);
-  const forAllByLabel = await events('sf-action-for-all-change');
+  const forAllByLabel = await events('sf-pagination-action-for-all-change');
   check(JSON.stringify(forAllByLabel) === '[{"actionForAll":true}]', `${tag}: action-for-all label click toggles once`, forAllByLabel);
   await page.locator('#pager sf-checkbox input[type="checkbox"]').first().click();
   await page.waitForTimeout(250);
-  const forAllAfter = await events('sf-action-for-all-change');
+  const forAllAfter = await events('sf-pagination-action-for-all-change');
   check(JSON.stringify(forAllAfter) === '[{"actionForAll":true},{"actionForAll":false}]', `${tag}: action-for-all box click toggles back once`, forAllAfter);
 
   // Deleting a saved template on Apply is its own intent.
@@ -256,8 +256,8 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await page.waitForTimeout(400);
   await page.evaluate(() => { document.getElementById('inner').close(); document.getElementById('outer').close(); });
   await page.waitForTimeout(300);
-  const drawerEvents = await page.evaluate(() => window.labEvents.filter((event) => event.name.startsWith('drawer:')).map((event) => `${event.name}:${event.detail.drawerId}`));
-  for (const expected of ['drawer:before-open:outer', 'drawer:after-open:outer', 'drawer:before-open:inner', 'drawer:after-open:inner', 'drawer:before-close:inner', 'drawer:after-close:inner', 'drawer:after-close:outer']) {
+  const drawerEvents = await page.evaluate(() => window.labEvents.filter((event) => event.name.startsWith('sf-drawer-')).map((event) => `${event.name}:${event.detail.drawerId}`));
+  for (const expected of ['sf-drawer-open:outer', 'sf-drawer-opened:outer', 'sf-drawer-open:inner', 'sf-drawer-opened:inner', 'sf-drawer-close:inner', 'sf-drawer-closed:inner', 'sf-drawer-closed:outer']) {
     check(drawerEvents.includes(expected), `${tag}: document hears ${expected}`, drawerEvents);
   }
   const helper = await page.evaluate(() => window.labOuterHelper);
@@ -273,8 +273,8 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await page.waitForTimeout(500);
   await page.evaluate(() => document.getElementById('m-outer').close());
   await page.waitForTimeout(500);
-  const modalEvents = await page.evaluate(() => window.labEvents.filter((event) => event.name.startsWith('modal:')).map((event) => `${event.name}:${event.detail.modalId}`));
-  for (const expected of ['modal:after-open:m-outer', 'modal:after-open:m-inner', 'modal:after-close:m-inner', 'modal:after-close:m-outer']) {
+  const modalEvents = await page.evaluate(() => window.labEvents.filter((event) => event.name.startsWith('sf-modal-')).map((event) => `${event.name}:${event.detail.modalId}`));
+  for (const expected of ['sf-modal-opened:m-outer', 'sf-modal-opened:m-inner', 'sf-modal-closed:m-inner', 'sf-modal-closed:m-outer']) {
     check(modalEvents.includes(expected), `${tag}: document hears ${expected}`, modalEvents);
   }
   const modalHelper = await page.evaluate(() => window.labModalHelper.splice(0));

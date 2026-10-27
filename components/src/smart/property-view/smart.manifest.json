@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -34,9 +34,9 @@
     "uses": [
       "component.icons",
       "smart.avatar",
-      "smart.badges",
+      "smart.badge",
+      "smart.button",
       "smart.button-group",
-      "smart.buttons",
       "smart.checkbox",
       "smart.color",
       "smart.country-code",
@@ -47,8 +47,8 @@
       "smart.file-preview",
       "smart.file-upload",
       "smart.help-mark",
-      "smart.icon-buttons",
-      "smart.inputs",
+      "smart.icon-button",
+      "smart.input",
       "smart.list-item",
       "smart.popover",
       "smart.profile-picker",
@@ -61,7 +61,7 @@
       "smart.switch",
       "smart.table",
       "smart.tabs",
-      "smart.tags",
+      "smart.tag",
       "smart.textarea",
       "smart.tree",
       "smart.tree-item"
@@ -1147,7 +1147,7 @@
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "59936ba267338dec7d4fa0b11e51e401b2501e552f1cf3e8b92568e5df17b5c0"
+        "sha256": "55e6aadd2a16e901ada95f26128e4096d1cd2a95b38f219c7540ef66149ff3c0"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",
@@ -1167,7 +1167,7 @@
       },
       {
         "path": "src/smart/property-view/rule.js",
-        "sha256": "98d1c2f96404201314f3682d636ae1a9d83897efd7a49cc92f2e00220a588a4e"
+        "sha256": "0e6ba0d63d477bfc0b5bf46797e2c1e574b6c937458669869fb2fb7f3a972d31"
       },
       {
         "path": "src/core/contracts/ports/simai.property-view-port/1.4.0/port.json",

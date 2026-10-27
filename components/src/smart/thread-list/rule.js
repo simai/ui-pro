@@ -11,8 +11,8 @@ SF.RuleLoader["cl-thread-list"] = {
   js: true,
   css: true,
   relation: [
-    { name: "cl-icons" },
-    { name: "cl-badges" },
+    { name: "cl-icon" },
+    { name: "cl-badge" },
     { name: "cl-avatar" },
     { name: "cl-context-menu", lazy: true },
     { name: "sr-only/default" },

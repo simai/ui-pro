@@ -23,7 +23,9 @@ export async function openMenu(controller, anchor, {label, entries, select, side
         menu.dataset.sfAdminNavMenu = "";
         menu.addEventListener("sf-context-menu-select", (event) => controller._menuSelect?.(event.detail?.id, event));
         menu.addEventListener("sf-context-menu-search", (event) => controller._menuSearch?.(event.detail?.query ?? ""));
-        menu.addEventListener("sf-context-menu-close", (event) => {
+        // Closed, not asked to close: sf-context-menu-close is the cancelable
+        // request sent before an owned menu closes (SIMAI Framework 1.3.8 §19.3).
+        menu.addEventListener("sf-context-menu-closed", (event) => {
             if (event.target !== menu) return;
             const closed = controller._menuClose;
             controller._menuClose = null;

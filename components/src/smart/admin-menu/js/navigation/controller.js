@@ -261,7 +261,7 @@ export class NavigationController {
         this._onSortableIntent = (event) => this.onSortableIntent(event);
         element.addEventListener("sf-sortable-intent", this._onSortableIntent);
         this._onResize = (event) => this.onColumnResize(event);
-        element.addEventListener("sf-resize", this._onResize);
+        element.addEventListener("sf-resizer-resize", this._onResize);
 
         this.wideMedia = typeof globalThis.matchMedia === "function"
             ? globalThis.matchMedia(WIDE_MEDIA_QUERY)
@@ -361,7 +361,7 @@ export class NavigationController {
         removeMenu(this);
         clearTimeout(this._paletteTimer);
         this.element.removeEventListener("sf-sortable-intent", this._onSortableIntent);
-        this.element.removeEventListener("sf-resize", this._onResize);
+        this.element.removeEventListener("sf-resizer-resize", this._onResize);
         this.wideMedia?.removeEventListener?.("change", this._onWideChange);
         document.removeEventListener("pointerdown", this._onDocumentPointer, true);
         document.removeEventListener("keydown", this._onKeyDown, true);

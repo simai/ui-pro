@@ -16,6 +16,17 @@ const EVENTS = Object.freeze({
     "sf-table-create-intent": "view.create_record",
 });
 
+// What the page row says, by the names it sends them under since SIMAI
+// Framework standard 1.3.8 (events take the tag). The former names --
+// sf-page-change, sf-action-apply, sf-count-request, … -- still follow each
+// one, with their old detail, until the Framework retires them; the view reads
+// the new ones and their detail ("page-size", scope).
+const PAGINATION_EVENTS = [
+    "sf-pagination-change", "sf-pagination-size-change", "sf-pagination-apply",
+    "sf-pagination-load-more", "sf-pagination-selection-clear", "sf-pagination-count",
+    "sf-pagination-action-change", "sf-pagination-action-for-all-change",
+];
+
 let instanceNumber = 0;
 // Every port version this composite accepts, in one place. The list used to be
 // written inline in the guard, and two versions were published — 1.3.0 for a
@@ -479,7 +490,7 @@ class SfDataView extends HTMLElement {
         toast.setAttribute("closable", "true");
         toast.setAttribute("close-label", pageText(DATA_VIEW_TEXT, "closeNoticeLabel", this));
         toast.setAttribute("role", kind === "error" ? "alert" : "status");
-        toast.setAttribute("title", text);
+        toast.setAttribute("heading", text);
         // Long enough to read a sentence, and it can be closed at once. A
         // message that stays until it is dismissed ends up covering something,
         // which is how the overlay before it went wrong.
@@ -488,7 +499,8 @@ class SfDataView extends HTMLElement {
         // inspector: shown as a second line it was a raw identifier under a
         // sentence, which the owner read as noise (2026-10-12).
         if (code) toast.setAttribute("data-sf-code", code);
-        toast.addEventListener("sf-toast-close", () => this.notify(""));
+        // Closed, not asked to close: sf-toast-close is the cancelable request now.
+        toast.addEventListener("sf-toast-closed", () => this.notify(""));
         band.append(toast);
         return this;
     }
@@ -541,9 +553,8 @@ class SfDataView extends HTMLElement {
         const events = [
             ...Object.keys(EVENTS), "sf-table-search-change", "sf-table-filter-change",
             "sf-table-sort-change", "sf-table-column-settings-change", "sf-table-action-intent",
-            "sf-table-retry", "sf-port-output", "sf-page-change", "sf-page-size-change",
-            "sf-action-apply", "sf-show-more", "sf-selection-clear", "sf-count-request",
-            "sf-table-column-settings-reset", "sf-action-change", "sf-action-for-all-change",
+            "sf-table-retry", "sf-port-output", ...PAGINATION_EVENTS,
+            "sf-table-column-settings-reset",
             "sf-table-tree-toggle", "sf-table-tree-more", "sf-table-reference-open", "sf-data-view-saved-view-intent",
             "sf-table-cell-set", "sf-table-rows-reorder",
         ];
@@ -602,9 +613,8 @@ class SfDataView extends HTMLElement {
         const events = [
             ...Object.keys(EVENTS), "sf-table-search-change", "sf-table-filter-change",
             "sf-table-sort-change", "sf-table-column-settings-change", "sf-table-action-intent",
-            "sf-table-retry", "sf-port-output", "sf-page-change", "sf-page-size-change",
-            "sf-action-apply", "sf-show-more", "sf-selection-clear", "sf-count-request",
-            "sf-table-column-settings-reset", "sf-action-change", "sf-action-for-all-change",
+            "sf-table-retry", "sf-port-output", ...PAGINATION_EVENTS,
+            "sf-table-column-settings-reset",
             "sf-table-tree-toggle", "sf-table-tree-more", "sf-table-reference-open", "sf-data-view-saved-view-intent",
             "sf-table-cell-set", "sf-table-rows-reorder",
         ];
@@ -1949,18 +1959,19 @@ class SfDataView extends HTMLElement {
             this._keepPreference({sort});
             return this.changeQuery({sort}, "sort");
         }
-        if (event.type === "sf-page-change") return this.changeQuery({page: event.detail?.current}, "page-change");
-        if (event.type === "sf-page-size-change") {
-            if (Number.isInteger(event.detail?.pageSize)) this._keepPreference({pageSize: event.detail.pageSize});
-            return this.changeQuery({per_page: event.detail?.pageSize}, "page-size-change");
+        if (event.type === "sf-pagination-change") return this.changeQuery({page: event.detail?.current}, "page-change");
+        if (event.type === "sf-pagination-size-change") {
+            const pageSize = event.detail?.["page-size"];
+            if (Number.isInteger(pageSize)) this._keepPreference({pageSize});
+            return this.changeQuery({per_page: pageSize}, "page-size-change");
         }
-        if (event.type === "sf-show-more") return this.changeQuery({page: this.query.page + 1}, "show-more");
-        if (event.type === "sf-count-request") return this.count(event.detail?.reason ?? "total");
+        if (event.type === "sf-pagination-load-more") return this.changeQuery({page: this.query.page + 1}, "show-more");
+        if (event.type === "sf-pagination-count") return this.count(event.detail?.reason ?? "total");
         if (event.type === "sf-table-column-settings-reset") return this.resetColumnSettings();
         // The panel's cross says the selection is over. The rows hold it, so
         // the view passes the word on rather than tracking a copy of its own.
-        if (event.type === "sf-selection-clear") return this.clearSelection();
-        if (event.type === "sf-action-change" || event.type === "sf-action-for-all-change") {
+        if (event.type === "sf-pagination-selection-clear") return this.clearSelection();
+        if (event.type === "sf-pagination-action-change" || event.type === "sf-pagination-action-for-all-change") {
             // The chooser and For-all live in the band now; the pagination still
             // holds their state, so the band is redrawn when it changes.
             this._renderBulkBand();
@@ -1979,8 +1990,9 @@ class SfDataView extends HTMLElement {
                 shared: event.detail?.target === "shared", base_revision: event.detail?.base_revision,
             });
         }
-        if (event.type === "sf-action-apply") {
-            if (event.detail?.actionForAll) return this.applyUnderFilter(event.detail.action, event.detail.total);
+        if (event.type === "sf-pagination-apply") {
+            // The scope says which rows: the marked ones, or all under the filter.
+            if (event.detail?.scope === "filter") return this.applyUnderFilter(event.detail.action, event.detail.total);
             return this._action({action_id: event.detail?.action, record_ids: this.table?.getSelectedRecordIds?.() ?? []}, {selectedBulk: true});
         }
         if (event.type === "sf-port-output") {

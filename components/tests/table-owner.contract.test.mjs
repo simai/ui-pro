@@ -77,7 +77,7 @@ test('Smart Table Loader rule declares every rendered Smart dependency', async (
   const rule = await read('src/smart/table/rule.js');
 
   for (const dependency of [
-    'cl-checkbox', 'cl-buttons', 'cl-icon-buttons', 'cl-inputs', 'cl-tags',
+    'cl-checkbox', 'cl-button', 'cl-icon-button', 'cl-input', 'cl-tag',
     'cl-pagination', 'cl-spinner', 'cl-datepicker', 'cl-dropdown', 'cl-tabs', 'cl-context-menu',
   ]) {
     assert.match(rule, new RegExp(`name: ["']${dependency}["']`));
