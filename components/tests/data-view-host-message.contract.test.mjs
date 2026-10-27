@@ -5,6 +5,28 @@ import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
 import * as treeModel from '../src/smart/data-view/js/tree.js';
+import {answerActions, settingSetters} from '../src/smart/table/js/manifest-actions.js';
+
+// What index.js imports since it is made from its component.json (standard
+// 1.3.8): the manifest, its aliases and words, and a stand-in for the core's
+// elementFromManifest that keeps only what this wiring test needs -- sfEmit,
+// the DOM name <tag>-<verb>.
+const json = (path) => JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '..', path), 'utf8'));
+const manifestImports = {
+  manifest: json('src/smart/data-view/component.json'),
+  aliases: json('src/smart/data-view/aliases.json'),
+  en: json('src/smart/data-view/lang/en.json'),
+  ru: json('src/smart/data-view/lang/ru.json'),
+  answerActions,
+  settingSetters,
+  installAliases: () => ({uninstall() {}}),
+  elementFromManifest: (manifest, {base}) => class extends base {
+    sfEmit(verb, detail = {}, {cancelable = false} = {}) {
+      const event = new CustomEvent(`${manifest.tag}-${verb}`, {detail, cancelable});
+      return this.dispatchEvent(event) !== false && !event.defaultPrevented;
+    }
+  },
+};
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = readFileSync(resolve(root, 'src/smart/data-view/index.js'), 'utf8')
@@ -100,6 +122,7 @@ vm.runInNewContext(source, {
   // English table is what this fake answers with, which is enough for a test
   // about wiring rather than about wording.
   pageText: (table, key) => table.en?.[key] ?? key,
+  ...manifestImports,
   // The tree model is a module of plain functions, supplied the same way.
   ...treeModel,
   document: {createElement: (tag) => new FakeChild(tag)},

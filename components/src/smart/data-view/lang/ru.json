@@ -1,0 +1,61 @@
+{
+  "title": "Представление данных",
+  "events": {
+    "answer": {
+      "label": "Ответ хоста"
+    },
+    "state": {
+      "label": "Состояние списка"
+    },
+    "tree": {
+      "label": "Запрос ветви дерева"
+    },
+    "files-drop": {
+      "label": "Файлы брошены на список"
+    }
+  },
+  "runtime": {
+    "cancel": "Отмена",
+    "close-notice-label": "Закрыть сообщение",
+    "confirm-apply": "Подтвердить",
+    "confirm-title": "Подтвердите изменение",
+    "create-child-action": "Добавить вложенную",
+    "current-view-text": "Текущий",
+    "drop-files": "Отпустите, чтобы загрузить файлы сюда",
+    "empty-text": "Нет данных",
+    "layout-label": "Представление данных",
+    "move-action": "Переместить…",
+    "move-apply": "Переместить",
+    "move-first": "Первым",
+    "move-last": "Последним",
+    "move-no-targets": "Эту запись некуда переместить.",
+    "move-place": "Место",
+    "move-root": "На верхний уровень",
+    "move-title": "Переместить «{label}»",
+    "notice-action-not-allowed": "Это действие недоступно для выбранной записи.",
+    "notice-capability-not-provided": "Хост не поддерживает это действие.",
+    "notice-confirm-required": "Действие нужно сначала подтвердить.",
+    "notice-conflict": "Данные изменились. Обновите представление и повторите действие.",
+    "notice-failed": "Действие не выполнено.",
+    "notice-fetch-failed": "Не удалось получить данные. Повторите попытку.",
+    "notice-forbidden": "Недостаточно прав для этого действия.",
+    "notice-load-failed": "Не удалось загрузить данные.",
+    "notice-no-base-revision": "Настройки пока нельзя сохранить: у представления нет их текущей версии. Обновите представление.",
+    "notice-not-confirmed": "Действие отменено.",
+    "notice-port-not-connected": "Источник данных не подключён.",
+    "notice-record-invalid": "Запись не найдена.",
+    "notice-refused": "Действие отклонено.",
+    "notice-saved-view-levels": "Общие виды требуют более новой версии порта.",
+    "notice-stale-revision": "Данные успели изменить. Обновите представление и повторите действие.",
+    "notice-unavailable": "Действие недоступно.",
+    "of-total": "{shown} из {total}",
+    "records-label": "Записи",
+    "show-all": "Показать все",
+    "state-load-failed": "Не удалось загрузить данные",
+    "state-loading": "Загрузка данных",
+    "state-port-not-connected": "Порт данных не подключён",
+    "state-query-failed": "Запрос не выполнен",
+    "state-unavailable": "Данные временно недоступны",
+    "unnamed-action": "Действие"
+  }
+}

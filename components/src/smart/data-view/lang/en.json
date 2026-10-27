@@ -1,0 +1,61 @@
+{
+  "title": "Data view",
+  "events": {
+    "answer": {
+      "label": "The host answered"
+    },
+    "state": {
+      "label": "List state"
+    },
+    "tree": {
+      "label": "Tree request"
+    },
+    "files-drop": {
+      "label": "Files dropped on the list"
+    }
+  },
+  "runtime": {
+    "cancel": "Cancel",
+    "close-notice-label": "Close the message",
+    "confirm-apply": "Confirm",
+    "confirm-title": "Confirm the change",
+    "create-child-action": "Add a nested one",
+    "current-view-text": "Current",
+    "drop-files": "Drop the files here to upload them",
+    "empty-text": "No data",
+    "layout-label": "Data view",
+    "move-action": "Move…",
+    "move-apply": "Move",
+    "move-first": "First",
+    "move-last": "Last",
+    "move-no-targets": "There is nowhere this record can be moved.",
+    "move-place": "Place",
+    "move-root": "To the top level",
+    "move-title": "Move «{label}»",
+    "notice-action-not-allowed": "That action is not available for the chosen record.",
+    "notice-capability-not-provided": "The host does not support that action.",
+    "notice-confirm-required": "The action has to be confirmed first.",
+    "notice-conflict": "The data changed. Read the view again and repeat the action.",
+    "notice-failed": "The action was not carried out.",
+    "notice-fetch-failed": "The data could not be fetched. Try again.",
+    "notice-forbidden": "You may not do this.",
+    "notice-load-failed": "The data could not be loaded.",
+    "notice-no-base-revision": "The settings cannot be saved yet: the view has no current version of them. Read the view again.",
+    "notice-not-confirmed": "The action was cancelled.",
+    "notice-port-not-connected": "The data source is not connected.",
+    "notice-record-invalid": "The record was not found.",
+    "notice-refused": "The action was refused.",
+    "notice-saved-view-levels": "Shared views need a newer port.",
+    "notice-stale-revision": "Someone changed this in the meantime. Read the view again and repeat the action.",
+    "notice-unavailable": "The action is unavailable.",
+    "of-total": "{shown} of {total}",
+    "records-label": "Records",
+    "show-all": "Show all",
+    "state-load-failed": "The data could not be loaded",
+    "state-loading": "Loading",
+    "state-port-not-connected": "The data port is not connected",
+    "state-query-failed": "The request could not be completed",
+    "state-unavailable": "The data is temporarily unavailable",
+    "unnamed-action": "Action"
+  }
+}

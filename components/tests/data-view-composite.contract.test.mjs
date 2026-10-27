@@ -5,6 +5,28 @@ import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
 import * as treeModel from '../src/smart/data-view/js/tree.js';
+import {answerActions, settingSetters} from '../src/smart/table/js/manifest-actions.js';
+
+// What index.js imports since it is made from its component.json (standard
+// 1.3.8): the manifest, its aliases and words, and a stand-in for the core's
+// elementFromManifest that keeps only what this wiring test needs -- sfEmit,
+// the DOM name <tag>-<verb>.
+const json = (path) => JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '..', path), 'utf8'));
+const manifestImports = {
+  manifest: json('src/smart/data-view/component.json'),
+  aliases: json('src/smart/data-view/aliases.json'),
+  en: json('src/smart/data-view/lang/en.json'),
+  ru: json('src/smart/data-view/lang/ru.json'),
+  answerActions,
+  settingSetters,
+  installAliases: () => ({uninstall() {}}),
+  elementFromManifest: (manifest, {base}) => class extends base {
+    sfEmit(verb, detail = {}, {cancelable = false} = {}) {
+      const event = new CustomEvent(`${manifest.tag}-${verb}`, {detail, cancelable});
+      return this.dispatchEvent(event) !== false && !event.defaultPrevented;
+    }
+  },
+};
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = readFileSync(resolve(root, 'src/smart/data-view/index.js'), 'utf8')
@@ -98,6 +120,7 @@ vm.runInNewContext(source, {
   // English table is what this fake answers with, which is enough for a test
   // about wiring rather than about wording.
   pageText: (table, key) => table.en?.[key] ?? key,
+  ...manifestImports,
   // The tree model is a module of plain functions, supplied the same way.
   ...treeModel,
   document: {createElement: (tag) => new FakeChild(tag)},
@@ -239,7 +262,7 @@ test('selected bulk reaches the host with revisions even when its action differs
   const target = {closest: () => view};
 
   view.table.getSelectedRecordIds = () => ['one', 'two'];
-  const result = await view._onEvent({type: 'sf-action-apply', target, detail: {action: 'bulk_delete'}});
+  const result = await view._onEvent({type: 'sf-pagination-apply', target, detail: {action: 'bulk_delete', scope: 'selection'}});
   assert.equal(result.answer, 'refused');
   assert.equal(result.reason, 'host-decides-bulk-permission');
   assert.equal(calls.length, 1);
@@ -248,14 +271,15 @@ test('selected bulk reaches the host with revisions even when its action differs
   assert.equal(JSON.stringify(calls[0].payload.revisions), JSON.stringify({one: 3, two: 5}));
 
   view.table.getSelectedRecordIds = () => ['one'];
-  await view._onEvent({type: 'sf-action-apply', target, detail: {action: 'bulk_delete'}});
+  await view._onEvent({type: 'sf-pagination-apply', target, detail: {action: 'bulk_delete', scope: 'selection'}});
   assert.equal(calls.length, 2, 'one selected row still uses the bulk host intent');
   assert.equal(calls[1].intent, 'bulk.apply_selected');
   assert.equal(JSON.stringify(calls[1].payload.revisions), JSON.stringify({one: 3}));
 
-  await view._onEvent({type: 'sf-table-action-intent', target,
-    detail: {action_id: 'bulk_delete', record_ids: ['one']}});
+  // A row's own action (scope entry, standard 1.3.8 §18.3) the row does not offer.
+  await view._onEvent({type: 'sf-table-apply', target,
+    detail: {action: 'bulk_delete', scope: 'entry', ids: ['one']}});
   view.table.getSelectedRecordIds = () => ['one', 'missing'];
-  await view._onEvent({type: 'sf-action-apply', target, detail: {action: 'bulk_delete'}});
+  await view._onEvent({type: 'sf-pagination-apply', target, detail: {action: 'bulk_delete', scope: 'selection'}});
   assert.equal(calls.length, 2, 'row action denial and missing selected records remain local');
 });

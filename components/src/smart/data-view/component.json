@@ -1,0 +1,491 @@
+{
+  "$comment": "sf-data-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/data-view; every x-todo decided in x-decisions.",
+  "id": "smart.data-view-composite",
+  "tag": "sf-data-view",
+  "version": "1.1.0",
+  "kind": "leaf",
+  "family": "table",
+  "settings": {
+    "chrome": {
+      "type": "string",
+      "default": "toolbar pagination select settings"
+    },
+    "row-cap": {
+      "type": "number",
+      "default": 0
+    },
+    "port-owner": {
+      "type": "string",
+      "default": ""
+    },
+    "port-record": {
+      "type": "string",
+      "default": ""
+    },
+    "port-group": {
+      "type": "string",
+      "default": ""
+    },
+    "size": {
+      "type": "enum",
+      "values": [
+        "1/2",
+        "1"
+      ],
+      "default": "1"
+    },
+    "column-search-placeholder": {
+      "type": "string"
+    },
+    "column-search-empty-text": {
+      "type": "string"
+    },
+    "column-move-label": {
+      "type": "string"
+    },
+    "filter-apply-text": {
+      "type": "string"
+    },
+    "show-more-text": {
+      "type": "string"
+    },
+    "selected-label": {
+      "type": "string"
+    },
+    "total-label": {
+      "type": "string"
+    },
+    "pages-label": {
+      "type": "string"
+    },
+    "first-label": {
+      "type": "string"
+    },
+    "previous-label": {
+      "type": "string"
+    },
+    "page-label": {
+      "type": "string"
+    },
+    "next-label": {
+      "type": "string"
+    },
+    "last-label": {
+      "type": "string"
+    },
+    "page-field-label": {
+      "type": "string"
+    },
+    "action-choose-label": {
+      "type": "string"
+    },
+    "actions-label": {
+      "type": "string"
+    },
+    "actions-region-label": {
+      "type": "string"
+    },
+    "clear-selection-label": {
+      "type": "string"
+    },
+    "page-size-label": {
+      "type": "string"
+    },
+    "pagination-aria-label": {
+      "type": "string"
+    },
+    "preferences-key": {
+      "type": "string",
+      "default": ""
+    },
+    "accept-files": {
+      "type": "boolean",
+      "default": false
+    },
+    "collection": {
+      "type": "string",
+      "default": "",
+      "x-shape": "the host's collection id; the view's preference key falls back to it"
+    },
+    "current": {
+      "type": "string",
+      "default": "",
+      "x-shape": "the id of the record the page has open; its row carries aria-current"
+    },
+    "bulk-actions": {
+      "type": "list",
+      "of": {
+        "id": "string",
+        "label": "string"
+      },
+      "x-shape": "the actions offered for the marked rows; an assembly gives the ids, their words are its language file's roles.<role>.items.<id> (§11.3); a page may write them on its page row instead"
+    }
+  },
+  "values": {
+    "state": {
+      "type": "state",
+      "summary": "the list's data state (vocabulary §3): ready, empty, error, refused, unavailable, loading"
+    },
+    "total": {
+      "type": "number",
+      "nullable": true,
+      "summary": "the host's total; null while not counted"
+    },
+    "selected": {
+      "type": "id",
+      "optional": true,
+      "summary": "the open record's id"
+    },
+    "selection": {
+      "type": "list",
+      "summary": "the marked rows' ids"
+    }
+  },
+  "events": {
+    "open": {
+      "carries": {
+        "id": "id"
+      },
+      "cancelable": true
+    },
+    "deleted": {
+      "carries": {
+        "ids": "list"
+      }
+    },
+    "answer": {
+      "carries": {
+        "intent": "string",
+        "answer": {
+          "type": "enum",
+          "values": [
+            "applied",
+            "conflict",
+            "refused",
+            "unavailable"
+          ]
+        }
+      },
+      "own-verb": true,
+      "x-detail": "also the port answer's reason, message, data, sequence and effects when it has them, and instance_id"
+    },
+    "state": {
+      "carries": {
+        "state": {
+          "type": "enum",
+          "values": [
+            "loading",
+            "populated",
+            "empty",
+            "error",
+            "no-access"
+          ]
+        },
+        "message": "string"
+      },
+      "own-verb": true,
+      "x-detail": "also instance_id"
+    },
+    "tree": {
+      "carries": {
+        "intent": "string",
+        "payload": "object"
+      },
+      "own-verb": true
+    },
+    "files-drop": {
+      "carries": {
+        "files": "list"
+      },
+      "own-verb": true
+    }
+  },
+  "actions": {
+    "refresh": {
+      "with": {
+        "reason": {
+          "type": "string",
+          "optional": true
+        }
+      }
+    },
+    "change-query": {
+      "with": {
+        "patch": "object",
+        "reason": {
+          "type": "string",
+          "optional": true
+        }
+      },
+      "concurrency": "latest"
+    },
+    "open-view": {
+      "with": {
+        "key": "string"
+      }
+    },
+    "save-view": {
+      "with": {
+        "view": "object"
+      },
+      "concurrency": "drop"
+    },
+    "delete-view": {
+      "with": {
+        "key": "string"
+      },
+      "concurrency": "drop"
+    },
+    "apply-under-filter": {
+      "with": {
+        "action-id": "string",
+        "confirmed-total": "number"
+      },
+      "concurrency": "drop"
+    },
+    "reset-column-settings": {},
+    "clear-selection": {},
+    "notify": {
+      "with": {
+        "text": "string",
+        "options": {
+          "type": "object",
+          "optional": true
+        }
+      }
+    }
+  },
+  "slots": {
+    "toolbar": {},
+    "content": {
+      "default": true
+    },
+    "pagination": {}
+  },
+  "side-effects": [],
+  "keyboard": {
+    "host": {
+      "Tab": "reach"
+    }
+  },
+  "port": {
+    "id": "simai.dataview-port",
+    "version": "1.12.0",
+    "contract": "src/core/contracts/ports/simai.dataview-port/1.12.0/port.json"
+  },
+  "templates": {
+    "default": {
+      "file": "index.js",
+      "$comment": "the shadow layout is written in index.js (the migration form, §16); the rows are sf-table's template"
+    }
+  },
+  "presentation": {
+    "skeleton": {
+      "file": "skeleton.html",
+      "repeat": {
+        "rows": "row-cap"
+      }
+    }
+  },
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "region",
+    "name": {
+      "from": [
+        "aria-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach"
+    },
+    "announces": {
+      "total": "polite"
+    }
+  },
+  "css-variables": {
+    "--sf-data-view-gap": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-data-view-drop-border-color": {
+      "type": "color",
+      "state": "dragged-over"
+    },
+    "--sf-data-view-drop-background-color": {
+      "type": "color",
+      "state": "dragged-over"
+    },
+    "--sf-data-view-drop-color": {
+      "type": "color",
+      "state": "dragged-over"
+    },
+    "--sf-data-view-toolbar-gap": {
+      "type": "length",
+      "state": "default"
+    }
+  },
+  "host-states": {
+    "data-state": "string",
+    "aria-busy": "string"
+  },
+  "x-summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "data-view",
+    "manifest": "simai/ui-pro@9cbe061 components/src/smart/data-view/smart.manifest.json",
+    "converted": "control/smart-architecture/stands/17-ports-migration/out/data-view.component.json"
+  },
+  "x-words": [
+    "column-search-placeholder",
+    "column-search-empty-text",
+    "column-move-label",
+    "filter-apply-text",
+    "show-more-text",
+    "selected-label",
+    "total-label",
+    "pages-label",
+    "first-label",
+    "previous-label",
+    "page-label",
+    "next-label",
+    "last-label",
+    "page-field-label",
+    "action-choose-label",
+    "actions-label",
+    "actions-region-label",
+    "clear-selection-label",
+    "page-size-label",
+    "pagination-aria-label"
+  ],
+  "x-port": {
+    "sha256": "e024700fddc70464642e2f42604cd6d57d4c167c4583127f05bfb85ebbb3ffa1",
+    "supports": [
+      "1.0.0",
+      "1.1.0",
+      "1.2.0",
+      "1.3.0",
+      "1.4.0",
+      "1.5.0",
+      "1.6.0",
+      "1.7.0",
+      "1.8.0",
+      "1.9.0",
+      "1.10.0",
+      "1.11.0",
+      "1.12.0"
+    ]
+  },
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "query",
+        "records",
+        "saved_views",
+        "answer messages"
+      ],
+      "network_policy": "deny"
+    },
+    "ownership": {
+      "source": "simai/ui-admin",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "access decisions",
+        "database writes",
+        "unspecified transport"
+      ]
+    },
+    "presentation": {
+      "skeleton": {
+        "shape": "rows",
+        "while_loading": "template"
+      },
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "ru",
+        "en"
+      ],
+      "responsive": [
+        "Slots and child components own responsive behaviour"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use for a host-driven CMS collection with toolbar, table and pagination.",
+      "do_not": [
+        "Do not embed rows in the composition recipe",
+        "Do not infer permissions from visible buttons"
+      ],
+      "required_reads": [
+        "host_port",
+        "events",
+        "ownership",
+        "compatibility",
+        "docs"
+      ],
+      "minimal_example": "<sf-data-view aria-label=\"Записи\"><sf-table slot=\"content\" aria-label=\"Записи\"></sf-table><sf-pagination slot=\"pagination\"></sf-pagination></sf-data-view>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-browser-probes.mjs <free output> <package output>"
+      ]
+    }
+  },
+  "x-renamed": [
+    "settings.aria-label: a host attribute, read by the base, never a setting (§3.1)",
+    "events.count: 3 carried field(s) held the element, not data (§8)",
+    "events.sf-count-request → count (vocabulary §5 count)",
+    "events.sf-data-view-answer → answer (the DOM name without sf-<tag>-)",
+    "events.sf-data-view-saved-view → save (vocabulary §5.1)",
+    "events.sf-data-view-state → state (the DOM name without sf-<tag>-)",
+    "events.sf-table-action → apply (vocabulary §5 apply)",
+    "events.column-settings-change: 1 carried field(s) held the element, not data (§8)",
+    "events.sf-table-column-settings-change → column-settings-change (the DOM name without sf-<tag>-)",
+    "events.column-settings-reset: 1 carried field(s) held the element, not data (§8)",
+    "events.sf-table-column-settings-reset → column-settings-reset (the DOM name without sf-<tag>-)",
+    "events.sf-table-create → create (vocabulary §5 create)",
+    "events.sf-table-query → query (the DOM name without sf-<tag>-)",
+    "events.sf-table-template-delete → template-delete (the DOM name without sf-<tag>-)",
+    "events.sf-table-template-save → template-save (the DOM name without sf-<tag>-)",
+    "events.sf-table-template-select → template-select (the DOM name without sf-<tag>-)",
+    "events.sf-host-port-request: retires — the runtime hands the port to the parts that declare it (§4.9, 1.3.7); the page answers no request",
+    "events.sf-data-view-list-open → open (vocabulary §5 open)",
+    "events.sf-table-tree → tree (the DOM name without sf-<tag>-)",
+    "events.sf-data-view-files-drop → files-drop (the DOM name without sf-<tag>-)",
+    "events.sf-table-cell-set → cell-set (the DOM name without sf-<tag>-)",
+    "events.sf-table-rows-reorder → move (vocabulary §5 move)",
+    "slots.toolbar.accepts names components (smart.buttons, smart.inputs, smart.dropdown), not an interface <name>@<major> (§4.5.1); kept as x-accepts",
+    "slots.content.accepts names components (smart.data-view), not an interface <name>@<major> (§4.5.1); kept as x-accepts",
+    "slots.pagination.accepts names components (smart.pagination), not an interface <name>@<major> (§4.5.1); kept as x-accepts"
+  ],
+  "x-decisions": {
+    "shape": "leaf, with reasons (§7, the smaller mechanism). Stand 24 is the measured assembly of this screen (sf-record-browser: sf-source, sf-table, sf-pagination, sf-modal, sf-toast; 35/35 scenarios), and the view keeps its interface: collection, current, total, open {id}, deleted {ids}, refresh. It does not become that assembly now: its source part is a stand-in with no real component (sf-source, real: false in the parts catalogue), its confirm part (sf-change-confirm) moves in another branch, and §7.4 would stop the table's events at the frame, which ui-admin listens to on the page today (sf-table-action-intent, onSearchEnd …, vocabulary §9.2). Stand 24 on these real parts places this leaf where it placed the assembly (CC 0: the part tag).",
+    "version": "1.0.0 → 1.1.0, a minor while sf-table-tree-intent holds a dated alias (§4.10).",
+    "events": "open {id} is a cancelable request (vocabulary §5 open): sent when a row's view action is chosen, and the host's record.open follows unless a listener refused it; deleted {ids} is the fact after an applied delete (vocabulary §4). The tree's port intents are announced as tree {intent, payload}, sf-data-view-tree; the old sf-table-tree-intent follows once. answer and state keep their DOM names and details (instance_id stays snake_case until the next major).",
+    "re-emit": "simai/ui-pro#1 item 3: the view sends none of the table's events as its own; the sf-table-* events a page hears are the inner table's, once each (§8: an element never re-emits a part's event). The converter's apply, save, create, query, template-*, column-settings-*, cell-set and move are the table's and are not declared here.",
+    "alias-conflict": "sf-data-view-saved-view-intent is not this view's event but a page's request to it (a shared save); it stays listened to and is not renamed. The table's names are the table's (its aliases.json).",
+    "carries": "a carried field is one the detail holds under that very name (SF.Assembly checks it on every event); the rest is named in x-detail.",
+    "own-verb-words": "answer, state, tree and files-drop are verbs of this view alone; their words are lang events.<verb>.label.",
+    "bulk-actions": "a page gives the marked rows' actions on its page row's markup (ui-admin: actions=\"publish:…|delete:…\"); a view placed by an assembly makes its own table and page row (light DOM, where the page's sheets reach them) and takes the actions as the list setting bulk-actions [{id, label}], the label from the assembly's language file (§11.3). Stand 24 on the real parts measured the gap.",
+    "values": "state is the vocabulary's (populated → ready, no-access → refused); total, selected (the open record) and selection (the table's marked rows) are read-only.",
+    "actions": "refresh, change-query (concurrency latest: the newest answer wins, by the view's sequence), open-view, save-view, delete-view, apply-under-filter, reset-column-settings, clear-selection and notify answer outcomes (../table/js/manifest-actions.js: the port's {answer, reason, message} is the outcome) and take one object or positional parameters (§4.4). apply-projection, update-record and the tree helpers stay the element's helpers.",
+    "persistence": "the person's sort and page size are kept in SF.Preferences under preferences-key (or collection); nothing is an assembly key (§7.5).",
+    "item-shape": "the projection's records are the table's rows {id, revision, …}; page and page-size are numbers (vocabulary 1.1.5).",
+    "slot-interface": "toolbar, content and pagination take page content as it is; they name no interface (§4.5.1) until a trait exists for them — the x-accepts the converter found are component lists, not interfaces.",
+    "host-port": "connect-port (setHostPort its alias) hands the port; sf-host-port-request is still sent once per connection to a page that answers it, and is not part of this interface (the runtime hands ports down, §4.9).",
+    "listened-names": "the view listens to the table's and the page row's names of standard 1.3.8 (sf-table-apply, -select, -save, -refresh, -expand, -load-more, -move, -query, -create; sf-pagination-change, -size-change, -apply, -load-more, -selection-clear, -count, -action-change, -action-for-all-change), not to their dated aliases, so it keeps working after 2026-12-01 and takes each act once. Another page size reads from the first page.",
+    "own-parts": "a view placed by an assembly (the bare tag, data-sf-instance) makes its sf-table and sf-pagination as light-DOM children in its content and pagination slots, where the page's stylesheets reach them; the fallbacks inside the shadow root are drawn without the table's sheet. A page that writes the documented markup gives them itself and nothing is made.",
+    "conflict-total": "a filter-wide action whose count moved is a conflict carrying the current total (vocabulary §3.1); the page row shows that total at once.",
+    "access-codes": "a refusal for access is read in both spellings, access_denied (Larena) and access-denied (ui-admin's reference host, stand 24 U2); the value state is refused then.",
+    "lang-ru": "the title is «Представление данных» in Russian.",
+    "template": "the shadow layout is in index.js, the migration form; the rows are sf-table's template; skeleton.html is the static first paint.",
+    "css-variables": "five public variables: the gap, the drop zone's border, fill and words, the toolbar's gap; they are read with the role tokens as fallbacks.",
+    "skeleton": "skeleton.html: a toolbar bar, row-cap rows (or the table's page) and a page row of bars, settings only.",
+    "source-drift": "carried by hand: the estimated total «~N» (ui-pro 71ebff1) is the view's behaviour, not a member.",
+    "docs": "docs.md, where the folder keeps it."
+  }
+}
