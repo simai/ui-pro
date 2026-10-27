@@ -50,3 +50,11 @@ test('cancelling configure skips view.save when the layer is the one entered wit
   assert.doesNotMatch(early, /saveView/u);
   assert.match(source, /revision: this\._layerRevision\(this\.viewTarget\),/u);
 });
+
+// A link inside a field's value does its own thing only (simai.main,
+// 2026-10-28): downloading a stored file also opened the group for editing.
+test('a press on a link inside a value does not open the group', () => {
+  const start = template.indexOf('data-open-group=${groupKey}');
+  const handler = template.slice(start, template.indexOf('renderFieldValue(context, field, editing)}', start));
+  assert.match(handler, /if \(event\.composedPath\(\)\.some\(\(node\) => node\.matches\?\.\('a\[href\]'\)\)\) return;\s*context\.component\.editGroup\(sectionKey, groupKey\);/u);
+});

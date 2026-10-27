@@ -236,6 +236,31 @@ try {
       expected: 'no view.save, and the mode left'});
   }
 
+  // A link inside a field's value does its own thing only: downloading a
+  // stored file also opened the group for editing (simai.main, 2026-10-28).
+  const linkPress = await page.evaluate(async () => {
+    const view = document.getElementById('view');
+    const wait = (ms) => new Promise((done) => setTimeout(done, ms));
+    const root = view.panelContent?.() ?? view;
+    const button = root.querySelector('[data-open-group]');
+    if (!button) return {button: false};
+    const link = document.createElement('a');
+    link.href = '#file';
+    link.textContent = 'file.pdf';
+    link.addEventListener('click', (event) => event.preventDefault());
+    button.prepend(link);
+    link.click();
+    await wait(200);
+    const afterLink = Boolean(view.editing);
+    link.remove();
+    view.cancelEdit?.();
+    return {button: true, afterLink};
+  });
+  if (!linkPress.button || linkPress.afterLink) {
+    note({case: 'a link inside a value does not open the group', got: linkPress,
+      expected: 'the field button present, and no edit after a press on the link inside it'});
+  }
+
   // A host's own items slotted into `menu` are rows of the same standard menu
   // (owner, 2026-10-14): they were a popover of link buttons.
   await page.evaluate(() => document.getElementById('view').remove());
@@ -288,7 +313,7 @@ try {
     note({case: "a host's menu items are rows of the standard menu", got: hostedMenu});
   }
 
-  console.log(JSON.stringify({probe: 'property-view-menu', menu, views, chosen, chooser, barMenu, naming, untouched, hostedMenu, failures}, null, 2));
+  console.log(JSON.stringify({probe: 'property-view-menu', menu, views, chosen, chooser, barMenu, naming, untouched, linkPress, hostedMenu, failures}, null, 2));
 } finally {
   await browser.close();
 }
