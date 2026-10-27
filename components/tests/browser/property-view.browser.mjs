@@ -1025,6 +1025,8 @@ try {
     // empty box reads as something still loading, which is the one thing it is
     // not: the host has answered.
     const bare = document.createElement('sf-property-view');
+    // Since 1.5.0 a view asks the host nothing until it is told its record.
+    bare.setAttribute('record-id', 'record-bare');
     document.body.append(bare);
     bare.setHostPort({
       version: '1.9.0', capabilities: [],

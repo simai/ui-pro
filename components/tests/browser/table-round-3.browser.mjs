@@ -601,7 +601,10 @@ try {
       return {...counts, raised: [...window.raised]};
     };
     // Which elements the cells hold, so a render can be shown to keep them.
-    const cellElements = () => [...body().querySelectorAll('tr td sf-checkbox, tr td sf-icon-button, tr td sf-button')];
+    // The row's box and menu are class markup since standard 1.3.8 (§18.4);
+    // a cell's own control is still an element.
+    const cellElements = () => [...body().querySelectorAll(
+      'tr td input[data-sf-row-box], tr td button[data-sf-row-menu], tr td sf-checkbox, tr td sf-icon-button, tr td sf-button')];
     const before = cellElements();
     const open = await measure(() => table.requestActionIntent('view', ['1']));
     window.patchOnMutate = true;
@@ -671,14 +674,16 @@ try {
   const live = await audit.evaluate(async () => {
     const view = document.getElementById('v');
     const table = document.getElementById('t');
-    const boxes = () => [...document.querySelectorAll('#t tbody tr sf-checkbox input')];
+    // Since standard 1.3.8 (§18.4) the row's box is class markup, an input the
+    // table writes itself; the mark it leaves on the row is data-selected.
+    const boxes = () => [...document.querySelectorAll('#t tbody tr input[data-sf-row-box]')];
     const first = boxes()[0];
     first.click();
     await new Promise((done) => setTimeout(done, 300));
     const marked = {
       selected: table.getSelectedRecordIds().map(String),
       checked: first.checked,
-      attribute: first.closest('sf-checkbox').getAttribute('checked'),
+      attribute: first.closest('tr').getAttribute('data-selected'),
     };
     // A render over a marked row: the mark is the row's own, so it stays.
     view.updateRecord('3', {name: 'Changed elsewhere'});
@@ -700,7 +705,7 @@ try {
     await new Promise((done) => setTimeout(done, 300));
     const unmarked = {
       checked: first.checked,
-      attribute: first.closest('sf-checkbox').getAttribute('checked'),
+      attribute: first.closest('tr').getAttribute('data-selected'),
       selected: table.getSelectedRecordIds().map(String),
     };
     return {marked, afterRender, focused, focusKept, unmarked};
