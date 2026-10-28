@@ -2020,11 +2020,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "541459b1981f666e52054751a1ee8894fb38ba5b",
+    "source_revision": "26fc09500c66b60f5c3c3d8e754f44657824bb15",
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "d6b264bc70f8efaae2f2a6514974af0ba298b1a7dc6dc9a88034ee31edfd43ce"
+        "sha256": "a80c1e9f2d815717ff2d613304ec08709f37ce107aea2dad16c97dc6ba2c077e"
       },
       {
         "path": "src/smart/table/js/templates/default.js",
@@ -2032,7 +2032,7 @@
       },
       {
         "path": "src/smart/table/js/templates/default.css",
-        "sha256": "de9da00c744202fdb7d4b4389eb70e59dc5d1bdf23e32c71bae42608b84ab253"
+        "sha256": "8d3919fd2ce2755a32ba333ae8488169c1c2baedd977ca4add2c74aaa5dfeb39"
       },
       {
         "path": "src/smart/helpers/option-badge.js",
