@@ -1,3 +1,19 @@
+/* The table's published box (the :root block below, docs/docs.md) is
+   registered as lengths: a page that reads one from script
+   (getComputedStyle(document.documentElement).getPropertyValue(
+   '--sf-table-row-block-size-1/2') -- the name unescaped, as CSSOM spells it)
+   gets the length in px, not the token expression it is written in, and gets
+   it as soon as this sheet is linked, with no table on the page. */
+@property --sf-table-row-block-size-1\/2 { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-table-row-block-size-1 { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-table-row-2-lines-block-size-1\/2 { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-table-row-2-lines-block-size-1 { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-table-head-block-size-1\/2 { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-table-head-block-size-1 { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-table-toolbar-block-size-1\/2 { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-table-toolbar-block-size-1 { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-table-toolbar-gap { syntax: "<length>"; inherits: true; initial-value: 0px; }
+
 @layer sf.components {
   /* The toolbar is one line while one line is enough, and two lines when it is
      not — with the search, Create and the gear on the upper line and the filter

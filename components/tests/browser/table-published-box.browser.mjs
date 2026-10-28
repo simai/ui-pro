@@ -81,6 +81,31 @@ try {
     const formula = published.toolbar + published.gap + published.head + 3 * published.row + published.twoLines;
     if (Math.abs(formula - drawn.section) > 1) failures.push(`size ${one.step}: the docs' formula gives ${formula} px, the section is ${drawn.section} px (${JSON.stringify(one)})`);
   }
+  // Only the sheet linked, no table on the page: the values are on :root,
+  // read from script by their CSSOM names (unescaped), in px, and they are
+  // the drawn ones (Larena read them empty after load, 2026-10-28).
+  const bare = await browser.newPage();
+  await bare.setContent('<!doctype html><html class="theme-light"><body></body></html>');
+  for (const path of ['core/core/css/core.css', 'smart/smart/table/css/table.css']) await bare.addStyleTag({path: join(out, path)});
+  const sheetOnly = await bare.evaluate(() => {
+    const style = getComputedStyle(document.documentElement);
+    return Object.fromEntries(['1/2', '1'].flatMap((step) => [
+      [`row ${step}`, style.getPropertyValue(`--sf-table-row-block-size-${step}`)],
+      [`twoLines ${step}`, style.getPropertyValue(`--sf-table-row-2-lines-block-size-${step}`)],
+      [`head ${step}`, style.getPropertyValue(`--sf-table-head-block-size-${step}`)],
+      [`toolbar ${step}`, style.getPropertyValue(`--sf-table-toolbar-block-size-${step}`)],
+    ]).concat([['gap', style.getPropertyValue('--sf-table-toolbar-gap')]]));
+  });
+  for (const one of read) {
+    const step = one.step.replace('\\', '');
+    for (const key of ['row', 'twoLines', 'head', 'toolbar']) {
+      const text = sheetOnly[`${key} ${step}`];
+      if (!/^\d+(\.\d+)?px$/u.test(text) || Math.abs(Number.parseFloat(text) - one.drawn[key]) > 0.5) {
+        failures.push(`with only the sheet linked, ${key} ${step} reads «${text}» on :root, drawn ${one.drawn[key]} px`);
+      }
+    }
+  }
+  if (sheetOnly.gap !== '8px') failures.push(`with only the sheet linked, the toolbar gap reads «${sheetOnly.gap}»`);
 } catch (error) {
   failures.push(error.message);
 } finally {
