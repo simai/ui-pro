@@ -245,7 +245,7 @@ try {
     document.activeElement?.blur?.();
     view.startConfiguringView?.();
     await wait(500);
-    const entered = Boolean(document.activeElement?.closest?.('.sf-property-view-configure-bar'));
+    const entered = Boolean(document.activeElement?.closest?.('.sf-property-view-configure-bar [data-action="view-profile"]'));
     const done = root().querySelector('[data-action="done-configuring"] button, [data-action="done-configuring"]');
     done?.focus?.();
     done?.click?.();
@@ -255,7 +255,7 @@ try {
   });
   if (!focusTrail.entered || !focusTrail.left) {
     note({case: 'arranging moves the focus in and back out', got: focusTrail,
-      expected: "the arranging bar's first control on entering, the panel's menu on Done"});
+      expected: "the view chooser on entering, the panel's menu on Done"});
   }
 
   // A link inside a field's value does its own thing only: downloading a

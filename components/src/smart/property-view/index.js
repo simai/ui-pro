@@ -2767,12 +2767,27 @@ class SfPropertyView extends PropertyViewElement {
     // control wins.
     _focusAfterRender(selectors) {
         const focusable = "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])";
-        this.whenRendered(() => requestAnimationFrame(() => {
+        const inside = (area) => (area?.matches?.(focusable) ? area : area?.querySelector?.(focusable)) ?? null;
+        this.whenRendered(() => requestAnimationFrame(async () => {
             const root = this.panelContent?.() ?? this;
-            const target = [selectors].flat().map((selector) => {
+            let target = null;
+            for (const selector of [selectors].flat()) {
                 const area = [...(root?.querySelectorAll?.(selector) ?? [])].pop() ?? null;
-                return area?.matches?.(focusable) ? area : area?.querySelector?.(focusable);
-            }).find(Boolean);
+                if (!area) continue;
+                target = inside(area);
+                // A child defined lazily (the view chooser on a cold page) has
+                // no control yet on the first frame, and the next selector's
+                // first control -- Reset -- took the focus in its place
+                // (simai.main, 2026-10-28). Its definition and first render are
+                // waited for before falling through.
+                if (!target && area.localName.includes("-")) {
+                    await customElements.whenDefined(area.localName);
+                    await area.whenRendered?.();
+                    await new Promise((done) => requestAnimationFrame(done));
+                    target = inside(area);
+                }
+                if (target) break;
+            }
             if (!target || !target.isConnected) return;
             const active = document.activeElement;
             // Only where the focus was lost: a person who has already moved on

@@ -69,3 +69,11 @@ test('arranging moves the focus to its bar, and Done back to the menu', () => {
   assert.match(stop, /if \(wasConfiguring\) this\._focusAfterRender\('\[data-action="menu"\]'\);/u);
   assert.match(source, /if \(active && active !== document\.body && root\?\.contains\?\.\(active\)\) return;/u);
 });
+
+// A lazily defined view chooser is waited for, so a cold Configure focuses it
+// rather than Reset (simai.main, 2026-10-28).
+test('the focus waits for a lazily defined chooser before falling through', () => {
+  const body = source.slice(source.indexOf('    _focusAfterRender(selectors) {'), source.indexOf('    // Leaving the mode with the arrangement'));
+  assert.match(body, /if \(!target && area\.localName\.includes\("-"\)\) \{\s*await customElements\.whenDefined\(area\.localName\);\s*await area\.whenRendered\?\.\(\);/u);
+  assert.match(body, /if \(target\) break;/u);
+});
