@@ -7,7 +7,9 @@ SF.RuleLoader["cl-data-view"] = {
   type: "smart",
   mode: "smart",
   js: true,
-  css: false,
+  // Its own sheet: the first paint (js/first-paint.css). The table's and the
+  // page row's styles come with cl-table and cl-pagination.
+  css: true,
   // lazy: a notice appears after an answer; fetched after the page is ready (2026-10-12).
   relation: [
     { name: "icons" },

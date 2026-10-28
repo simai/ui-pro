@@ -1,0 +1,164 @@
+/* sf-data-view's own sheet (data-view.css): its first paint, the skeleton
+   _startFirstPaint draws and a server prints. Until 1.6.0 these rules were in
+   sf-table's sheet and data-view.css was the table's and the page row's styles,
+   bundled through their index.js; the view now carries only its own. */
+/* ─── sf-data-view's first paint (its skeleton, index.js _startFirstPaint) ──
+   The view's first paint is the shape of the table: the skeleton's rows have
+   to be as tall as the rows the table draws when the host answers. Lengths are
+   the table's own tokens: a cell's padding, a line of the row's text, a
+   control of the row's step. The table chooses table or compact list in code
+   (isList: its container below list-below, 600 px by default); a printed
+   skeleton cannot measure, so a container query at the same width chooses. */
+@layer sf.components {
+  /* Until the host's first answer only the skeleton shows: the table and the
+     page row the page gave stand back, before the view's code too (in its
+     shadow root they are in the layout it hides). */
+  sf-data-view[data-sf-awaiting] > :not([slot="first-paint"]) {
+    /* Important: a printed part host carries display: contents inline. */
+    display: none !important;
+  }
+
+  sf-data-view > .sf-data-view-skeleton {
+    --sf-data-view-skeleton--pad: var(--sf-space-1);
+    --sf-data-view-skeleton--control: var(--sf-ui-1--control-height);
+    display: grid;
+    gap: var(--sf-data-view-gap, var(--sf-space-3));
+    container-type: inline-size;
+  }
+
+  sf-data-view > .sf-data-view-skeleton[data-size="1/2"] {
+    --sf-data-view-skeleton--pad: var(--sf-ui-1\/2--space-y);
+    --sf-data-view-skeleton--control: var(--sf-ui-1\/2--control-height);
+  }
+
+  /* A bar is a line of the row's text (its line height, the letters' height
+     in the middle); a control block is as tall as the step's control. The
+     whole box is here, not only its lengths: the skeleton component's sheet
+     (which also sizes .sf-skeleton-text) arrives later through the Loader, and
+     a bar with no height of its own until then grows the list when it does. */
+  .sf-data-view-skeleton .sf-skeleton-text {
+    --sf-skeleton-text--height: var(--sf-text-size-1);
+    --sf-skeleton-text--line: var(--sf-text-height-1);
+    display: block;
+    block-size: var(--sf-skeleton-text--height);
+    margin-block: calc((var(--sf-skeleton-text--line) - var(--sf-skeleton-text--height)) / 2);
+    inline-size: 50%;
+    max-inline-size: 100%;
+  }
+
+  .sf-data-view-skeleton[data-size="1/2"] .sf-skeleton-text {
+    --sf-skeleton-text--height: var(--sf-b0);
+    --sf-skeleton-text--line: var(--sf-text-height-1\/2);
+  }
+
+  .sf-data-view-skeleton .sf-skeleton-text[data-control] {
+    --sf-skeleton-text--height: var(--sf-data-view-skeleton--control);
+    --sf-skeleton-text--line: var(--sf-data-view-skeleton--control);
+    inline-size: var(--sf-data-view-skeleton--control);
+    flex: none;
+  }
+
+  .sf-data-view-skeleton .sf-skeleton-text[data-control="button"] {
+    inline-size: calc(var(--sf-data-view-skeleton--control) * 3);
+  }
+
+  .sf-data-view-skeleton .sf-skeleton-text[data-control="field"] {
+    inline-size: auto;
+    min-inline-size: calc(var(--sf-data-view-skeleton--control) * 2.5);
+    flex: 1 1 auto;
+  }
+
+  /* The table's section: its toolbar, then its rows, a step apart. */
+  .sf-data-view-skeleton-records {
+    display: grid;
+    gap: var(--sf-space-1\/3);
+    min-inline-size: 0;
+  }
+
+  .sf-data-view-skeleton-toolbar {
+    display: flex;
+    gap: var(--sf-space-1\/3);
+  }
+
+  /* A row (the head first) as tall as the table's: the cell padding, the
+     row's tallest content -- a line of text, or the row menu's control -- and
+     the line under it. */
+  .sf-data-view-skeleton-table > div {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1);
+    padding-block: var(--sf-data-view-skeleton--pad);
+    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-data-view-skeleton-table > div > span {
+    display: flex;
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  .sf-data-view-skeleton-table > div > span[data-chrome] {
+    flex: none;
+    inline-size: var(--sf-data-view-skeleton--control);
+  }
+
+  .sf-data-view-skeleton-table > div > span[data-chrome] > .sf-skeleton-text:not([data-control]) {
+    inline-size: 1lh;
+  }
+
+  .sf-data-view-skeleton-table > div > span:nth-child(3n + 1) > .sf-skeleton-text { inline-size: 75%; }
+  .sf-data-view-skeleton-table > div > span:nth-child(3n + 2) > .sf-skeleton-text { inline-size: 60%; }
+  .sf-data-view-skeleton-table > div:nth-child(even) > span > .sf-skeleton-text { inline-size: 66%; }
+  .sf-data-view-skeleton-table > div:first-child > span > .sf-skeleton-text { inline-size: 40%; }
+
+  /* The compact list's record, as sf-table .sf-table-list-item: its box, its
+     title and the fields under it (one line each), its menu. */
+  .sf-data-view-skeleton-list {
+    display: none;
+  }
+
+  .sf-data-view-skeleton-list > div {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--sf-a8);
+    padding: var(--sf-a8);
+    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-data-view-skeleton-list > div > .sf-skeleton-text:first-child {
+    inline-size: 1lh;
+  }
+
+  .sf-data-view-skeleton-list > div > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-a4);
+    min-inline-size: 0;
+  }
+
+  .sf-data-view-skeleton-list > div > div > .sf-skeleton-text:first-child { inline-size: 60%; }
+  .sf-data-view-skeleton-list > div > div > .sf-skeleton-text:nth-child(even) { inline-size: 75%; }
+
+  /* The page row's words: as long as the words they stand for. */
+  .sf-data-view-skeleton nav .sf-skeleton-text:not([data-control]) {
+    inline-size: 5em;
+  }
+
+  .sf-data-view-skeleton[data-layout="list"] .sf-data-view-skeleton-table {
+    display: none;
+  }
+
+  .sf-data-view-skeleton[data-layout="list"] .sf-data-view-skeleton-list {
+    display: block;
+  }
+
+  @container (width < 600px) {
+    .sf-data-view-skeleton[data-layout="auto"] .sf-data-view-skeleton-table {
+      display: none;
+    }
+    .sf-data-view-skeleton[data-layout="auto"] .sf-data-view-skeleton-list {
+      display: block;
+    }
+  }
+}

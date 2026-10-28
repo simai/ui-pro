@@ -82,7 +82,7 @@ test('the number is asked for only when a host can answer, and only once at a ti
   assert.equal(counts(estimate).length, 1, 'an estimate can be asked to become the number');
   assert.match(
     view,
-    /canCount: Boolean\(this\.hostPort\?\.capabilities\?\.includes\("count-on-request"\)\)/u,
+    /canCount: this\.knownCapability\("count-on-request"\)/u,
     'the capability decides whether the offer appears at all',
   );
 });

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.4.3",
+  "version": "1.6.0",
   "title": "Data view composite",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -1356,11 +1356,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "fbf1cbb6d93865037239ffdf2fb2b27f16a0d69e",
+    "source_revision": "7253884bacf540e601a5c3ae566433d8d0626c6f",
     "source_artifacts": [
       {
         "path": "src/smart/data-view/index.js",
-        "sha256": "d3c12f90f138d5313bf2c97e4dafcebf51a219174708b7fce8979c6631fcadbd"
+        "sha256": "7041c66adb12f4f862451ff9c8e7eea60a43b1ec9fd11c884e401d4c7e766583"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",
@@ -1368,7 +1368,7 @@
       },
       {
         "path": "src/smart/data-view/docs.md",
-        "sha256": "8063c6cbc009a79b1e0353b10f1212cd0cfcce27ea39bec7a18ed3e5140a371a"
+        "sha256": "c676a1d5d9050fa8525696dd4bbf732d46cdabe36555e258067db987bc031dda"
       },
       {
         "path": "tests/fixtures/data-view-composite-lab.html",
@@ -1377,6 +1377,10 @@
       {
         "path": "src/smart/data-view/js/tree.js",
         "sha256": "800ce7a5fe2ca9681b4dc4cd283055bf815b0346aec4bb5e9df40189c682e2c4"
+      },
+      {
+        "path": "src/smart/data-view/js/first-paint.css",
+        "sha256": "4653fc8d22606129d33cb9475c18cc61b8d9e5cb2534469a380c3c7df3601cfa"
       }
     ],
     "generated_runtime": []
