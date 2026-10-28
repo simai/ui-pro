@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "title": "Data view composite",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -1377,6 +1377,10 @@
       {
         "path": "src/smart/data-view/js/tree.js",
         "sha256": "800ce7a5fe2ca9681b4dc4cd283055bf815b0346aec4bb5e9df40189c682e2c4"
+      },
+      {
+        "path": "src/smart/data-view/js/first-paint.css",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
       }
     ],
     "generated_runtime": []

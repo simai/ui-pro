@@ -1,10 +1,13 @@
 // A composition shell. The host owns access, storage and query semantics;
 // this element owns the browser lifecycle and projects answers into its slots.
-import "../table/index.js";
-import "../pagination/index.js";
-// The notice is a toast, so the composite carries it the way it carries the
-// table and the page row.
-import "../toast/index.js";
+// sf-table, sf-pagination and sf-toast are not imported: a package carries no
+// element layer of its own, and an element that needs another asks for it by
+// tag (ui-source docs/developer/shared-runtime.md). The rule's relations bring
+// them (cl-table, cl-pagination, cl-toast lazy), and the view asks the Loader
+// for any that is not defined yet (_askForParts). Imported, each was a second
+// copy of the element in data-view.min.js (431 KB min; stand 25).
+// The view's own first-paint styles, its skeleton, are its sheet.
+import "./js/first-paint.css";
 import {pageText} from "../../core/js/page-language";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {installAliases} from "../../core/js/aliases.js";
@@ -506,6 +509,7 @@ class SfDataView extends DataViewElement {
             this._notice = null;
             return this;
         }
+        this._askForParts(["sf-toast"]);
         const toast = document.createElement("sf-toast");
         toast.setAttribute("status", kind === "error" ? "error" : "warning");
         toast.setAttribute("closable", "true");
@@ -594,6 +598,7 @@ class SfDataView extends DataViewElement {
         this._readPrintedPageSize();
         super.connectedCallback();
         if (this.getAttribute("data-sf-instance")) this._ownParts();
+        this._askForParts(["sf-table", "sf-pagination"]);
         // Dated aliases (§16.20), installed once per element as the Smart base does.
         if (!this.__sfAliases) this.__sfAliases = installAliases(this, aliases, {tag: this.localName, adapters: {}});
         this._bindFileDrop();
@@ -1606,6 +1611,27 @@ class SfDataView extends DataViewElement {
         return this._raise("node.move", {
             id: record.id, parent: chosen.parent, index: chosen.index,
             ...(record.revision !== undefined ? {revision: record.revision} : {}),
+        });
+    }
+
+    // The elements the view composes, asked for by tag: the Loader defines each
+    // from its own bundle (the rule's relations usually have already), and the
+    // view projects again once they are, so an answer that came before them is
+    // not lost on an element that could not take it yet.
+    _askForParts(tags) {
+        const registry = globalThis.customElements;
+        if (typeof registry?.get !== "function" || typeof registry.whenDefined !== "function") return;
+        const loader = globalThis.SF?.Loader;
+        const missing = tags.filter((tag) => !registry.get(tag));
+        if (!missing.length) return;
+        for (const tag of missing) loader?.ensureSmartElementLoaded?.(tag);
+        const key = missing.join(",");
+        this._partsAsked ??= new Set();
+        if (this._partsAsked.has(key)) return;
+        this._partsAsked.add(key);
+        Promise.all(missing.map((tag) => registry.whenDefined(tag))).then(() => {
+            this._partsAsked.delete(key);
+            if (this.isConnected && missing.some((tag) => tag !== "sf-toast")) this._renderProjection();
         });
     }
 

@@ -64,7 +64,7 @@ test('sf-data-view: its static markup is its skeleton, slotted as the first pain
     assert.equal(data.columns.length, columns, `${example.name}: the port answers ${columns} columns`);
   }
   // Until the answer only the skeleton shows, before the code too.
-  assert.match(readFileSync(join(smart, 'table', 'js', 'templates', 'default.css'), 'utf8'), /sf-data-view\[data-sf-awaiting\] > :not\(\[slot="first-paint"\]\) \{[^}]*display: none !important;/u);
+  assert.match(readFileSync(join(smart, 'data-view', 'js', 'first-paint.css'), 'utf8'), /sf-data-view\[data-sf-awaiting\] > :not\(\[slot="first-paint"\]\) \{[^}]*display: none !important;/u);
 });
 
 test('the port-fed components give gate 24 a fake port, so phase 3 checks their data', async () => {
