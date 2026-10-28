@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-composer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Chat composer",
   "summary": "Where a question is written and files are added: Enter sends, Shift+Enter breaks the line, an IME composition is never cut short, the send button becomes «stop waiting» while an answer is awaited, and files are only reported for the host to upload; their chips come back as the setting files.",
   "kind": "smart",
@@ -469,6 +469,13 @@
           "sf-chat-action {action: remove-attachment, id, name} -> sf-chat-composer-detach {id, name} until 2026-12-01 (event, split alias)",
           "setFiles(files) is the action set-files and the setting files; clear() is the action clear"
         ]
+      },
+      {
+        "from": "1.0.0",
+        "to": "1.0.1",
+        "changes": [
+          "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -502,7 +509,7 @@
       },
       {
         "path": "src/smart/chat-composer/component.json",
-        "sha256": "60a1d29f9b063e07e3e55869656c5e2f95fb528f676013f2a1cbd2b8a193330a"
+        "sha256": "39240ee2b0f161b829fa44ecc6ea79fde3cc94edae63487675729d39a6916f9b"
       },
       {
         "path": "src/smart/chat-composer/aliases.json",

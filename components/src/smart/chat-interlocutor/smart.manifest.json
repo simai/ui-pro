@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-interlocutor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Chat interlocutor",
   "summary": "Who the conversation is with: the server's interlocutors in the Framework's context menu, the current one checked, and a choice of another reported for the host to start a new conversation with. One interlocutor is a name, not a choice.",
   "kind": "smart",
@@ -289,6 +289,13 @@
           "sf-chat-interlocutor -> sf-chat-interlocutor-select until 2026-12-01 (event)",
           "setOptions(list) is the action set-options and the setting options"
         ]
+      },
+      {
+        "from": "1.0.0",
+        "to": "1.0.1",
+        "changes": [
+          "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -318,7 +325,7 @@
       },
       {
         "path": "src/smart/chat-interlocutor/component.json",
-        "sha256": "b882ccb3b8db79f1ce41304f9da6a76e96bab9d55341786d9f742cb944548fe2"
+        "sha256": "81974ea8ca015d58191a31e90dbeb52102a03dfa1e6b6b81024c6ce4073e83c2"
       },
       {
         "path": "src/smart/chat-interlocutor/aliases.json",

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "title": "Data view composite",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -1343,6 +1343,13 @@
         "to": "1.1.0",
         "changes": [
           "From component.json (standard simai.smart-component 1.3.8): sf-data-view-open {id} (cancelable) before the host's record.open, sf-data-view-deleted {ids} after an applied delete, sf-data-view-tree with sf-table-tree-intent as its dated alias; values state (vocabulary), total, selected, selection; settings collection and current; the actions answer outcomes."
+        ]
+      },
+      {
+        "from": "1.4.2",
+        "to": "1.4.3",
+        "changes": [
+          "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
         ]
       }
     ]

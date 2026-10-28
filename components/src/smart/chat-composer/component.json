@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-composer's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-composer (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 4 (owner yes 2026-10-27), with the pieces of chat-core and component/chat it drew on; written by hand on the shape of sf-chat-interlocutor (step 3), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-composer",
   "tag": "sf-chat-composer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "kind": "leaf",
   "family": "chat",
   "settings": {

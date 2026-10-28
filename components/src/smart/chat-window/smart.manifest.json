@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -2061,6 +2061,13 @@
           "the port's data are settings (feed-state, conversation-list, composer-files, my-files with their port-named properties kept); applyData kept, set-data its action",
           "a message is drawn by sf-chat-message (renderMessage), the window listens to the new names of sf-chat-composer, sf-chat-interlocutor and sf-chat-message"
         ]
+      },
+      {
+        "from": "1.0.2",
+        "to": "1.0.3",
+        "changes": [
+          "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -2102,7 +2109,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "0beb38e65eef32f16e06e3a6c4d762ad5eb51fbc698fb5a2e90197f75e700659"
+        "sha256": "48ebddd11ea57d712530c84fd73da941cf19167f0cc74a90d6be2665b9ba2bb7"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

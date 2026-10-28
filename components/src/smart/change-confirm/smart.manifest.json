@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.change-confirm",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "title": "Change confirmation",
   "summary": "A prepared change put to a person: each value as it was and as it will be, two answers of equal weight, until when it can be answered, and then only the outcome. Applies nothing; a press is an event.",
   "kind": "smart",
@@ -379,6 +379,13 @@
           "sf-change-confirm-decline -> sf-change-confirm-answer until 2026-12-01 (event)",
           "sf-change-confirm-expire -> sf-change-confirm-expired until 2026-12-01 (event)"
         ]
+      },
+      {
+        "from": "1.2.0",
+        "to": "1.2.1",
+        "changes": [
+          "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -408,7 +415,7 @@
       },
       {
         "path": "src/smart/change-confirm/component.json",
-        "sha256": "0ed7fa613a835754b1c4b42e26fd57c73e5960c1c8bda0250ff0e00d546bb830"
+        "sha256": "064d941c198dec777073102e494df61dd85147ed81fbbfd794a83fc55b43d71e"
       },
       {
         "path": "src/smart/change-confirm/aliases.json",

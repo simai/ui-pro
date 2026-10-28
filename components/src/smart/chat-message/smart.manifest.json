@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -465,6 +465,13 @@
           "sf-chat-action {action, ...} -> sf-chat-message-retry, -check, -rate, -cancel, -drafted, -toggle, -copied, -submit until 2026-12-01 (event, split aliases)",
           "a file chip is sf-chat-composer's; a sent file keeps its download link and the «Файл удалён» check"
         ]
+      },
+      {
+        "from": "1.0.1",
+        "to": "1.0.2",
+        "changes": [
+          "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -506,7 +513,7 @@
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "04a96fc5ce42a0a32a98a7e2ab34dc409128e60053443cf750d9a5b8d99f0058"
+        "sha256": "79a6251de4e1df4112e62afbbfe2695d5c98087fac7cbb3c7029ed769a96a2f7"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
