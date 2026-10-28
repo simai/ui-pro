@@ -189,7 +189,7 @@ const canonical = (value) => JSON.stringify(value, (key, item) => (item && typeo
     : item));
 
 // What a port offers, as the projection drew it.
-const capabilitiesKey = (port) => canonical([...(port?.capabilities ?? [])].sort());
+const capabilitiesKey = (port) => canonical([...(port?.capabilities ?? [])].map(String).sort());
 
 // Whether the port's answer is the one the page printed: the same revision
 // when both name one, else the same rows, count and columns.
@@ -610,7 +610,9 @@ class SfDataView extends DataViewElement {
         this.shadowRoot.querySelector("[data-view]").addEventListener("change", this._bound);
         this.shadowRoot.querySelector("[data-save]").addEventListener("click", this._bound);
         this.shadowRoot.querySelector("[data-delete]").addEventListener("click", this._bound);
+        this._readDeclaredPort();
         this._seedPageSize();
+        this._seedPrintedQuery();
         this._renderProjection();
         this._firstPaintReady = true;
         this._drawFirstAnswer();
@@ -690,11 +692,72 @@ class SfDataView extends DataViewElement {
         this._revalidate = true;
         // Kept to compare the port's answer to the same query with.
         this._printedAnswer = copy(data);
+        // The capabilities the page printed with its answer, when it did not
+        // declare its port: known before the first draw (§18.4).
+        if (!this._declaredPort && Array.isArray(data.capabilities)) {
+            this._declaredPort = {version: data.version ?? null, capabilities: data.capabilities.map(String)};
+        }
+        const asked = copy(this.query);
         this.applyProjection(data);
+        // The revalidation asks the query the page printed, not the answer's
+        // echo: a host whose default (a sort) is echoed differently would
+        // otherwise be asked another question (stand 27 D2). Without a printed
+        // query it asks what the view would have asked.
+        if (!this._seedPrintedQuery({answer: data})) this.query = asked;
         // A printed skeleton the server sent as well goes with the first
         // answer, in the same frame.
         this.removeAttribute("data-sf-awaiting");
         for (const node of this._firstPaintNodes()) node.remove?.();
+        return true;
+    }
+
+    // The port the page declared in the element (standard §4.9, stand 27 c):
+    // <script type="application/json" data-sf-port> with port, version, url,
+    // capabilities and first {intent, payload}. Core may take it out and
+    // connect the port itself; read here, it is what the view knows of its
+    // port before the port: its capabilities, so the first draw is final
+    // (the toolbar and the row actions drawn once), and its first query.
+    _readDeclaredPort() {
+        if (this._declaredPort !== undefined) return;
+        const island = Array.from(this.children ?? []).find((child) => child.localName === "script"
+            && child.hasAttribute?.("data-sf-port") && /^application\/json$/iu.test(child.type));
+        this._declaredPort = null;
+        if (!island) return;
+        try {
+            const declared = JSON.parse(island.textContent || "{}");
+            if (!declared || typeof declared !== "object") return;
+            this._declaredPort = {
+                version: declared.version ?? null,
+                capabilities: Array.isArray(declared.capabilities) ? declared.capabilities.map(String) : [],
+                first: declared.first && typeof declared.first === "object" ? copy(declared.first) : null,
+            };
+        } catch (error) {
+            console.warn("[sf-data-view] the data-sf-port island is not JSON", error);
+        }
+    }
+
+    // The port as the view knows it: the connected one, else the one the page
+    // declared (or printed beside its first answer).
+    get knownPort() {
+        return this.hostPort ?? this._declaredPort ?? null;
+    }
+
+    knownCapability(capability) {
+        return Boolean(this.knownPort?.capabilities?.includes?.(capability));
+    }
+
+    // The query the page printed: the first answer's own (first-answer.query),
+    // else the declared port's first query.change. The view asks exactly that,
+    // so an early call the page started is the view's own (one request) and
+    // the revalidation of a printed answer asks what was printed.
+    _seedPrintedQuery({answer = null} = {}) {
+        const declared = this._declaredPort?.first;
+        const printed = answer?.query && typeof answer.query === "object" ? answer.query
+            : declared?.intent === "query.change" && declared.payload?.query && typeof declared.payload.query === "object" ? declared.payload.query
+                : null;
+        if (!printed) return false;
+        this.query = {...this.query, ...copy(printed)};
+        if (Number.isInteger(printed.per_page) && printed.per_page > 0) this._pageSizeDeclared = true;
         return true;
     }
 
@@ -1014,7 +1077,8 @@ class SfDataView extends DataViewElement {
     // Whether the host offers a capability: announced, or -- for the two that
     // were baseline before port 1.10.0 -- implied by an earlier version.
     hostOffers(capability) {
-        const port = this.hostPort;
+        // The connected port, else the one the page declared (knownPort).
+        const port = this.hostPort ?? this._declaredPort ?? null;
         if (!port) return false;
         if (port.capabilities?.includes?.(capability)) return true;
         return BASELINE_UNTIL_1_10.has(capability) && !portAtLeast(port.version, "1.10.0");
@@ -1260,7 +1324,7 @@ class SfDataView extends DataViewElement {
                 // Only what the port itself brings is drawn: its capabilities
                 // (row actions, settings), when they differ from the ones the
                 // printed answer was drawn without.
-                if (this._capabilitiesKey !== capabilitiesKey(this.hostPort)) this._renderProjection();
+                if (this._capabilitiesKey !== capabilitiesKey(this.knownPort)) this._renderProjection();
                 return;
             }
             inPlace = Boolean(printed);
@@ -1773,7 +1837,7 @@ class SfDataView extends DataViewElement {
     }
 
     _renderProjection() {
-        this._capabilitiesKey = capabilitiesKey(this.hostPort);
+        this._capabilitiesKey = capabilitiesKey(this.knownPort);
         this._readPrintedPageSize();
         this._applyForAll();
         if (this._current !== undefined && this.table && this.table.current !== this._current) this.table.current = this._current;
@@ -1782,7 +1846,7 @@ class SfDataView extends DataViewElement {
         // and when data arrives, which is when the answer can have changed.
         const savedViews = this.shadowRoot?.querySelector?.("[data-saved-views]");
         if (savedViews) {
-            savedViews.hidden = !this.hostPort?.capabilities?.includes?.("saved-views");
+            savedViews.hidden = !this.knownCapability("saved-views");
         }
         this.pagination?.setState?.({showMoreBusy: false});
         // The page row no longer carries the band: the card does, so the strip
@@ -1850,7 +1914,7 @@ class SfDataView extends DataViewElement {
             const hostSaysNo = table.getAttribute?.("data-sf-host-row-actions") === "false";
             table.setAttribute(
                 "row-actions",
-                !hostSaysNo && this.hostPort?.capabilities?.includes("row-actions") ? "true" : "false",
+                !hostSaysNo && this.knownCapability("row-actions") ? "true" : "false",
             );
             // The accessible name of a list the host did not slot in. The fallback
             // table carries a name of its own, which is right for a page list and
@@ -1962,7 +2026,7 @@ class SfDataView extends DataViewElement {
             current: this.query.page,
             pageSize: this.query.per_page,
             ...counted,
-            canCount: Boolean(this.hostPort?.capabilities?.includes("count-on-request")),
+            canCount: this.knownCapability("count-on-request"),
             counting: false,
         });
         // The parts a consumer left out. Hidden rather than removed, so turning one

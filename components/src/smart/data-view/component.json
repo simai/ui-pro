@@ -2,7 +2,7 @@
   "$comment": "sf-data-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/data-view; every x-todo decided in x-decisions.",
   "id": "smart.data-view-composite",
   "tag": "sf-data-view",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "kind": "leaf",
   "family": "table",
   "settings": {
@@ -127,7 +127,7 @@
     "first-answer": {
       "type": "object",
       "optional": true,
-      "x-shape": "the host's first answer printed with the page, the applied data of query.change: records (each with its revision), total or has_next, echo, columns. A server that already has the first page prints it in the view's data-sf-settings island; the view draws it at once, as if the host had answered, and the port answers the same query in the background without a loading state. Taken once"
+      "x-shape": "the host's first answer printed with the page, the applied data of query.change: records (each with its revision), total or has_next, echo, columns; optionally capabilities (the port's, known before the port) and query (the query it answers, which the revalidation asks). A server that already has the first page prints it in the view's data-sf-settings island; the view draws it at once, as if the host had answered, and the port answers the same query in the background without a loading state. Taken once"
     }
   },
   "values": {
