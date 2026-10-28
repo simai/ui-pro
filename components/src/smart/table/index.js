@@ -2515,6 +2515,13 @@ class SfTable extends TableElement {
     // always have, and when there is not they stop at the floor and the box
     // scrolls, which is what the consumer asked for (Larena, 2026-10-06).
     get columnsAreCramped() {
+        if (this._layoutReads?.has('cramped')) return this._layoutReads.get('cramped');
+        const cramped = this.readColumnsAreCramped();
+        this._layoutReads?.set('cramped', cramped);
+        return cramped;
+    }
+
+    readColumnsAreCramped() {
         // The box that would do the scrolling is the one to measure. The
         // responsive observer's width is what it last saw, and in an embedded
         // list it had seen nothing at all -- it reported 0 while the columns
@@ -2583,6 +2590,17 @@ class SfTable extends TableElement {
         if (table.querySelector('tbody[data-state]') || table.querySelector('tbody[data-busy]') || !table.querySelector('tbody tr td')) return false;
         const measured = new Map();
         let whole = 0;
+        // What the laid-out table says now, read before the measuring class
+        // changes it: the cap, the box's width and the system columns' widths
+        // (they were read after the class came off: a style and two layouts
+        // more of the whole table, at 4x CPU some 60 ms on the admin's list;
+        // stand 25). The box scrolls, so the measuring does not change it.
+        const cap = this.columnWidthCap();
+        const box = table.parentElement?.clientWidth ?? 0;
+        const systemWidths = new Map();
+        for (const cell of table.querySelectorAll('thead th[data-key]')) {
+            if (SYSTEM_COLUMN_KEYS.has(cell.dataset.key)) systemWidths.set(cell, Math.ceil(cell.getBoundingClientRect().width));
+        }
         table.classList.add('sf-table-measuring');
         // Measured before the table's own stylesheet has come, the measuring
         // class does nothing, the fixed layout squeezes every column to a
@@ -2609,11 +2627,10 @@ class SfTable extends TableElement {
         // the spare room keeps its content width where there is none, in a
         // box of any width -- a first paint printed at one width and drawn at
         // another squeezed it to a letter's width (standard 1.3.8 gate 24).
-        const cap = this.columnWidthCap();
         let content = 0;
         for (const cell of table.querySelectorAll('thead th[data-key]')) {
             const key = cell.dataset.key;
-            content += SYSTEM_COLUMN_KEYS.has(key) ? Math.ceil(cell.getBoundingClientRect().width) : Math.min(measured.get(key) ?? 0, cap);
+            content += SYSTEM_COLUMN_KEYS.has(key) ? (systemWidths.get(cell) ?? 0) : Math.min(measured.get(key) ?? 0, cap);
         }
         const contentChanged = content !== (this._contentInlineSize ?? 0);
         this._contentInlineSize = content;
@@ -2622,7 +2639,6 @@ class SfTable extends TableElement {
         // the menu columns too, so a list of one data column showed it some
         // 330px in, after two wide empty columns (Larena, 2026-10-14). The last
         // data column is then left without a width and takes the spare room.
-        const box = table.parentElement?.clientWidth ?? 0;
         const surplus = box > 0 && whole > 0 && whole < box;
         const surplusChanged = surplus !== Boolean(this._contentSurplus);
         this._contentSurplus = surplus;
@@ -2663,21 +2679,31 @@ class SfTable extends TableElement {
         } else if (!pending.size) {
             this._fitRetries = 0;
         }
+        // Every line put back first and read in one go: a line reset and read
+        // in turn laid the table out again for each cell (stand 25, 20 rows of
+        // tags and references: a third of the time the rows took to draw).
+        const lines = [];
         for (const box of this.querySelectorAll('tbody .sf-table-cell-values')) {
             const more = box.querySelector(':scope > .sf-table-cell-more');
             const items = [...box.children].filter((child) => child !== more);
-            for (const item of items) cellValueBox(item).classList.remove('sf-table-cell-folded');
+            const valueBoxes = items.map((item) => cellValueBox(item));
+            lines.push({box, more, items, valueBoxes});
+        }
+        for (const {more, valueBoxes} of lines) {
+            for (const valueBox of valueBoxes) valueBox.classList.remove('sf-table-cell-folded');
             if (!more) continue;
             more.hidden = true;
             more.removeAttribute('title');
-            if (box.scrollWidth <= box.clientWidth + 1) continue;
+        }
+        const overflowing = lines.filter(({box, more}) => more && box.scrollWidth > box.clientWidth + 1);
+        for (const {box, more, items, valueBoxes} of overflowing) {
             // Room for the counter first, then values leave from the end until
             // the rest and the counter fit.
             more.hidden = false;
             more.textContent = `+${items.length}`;
             const folded = [];
             for (let at = items.length - 1; at > 0 && box.scrollWidth > box.clientWidth + 1; at -= 1) {
-                cellValueBox(items[at]).classList.add('sf-table-cell-folded');
+                valueBoxes[at].classList.add('sf-table-cell-folded');
                 folded.unshift(items[at]);
                 more.textContent = `+${folded.length}`;
             }
@@ -2687,6 +2713,38 @@ class SfTable extends TableElement {
             }
             more.title = folded.map((item) => item.textContent.trim()).filter(Boolean).join(', ');
         }
+    }
+
+    // True when the measuring waits for the cells' elements to draw: every
+    // element in the cells is defined and some have not drawn yet. Measured
+    // when they have, or at the next frame at the latest.
+    measureWhenCellsDrawn() {
+        const table = this.refs.table?.value;
+        if (!(table instanceof HTMLTableElement) || this._columnResizeState || this.columnDragActive) return false;
+        if (table.querySelector('tbody[data-state]') || table.querySelector('tbody[data-busy]')) return false;
+        const drawing = [];
+        for (const element of table.querySelectorAll('tbody td *')) {
+            if (!element.localName.includes('-')) continue;
+            if (!customElements.get(element.localName) || typeof element.whenRendered !== 'function') return false;
+            // One held by its style gate draws when its sheets come, perhaps
+            // after this frame: measured now, as before.
+            if (element.hasAttribute('data-sf-style-pending')) return false;
+            if (element.isRendered !== true) drawing.push(element);
+        }
+        if (!drawing.length) return false;
+        const token = (this._cellsDrawnToken = (this._cellsDrawnToken ?? 0) + 1);
+        const nextFrame = new Promise((settle) => requestAnimationFrame(settle));
+        Promise.race([Promise.all(drawing.map((element) => element.whenRendered())), nextFrame])
+            .catch(() => {})
+            .then(() => {
+                if (token !== this._cellsDrawnToken || !this.isConnected) return;
+                if (this.measureContentWidths()) this.applyColumnWidths();
+                this._contentRetries = 0;
+                this.fitCellValues();
+                this.measurePinnedColumns();
+                if (this.hasAttribute("data-sf-page-scroll")) this.syncRail();
+            });
+        return true;
     }
 
     remeasureWhenDrawn(table) {
@@ -2738,15 +2796,23 @@ class SfTable extends TableElement {
         const table = this.refs.table?.value;
         if (!(table instanceof HTMLTableElement)) return;
         const columns = new Map((this.getColumns?.() ?? []).map((column) => [String(column?.key), column]));
-        for (const col of table.querySelectorAll(':scope > colgroup > col[data-key]')) {
+        // Every column's style worked out before any is written: the cap and
+        // whether the columns are cramped are read from the laid-out table,
+        // and a write between two reads laid it out again for each column
+        // (stand 25: 17 columns, the larger part of the rows' first draw).
+        const cols = [...table.querySelectorAll(':scope > colgroup > col[data-key]')];
+        const styles = this.readingLayout(() => cols.map((col) => {
             const column = columns.get(col.dataset.key);
-            if (!column) continue;
-            const style = columnStyle(this, column);
+            return column ? columnStyle(this, column) : null;
+        }));
+        cols.forEach((col, at) => {
+            const style = styles[at];
+            if (style === null) return;
             if ((col.getAttribute('style') ?? '') !== style) {
                 if (style) col.setAttribute('style', style);
                 else col.removeAttribute('style');
             }
-        }
+        });
         table.classList.toggle('sf-table-content-sized', this.hasContentWidths);
         table.classList.toggle('w-max', !this.hasContentWidths);
         if (this.hasContentWidths && this._contentInlineSize) table.style.setProperty('--sf-table--content-inline-size', `${this._contentInlineSize}px`);
@@ -2780,7 +2846,26 @@ class SfTable extends TableElement {
         return Boolean(this._contentWidths?.size);
     }
 
+    // Reads that write nothing in between: the cap and the cramped answer are
+    // read once for the whole pass instead of once per column.
+    readingLayout(read) {
+        if (this._layoutReads) return read();
+        this._layoutReads = new Map();
+        try {
+            return read();
+        } finally {
+            this._layoutReads = null;
+        }
+    }
+
     columnWidthCap() {
+        if (this._layoutReads?.has('cap')) return this._layoutReads.get('cap');
+        const cap = this.readColumnWidthCap();
+        this._layoutReads?.set('cap', cap);
+        return cap;
+    }
+
+    readColumnWidthCap() {
         const raw = getComputedStyle(this).getPropertyValue('--sf-table--column-max-inline-size').trim();
         const root = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
         const value = Number.parseFloat(raw);
@@ -6393,12 +6478,20 @@ class SfTable extends TableElement {
         if (!table) return this;
         const keys = this.getPinnedColumnKeys();
         const head = table.querySelector("thead tr");
-        let offset = 0;
-        for (const key of keys) {
-            table.style.setProperty(`--sf-table-pin-${key}`, `${Math.round(offset)}px`);
+        // The widths read first, the offsets written after: written in turn,
+        // each read laid the table out again (stand 25: a pinned column each
+        // side, every scroll and every render). The offsets do not change the
+        // widths. An offset that is already there is not written again.
+        const widths = keys.map((key) => {
             const cell = head?.querySelector(`th[data-key="${key}"]`);
-            offset += cell ? cell.getBoundingClientRect().width : 0;
-        }
+            return cell ? cell.getBoundingClientRect().width : 0;
+        });
+        let offset = 0;
+        keys.forEach((key, at) => {
+            const value = `${Math.round(offset)}px`;
+            if (table.style.getPropertyValue(`--sf-table-pin-${key}`) !== value) table.style.setProperty(`--sf-table-pin-${key}`, value);
+            offset += widths[at];
+        });
         const last = keys[keys.length - 1];
         // Marked where it changes only: a mark taken off and put back on every
         // measure touched each pinned cell of every row (stand 25: a
@@ -7239,10 +7332,18 @@ class SfTable extends TableElement {
         // Content widths first: they change the widths everything below reads.
         // Written straight onto the columns: a render for them drew every row
         // and every value in it again (owner, 2026-10-15).
-        if (this.measureContentWidths()) this.applyColumnWidths();
-        this._contentRetries = 0;
-        this.fitCellValues();
-        this.measurePinnedColumns();
+        // Cells whose elements are defined but still drawing (a reference, a
+        // colour, a file) are measured once, when they have drawn -- in this
+        // task, before the frame is painted. They used to be measured now and
+        // again then, and the first reading was thrown away: two layouts of
+        // the whole table in auto and fixed form, and the values folded twice
+        // (stand 25: 300 ms of the first page's 1.2 s at 4x CPU).
+        if (!this.measureWhenCellsDrawn()) {
+            if (this.measureContentWidths()) this.applyColumnWidths();
+            this._contentRetries = 0;
+            this.fitCellValues();
+            this.measurePinnedColumns();
+        }
         if (this.hasAttribute("data-sf-page-scroll")) {
             this.bindPageScroll();
             this.syncRail();
@@ -7273,7 +7374,9 @@ class SfTable extends TableElement {
     }
 
     template() {
-        return renderTableTemplate(this.templateContext());
+        // Building the template writes nothing to the page: what it reads of
+        // the layout (the cap, whether the columns are cramped) is read once.
+        return this.readingLayout(() => renderTableTemplate(this.templateContext()));
     }
 }
 

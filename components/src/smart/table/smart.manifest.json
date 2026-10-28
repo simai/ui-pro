@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "title": "Data view",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
