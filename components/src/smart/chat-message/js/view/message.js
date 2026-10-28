@@ -28,14 +28,15 @@
 //   features?: {feedback, proposals, memory, brief}   brief (v1.2) is off unless given
 // }
 import {render} from 'lit';
-import {sanitizeHtml as ownSanitizeHtml, safeHref as ownSafeHref} from './sanitize.js';
+// Core's sanitizer, SF.sanitizeHtml and SF.safeHref (src/core/js/sanitize.js,
+// pair ui-89834691fb9d and later). On a Framework page core.js has published
+// them; the import publishes them where it has not run (a page that calls
+// renderMessage without the Framework runtime) and never replaces Core's.
+import '../../../../core/js/sanitize.js';
 import {attachmentState, renderAttachment as attachmentChip} from '../../../chat-composer/js/templates/parts.js';
 
-// The Framework's sanitizer when the page has it (ui-89834691fb9d and later),
-// else the component's own copy (js/view/sanitize.js), the same allow-list.
-const sanitizer = () => (typeof globalThis.SF?.sanitizeHtml === 'function' ? globalThis.SF.sanitizeHtml : ownSanitizeHtml);
-export const safeHref = (value) => (typeof globalThis.SF?.safeHref === 'function' ? globalThis.SF.safeHref(value) : ownSafeHref(value));
-const sanitizeHtml = (html, policy) => sanitizer()(html, policy);
+export const safeHref = (value) => globalThis.SF.safeHref(value);
+const sanitizeHtml = (html, policy) => globalThis.SF.sanitizeHtml(html, policy);
 
 /** 48213 → «47 КБ»: sizes are for reading, in plain units. */
 export function formatBytes(bytes, words, locale = 'ru') {

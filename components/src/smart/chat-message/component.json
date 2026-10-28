@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-message",
   "tag": "sf-chat-message",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -208,7 +208,7 @@
     "security": {
       "permissions_owner": "host",
       "untrusted_inputs": [
-        "message html (sanitized: SF.sanitizeHtml, else the component's copy)",
+        "message html (sanitized: SF.sanitizeHtml)",
         "message texts, source titles and excerpts (drawn as text)",
         "source URLs (http and https only)",
         "file names (drawn as text)",
@@ -266,7 +266,7 @@
     "the view stays plain DOM (js/view/message.js, js/view/person.js, the 0.3 render.js and people.js with their imports changed), built once per change and handed to Lit as one node, as ui-chat's ChatElement did: an open «why» card, a brief's typed answer and a proposal's pressed card keep their nodes and focus, and the site widget and the pilot, which have no Framework runtime, can call renderMessage from a pinned ui-pro revision.",
     "people: the template person (D31 inventory §3: a second template of the same component, not a tag), selected by the attribute template=person; display carries own, first, last, showName, editing and askDelete as people.js's view did.",
     "file chip: sf-chat-composer owns it (js/templates/parts.js, step 4); the message imports it by relative path, as sf-data-view imports from table, renders it into its DOM with Lit and adds, for a sent file with href, the download link and the HEAD check: on 404 or 410 the name loses its link and the line says «Файл удалён» (role=status). The composer's files are not changed; its chip rules and the message's are both unscoped class markup, so the message scopes its own to .sf-chat-message and .sf-chat-person.",
-    "sanitize: SF.sanitizeHtml(html, {codeLanguage: true, document}) and SF.safeHref when the page has them (pair ui-89834691fb9d, ui-source 4d711d2), else js/view/sanitize.js, ui-chat's copy with the same allow-list (incl. h2 h3 h4 del). ui-pro pins ui-source 170d551 (ui-352b472995b1), which lacks them. REMOVE the copy and the fallback (message.js sanitizer, safeHref) once framework.lock.json pins ui-89834691fb9d or later; the probe's sanitize cases then run against the Framework's.",
+    "sanitize: SF.sanitizeHtml(html, {codeLanguage: true, document}) and SF.safeHref, Core's (src/core/js/sanitize.js, made from ui-chat's copy: the same allow-list, incl. h2 h3 h4 del). 1.0.1: framework.lock.json pins ui-source 465fbee (pair ui-194f75ac620f), which has them since 4d711d2 (pair ui-89834691fb9d), so the component's copy js/view/sanitize.js and the fallback are removed; message.js imports core/js/sanitize.js, which publishes SF.sanitizeHtml and SF.safeHref on a page where core.js has not run and never replaces Core's, and calls SF's. The probe's sanitize cases (p1, p9) run against Core's.",
     "proposal: the message places sf-change-confirm (attributes heading, heading-level 2, change-id, state, expires-at, changes as JSON, accept-text «Подтвердить», decline-text «Отменить»), one card per code kept across redraws; its sf-change-confirm-answer bubbles through the message to the window, which sends the proposal's command. The chat's other words for the card («Отменено», the expiry sentence) are registered by the window (ui-chat chat-core/larena.js registerLarenaWords), not by the message: registering another component's words is a page's act.",
     "events: sf-chat-action {action, ...} is split by verb (vocabulary §5.1): retry, check, rate, cancel, toggle, submit (§5, chat 1.1.3 check) and two facts of the chat's own, drafted and copied (own-verb). copy and sources are local (D31 inventory §1) but stay as facts, since the window keeps an open sources list across redraws. The old name follows until 2026-12-01 as split rows whose adapter makes the 0.3 detail; the person's events had no element before and have no alias.",
     "display: the 0.3 property view, renamed because view is a name the base reserves; a dated setting alias keeps el.view until 2026-12-01. Setting message, display or features (even the same object again) redraws the view, as the 0.3 setters did.",

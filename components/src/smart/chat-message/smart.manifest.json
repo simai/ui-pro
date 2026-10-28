@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -76,7 +76,7 @@
       "const": "API.md Message for the template default: {id, role: user|assistant, status: queued|running|completed|partial|failed|refused|withheld|limit, stage, html, text, sources [{n, kind, title, url, excerpt, read_at}], verification, notices, proposal {code, title, state, expires_at, changes}, brief (v1.2 {decision: ask|card, lead, questions|card}), feedback, summary {text}, limit_resets_at, finished_at, attachments [{id, name, bytes, href}]}. For the template person: {id, body, authorName, createdAt, isEdited, isDeleted, canEdit, canDelete, files [{id, key, name, size, state, downloadUrl}], local {state, action, clientKey, body}}."
     },
     "sanitize": {
-      "const": "message.html is cleaned by SF.sanitizeHtml (codeLanguage) when the page has it, else by the component's copy with the same allow-list: p br strong em code pre ul ol li blockquote a table thead tbody tr th td h2 h3 h4 del; links http, https, mailto or root-relative, with rel=noopener noreferrer nofollow and target=_blank."
+      "const": "message.html is cleaned by SF.sanitizeHtml (codeLanguage), Core's, with the allow-list: p br strong em code pre ul ol li blockquote a table thead tbody tr th td h2 h3 h4 del; links http, https, mailto or root-relative, with rel=noopener noreferrer nofollow and target=_blank."
     },
     "brief": {
       "const": "Live (display.brief.live) the brief asks: one question sends its option or own words at once; several are answered together, joined by «; » with «—» for a skipped optional one; the card sends its confirm word. Not live it is a record, the taken option marked from display.brief.answer. The lead, when given, stands for the html."
@@ -389,7 +389,7 @@
   "security": {
     "permissions_owner": "host",
     "untrusted_inputs": [
-      "message html (sanitized: SF.sanitizeHtml, else the component's copy)",
+      "message html (sanitized: SF.sanitizeHtml)",
       "message texts, source titles and excerpts (drawn as text)",
       "source URLs (http and https only)",
       "file names (drawn as text)",
@@ -486,15 +486,11 @@
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
-        "sha256": "2010a30682ff08e0d376539cb00c1496d974a81937f46092e999a84e8eb7ad93"
+        "sha256": "f2d41750407d4c0e457e26017a99a3094860df9c75be0c7a23f5ba9158b53b99"
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
         "sha256": "3d87f7eebb8464e8dc66248a16783aceb7cc719e145c9436488b0e635643693f"
-      },
-      {
-        "path": "src/smart/chat-message/js/view/sanitize.js",
-        "sha256": "216f7344efe56dbb21da900fdcd753b09f9f1ea1f3ee5b6080d5e3d0817196d0"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
@@ -506,11 +502,11 @@
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "f345ebedd0ef6557d73e1e4522305aa7d14119b1f19c81e0745a2d30fe79e010"
+        "sha256": "c9c8dc762e11063897933ba4de2b01ebfa083f0251bb39ea0995f68d329b0563"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "72f9c800d0504159226e42041356a327631bc14c6320177592c0af9f20472116"
+        "sha256": "04a96fc5ce42a0a32a98a7e2ab34dc409128e60053443cf750d9a5b8d99f0058"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
