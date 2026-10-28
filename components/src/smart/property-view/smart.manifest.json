@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.7.8",
+  "version": "1.7.9",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1302,7 +1302,7 @@
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "3270defd81357236c54cb6fa039c451d6c12e7f9b3466058ae06848ae1df006f"
+        "sha256": "d80f6247bfd1d7df50a35f24d29fffd2045638e5516791733b2bfe17a39b9ae6"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",

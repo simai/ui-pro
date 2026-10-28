@@ -7108,7 +7108,8 @@ class SfTable extends TableElement {
 
     // The brick for a table without rows: its reason, its words and its one
     // action. The host's empty-text and error-text are the titles they always
-    // were; the rest are the brick's own words in the page language.
+    // were, and empty-description the line under an empty list's title; the
+    // rest are the brick's own words in the page language.
     emptyBrick(dataState) {
         const context = this._emptyContext ?? {};
         const size = this.size === "1/2" ? "1/2" : "1";
@@ -7126,7 +7127,7 @@ class SfTable extends TableElement {
                 actions: [{id: "reset-query", text: this.text(key), appearance: "outline"}]};
         }
         const creatable = this.getBooleanAttr("actions", true) && this.getBooleanAttr("creatable", true);
-        return {kind, size, headingLevel, title: this.getAttribute("empty-text") || "", text: "",
+        return {kind, size, headingLevel, title: this.getAttribute("empty-text") || "", text: this.getAttribute("empty-description") || "",
             actions: creatable ? [{id: "create", text: this.text("createText", "create-text")}] : []};
     }
 

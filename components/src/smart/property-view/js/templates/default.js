@@ -1139,8 +1139,11 @@ function renderPanelHead(context) {
                      when it is not: a star that changes shape as well as fill
                      says two things where one will do (owner, 2026-10-08). The
                      press raises the component's own event; whether the record
-                     is a favourite stays the host's to decide and to answer. -->
-                <sf-icon-button
+                     is a favourite stays the host's to decide and to answer.
+                     A record being created is not one yet and cannot be a
+                     favourite: no star until it has an id (Larena storage
+                     review, 2026-10-28). -->
+                ${context.recordId && context.mode !== 'create' ? html`<sf-icon-button
                         appearance="link"
                         size=${context.size}
                         icon="star"
@@ -1149,7 +1152,7 @@ function renderPanelHead(context) {
                         aria-pressed=${context.favourite ? 'true' : 'false'}
                         aria-label=${context.favouriteLabel}
                         @click=${() => context.component.toggleFavourite()}
-                ></sf-icon-button>
+                ></sf-icon-button>` : nothing}
                 <span class="grow"></span>
                 ${context.hasHostSlot('actions') ? context.hostSlot('actions') : nothing}
                 ${renderMenuControl(context)}

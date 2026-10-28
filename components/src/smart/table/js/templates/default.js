@@ -1137,12 +1137,15 @@ export function renderTableTemplate(context) {
         return html`<span class="sf-table-cell-text" title=${text.length > 80 ? text : nothing}>${text}</span>`;
     }
 
+    // The name is the table's (or the list's) alone: a named section is a
+    // region, and the data view around the table names its own region by the
+    // list's heading, so a second one of the same name only repeats it to a
+    // screen reader (Larena storage review, 2026-10-28).
     return html`
         <section
                 class="sf-table ${context.list ? 'sf-table--list' : ''} min-w-0 flex flex-col gap-1/3 flex-1 min-h-0 ${context.rootClass ||
                 ""}"
                 style=${context.rootStyle || nothing}
-                aria-label=${context.ariaLabel || nothing}
                 data-sf-instance=${context.component.getInstanceId()}
                 data-state=${resolvedDataState(context)}
                 aria-busy=${resolvedDataState(context) === 'loading' ? 'true' : nothing}
