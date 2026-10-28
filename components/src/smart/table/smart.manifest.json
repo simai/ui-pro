@@ -2020,11 +2020,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "8f5cfe74a68f75f8e447c8ee65d489b5d308f9f1",
+    "source_revision": "9537c6f3b618e581249e85a9ecab1cbfa09cfec7",
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "a80c1e9f2d815717ff2d613304ec08709f37ce107aea2dad16c97dc6ba2c077e"
+        "sha256": "2515e9339c2667287c7f9a7d3f8f2d242ada9ea02b0ea0149c6d860af2d37b20"
       },
       {
         "path": "src/smart/table/js/templates/default.js",
