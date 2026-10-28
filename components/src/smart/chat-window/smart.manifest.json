@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -112,7 +112,7 @@
       "host_port": {
         "port": "simai.chat-port",
         "version": "1.0.0",
-        "path": "contracts/ports/simai.chat-port/1.0.0/port.json",
+        "path": "src/core/contracts/ports/simai.chat-port/1.0.0/port.json",
         "sha256": "010590422d484a734e07155142c3e14e8a592d57310547e76209889e4feff09f",
         "supported_versions": [
           "1.0.0"
@@ -248,7 +248,7 @@
   },
   "contracts": {
     "port": {
-      "const": "simai.chat-port 1.0 (contracts/ports/simai.chat-port/1.0.0/port.json, a copy of ui-source 4d711d2 until ui-pro pins ui-89834691fb9d); the window's own capabilities x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief and data conversation_list, composer_files, my_files beside it, not in it"
+      "const": "simai.chat-port 1.0 (ui-source's src/core/contracts/ports/simai.chat-port/1.0.0/port.json); the window's own capabilities x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief and data conversation_list, composer_files, my_files beside it, not in it"
     }
   },
   "methods": {
@@ -2074,7 +2074,7 @@
       },
       {
         "path": "src/smart/chat-window/js/port.js",
-        "sha256": "558218e0f7a44a79281965d27b420a2caf0aa79769b43dd297bc2331d27b7178"
+        "sha256": "8b0dd01d3db4e57a24e0c89204b74fea8817ae3c87fc56443e68b6e436f77351"
       },
       {
         "path": "src/smart/chat-window/js/files-view.js",
@@ -2098,11 +2098,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "3d5fc3a07de61baf98e26c9e4fc9397cf1269d572c27573dce2e96677a2ded5f"
+        "sha256": "8d0da59c288defcdb4cc13700dc137640ec8147dc4fb76882832278339a9a74d"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "ba32a1ab9409a0d999f0f02b963cec0de57c87341924d36956d90cdd00735815"
+        "sha256": "2f9e7a78b4bfe4bda0cf68918ee13075cf070aff73eba6d841a697e1b595bfb7"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2115,10 +2115,6 @@
       {
         "path": "src/smart/chat-window/lang/ru.json",
         "sha256": "2d3407ed883e03101e1144baa81e011f5b984548ffa4e87d85a52eac7f5cfa8b"
-      },
-      {
-        "path": "src/smart/chat-window/contracts/ports/simai.chat-port/1.0.0/port.json",
-        "sha256": "010590422d484a734e07155142c3e14e8a592d57310547e76209889e4feff09f"
       }
     ],
     "generated_runtime": []

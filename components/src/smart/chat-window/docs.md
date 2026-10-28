@@ -26,11 +26,11 @@ capabilities, raise(intent, payload)}`; `raise` отвечает на намер
 `{answer, reason, text, data}`, где `answer` — `applied`, `conflict`, `refused`
 или `unavailable`. Данные применённого ответа окно применяет как данные.
 
-Контракт — `contracts/ports/simai.chat-port/1.0.0/port.json`. **Временно:** это
-копия из ui-source 4d711d2 (пара `ui-89834691fb9d`), потому что ui-pro закреплён
-на ui-source 170d551, где порта чата ещё нет. Копию убрать и сослаться на
-`src/core/contracts/ports/simai.chat-port/1.0.0/port.json`, когда
-`framework.lock.json` перейдёт на `ui-89834691fb9d` или новее.
+Контракт — `src/core/contracts/ports/simai.chat-port/1.0.0/port.json` в
+ui-source (с 4d711d2, пара `ui-89834691fb9d`), той ревизии, на которой закреплён
+`framework.lock.json`. Своя копия контракта в `contracts/`, которую держала
+1.0.0, убрана в 1.0.1: пакет закреплён на ui-source 465fbee (пара
+`ui-194f75ac620f`), где контракт есть.
 
 Хост без порта (Mirai24 до перевода: `chat-core/ports/mirai24.js` в ui-chat)
 слушает события окна и отвечает действием `settle {request-id, result}` или
@@ -177,8 +177,6 @@ Enter. Куда уходит фокус:
 
 ## Временное
 
-- Копия контракта порта в `contracts/` — до перехода пакета на
-  `ui-89834691fb9d` (см. выше).
 - Старые имена событий (`chat-port:*`, `chat-window:*`, `sf-chat-window-answer`)
   — до 2026-12-01.
 - Классы `chat-shell__*` и `chat-files__*` — до следующей мажорной версии.

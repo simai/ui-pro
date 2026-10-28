@@ -3,12 +3,9 @@
 // and what a host may set.
 //
 // A plain module with no imports, so a host adapter and the package's node
-// tests read the same table the element does. The contract is
-// contracts/ports/simai.chat-port/1.0.0/port.json: a copy of ui-source
-// 4d711d2 (pair ui-89834691fb9d), kept beside the component while ui-pro pins
-// ui-source 170d551, which has no chat port; remove the copy once
-// framework.lock.json pins ui-89834691fb9d or later (component.json
-// x-decisions).
+// tests read the same table the element does. The contract is ui-source's
+// src/core/contracts/ports/simai.chat-port/1.0.0/port.json (since 4d711d2,
+// pair ui-89834691fb9d), at the revision framework.lock.json pins.
 //
 // Every intent goes out as one event of the window, sf-chat-window-<verb>,
 // with {request-id, intent, payload} (vocabulary 1.1.5 §5: one name per

@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-window's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-window (smart.manifest.json 0.3.1, ui-chat 07bc988) by the D31 move, step 6 (owner yes 2026-10-27), with files-view.js, port.js, chat-core's larena.js words and smart.css, and the staff page's layout of the window's nodes; written by hand on the shape of sf-chat-interlocutor, sf-chat-composer and sf-chat-message (steps 3-5), since migration/convert-1.3.8.mjs takes only the pinned 66. x-decisions says how each point was decided.",
   "id": "smart.chat-window",
   "tag": "sf-chat-window",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -478,7 +478,7 @@
   "port": {
     "id": "simai.chat-port",
     "version": "1.0",
-    "contract": "contracts/ports/simai.chat-port/1.0.0/port.json"
+    "contract": "src/core/contracts/ports/simai.chat-port/1.0.0/port.json"
   },
   "templates": {
     "default": {
@@ -550,7 +550,6 @@
     "supports": [
       "1.0.0"
     ],
-    "copy": "contracts/ports/simai.chat-port/1.0.0/ is ui-source 4d711d2's src/core/contracts/ports/simai.chat-port/1.0.0 (pair ui-89834691fb9d), byte for byte; REMOVE it and point contract at src/core/contracts/ports/simai.chat-port/1.0.0/port.json once framework.lock.json pins ui-89834691fb9d or later.",
     "capabilities": [
       "assistant",
       "people",
@@ -656,7 +655,7 @@
     "version: 0.3.1 in simai/ui-chat → 1.0.0 here: the first release in ui-pro, with the events renamed under dated aliases (simai.linkage 1.0.0: the files changed).",
     "shape: a leaf with a declared port (D31 inventory §3), as sf-data-view and sf-property-view are: it composes sf-thread-list, sf-message-log and sf-change-confirm (this package) with sf-chat-composer, sf-chat-interlocutor and sf-chat-message (steps 3-5) by tag, through their public hooks. A full assembly (roles, keys, rules) is later: the scroll, the focus, «Мои файлы» and the wait for an answer are not yet rules.",
     "port: \"port\" declares simai.chat-port 1.0 with its contract; connect-port {port} (the base action, core/js/host-port.js; setHostPort its alias) hands an adapter {port, version, capabilities, raise(intent, payload)} whose answer {answer, reason, text, data} is the intent's; onPortConnected checks raise and the version. The x- capabilities, their intents (events with kinds list, conversations, files, file; query, pin, attach, detach) and their data (conversation_list, composer_files, my_files) are the component's, never the port's: a host declares them in capabilities and answers them through the same raise or settle.",
-    "port-copy: the contract is not in the pinned ui-source (170d551, pair ui-352b472995b1); it is in ui-source 4d711d2 (pair ui-89834691fb9d). contracts/ports/simai.chat-port/1.0.0/ is a byte copy of it (port.json and the kit, 14 cases), kept in the component. REMOVE the copy and point port.contract at src/core/contracts/ports/simai.chat-port/1.0.0/port.json once framework.lock.json pins ui-89834691fb9d or later.",
+    "port-contract: 1.0.1 points port.contract at ui-source's src/core/contracts/ports/simai.chat-port/1.0.0/port.json, as sf-data-view, sf-table and sf-property-view do: framework.lock.json pins ui-source 465fbee (pair ui-194f75ac620f), which has it since 4d711d2 (pair ui-89834691fb9d). The byte copy that 1.0.0 kept in contracts/ (port.json and the kit, 14 cases, the same bytes as the pinned ones) is removed.",
     "host-without-port: a 0.3 host (Mirai24's chat-core/ports/mirai24.js) listens to chat-port:<name> and chat-window:<name> and calls answer(request_id, result): both keep working until 2026-12-01 through the dated aliases and the kept method. A host answers through one way only; with a port the window keeps no request for settle.",
     "events: every intent is first the window's cancelable event; a page that cancels it refuses the intent (refused prevented, said nowhere) and the port is not asked. The payload keeps the port's own field names (conversation_id, client_key …), since it is the port's data; the event's own fields are kebab-case.",
     "listened-names: the window listens to the new names of steps 3-5 (sf-chat-composer-submit, -stop, -attach, -detach; sf-chat-interlocutor-select; sf-chat-message-retry, -check, -rate, -cancel, -toggle, -submit) and to this package's names of standard 1.3.9 (sf-thread-list-open, -apply, -restore, -toggle, -load-more, -create, -rename, -archive; sf-message-log-load-more; sf-change-confirm-answer), not to their dated aliases, so it keeps working after 2026-12-01 and takes each act once. Step 5's open choices are taken: cancel {kind: rate}, drafted, copied.",

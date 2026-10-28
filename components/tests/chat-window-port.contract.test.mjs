@@ -1,6 +1,6 @@
 // sf-chat-window's port table (src/smart/chat-window/js/port.js) against the
-// port contract it declares (component.json port, the copy of
-// simai.chat-port 1.0.0 in its contracts/ folder) and against its dated
+// port contract it declares (component.json port: ui-source's
+// src/core/contracts/ports/simai.chat-port/1.0.0, in the overlay) and against its dated
 // aliases: what simai/ui-chat's tests/chat-window.test.mjs held for the
 // window's port.js, moved with it (D31 step 6). The window's behaviour is
 // held by its probe.json in the browser; this is the half that needs none.
@@ -15,7 +15,7 @@ const folder = join(root, 'src', 'smart', 'chat-window');
 const json = (path) => JSON.parse(readFileSync(join(folder, path), 'utf8'));
 const port = await import(pathToFileURL(join(folder, 'js', 'port.js')).href);
 const manifest = json('component.json');
-const contract = json(manifest.port.contract);
+const contract = JSON.parse(readFileSync(join(root, manifest.port.contract), 'utf8'));
 const aliases = json('aliases.json').aliases;
 
 test('the window declares the chat port and the contract it names is that port', () => {
