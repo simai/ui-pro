@@ -2066,7 +2066,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "992bcd37cab4661fae929aab33584be1216d286e",
+    "source_revision": "93143323ab2810373d487abfe51ac1af3327b0ea",
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
