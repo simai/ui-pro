@@ -1356,11 +1356,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "fbf1cbb6d93865037239ffdf2fb2b27f16a0d69e",
+    "source_revision": "d03ab54dcd543eba83e178d6345bd86a16525108",
     "source_artifacts": [
       {
         "path": "src/smart/data-view/index.js",
-        "sha256": "d3c12f90f138d5313bf2c97e4dafcebf51a219174708b7fce8979c6631fcadbd"
+        "sha256": "9ff2aefcf115e1bad2b12aa7a73f62df7e8f984305d44889aad8c548507f19d8"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",
@@ -1368,7 +1368,7 @@
       },
       {
         "path": "src/smart/data-view/docs.md",
-        "sha256": "8063c6cbc009a79b1e0353b10f1212cd0cfcce27ea39bec7a18ed3e5140a371a"
+        "sha256": "215ef8ee625bdd0887d05a9a931c13f63bf4f6c1f0670d47b8b48c2a8b45276a"
       },
       {
         "path": "tests/fixtures/data-view-composite-lab.html",
