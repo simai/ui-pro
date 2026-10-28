@@ -1077,13 +1077,13 @@ class SfChatWindow extends ChatWindowElement {
 
     // A conversation with another assistant than the first one names it on
     // a quiet second line (U-06); with the usual one the row stays one line.
-    // A pinned one says so there too, first (v1.1). The list draws a caption
-    // and does not know what it says.
+    // A pinned one is sf-thread-list's own (1.3.0: pinned: true leads under
+    // «Закреплённые» with its «Закреплён» line), so it is not said again here.
     listed(conversation) {
         const others = (this._data.interlocutors || []).slice(1);
         const who = others.find((one) => one.id === conversation.interlocutor)?.title;
-        const caption = [conversation.pinned ? this.words("threads.pinnedCaption") : "", who || ""].filter(Boolean).join(" · ");
-        return caption ? {...conversation, caption} : conversation;
+        const entry = {...conversation, pinned: Boolean(conversation.pinned)};
+        return who ? {...entry, caption: who} : entry;
     }
 
     syncFiles() {

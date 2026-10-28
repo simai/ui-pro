@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -2070,7 +2070,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "03b5e9ce6799e0989a5d50d449ba258d81ab5e99b6520371db3381917d61c266"
+        "sha256": "9ddcbc849f98b4074a4a89e0da63c2ca474049959aa058af1c58398e0cc7bfad"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2098,11 +2098,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "8d0da59c288defcdb4cc13700dc137640ec8147dc4fb76882832278339a9a74d"
+        "sha256": "3ddf65b5d1d1377d2cc629c6882c9d54719273340b57d8387a02c290fe5a0c2d"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "2f9e7a78b4bfe4bda0cf68918ee13075cf070aff73eba6d841a697e1b595bfb7"
+        "sha256": "0beb38e65eef32f16e06e3a6c4d762ad5eb51fbc698fb5a2e90197f75e700659"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2110,11 +2110,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "c2734dfb59023539328863fc94e0970997e800ceda21bf03be7b09cdcbdef8ee"
+        "sha256": "afd3b499a93d5af47fc1a5c4c2131a9d3678ee8a031da62e50a8bee3eb324ff7"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "2d3407ed883e03101e1144baa81e011f5b984548ffa4e87d85a52eac7f5cfa8b"
+        "sha256": "aaf53a1d7ac166c1174712ddabc08b4baa207891d37edaf89f79a240077a6791"
       }
     ],
     "generated_runtime": []
