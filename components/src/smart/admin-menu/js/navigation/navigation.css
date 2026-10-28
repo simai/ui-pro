@@ -1,4 +1,25 @@
+/* The menu's box, published so a page can reserve exactly the room the menu
+   takes before it draws (Larena, 2026-10-28): on :root, from the tokens the
+   columns are drawn with, registered as lengths so a script reads them in px
+   (getComputedStyle(document.documentElement).getPropertyValue(
+   '--sf-admin-menu-two-columns-inline-size')). One column is the menu of a
+   page whose row has no open root (expected-columns="1"), two the menu with
+   its section open; compact is the rail. A width the person set with a
+   column's handle is theirs and wins (sf-resizer value or storage): the
+   reserve is then that width. */
+@property --sf-admin-menu-one-column-inline-size { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-admin-menu-two-columns-inline-size { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-admin-menu-compact-one-column-inline-size { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --sf-admin-menu-compact-two-columns-inline-size { syntax: "<length>"; inherits: true; initial-value: 0px; }
+
 @layer sf.components {
+  :root {
+    --sf-admin-menu-one-column-inline-size: var(--sf-f6);
+    --sf-admin-menu-two-columns-inline-size: calc(var(--sf-f6) + var(--sf-f5));
+    --sf-admin-menu-compact-one-column-inline-size: var(--sf-d4);
+    --sf-admin-menu-compact-two-columns-inline-size: calc(var(--sf-d4) + var(--sf-f5));
+  }
+
   /* A page that opens the menu from a button of its own writes open (stand 24
      A1): on a narrow screen the menu is folded away while it is false. A page
      that never writes it has no data-open and sees the menu as it always was. */
@@ -49,6 +70,12 @@
   .sf-admin-nav-second {
     position: relative;
     display: flex;
+    /* As wide as its width, whatever it holds: a flex item is otherwise never
+       narrower than its content, and the second column took the width of the
+       widest thing in a section -- its «Найти в разделе» field, a long label
+       -- 237-258 px from section to section, so the menu's box and the page
+       beside it changed between pages (Larena, 2026-10-28). */
+    min-inline-size: 0;
     flex-direction: column;
     min-block-size: 0;
     block-size: 100%;
@@ -416,6 +443,17 @@
   }
 
 
+  .sf-admin-nav-action {
+    min-inline-size: 0;
+  }
+
+  .sf-admin-nav-action > span {
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
   .sf-admin-nav-action:hover {
     background-color: var(--sf-surface-container-hover);
   }
@@ -526,6 +564,7 @@
 
   .sf-admin-nav-second-head {
     flex: none;
+    min-inline-size: 0;
     display: flex;
     align-items: center;
     gap: var(--sf-space-1\/2);
@@ -540,7 +579,14 @@
 
   .sf-admin-nav-find {
     flex: none;
+    min-inline-size: 0;
     padding: 0 var(--sf-a4) var(--sf-a4);
+  }
+
+  .sf-admin-nav-find > sf-input,
+  .sf-admin-nav-find .sf-input {
+    min-inline-size: 0;
+    max-inline-size: 100%;
   }
 
   .sf-admin-nav-children {

@@ -2,7 +2,7 @@
   "$comment": "The source of sf-admin-menu's interface (standard simai.smart-component 1.3.8). Taken from simai/ui-control control/smart-architecture/migration/out/admin-menu (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.admin-menu",
   "tag": "sf-admin-menu",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "kind": "leaf",
   "family": "menu",
   "settings": {
@@ -532,7 +532,11 @@
     "--sf-admin-menu-padding": {
       "type": "length",
       "state": "default"
-    }
+    },
+    "--sf-admin-menu-one-column-inline-size": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the menu of a page whose row has no open root (expected-columns 1) (docs/docs.md)"},
+    "--sf-admin-menu-two-columns-inline-size": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the menu with its section open (docs/docs.md)"},
+    "--sf-admin-menu-compact-one-column-inline-size": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the rail alone (docs/docs.md)"},
+    "--sf-admin-menu-compact-two-columns-inline-size": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the rail with its section open (docs/docs.md)"}
   },
   "x-summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "x-source": {
