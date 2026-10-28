@@ -18,8 +18,10 @@
     "utility/display/default/css/default.min.css",
     "utility/flex-direction/default/css/default.min.css",
     "utility/flex/default/css/default.min.css",
+    "utility/font-weight/default/css/default.min.css",
     "utility/justify-content/default/css/default.min.css",
     "utility/pointer-events/default/css/default.min.css",
+    "utility/position/default/css/default.min.css",
     "utility/text-align/default/css/default.min.css",
     "utility/transition-property/default/css/default.min.css"
   ],
@@ -34,8 +36,11 @@
       "smart/chat-message/css/chat-message.min.css",
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "brief-questions": [
@@ -49,8 +54,11 @@
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
       "utility/flex-direction/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css",
       "utility/transition-property/default/css/default.min.css"
     ],
@@ -62,7 +70,12 @@
       "core/css/core.css",
       "smart/change-confirm/css/change-confirm.min.css",
       "smart/chat-message/css/chat-message.min.css",
+      "utility/align-items/default/css/default.min.css",
+      "utility/display/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "feedback-reason": [
@@ -76,8 +89,11 @@
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
       "utility/flex-direction/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css",
       "utility/transition-property/default/css/default.min.css"
     ],
@@ -89,7 +105,12 @@
       "core/css/core.css",
       "smart/change-confirm/css/change-confirm.min.css",
       "smart/chat-message/css/chat-message.min.css",
+      "utility/align-items/default/css/default.min.css",
+      "utility/display/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "person": [
@@ -101,7 +122,12 @@
       "core/css/core.css",
       "smart/change-confirm/css/change-confirm.min.css",
       "smart/chat-message/css/chat-message.min.css",
+      "utility/align-items/default/css/default.min.css",
+      "utility/display/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "person-own": [
@@ -115,8 +141,11 @@
       "smart/chat-message/css/chat-message.min.css",
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "proposal": [
@@ -130,8 +159,10 @@
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
       "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "question": [
@@ -142,7 +173,12 @@
       "core/css/core.css",
       "smart/change-confirm/css/change-confirm.min.css",
       "smart/chat-message/css/chat-message.min.css",
+      "utility/align-items/default/css/default.min.css",
+      "utility/display/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "reference": [
@@ -155,8 +191,11 @@
       "smart/chat-message/css/chat-message.min.css",
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "stopped": [
@@ -167,7 +206,12 @@
       "core/css/core.css",
       "smart/change-confirm/css/change-confirm.min.css",
       "smart/chat-message/css/chat-message.min.css",
+      "utility/align-items/default/css/default.min.css",
+      "utility/display/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "waiting": [
@@ -178,7 +222,12 @@
       "core/css/core.css",
       "smart/change-confirm/css/change-confirm.min.css",
       "smart/chat-message/css/chat-message.min.css",
+      "utility/align-items/default/css/default.min.css",
+      "utility/display/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ]
   }

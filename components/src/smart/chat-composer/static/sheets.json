@@ -13,7 +13,9 @@
     "smart/chat-composer/css/chat-composer.min.css",
     "utility/align-items/default/css/default.min.css",
     "utility/display/default/css/default.min.css",
+    "utility/font-weight/default/css/default.min.css",
     "utility/justify-content/default/css/default.min.css",
+    "utility/position/default/css/default.min.css",
     "utility/sr-only/default/css/default.min.css"
   ],
   "examples": {
@@ -25,7 +27,9 @@
       "smart/chat-composer/css/chat-composer.min.css",
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/sr-only/default/css/default.min.css"
     ],
     "disabled": [
@@ -36,7 +40,9 @@
       "smart/chat-composer/css/chat-composer.min.css",
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/sr-only/default/css/default.min.css"
     ],
     "files": [
@@ -47,7 +53,9 @@
       "smart/chat-composer/css/chat-composer.min.css",
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/sr-only/default/css/default.min.css"
     ],
     "near-limit": [
@@ -58,7 +66,9 @@
       "smart/chat-composer/css/chat-composer.min.css",
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/sr-only/default/css/default.min.css"
     ],
     "reference": [
@@ -69,7 +79,9 @@
       "smart/chat-composer/css/chat-composer.min.css",
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
+      "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
+      "utility/position/default/css/default.min.css",
       "utility/sr-only/default/css/default.min.css"
     ]
   }
