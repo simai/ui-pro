@@ -693,6 +693,9 @@ class SfDataView extends DataViewElement {
         const data = this._firstAnswer;
         if (!data || this._answered) return false;
         this._firstAnswer = null;
+        // A printed answer to another query than the person's saved state is
+        // not drawn: the skeleton stays and the view asks its own query.
+        if (!this._printedAnswerFits(data)) return false;
         if (data.echo && Number.isInteger(data.echo.per_page) && data.echo.per_page > 0) this._pageSizeDeclared = true;
         this._revalidate = true;
         // Kept to compare the port's answer to the same query with.
@@ -761,8 +764,25 @@ class SfDataView extends DataViewElement {
             : declared?.intent === "query.change" && declared.payload?.query && typeof declared.payload.query === "object" ? declared.payload.query
                 : null;
         if (!printed) return false;
-        this.query = {...this.query, ...copy(printed)};
-        if (Number.isInteger(printed.per_page) && printed.per_page > 0) this._pageSizeDeclared = true;
+        // The printed query is the defaults; what the person saved in this
+        // browser goes over it. The view asks its real state: an early call
+        // started with the printed query is then taken only when it matches
+        // (the adapter compares), otherwise the view's own query is asked.
+        this.query = {...this.query, ...copy(printed), ...copy(this._keptState ?? {})};
+        if (Number.isInteger(this.query.per_page) && this.query.per_page > 0) this._pageSizeDeclared = true;
+        return true;
+    }
+
+    // Whether a printed answer answers the view's real query: not when the
+    // person saved a page size or a sort in this browser that the printed
+    // query (or the answer's echo) does not have. Drawn anyway, its rows
+    // would show and then be replaced by the real query's (25 rows, then 50).
+    _printedAnswerFits(data) {
+        const kept = this._keptState ?? {};
+        if (!Object.keys(kept).length) return true;
+        const printed = data?.query && typeof data.query === "object" ? data.query : data?.echo ?? {};
+        if (kept.per_page !== undefined && Number(printed.per_page) !== kept.per_page) return false;
+        if (kept.sort !== undefined && canonical(printed.sort ?? []) !== canonical(kept.sort)) return false;
         return true;
     }
 
@@ -1256,6 +1276,14 @@ class SfDataView extends DataViewElement {
         const table = this.table;
         if (table && key && !table.getAttribute("preferences-key")) table.setAttribute("preferences-key", this.getAttribute("preferences-key"));
         const kept = key ? preferences()?.read(key) : null;
+        // What the person saved in this browser: it wins over anything the
+        // page printed (a declared port's first query, a printed answer's
+        // query), which the page wrote without knowing it (standard §4.9:
+        // the page must not guess).
+        this._keptState = {
+            ...(Array.isArray(kept?.sort) && kept.sort.length ? {sort: copy(kept.sort)} : {}),
+            ...(Number.isInteger(kept?.pageSize) && kept.pageSize > 0 ? {per_page: kept.pageSize} : {}),
+        };
         if (!kept) return;
         if (Array.isArray(kept.sort) && !this.query.sort?.length) this.query.sort = copy(kept.sort);
         if (Number.isInteger(kept.pageSize) && kept.pageSize > 0) {
