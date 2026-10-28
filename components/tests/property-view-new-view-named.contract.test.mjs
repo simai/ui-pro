@@ -56,14 +56,15 @@ test('cancelling configure skips view.save when the layer is the one entered wit
 test('a press on a link inside a value does not open the group', () => {
   const start = template.indexOf('data-open-group=${groupKey}');
   const handler = template.slice(start, template.indexOf('renderFieldValue(context, field, editing)}', start));
-  assert.match(handler, /if \(event\.composedPath\(\)\.some\(\(node\) => node\.matches\?\.\('a\[href\]'\)\)\) return;\s*context\.component\.editGroup\(sectionKey, groupKey\);/u);
+  assert.match(handler, /const inner = path\.slice\(0, Math\.max\(0, path\.indexOf\(event\.currentTarget\)\)\);\s*if \(inner\.some\(\(node\) => node\.matches\?\.\(INNER_CONTROL\)\)\) return;\s*context\.component\.editGroup\(sectionKey, groupKey\);/u);
+  assert.match(template, /const INNER_CONTROL = 'a\[href\], button, input, select, textarea, \[role="button"\], \[role="link"\]';/u);
 });
 
 // Entering and leaving the arrangement keeps the keyboard somewhere
 // (simai.main keyboard QA, 2026-10-28).
 test('arranging moves the focus to its bar, and Done back to the menu', () => {
   const start = source.slice(source.indexOf('    startConfiguringView() {'), source.indexOf('    stopConfiguringView() {'));
-  assert.match(start, /this\._focusAfterRender\("\.sf-property-view-configure-bar"\);\s*return true;/u);
+  assert.match(start, /this\._focusAfterRender\(\['\.sf-property-view-configure-bar \[data-action="view-profile"\]', "\.sf-property-view-configure-bar"\]\);\s*return true;/u);
   const stop = source.slice(source.indexOf('    stopConfiguringView() {'), source.indexOf('    _focusAfterRender(selector) {'));
   assert.match(stop, /if \(wasConfiguring\) this\._focusAfterRender\('\[data-action="menu"\]'\);/u);
   assert.match(source, /if \(active && active !== document\.body && root\?\.contains\?\.\(active\)\) return;/u);

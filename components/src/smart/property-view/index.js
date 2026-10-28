@@ -2741,7 +2741,7 @@ class SfPropertyView extends PropertyViewElement {
         this.requestComponentUpdate("configuring");
         // Arranging shows every group; those not read yet are read now.
         this._readShownGroups("started");
-        this._focusAfterRender(".sf-property-view-configure-bar");
+        this._focusAfterRender(['.sf-property-view-configure-bar [data-action="view-profile"]', ".sf-property-view-configure-bar"]);
         return true;
     }
 
@@ -2761,14 +2761,18 @@ class SfPropertyView extends PropertyViewElement {
     // arranging closes and the bar that ends it goes away, and each left the
     // focus on the page's body, so a keyboard user started again from the top
     // (simai.main keyboard QA, 2026-10-28). Entering, the focus goes to the
-    // arranging bar's first control; leaving, to the panel's menu, where the
-    // mode was entered from.
-    _focusAfterRender(selector) {
+    // arranging bar's view chooser (its first control otherwise: the first was
+    // Reset, the act that takes most away); leaving, to the panel's menu,
+    // where the mode was entered from. The first selector that finds a
+    // control wins.
+    _focusAfterRender(selectors) {
         const focusable = "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])";
         this.whenRendered(() => requestAnimationFrame(() => {
             const root = this.panelContent?.() ?? this;
-            const area = [...(root?.querySelectorAll?.(selector) ?? [])].pop() ?? null;
-            const target = area?.matches?.(focusable) ? area : area?.querySelector?.(focusable);
+            const target = [selectors].flat().map((selector) => {
+                const area = [...(root?.querySelectorAll?.(selector) ?? [])].pop() ?? null;
+                return area?.matches?.(focusable) ? area : area?.querySelector?.(focusable);
+            }).find(Boolean);
             if (!target || !target.isConnected) return;
             const active = document.activeElement;
             // Only where the focus was lost: a person who has already moved on

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.7.6",
+  "version": "1.7.7",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1275,6 +1275,13 @@
         "changes": [
           "Entering the arrangement moves the focus to the arranging bar's first control, and Done or cancel moves it back to the panel's menu, where it is lost otherwise; a focus a person has already moved inside the panel is left alone. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.7.6",
+        "to": "1.7.7",
+        "changes": [
+          "A press on any control inside a field's value -- sf-file-preview's download button as well as a link -- no longer opens the group for editing. Entering the arrangement focuses the view chooser rather than Reset. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1284,11 +1291,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "7fe67820dc5e0747147ec94fa93f389d757970dc785c94a024c32a3fe3e412a7"
+        "sha256": "3ecc3b3a8adc7b200d1d658aa4cf08439fe315da7a31b2a6bf24e824c3c08832"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "3bddc4ace4c3e60052bf536f317b8035fa24cf0ae27c3f23e0838d6b4a0f16a3"
+        "sha256": "3270defd81357236c54cb6fa039c451d6c12e7f9b3466058ae06848ae1df006f"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",

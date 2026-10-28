@@ -276,9 +276,21 @@ try {
     const afterLink = Boolean(view.editing);
     link.remove();
     view.cancelEdit?.();
-    return {button: true, afterLink};
+    await wait(200);
+    // sf-file-preview's download is a button, not a link.
+    const again = (view.panelContent?.() ?? view).querySelector('[data-open-group]');
+    const download = document.createElement('button');
+    download.type = 'button';
+    download.textContent = 'download';
+    again?.prepend(download);
+    download.click();
+    await wait(200);
+    const afterButton = Boolean(view.editing);
+    download.remove();
+    view.cancelEdit?.();
+    return {button: true, afterLink, afterButton};
   });
-  if (!linkPress.button || linkPress.afterLink) {
+  if (!linkPress.button || linkPress.afterLink || linkPress.afterButton) {
     note({case: 'a link inside a value does not open the group', got: linkPress,
       expected: 'the field button present, and no edit after a press on the link inside it'});
   }

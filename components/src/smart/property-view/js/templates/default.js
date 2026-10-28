@@ -401,6 +401,9 @@ function renderEntryName(context, kind, key, label, titleClass) {
 // mockup: a person presses the value and its group opens for editing, with a pen
 // showing that it can be. Only a readonly field, a field already being edited and
 // a field being arranged are not buttons -- each already means something else.
+// What a press inside a field's value may land on that acts on its own.
+const INNER_CONTROL = 'a[href], button, input, select, textarea, [role="button"], [role="link"]';
+
 function renderField(context, field, editing, sectionKey = '', groupKey = '') {
     // A field as its conditions make it now (port 1.14.0): required or not,
     // enabled or drawn disabled as a readonly field is. Not while the view is
@@ -458,12 +461,16 @@ function renderField(context, field, editing, sectionKey = '', groupKey = '') {
                                 data-open-group=${groupKey}
                                 title=${context.editText}
                                 @click=${(event) => {
-                                    // A link inside the value -- a file's download,
-                                    // a URL, an address -- does its own thing and
-                                    // nothing more: downloading a stored file also
+                                    // A control inside the value -- a file's download
+                                    // button, a URL, an address -- does its own thing
+                                    // and nothing more: downloading a stored file also
                                     // opened the group for editing (simai.main,
-                                    // 2026-10-28).
-                                    if (event.composedPath().some((node) => node.matches?.('a[href]'))) return;
+                                    // 2026-10-28). sf-file-preview's download is a
+                                    // button, not a link, so every control between the
+                                    // press and this button counts.
+                                    const path = event.composedPath();
+                                    const inner = path.slice(0, Math.max(0, path.indexOf(event.currentTarget)));
+                                    if (inner.some((node) => node.matches?.(INNER_CONTROL))) return;
                                     context.component.editGroup(sectionKey, groupKey);
                                 }}
                         >
