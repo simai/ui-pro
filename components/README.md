@@ -26,6 +26,7 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/chat-interlocutor` | `sf-chat-interlocutor` | `smart.chat-interlocutor` |
 | `src/smart/chat-composer` | `sf-chat-composer` | `smart.chat-composer` |
 | `src/smart/chat-message` | `sf-chat-message` | `smart.chat-message` |
+| `src/smart/chat-window` | `sf-chat-window` | `smart.chat-window` |
 
 The three conversation components came from `simai/ui-chat` (`sf-chat-message-list`,
 `sf-chat-thread-list` and the proposal card) under neutral names (owner's decision
@@ -40,8 +41,12 @@ and its files; the pieces of the chat's shared core it drew on are its own modul
 now), then `sf-chat-message` (one message: an assistant's answer with its sources,
 rating, proposal and task brief, a person's question, and the template `person`
 for a conversation between people; a window places it in `sf-message-log`
-through the log's `renderMessage`, so the log stays chat-agnostic). The window
-(`sf-chat-window`) follows them.
+through the log's `renderMessage`, so the log stays chat-agnostic), and last the
+window, `sf-chat-window`: the whole chat on the host port `simai.chat-port` 1.0
+(handed with `connect-port`), built from `sf-thread-list`, `sf-message-log` and
+the three chat components by tag, with «Мои файлы» and the window's own
+capabilities (archive, paging, search, pinning, early upload, task brief) beside
+the port.
 
 Documentation (Russian): [sf-table and sf-data-view](https://ui.simai.io/ru/smart-components/content/table/),
 [sf-property-view](https://ui.simai.io/ru/smart-components/composite/property-view/),

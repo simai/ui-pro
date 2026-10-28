@@ -1,0 +1,29 @@
+{
+  "id": "send-changed-body-same-key-conflict",
+  "intent": "message.send",
+  "capability": null,
+  "summary": "A different body under a client_key the host already stored is a conflict, never a second message or a silent overwrite.",
+  "given": {
+    "stored_keys": {
+      "k1": {
+        "body": "Привет",
+        "message_id": 101
+      }
+    }
+  },
+  "when": {
+    "intent": "message.send",
+    "payload": {
+      "conversation_id": 8,
+      "body": "Пока",
+      "client_key": "k1"
+    }
+  },
+  "then": {
+    "answer": "conflict",
+    "answer_must_include": [
+      "reason"
+    ],
+    "note": "reason is idempotency-conflict. One key is one write: the component makes a new key for a new text."
+  }
+}

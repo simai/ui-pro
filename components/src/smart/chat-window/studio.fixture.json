@@ -1,0 +1,13 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "window-reference",
+  "component": "smart.chat-window",
+  "title": "Chat window reference",
+  "summary": "Deterministic reference fixture for sf-chat-window: an assistant host with ratings, proposals and conversations to create and manage.",
+  "locale": "ru",
+  "props": {
+    "capabilities": "assistant feedback proposals conversation-create conversation-manage interlocutors"
+  },
+  "children": [],
+  "state": "default"
+}

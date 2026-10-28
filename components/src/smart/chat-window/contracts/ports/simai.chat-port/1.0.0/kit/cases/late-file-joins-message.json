@@ -1,0 +1,31 @@
+{
+  "id": "late-file-joins-message",
+  "intent": "message.send",
+  "capability": null,
+  "summary": "A file that arrives after its message joins that message and leaves its revision alone.",
+  "given": {
+    "messages": [
+      {
+        "id": 20,
+        "files": []
+      }
+    ],
+    "file_update": {
+      "id": 9,
+      "message_id": 20,
+      "name": "example.txt"
+    }
+  },
+  "when": {
+    "intent": "message.send",
+    "payload": {
+      "conversation_id": 7,
+      "body": "",
+      "client_key": "f0"
+    }
+  },
+  "then": {
+    "answer": "applied",
+    "note": "The host attaches file 9 to message 20 without changing message 20's revision; the window shows it under that message, not as a new one."
+  }
+}

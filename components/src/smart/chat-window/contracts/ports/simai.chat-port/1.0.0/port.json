@@ -1,0 +1,1560 @@
+{
+  "schema": "simai.composite.host-port.v1",
+  "port": "simai.chat-port",
+  "version": "1.0.0",
+  "component": "smart.chat-window",
+  "element": "sf-chat-window",
+  "summary": "The host seam of a chat: conversations, a conversation's messages and a composer, for an AI assistant's window (Mirai24) and for people writing to each other (simai.chat) alike. The component never talks to a server: the host gives it data and answers its intents; rights, money, memory and delivery stay the host's. A message is a person's or an assistant's (kind); what may be done with it comes from the host's flags, never from who wrote it. Writes carry a stable client_key per action, and edits and deletes the revision they were made against.",
+  "capabilities": {
+    "assistant": {
+      "summary": "Answers of an AI assistant: statuses, stages, sources, verification, waiting and stopping.",
+      "intents": [
+        "wait.check",
+        "wait.stop"
+      ],
+      "data": [
+        "interlocutors"
+      ]
+    },
+    "people": {
+      "summary": "Several authors: names, own on the end side, runs grouped by author."
+    },
+    "files": {
+      "summary": "Files with a message: sent with it, attached after it, retried by their local key.",
+      "intents": [
+        "file.retry"
+      ],
+      "data": [
+        "limits"
+      ]
+    },
+    "edit": {
+      "summary": "Editing a message the host's can_edit allows, against its revision. Hosts grant it for the author's own text; another author's text is never edited.",
+      "intents": [
+        "message.edit"
+      ]
+    },
+    "delete": {
+      "summary": "Deleting a message the host's can_delete allows — one's own, or another's where the host's roles let a manager remove it — against its revision; a tombstone stays.",
+      "intents": [
+        "message.delete"
+      ]
+    },
+    "feedback": {
+      "summary": "Rating an assistant's answer, with an optional reason.",
+      "intents": [
+        "message.rate"
+      ]
+    },
+    "proposals": {
+      "summary": "A change the host prepared, applied only on its confirm command.",
+      "intents": [
+        "proposal.decide"
+      ]
+    },
+    "conversation-create": {
+      "summary": "Starting a conversation.",
+      "intents": [
+        "conversation.create"
+      ]
+    },
+    "conversation-manage": {
+      "summary": "Renaming, archiving and restoring conversations. Not message discussions (a later version), not participants or roles.",
+      "intents": [
+        "conversation.rename",
+        "conversation.archive"
+      ]
+    },
+    "interlocutors": {
+      "summary": "Choosing whom to talk to (an assistant); a choice starts a new conversation.",
+      "intents": [
+        "interlocutor.choose"
+      ],
+      "data": [
+        "interlocutors"
+      ]
+    },
+    "read": {
+      "summary": "Reporting the last message actually seen.",
+      "intents": [
+        "message.read"
+      ]
+    }
+  },
+  "data": {
+    "me": {
+      "summary": "Who reads.",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "conversations": {
+      "summary": "The conversations this person may open, newest first.",
+      "required": true,
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "title"
+          ],
+          "properties": {
+            "id": {
+              "type": [
+                "integer",
+                "string"
+              ]
+            },
+            "title": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "assistant",
+                "private",
+                "group"
+              ]
+            },
+            "interlocutor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "unread_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "updated_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "archived": {
+              "type": "boolean"
+            },
+            "pinned": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "conversation": {
+      "summary": "The open conversation's current rights, from the server on every update; null when none is open (a fresh window, an empty list, after access was revoked). The host never invents an id or can_send for an absent selection.",
+      "required": true,
+      "schema": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "can_send"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "integer",
+                  "string"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "assistant",
+                  "private",
+                  "group"
+                ]
+              },
+              "role": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "interlocutor": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "The assistant this conversation is with."
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "can_send": {
+                "type": "boolean"
+              },
+              "can_manage": {
+                "type": "boolean"
+              },
+              "can_leave": {
+                "type": "boolean"
+              },
+              "revoked": {
+                "type": "boolean",
+                "description": "Access is gone: the component clears the feed, the draft and anything unsent."
+              }
+            }
+          }
+        ]
+      }
+    },
+    "messages": {
+      "summary": "The open conversation's messages, oldest first, merged by the host from history and live updates (newer revision wins).",
+      "required": true,
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "author"
+          ],
+          "properties": {
+            "id": {
+              "type": [
+                "integer",
+                "string",
+                "null"
+              ],
+              "description": "null only for a send not yet stored (then local is required)."
+            },
+            "kind": {
+              "enum": [
+                "person",
+                "assistant"
+              ],
+              "description": "person: written by a person (the reader or another); assistant: an answer of an AI assistant."
+            },
+            "author": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": [
+                    "integer",
+                    "string"
+                  ]
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "avatar_url": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "own": {
+                  "type": "boolean",
+                  "description": "The reader wrote it."
+                }
+              }
+            },
+            "body": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Plain text; shown as text, line breaks kept."
+            },
+            "html": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "assistant only: server HTML, sanitized again by the component."
+            },
+            "created_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time",
+              "description": "Omitted when the host does not know it; the component never invents a time."
+            },
+            "status": {
+              "enum": [
+                "queued",
+                "running",
+                "completed",
+                "partial",
+                "refused",
+                "withheld",
+                "failed",
+                "limit"
+              ],
+              "description": "assistant only."
+            },
+            "stage": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "wait": {
+              "enum": [
+                "delayed",
+                "stopped",
+                "network",
+                "none",
+                null
+              ],
+              "description": "assistant only: the reader's wait for an answer still running — taking long, stopped by the reader, no connection; none: no longer awaited."
+            },
+            "finished_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "When an answer was finished, if the host knows it."
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "description": "One source: n (the footnote number), title, kind, url, read_at, and excerpt -- the passage the answer leans on, plain text, or null."
+              }
+            },
+            "verification": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "notices": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "proposal": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "capability proposals: a change applied only on the confirmed command."
+            },
+            "feedback": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": false,
+              "required": [
+                "value"
+              ],
+              "properties": {
+                "value": {
+                  "enum": [
+                    "up",
+                    "down"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Why it was not helpful, as message.rate sent it; kept for down only."
+                },
+                "note": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "description": "capability feedback, assistant only: the reader's own stored rating, shown as pressed after a reload; null when not rated or the host does not keep ratings."
+            },
+            "summary": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": true,
+              "required": [
+                "text"
+              ],
+              "properties": {
+                "text": {
+                  "type": "string"
+                }
+              },
+              "description": "assistant only, a finished answer: its stages folded into one quiet line in the reader's language («Found 4 sources · checked · 9 s»); the host may add what the line was made of."
+            },
+            "limit_resets_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time",
+              "description": "assistant only, status limit: when the limit renews, if the host knows it; the component says it in the reader's time."
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "id": {
+                    "type": [
+                      "integer",
+                      "string"
+                    ]
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "Local opaque key of a file not yet stored (a failed upload); never sent to download or delete."
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "mime": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "download_url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The host's own protected link, as given; the component never builds one."
+                  },
+                  "state": {
+                    "enum": [
+                      "uploading",
+                      "failed",
+                      "ready"
+                    ]
+                  },
+                  "progress": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "reason": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Why the host refused the file, in the reader's words."
+                  }
+                }
+              }
+            },
+            "is_edited": {
+              "type": "boolean"
+            },
+            "is_deleted": {
+              "type": "boolean",
+              "description": "A tombstone: no body, no files."
+            },
+            "revision": {
+              "type": [
+                "integer",
+                "string"
+              ]
+            },
+            "can_edit": {
+              "type": "boolean"
+            },
+            "can_delete": {
+              "type": "boolean"
+            },
+            "command": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "A message sent for a button (a proposal's command): {kind: confirm|cancel, code}."
+            },
+            "local": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "client_key",
+                "action",
+                "state"
+              ],
+              "properties": {
+                "client_key": {
+                  "type": "string"
+                },
+                "action": {
+                  "enum": [
+                    "send",
+                    "edit",
+                    "delete"
+                  ]
+                },
+                "state": {
+                  "enum": [
+                    "pending",
+                    "failed",
+                    "sent"
+                  ]
+                },
+                "body": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "An edit's typed text; kept on failure and conflict."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "history": {
+      "summary": "Whether earlier messages exist, and whether they are being loaded.",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "required": [
+          "has_older"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "has_older": {
+            "type": "boolean"
+          },
+          "loading": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "feed_state": {
+      "summary": "The feed: loading, ready, error, or revoked (clears feed and draft).",
+      "required": true,
+      "schema": {
+        "enum": [
+          "loading",
+          "ready",
+          "error",
+          "revoked"
+        ]
+      }
+    },
+    "limits": {
+      "summary": "What the composer accepts.",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body_chars": {
+            "type": "integer"
+          },
+          "files_per_message": {
+            "type": "integer"
+          },
+          "file_bytes": {
+            "type": "integer"
+          },
+          "file_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "interlocutors": {
+      "summary": "Assistants to talk to, the first the default; kind groups them.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "title"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "greeting": {
+              "type": "string"
+            },
+            "suggestions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "notice": {
+      "summary": "One line above the composer: an error or a note, in the reader's language, no HTML and no server diagnostics.",
+      "schema": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "error",
+              "info"
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "intents": {
+    "conversation.open": {
+      "summary": "Open a conversation: the host answers its state and its last messages.",
+      "event": "chat-port:open",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "refused",
+        "unavailable"
+      ],
+      "capability": null,
+      "answer_data": {
+        "type": "object",
+        "required": [
+          "conversation",
+          "messages",
+          "history"
+        ]
+      }
+    },
+    "history.older": {
+      "summary": "Earlier messages before the oldest shown. History never moves the host's live cursors.",
+      "event": "chat-port:older",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "before_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "before_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "unavailable"
+      ],
+      "capability": null
+    },
+    "message.send": {
+      "summary": "Send what was typed, with its files. The host stores the message first and the files after it; the same client_key retried is one message. conversation_id null starts a conversation with the message (with interlocutor), for a host that creates none empty.",
+      "event": "chat-port:send",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "body",
+          "client_key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string",
+              "null"
+            ]
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "description": "File objects, in-page only."
+          },
+          "client_key": {
+            "type": "string"
+          },
+          "interlocutor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "conflict",
+        "refused",
+        "unavailable"
+      ],
+      "capability": null
+    },
+    "message.retry": {
+      "summary": "Repeat a failed action with the same client_key (send, edit or delete). An edit or delete is repeated with its ORIGINAL revision, even if a poll brought a newer one after a lost successful response.",
+      "event": "chat-port:retry",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "client_key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "client_key": {
+            "type": "string"
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "conflict",
+        "refused",
+        "unavailable"
+      ],
+      "capability": null
+    },
+    "message.edit": {
+      "summary": "Change a message whose can_edit is true, against the revision it was made from.",
+      "event": "chat-port:edit",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "message_id",
+          "revision",
+          "body",
+          "client_key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "message_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "revision": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "body": {
+            "type": "string"
+          },
+          "client_key": {
+            "type": "string"
+          }
+        }
+      },
+      "carries_revision": true,
+      "answers": [
+        "applied",
+        "conflict",
+        "refused",
+        "unavailable"
+      ],
+      "capability": "edit"
+    },
+    "message.delete": {
+      "summary": "Delete a message whose can_delete is true (the author's, or another's by the host's roles), against its revision; a tombstone stays.",
+      "event": "chat-port:delete",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "message_id",
+          "revision",
+          "client_key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "message_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "revision": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "client_key": {
+            "type": "string"
+          }
+        }
+      },
+      "carries_revision": true,
+      "answers": [
+        "applied",
+        "conflict",
+        "refused",
+        "unavailable"
+      ],
+      "capability": "delete"
+    },
+    "message.read": {
+      "summary": "The last message is shown at the end of a visible page.",
+      "event": "chat-port:read",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "message_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "message_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "unavailable"
+      ],
+      "capability": "read"
+    },
+    "message.rate": {
+      "summary": "Rate an assistant's answer.",
+      "event": "chat-port:rate",
+      "payload": {
+        "type": "object",
+        "required": [
+          "message_id",
+          "value"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "message_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "value": {
+            "enum": [
+              "up",
+              "down",
+              null
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "With down: wrong, incomplete, off_topic or other (a host may know fewer); null with up."
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The reader's own words about the answer, optional."
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "refused",
+        "unavailable"
+      ],
+      "capability": "feedback"
+    },
+    "file.retry": {
+      "summary": "Upload again a file that failed, by its local key.",
+      "event": "chat-port:file-retry",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "message_id",
+          "file_key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "message_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "file_key": {
+            "type": "string"
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "refused",
+        "unavailable"
+      ],
+      "capability": "files"
+    },
+    "proposal.decide": {
+      "summary": "Confirm or cancel a prepared change: the host sends exactly its command.",
+      "event": "chat-port:decide",
+      "payload": {
+        "type": "object",
+        "required": [
+          "message_id",
+          "code",
+          "decision"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "message_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "decision": {
+            "enum": [
+              "confirm",
+              "cancel"
+            ]
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "conflict",
+        "refused",
+        "unavailable"
+      ],
+      "capability": "proposals"
+    },
+    "wait.check": {
+      "summary": "Ask again whether a delayed answer is ready.",
+      "event": "chat-port:check",
+      "payload": {
+        "type": "object",
+        "required": [
+          "message_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "message_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "unavailable"
+      ],
+      "capability": "assistant"
+    },
+    "wait.stop": {
+      "summary": "Stop waiting for an answer (the server may still finish it).",
+      "event": "chat-port:stop",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "unavailable"
+      ],
+      "capability": "assistant"
+    },
+    "conversation.create": {
+      "summary": "Start a conversation (with an interlocutor, or with people the host lets choose).",
+      "event": "chat-port:create",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "additionalProperties": false,
+        "properties": {
+          "interlocutor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "refused",
+        "unavailable"
+      ],
+      "capability": "conversation-create"
+    },
+    "conversation.rename": {
+      "summary": "Rename a conversation.",
+      "event": "chat-port:rename",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "title"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "refused",
+        "unavailable"
+      ],
+      "capability": "conversation-manage"
+    },
+    "conversation.archive": {
+      "summary": "Archive or restore a conversation.",
+      "event": "chat-port:archive",
+      "payload": {
+        "type": "object",
+        "required": [
+          "conversation_id",
+          "archived"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "archived": {
+            "type": "boolean"
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "refused",
+        "unavailable"
+      ],
+      "capability": "conversation-manage"
+    },
+    "interlocutor.choose": {
+      "summary": "Talk to another assistant: a new conversation with it.",
+      "event": "chat-port:interlocutor",
+      "payload": {
+        "type": "object",
+        "required": [
+          "interlocutor"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "interlocutor": {
+            "type": "string"
+          }
+        }
+      },
+      "carries_revision": false,
+      "answers": [
+        "applied",
+        "refused",
+        "unavailable"
+      ],
+      "capability": "interlocutors"
+    }
+  },
+  "settings": {
+    "layers": [
+      "personal"
+    ],
+    "shared_only_fields": [],
+    "reset": {
+      "semantics": "compare-and-set",
+      "summary": "The chat keeps no settings of its own in 1.0.0; the theme and the language are the page's."
+    },
+    "target": {
+      "kinds": [
+        "personal"
+      ],
+      "carries_revision": false
+    }
+  },
+  "answer": {
+    "summary": "Every intent is answered with one object: answer says what happened, reason why it was refused or is unavailable (words in the reader's language, never server diagnostics or HTML), data what an applied answer supplies. A conflict carries the current message beside answer; the component keeps the typed text. access-revoked and session-expired are reasons the component knows.",
+    "schema": {
+      "type": "object",
+      "required": [
+        "answer"
+      ],
+      "properties": {
+        "answer": {
+          "enum": [
+            "applied",
+            "conflict",
+            "refused",
+            "unavailable"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        },
+        "current": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "author"
+          ],
+          "properties": {
+            "id": {
+              "type": [
+                "integer",
+                "string",
+                "null"
+              ],
+              "description": "null only for a send not yet stored (then local is required)."
+            },
+            "kind": {
+              "enum": [
+                "person",
+                "assistant"
+              ],
+              "description": "person: written by a person (the reader or another); assistant: an answer of an AI assistant."
+            },
+            "author": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": [
+                    "integer",
+                    "string"
+                  ]
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "avatar_url": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "own": {
+                  "type": "boolean",
+                  "description": "The reader wrote it."
+                }
+              }
+            },
+            "body": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Plain text; shown as text, line breaks kept."
+            },
+            "html": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "assistant only: server HTML, sanitized again by the component."
+            },
+            "created_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time",
+              "description": "Omitted when the host does not know it; the component never invents a time."
+            },
+            "status": {
+              "enum": [
+                "queued",
+                "running",
+                "completed",
+                "partial",
+                "refused",
+                "withheld",
+                "failed",
+                "limit"
+              ],
+              "description": "assistant only."
+            },
+            "stage": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "wait": {
+              "enum": [
+                "delayed",
+                "stopped",
+                "network",
+                "none",
+                null
+              ],
+              "description": "assistant only: the reader's wait for an answer still running — taking long, stopped by the reader, no connection; none: no longer awaited."
+            },
+            "finished_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "When an answer was finished, if the host knows it."
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "verification": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "notices": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "proposal": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "capability proposals: a change applied only on the confirmed command."
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "id": {
+                    "type": [
+                      "integer",
+                      "string"
+                    ]
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "Local opaque key of a file not yet stored (a failed upload); never sent to download or delete."
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "mime": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "download_url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The host's own protected link, as given; the component never builds one."
+                  },
+                  "state": {
+                    "enum": [
+                      "uploading",
+                      "failed",
+                      "ready"
+                    ]
+                  },
+                  "progress": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "reason": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Why the host refused the file, in the reader's words."
+                  }
+                }
+              }
+            },
+            "is_edited": {
+              "type": "boolean"
+            },
+            "is_deleted": {
+              "type": "boolean",
+              "description": "A tombstone: no body, no files."
+            },
+            "revision": {
+              "type": [
+                "integer",
+                "string"
+              ]
+            },
+            "can_edit": {
+              "type": "boolean"
+            },
+            "can_delete": {
+              "type": "boolean"
+            },
+            "command": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "A message sent for a button (a proposal's command): {kind: confirm|cancel, code}."
+            },
+            "local": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "client_key",
+                "action",
+                "state"
+              ],
+              "properties": {
+                "client_key": {
+                  "type": "string"
+                },
+                "action": {
+                  "enum": [
+                    "send",
+                    "edit",
+                    "delete"
+                  ]
+                },
+                "state": {
+                  "enum": [
+                    "pending",
+                    "failed",
+                    "sent"
+                  ]
+                },
+                "body": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "An edit's typed text; kept on failure and conflict."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "conformance": {
+    "kit": "kit",
+    "sha256": "1cc11e4503bbe8fe240bc79c93ad8ae8486810af9065b650284567f3172cceb9",
+    "cases": 14
+  },
+  "compatibility": {
+    "previous_major": null,
+    "supported_until": null,
+    "recheck": [
+      "the component never requests the network; every write is an intent the host answers",
+      "a message's rights are its can_edit and can_delete, never its author",
+      "the same client_key retried is the same message; a changed body under a pending key is an IDEMPOTENCY conflict",
+      "an edit or delete carries the revision it was made from; a stale one is answered conflict with the current message, and the typed text stays",
+      "history never moves live cursors; a late file joins its message; a newer revision wins",
+      "revoked clears the feed, the draft and anything unsent",
+      "a send not yet stored is id null with local; the stored one replaces it by client_key with local.state sent",
+      "no created_at, no time shown; no read receipts, typing or presence unless a later version adds them",
+      "an assistant answer's html is sanitized again by the component",
+      "a capability the host does not announce is not offered; creating a conversation and managing conversations are separate capabilities",
+      "no open conversation is conversation null, never an invented id or can_send",
+      "a retried edit or delete keeps its original revision",
+      "a message's feedback, summary and limit_resets_at, a source's excerpt and a rating's note are optional: a host that leaves them out gets the window it had",
+      "message discussions (openThread), participants, roles and ownership are not in 1.0.0"
+    ]
+  }
+}

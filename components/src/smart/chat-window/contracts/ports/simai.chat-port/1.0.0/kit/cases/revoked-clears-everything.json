@@ -1,0 +1,22 @@
+{
+  "id": "revoked-clears-everything",
+  "intent": "conversation.open",
+  "capability": null,
+  "summary": "A conversation the reader lost access to clears the feed, the draft and anything unsent.",
+  "given": {
+    "server": "access revoked for conversation 8"
+  },
+  "when": {
+    "intent": "conversation.open",
+    "payload": {
+      "conversation_id": 8
+    }
+  },
+  "then": {
+    "answer": "refused",
+    "answer_must_include": [
+      "reason"
+    ],
+    "note": "reason is access-revoked. The component sets feed_state revoked, clears the feed, the draft and unsent records, and conversation becomes null."
+  }
+}

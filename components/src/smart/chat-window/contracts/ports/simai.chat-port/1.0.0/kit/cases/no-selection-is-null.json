@@ -1,0 +1,22 @@
+{
+  "id": "no-selection-is-null",
+  "intent": "conversation.open",
+  "capability": null,
+  "summary": "A conversation that does not exist is refused; nothing open is conversation null, never an invented id.",
+  "given": {
+    "conversations": []
+  },
+  "when": {
+    "intent": "conversation.open",
+    "payload": {
+      "conversation_id": 1
+    }
+  },
+  "then": {
+    "answer": "refused",
+    "answer_must_include": [
+      "reason"
+    ],
+    "note": "reason is not-found. The component keeps conversation null and says there is nothing open; it never invents an id or can_send."
+  }
+}

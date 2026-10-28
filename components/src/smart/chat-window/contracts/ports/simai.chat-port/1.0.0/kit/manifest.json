@@ -1,0 +1,29 @@
+{
+  "schema": "simai.composite.host-port.conformance.v1",
+  "port": "simai.chat-port",
+  "version": "1.0.0",
+  "transport": "neutral",
+  "summary": "The first edition: the seam shared by Mirai24 (assistant) and simai.chat (people), proven on ui-chat's pilot and staff window.",
+  "answers": [
+    "applied",
+    "conflict",
+    "refused",
+    "unavailable"
+  ],
+  "cases": [
+    "open-carries-state-and-messages",
+    "older-keeps-live-cursors",
+    "send-same-key-is-one-message",
+    "send-changed-body-same-key-conflict",
+    "edit-stale-revision-conflict",
+    "delete-leaves-tombstone",
+    "rights-from-flags-not-author",
+    "revoked-clears-everything",
+    "late-file-joins-message",
+    "file-retry-by-local-key",
+    "no-selection-is-null",
+    "retry-keeps-original-revision",
+    "capability-absent-is-unavailable",
+    "proposal-sends-exact-command"
+  ]
+}

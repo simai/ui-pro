@@ -1,0 +1,28 @@
+{
+  "id": "older-keeps-live-cursors",
+  "intent": "history.older",
+  "capability": null,
+  "summary": "Reading earlier messages never moves the host's live cursors.",
+  "given": {
+    "cursors": {
+      "after_id": 120,
+      "after_file_id": 21,
+      "after_change_id": 60
+    }
+  },
+  "when": {
+    "intent": "history.older",
+    "payload": {
+      "conversation_id": 7,
+      "before_id": 57
+    }
+  },
+  "then": {
+    "answer": "applied",
+    "data_must_include": [
+      "messages",
+      "history"
+    ],
+    "note": "after_id, after_file_id and after_change_id stay 120, 21 and 60: history is read behind the feed, and a live update after it is not skipped."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "send-same-key-is-one-message",
+  "intent": "message.send",
+  "capability": null,
+  "summary": "A send repeated with the same client_key and the same body is the same message, not a second one.",
+  "given": {
+    "stored_keys": {
+      "k1": {
+        "body": "Привет",
+        "message_id": 101
+      }
+    }
+  },
+  "when": {
+    "intent": "message.send",
+    "payload": {
+      "conversation_id": 8,
+      "body": "Привет",
+      "client_key": "k1"
+    }
+  },
+  "then": {
+    "answer": "applied",
+    "data_must_include": [
+      "message"
+    ],
+    "note": "data.message.id is 101, the message the key already stored; nothing new is written."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "edit-stale-revision-conflict",
+  "intent": "message.edit",
+  "capability": "edit",
+  "summary": "An edit made against an older revision is a conflict carrying the current message; the typed text stays.",
+  "given": {
+    "messages": [
+      {
+        "id": 21,
+        "revision": 51
+      }
+    ]
+  },
+  "when": {
+    "intent": "message.edit",
+    "payload": {
+      "conversation_id": 7,
+      "message_id": 21,
+      "revision": 50,
+      "body": "новый текст",
+      "client_key": "e1"
+    }
+  },
+  "then": {
+    "answer": "conflict",
+    "answer_must_include": [
+      "current"
+    ],
+    "note": "current.revision is 51. The component keeps the person's text in local.body and shows the current message beside it; nothing is lost on either side."
+  }
+}

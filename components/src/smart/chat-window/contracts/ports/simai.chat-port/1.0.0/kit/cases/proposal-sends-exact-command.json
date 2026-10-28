@@ -1,0 +1,31 @@
+{
+  "id": "proposal-sends-exact-command",
+  "intent": "proposal.decide",
+  "capability": "proposals",
+  "summary": "Confirming an assistant's proposal sends its confirm_command exactly as the message text.",
+  "given": {
+    "messages": [
+      {
+        "id": 5,
+        "kind": "assistant",
+        "proposal": {
+          "code": "c1a134aa",
+          "confirm_command": "Подтвердить c1a134aa",
+          "state": "presented"
+        }
+      }
+    ]
+  },
+  "when": {
+    "intent": "proposal.decide",
+    "payload": {
+      "message_id": 5,
+      "code": "c1a134aa",
+      "decision": "confirm"
+    }
+  },
+  "then": {
+    "answer": "applied",
+    "note": "The host sends «Подтвердить c1a134aa», the proposal's confirm_command, byte for byte; the component neither builds nor changes the command."
+  }
+}

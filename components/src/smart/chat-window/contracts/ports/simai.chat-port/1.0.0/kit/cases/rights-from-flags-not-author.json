@@ -1,0 +1,36 @@
+{
+  "id": "rights-from-flags-not-author",
+  "intent": "message.edit",
+  "capability": "edit",
+  "summary": "What may be done with a message comes from the host's flags, never from who wrote it.",
+  "given": {
+    "messages": [
+      {
+        "id": 22,
+        "author": {
+          "id": 101,
+          "own": true
+        },
+        "can_edit": false,
+        "revision": 3
+      }
+    ]
+  },
+  "when": {
+    "intent": "message.edit",
+    "payload": {
+      "conversation_id": 7,
+      "message_id": 22,
+      "revision": 3,
+      "body": "x",
+      "client_key": "e2"
+    }
+  },
+  "then": {
+    "answer": "refused",
+    "answer_must_include": [
+      "reason"
+    ],
+    "note": "The reader wrote message 22, but can_edit is false: the component does not offer an edit, and a host asked anyway refuses it."
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "capability-absent-is-unavailable",
+  "intent": "proposal.decide",
+  "capability": "proposals",
+  "summary": "A host that does not announce a capability is never asked for it; asked anyway, it answers unavailable.",
+  "given": {
+    "capabilities": [
+      "people",
+      "files"
+    ]
+  },
+  "when": {
+    "intent": "proposal.decide",
+    "payload": {
+      "message_id": 1,
+      "code": "c1a134aa",
+      "decision": "confirm"
+    }
+  },
+  "then": {
+    "answer": "unavailable",
+    "answer_must_include": [
+      "reason"
+    ],
+    "note": "reason is capability-not-provided. The component offers no proposal buttons to a host without proposals, so it never raises the intent."
+  }
+}

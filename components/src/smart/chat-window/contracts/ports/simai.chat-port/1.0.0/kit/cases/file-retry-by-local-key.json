@@ -1,0 +1,32 @@
+{
+  "id": "file-retry-by-local-key",
+  "intent": "file.retry",
+  "capability": "files",
+  "summary": "A failed upload is retried by its local key, which never reaches download or delete.",
+  "given": {
+    "messages": [
+      {
+        "id": 23,
+        "files": [
+          {
+            "key": "k9:0",
+            "name": "смета.pdf",
+            "state": "failed"
+          }
+        ]
+      }
+    ]
+  },
+  "when": {
+    "intent": "file.retry",
+    "payload": {
+      "conversation_id": 7,
+      "message_id": 23,
+      "file_key": "k9:0"
+    }
+  },
+  "then": {
+    "answer": "applied",
+    "note": "file_key k9:0 is the component's local key of an upload that failed; the host never calls download or delete with it -- only a stored file has an id."
+  }
+}

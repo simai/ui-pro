@@ -1,0 +1,31 @@
+{
+  "id": "delete-leaves-tombstone",
+  "intent": "message.delete",
+  "capability": "delete",
+  "summary": "A deleted message stays in the feed as a tombstone, its text and files gone.",
+  "given": {
+    "messages": [
+      {
+        "id": 21,
+        "revision": 51,
+        "can_delete": true
+      }
+    ]
+  },
+  "when": {
+    "intent": "message.delete",
+    "payload": {
+      "conversation_id": 7,
+      "message_id": 21,
+      "revision": 51,
+      "client_key": "d1"
+    }
+  },
+  "then": {
+    "answer": "applied",
+    "data_must_include": [
+      "message"
+    ],
+    "note": "data.message.is_deleted is true, its body and files are empty, and it keeps its place, so the conversation around it still reads."
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "retry-keeps-original-revision",
+  "intent": "message.retry",
+  "capability": null,
+  "summary": "A retried edit keeps the revision it was first made against; the stored result of its key is returned, not a conflict.",
+  "given": {
+    "actions": {
+      "e7": {
+        "action": "edit",
+        "message_id": 21,
+        "revision": 50
+      }
+    },
+    "messages": [
+      {
+        "id": 21,
+        "revision": 51,
+        "note": "a poll after a lost successful edit response"
+      }
+    ]
+  },
+  "when": {
+    "intent": "message.retry",
+    "payload": {
+      "conversation_id": 7,
+      "client_key": "e7"
+    }
+  },
+  "then": {
+    "answer": "applied",
+    "note": "The edit under e7 was made against revision 50 and its answer was lost; the retry repeats it with revision 50 and key e7, and the host returns what e7 already stored (revision 51) instead of answering conflict."
+  }
+}

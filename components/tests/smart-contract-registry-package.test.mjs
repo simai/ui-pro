@@ -15,13 +15,14 @@ test("the package composites are generated into the searchable registry beside t
   const registry = JSON.parse(readFileSync(new URL("../contracts/generated/smart-component-contract-registry.json", import.meta.url), "utf8"));
   assert.equal(registry.schema, "simai.smart-component-contract-registry.v2");
   // The free registry's Smart components (sf-accordion, sf-quantity,
-  // sf-code-input and sf-menu the latest) and the package's own make 69: 59
+  // sf-code-input and sf-menu the latest) and the package's own make 70: 59
   // free, the four admin composites, the three conversation components
   // promoted from simai/ui-chat (2026-10-25), and sf-chat-interlocutor,
-  // sf-chat-composer and sf-chat-message, moved from it (D31, 2026-10-28).
-  assert.equal(registry.entries.length, 69);
+  // sf-chat-composer, sf-chat-message and sf-chat-window, moved from it (D31,
+  // 2026-10-28).
+  assert.equal(registry.entries.length, 70);
   for (const id of ["smart.admin-menu", "smart.data-view", "smart.data-view-composite", "smart.property-view",
-    "smart.message-log", "smart.thread-list", "smart.change-confirm", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message"]) {
+    "smart.message-log", "smart.thread-list", "smart.change-confirm", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
   }
   assert.ok(registry.entries.find(({id}) => id === "smart.admin-menu").capabilities.includes("navigation"));

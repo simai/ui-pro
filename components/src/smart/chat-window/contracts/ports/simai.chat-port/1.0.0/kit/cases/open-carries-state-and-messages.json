@@ -1,0 +1,30 @@
+{
+  "id": "open-carries-state-and-messages",
+  "intent": "conversation.open",
+  "capability": null,
+  "summary": "Opening a conversation answers its state, its last messages and whether older ones exist.",
+  "given": {
+    "conversations": [
+      {
+        "id": 8,
+        "title": "Иван Петров",
+        "type": "private"
+      }
+    ]
+  },
+  "when": {
+    "intent": "conversation.open",
+    "payload": {
+      "conversation_id": 8
+    }
+  },
+  "then": {
+    "answer": "applied",
+    "data_must_include": [
+      "conversation",
+      "messages",
+      "history"
+    ],
+    "note": "conversation carries can_send; history carries has_older. The window draws from this one answer and asks nothing else to open."
+  }
+}
