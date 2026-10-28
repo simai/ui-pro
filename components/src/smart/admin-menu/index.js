@@ -2354,7 +2354,7 @@ class SfAdminMenu extends AdminMenuElement {
     // The navigation skeleton before a port; its columns follow the viewport
     // in the stylesheet, as the answered menu's do (controller.js WIDE_MEDIA_QUERY).
     navigationSkeletonContext() {
-        return {text: (key) => pageText(NAVIGATION_TEXT, key, this, "sf-admin-menu"), columns: skeletonColumns(this)};
+        return {text: (key) => pageText(NAVIGATION_TEXT, key, this, "sf-admin-menu"), columns: skeletonColumns(this), compact: Boolean(this.getProp("compact"))};
     }
 
     template() {

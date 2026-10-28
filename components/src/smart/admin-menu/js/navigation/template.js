@@ -295,13 +295,20 @@ function renderSecondColumn(context) {
 // same before and after the answer. The column fills its region; its rows
 // scroll inside it. The word is for a screen reader only.
 export const SKELETON_ROWS = 6;
-export function renderNavigationSkeleton({text, columns = 2}) {
+export function renderNavigationSkeleton({text, columns = 2, compact = false}) {
     const widths = ["w-3/4", "w-1/2", "w-2/3", "w-1/2", "w-3/4", "w-2/5"];
-    const row = (width) => html`<div class="sf-admin-nav-item"><div class="sf-admin-nav-row sf-admin-nav-row--first" aria-hidden="true">
+    // A compact menu is the rail: its skeleton is the rail too -- the first
+    // column at the rail's width with icons and no words -- so the box it
+    // holds is the menu's (Larena: a 256px skeleton stood over a compact
+    // menu until it answered).
+    const row = (width, rail) => html`<div class="sf-admin-nav-item"><div class="sf-admin-nav-row sf-admin-nav-row--first" aria-hidden="true">
         <div class="sf-skeleton sf-skeleton--animation-pulse"><div class="sf-skeleton-circle sf-skeleton-icon"></div></div>
-        <div class="sf-skeleton sf-skeleton--animation-pulse" style="flex:1"><div class="sf-skeleton-text sf-skeleton-text--size-1/2 ${width}"></div></div></div></div>`;
-    const column = (name) => html`<div class=${`sf-admin-nav-${name}`}><div class="sf-admin-nav-scroll">
-        <div class="sf-admin-nav-rows">${Array.from({length: SKELETON_ROWS}, (_, at) => row(widths[at % widths.length]))}</div></div></div>`;
+        ${rail ? nothing : html`<div class="sf-skeleton sf-skeleton--animation-pulse" style="flex:1"><div class="sf-skeleton-text sf-skeleton-text--size-1/2 ${width}"></div></div>`}</div></div>`;
+    const column = (name) => {
+        const rail = compact && name === "first";
+        return html`<div class=${`sf-admin-nav-${name}`} data-compact=${rail ? "true" : nothing}><div class="sf-admin-nav-scroll">
+        <div class="sf-admin-nav-rows">${Array.from({length: SKELETON_ROWS}, (_, at) => row(widths[at % widths.length], rail))}</div></div></div>`;
+    };
     // The columns the answered menu takes on a wide screen (expected-columns:
     // one on a page whose row has no open root, as the dashboard, else two),
     // so the menu is as wide before the answer as after it (stand 25 D4: a
