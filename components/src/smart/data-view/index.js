@@ -182,6 +182,28 @@ const FIRST_PAINT_LIST_FIELDS = 3;
 // The vocabulary's data state (§3) for the view's own words for it.
 const DATA_STATES = {loading: "loading", populated: "ready", empty: "empty", error: "error", "no-access": "refused", unavailable: "unavailable"};
 
+// A value as text with its keys in order, so two answers that say the same
+// thing compare equal whatever order a server wrote the keys in.
+const canonical = (value) => JSON.stringify(value, (key, item) => (item && typeof item === "object" && !Array.isArray(item)
+    ? Object.fromEntries(Object.keys(item).sort().map((name) => [name, item[name]]))
+    : item));
+
+// What a port offers, as the projection drew it.
+const capabilitiesKey = (port) => canonical([...(port?.capabilities ?? [])].sort());
+
+// Whether the port's answer is the one the page printed: the same revision
+// when both name one, else the same rows, count and columns.
+function sameAnswer(printed, data) {
+    if (printed.revision !== undefined && printed.revision !== null && data.revision !== undefined && data.revision !== null) {
+        return String(printed.revision) === String(data.revision);
+    }
+    const shape = (answer) => canonical({
+        records: answer.records ?? null, total: answer.total ?? null, has_next: answer.has_next ?? null,
+        columns: answer.columns ?? null, tree: answer.tree ?? null,
+    });
+    return shape(printed) === shape(data);
+}
+
 class SfDataView extends DataViewElement {
     constructor() {
         super();
@@ -666,6 +688,8 @@ class SfDataView extends DataViewElement {
         this._firstAnswer = null;
         if (data.echo && Number.isInteger(data.echo.per_page) && data.echo.per_page > 0) this._pageSizeDeclared = true;
         this._revalidate = true;
+        // Kept to compare the port's answer to the same query with.
+        this._printedAnswer = copy(data);
         this.applyProjection(data);
         // A printed skeleton the server sent as well goes with the first
         // answer, in the same frame.
@@ -1190,6 +1214,7 @@ class SfDataView extends DataViewElement {
         // revalidation: the rows stay as they are, usable, until it comes.
         const revalidating = this._revalidate === true && ["connected", "host-connected"].includes(reason);
         this._revalidate = false;
+        this._revalidating = revalidating;
         // Continuing the list is answered inside the button that asked for it.
         // The table is not loading — the rows on screen stay exactly as they
         // are — so it neither dims them nor replaces them with a loader.
@@ -1220,6 +1245,26 @@ class SfDataView extends DataViewElement {
 
     applyProjection(data) {
         if (!data || typeof data !== "object") throw new TypeError("Port data must be an object");
+        // The port's answer to the query a printed first answer already
+        // answered (stand 25, Larena's storage page: the printed list was drawn
+        // and then drawn again, CLS 0.13 -> 0.32). The same answer -- the same
+        // revision, or the same rows, count and columns -- changes nothing on
+        // the page; a different one is taken in place: the rows keyed by id,
+        // only the changed ones redrawn, in one render, no skeleton between.
+        let inPlace = false;
+        if (this._revalidating) {
+            this._revalidating = false;
+            const printed = this._printedAnswer;
+            this._printedAnswer = null;
+            if (printed && sameAnswer(printed, data)) {
+                // Only what the port itself brings is drawn: its capabilities
+                // (row actions, settings), when they differ from the ones the
+                // printed answer was drawn without.
+                if (this._capabilitiesKey !== capabilitiesKey(this.hostPort)) this._renderProjection();
+                return;
+            }
+            inPlace = Boolean(printed);
+        }
         if (Array.isArray(data.row_actions)) this.rowActionCatalog = copy(data.row_actions);
         // One node's children: they go under it, and nothing else about the
         // view changes -- not the query, not the count, not the columns.
@@ -1263,11 +1308,17 @@ class SfDataView extends DataViewElement {
                 this.appended = null;
                 this.records = next;
                 // A new result set: the table draws it as new rows where a
-                // kept one would move (sf-table setRows "result").
-                this._newResult = true;
+                // kept one would move (sf-table setRows "result"). A
+                // revalidation of the printed answer is the same result.
+                this._newResult = !inPlace;
             }
         }
-        if (Array.isArray(data.columns)) this.columns = data.columns.map(projectColumn);
+        // The same columns are not given again: the table would take them as
+        // new and measure its widths again.
+        if (Array.isArray(data.columns) && !(inPlace && canonical(data.columns) === this._columnsKey)) {
+            this.columns = data.columns.map(projectColumn);
+            this._columnsKey = canonical(data.columns);
+        }
         if (Number.isSafeInteger(data.total) && data.total >= 0) {
             this.total = data.total;
             this.countKnown = true;
@@ -1722,6 +1773,7 @@ class SfDataView extends DataViewElement {
     }
 
     _renderProjection() {
+        this._capabilitiesKey = capabilitiesKey(this.hostPort);
         this._readPrintedPageSize();
         this._applyForAll();
         if (this._current !== undefined && this.table && this.table.current !== this._current) this.table.current = this._current;

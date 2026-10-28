@@ -6400,13 +6400,15 @@ class SfTable extends TableElement {
             offset += cell ? cell.getBoundingClientRect().width : 0;
         }
         const last = keys[keys.length - 1];
+        // Marked where it changes only: a mark taken off and put back on every
+        // measure touched each pinned cell of every row (stand 25: a
+        // revalidated list redrew rows nothing had changed in).
+        const edge = new Set(last ? table.querySelectorAll(`[data-key="${last}"]`) : []);
         for (const cell of table.querySelectorAll("[data-sf-pin-edge]")) {
-            cell.removeAttribute("data-sf-pin-edge");
+            if (!edge.has(cell)) cell.removeAttribute("data-sf-pin-edge");
         }
-        if (last) {
-            for (const cell of table.querySelectorAll(`[data-key="${last}"]`)) {
-                cell.setAttribute("data-sf-pin-edge", "");
-            }
+        for (const cell of edge) {
+            if (!cell.hasAttribute("data-sf-pin-edge")) cell.setAttribute("data-sf-pin-edge", "");
         }
         // The shadow only means something once something is hidden behind the
         // pinned block, so it follows the scroll position. In a right-to-left
