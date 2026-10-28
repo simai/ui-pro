@@ -2,7 +2,7 @@
   "$comment": "sf-table from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/table (convert-1.3.8.mjs over ui-pro 9cbe061); every x-todo decided in x-decisions.",
   "id": "smart.data-view",
   "tag": "sf-table",
-  "version": "1.11.7",
+  "version": "1.12.0",
   "kind": "leaf",
   "family": "table",
   "settings": {
@@ -585,6 +585,15 @@
     "data-sf-page-scroll": "boolean"
   },
   "css-variables": {
+    "--sf-table-row-block-size-1/2": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: a one-line row at the step, size 1/2 (docs.md, the list's box)"},
+    "--sf-table-row-block-size-1": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: a one-line row at the step, size 1 (docs.md, the list's box)"},
+    "--sf-table-row-2-lines-block-size-1/2": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: a row whose text takes two lines, size 1/2 (docs.md, the list's box)"},
+    "--sf-table-row-2-lines-block-size-1": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: a row whose text takes two lines, size 1 (docs.md, the list's box)"},
+    "--sf-table-head-block-size-1/2": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the head row, size 1/2 (docs.md, the list's box)"},
+    "--sf-table-head-block-size-1": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the head row, size 1 (docs.md, the list's box)"},
+    "--sf-table-toolbar-block-size-1/2": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the toolbar on one line, size 1/2 (docs.md, the list's box)"},
+    "--sf-table-toolbar-block-size-1": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the toolbar on one line, size 1 (docs.md, the list's box)"},
+    "--sf-table-toolbar-gap": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the gap between the toolbar and the head (docs.md, the list's box)"},
     "--sf-table-head--background-color": {
       "type": "color",
       "state": "default"
