@@ -1,0 +1,541 @@
+{
+  "schema_version": 2,
+  "id": "smart.chat-composer",
+  "version": "1.0.0",
+  "title": "Chat composer",
+  "summary": "Where a question is written and files are added: Enter sends, Shift+Enter breaks the line, an IME composition is never cut short, the send button becomes «stop waiting» while an answer is awaited, and files are only reported for the host to upload; their chips come back as the setting files.",
+  "kind": "smart",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "chat",
+    "composer",
+    "input",
+    "attachments"
+  ],
+  "capabilities": [
+    "input",
+    "keyboard",
+    "attachments",
+    "drag-and-drop",
+    "responsive"
+  ],
+  "custom_element": "sf-chat-composer",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "component.textarea",
+      "component.icon-buttons",
+      "smart.icon"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "template": {
+        "type": "string",
+        "const": "default",
+        "default": "default"
+      },
+      "placeholder": {
+        "type": "string",
+        "default": "",
+        "description": "Empty uses the composer's own word «Спросите что-нибудь»."
+      },
+      "maxlength": {
+        "type": "integer",
+        "minimum": 1,
+        "default": 4000,
+        "description": "bootstrap.limits.message_chars."
+      },
+      "max-files": {
+        "type": "integer",
+        "minimum": 1,
+        "default": 5
+      },
+      "max-bytes": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "description": "0 checks no size."
+      },
+      "accept": {
+        "type": "string",
+        "default": "",
+        "description": "Comma-separated extensions, e.g. .pdf,.docx."
+      },
+      "attachments": {
+        "type": "boolean",
+        "default": false,
+        "description": "Files may be added."
+      },
+      "busy": {
+        "type": "boolean",
+        "default": false,
+        "description": "An answer is awaited: send becomes stop."
+      },
+      "disabled": {
+        "type": "boolean",
+        "default": false,
+        "description": "Writing is off, e.g. no consent."
+      },
+      "value": {
+        "type": "string",
+        "default": "",
+        "description": "The text in the field (the draft): the attribute gives the first text, the property reads and writes the field; a write is as if typed."
+      },
+      "files": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The stored file's id; a chip with an id and no error is sent with the message."
+            },
+            "localId": {
+              "type": "string",
+              "description": "The host's key while it uploads."
+            },
+            "name": {
+              "type": "string",
+              "description": "The file's name, drawn as text."
+            },
+            "bytes": {
+              "type": "number"
+            },
+            "progress": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "0..1 while uploading; null or 1 when done."
+            },
+            "error": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The server's refusal, the chip's second line."
+            }
+          }
+        },
+        "default": [],
+        "description": "The chips as the host knows them, a property, the action set-files or the JSON island."
+      }
+    }
+  },
+  "contracts": {
+    "file": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The stored file's id; a chip with an id and no error is sent with the message."
+        },
+        "localId": {
+          "type": "string",
+          "description": "The host's key while it uploads."
+        },
+        "name": {
+          "type": "string",
+          "description": "The file's name, drawn as text."
+        },
+        "bytes": {
+          "type": "number"
+        },
+        "progress": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "0..1 while uploading; null or 1 when done."
+        },
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The server's refusal, the chip's second line."
+        }
+      }
+    },
+    "send": {
+      "const": "Enter or the send button dispatches sf-chat-composer-submit {text, attachment-ids} (cancelable) when there is text or a ready chip, nothing uploading, not busy, not disabled and within maxlength. The host sends and calls clear() once it took the message."
+    },
+    "files": {
+      "const": "Files offered by the button, a drop or a paste are checked by accept, max-bytes and max-files; sf-chat-composer-attach {files, rejected} reports them and the notice names each refusal. The host uploads and sets files; a chip's remove dispatches sf-chat-composer-detach {id, name}."
+    },
+    "css_variables": {
+      "type": "object",
+      "properties": {
+        "--sf-chat-composer-background-color": {
+          "type": "string"
+        },
+        "--sf-chat-composer-border-color": {
+          "type": "string"
+        },
+        "--sf-chat-composer-hint-color": {
+          "type": "string"
+        },
+        "--sf-chat-composer-height": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "methods": {
+    "setFiles": {
+      "summary": "The chips, as the files property (the action set-files).",
+      "arguments": [
+        {
+          "name": "files",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The stored file's id; a chip with an id and no error is sent with the message."
+                },
+                "localId": {
+                  "type": "string",
+                  "description": "The host's key while it uploads."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "The file's name, drawn as text."
+                },
+                "bytes": {
+                  "type": "number"
+                },
+                "progress": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "0..1 while uploading; null or 1 when done."
+                },
+                "error": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The server's refusal, the chip's second line."
+                }
+              }
+            }
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "clear": {
+      "summary": "Empty the field and the notice (the action clear).",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "focus": {
+      "summary": "Focus the field (the base's focus, delegated).",
+      "arguments": [
+        {
+          "name": "options",
+          "required": false,
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    }
+  },
+  "events": {
+    "sf-chat-composer-submit": {
+      "summary": "Send: the trimmed text and the ids of the ready files. Cancelling it keeps the notice. The 0.3 name sf-chat-send {text, attachmentIds} follows it until 2026-12-01.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "text",
+          "attachment-ids"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "attachment-ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "sf-chat-composer-stop": {
+      "summary": "«Остановить ожидание» was pressed. The 0.3 name sf-chat-stop follows it until 2026-12-01.",
+      "payload": {
+        "type": "object"
+      }
+    },
+    "sf-chat-composer-attach": {
+      "summary": "Files were offered by the button, a drop or a paste; rejected by type, size or count, each with a reason. The 0.3 name sf-chat-files follows it until 2026-12-01.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "files",
+          "rejected"
+        ],
+        "properties": {
+          "files": {
+            "type": "array"
+          },
+          "rejected": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "file",
+                "reason"
+              ],
+              "properties": {
+                "file": {
+                  "type": "object"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "sf-chat-composer-detach": {
+      "summary": "A chip's remove was pressed. The 0.3 sf-chat-action {action: remove-attachment, id, name} follows it until 2026-12-01.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "send": [
+        "idle",
+        "busy"
+      ],
+      "length": [
+        "under",
+        "near",
+        "over"
+      ],
+      "drop": [
+        "idle",
+        "dragging"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "disabled",
+      "error",
+      "active"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "fetching or polling the chat API",
+      "access decisions",
+      "deciding whether a file is accepted by the server",
+      "uploading files"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "file names (drawn as text)",
+      "pasted and dropped files"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "form",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Enter",
+      "Shift+Enter",
+      "Tab"
+    ],
+    "focus": "The field is named and described by the character count shown past 80 % of the limit; a polite line speaks only when a threshold is crossed. A rejected file is a role=alert notice. Enter while an answer is awaited says why nothing was sent. «Stop waiting» returns focus to the field."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "chat-composer-probe"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f",
+      "ui_smart_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": [
+      {
+        "from": "0.3.1",
+        "to": "1.0.0",
+        "changes": [
+          "moved from simai/ui-chat to ui-pro (D31): standard simai.smart-component 1.3.9, the element is made from component.json; words in lang/; dated aliases in aliases.json; nothing imported from chat-core or component/chat",
+          "sf-chat-send {text, attachmentIds} -> sf-chat-composer-submit {text, attachment-ids} until 2026-12-01 (event, split alias)",
+          "sf-chat-stop -> sf-chat-composer-stop until 2026-12-01 (event)",
+          "sf-chat-files -> sf-chat-composer-attach until 2026-12-01 (event)",
+          "sf-chat-action {action: remove-attachment, id, name} -> sf-chat-composer-detach {id, name} until 2026-12-01 (event, split alias)",
+          "setFiles(files) is the action set-files and the setting files; clear() is the action clear"
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "eddb3fb2ea3b92ddffbf29d883dfca1b9ef06b81",
+    "source_artifacts": [
+      {
+        "path": "src/smart/chat-composer/index.js",
+        "sha256": "25d1db10c7b93ad626702d5b4482195837f2bbfb32b6ede4e66c14b90dd5d9a4"
+      },
+      {
+        "path": "src/smart/chat-composer/js/templates/default.js",
+        "sha256": "6b61b87d36cc64e6733418e687606ca7c7f886ff379a51110ce9ca356723aa0d"
+      },
+      {
+        "path": "src/smart/chat-composer/js/templates/parts.js",
+        "sha256": "39a3af446ba4d89441eca034c4639ce2b8191538a3414afa974daea56c08ec0c"
+      },
+      {
+        "path": "src/smart/chat-composer/js/templates/default.css",
+        "sha256": "4467a778498eb25bbd45640db383f607ac2d5be8eb208ab3c3fbfb207a0fbe6e"
+      },
+      {
+        "path": "src/smart/chat-composer/rule.js",
+        "sha256": "76682676bc51599753749bfc3688ba91beedde1e1d49122d7a8220fd8d1bd384"
+      },
+      {
+        "path": "src/smart/chat-composer/docs.md",
+        "sha256": "0c703d2c2a8a1452c00c43cc7486d76651138e2365b3db31194d83f9fe33667a"
+      },
+      {
+        "path": "src/smart/chat-composer/component.json",
+        "sha256": "60a1d29f9b063e07e3e55869656c5e2f95fb528f676013f2a1cbd2b8a193330a"
+      },
+      {
+        "path": "src/smart/chat-composer/aliases.json",
+        "sha256": "2ea8591e92a62c8c4699ad6d4f5c21edec41aea77e4acc92df0c29b8311bddee"
+      },
+      {
+        "path": "src/smart/chat-composer/lang/en.json",
+        "sha256": "e9ab6ae956579f2d6bfc655c9fe4be2159506ac39873bfb7c04e2a9430b7210e"
+      },
+      {
+        "path": "src/smart/chat-composer/lang/ru.json",
+        "sha256": "d2b90661dfe761c5090674d30431cf961c725e74968977c828b8f8ff9a0161f5"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use sf-chat-composer for the question field of a chat window: it reports a send, a stop and the files a person offers; the host sends, uploads, and hands the chips back as files.",
+    "do_not": [
+      "Do not upload from the element; listen to attach and set files",
+      "Do not take the element's type and size check for the server's acceptance",
+      "Do not clear it from the submit event; clear it once the host took the message"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-chat-composer maxlength=\"4000\" attachments accept=\".pdf,.docx\" max-files=\"5\"></sf-chat-composer>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-manifest-probes.mjs <free output> <package output> chat-composer"
+    ]
+  }
+}

@@ -1,0 +1,357 @@
+{
+  "schema_version": 2,
+  "id": "smart.chat-interlocutor",
+  "version": "1.0.0",
+  "title": "Chat interlocutor",
+  "summary": "Who the conversation is with: the server's interlocutors in the Framework's context menu, the current one checked, and a choice of another reported for the host to start a new conversation with. One interlocutor is a name, not a choice.",
+  "kind": "smart",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "chat",
+    "interlocutor",
+    "picker",
+    "menu"
+  ],
+  "capabilities": [
+    "interaction",
+    "keyboard",
+    "search",
+    "responsive"
+  ],
+  "custom_element": "sf-chat-interlocutor",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "smart.context-menu",
+      "smart.icon"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "template": {
+        "type": "string",
+        "const": "default",
+        "default": "default"
+      },
+      "value": {
+        "type": "string",
+        "default": "",
+        "description": "The id of the current interlocutor; written by the host, never by the element."
+      },
+      "options": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The interlocutor's id."
+            },
+            "title": {
+              "type": "string",
+              "description": "Its name, drawn as text."
+            },
+            "kind": {
+              "type": "string",
+              "description": "knowledge: a knowledge base's assistant, under its own heading."
+            }
+          },
+          "required": [
+            "id",
+            "title"
+          ]
+        },
+        "default": [],
+        "description": "The interlocutors (bootstrap.interlocutors), a property or the JSON island; from eight the menu gets a search."
+      }
+    }
+  },
+  "contracts": {
+    "option": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The interlocutor's id."
+        },
+        "title": {
+          "type": "string",
+          "description": "Its name, drawn as text."
+        },
+        "kind": {
+          "type": "string",
+          "description": "knowledge: a knowledge base's assistant, under its own heading."
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ]
+    },
+    "choice": {
+      "const": "A choice of another interlocutor dispatches sf-chat-interlocutor-select {id} (cancelable). The element never changes value: the host starts the new conversation and writes value back. Fewer than two interlocutors are a name: the button is disabled and open answers refused single."
+    },
+    "css_variables": {
+      "type": "object",
+      "properties": {
+        "--sf-chat-interlocutor-color": {
+          "type": "string"
+        },
+        "--sf-chat-interlocutor-icon-color": {
+          "type": "string"
+        },
+        "--sf-chat-interlocutor-hover-background-color": {
+          "type": "string"
+        },
+        "--sf-chat-interlocutor-radius": {
+          "type": "string"
+        },
+        "--sf-chat-interlocutor-height": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "methods": {
+    "setOptions": {
+      "summary": "The interlocutors, as the options property (the action set-options); kind knowledge goes under its own heading, from eight the menu gets a search.",
+      "arguments": [
+        {
+          "name": "options",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The interlocutor's id."
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Its name, drawn as text."
+                },
+                "kind": {
+                  "type": "string",
+                  "description": "knowledge: a knowledge base's assistant, under its own heading."
+                }
+              },
+              "required": [
+                "id",
+                "title"
+              ]
+            }
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "open": {
+      "summary": "Open the menu, as a press does; refused single with fewer than two interlocutors.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    }
+  },
+  "events": {
+    "sf-chat-interlocutor-select": {
+      "summary": "Another interlocutor was chosen (vocabulary select). The 0.3 name sf-chat-interlocutor follows it until 2026-12-01.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "menu": [
+        "closed",
+        "open"
+      ],
+      "options": [
+        "single",
+        "several"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "disabled",
+      "open",
+      "closed"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "fetching or polling the chat API",
+      "starting a conversation",
+      "access decisions"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "interlocutor titles (drawn as text)"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "button",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Tab",
+      "Enter",
+      "Space"
+    ],
+    "focus": "A native button with aria-haspopup=menu and aria-expanded=false from the start, named «Помощник: <title>» and described (sr-only) by what a change does before the menu opens. The menu is the Framework's sf-context-menu with radio rows, the current one checked, and its own keys. Disabled, without aria-haspopup, aria-expanded or a description, with a single interlocutor."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "chat-interlocutor-probe"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f",
+      "ui_smart_revision": "0edd49be08f802b60ed92f176b68911a42a12f3f"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": [
+      {
+        "from": "0.3.1",
+        "to": "1.0.0",
+        "changes": [
+          "moved from simai/ui-chat to ui-pro (D31): standard simai.smart-component 1.3.9, the element is made from component.json; words in lang/; dated aliases in aliases.json",
+          "sf-chat-interlocutor -> sf-chat-interlocutor-select until 2026-12-01 (event)",
+          "setOptions(list) is the action set-options and the setting options"
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "d9cdb9beb44a8cf4cc0bde217b2745f92d982e50",
+    "source_artifacts": [
+      {
+        "path": "src/smart/chat-interlocutor/index.js",
+        "sha256": "404bcd50c8c1b8775fd2357864f33c2a3e38bd51d18afdb011e8da83b3b5aa38"
+      },
+      {
+        "path": "src/smart/chat-interlocutor/js/templates/default.js",
+        "sha256": "e7e208fbc29f89f7f52c75d5112e3cd61f5db524b120715dc7cfb0a197aa397e"
+      },
+      {
+        "path": "src/smart/chat-interlocutor/js/templates/default.css",
+        "sha256": "3db429f283bb8fc55c4983892ae288684129ba14cc2fa42d3d1697b4354705de"
+      },
+      {
+        "path": "src/smart/chat-interlocutor/rule.js",
+        "sha256": "8ee323e69811e6a744e8c24a3c8d53c9c5116b42db5a4fdaa3298c328b8eb066"
+      },
+      {
+        "path": "src/smart/chat-interlocutor/docs.md",
+        "sha256": "b72664b55df707d527a049d4b3717c792b552c22b12d93252fc4cccb9ffb8624"
+      },
+      {
+        "path": "src/smart/chat-interlocutor/component.json",
+        "sha256": "b882ccb3b8db79f1ce41304f9da6a76e96bab9d55341786d9f742cb944548fe2"
+      },
+      {
+        "path": "src/smart/chat-interlocutor/aliases.json",
+        "sha256": "71686ea56316baeba89788fcfe3a707eb788683a7a653182d88fe44967312756"
+      },
+      {
+        "path": "src/smart/chat-interlocutor/lang/en.json",
+        "sha256": "45f36213e556f01447e57d5c7202be835d34780463d9211cc366df074fddad39"
+      },
+      {
+        "path": "src/smart/chat-interlocutor/lang/ru.json",
+        "sha256": "b237e677cf9d460e865b924e17a5debd75326237f8d2091c1382ecb8e15ab11e"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use sf-chat-interlocutor in a chat window's header to name whom the conversation is with and, when the server lists several, to let the person choose another one, which the host turns into a new conversation.",
+    "do_not": [
+      "Do not change the interlocutor of an existing conversation; start a new one and write value back",
+      "Do not use it to pick a conversation: that is sf-thread-list",
+      "Do not pass markup in titles; they are text"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-chat-interlocutor value=\"personal\"></sf-chat-interlocutor>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-manifest-probes.mjs <free output> <package output> chat-interlocutor"
+    ]
+  }
+}

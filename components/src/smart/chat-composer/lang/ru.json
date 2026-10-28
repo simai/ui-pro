@@ -1,0 +1,28 @@
+{
+  "title": "Поле вопроса чата",
+  "runtime": {
+    "attach-label": "Прикрепить файл",
+    "bad-type-text": "этот тип файла не поддерживается",
+    "busy-text": "Дождитесь ответа или остановите ожидание",
+    "count-text": "{count} из {max}",
+    "drop-text": "Отпустите, чтобы прикрепить",
+    "field-label": "Сообщение",
+    "file-label": "Файл {name}, {size}",
+    "hint-text": "Enter — отправить, Shift+Enter — новая строка",
+    "placeholder-text": "Спросите что-нибудь",
+    "remove-label": "Убрать файл {name}",
+    "send-label": "Отправить",
+    "size-b-text": "{n} Б",
+    "size-gb-text": "{n} ГБ",
+    "size-kb-text": "{n} КБ",
+    "size-mb-text": "{n} МБ",
+    "stop-label": "Остановить ожидание",
+    "too-big-text": "файл больше {size}",
+    "too-long-text": "Сообщение длиннее {max} знаков",
+    "too-many-text": {
+      "one": "можно прикрепить не больше {max} файла",
+      "other": "можно прикрепить не больше {max} файлов"
+    },
+    "uploading-text": "Загружается, {percent}%"
+  }
+}

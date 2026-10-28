@@ -1,0 +1,587 @@
+@layer sf.components {
+  /* sf-chat-window: the window's own nodes -- its shell (the conversations
+     beside the conversation, the field under it), the search above the list,
+     the greeting, the passing line, «Мои файлы» -- and how it tunes the parts
+     it places (sf-message-log, sf-thread-list) through their public
+     variables. Moved from simai/ui-chat (ui-chat 07bc988): chat-core's
+     smart.css, less the composer's and the interlocutor's rules, which went
+     with them, and the staff page's layout of the window's nodes
+     (src/staff/staff.css); the page keeps its own furniture (the skip link,
+     the scrim behind the phone's side panel, its buttons, the spending). The
+     visual grammar is ui-chat docs/design/SPEC.md §3 («Тихий документ»).
+
+     The nodes keep the 0.3 classes chat-shell__* and chat-files__*, which
+     pages style and test (component.json x-decisions classes). The page
+     toggles chat-shell--side-hidden and chat-shell--side-open on
+     parts.shell; the window toggles chat-shell--empty and chat-shell--files.
+
+     The public variables (component.json css-variables) are read here and
+     never set, on the element or any ancestor:
+       --sf-chat-window-side-width    the side panel's width
+       --sf-chat-window-side-color    the side panel's surface
+       --sf-chat-window-width         the reading column
+       --sf-chat-window-text-color    the text
+       --sf-chat-window-muted-color   meta lines, quiet controls
+       --sf-chat-window-border-color  edges and dividers
+     Their fallbacks are the tokens ui-chat gave the same places; the local
+     --sf-chat-window--* tokens are set on the shell (.chat-shell). */
+  .chat-shell {
+    --sf-chat-window--side: var(--sf-chat-window-side-width, calc(var(--sf-f6) + var(--sf-a4)));
+    --sf-chat-window--side-surface: var(--sf-chat-window-side-color, var(--sf-surface-1));
+    --sf-chat-window--column: var(--sf-chat-window-width, var(--sf-layout-reading-width));
+    --sf-chat-window--gap: var(--sf-space-1\/3);
+    --sf-chat-window--gap-related: var(--sf-space-1\/2);
+    --sf-chat-window--gap-turn: var(--sf-space-1\/2);
+    --sf-chat-window--ink: var(--sf-chat-window-text-color, var(--sf-on-surface));
+    --sf-chat-window--ink-muted: var(--sf-chat-window-muted-color, var(--sf-on-surface-variant));
+    --sf-chat-window--fill: var(--sf-surface-container);
+    --sf-chat-window--edge: var(--sf-chat-window-border-color, var(--sf-outline-variant));
+    --sf-chat-window--line: var(--sf-px);
+    --sf-chat-window--touch: var(--sf-ui-2--control-height);
+    --sf-chat-window--ui-size: var(--sf-label-large--size);
+    --sf-chat-window--ui-height: var(--sf-label-large--height);
+    --sf-chat-window--meta-size: var(--sf-label-medium--size);
+    --sf-chat-window--meta-height: var(--sf-label-medium--height);
+    --sf-chat-window--card-radius: var(--sf-radius-2);
+    --sf-chat-window--nest-radius: var(--sf-radius--surface);
+    --sf-chat-window--nest-inset: 0px;
+    --sf-chat-window--greeting-max: var(--sf-g6);
+    /* The least height of an embedded window (ui-chat's 30rem, a step). */
+    --sf-chat-window--embedded-min: var(--sf-g5);
+  }
+
+  /* sf-focus-ring: none -- the field's box, the «Мои файлы» heading and a
+     delete question clear their outline: they take the focus only from the
+     window (tabindex -1, never by Tab), to move the reader there, and the
+     controls inside them draw their own rings. */
+
+  .chat-shell .sf-chat-offscreen {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* --- the shell ------------------------------------------------------- */
+
+  .chat-shell {
+    display: grid;
+    grid-template-columns: var(--sf-chat-window--side) minmax(0, 1fr);
+    block-size: 100dvh;
+    transition: grid-template-columns var(--sf-duration-normal) var(--sf-ease-move, ease);
+  }
+
+  .chat-shell--side-hidden {
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+
+  .chat-shell__side {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    min-inline-size: 0;
+    overflow: hidden;
+    background: var(--sf-chat-window--side-surface);
+  }
+
+  .chat-shell--side-hidden .chat-shell__side { visibility: hidden; }
+
+  .chat-shell__side .sf-thread-list { flex: 1; inline-size: var(--sf-chat-window--side); }
+
+  .chat-shell__side-head { display: none; }
+
+  /* The search by title above the list (v1.1), on the list's width and inset. */
+  .chat-shell__search {
+    flex: none;
+    box-sizing: border-box;
+    inline-size: var(--sf-chat-window--side);
+    padding: var(--sf-space-1\/3) var(--sf-space-1\/3) 0;
+  }
+
+  .chat-shell__search[hidden] { display: none; }
+
+  .chat-shell__search-field { inline-size: 100%; }
+
+  .chat-shell__search-input {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  /* The field's own clear cross would be a second, smaller way to do what
+     Escape and an emptied field already do. */
+  .chat-shell__search-input::-webkit-search-cancel-button { display: none; }
+
+  .chat-shell__main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  .chat-shell__header {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    min-block-size: calc(var(--sf-ui-1--control-height) + 2 * var(--sf-space-1\/3));
+    padding-inline: var(--sf-space-1\/3);
+  }
+
+  .chat-shell__header .sf-chat-interlocutor { min-inline-size: 0; }
+  .chat-shell__spacer { flex: 1; }
+
+  .chat-shell__header .sf-icon-button,
+  .chat-shell__side-head .sf-icon-button {
+    color: var(--sf-on-surface-variant);
+  }
+
+  .chat-shell__composer {
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: calc(var(--sf-chat-window--column) + 2 * var(--sf-space-3));
+    margin-inline: auto;
+    padding-inline: var(--sf-space-3);
+    padding-block: 0 var(--sf-space-1\/2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+    outline: none;
+  }
+
+  /* An empty conversation: greeting, field and suggestions meet in the middle. */
+  .chat-shell--empty .chat-shell__main { justify-content: center; }
+  .chat-shell--empty .chat-shell__header { position: absolute; inset-inline: 0; inset-block-start: 0; }
+  .chat-shell--empty .sf-message-log { flex: 0 0 auto; overflow: visible; }
+  .chat-shell--empty .chat-shell__composer { padding-block-end: 12vh; }
+
+  /* «Мои файлы» open (the window's chat-shell--files): they take the
+     conversation's place -- its log, field, title and whom it is with step
+     aside; the header with the page's buttons stays. The log's host is
+     display: contents (the Smart base's own style), so its root goes. */
+  .chat-shell--files .chat-shell__list > .sf-message-log,
+  .chat-shell--files .chat-shell__composer,
+  .chat-shell--files .chat-shell__header .sf-chat-interlocutor,
+  .chat-shell--files .chat-shell__thread-title { display: none; }
+
+  .chat-shell__error { align-self: center; }
+
+  /* Embedded: the host page decides the height. */
+  .chat-shell.chat-shell--embedded {
+    block-size: 100%;
+    min-block-size: var(--sf-chat-window--embedded-min);
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius--surface);
+    overflow: hidden;
+    background: var(--sf-surface-0);
+    color: var(--sf-on-surface);
+    font-family: var(--sf-text--family);
+  }
+
+  /* Inside a framed host the field is not lifted again: an edge, no shadow (D-18). */
+  .chat-shell--embedded .sf-chat-composer__box { box-shadow: none; }
+
+  @media (max-width: 1023px) {
+    .chat-shell,
+    .chat-shell--side-hidden { grid-template-columns: minmax(0, 1fr); }
+
+    .chat-shell__side {
+      position: fixed;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: min(18rem, 85vw);
+      z-index: 5;
+      translate: -100% 0;
+      visibility: hidden;
+      transition: translate var(--sf-duration-normal) var(--sf-ease-exit, ease), visibility 0s var(--sf-duration-normal);
+      /* Over the page it stands on its step: the surface and the shadow of
+         elevation 4 together (the docked panel is surface 1). */
+      background: var(--sf-chat-window-side-color, var(--sf-elevation-4--surface));
+      box-shadow: var(--sf-elevation-4--shadow);
+    }
+
+    .chat-shell__side .sf-thread-list,
+    .chat-shell__search { inline-size: auto; }
+
+    /* iOS zooms into a field under 16px; the panel's field is no exception. */
+    .chat-shell__search-input { font-size: max(1rem, var(--sf-label-large--size)); }
+
+    .chat-shell--side-open .chat-shell__side {
+      translate: 0 0;
+      visibility: visible;
+      transition: translate var(--sf-duration-normal) var(--sf-ease-enter, ease);
+    }
+
+    .chat-shell__side-head {
+      display: flex;
+      justify-content: flex-end;
+      padding: var(--sf-space-1\/3) var(--sf-space-1\/3) 0;
+    }
+  }
+
+  @media (max-width: 599px) {
+    /* The field keeps the column's edges (D-10). */
+    .chat-shell__composer {
+      padding-block-end: max(var(--sf-space-1\/3), env(safe-area-inset-bottom));
+    }
+
+    .chat-shell--empty .chat-shell__composer { padding-block-end: 6vh; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-shell,
+    .chat-shell__side { transition: none; }
+  }
+
+  .chat-shell__thread-title {
+    display: none;
+    min-inline-size: 0;
+    overflow: hidden;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-large--size);
+    line-height: var(--sf-label-large--height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chat-shell--side-hidden .chat-shell__thread-title { display: block; }
+  .chat-shell--empty .chat-shell__thread-title { display: none; }
+
+  .chat-shell__status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sf-space-1\/3);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-large--size);
+    line-height: var(--sf-label-large--height);
+  }
+
+  .chat-shell__status:empty,
+  .chat-shell__status[hidden],
+  .chat-shell__suggestions[hidden] { display: none; }
+
+  .chat-shell__status--standing {
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1\/2);
+    border-radius: var(--sf-radius--surface);
+    background: var(--sf-surface-container);
+  }
+
+  .chat-shell__suggestions { margin-block-start: var(--sf-space-1\/2); }
+
+  @media (max-width: 1023px) {
+    .chat-shell__thread-title { display: block; }
+  }
+
+  /* A phone has room for the assistant's name only. */
+  @media (max-width: 599px) {
+    .chat-shell__thread-title,
+    .chat-shell--side-hidden .chat-shell__thread-title { display: none; }
+  }
+
+  /* --- the package's parts in the window ------------------------------ */
+
+  /* sf-message-log and sf-thread-list (component package larena) carry their
+     own layout; the window only tunes them through their public variables
+     to the chat's grammar (SPEC §3), so the conversation reads as it did when
+     the list was the chat's own: the chat's reading column, and a question
+     with its answer as one turn. The log groups by author, so one author's
+     messages in a row are a run and an answer after a question starts a new
+     one; the chat's rhythm is the other way round. */
+  .chat-shell .sf-message-log {
+    --sf-message-log--column: var(--sf-chat-window--column);
+    --sf-message-log--gap-run: var(--sf-chat-window--gap-turn);
+    --sf-message-log--gap-turn: var(--sf-chat-window--gap-turn);
+  }
+
+  .chat-shell .sf-message-log__item--own + .sf-message-log__item:not(.sf-message-log__item--own) {
+    margin-block-start: var(--sf-chat-window--gap-related);
+  }
+
+  /* A row with a second line (another assistant's name, U-06) keeps the
+     chat's inset; one-line rows are the row height either way. */
+  .chat-shell .sf-thread-list__link { padding-block: var(--sf-space-1\/3); }
+
+  /* The chat's messages draw their own alignment and width. */
+  .chat-shell .sf-message-log__item--own { align-items: stretch; }
+
+  /* A proposal's two answers are touch-sized where the pointer is a finger,
+     as every other control in a message is (D-09). */
+  @media (pointer: coarse) {
+    .sf-chat-message .sf-change-confirm__actions .sf-button {
+      min-inline-size: var(--sf-chat-window--touch);
+      min-block-size: var(--sf-chat-window--touch);
+    }
+  }
+
+  /* --- greeting -------------------------------------------------------- */
+
+  .chat-shell .sf-message-log__empty {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-block: var(--sf-space-4) var(--sf-space-3);
+  }
+
+  .sf-chat-greeting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sf-space-3);
+    text-align: center;
+  }
+
+  /* The greeting comes from the server and is often a sentence or two:
+     a calm lead, not a heading-sized paragraph. */
+  .sf-chat-greeting__title {
+    margin: 0;
+    max-inline-size: var(--sf-chat-window--greeting-max);
+    color: var(--sf-chat-window--ink);
+    font-size: var(--sf-text--size-2);
+    line-height: var(--sf-text--height-2);
+    font-weight: var(--sf-font-weight-regular);
+    text-wrap: balance;
+  }
+
+  .sf-chat-greeting__suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--sf-chat-window--gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sf-chat-greeting__suggestion {
+    min-block-size: var(--sf-ui-1--control-height);
+    padding-inline: var(--sf-space-1);
+    border: var(--sf-chat-window--line) solid var(--sf-chat-window--edge);
+    border-radius: var(--sf-radius-circle);
+    background: transparent;
+    color: var(--sf-chat-window--ink);
+    font: inherit;
+    font-size: var(--sf-chat-window--ui-size);
+    line-height: var(--sf-chat-window--ui-height);
+    cursor: pointer;
+    transition: background-color var(--sf-duration-fast);
+  }
+
+  .sf-chat-greeting__suggestion:hover { background: var(--sf-surface-transparent-hover); }
+
+  /* --- «Мои файлы» (x-my-files) ------------------------------------------ */
+
+  /* The entry under the conversations is the list's own row command; open,
+     it is marked as the open row is. */
+  .chat-files__entry[aria-current='page'] { background: var(--sf-thread-list--current); }
+
+  /* What the page puts after it (Mirai24: the spending) keeps the step the
+     list's own foot keeps between its rows and its note. */
+  .chat-shell .sf-thread-list__extra:has(.chat-files__entry) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+  }
+
+  /* Open, the view takes the conversation's place (chat-shell--files); the
+     page's layout, which places the conversation, puts it aside. */
+
+  .chat-files {
+    flex: 1;
+    min-block-size: 0;
+    overflow-y: auto;
+    container-type: inline-size;
+    padding-inline: var(--sf-space-3);
+    padding-block: 0 var(--sf-space-3);
+    color: var(--sf-chat-window--ink);
+    font-size: var(--sf-chat-window--ui-size);
+    line-height: var(--sf-chat-window--ui-height);
+    scrollbar-width: thin;
+  }
+
+  .chat-files[hidden] { display: none; }
+
+  /* The chat's reading column, as the conversation it stands in for. */
+  .chat-files > * {
+    box-sizing: border-box;
+    max-inline-size: var(--sf-chat-window--column);
+    margin-inline: auto;
+  }
+
+  .chat-files__head {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    padding-block: var(--sf-space-1\/2);
+  }
+
+  .chat-files__back { flex: none; color: var(--sf-chat-window--ink-muted); }
+
+  .chat-files__title {
+    margin: 0;
+    min-inline-size: 0;
+    font-size: var(--sf-text--size-2);
+    line-height: var(--sf-text--height-2);
+    font-weight: var(--sf-font-weight-bold);
+    outline: none;
+  }
+
+  .chat-files__usage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+    padding-block: var(--sf-space-1\/4) var(--sf-space-1);
+  }
+
+  .chat-files__usage[hidden],
+  .chat-files__bar[hidden] { display: none; }
+
+  .chat-files__used {
+    margin: 0;
+    color: var(--sf-chat-window--ink-muted);
+  }
+
+  .chat-files__loading {
+    margin: 0;
+    padding-block: var(--sf-space-1);
+    color: var(--sf-chat-window--ink-muted);
+  }
+
+  .chat-files__body sf-empty-state { display: block; padding-block-start: var(--sf-space-4); }
+
+  .chat-files__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* A row: the file's glyph, its name over its facts, then its two actions. */
+  .chat-files__item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--sf-space-1\/2);
+    row-gap: var(--sf-space-1\/3);
+    padding-block: var(--sf-space-1\/2);
+  }
+
+  .chat-files__item + .chat-files__item { border-block-start: var(--sf-chat-window--line) solid var(--sf-chat-window--edge); }
+
+  .chat-files__icon {
+    display: grid;
+    place-items: center;
+    inline-size: var(--sf-ui-1--control-height);
+    block-size: var(--sf-ui-1--control-height);
+    border-radius: var(--sf-radius--ui);
+    background: var(--sf-chat-window--fill);
+    color: var(--sf-chat-window--ink-muted);
+  }
+
+  .chat-files__text {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .chat-files__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .chat-files__meta {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--sf-space-1\/2);
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  /* Something was saved from it into «Моя база»: as quiet as «Проверен». */
+  .chat-files__saved {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    color: var(--sf-on-success-container);
+  }
+
+  .chat-files__actions {
+    display: flex;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .chat-files__actions .sf-button { gap: var(--sf-space-1\/4); }
+
+  /* The delete asked in its row, under the name: a card on the row's
+     column, its buttons nested by the rule (SPEC §3). */
+  .chat-files__ask {
+    --sf-chat-window--nest-radius: var(--sf-chat-window--card-radius);
+    --sf-chat-window--nest-inset: var(--sf-space-1\/2);
+    grid-column: 2 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+    padding: var(--sf-chat-window--nest-inset);
+    border-radius: var(--sf-chat-window--nest-radius);
+    background: var(--sf-chat-window--fill);
+    outline: none;
+  }
+
+  .chat-files__ask .sf-button {
+    border-radius: max(var(--sf-radius--ui), calc(var(--sf-chat-window--nest-radius) - var(--sf-chat-window--nest-inset)));
+  }
+
+  .chat-files__question,
+  .chat-files__problem {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .chat-files__problem { color: var(--sf-error); }
+
+  .chat-files__ask-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sf-space-1\/3);
+  }
+
+  /* Narrow: the actions go under the name, where the thumb is. */
+  @container (max-width: 32rem) {
+    .chat-files__actions {
+      grid-column: 2 / -1;
+      margin-inline-start: calc(-1 * var(--sf-space-1\/2));
+    }
+  }
+
+  @media (max-width: 599px) {
+    .chat-files { padding-inline: var(--sf-space-1); }
+  }
+
+  @media (pointer: coarse) {
+    .chat-files__actions .sf-button,
+    .chat-files__ask .sf-button,
+    .chat-files__back {
+      min-block-size: var(--sf-chat-window--touch);
+    }
+
+    .chat-files__back { min-inline-size: var(--sf-chat-window--touch); }
+  }
+
+
+  @media (pointer: coarse) {
+    .sf-chat-greeting__suggestion { min-block-size: var(--sf-chat-window--touch); }
+
+    /* The list has no finger size of its own: its rows and commands take
+       the chat's through the row height, its «⋯» the same square. */
+    .chat-shell .sf-thread-list { --sf-thread-list--row-height: var(--sf-chat-window--touch); }
+
+    .chat-shell .sf-thread-list__more {
+      inline-size: var(--sf-chat-window--touch);
+      block-size: var(--sf-chat-window--touch);
+    }
+  }
+}

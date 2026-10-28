@@ -1,0 +1,114 @@
+{
+  "$comment": "Dated aliases of sf-chat-message for the shim (core/js/aliases.js, standard §16 item 20). The 0.3 general sf-chat-action {action, ...} is split by verb (vocabulary 1.1.5 §5.1); every row needs the element's detail adapter (sfAliasAdapters), which makes the 0.3 detail from the new one.",
+  "component": "sf-chat-message",
+  "since": "2026-10-28",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "sf-chat-action",
+      "to": "sf-chat-message-retry",
+      "kind": "event",
+      "component": "sf-chat-message",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": true,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 {action: retry, id}; a person's retry (key, kind) has no 0.3 form and sends no old event; the element's adapter (sfAliasAdapters) puts action back"
+    },
+    {
+      "from": "sf-chat-action",
+      "to": "sf-chat-message-check",
+      "kind": "event",
+      "component": "sf-chat-message",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": true,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 {action: check, id}; the element's adapter (sfAliasAdapters) puts action back"
+    },
+    {
+      "from": "sf-chat-action",
+      "to": "sf-chat-message-rate",
+      "kind": "event",
+      "component": "sf-chat-message",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": true,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 {action: feedback, id, value}, or {action: feedback-send, id, reason, note} when the rating carries a reason or a note; the element's adapter (sfAliasAdapters) puts action back"
+    },
+    {
+      "from": "sf-chat-action",
+      "to": "sf-chat-message-cancel",
+      "kind": "event",
+      "component": "sf-chat-message",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": true,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 {action: feedback-skip, id} for kind rate; the element's adapter (sfAliasAdapters) puts action back"
+    },
+    {
+      "from": "sf-chat-action",
+      "to": "sf-chat-message-drafted",
+      "kind": "event",
+      "component": "sf-chat-message",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": false,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 {action: feedback-draft, id, reason, note}; the element's adapter (sfAliasAdapters) puts action back"
+    },
+    {
+      "from": "sf-chat-action",
+      "to": "sf-chat-message-toggle",
+      "kind": "event",
+      "component": "sf-chat-message",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": false,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 {action: sources, id, open} for kind sources; edit and delete (the template person) send no old event; the element's adapter (sfAliasAdapters) puts action back"
+    },
+    {
+      "from": "sf-chat-action",
+      "to": "sf-chat-message-copied",
+      "kind": "event",
+      "component": "sf-chat-message",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": false,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 {action: copy, id, done}; the element's adapter (sfAliasAdapters) puts action back"
+    },
+    {
+      "from": "sf-chat-action",
+      "to": "sf-chat-message-submit",
+      "kind": "event",
+      "component": "sf-chat-message",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "split",
+      "cancelable": true,
+      "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
+      "note": "the 0.3 {action: brief-answer, id, text}; the element's adapter (sfAliasAdapters) puts action back"
+    },
+    {
+      "from": "view",
+      "to": "display",
+      "kind": "setting",
+      "component": "sf-chat-message",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "section": "§3.1, §4.2",
+      "note": "the 0.3 property view (what the window knows), renamed: view is a name the base reserves; the old property reads and writes display"
+    }
+  ]
+}

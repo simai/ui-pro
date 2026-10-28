@@ -1,0 +1,672 @@
+{
+  "$comment": "The source of sf-chat-window's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-window (smart.manifest.json 0.3.1, ui-chat 07bc988) by the D31 move, step 6 (owner yes 2026-10-27), with files-view.js, port.js, chat-core's larena.js words and smart.css, and the staff page's layout of the window's nodes; written by hand on the shape of sf-chat-interlocutor, sf-chat-composer and sf-chat-message (steps 3-5), since migration/convert-1.3.8.mjs takes only the pinned 66. x-decisions says how each point was decided.",
+  "id": "smart.chat-window",
+  "tag": "sf-chat-window",
+  "version": "1.0.2",
+  "kind": "leaf",
+  "family": "chat",
+  "settings": {
+    "capabilities": {
+      "type": "string",
+      "default": "",
+      "x-markup": "the port's capabilities the host offers (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read) and the window's own (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief), space-separated; a connected port's capabilities count as well. What is not offered is not shown. The property also takes a list (0.3)."
+    },
+    "landmark": {
+      "type": "enum",
+      "values": [
+        "main",
+        "section"
+      ],
+      "default": "main",
+      "x-markup": "section inside a page that has its own main"
+    },
+    "heading-level": {
+      "type": "number",
+      "integer": true,
+      "min": 1,
+      "max": 2,
+      "default": 1,
+      "x-markup": "the window's headings; 2 inside a page with its own h1"
+    },
+    "embedded": {
+      "type": "boolean",
+      "default": false,
+      "x-markup": "placed in a host page: the height comes from the container and the window draws its own frame"
+    },
+    "me": {
+      "type": "object",
+      "optional": true,
+      "nullable": true,
+      "x-markup": "port data me {id, name}: who reads"
+    },
+    "conversations": {
+      "type": "list",
+      "default": [],
+      "x-markup": "port data conversations [{id, title, type, interlocutor, unread_count, updated_at, archived, pinned}], newest first; pinned is x-conversation-pin's"
+    },
+    "conversation": {
+      "type": "object",
+      "optional": true,
+      "nullable": true,
+      "x-markup": "port data conversation: the open one {id, title, interlocutor, can_send, archived, revoked}, null when none is open"
+    },
+    "messages": {
+      "type": "list",
+      "default": [],
+      "x-markup": "port data messages: the open conversation's, oldest first (kind person|assistant, body, html, files, status, stage, wait, sources, verification, notices, proposal, feedback, summary, limit_resets_at, brief, local)"
+    },
+    "history": {
+      "type": "object",
+      "default": {
+        "has_older": false
+      },
+      "x-markup": "port data history {has_older}"
+    },
+    "feed-state": {
+      "type": "enum",
+      "values": [
+        "ready",
+        "loading",
+        "revoked"
+      ],
+      "default": "ready",
+      "x-markup": "port data feed_state: loading draws the column anew, revoked clears the feed, the draft and anything unsent; set as a property (feedState, or the port's feed_state)"
+    },
+    "limits": {
+      "type": "object",
+      "default": {},
+      "x-markup": "port data limits {body_chars, files_per_message, file_bytes, file_types}"
+    },
+    "interlocutors": {
+      "type": "list",
+      "default": [],
+      "x-markup": "port data interlocutors [{id, title, greeting, suggestions, capabilities {attachments, proposals, memory}}]: the first is the usual one"
+    },
+    "notice": {
+      "type": "object",
+      "optional": true,
+      "nullable": true,
+      "x-markup": "port data notice {kind: info|error, text, retry}: a line above the field, an error with «Повторить» when retry is a function"
+    },
+    "conversation-list": {
+      "type": "object",
+      "default": {
+        "archived": false,
+        "has_more": false,
+        "loading": false
+      },
+      "x-markup": "the window's data (x-archive-view, x-conversations-paging, x-conversations-search) {archived, has_more, loading, query}: which list is shown, whether it has a next page, whether it loads, what it was searched for"
+    },
+    "composer-files": {
+      "type": "list",
+      "default": [],
+      "x-markup": "the window's data (x-early-upload): the field's chips in the port's file form {key, id, name, size, state: uploading|ready|failed, progress, reason}"
+    },
+    "my-files": {
+      "type": "object",
+      "optional": true,
+      "nullable": true,
+      "x-markup": "the window's data (x-my-files) {files [{id, name, size, type, created_at, saved_to_base, download_url}], used_bytes, quota_bytes}; download_url is the host's, never built here"
+    }
+  },
+  "values": {},
+  "events": {
+    "open": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files). Was chat-port:open, chat-window:view, chat-window:files."
+    },
+    "load-more": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "Earlier messages (port history.older {conversation_id, before_id}, kind history) or the list's next page (x-conversations-paging conversations.more {archived}, kind conversations). Was chat-port:older, chat-window:more."
+    },
+    "submit": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send."
+    },
+    "retry": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "The same message again under its client_key (port message.retry, kind message) or a message's failed file (port file.retry {conversation_id, message_id, file_key}, kind file). Was chat-port:retry, chat-port:file-retry."
+    },
+    "save": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A message edited against its revision (port message.edit). Was chat-port:edit."
+    },
+    "delete": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A message deleted against its revision (port message.delete, kind message) or a kept file deleted (x-my-files files.remove {file_id}, kind file). Was chat-port:delete, chat-window:file-remove."
+    },
+    "read": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "The last message actually seen (port message.read). Was chat-port:read."
+    },
+    "rate": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "An answer rated (port message.rate {message_id, value, reason, note}). Was chat-port:rate."
+    },
+    "answer": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A proposal answered: the host sends exactly its command (port proposal.decide {message_id, code, decision: confirm|cancel}). Was chat-port:decide."
+    },
+    "check": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "Whether a stopped or delayed answer came (port wait.check {message_id}). Was chat-port:check."
+    },
+    "stop": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "Stop waiting for the answer (port wait.stop {conversation_id}). Was chat-port:stop."
+    },
+    "create": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A new conversation (port conversation.create {interlocutor}). Was chat-port:create."
+    },
+    "rename": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A conversation renamed (port conversation.rename {conversation_id, title}). Was chat-port:rename."
+    },
+    "archive": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A conversation put in the archive (port conversation.archive {conversation_id, archived: true}). Was chat-port:archive."
+    },
+    "restore": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A conversation brought back from the archive (port conversation.archive {conversation_id, archived: false}). Was chat-port:archive."
+    },
+    "select": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "Another interlocutor chosen; a choice starts a new conversation (port interlocutor.choose {interlocutor}). Was chat-port:interlocutor."
+    },
+    "query": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "The list searched by title (x-conversations-search conversations.search {query}), after a pause in typing, on Enter, or emptied by Escape. Was chat-window:search."
+    },
+    "pin": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "own-verb": true,
+      "x-summary": "A conversation pinned or unpinned from its row's actions (x-conversation-pin conversation.pin {conversation_id, pinned}); the chat's own verb (vocabulary §5.1), its word events.pin.label. Was chat-window:pin."
+    },
+    "attach": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "Files picked, dropped or pasted, to upload at once (x-early-upload file.attach {files, conversation_id, interlocutor}). Was chat-window:attach."
+    },
+    "detach": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "payload": "object"
+      },
+      "cancelable": true,
+      "x-summary": "A chip removed from the field (x-early-upload file.detach {key}). Was chat-window:detach."
+    },
+    "settled": {
+      "carries": {
+        "request-id": "string",
+        "intent": "string",
+        "payload": "object",
+        "answer": {
+          "type": "enum",
+          "values": [
+            "applied",
+            "conflict",
+            "refused",
+            "unavailable"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "nullable": true
+        }
+      },
+      "x-summary": "The fact of a host's answer, from the port or from settle: {request-id, intent, payload, answer, reason}, said after the answer's data is applied and before the window's own follow-up (the focus). Was sf-chat-window-answer."
+    }
+  },
+  "actions": {
+    "set-data": {
+      "with": {
+        "data": "object"
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "several of the port's data at once, by the port's names or the settings'; unknown keys are ignored (the 0.3 applyData(partial), kept as the method)"
+    },
+    "settle": {
+      "with": {
+        "request-id": "string",
+        "result": "object"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "a host without a port answers an intent: result {answer, reason, text, data, current}; refused unknown-request when nothing waits under that id (the 0.3 answer(request_id, result), kept as the method)"
+    },
+    "start-conversation": {
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "«Новый разговор» from the page's own button (port conversation.create); answers once the host did"
+    },
+    "open-conversation": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "open a conversation (port conversation.open)"
+    },
+    "focus-composer": {
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "the field (the page's skip link); from «Мои файлы» it is the way back"
+    },
+    "open-files": {
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "«Мои файлы» in place of the conversation (x-my-files); refused capability-not-provided without it"
+    },
+    "close-files": {
+      "with": {
+        "focus": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "back to the conversation; focus false leaves the focus where it is"
+    },
+    "set-list-footer": {
+      "with": {
+        "node": {
+          "type": "object",
+          "nullable": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "what the page shows under the list of conversations, after «Мои файлы» (Mirai24: the spending); null takes it away"
+    }
+  },
+  "slots": {},
+  "keyboard": {
+    "host": {
+      "Tab": "reach",
+      "Escape": "close"
+    }
+  },
+  "port": {
+    "id": "simai.chat-port",
+    "version": "1.0",
+    "contract": "src/core/contracts/ports/simai.chat-port/1.0.0/port.json"
+  },
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16); it places the shell the element builds once as plain DOM."
+    }
+  },
+  "presentation": {
+    "skeleton": {
+      "$comment": "No late data: a server prints the window with the host's data as its JSON island (the conversations, the open conversation and its messages), and the static markup is the whole window as drawn -- the shell with the parts' own markup (the list, the log with its sf-chat-message nodes, the header, the field). The port, handed later, brings no first-paint data; what it answers is what a person asks for afterwards (§5.4).",
+      "late": []
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "region",
+    "name": {
+      "from": [
+        "runtime.threads-label",
+        "runtime.list-region"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Escape": "close"
+    },
+    "x-keys": "The window is the page's main landmark (landmark main) or a region (section) with an off-screen heading of the conversation's title (heading-level). The conversations are sf-thread-list (a navigation list), the conversation sf-message-log (a log that says each new answer once: the stage while it waits, «Ответ готов» before it, footnote marks not read), the field sf-chat-composer. The search above the list is a search landmark; Enter asks at once, Escape clears it first and then belongs to the page; what was found is said politely. A passing line above the field (role=status) says what was just done and offers its undo («Вернуть»); an error is role=alert with «Повторить». The focus never falls to the page: an archived row gives it to «Вернуть», a pinned or restored row keeps it, an answer that comes back gives it to the field, «Мои файлы» take it on their heading and give it back to the field; in «Мои файлы» Escape closes a delete question first, then the view, and a delete question takes the focus on «Отмена»."
+  },
+  "host-states": {},
+  "css-variables": {
+    "--sf-chat-window-side-width": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-chat-window-side-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-chat-window-width": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-chat-window-text-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-chat-window-muted-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-chat-window-border-color": {
+      "type": "color",
+      "state": "default"
+    }
+  },
+  "x-summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "chat-window",
+    "manifest": "simai/ui-chat@07bc988 components/src/smart/chat-window/smart.manifest.json (0.3.1)",
+    "converted": "by hand (D31 step 6): convert-1.3.8.mjs reads stand 17's output, which has no chat component"
+  },
+  "x-words": [],
+  "x-port": {
+    "sha256": "010590422d484a734e07155142c3e14e8a592d57310547e76209889e4feff09f",
+    "supports": [
+      "1.0.0"
+    ],
+    "capabilities": [
+      "assistant",
+      "people",
+      "files",
+      "edit",
+      "delete",
+      "feedback",
+      "proposals",
+      "conversation-create",
+      "conversation-manage",
+      "interlocutors",
+      "read"
+    ],
+    "own-capabilities": [
+      "x-archive-view",
+      "x-conversations-paging",
+      "x-conversations-search",
+      "x-conversation-pin",
+      "x-early-upload",
+      "x-my-files",
+      "x-brief"
+    ],
+    "own-data": [
+      "conversation_list",
+      "composer_files",
+      "my_files"
+    ]
+  },
+  "x-renamed": [
+    "events.chat-port:<name> (16 port intents) and chat-window:<name> (8 window capabilities), {request_id, ...payload} → one event per verb (vocabulary 1.1.5 §5, §5.1), sf-chat-window-<verb> {request-id, intent, kind, payload}: open (chat-port:open, chat-window:view {kind: list}, chat-window:files {kind: files}), load-more (chat-port:older {kind: history}, chat-window:more {kind: conversations}), submit (chat-port:send), retry (chat-port:retry {kind: message}, chat-port:file-retry {kind: file}), save (chat-port:edit), delete (chat-port:delete {kind: message}, chat-window:file-remove {kind: file}), read, rate, answer (chat-port:decide), check, stop, create, rename, archive and restore (chat-port:archive with archived true or false), select (chat-port:interlocutor), query (chat-window:search), pin (chat-window:pin, own verb), attach, detach; every old name a dated split alias until 2026-12-01 whose adapter makes the 0.3 detail",
+    "events.sf-chat-window-answer {request_id, intent, payload, answer, reason} → settled {request-id, intent, payload, answer, reason} (vocabulary §5 settle, its fact); a dated split alias until 2026-12-01",
+    "properties feed_state, conversation_list, composer_files, my_files → the settings feed-state, conversation-list, composer-files, my-files (properties feedState, conversationList, composerFiles, myFiles); the 0.3 port-named properties stay as the element's own accessors (the port's data names), not aliases",
+    "methods applyData(partial) and answer(request_id, result) → the actions set-data {data} and settle {request-id, result}; both 0.3 methods stay the element's own (a host adapter calls them); request(intent, payload), parts, has(capability) stay methods of the element, not of the interface",
+    "the 0.3 methods startConversation, openConversation, focusComposer, openFiles, closeFiles, setListFooter → the actions start-conversation, open-conversation, focus-composer, open-files, close-files, set-list-footer (the generated methods carry the same camel names)",
+    "listened names: sf-chat-send, sf-chat-stop, sf-chat-files, sf-chat-action (composer), sf-chat-interlocutor, sf-chat-action (message) → sf-chat-composer-submit, -stop, -attach, -detach; sf-chat-interlocutor-select; sf-chat-message-retry, -check, -rate, -cancel {kind: rate}, -toggle {kind: sources}, -submit (step 5's drafted and copied are heard by nobody: the message keeps its drafts in display and says a copy itself)",
+    "words: the window's keys of ui-chat's strings.js → lang/<locale>.json runtime words, the dotted key in kebab-case (threads.searchEmpty → threads-search-empty); the code keeps calling words() with the 0.3 keys and the element maps them",
+    "css: chat-core/css/smart.css (less the composer's and the interlocutor's rules) and the staff page's rules for the window's nodes → js/templates/default.css; the --sf-chat--* tokens → --sf-chat-window--* set on .chat-shell; --chat-shell--side → --sf-chat-window--side under the public --sf-chat-window-side-width"
+  ],
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "conversation titles and captions (drawn as text)",
+        "message data (drawn by sf-chat-message: html sanitized, texts as text)",
+        "interlocutor greetings and suggestions (drawn as text)",
+        "file names (drawn as text)",
+        "download addresses (the host's, used as given)",
+        "the host's refusal words (drawn as text)"
+      ],
+      "network_policy": "deny"
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "fetching or polling the chat API",
+        "uploading files",
+        "storing drafts",
+        "deciding rights from authorship",
+        "sending a proposal's command other than the host's",
+        "access decisions"
+      ]
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-chat-window for a whole chat: conversations, the open conversation and the field, on a host that implements simai.chat-port 1.0.0 (Mirai24's assistant, simai.chat).",
+      "do_not": [
+        "Do not fetch from the element: hand it a port (connect-port) or answer its events with settle",
+        "Do not answer an intent both through a port and through settle",
+        "Do not decide what a person may do from who wrote a message; give can_edit and can_delete",
+        "Do not build a second list of conversations beside it; the window's sf-thread-list is the one"
+      ],
+      "required_reads": [
+        "settings",
+        "events",
+        "actions",
+        "port",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-chat-window capabilities=\"assistant feedback proposals conversation-create conversation-manage\"></sf-chat-window> with element.connectPort({port: 'simai.chat-port', version: '1.0.0', capabilities: [], raise: (intent, payload) => host.answer(intent, payload)}) and element.setData({me, conversations, conversation: null, messages: []})",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-manifest-probes.mjs <free output> <package output> chat-window",
+        "node scripts/run-first-paint.mjs gate <free output> <package output> chat-window"
+      ]
+    }
+  },
+  "x-decisions": [
+    "version: 0.3.1 in simai/ui-chat → 1.0.0 here: the first release in ui-pro, with the events renamed under dated aliases (simai.linkage 1.0.0: the files changed).",
+    "shape: a leaf with a declared port (D31 inventory §3), as sf-data-view and sf-property-view are: it composes sf-thread-list, sf-message-log and sf-change-confirm (this package) with sf-chat-composer, sf-chat-interlocutor and sf-chat-message (steps 3-5) by tag, through their public hooks. A full assembly (roles, keys, rules) is later: the scroll, the focus, «Мои файлы» and the wait for an answer are not yet rules.",
+    "port: \"port\" declares simai.chat-port 1.0 with its contract; connect-port {port} (the base action, core/js/host-port.js; setHostPort its alias) hands an adapter {port, version, capabilities, raise(intent, payload)} whose answer {answer, reason, text, data} is the intent's; onPortConnected checks raise and the version. The x- capabilities, their intents (events with kinds list, conversations, files, file; query, pin, attach, detach) and their data (conversation_list, composer_files, my_files) are the component's, never the port's: a host declares them in capabilities and answers them through the same raise or settle.",
+    "port-contract: 1.0.1 points port.contract at ui-source's src/core/contracts/ports/simai.chat-port/1.0.0/port.json, as sf-data-view, sf-table and sf-property-view do: framework.lock.json pins ui-source 465fbee (pair ui-194f75ac620f), which has it since 4d711d2 (pair ui-89834691fb9d). The byte copy that 1.0.0 kept in contracts/ (port.json and the kit, 14 cases, the same bytes as the pinned ones) is removed.",
+    "host-without-port: a 0.3 host (Mirai24's chat-core/ports/mirai24.js) listens to chat-port:<name> and chat-window:<name> and calls answer(request_id, result): both keep working until 2026-12-01 through the dated aliases and the kept method. A host answers through one way only; with a port the window keeps no request for settle.",
+    "events: every intent is first the window's cancelable event; a page that cancels it refuses the intent (refused prevented, said nowhere) and the port is not asked. The payload keeps the port's own field names (conversation_id, client_key …), since it is the port's data; the event's own fields are kebab-case.",
+    "listened-names: the window listens to the new names of steps 3-5 (sf-chat-composer-submit, -stop, -attach, -detach; sf-chat-interlocutor-select; sf-chat-message-retry, -check, -rate, -cancel, -toggle, -submit) and to this package's names of standard 1.3.9 (sf-thread-list-open, -apply, -restore, -toggle, -load-more, -create, -rename, -archive; sf-message-log-load-more; sf-change-confirm-answer), not to their dated aliases, so it keeps working after 2026-12-01 and takes each act once. Step 5's open choices are taken: cancel {kind: rate}, drafted, copied.",
+    "messages: sf-message-log's renderMessage gives each message its sf-chat-message, one per message key, kept across redraws (a proposal's pressed card and an open «why» card stay what they are), with message (the port message as API.md's view), display (what the window knows: wait, retried, feedback, sources_open, brief, brief_draft, busy) and features. The element draws itself a frame later; the window marks the last answer and the waiting controls on its sf-updated.",
+    "part-words: the chat's words for sf-message-log, sf-thread-list and sf-change-confirm («Новое название разговора», «Отменено», the expired sentence, «Вернуть из архива» …) are registered by the window once per page through SF.language.registerAll, both languages, from its own lang/ files (js/part-words.js; ui-chat chat-core/larena.js registerLarenaWords).",
+    "classes: the window's nodes keep the 0.3 classes chat-shell__* and chat-files__* that ui-chat's pages style and test; the page toggles chat-shell--side-hidden and chat-shell--side-open, the window chat-shell--empty and chat-shell--files. A rename to sf-chat-window__* is a later major.",
+    "layout: the window brings the layout of its own nodes (the grid of side and main, the search, the header, the field's column, the empty and «Мои файлы» states, the phone's sliding side panel); the page keeps its furniture (the skip link, the scrim, its buttons, the spending, the expired-session dialog). The shell carries sf-chat-surface, so the message's sheet sets its tokens there and the window's error notice reads as a message's.",
+    "files-view: «Мои файлы» (x-my-files) is js/files-view.js, drawn with sf-chat-message's helpers (iconButton, iconNode, textButton, formatBytes) imported by relative path, sf-progress-bar for the space used, sf-empty-state for an empty or failed list, the delete asked in its row.",
+    "words: lang/ru.json and lang/en.json, runtime only, ru the source language; the code asks for the 0.3 dotted keys and the element maps them to the kebab names. The window repeats the stage and status words sf-chat-message has: it announces them itself.",
+    "network: deny. The window never requests: every write is an intent the host answers; download addresses are the host's.",
+    "first paint (§5.4): no late data; the static markup is the whole window with the host data of its island, the parts' markup inside it (sf-thread-list, sf-message-log with sf-chat-message, sf-chat-interlocutor, sf-chat-composer). A window is larger than a closed control: each example declares first-paint max-bytes 20000 with its why. The element reads no clock (the list's day groups are the host's updated_at).",
+    "css-variables: six public variables in the Framework's form (single dash, read with the token as fallback, never set): the side panel's width and surface, the reading column, the text, the muted text and the edges."
+  ]
+}

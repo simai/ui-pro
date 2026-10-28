@@ -1,0 +1,18 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "composer-reference",
+  "component": "smart.chat-composer",
+  "title": "Composer reference",
+  "summary": "Deterministic reference fixture for sf-chat-composer: files allowed (.pdf, .docx, up to five, 10 MB each), the field empty.",
+  "locale": "ru",
+  "props": {
+    "placeholder": "Спросите о регламентах",
+    "maxlength": 4000,
+    "attachments": true,
+    "accept": ".pdf,.docx",
+    "max-files": 5,
+    "max-bytes": 10485760
+  },
+  "children": [],
+  "state": "default"
+}

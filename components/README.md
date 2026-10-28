@@ -23,12 +23,30 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/message-log` | `sf-message-log` | `smart.message-log` |
 | `src/smart/thread-list` | `sf-thread-list` | `smart.thread-list` |
 | `src/smart/change-confirm` | `sf-change-confirm` | `smart.change-confirm` |
+| `src/smart/chat-interlocutor` | `sf-chat-interlocutor` | `smart.chat-interlocutor` |
+| `src/smart/chat-composer` | `sf-chat-composer` | `smart.chat-composer` |
+| `src/smart/chat-message` | `sf-chat-message` | `smart.chat-message` |
+| `src/smart/chat-window` | `sf-chat-window` | `smart.chat-window` |
 
 The three conversation components came from `simai/ui-chat` (`sf-chat-message-list`,
 `sf-chat-thread-list` and the proposal card) under neutral names (owner's decision
 2026-10-25): they serve a conversation with an assistant and one between people
 (simai.chat) alike, so what a message is, who wrote it and what a change means are
 the host's. Their documentation is in each folder's `docs.md`.
+
+`sf-chat-interlocutor` moved from `simai/ui-chat` under its own name (D31, owner's
+approval 2026-10-27): who a chat conversation is with, a thin element over the
+Framework's `sf-context-menu`. `sf-chat-composer` followed it (the question field
+and its files; the pieces of the chat's shared core it drew on are its own modules
+now), then `sf-chat-message` (one message: an assistant's answer with its sources,
+rating, proposal and task brief, a person's question, and the template `person`
+for a conversation between people; a window places it in `sf-message-log`
+through the log's `renderMessage`, so the log stays chat-agnostic), and last the
+window, `sf-chat-window`: the whole chat on the host port `simai.chat-port` 1.0
+(handed with `connect-port`), built from `sf-thread-list`, `sf-message-log` and
+the three chat components by tag, with «Мои файлы» and the window's own
+capabilities (archive, paging, search, pinning, early upload, task brief) beside
+the port.
 
 Documentation (Russian): [sf-table and sf-data-view](https://ui.simai.io/ru/smart-components/content/table/),
 [sf-property-view](https://ui.simai.io/ru/smart-components/composite/property-view/),

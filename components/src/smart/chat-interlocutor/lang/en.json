@@ -1,0 +1,13 @@
+{
+  "title": "Chat interlocutor",
+  "runtime": {
+    "assistant-text": "Assistant",
+    "button-label": "Assistant: {title}",
+    "change-text": "Switching assistants starts a new conversation",
+    "group-knowledge-text": "Knowledge base assistants",
+    "group-own-text": "My assistants",
+    "menu-label": "Choose an assistant",
+    "search-empty-text": "Nothing found",
+    "search-placeholder": "Find an assistant"
+  }
+}

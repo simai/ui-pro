@@ -1,0 +1,25 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "interlocutor-reference",
+  "component": "smart.chat-interlocutor",
+  "title": "Interlocutor reference",
+  "summary": "Deterministic reference fixture for sf-chat-interlocutor: two interlocutors, the personal one current.",
+  "locale": "ru",
+  "props": {
+    "value": "personal",
+    "options": [
+      {
+        "id": "personal",
+        "title": "Мой помощник",
+        "kind": "personal"
+      },
+      {
+        "id": "admin",
+        "title": "Ассистент администратора",
+        "kind": "admin"
+      }
+    ]
+  },
+  "children": [],
+  "state": "default"
+}

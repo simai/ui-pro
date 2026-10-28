@@ -1,0 +1,107 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Поле с файлами: пусто",
+      "settings": {
+        "placeholder": "Спросите о регламентах",
+        "maxlength": 4000,
+        "attachments": true,
+        "accept": ".pdf,.docx",
+        "max-files": 5,
+        "max-bytes": 10485760
+      },
+      "expect": {
+        "name": "Сообщение",
+        "values": {
+          "value": ""
+        },
+        "texts": {
+          ".sf-chat-composer__hint": "Enter — отправить, Shift+Enter — новая строка"
+        }
+      }
+    },
+    {
+      "name": "files",
+      "title": "Файлы: готов, загружается, отказ",
+      "settings": {
+        "attachments": true,
+        "accept": ".pdf,.docx",
+        "files": [
+          {
+            "id": "att_1",
+            "localId": "f1",
+            "name": "Договор.pdf",
+            "bytes": 48213,
+            "progress": null,
+            "error": ""
+          },
+          {
+            "localId": "f2",
+            "name": "Регламент.docx",
+            "bytes": 1572864,
+            "progress": 0.4,
+            "error": ""
+          },
+          {
+            "localId": "f3",
+            "name": "Скан.pdf",
+            "bytes": 2048,
+            "progress": null,
+            "error": "не похоже на документ"
+          }
+        ]
+      },
+      "expect": {
+        "name": "Сообщение",
+        "texts": {
+          ".sf-chat-attachment--ready .sf-chat-attachment__meta": "47 КБ",
+          ".sf-chat-attachment--uploading .sf-chat-attachment__meta": "Загружается, 40%",
+          ".sf-chat-attachment--error .sf-chat-attachment__meta": "не похоже на документ"
+        }
+      }
+    },
+    {
+      "name": "busy",
+      "title": "Ждём ответа: кнопка «Остановить ожидание»",
+      "settings": {
+        "attachments": true,
+        "busy": true
+      },
+      "expect": {
+        "name": "Сообщение",
+        "texts": {
+          ".sf-chat-composer__hint": "Enter — отправить, Shift+Enter — новая строка"
+        }
+      }
+    },
+    {
+      "name": "disabled",
+      "title": "Писать нельзя",
+      "settings": {
+        "disabled": true,
+        "placeholder": "Примите условия, чтобы задать вопрос"
+      },
+      "expect": {
+        "name": "Сообщение"
+      }
+    },
+    {
+      "name": "near-limit",
+      "title": "Почти предел: счётчик знаков",
+      "settings": {
+        "maxlength": 12,
+        "value": "Мой отпуск?"
+      },
+      "expect": {
+        "name": "Сообщение",
+        "values": {
+          "value": "Мой отпуск?"
+        },
+        "texts": {
+          ".sf-chat-composer__count": "11 из 12"
+        }
+      }
+    }
+  ]
+}

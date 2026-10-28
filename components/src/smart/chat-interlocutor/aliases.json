@@ -1,0 +1,20 @@
+{
+  "$comment": "Dated aliases of sf-chat-interlocutor for the shim (core/js/aliases.js, standard §16 item 20). The 0.3 event of simai/ui-chat follows the vocabulary's select with the same detail.",
+  "component": "sf-chat-interlocutor",
+  "since": "2026-10-28",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "sf-chat-interlocutor",
+      "to": "sf-chat-interlocutor-select",
+      "kind": "event",
+      "component": "sf-chat-interlocutor",
+      "since": "2026-10-28",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": true,
+      "section": "§8, vocabulary §5 select, §7",
+      "note": "an event takes its tag and a verb; {id} is unchanged"
+    }
+  ]
+}

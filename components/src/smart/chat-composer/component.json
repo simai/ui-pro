@@ -1,0 +1,265 @@
+{
+  "$comment": "The source of sf-chat-composer's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-composer (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 4 (owner yes 2026-10-27), with the pieces of chat-core and component/chat it drew on; written by hand on the shape of sf-chat-interlocutor (step 3), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
+  "id": "smart.chat-composer",
+  "tag": "sf-chat-composer",
+  "version": "1.0.0",
+  "kind": "leaf",
+  "family": "chat",
+  "settings": {
+    "placeholder": {
+      "type": "string",
+      "default-from": "runtime.placeholder-text"
+    },
+    "maxlength": {
+      "type": "number",
+      "default": 4000,
+      "x-markup": "the most characters a message may have (Mirai24 bootstrap.limits.message_chars); past 80 % the count shows, past the limit sending is off"
+    },
+    "max-files": {
+      "type": "number",
+      "default": 5
+    },
+    "max-bytes": {
+      "type": "number",
+      "default": 0,
+      "x-markup": "the largest file in bytes; 0 checks no size"
+    },
+    "accept": {
+      "type": "string",
+      "default": "",
+      "x-markup": "extensions, comma-separated (.pdf,.docx); empty takes any"
+    },
+    "attachments": {
+      "type": "boolean",
+      "default": false
+    },
+    "busy": {
+      "type": "boolean",
+      "default": false,
+      "x-markup": "an answer is awaited: send becomes «stop waiting», Enter sends nothing and says why"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "files": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "id": "id",
+        "localId": {
+          "type": "id",
+          "optional": true
+        },
+        "name": "string",
+        "bytes": "number",
+        "progress": {
+          "type": "number",
+          "nullable": true,
+          "optional": true
+        },
+        "error": {
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        }
+      },
+      "entries": {
+        "key": "id",
+        "changes": "content"
+      },
+      "x-markup": "the chips as the host knows them: progress 0..1 while uploading, error the server's refusal; a property, the action set-files (0.3 setFiles(files)) or the JSON island; names are text, never markup"
+    }
+  },
+  "values": {
+    "value": {
+      "type": "string",
+      "default": "",
+      "summary": "the text in the field (the draft); setting it is as if typed: the field grows to it. The attribute gives the first text; the property reads the field."
+    }
+  },
+  "events": {
+    "submit": {
+      "carries": {
+        "text": "string",
+        "attachment-ids": "list"
+      },
+      "cancelable": true,
+      "x-summary": "Send (vocabulary §5 submit, chat 1.1.3: the composer's send): the trimmed text and the ids of the ready files (attachment-ids). Enter or the send button; never while busy, disabled, uploading, over the limit or with nothing to send. Cancelled, the notice stays."
+    },
+    "stop": {
+      "carries": {},
+      "cancelable": true,
+      "x-summary": "«Остановить ожидание» was pressed (the chat's own stop, vocabulary 1.1.3 §5.1: stop waiting); focus goes back to the field."
+    },
+    "attach": {
+      "carries": {
+        "files": "list",
+        "rejected": "list"
+      },
+      "cancelable": true,
+      "x-summary": "Files were offered by the button, a drop or a paste (vocabulary §5 attach). files are the File objects to upload; rejected [{file, reason}] by type, size or count, also said in the notice. The host uploads and hands the chips back as files."
+    },
+    "detach": {
+      "carries": {
+        "id": "id",
+        "name": "string"
+      },
+      "cancelable": true,
+      "x-summary": "A chip's remove was pressed (vocabulary §5 detach); the host removes it and hands the chips back."
+    }
+  },
+  "actions": {
+    "set-files": {
+      "with": {
+        "files": "list"
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "the chips, as the setting files; the 0.3 setFiles(files)"
+    },
+    "clear": {
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "empties the field and the notice (after a message the host took)"
+    }
+  },
+  "slots": {},
+  "keyboard": {
+    "host": {
+      "Tab": "reach",
+      "Enter": "commit"
+    }
+  },
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "form",
+    "name": {
+      "from": [
+        "runtime.field-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Enter": "commit"
+    },
+    "x-keys": "Enter sends, Shift+Enter breaks the line, an Enter inside an IME composition does not send; while busy Enter sends nothing and the hint under the field says why. The field is a native textarea named field-label and described by the count, which shows past 80 % of maxlength; a polite line speaks only when a threshold is crossed. A refused file is a role=alert notice. «Остановить ожидание» returns focus to the field."
+  },
+  "host-states": {},
+  "css-variables": {
+    "--sf-chat-composer-background-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-chat-composer-border-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-chat-composer-hint-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-chat-composer-height": {
+      "type": "length",
+      "state": "default"
+    }
+  },
+  "x-summary": "Where a question is written and files are added: Enter sends, Shift+Enter breaks the line, an IME composition is never cut short, the send button becomes «stop waiting» while an answer is awaited, and files are only reported for the host to upload; their chips come back as files.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "chat-composer",
+    "manifest": "simai/ui-chat@10d376b components/src/smart/chat-composer/smart.manifest.json (0.3.1)",
+    "converted": "by hand (D31 step 4): convert-1.3.8.mjs reads stand 17's output, which has no chat component"
+  },
+  "x-words": [],
+  "x-renamed": [
+    "events.sf-chat-send {text, attachmentIds} → submit {text, attachment-ids} (vocabulary §5 submit, 1.1.3 §5.1; a carried field is kebab-case, §3.2); the old name a dated split alias until 2026-12-01 whose adapter gives the old detail",
+    "events.sf-chat-stop → stop {} (the chat's own stop, 1.1.3 §5.1); the old name a dated same-detail alias until 2026-12-01",
+    "events.sf-chat-files → attach {files, rejected} (vocabulary §5 attach); the old name a dated same-detail alias until 2026-12-01",
+    "events.sf-chat-action {action: remove-attachment, id, name} → detach {id, name} (vocabulary §5 detach, §5.1 one name per verb); the old name a dated split alias until 2026-12-01, its detail made by the element's adapter",
+    "methods.setFiles(files) → the setting files and the action set-files {files} (§4.4); the same call",
+    "methods.clear() → the action clear; the same call. focus(options) stays the base's, delegated to the field (focusDelegate)",
+    "words: composer.*, attachment.* and size.* of ui-chat's strings.js → lang/<locale>.json runtime words (§11)",
+    "css: chat-core/css/smart.css (composer) and component/chat/css/chat.css (attachment) → js/templates/default.css; the --sf-chat--* tokens they read → the Framework tokens they were, under four public variables --sf-chat-composer-<name>; .sf-chat-offscreen → the Framework's sr-only"
+  ],
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "file names (drawn as text)",
+        "pasted and dropped files"
+      ],
+      "network_policy": "deny"
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "fetching or polling the chat API",
+        "uploading files",
+        "deciding whether the server accepts a file",
+        "access decisions"
+      ]
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-chat-composer for the question field of a chat window: it reports a send, a stop and the files a person offers; the host sends, uploads, and hands the chips back as files.",
+      "do_not": [
+        "Do not upload from the element; listen to attach and set files",
+        "Do not take the element's type and size check for the server's acceptance",
+        "Do not clear it from the submit event; clear it once the host took the message"
+      ],
+      "required_reads": [
+        "settings",
+        "values",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-chat-composer maxlength=\"4000\" attachments accept=\".pdf,.docx\" max-files=\"5\"></sf-chat-composer>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-manifest-probes.mjs <free output> <package output> chat-composer"
+      ]
+    }
+  },
+  "x-decisions": [
+    "version: 0.3.1 in simai/ui-chat → 1.0.0 here: the first release in ui-pro, with the events renamed under dated aliases (simai.linkage 1.0.0: the files changed).",
+    "shape: a leaf. The field is the Framework's flush sf-textarea markup with its auto-grow (data-auto-grow, eight rows); attach, send, stop and a chip's remove are icon-button markup with Smart sf-icon glyphs. No part is in a role a rule could bind.",
+    "chat-core: nothing is imported from simai/ui-chat. Of chat-core the composer drew on the base element (ChatElement: build once, emit), the context (words, icons) and its part of smart.css; of component/chat on iconButton, renderAttachment, formatBytes and the attachment and offscreen rules of chat.css. Here the base is the Framework's Smart base through elementFromManifest, the words are lang/<locale>.json, the icon button and the chip are Lit templates of the composer (js/templates/parts.js), and the sheet is js/templates/default.css. ui-pro has no folder of shared modules besides components (D31 inventory §3: no class-component folder), so the chat family shares by relative import from a component's js/, as sf-data-view imports ../table/js/manifest-actions.js; sf-chat-message (step 5) may take the chip from here.",
+    "lit: the DOM is a Lit template; the textarea's value is never bound, so a redraw keeps the text, the caret and the IME composition; the field grows by the Framework's auto-grow, as in 0.3.",
+    "events: send is the vocabulary's submit and carries {text, attachment-ids} (0.3's attachmentIds in the kebab-case of §3.2), not {values, client-key}: the client key is the host's (the window makes one per send, port 1.0.0), and the chat port takes the text and the files. stop is the chat's own stop (vocabulary 1.1.3 §5.1). files is attach {files, rejected}. A chip's remove, the 0.3 sf-chat-action {action: remove-attachment}, is detach {id, name}. All four are cancelable as they were. The old names follow until 2026-12-01: sf-chat-stop and sf-chat-files same-detail; sf-chat-send and sf-chat-action split rows whose adapters make the 0.3 detail ({text, attachmentIds}; {action: remove-attachment, id, name}).",
+    "value: the text, a value with a default (so the attribute gives a first draft); the property reads and writes the field itself and a write is as if typed (the Framework's auto-grow measures it). It is not reported back (§8: a value set from outside is not an event); the host reads it when it needs it (drafts per conversation).",
+    "files and set-files: the chips as the host knows them, [{id, localId, name, bytes, progress, error}]; the 0.3 method setFiles(files) is the action set-files {files}, the same call. A chip uploading (progress < 1, no error) keeps send off; a ready chip with an id can be sent without text.",
+    "checks: type by extension against accept, size against max-bytes, count against max-files less the chips there; a refusal names the file and its reason in the notice (role=alert), and the accepted ones go in attach. The server's word is final: a chip it refuses comes back with error.",
+    "ids: the field's description and the hint take their ids from the element's path (§7.1.1), no longer a module counter.",
+    "first paint (§5.4): no late data. The chips, the draft and busy come with the host's state; the printed markup is the box with its field and buttons. The element reads no clock.",
+    "words: lang/ru.json and lang/en.json, runtime only; ru is the source language (the 0.3 words were written in Russian first). The too-many reason has plural forms (one, other) as 0.3 had composer.tooMany.one.",
+    "css-variables: four public variables in the Framework's form (single dash, read with the token as fallback, never set): the box's ground and edge, the hint and count, and the control height (a finger's on a coarse pointer). Their fallbacks are the tokens ui-chat's sheets gave the same places, so the look in ui-chat does not change.",
+    "page attribute: [data-chat-input=pointer] (the chat page marks a pointer's input) still takes the keyboard ring off the box after a click, as in 0.3; without it the ring shows."
+  ]
+}

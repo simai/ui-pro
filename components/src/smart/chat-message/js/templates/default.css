@@ -1,0 +1,1186 @@
+@layer sf.components {
+  /* sf-chat-message: one message and its parts, both templates (default:
+     an assistant's answer and a person's question; person: a conversation
+     between people). The host is display: contents; .sf-chat-message-host
+     holds the view's node. Moved from simai/ui-chat's chat.css and
+     people.css (ui-chat 10d376b) with the D31 move, rule for rule: the
+     visual grammar is ui-chat docs/design/SPEC.md §3 («Тихий документ»).
+     Every value is a Framework token or a local --sf-chat-message--* token
+     below, or an em/% of the text it sits in.
+
+     The public variables (component.json css-variables) are read here and
+     never set, on the element or any ancestor:
+       --sf-chat-message-width         the reading column
+       --sf-chat-message-text-color    the text
+       --sf-chat-message-muted-color   meta lines, quiet controls
+       --sf-chat-message-bubble-color  a question's bubble, quiet fills
+       --sf-chat-message-border-color  edges of cards, chips and tables
+     Their fallbacks are the tokens ui-chat's chat.css gave the same places,
+     so a message reads as it did there. The local tokens are set on
+     .sf-chat-message-host, and on .sf-chat-surface and :host for a page
+     or a widget that draws the view without the element.
+
+     A file chip is sf-chat-composer's markup (classes sf-chat-attachment*);
+     its rules here are scoped to a message, so whichever sheet comes last,
+     a sent file looks as in a message and a chip in the composer as there. */
+  :host,
+  .sf-chat-surface,
+  .sf-chat-message-host {
+    --sf-chat-message--column: var(--sf-chat-message-width, var(--sf-layout-reading-width));
+    --sf-chat-message--gap-tight: var(--sf-space-1\/4);
+    --sf-chat-message--gap: var(--sf-space-1\/3);
+    --sf-chat-message--gap-related: var(--sf-space-1\/2);
+    /* Between turns: the answer's action row (or its reserve) is part of
+       the step, so the space after it is small — 48/40 from text to the
+       next question in all (D-09). */
+    --sf-chat-message--gap-turn: var(--sf-space-1\/2);
+    --sf-chat-message--ink: var(--sf-chat-message-text-color, var(--sf-on-surface));
+    --sf-chat-message--ink-muted: var(--sf-chat-message-muted-color, var(--sf-on-surface-variant));
+    --sf-chat-message--fill: var(--sf-chat-message-bubble-color, var(--sf-surface-container));
+    --sf-chat-message--edge: var(--sf-chat-message-border-color, var(--sf-outline-variant));
+    /* Half a line plus the inset: a capsule on one line, the same corner
+       when it grows (D-20). */
+    --sf-chat-message--bubble-radius: calc(var(--sf-text--height) / 2 + var(--sf-space-1\/3));
+    --sf-chat-message--card-radius: var(--sf-radius-2);
+    /* Nesting (SPEC §3): a container sets its radius and inset, what sits
+       inside takes max(--sf-radius--ui, radius − inset). Proposed to the
+       Framework as --sf-radius--nested. */
+    --sf-chat-message--nest-radius: var(--sf-radius--surface);
+    --sf-chat-message--nest-inset: 0px;
+    --sf-chat-message--ui-size: var(--sf-label-large--size);
+    --sf-chat-message--ui-height: var(--sf-label-large--height);
+    --sf-chat-message--meta-size: var(--sf-label-medium--size);
+    --sf-chat-message--meta-height: var(--sf-label-medium--height);
+    --sf-chat-message--touch: var(--sf-ui-2--control-height);
+    --sf-chat-message--line: var(--sf-px);
+    --sf-chat-message--attachment-max: var(--sf-f6);
+    --sf-chat-message--greeting-max: var(--sf-g6);
+    --sf-chat-message--pulse-period: 1.4s;
+    --sf-chat-message--shimmer-period: 2.2s;
+    --sf-chat-message--tools-height: var(--sf-ui-1\/2--control-height);
+  }
+
+  .sf-chat-offscreen {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* --- message --------------------------------------------------------- */
+
+  .sf-chat-message {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-chat-message--gap);
+    min-inline-size: 0;
+    color: var(--sf-chat-message--ink);
+    font-family: var(--sf-text--family);
+    font-size: var(--sf-text--size);
+    line-height: var(--sf-text--height);
+  }
+
+  .sf-chat-message--user {
+    align-items: flex-end;
+  }
+
+  /* A button's question: a quiet line at the question's side. */
+  .sf-chat-message__note {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-chat-message--gap-tight);
+    margin: 0;
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  .sf-chat-message__bubble {
+    max-inline-size: 75%;
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1);
+    border-radius: var(--sf-chat-message--bubble-radius);
+    background: var(--sf-chat-message--fill);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .sf-chat-message__files {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--sf-chat-message--gap);
+    max-inline-size: 75%;
+  }
+
+  .sf-chat-message__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-chat-message--gap-related);
+    min-inline-size: 0;
+  }
+
+  .sf-chat-message__plain {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* --- markup: the server's html --------------------------------------- */
+
+  .sf-chat-markup {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .sf-chat-markup > :first-child { margin-block-start: 0; }
+  .sf-chat-markup > :last-child { margin-block-end: 0; }
+
+  .sf-chat-markup :is(p, ul, ol, blockquote) {
+    margin-block: 0 var(--sf-chat-message--gap-related);
+  }
+
+  .sf-chat-markup :is(pre, .sf-chat-markup__table, .sf-highlight) {
+    margin-block: var(--sf-chat-message--gap-related);
+  }
+
+  .sf-chat-markup .sf-highlight pre { margin: 0; }
+
+  /* The code block is the Framework's Highlight, its surface and colours
+     its own (the dark-theme defect fixed in ui-3af4df883e63; the chat's
+     override is gone). The chat sets only its place in the answer. */
+  .sf-chat-markup .sf-highlight {
+    margin-block: var(--sf-chat-message--gap-related);
+  }
+
+  .sf-chat-markup :is(ul, ol) {
+    padding-inline-start: var(--sf-space-3);
+  }
+
+  .sf-chat-markup li + li {
+    margin-block-start: var(--sf-chat-message--gap-tight);
+  }
+
+  .sf-chat-markup li > :is(ul, ol) {
+    margin-block: var(--sf-chat-message--gap-tight) 0;
+  }
+
+  /* Three heading sizes, as Markdown's #, ## and ### come (h2, h3, h4):
+     a step apart on the Framework scale (24, 20, 16 bold over 16 text in
+     the window), none as loud as a page title. Headings keep tight lines. */
+  .sf-chat-markup h2 {
+    margin-block: var(--sf-space-3) var(--sf-chat-message--gap);
+    font-size: var(--sf-text--size-3);
+    line-height: var(--sf-text--height-2);
+    font-weight: var(--sf-font-weight-bold);
+  }
+
+  .sf-chat-markup h3 {
+    margin-block: var(--sf-space-2) var(--sf-chat-message--gap);
+    font-size: var(--sf-text--size-2);
+    line-height: var(--sf-text--height-1);
+    font-weight: var(--sf-font-weight-bold);
+  }
+
+  .sf-chat-markup h4 {
+    margin-block: var(--sf-space-1) var(--sf-chat-message--gap-tight);
+    font-size: var(--sf-text--size);
+    line-height: var(--sf-text--height);
+    font-weight: var(--sf-font-weight-bold);
+  }
+
+  .sf-chat-markup del {
+    color: var(--sf-chat-message--ink-muted);
+    text-decoration: line-through;
+  }
+
+  .sf-chat-markup strong { font-weight: var(--sf-font-weight-bold); }
+
+  .sf-chat-markup a {
+    color: var(--sf-primary);
+    text-decoration: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.2em;
+  }
+
+  /* The icon sits on the line's middle beside the link's words. */
+  .sf-chat-markup__image {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+  }
+
+  .sf-chat-markup blockquote {
+    padding-inline-start: var(--sf-space-1\/2);
+    border-inline-start: var(--sf-focus--width) solid var(--sf-chat-message--edge);
+    color: var(--sf-chat-message--ink-muted);
+  }
+
+  .sf-chat-markup :not(pre) > code:not([class*='sf-']) {
+    padding-inline: var(--sf-space-1\/4);
+    border-radius: var(--sf-radius--ui);
+    background: var(--sf-chat-message--fill);
+    font-family: var(--sf-mono);
+    font-size: 0.875em;
+  }
+
+  /* A plain <pre>; one the Framework's Highlight has taken (.sf-highlight)
+     carries its own surface, colours and copy header. */
+  .sf-chat-markup pre:not(.sf-code-surface__scroll) {
+    overflow-x: auto;
+    padding: var(--sf-space-1\/2);
+    border-radius: var(--sf-chat-message--card-radius);
+    background: var(--sf-chat-message--fill);
+    font-family: var(--sf-mono);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  .sf-chat-markup__table {
+    overflow-x: auto;
+    max-inline-size: 100%;
+  }
+
+  .sf-chat-markup table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  .sf-chat-markup :is(th, td) {
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1\/2);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .sf-chat-markup tr + tr > :is(th, td),
+  .sf-chat-markup tbody tr > :is(th, td) {
+    border-block-start: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+  }
+
+  .sf-chat-markup th {
+    border-block-end: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    color: var(--sf-chat-message--ink-muted);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-chat-markup :is(th, td):first-child { padding-inline-start: 0; }
+
+  .sf-chat-markup td code { background: none; padding: 0; }
+
+  /* The pill sits on the line's middle, not raised as a superscript: a
+     raised one reads as a speck, and the full stop after it drifts (D-07). */
+  .sf-chat-markup__ref {
+    vertical-align: baseline;
+    font-size: inherit;
+    line-height: 0;
+  }
+
+  /* The cited word, its footnote and the punctuation after it never part across lines. */
+  .sf-chat-markup__cite { white-space: nowrap; }
+
+  .sf-chat-footnote {
+    position: relative;
+    min-inline-size: 1.4em;
+    margin-inline: 0.15em 0;
+    padding-inline: 0.35em;
+    border: 0;
+    border-radius: var(--sf-radius-circle);
+    background: var(--sf-chat-message--fill);
+    color: var(--sf-chat-message--ink-muted);
+    font: inherit;
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    font-weight: var(--sf-font-weight-medium);
+    vertical-align: 0.1em;
+    cursor: pointer;
+    transition: background-color var(--sf-duration-fast), color var(--sf-duration-fast);
+  }
+
+  .sf-chat-footnote:hover {
+    background: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
+  }
+
+  /* --- actions under an answer ----------------------------------------- */
+
+  .sf-chat-message__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-chat-message--gap-tight);
+    margin-block-start: calc(var(--sf-chat-message--gap-tight) - var(--sf-chat-message--gap-related));
+    color: var(--sf-chat-message--ink-muted);
+  }
+
+  .sf-chat-message__actions .sf-icon-button {
+    --sf-icon--font-size: var(--sf-icon-size-1);
+  }
+
+  /* The first action's icon, not its hit area, lines up with the text. */
+  .sf-chat-message__actions > :first-child {
+    margin-inline-start: calc(-1 * var(--sf-space-1\/2));
+  }
+
+  .sf-chat-message__divider {
+    inline-size: var(--sf-chat-message--line);
+    block-size: var(--sf-icon-size-2);
+    margin-inline: var(--sf-chat-message--gap-tight);
+    background: var(--sf-chat-message--edge);
+  }
+
+  .sf-chat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-chat-message--gap-tight);
+    min-block-size: var(--sf-ui-1\/2--control-height);
+    padding-inline: var(--sf-space-1\/2);
+    border: 0;
+    border-radius: var(--sf-radius-circle);
+    background: transparent;
+    color: var(--sf-chat-message--ink-muted);
+    font: inherit;
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+    white-space: nowrap;
+  }
+
+  button.sf-chat-chip { cursor: pointer; }
+
+  button.sf-chat-chip:hover,
+  button.sf-chat-chip[aria-expanded='true'] {
+    background: var(--sf-surface-transparent-hover);
+    color: var(--sf-chat-message--ink);
+  }
+
+  .sf-chat-chip--verified { color: var(--sf-on-success-container); }
+
+  /* How the answer was made (API.md v1.1 summary): the row's quietest text,
+     at its end, cut to the line rather than wrapping the row. */
+  .sf-chat-message__summary {
+    /* It takes what the row leaves and never pushes the row onto a second
+       line: on a phone it is cut, and the tooltip has it whole. */
+    flex: 1 1 0;
+    min-inline-size: 0;
+    text-align: end;
+    padding-inline-start: var(--sf-space-1\/3);
+    overflow: hidden;
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* --- why an answer was not helpful (v1.1 feedback reason) -------------- */
+
+  /* A small card under the action row, as quiet as a proposal's: an edge,
+     no fill; the choices are the row's chips, pressed when chosen. */
+  .sf-chat-reason {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+    /* As wide as the greeting: a short form, not a second column. */
+    max-inline-size: var(--sf-chat-message--greeting-max);
+    margin-block-start: var(--sf-chat-message--gap-tight);
+    padding: var(--sf-space-1\/2);
+    border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    border-radius: var(--sf-chat-message--card-radius);
+  }
+
+  .sf-chat-reason__title {
+    margin: 0;
+    color: var(--sf-chat-message--ink);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-chat-reason__choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sf-chat-message--gap-tight);
+  }
+
+  .sf-chat-chip--choice {
+    border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    color: var(--sf-chat-message--ink);
+  }
+
+  button.sf-chat-chip--choice[aria-pressed='true'] {
+    border-color: transparent;
+    background: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
+  }
+
+  .sf-chat-reason__note { inline-size: 100%; }
+
+  .sf-chat-reason__note input { min-inline-size: 0; flex: 1; }
+
+  .sf-chat-reason__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+  }
+
+  /* --- the task brief (API.md v1.2): questions or a card to confirm ------ */
+
+  /* As quiet as the «why» card: an edge, no fill. The options are the
+     Framework's buttons -- the recommended one filled, the rest outlined --
+     each with its detail and the «recommended» mark in a quiet line beside. */
+  .sf-chat-brief {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/2);
+    min-inline-size: 0;
+    max-inline-size: var(--sf-chat-message--greeting-max);
+    margin: var(--sf-chat-message--gap-tight) 0 0;
+    padding: var(--sf-space-1\/2);
+    border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    border-radius: var(--sf-chat-message--card-radius);
+  }
+
+  .sf-chat-brief__question {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  /* The legend is floated out of the border, so it is an ordinary first
+     line of the card and takes the flow's gap. */
+  .sf-chat-brief__text {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    float: inline-start;
+    inline-size: 100%;
+    gap: var(--sf-chat-message--gap-tight) var(--sf-space-1\/3);
+    padding: 0;
+    margin: 0;
+    /* The question is read as the answer's text is: its size, a step bolder. */
+    color: var(--sf-chat-message--ink);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-chat-brief__optional,
+  .sf-chat-brief__meta,
+  .sf-chat-brief__hint {
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    font-weight: var(--sf-font-weight-regular);
+  }
+
+  .sf-chat-brief__options {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sf-chat-message--gap-tight);
+  }
+
+  .sf-chat-brief__option {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-chat-message--gap-tight) var(--sf-space-1\/3);
+    max-inline-size: 100%;
+  }
+
+  /* A long option wraps inside its button rather than out of the card. */
+  .sf-chat-brief .sf-button {
+    max-inline-size: 100%;
+    block-size: auto;
+    min-block-size: var(--sf-ui-1\/2--control-height);
+  }
+
+  .sf-chat-brief .sf-button .sf-button-text-container {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: start;
+  }
+
+  .sf-chat-brief__meta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--sf-chat-message--gap-tight) var(--sf-space-1\/3);
+  }
+
+  .sf-chat-brief__mark { color: var(--sf-primary); }
+
+  .sf-chat-brief__other {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+  }
+
+  .sf-chat-brief__field {
+    flex: 1 1 12rem;
+    min-inline-size: 0;
+  }
+
+  .sf-chat-brief__field input { min-inline-size: 0; flex: 1; }
+
+  .sf-chat-brief__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+  }
+
+  /* The record of an answered question: the option taken, pressed. */
+  .sf-chat-brief__chip { white-space: normal; }
+
+  .sf-chat-chip--chosen {
+    border-color: transparent;
+    background: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
+  }
+
+  .sf-chat-brief__parts {
+    display: grid;
+    gap: var(--sf-chat-message--gap-tight);
+    margin: 0;
+  }
+
+  .sf-chat-brief__term {
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  .sf-chat-brief__term:not(:first-child) { margin-block-start: var(--sf-chat-message--gap-tight); }
+
+  .sf-chat-brief__detail {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .sf-chat-brief__list {
+    margin: 0;
+    padding-inline-start: var(--sf-space-1);
+  }
+
+  .sf-chat-brief__list li + li { margin-block-start: var(--sf-chat-message--gap-tight); }
+
+  .sf-chat-brief__confirmed {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-chat-message--gap-tight);
+    margin: 0;
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  /* On a pointer that hovers, earlier answers keep their tools out of sight
+     until asked for; the last answer and touch screens always show them.
+     Sources and «checked» stay: they are part of the answer, not tools. */
+  @media (hover: hover) {
+    .sf-chat-message--assistant:not(.sf-chat-message--last) .sf-chat-message__tool {
+      opacity: 0;
+      transition: opacity var(--sf-duration-fast);
+    }
+
+    .sf-chat-message--assistant:hover .sf-chat-message__tool,
+    .sf-chat-message--assistant:focus-within .sf-chat-message__tool {
+      opacity: 1;
+    }
+  }
+
+  /* An answer without an action row (a refusal, a limit, an error) keeps
+     the row's place, so turns stand the same distance apart. */
+  .sf-chat-message--assistant:not(:has(.sf-chat-message__actions)):not(.sf-chat-message--queued, .sf-chat-message--running) {
+    padding-block-end: calc(var(--sf-chat-message--tools-height) + var(--sf-chat-message--gap-tight));
+  }
+
+  /* --- sources --------------------------------------------------------- */
+
+  .sf-chat-sources {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-chat-message--gap-tight);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sf-chat-sources[hidden] { display: none; }
+
+  .sf-chat-sources__item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sf-space-1\/2);
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1\/2);
+    border-radius: var(--sf-chat-message--card-radius);
+    transition: background-color var(--sf-duration-normal);
+  }
+
+  .sf-chat-sources__item--target { background: var(--sf-primary-transparent-select); }
+
+  .sf-chat-sources__number {
+    flex: none;
+    min-inline-size: 1.6em;
+    padding-inline: 0.4em;
+    border-radius: var(--sf-radius-circle);
+    background: var(--sf-chat-message--fill);
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--ui-height);
+    font-weight: var(--sf-font-weight-medium);
+    text-align: center;
+  }
+
+  .sf-chat-sources__body {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .sf-chat-sources__title {
+    color: var(--sf-chat-message--ink);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+    overflow-wrap: anywhere;
+  }
+
+  a.sf-chat-sources__title {
+    color: var(--sf-primary);
+    text-decoration: none;
+  }
+
+  a.sf-chat-sources__title:hover { text-decoration: underline; }
+
+  .sf-chat-sources__meta {
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  /* The passage the answer leans on (v1.1 excerpt): under the title, quieter
+     than it, two lines until opened. */
+  .sf-chat-sources__excerpt-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sf-chat-sources__excerpt {
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    overflow-wrap: anywhere;
+  }
+
+  .sf-chat-sources__excerpt--folded {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .sf-chat-sources__more {
+    padding: 0;
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: none;
+    color: var(--sf-primary);
+    font: inherit;
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+
+  /* --- stages ---------------------------------------------------------- */
+
+  .sf-chat-stages {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    min-block-size: var(--sf-text--height);
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  .sf-chat-stages__pulse {
+    inline-size: var(--sf-space-1\/3);
+    block-size: var(--sf-space-1\/3);
+    border-radius: var(--sf-radius-circle);
+    background: var(--sf-chat-message--ink);
+    animation: sf-chat-pulse var(--sf-chat-message--pulse-period) var(--sf-ease-move, ease-in-out) infinite;
+  }
+
+  .sf-chat-stages__label {
+    background: linear-gradient(90deg, var(--sf-chat-message--ink-muted) 35%, var(--sf-chat-message--ink) 50%, var(--sf-chat-message--ink-muted) 65%);
+    background-size: 300% 100%;
+    background-clip: text;
+    color: transparent;
+    animation: sf-chat-shimmer var(--sf-chat-message--shimmer-period) linear infinite;
+  }
+
+  @keyframes sf-chat-pulse {
+    50% { opacity: 0.25; scale: 0.6; }
+  }
+
+  @keyframes sf-chat-shimmer {
+    from { background-position: 100% 0; }
+    to { background-position: 0 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sf-chat-stages__pulse,
+    .sf-chat-stages__label { animation: none; }
+    .sf-chat-stages__label { color: var(--sf-chat-message--ink-muted); background: none; }
+  }
+
+  @media (forced-colors: active) {
+    .sf-chat-stages__label { color: CanvasText; background: none; }
+  }
+
+  /* --- notices: statuses that are not an answer ------------------------ */
+
+  /* A status is a quiet line: its icon carries the colour, the text stays
+     ink, nothing is filled — the answer, not the error, is the loudest thing
+     on the page (D-12). */
+  .sf-chat-notice {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    align-self: flex-start;
+    gap: var(--sf-space-1\/3) var(--sf-space-1\/2);
+    max-inline-size: 100%;
+    color: var(--sf-chat-message--ink);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  /* The icon sits on the first line's axis, whatever the text's length. */
+  .sf-chat-notice__icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    block-size: var(--sf-chat-message--ui-height);
+    color: var(--sf-chat-message--ink-muted);
+  }
+
+  .sf-chat-notice > * { min-inline-size: 0; }
+
+  .sf-chat-notice__text {
+    flex: 1 1 auto;
+    margin: 0;
+  }
+
+  /* A second line of the same notice: when the limit renews (v1.1). */
+  .sf-chat-notice__more {
+    display: block;
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  /* A refusal is an answer in its own words, not a system error. */
+  .sf-chat-notice--refused,
+  .sf-chat-notice--withheld {
+    font-size: var(--sf-text--size);
+    line-height: var(--sf-text--height);
+  }
+
+  .sf-chat-notice--refused .sf-chat-notice__icon,
+  .sf-chat-notice--withheld .sf-chat-notice__icon { block-size: var(--sf-text--height); }
+
+  .sf-chat-notice--failed .sf-chat-notice__icon,
+  .sf-chat-notice--network .sf-chat-notice__icon { color: var(--sf-error); }
+
+  .sf-chat-notice--limit .sf-chat-notice__icon { color: var(--sf-warning); }
+
+  .sf-chat-notice--delayed .sf-chat-notice__icon,
+  .sf-chat-notice--stopped .sf-chat-notice__icon { color: var(--sf-info); }
+
+  /* Only the latest failed answer offers a retry; an older one is a record. */
+  .sf-chat-message--failed:not(.sf-chat-message--last) .sf-chat-notice__action { display: none; }
+
+  .sf-chat-notice__action {
+    flex: none;
+    margin-inline-start: auto;
+    padding-inline: var(--sf-space-1\/3);
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: none;
+    color: var(--sf-primary);
+    font: inherit;
+    font-weight: var(--sf-font-weight-medium);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+
+  /* --- verification, memory -------------------------------------------- */
+
+  .sf-chat-check {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-chat-message--gap-tight);
+    margin: 0;
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  .sf-chat-check--unverified,
+  .sf-chat-check--partial { color: var(--sf-on-warning-container); }
+
+  .sf-chat-memory {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sf-chat-message--gap-tight);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sf-chat-memory__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-chat-message--gap-tight);
+    padding-block: var(--sf-space-1\/4);
+    padding-inline: var(--sf-space-1\/3) var(--sf-space-1\/2);
+    border-radius: var(--sf-radius-circle);
+    background: var(--sf-info-container);
+    color: var(--sf-on-info-container);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  /* --- attachment ------------------------------------------------------ */
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    max-inline-size: var(--sf-chat-message--attachment-max);
+    min-inline-size: 0;
+    min-block-size: var(--sf-ui-2--control-height);
+    padding-block: var(--sf-space-1\/4);
+    padding-inline: var(--sf-space-1\/3);
+    border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    border-radius: var(--sf-chat-message--card-radius);
+    background: var(--sf-surface-0);
+    color: var(--sf-chat-message--ink);
+  }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment--error { border-color: var(--sf-outline-error); }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    inline-size: var(--sf-ui-1\/2--control-height);
+    block-size: var(--sf-ui-1\/2--control-height);
+    border-radius: var(--sf-radius--ui);
+    background: var(--sf-chat-message--fill);
+    color: var(--sf-chat-message--ink-muted);
+  }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment--error .sf-chat-attachment__icon { color: var(--sf-error); }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  /* A kept file's name downloads it (API.md v1.1 §1.5): the text's colour,
+     the link shows on hover and in the focus ring, and the whole chip is
+     its target. */
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment:has(.sf-chat-attachment__link:hover) { background: var(--sf-surface-transparent-hover); }
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment__link:hover { text-decoration: underline; }
+
+  /* One line: a refusal's reason is shortened here and said in full in the
+     composer's line under the field (D-06). */
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment__meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment--error .sf-chat-attachment__meta { color: var(--sf-error); }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment__progress {
+    position: absolute;
+    inset-inline: var(--sf-space-1\/3);
+    inset-block-end: 0;
+    block-size: calc(2 * var(--sf-chat-message--line));
+    border-radius: var(--sf-radius-circle);
+    background: linear-gradient(90deg, var(--sf-primary) calc(var(--sf-chat-attachment--progress, 0) * 100%), transparent 0);
+  }
+
+  :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment__remove { flex: none; }
+
+  /* --- forced colours: shapes drawn by fills keep an edge (Q-10) --------- */
+
+  @media (forced-colors: active) {
+    .sf-chat-footnote,
+    .sf-chat-message__bubble {
+      border: var(--sf-chat-message--line) solid CanvasText;
+    }
+  }
+
+  /* --- touch screens: every target at least the comfortable control ----- */
+
+  @media (pointer: coarse) {
+    /* The action row is 44 here and its buttons carry their own air: the
+       row is the whole step to the next question (D-09). */
+    :host, .sf-chat-surface, .sf-chat-message-host {
+      --sf-chat-message--tools-height: var(--sf-chat-message--touch);
+      --sf-chat-message--gap-turn: 0px;
+    }
+
+    .sf-chat-message__actions .sf-icon-button,
+    .sf-chat-attachment__remove,
+    .sf-chat-chip,
+    .sf-chat-sources__more,
+    .sf-chat-notice__action,
+    .sf-chat-brief .sf-button {
+      min-inline-size: var(--sf-chat-message--touch);
+      min-block-size: var(--sf-chat-message--touch);
+    }
+
+    .sf-chat-footnote::after {
+      content: '';
+      position: absolute;
+      inset: calc(-1 * var(--sf-space-1));
+    }
+  }
+
+  /* A narrow screen keeps the action row on one line: «checked» as its icon. */
+  @media (max-width: 599px) {
+    .sf-chat-chip--verified > :not(:first-child),
+    .sf-chat-chip--sources .sf-chat-chip__label {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+  }
+
+  /* === the template person (ui-chat people.css) ======================== */
+
+  .sf-chat-person {
+    --sf-chat-message--avatar: var(--sf-ui-1\/2--control-height);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: var(--sf-space-1\/3);
+    margin-block-start: var(--sf-chat-message--gap-tight);
+    font-size: var(--sf-text--size);
+    line-height: var(--sf-text--height);
+  }
+
+  /* A new author starts a run: the space of a turn, not of a line. */
+  .sf-chat-person--first { margin-block-start: var(--sf-chat-message--gap-related); }
+
+  .sf-chat-person--own { flex-direction: row-reverse; }
+
+  .sf-chat-person__avatar {
+    flex: none;
+    display: grid;
+    place-items: center;
+    inline-size: var(--sf-chat-message--avatar);
+    block-size: var(--sf-chat-message--avatar);
+    border-radius: var(--sf-radius-circle);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  /* Only the first of a run shows the initials; the rest keep the place so a
+     run's bubbles stay in one column. */
+  .sf-chat-person__avatar:not(:empty) { background: var(--sf-surface-container); }
+
+  .sf-chat-person__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sf-chat-message--gap-tight);
+    min-inline-size: 0;
+    max-inline-size: min(75%, var(--sf-chat-message--column));
+  }
+
+  .sf-chat-person--own .sf-chat-person__body { align-items: flex-end; }
+
+  .sf-chat-person__name,
+  .sf-chat-person__meta {
+    margin: 0;
+    padding-inline: var(--sf-space-1\/2);
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  .sf-chat-person__name { font-weight: var(--sf-font-weight-medium); }
+
+  .sf-chat-person__bubble {
+    margin: 0;
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1\/2);
+    border-radius: var(--sf-chat-message--bubble-radius);
+    background: var(--sf-chat-message--fill);
+    color: var(--sf-chat-message--ink);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .sf-chat-person--own .sf-chat-person__bubble {
+    background: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
+  }
+
+  /* A deleted message keeps its place as an outline, without text or files. */
+  .sf-chat-person__bubble--tomb,
+  .sf-chat-person--own .sf-chat-person__bubble--tomb {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-chat-message--gap-tight);
+    border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    background: none;
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  .sf-chat-person--pending .sf-chat-person__bubble { opacity: 0.7; }
+
+  .sf-chat-person--failed .sf-chat-person__bubble {
+    box-shadow: inset 0 0 0 var(--sf-chat-message--line) var(--sf-outline-error);
+  }
+
+  .sf-chat-person__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--sf-space-1\/3);
+  }
+
+  .sf-chat-person__state { display: inline-flex; align-items: center; gap: var(--sf-chat-message--gap-tight); }
+
+  .sf-chat-person__state--failed { color: var(--sf-error); }
+
+  .sf-chat-person__files {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-chat-message--gap-tight);
+  }
+
+  .sf-chat-person__file { position: relative; }
+
+  .sf-chat-person__file-link {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  /* Edit and delete beside the bubble: out of sight on a pointer that hovers
+     until the message is hovered or holds the focus; always on touch. */
+  .sf-chat-person__tools {
+    display: flex;
+    align-self: center;
+    gap: var(--sf-chat-message--gap-tight);
+    color: var(--sf-chat-message--ink-muted);
+  }
+
+  @media (hover: hover) {
+    .sf-chat-person__tools { opacity: 0; transition: opacity var(--sf-duration-fast); }
+
+    .sf-chat-person:hover .sf-chat-person__tools,
+    .sf-chat-person:focus-within .sf-chat-person__tools { opacity: 1; }
+  }
+
+  .sf-chat-person__editor {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-chat-message--gap-tight);
+    inline-size: min(var(--sf-chat-person--editor-max, 36rem), 100%);
+  }
+
+  .sf-chat-person__edit-field {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: calc(var(--sf-text--height) + 2 * var(--sf-space-1\/3));
+    max-block-size: calc(10 * var(--sf-text--height));
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1\/2);
+    border: var(--sf-chat-message--line) solid var(--sf-outline);
+    border-radius: var(--sf-chat-message--bubble-radius);
+    background: var(--sf-surface-0);
+    color: var(--sf-chat-message--ink);
+    font: inherit;
+    resize: none;
+  }
+
+  .sf-chat-person__edit-actions,
+  .sf-chat-person__ask {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--sf-chat-message--gap-tight);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  .sf-chat-person__ask > span { color: var(--sf-chat-message--ink); }
+
+  @media (pointer: coarse) {
+    .sf-chat-person__tools .sf-icon-button,
+    .sf-chat-person__edit-actions .sf-button,
+    .sf-chat-person__ask .sf-button {
+      min-inline-size: var(--sf-chat-message--touch);
+      min-block-size: var(--sf-chat-message--touch);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .sf-chat-person__bubble,
+    .sf-chat-person__avatar:not(:empty) { border: var(--sf-chat-message--line) solid CanvasText; }
+  }
+}
