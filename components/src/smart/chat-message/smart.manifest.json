@@ -485,7 +485,7 @@
       },
       {
         "path": "src/smart/chat-message/rule.js",
-        "sha256": "c471d456117ac3e72a28d3af94947fe02fa93c07bdee6856f710562004af2e31"
+        "sha256": "1f2cd38d548d4d03bac802f29ba717f8aabd5baa154d1693e287232e7be86c15"
       },
       {
         "path": "src/smart/chat-message/docs.md",
@@ -493,7 +493,7 @@
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "ee9fa4a2fdc47fbdcef7fa2616f66b3c3c62eb9bad6709d962d2af5237d0e991"
+        "sha256": "79a6251de4e1df4112e62afbbfe2695d5c98087fac7cbb3c7029ed769a96a2f7"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
