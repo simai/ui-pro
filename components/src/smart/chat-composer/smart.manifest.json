@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "id": "smart.chat-composer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "title": "Chat composer",
-  "summary": "Where a question is written and files are added: Enter sends, Shift+Enter breaks the line, an IME composition is never cut short, the send button becomes «stop waiting» while an answer is awaited, and files are only reported for the host to upload; their chips come back as the setting files.",
+  "summary": "Where a question is written and files are added: Enter sends, Shift+Enter breaks the line, an IME composition is never cut short, the send button becomes «stop waiting» while an answer is awaited, and files are only reported for the host to upload; their chips come back as files.",
   "kind": "smart",
   "reuse_mode": "whole",
   "lifecycle": "experimental",
@@ -27,42 +27,49 @@
   "exported_parts": [],
   "composition": {
     "uses": [
-      "component.textarea",
       "component.icon-buttons",
+      "component.textarea",
       "smart.icon"
     ],
     "public_parts": []
   },
   "inputs": {
     "type": "object",
-    "additionalProperties": false,
     "properties": {
       "template": {
         "type": "string",
-        "const": "default",
-        "default": "default"
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates.",
+        "const": "default"
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
       },
       "placeholder": {
         "type": "string",
-        "default": "",
         "description": "Empty uses the composer's own word «Спросите что-нибудь»."
       },
       "maxlength": {
         "type": "integer",
-        "minimum": 1,
         "default": 4000,
-        "description": "bootstrap.limits.message_chars."
+        "description": "bootstrap.limits.message_chars.",
+        "minimum": 1
       },
       "max-files": {
         "type": "integer",
-        "minimum": 1,
-        "default": 5
+        "default": 5,
+        "minimum": 1
       },
       "max-bytes": {
         "type": "integer",
-        "minimum": 0,
         "default": 0,
-        "description": "0 checks no size."
+        "description": "0 checks no size.",
+        "minimum": 0
       },
       "accept": {
         "type": "string",
@@ -87,10 +94,11 @@
       "value": {
         "type": "string",
         "default": "",
-        "description": "The text in the field (the draft): the attribute gives the first text, the property reads and writes the field; a write is as if typed."
+        "description": "the text in the field (the draft); setting it is as if typed: the field grows to it. The attribute gives the first text; the property reads the field."
       },
       "files": {
         "type": "array",
+        "default": [],
         "items": {
           "type": "object",
           "required": [
@@ -128,11 +136,12 @@
             }
           }
         },
-        "default": [],
         "description": "The chips as the host knows them, a property, the action set-files or the JSON island."
       }
-    }
+    },
+    "additionalProperties": false
   },
+  "item_contract": {},
   "contracts": {
     "file": {
       "type": "object",
@@ -201,7 +210,6 @@
       "arguments": [
         {
           "name": "files",
-          "required": true,
           "schema": {
             "type": "array",
             "items": {
@@ -280,26 +288,29 @@
         "type": "object",
         "required": [
           "text",
-          "attachment-ids"
+          "attachmentIds"
         ],
         "properties": {
           "text": {
             "type": "string"
           },
-          "attachment-ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "attachmentIds": {
+            "type": "array"
           }
-        }
-      }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-chat-composer-stop": {
       "summary": "«Остановить ожидание» was pressed. The 0.3 name sf-chat-stop follows it until 2026-12-01.",
       "payload": {
-        "type": "object"
-      }
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-chat-composer-attach": {
       "summary": "Files were offered by the button, a drop or a paste; rejected by type, size or count, each with a reason. The 0.3 name sf-chat-files follows it until 2026-12-01.",
@@ -331,8 +342,10 @@
               }
             }
           }
-        }
-      }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-chat-composer-detach": {
       "summary": "A chip's remove was pressed. The 0.3 sf-chat-action {action: remove-attachment, id, name} follows it until 2026-12-01.",
@@ -342,14 +355,42 @@
           "id"
         ],
         "properties": {
-          "id": {
-            "type": "string"
-          },
+          "id": {},
           "name": {
             "type": "string"
           }
-        }
-      }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-chat-send": {
+      "summary": "Dated alias of sf-chat-composer-submit until 2026-12-01 (split).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-chat-composer-submit"
+    },
+    "sf-chat-stop": {
+      "summary": "Dated alias of sf-chat-composer-stop until 2026-12-01 (same-detail).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-chat-composer-stop"
+    },
+    "sf-chat-files": {
+      "summary": "Dated alias of sf-chat-composer-attach until 2026-12-01 (same-detail).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-chat-composer-attach"
+    },
+    "sf-chat-action": {
+      "summary": "Dated alias of sf-chat-composer-detach until 2026-12-01 (split).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-chat-composer-detach"
     }
   },
   "state": {
@@ -481,11 +522,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "eddb3fb2ea3b92ddffbf29d883dfca1b9ef06b81",
+    "source_revision": "3509a69c4af3bf7e716a5d9a320af5631b929d59",
     "source_artifacts": [
       {
         "path": "src/smart/chat-composer/index.js",
-        "sha256": "25d1db10c7b93ad626702d5b4482195837f2bbfb32b6ede4e66c14b90dd5d9a4"
+        "sha256": "9f671ce810af5ba692bfc21d39487a7f395be1e29ce937ca7be57eca3aece471"
       },
       {
         "path": "src/smart/chat-composer/js/templates/default.js",
@@ -501,7 +542,7 @@
       },
       {
         "path": "src/smart/chat-composer/rule.js",
-        "sha256": "76682676bc51599753749bfc3688ba91beedde1e1d49122d7a8220fd8d1bd384"
+        "sha256": "cca7b00064185d4b75feba62eee56f9d8341805ffd0099a0891033681d5ccdef"
       },
       {
         "path": "src/smart/chat-composer/docs.md",
@@ -509,11 +550,11 @@
       },
       {
         "path": "src/smart/chat-composer/component.json",
-        "sha256": "39240ee2b0f161b829fa44ecc6ea79fde3cc94edae63487675729d39a6916f9b"
+        "sha256": "ff68c1b147b72f969a15d9c2232a4a878ddc639cddddbd8b0634210299391d4c"
       },
       {
         "path": "src/smart/chat-composer/aliases.json",
-        "sha256": "2ea8591e92a62c8c4699ad6d4f5c21edec41aea77e4acc92df0c29b8311bddee"
+        "sha256": "fb8800414e609b679241f17902e428b5b07dd9fedbe1df522ccf066a521b016b"
       },
       {
         "path": "src/smart/chat-composer/lang/en.json",

@@ -26,6 +26,47 @@
         "texts": {
           ".sf-chat-interlocutor__title": "Мой помощник"
         }
+      },
+      "studio": {
+        "id": "interlocutor-reference",
+        "title": "Interlocutor reference",
+        "summary": "Deterministic reference fixture for sf-chat-interlocutor: two interlocutors, the personal one current.",
+        "props": {
+          "value": "personal",
+          "options": [
+            {
+              "id": "personal",
+              "title": "Мой помощник",
+              "kind": "personal"
+            },
+            {
+              "id": "admin",
+              "title": "Ассистент администратора",
+              "kind": "admin"
+            }
+          ]
+        },
+        "scenario": {
+          "steps": [
+            {
+              "invoke": "setOptions",
+              "with": [
+                [
+                  {
+                    "id": "personal",
+                    "title": "Мой помощник",
+                    "kind": "personal"
+                  },
+                  {
+                    "id": "admin",
+                    "title": "Ассистент администратора",
+                    "kind": "admin"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
       }
     },
     {
@@ -127,6 +168,212 @@
           ".sf-chat-interlocutor__title": "База 3"
         }
       }
+    }
+  ],
+  "pages": [
+    {
+      "name": "conformance",
+      "title": "sf-chat-interlocutor against component.json (standard simai.smart-component 1.3.9 §12, gate 20); the behaviour simai/ui-chat's tests/browser/staff.test.mjs holds for it: one interlocutor names it and offers no choice, two are a choice, an old thread with neither is «Помощник»",
+      "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+      "page": {
+        "lang": "ru",
+        "body": [
+          "<main>",
+          "  <sf-chat-interlocutor id=\"two\" value=\"personal\"><script type=\"application/json\" data-sf-settings>{\"options\": [{\"id\": \"personal\", \"title\": \"Мой помощник\", \"kind\": \"personal\"}, {\"id\": \"shop\", \"title\": \"Поддержка магазина\", \"kind\": \"knowledge\"}]}</script></sf-chat-interlocutor>",
+          "  <sf-chat-interlocutor id=\"one\" value=\"personal\"><script type=\"application/json\" data-sf-settings>{\"options\": [{\"id\": \"personal\", \"title\": \"Мой помощник\", \"kind\": \"personal\"}]}</script></sf-chat-interlocutor>",
+          "  <sf-chat-interlocutor id=\"former\" value=\"admin\"><script type=\"application/json\" data-sf-settings>{\"options\": [{\"id\": \"personal\", \"title\": \"Мой помощник\", \"kind\": \"personal\"}]}</script></sf-chat-interlocutor>",
+          "  <sf-chat-interlocutor id=\"many\" value=\"personal\"><script type=\"application/json\" data-sf-settings>{\"options\": [{\"id\": \"personal\", \"title\": \"Мой помощник\", \"kind\": \"personal\"}, {\"id\": \"base-1\", \"title\": \"База 1\", \"kind\": \"knowledge\"}, {\"id\": \"base-2\", \"title\": \"База 2\", \"kind\": \"knowledge\"}, {\"id\": \"base-3\", \"title\": \"База 3\", \"kind\": \"knowledge\"}, {\"id\": \"base-4\", \"title\": \"База 4\", \"kind\": \"knowledge\"}, {\"id\": \"base-5\", \"title\": \"База 5\", \"kind\": \"knowledge\"}, {\"id\": \"base-6\", \"title\": \"База 6\", \"kind\": \"knowledge\"}, {\"id\": \"base-7\", \"title\": \"База 7\", \"kind\": \"knowledge\"}, {\"id\": \"base-8\", \"title\": \"База 8\", \"kind\": \"knowledge\"}]}</script></sf-chat-interlocutor>",
+          "  <sf-chat-interlocutor id=\"late\" value=\"personal\"></sf-chat-interlocutor>",
+          "</main>"
+        ]
+      },
+      "checks": [
+        {
+          "id": "p1-two-is-a-choice",
+          "title": "two interlocutors: the button names the current one, is a closed menu button described by what a change does; a press opens the Framework's menu with two radio rows, the current one checked, the own and the knowledge base's under their headings and a closing heading that says a change starts a new conversation",
+          "covers": "settings.options, values.value, accessibility.name runtime.button-label, keyboard.host Enter open, actions.open",
+          "steps": [
+            {
+              "script": "(document.activeElement?.blur?.(), true)",
+              "wait": 60,
+              "check": "(() => { const b = document.querySelector('#two .sf-chat-interlocutor__button'); const note = document.getElementById(b.getAttribute('aria-describedby')); return b.getAttribute('aria-label') === 'Помощник: Мой помощник' && b.getAttribute('aria-haspopup') === 'menu' && b.getAttribute('aria-expanded') === 'false' && !b.disabled && note?.textContent === 'При смене помощника начнётся новый разговор' && note.classList.contains('sr-only') && b.querySelector('.sf-chat-interlocutor__title').textContent === 'Мой помощник'; })()"
+            },
+            {
+              "script": "(document.querySelector('#two .sf-chat-interlocutor__button').focus(), true)",
+              "wait": 60
+            },
+            {
+              "user": "keyboard:Enter",
+              "wait": 500,
+              "check": "(() => { const rows = [...document.querySelectorAll('#two .sf-context-menu-item[role=menuitemradio]')]; return rows.length === 2 && rows[0].getAttribute('aria-checked') === 'true' && rows[1].getAttribute('aria-checked') === 'false' && rows[1].textContent.includes('Поддержка магазина') && document.querySelector('#two .sf-chat-interlocutor__button').getAttribute('aria-expanded') === 'true' && [...document.querySelectorAll('#two .sf-context-menu-heading')].map((one) => one.textContent.trim()).join('|') === 'Мои помощники|Помощники баз|При смене помощника начнётся новый разговор'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p2-choice-is-select",
+          "title": "choosing another interlocutor sends sf-chat-interlocutor-select {id} once and the 0.3 name sf-chat-interlocutor once, noted with its dates; the element leaves value to the host",
+          "covers": "events.select, aliases sf-chat-interlocutor, values.value controlled",
+          "steps": [
+            {
+              "action": {
+                "name": "open"
+              },
+              "target": "#two",
+              "wait": 500,
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                }
+              }
+            },
+            {
+              "script": "([...document.querySelectorAll('#two .sf-context-menu-item[role=menuitemradio]')].find((row) => row.textContent.includes('Поддержка магазина')).click(), true)",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-chat-interlocutor-select",
+                    "count": 1,
+                    "detail": {
+                      "id": "shop"
+                    }
+                  },
+                  {
+                    "name": "sf-chat-interlocutor",
+                    "count": 1,
+                    "detail": {
+                      "id": "shop"
+                    }
+                  }
+                ],
+                "journal": [
+                  {
+                    "from": "sf-chat-interlocutor",
+                    "to": "sf-chat-interlocutor-select",
+                    "since": "2026-10-28",
+                    "remove_after": "2026-12-01"
+                  }
+                ]
+              },
+              "check": "document.querySelector('#two').value === 'personal'"
+            },
+            {
+              "script": "(document.querySelector('#two').value = 'shop', true)",
+              "wait": 200,
+              "check": "document.querySelector('#two .sf-chat-interlocutor__button').getAttribute('aria-label') === 'Помощник: Поддержка магазина'"
+            }
+          ]
+        },
+        {
+          "id": "p3-current-is-no-choice",
+          "title": "choosing the current interlocutor again sends nothing",
+          "covers": "events.select",
+          "steps": [
+            {
+              "action": {
+                "name": "open"
+              },
+              "target": "#two",
+              "wait": 500
+            },
+            {
+              "script": "([...document.querySelectorAll('#two .sf-context-menu-item[role=menuitemradio]')].find((row) => row.textContent.includes('Мой помощник')).click(), true)",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-chat-interlocutor-select",
+                    "count": 0
+                  },
+                  {
+                    "name": "sf-chat-interlocutor",
+                    "count": 0
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p4-one-is-a-name",
+          "title": "one interlocutor: the header names it and offers no choice that does not exist -- a disabled button without aria-haspopup, aria-expanded or a description, the --single class, open refused single and no menu rows",
+          "covers": "actions.open refused single, accessibility.name",
+          "steps": [
+            {
+              "action": {
+                "name": "open"
+              },
+              "target": "#one",
+              "expect": {
+                "returns": {
+                  "outcome": "refused",
+                  "reason": "single"
+                }
+              },
+              "check": "(() => { const b = document.querySelector('#one .sf-chat-interlocutor__button'); return b.disabled && b.getAttribute('aria-label') === 'Помощник: Мой помощник' && !b.hasAttribute('aria-haspopup') && !b.hasAttribute('aria-expanded') && !b.hasAttribute('aria-describedby') && document.querySelector('#one .sf-chat-interlocutor--single') !== null && document.querySelectorAll('#one [role=menuitemradio]').length === 0; })()"
+            }
+          ]
+        },
+        {
+          "id": "p5-former-is-assistant",
+          "title": "a conversation with an interlocutor the server no longer lists is named «Помощник», never an empty line or undefined",
+          "covers": "runtime.assistant-text",
+          "steps": [
+            {
+              "script": "true",
+              "wait": 60,
+              "check": "(() => { const b = document.querySelector('#former .sf-chat-interlocutor__button'); return b.querySelector('.sf-chat-interlocutor__title').textContent.trim() === 'Помощник' && b.getAttribute('aria-label') === 'Помощник' && !/undefined|null/.test(b.textContent); })()"
+            }
+          ]
+        },
+        {
+          "id": "p6-many-grouped-with-search",
+          "title": "from eight interlocutors the menu has its search «Найти помощника»; the person's own and the knowledge bases' go under their headings",
+          "covers": "settings.options kind knowledge, runtime.search-placeholder, runtime.group-own-text, runtime.group-knowledge-text",
+          "steps": [
+            {
+              "user": "click:#many .sf-chat-interlocutor__button",
+              "wait": 600,
+              "check": "(() => { const field = document.querySelector('#many .sf-context-menu-search-input'); const headings = [...document.querySelectorAll('#many .sf-context-menu-heading')].map((one) => one.textContent.trim()); return field?.getAttribute('placeholder') === 'Найти помощника' && headings.includes('Мои помощники') && headings.includes('Помощники баз') && document.querySelectorAll('#many [role=menuitemradio]').length === 9; })()"
+            }
+          ]
+        },
+        {
+          "id": "p7-set-options",
+          "title": "set-options, the 0.3 setOptions(list): no list is a name only; two make the button a choice",
+          "covers": "actions.set-options",
+          "steps": [
+            {
+              "script": "true",
+              "wait": 60,
+              "check": "document.querySelector('#late .sf-chat-interlocutor__button').disabled && document.querySelector('#late .sf-chat-interlocutor__title').textContent.trim() === 'Помощник'"
+            },
+            {
+              "action": {
+                "name": "set-options",
+                "with": [
+                  {
+                    "id": "personal",
+                    "title": "Мой помощник",
+                    "kind": "personal"
+                  },
+                  {
+                    "id": "shop",
+                    "title": "Поддержка магазина",
+                    "kind": "knowledge"
+                  }
+                ]
+              },
+              "target": "#late",
+              "wait": 200,
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                }
+              },
+              "check": "(() => { const b = document.querySelector('#late .sf-chat-interlocutor__button'); return !b.disabled && b.getAttribute('aria-haspopup') === 'menu' && b.getAttribute('aria-expanded') === 'false' && b.getAttribute('aria-label') === 'Помощник: Мой помощник' && !document.querySelector('#late .sf-chat-interlocutor--single'); })()"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

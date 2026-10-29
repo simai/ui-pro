@@ -14,7 +14,7 @@
       "mode": "split",
       "cancelable": true,
       "section": "§8, vocabulary 1.1.5 §5, §5.1, §7",
-      "note": "the 0.3 detail {text, attachmentIds}: the element's adapter (sfAliasAdapters) makes it from {text, attachment-ids}"
+      "note": "the 0.3 detail {text, attachmentIds}: the element's adapter (sfAliasAdapters) makes it from {text, attachmentIds}"
     },
     {
       "from": "sf-chat-stop",

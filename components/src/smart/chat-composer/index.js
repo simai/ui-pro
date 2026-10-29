@@ -139,7 +139,7 @@ class SfChatComposer extends ChatComposerElement {
     // The 0.3 details of the two renamed events whose detail changed.
     sfAliasAdapters() {
         return {
-            "sf-chat-send": (detail) => (detail ? {text: detail.text, attachmentIds: detail["attachment-ids"]} : undefined),
+            "sf-chat-send": (detail) => (detail ? {text: detail.text, attachmentIds: detail.attachmentIds} : undefined),
             "sf-chat-action": (detail) => (detail ? {action: "remove-attachment", id: detail.id, name: detail.name} : undefined),
         };
     }
@@ -365,7 +365,7 @@ class SfChatComposer extends ChatComposerElement {
         if (!this.canSend()) return;
         const text = this.value.trim();
         const ids = this.chips.filter((file) => file.id && !file.error).map((file) => file.id);
-        if (this.sfEmit("submit", {text, "attachment-ids": ids}, {cancelable: true})) this.notice = "";
+        if (this.sfEmit("submit", {text, attachmentIds: ids, "attachment-ids": ids}, {cancelable: true})) this.notice = "";
     }
 
     stop() {

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "title": "Data view composite",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -50,10 +50,10 @@
       ],
       "data": {},
       "events": [
-        "sf-count-request",
         "sf-data-view-answer",
         "sf-data-view-saved-view-intent",
         "sf-data-view-state",
+        "sf-pagination-count",
         "sf-table-action-intent",
         "sf-table-column-settings-change",
         "sf-table-column-settings-reset",
@@ -103,9 +103,9 @@
       ],
       "host_port": {
         "port": "simai.dataview-port",
-        "version": "1.12.0",
-        "path": "src/core/contracts/ports/simai.dataview-port/1.12.0/port.json",
-        "sha256": "e024700fddc70464642e2f42604cd6d57d4c167c4583127f05bfb85ebbb3ffa1",
+        "version": "1.13.0",
+        "path": "src/core/contracts/ports/simai.dataview-port/1.13.0/port.json",
+        "sha256": "6b6fa1e500b531c2db5cf296c7f3cf09cff991c9d86551f3a6e712ef0e3aad5c",
         "supported_versions": [
           "1.0.0",
           "1.1.0",
@@ -119,7 +119,8 @@
           "1.9.0",
           "1.10.0",
           "1.11.0",
-          "1.12.0"
+          "1.12.0",
+          "1.13.0"
         ]
       }
     }
@@ -620,7 +621,7 @@
     }
   },
   "events": {
-    "sf-count-request": {
+    "sf-pagination-count": {
       "summary": "Raised by the view's pagination when the person asks for the total, the last page or an action under the filter while the count is unknown. The view answers it with the query.count intent; a host does not need to listen.",
       "payload": {
         "type": "object",
@@ -1360,7 +1361,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/data-view/index.js",
-        "sha256": "7a28aae27570d6bf47c3de1915d169ecce3e153252547065d8eefc4756ff9e20"
+        "sha256": "e02e6cb54d9f0a98455338082db004ef57ebac7327de3f0bdf8bda6f3b834720"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",
