@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.0.4",
+  "version": "1.0.3",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -26,19 +26,19 @@
   "exported_parts": [],
   "composition": {
     "uses": [
-      "component.buttons",
-      "component.icon-buttons",
-      "component.inputs",
+      "smart.thread-list",
+      "smart.message-log",
       "smart.change-confirm",
       "smart.chat-composer",
       "smart.chat-interlocutor",
       "smart.chat-message",
+      "component.buttons",
+      "component.icon-buttons",
+      "component.inputs",
       "smart.context-menu",
-      "smart.empty-state",
       "smart.icon",
-      "smart.message-log",
       "smart.progress-bar",
-      "smart.thread-list"
+      "smart.empty-state"
     ],
     "public_parts": [],
     "declarative": {
@@ -49,12 +49,22 @@
         "ui-layout"
       ],
       "props": [
-        "template",
         "capabilities",
         "landmark",
         "heading-level",
         "embedded",
-        "feed-state"
+        "me",
+        "conversations",
+        "conversation",
+        "messages",
+        "history",
+        "feed-state",
+        "limits",
+        "interlocutors",
+        "notice",
+        "conversation-list",
+        "composer-files",
+        "my-files"
       ],
       "data": {},
       "events": [
@@ -112,20 +122,8 @@
   },
   "inputs": {
     "type": "object",
+    "additionalProperties": false,
     "properties": {
-      "template": {
-        "type": "string",
-        "default": "default",
-        "description": "Template variant name for SfBaseElement external templates."
-      },
-      "root-class": {
-        "type": "string",
-        "default": ""
-      },
-      "root-style": {
-        "type": "string",
-        "default": ""
-      },
       "capabilities": {
         "type": "string",
         "default": "",
@@ -133,37 +131,33 @@
       },
       "landmark": {
         "type": "string",
-        "default": "main",
-        "description": "main when the window is the page; section inside a page that has its own main.",
         "enum": [
           "main",
           "section"
-        ]
+        ],
+        "default": "main",
+        "description": "main when the window is the page; section inside a page that has its own main."
       },
       "heading-level": {
         "type": "integer",
+        "enum": [
+          1,
+          2
+        ],
         "default": 1,
-        "description": "The level of the window's own headings (the conversation, the greeting): 2 inside someone else's page.",
-        "minimum": 1,
-        "maximum": 2
+        "description": "The level of the window's own headings (the conversation, the greeting): 2 inside someone else's page."
       },
       "embedded": {
         "type": "boolean",
         "default": false,
         "description": "Embedded in a host page: the window takes the container's height and draws its own edge."
       },
-      "feed-state": {
-        "type": "string",
-        "default": "ready",
-        "description": "port data feed_state: loading draws the column anew, revoked clears the feed, the draft and anything unsent; set as a property (feedState, or the port's feed_state)",
-        "enum": [
-          "ready",
-          "loading",
-          "revoked"
-        ]
-      },
       "me": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
+        "default": null,
         "description": "port data me {id, name}: who reads"
       },
       "conversations": {
@@ -172,7 +166,11 @@
         "description": "port data conversations [{id, title, type, interlocutor, unread_count, updated_at, archived, pinned}], newest first; pinned is x-conversation-pin's"
       },
       "conversation": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
+        "default": null,
         "description": "port data conversation: the open one {id, title, interlocutor, can_send, archived, revoked}, null when none is open"
       },
       "messages": {
@@ -181,14 +179,30 @@
         "description": "port data messages: the open conversation's, oldest first (kind person|assistant, body, html, files, status, stage, wait, sources, verification, notices, proposal, feedback, summary, limit_resets_at, brief, local)"
       },
       "history": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
         "default": {
           "has_older": false
         },
         "description": "port data history {has_older}"
       },
+      "feed-state": {
+        "type": "string",
+        "enum": [
+          "ready",
+          "loading",
+          "revoked"
+        ],
+        "default": "ready",
+        "description": "port data feed_state: loading draws the column anew, revoked clears the feed, the draft and anything unsent; set as a property (feedState, or the port's feed_state)"
+      },
       "limits": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
         "default": {},
         "description": "port data limits {body_chars, files_per_message, file_bytes, file_types}"
       },
@@ -198,11 +212,18 @@
         "description": "port data interlocutors [{id, title, greeting, suggestions, capabilities {attachments, proposals, memory}}]: the first is the usual one"
       },
       "notice": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
+        "default": null,
         "description": "port data notice {kind: info|error, text, retry}: a line above the field, an error with «Повторить» when retry is a function"
       },
       "conversation-list": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
         "default": {
           "archived": false,
           "has_more": false,
@@ -216,24 +237,42 @@
         "description": "the window's data (x-early-upload): the field's chips in the port's file form {key, id, name, size, state: uploading|ready|failed, progress, reason}"
       },
       "my-files": {
-        "type": "object",
+        "type": [
+          "object",
+          "null"
+        ],
+        "default": null,
         "description": "the window's data (x-my-files) {files [{id, name, size, type, created_at, saved_to_base, download_url}], used_bytes, quota_bytes}; download_url is the host's, never built here"
       }
-    },
-    "additionalProperties": false
+    }
   },
-  "item_contract": {},
   "contracts": {
     "port": {
       "const": "simai.chat-port 1.0 (ui-source's src/core/contracts/ports/simai.chat-port/1.0.0/port.json); the window's own capabilities x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief and data conversation_list, composer_files, my_files beside it, not in it"
     }
   },
   "methods": {
+    "focus": {
+      "summary": "The base's focus.",
+      "arguments": [
+        {
+          "name": "options",
+          "required": false,
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
     "setData": {
       "summary": "several of the port's data at once, by the port's names or the settings'; unknown keys are ignored (the 0.3 applyData(partial), kept as the method) (action set-data; answers an outcome)",
       "arguments": [
         {
           "name": "data",
+          "required": true,
           "schema": {
             "type": "object"
           }
@@ -247,13 +286,15 @@
       "summary": "a host without a port answers an intent: result {answer, reason, text, data, current}; refused unknown-request when nothing waits under that id (the 0.3 answer(request_id, result), kept as the method) (action settle; answers an outcome)",
       "arguments": [
         {
-          "name": "requestId",
+          "name": "request-id",
+          "required": true,
           "schema": {
             "type": "string"
           }
         },
         {
           "name": "result",
+          "required": true,
           "schema": {
             "type": "object"
           }
@@ -275,7 +316,13 @@
       "arguments": [
         {
           "name": "id",
-          "schema": {}
+          "required": true,
+          "schema": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
         }
       ],
       "returns": {
@@ -301,6 +348,7 @@
       "arguments": [
         {
           "name": "focus",
+          "required": false,
           "schema": {
             "type": "boolean"
           }
@@ -315,31 +363,14 @@
       "arguments": [
         {
           "name": "node",
-          "schema": {
-            "type": [
-              "object",
-              "null"
-            ]
-          }
-        }
-      ],
-      "returns": {
-        "type": "object"
-      }
-    },
-    "focus": {
-      "summary": "The base's focus.",
-      "arguments": [
-        {
-          "name": "options",
-          "required": false,
+          "required": true,
           "schema": {
             "type": "object"
           }
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object"
       }
     },
     "applyData": {
@@ -1287,13 +1318,14 @@
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1307,23 +1339,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-load-more": {
       "summary": "Earlier messages (port history.older {conversation_id, before_id}, kind history) or the list's next page (x-conversations-paging conversations.more {archived}, kind conversations). Was chat-port:older, chat-window:more. The 0.3 chat-port:older, chat-window:more {request_id, ...payload} follow it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1337,23 +1368,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-submit": {
       "summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. The 0.3 chat-port:send {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1367,23 +1397,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-retry": {
       "summary": "The same message again under its client_key (port message.retry, kind message) or a message's failed file (port file.retry {conversation_id, message_id, file_key}, kind file). Was chat-port:retry, chat-port:file-retry. The 0.3 chat-port:retry, chat-port:file-retry {request_id, ...payload} follow it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1397,23 +1426,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-save": {
       "summary": "A message edited against its revision (port message.edit). Was chat-port:edit. The 0.3 chat-port:edit {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1427,23 +1455,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-delete": {
       "summary": "A message deleted against its revision (port message.delete, kind message) or a kept file deleted (x-my-files files.remove {file_id}, kind file). Was chat-port:delete, chat-window:file-remove. The 0.3 chat-port:delete, chat-window:file-remove {request_id, ...payload} follow it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1457,23 +1484,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-read": {
       "summary": "The last message actually seen (port message.read). Was chat-port:read. The 0.3 chat-port:read {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1487,23 +1513,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-rate": {
       "summary": "An answer rated (port message.rate {message_id, value, reason, note}). Was chat-port:rate. The 0.3 chat-port:rate {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1517,23 +1542,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-answer": {
       "summary": "A proposal answered: the host sends exactly its command (port proposal.decide {message_id, code, decision: confirm|cancel}). Was chat-port:decide. The 0.3 chat-port:decide {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1547,23 +1571,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-check": {
       "summary": "Whether a stopped or delayed answer came (port wait.check {message_id}). Was chat-port:check. The 0.3 chat-port:check {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1577,23 +1600,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-stop": {
       "summary": "Stop waiting for the answer (port wait.stop {conversation_id}). Was chat-port:stop. The 0.3 chat-port:stop {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1607,23 +1629,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-create": {
       "summary": "A new conversation (port conversation.create {interlocutor}). Was chat-port:create. The 0.3 chat-port:create {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1637,23 +1658,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-rename": {
       "summary": "A conversation renamed (port conversation.rename {conversation_id, title}). Was chat-port:rename. The 0.3 chat-port:rename {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1667,23 +1687,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-archive": {
       "summary": "A conversation put in the archive (port conversation.archive {conversation_id, archived: true}). Was chat-port:archive. The 0.3 chat-port:archive {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1697,23 +1716,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-restore": {
       "summary": "A conversation brought back from the archive (port conversation.archive {conversation_id, archived: false}). Was chat-port:archive. The 0.3 chat-port:archive {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1727,8 +1745,7 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
+        }
       }
     },
     "sf-chat-window-select": {
@@ -1736,13 +1753,14 @@
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1756,23 +1774,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-query": {
       "summary": "The list searched by title (x-conversations-search conversations.search {query}), after a pause in typing, on Enter, or emptied by Escape. Was chat-window:search. The 0.3 chat-window:search {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1786,23 +1803,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-pin": {
       "summary": "A conversation pinned or unpinned from its row's actions (x-conversation-pin conversation.pin {conversation_id, pinned}); the chat's own verb (vocabulary §5.1), its word events.pin.label. Was chat-window:pin. The 0.3 chat-window:pin {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1816,23 +1832,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-attach": {
       "summary": "Files picked, dropped or pasted, to upload at once (x-early-upload file.attach {files, conversation_id, interlocutor}). Was chat-window:attach. The 0.3 chat-window:attach {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1846,23 +1861,22 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-detach": {
       "summary": "A chip removed from the field (x-early-upload file.detach {key}). Was chat-window:detach. The 0.3 chat-window:detach {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload"
         ],
         "properties": {
-          "requestId": {
-            "type": "string"
+          "request-id": {
+            "type": "string",
+            "description": "Answered by the port's raise, or by settle {request-id, result} (the 0.3 answer(request_id, result))."
           },
           "intent": {
             "type": "string",
@@ -1876,23 +1890,21 @@
             "type": "object",
             "description": "The intent's payload, in the port's own field names; see the port contract."
           }
-        },
-        "additionalProperties": true
-      },
-      "canonical": true
+        }
+      }
     },
     "sf-chat-window-settled": {
       "summary": "The fact of a host's answer, from the port or from settle: {request-id, intent, payload, answer, reason}, said after the answer's data is applied and before the window's own follow-up (the focus). Was sf-chat-window-answer. The 0.3 sf-chat-window-answer {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
-          "requestId",
+          "request-id",
           "intent",
           "payload",
           "answer"
         ],
         "properties": {
-          "requestId": {
+          "request-id": {
             "type": "string"
           },
           "intent": {
@@ -1915,177 +1927,8 @@
               "null"
             ]
           }
-        },
-        "additionalProperties": true
+        }
       }
-    },
-    "chat-port:open": {
-      "summary": "Dated alias of sf-chat-window-open until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-open"
-    },
-    "chat-port:older": {
-      "summary": "Dated alias of sf-chat-window-load-more until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-load-more"
-    },
-    "chat-port:send": {
-      "summary": "Dated alias of sf-chat-window-submit until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-submit"
-    },
-    "chat-port:retry": {
-      "summary": "Dated alias of sf-chat-window-retry until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-retry"
-    },
-    "chat-port:edit": {
-      "summary": "Dated alias of sf-chat-window-save until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-save"
-    },
-    "chat-port:delete": {
-      "summary": "Dated alias of sf-chat-window-delete until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-delete"
-    },
-    "chat-port:read": {
-      "summary": "Dated alias of sf-chat-window-read until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-read"
-    },
-    "chat-port:rate": {
-      "summary": "Dated alias of sf-chat-window-rate until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-rate"
-    },
-    "chat-port:file-retry": {
-      "summary": "Dated alias of sf-chat-window-retry until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-retry"
-    },
-    "chat-port:decide": {
-      "summary": "Dated alias of sf-chat-window-answer until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-answer"
-    },
-    "chat-port:check": {
-      "summary": "Dated alias of sf-chat-window-check until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-check"
-    },
-    "chat-port:stop": {
-      "summary": "Dated alias of sf-chat-window-stop until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-stop"
-    },
-    "chat-port:create": {
-      "summary": "Dated alias of sf-chat-window-create until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-create"
-    },
-    "chat-port:rename": {
-      "summary": "Dated alias of sf-chat-window-rename until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-rename"
-    },
-    "chat-port:archive": {
-      "summary": "Dated alias of sf-chat-window-archive until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-archive"
-    },
-    "chat-port:interlocutor": {
-      "summary": "Dated alias of sf-chat-window-select until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-select"
-    },
-    "chat-window:view": {
-      "summary": "Dated alias of sf-chat-window-open until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-open"
-    },
-    "chat-window:more": {
-      "summary": "Dated alias of sf-chat-window-load-more until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-load-more"
-    },
-    "chat-window:search": {
-      "summary": "Dated alias of sf-chat-window-query until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-query"
-    },
-    "chat-window:pin": {
-      "summary": "Dated alias of sf-chat-window-pin until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-pin"
-    },
-    "chat-window:attach": {
-      "summary": "Dated alias of sf-chat-window-attach until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-attach"
-    },
-    "chat-window:detach": {
-      "summary": "Dated alias of sf-chat-window-detach until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-detach"
-    },
-    "chat-window:files": {
-      "summary": "Dated alias of sf-chat-window-open until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-open"
-    },
-    "chat-window:file-remove": {
-      "summary": "Dated alias of sf-chat-window-delete until 2026-12-01 (split).",
-      "payload": {
-        "type": "object"
-      },
-      "alias_of": "sf-chat-window-delete"
     }
   },
   "state": {
@@ -2144,7 +1987,7 @@
     "network_policy": "deny"
   },
   "accessibility": {
-    "role": "region",
+    "role": "application-shell",
     "accessible_name": "internal",
     "keyboard": [
       "Tab",
