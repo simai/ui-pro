@@ -522,7 +522,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "37135e59aebfb199b33760f40e29896d0c120edb",
+    "source_revision": "x",
     "source_artifacts": [
       {
         "path": "src/smart/chat-composer/index.js",
@@ -550,11 +550,11 @@
       },
       {
         "path": "src/smart/chat-composer/component.json",
-        "sha256": "35525f734944005307c53a0b8f4753e7544428ab1e233fc6e5a29db7969dda2f"
+        "sha256": "ff68c1b147b72f969a15d9c2232a4a878ddc639cddddbd8b0634210299391d4c"
       },
       {
         "path": "src/smart/chat-composer/aliases.json",
-        "sha256": "2ea8591e92a62c8c4699ad6d4f5c21edec41aea77e4acc92df0c29b8311bddee"
+        "sha256": "fb8800414e609b679241f17902e428b5b07dd9fedbe1df522ccf066a521b016b"
       },
       {
         "path": "src/smart/chat-composer/lang/en.json",
