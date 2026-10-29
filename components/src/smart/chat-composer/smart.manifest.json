@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-composer",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "title": "Chat composer",
   "summary": "Where a question is written and files are added: Enter sends, Shift+Enter breaks the line, an IME composition is never cut short, the send button becomes «stop waiting» while an answer is awaited, and files are only reported for the host to upload; their chips come back as files.",
   "kind": "smart",
@@ -85,6 +85,11 @@
         "type": "boolean",
         "default": false,
         "description": "An answer is awaited: send becomes stop."
+      },
+      "queue": {
+        "type": "boolean",
+        "default": false,
+        "description": "While busy, a message of text is still submitted: the host keeps it until the answer is over. A message with files waits as before."
       },
       "disabled": {
         "type": "boolean",
@@ -181,7 +186,7 @@
       }
     },
     "send": {
-      "const": "Enter or the send button dispatches sf-chat-composer-submit {text, attachment-ids} (cancelable) when there is text or a ready chip, nothing uploading, not busy, not disabled and within maxlength. The host sends and calls clear() once it took the message."
+      "const": "Enter or the send button dispatches sf-chat-composer-submit {text, attachment-ids} (cancelable) when there is text or a ready chip, nothing uploading, not busy (or busy with queue and no chips), not disabled and within maxlength. The host sends and calls clear() once it took the message."
     },
     "files": {
       "const": "Files offered by the button, a drop or a paste are checked by accept, max-bytes and max-files; sf-chat-composer-attach {files, rejected} reports them and the notice names each refusal. The host uploads and sets files; a chip's remove dispatches sf-chat-composer-detach {id, name}."
@@ -283,7 +288,7 @@
   },
   "events": {
     "sf-chat-composer-submit": {
-      "summary": "Send: the trimmed text and the ids of the ready files. Cancelling it keeps the notice. The 0.3 name sf-chat-send {text, attachmentIds} follows it until 2026-12-01.",
+      "summary": "Send: the trimmed text and the ids of the ready files. While busy only with queue, and only a message of text. Cancelling it keeps the notice. The 0.3 name sf-chat-send {text, attachmentIds} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -449,7 +454,7 @@
       "Shift+Enter",
       "Tab"
     ],
-    "focus": "The field is named and described by the character count shown past 80 % of the limit; a polite line speaks only when a threshold is crossed. A rejected file is a role=alert notice. Enter while an answer is awaited says why nothing was sent. «Stop waiting» returns focus to the field."
+    "focus": "The field is named and described by the character count shown past 80 % of the limit; a polite line speaks only when a threshold is crossed. A rejected file is a role=alert notice. Enter while an answer is awaited says why nothing was sent, or, with queue, that the message goes after the answer. «Stop waiting» returns focus to the field."
   },
   "presentation": {
     "themes": [
@@ -517,6 +522,13 @@
         "changes": [
           "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.0.2",
+        "to": "1.1.0",
+        "changes": [
+          "The setting queue (default off): while busy, Enter and send still submit a message of text, beside «Остановить ожидание», for the host to queue; the hint under the field says so. A message with files waits as before. Without queue nothing changes for a host."
+        ]
       }
     ]
   },
@@ -526,11 +538,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-composer/index.js",
-        "sha256": "9f671ce810af5ba692bfc21d39487a7f395be1e29ce937ca7be57eca3aece471"
+        "sha256": "51c4da09ea04cf600482ddbe70c78ebcb5b92338ab426df060d5abb7491db031"
       },
       {
         "path": "src/smart/chat-composer/js/templates/default.js",
-        "sha256": "6b61b87d36cc64e6733418e687606ca7c7f886ff379a51110ce9ca356723aa0d"
+        "sha256": "c3f960776ebd9febf48cff5979d13c4aac6d0acbcfc84787bdbfdc6348e12275"
       },
       {
         "path": "src/smart/chat-composer/js/templates/parts.js",
@@ -546,11 +558,11 @@
       },
       {
         "path": "src/smart/chat-composer/docs.md",
-        "sha256": "0c703d2c2a8a1452c00c43cc7486d76651138e2365b3db31194d83f9fe33667a"
+        "sha256": "02068a546bb372ba9fdfc9bdf96a25b2cace1414d78256280f6e143b3e6f9998"
       },
       {
         "path": "src/smart/chat-composer/component.json",
-        "sha256": "ff68c1b147b72f969a15d9c2232a4a878ddc639cddddbd8b0634210299391d4c"
+        "sha256": "b577478a86586d638eb6d34b3e01fd1735d8afdf0edf9c028f2ca51115c0e202"
       },
       {
         "path": "src/smart/chat-composer/aliases.json",
@@ -558,11 +570,11 @@
       },
       {
         "path": "src/smart/chat-composer/lang/en.json",
-        "sha256": "e9ab6ae956579f2d6bfc655c9fe4be2159506ac39873bfb7c04e2a9430b7210e"
+        "sha256": "8c20676d2ce294b5611572911550482f67d691aaaf21cd17c498ba11380eeb87"
       },
       {
         "path": "src/smart/chat-composer/lang/ru.json",
-        "sha256": "d2b90661dfe761c5090674d30431cf961c725e74968977c828b8f8ff9a0161f5"
+        "sha256": "ae26c2d037ddd51d583caf8ec4fc994019113d9d73fdc44a87a79e1699468409"
       }
     ],
     "generated_runtime": []

@@ -445,6 +445,189 @@
           "check": "(() => { const w = document.querySelector('#w'); return w.querySelector('.sf-chat-greeting__title')?.textContent === 'Чем помочь?' && !w.querySelector('.chat-shell__suggestions').hidden && w.querySelector('.sf-chat-greeting__suggestion').textContent === 'Сколько дней отпуска?' && w.querySelector('.chat-shell').classList.contains('chat-shell--empty'); })()"
         }
       ]
+    },
+    {
+      "id": "p11-queue-order",
+      "title": "the queue: a question sent while the answer is written waits over the field as a card «Отправлю после ответа» (the field is emptied, it is said politely), and after each successful answer the next one goes, in order, each after its own answer",
+      "covers": "settings.no-queue, events.submit, queue, runtime.queue-label, runtime.queue-added",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.calls = [], window.msgs = [{\"id\": \"msg_01\", \"kind\": \"person\", \"author\": {\"id\": 7, \"own\": true}, \"body\": \"Сколько дней отпуска?\"}, {\"id\": \"msg_02\", \"kind\": \"assistant\", \"author\": {\"id\": \"personal\"}, \"status\": \"completed\", \"body\": \"Ежегодный отпуск — 28 дней.\", \"html\": \"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}], window.w = document.querySelector('#w'), window.finish = (status, wait) => { const last = window.msgs[window.msgs.length - 1]; window.msgs[window.msgs.length - 1] = {...last, status, ...(wait ? {wait} : {})}; window.w.setData({messages: window.msgs.slice()}); }, window.ask = (text) => { const c = window.w.querySelector('sf-chat-composer'); c.value = text; c.send(); }, window.cards = () => [...window.w.querySelectorAll('.chat-shell__queued-text')].map((one) => one.textContent), window.sent = () => window.calls.filter((one) => one[0] === 'message.send' || one[0] === 'message.retry').map((one) => one[1].body ?? one[1].client_key), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); if (intent === 'message.send') { const n = window.msgs.length; window.msgs.push({id: 'q' + n, kind: 'person', author: {id: 7, own: true}, body: payload.body}, {id: 'a' + n, kind: 'assistant', author: {id: 'personal'}, status: 'running', stage: 'writing'}); return {answer: 'applied', data: {messages: window.msgs.slice()}}; } if (intent === 'wait.stop') { const last = window.msgs[window.msgs.length - 1]; window.msgs[window.msgs.length - 1] = {...last, wait: 'stopped'}; return {answer: 'applied', data: {messages: window.msgs.slice()}}; } return {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'assistant feedback conversation-create'), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"interlocutors\": [{\"id\": \"personal\", \"kind\": \"personal\", \"title\": \"Мой помощник\", \"greeting\": \"Чем помочь?\"}], \"conversations\": [{\"id\": \"thr_01\", \"title\": \"Отпуск\", \"type\": \"assistant\", \"interlocutor\": \"personal\"}, {\"id\": \"thr_02\", \"title\": \"График\", \"type\": \"assistant\", \"interlocutor\": \"personal\"}], \"conversation\": {\"id\": \"thr_01\", \"title\": \"Отпуск\", \"interlocutor\": \"personal\", \"can_send\": true}, \"messages\": [{\"id\": \"msg_01\", \"kind\": \"person\", \"author\": {\"id\": 7, \"own\": true}, \"body\": \"Сколько дней отпуска?\"}, {\"id\": \"msg_02\", \"kind\": \"assistant\", \"author\": {\"id\": \"personal\"}, \"status\": \"completed\", \"body\": \"Ежегодный отпуск — 28 дней.\", \"html\": \"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}], \"history\": {\"has_older\": false}, \"feed_state\": \"ready\", \"limits\": {\"body_chars\": 4000}}), true)",
+          "wait": 800
+        },
+        {
+          "script": "(document.querySelector('#w sf-chat-composer').value = 'Первый', document.querySelector('#w .sf-chat-composer__input').focus(), true)",
+          "wait": 150
+        },
+        {
+          "user": "keyboard:Enter",
+          "wait": 300,
+          "check": "document.querySelector('#w sf-chat-composer').busy === true && document.querySelector('#w sf-chat-composer').queue === true && window.sent().join('|') === 'Первый'"
+        },
+        {
+          "script": "(document.querySelector('#w sf-chat-composer').value = 'Второй', document.querySelector('#w .sf-chat-composer__input').focus(), true)",
+          "wait": 150
+        },
+        {
+          "user": "keyboard:Enter",
+          "wait": 200
+        },
+        {
+          "script": "(window.ask('Третий'), true)",
+          "wait": 300,
+          "check": "(() => { const w = document.querySelector('#w'); return window.sent().join('|') === 'Первый' && window.cards().join('|') === 'Второй|Третий' && !w.querySelector('.chat-shell__queue').hidden && [...document.querySelectorAll('#w .chat-shell__queued-label')].map((one) => one.textContent).every((one) => one === 'Отправлю после ответа') && w.querySelector('.chat-shell__queue-list').getAttribute('aria-label') === 'Отправлю после ответа' && w.querySelector('sf-chat-composer').value === '' && w.querySelector('.chat-shell__queue [role=status]').textContent === 'Вопрос отправится после ответа'; })()"
+        },
+        {
+          "script": "(window.finish('completed'), true)",
+          "wait": 400,
+          "check": "window.sent().join('|') === 'Первый|Второй' && window.cards().join('|') === 'Третий' && document.querySelector('#w sf-chat-composer').busy === true"
+        },
+        {
+          "script": "(window.finish('completed'), true)",
+          "wait": 400,
+          "check": "window.sent().join('|') === 'Первый|Второй|Третий' && window.cards().length === 0 && document.querySelector('#w .chat-shell__queue').hidden"
+        },
+        {
+          "script": "(window.finish('completed'), document.querySelector('#w').setAttribute('no-queue', ''), true)",
+          "wait": 300,
+          "check": "document.querySelector('#w sf-chat-composer').queue === false && window.sent().length === 3"
+        }
+      ]
+    },
+    {
+      "id": "p12-queue-held-after-error",
+      "title": "an answer that ends in an error does not let the queue go: the cards stay «Не отправлено» under the quiet line «Не отправлено: ответ завершился ошибкой», and «Отправить» on a card sends it by hand",
+      "covers": "queue, runtime.queue-held-failed, runtime.queue-unsent, runtime.queue-send",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.calls = [], window.msgs = [{\"id\": \"msg_01\", \"kind\": \"person\", \"author\": {\"id\": 7, \"own\": true}, \"body\": \"Сколько дней отпуска?\"}, {\"id\": \"msg_02\", \"kind\": \"assistant\", \"author\": {\"id\": \"personal\"}, \"status\": \"completed\", \"body\": \"Ежегодный отпуск — 28 дней.\", \"html\": \"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}], window.w = document.querySelector('#w'), window.finish = (status, wait) => { const last = window.msgs[window.msgs.length - 1]; window.msgs[window.msgs.length - 1] = {...last, status, ...(wait ? {wait} : {})}; window.w.setData({messages: window.msgs.slice()}); }, window.ask = (text) => { const c = window.w.querySelector('sf-chat-composer'); c.value = text; c.send(); }, window.cards = () => [...window.w.querySelectorAll('.chat-shell__queued-text')].map((one) => one.textContent), window.sent = () => window.calls.filter((one) => one[0] === 'message.send' || one[0] === 'message.retry').map((one) => one[1].body ?? one[1].client_key), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); if (intent === 'message.send') { const n = window.msgs.length; window.msgs.push({id: 'q' + n, kind: 'person', author: {id: 7, own: true}, body: payload.body}, {id: 'a' + n, kind: 'assistant', author: {id: 'personal'}, status: 'running', stage: 'writing'}); return {answer: 'applied', data: {messages: window.msgs.slice()}}; } if (intent === 'wait.stop') { const last = window.msgs[window.msgs.length - 1]; window.msgs[window.msgs.length - 1] = {...last, wait: 'stopped'}; return {answer: 'applied', data: {messages: window.msgs.slice()}}; } return {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'assistant feedback conversation-create'), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"interlocutors\": [{\"id\": \"personal\", \"kind\": \"personal\", \"title\": \"Мой помощник\", \"greeting\": \"Чем помочь?\"}], \"conversations\": [{\"id\": \"thr_01\", \"title\": \"Отпуск\", \"type\": \"assistant\", \"interlocutor\": \"personal\"}, {\"id\": \"thr_02\", \"title\": \"График\", \"type\": \"assistant\", \"interlocutor\": \"personal\"}], \"conversation\": {\"id\": \"thr_01\", \"title\": \"Отпуск\", \"interlocutor\": \"personal\", \"can_send\": true}, \"messages\": [{\"id\": \"msg_01\", \"kind\": \"person\", \"author\": {\"id\": 7, \"own\": true}, \"body\": \"Сколько дней отпуска?\"}, {\"id\": \"msg_02\", \"kind\": \"assistant\", \"author\": {\"id\": \"personal\"}, \"status\": \"completed\", \"body\": \"Ежегодный отпуск — 28 дней.\", \"html\": \"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}], \"history\": {\"has_older\": false}, \"feed_state\": \"ready\", \"limits\": {\"body_chars\": 4000}}), true)",
+          "wait": 800
+        },
+        {
+          "script": "(window.ask('Первый'), true)",
+          "wait": 300
+        },
+        {
+          "script": "(window.ask('Второй'), true)",
+          "wait": 300,
+          "check": "window.cards().join('|') === 'Второй'"
+        },
+        {
+          "script": "(window.finish('failed'), true)",
+          "wait": 400,
+          "check": "(() => { const w = document.querySelector('#w'); return window.sent().join('|') === 'Первый' && window.cards().join('|') === 'Второй' && w.querySelector('.chat-shell__queue-held').textContent === 'Не отправлено: ответ завершился ошибкой' && [...document.querySelectorAll('#w .chat-shell__queued-label')].map((one) => one.textContent).join('|') === 'Не отправлено' && Boolean(w.querySelector('.chat-shell__queued-send')) && w.querySelector('sf-chat-composer').busy === false; })()"
+        },
+        {
+          "user": "click:#w .chat-shell__queued-send",
+          "wait": 300,
+          "check": "window.sent().join('|') === 'Первый|Второй' && window.cards().length === 0"
+        }
+      ]
+    },
+    {
+      "id": "p13-queue-edit-remove-stop",
+      "title": "«Изменить» puts the question back in the field with the focus and takes the card away; «Убрать» takes it away and the focus goes to the field; «Остановить ожидание» stops the wait only: the queue stays, held with «Не отправлено: ожидание остановлено», nothing more is sent",
+      "covers": "queue, runtime.queue-edit, runtime.queue-remove, runtime.queue-held-stopped, events.stop",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.calls = [], window.msgs = [{\"id\": \"msg_01\", \"kind\": \"person\", \"author\": {\"id\": 7, \"own\": true}, \"body\": \"Сколько дней отпуска?\"}, {\"id\": \"msg_02\", \"kind\": \"assistant\", \"author\": {\"id\": \"personal\"}, \"status\": \"completed\", \"body\": \"Ежегодный отпуск — 28 дней.\", \"html\": \"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}], window.w = document.querySelector('#w'), window.finish = (status, wait) => { const last = window.msgs[window.msgs.length - 1]; window.msgs[window.msgs.length - 1] = {...last, status, ...(wait ? {wait} : {})}; window.w.setData({messages: window.msgs.slice()}); }, window.ask = (text) => { const c = window.w.querySelector('sf-chat-composer'); c.value = text; c.send(); }, window.cards = () => [...window.w.querySelectorAll('.chat-shell__queued-text')].map((one) => one.textContent), window.sent = () => window.calls.filter((one) => one[0] === 'message.send' || one[0] === 'message.retry').map((one) => one[1].body ?? one[1].client_key), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); if (intent === 'message.send') { const n = window.msgs.length; window.msgs.push({id: 'q' + n, kind: 'person', author: {id: 7, own: true}, body: payload.body}, {id: 'a' + n, kind: 'assistant', author: {id: 'personal'}, status: 'running', stage: 'writing'}); return {answer: 'applied', data: {messages: window.msgs.slice()}}; } if (intent === 'wait.stop') { const last = window.msgs[window.msgs.length - 1]; window.msgs[window.msgs.length - 1] = {...last, wait: 'stopped'}; return {answer: 'applied', data: {messages: window.msgs.slice()}}; } return {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'assistant feedback conversation-create'), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"interlocutors\": [{\"id\": \"personal\", \"kind\": \"personal\", \"title\": \"Мой помощник\", \"greeting\": \"Чем помочь?\"}], \"conversations\": [{\"id\": \"thr_01\", \"title\": \"Отпуск\", \"type\": \"assistant\", \"interlocutor\": \"personal\"}, {\"id\": \"thr_02\", \"title\": \"График\", \"type\": \"assistant\", \"interlocutor\": \"personal\"}], \"conversation\": {\"id\": \"thr_01\", \"title\": \"Отпуск\", \"interlocutor\": \"personal\", \"can_send\": true}, \"messages\": [{\"id\": \"msg_01\", \"kind\": \"person\", \"author\": {\"id\": 7, \"own\": true}, \"body\": \"Сколько дней отпуска?\"}, {\"id\": \"msg_02\", \"kind\": \"assistant\", \"author\": {\"id\": \"personal\"}, \"status\": \"completed\", \"body\": \"Ежегодный отпуск — 28 дней.\", \"html\": \"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}], \"history\": {\"has_older\": false}, \"feed_state\": \"ready\", \"limits\": {\"body_chars\": 4000}}), true)",
+          "wait": 800
+        },
+        {
+          "script": "(window.ask('Первый'), window.ask('Второй'), window.ask('Третий'), true)",
+          "wait": 300,
+          "check": "window.cards().join('|') === 'Второй|Третий'"
+        },
+        {
+          "user": "click:#w .chat-shell__queued-edit",
+          "wait": 200,
+          "check": "window.cards().join('|') === 'Третий' && document.querySelector('#w sf-chat-composer').value === 'Второй' && document.activeElement === document.querySelector('#w .sf-chat-composer__input')"
+        },
+        {
+          "user": "click:#w .chat-shell__queued-remove",
+          "wait": 200,
+          "check": "window.cards().length === 0 && document.querySelector('#w .chat-shell__queue').hidden && document.activeElement === document.querySelector('#w .sf-chat-composer__input')"
+        },
+        {
+          "script": "(window.ask('Четвёртый'), true)",
+          "wait": 200,
+          "check": "window.cards().join('|') === 'Четвёртый'"
+        },
+        {
+          "user": "click:#w .sf-chat-composer__stop",
+          "wait": 400,
+          "check": "(() => { const w = document.querySelector('#w'); return window.calls.some((one) => one[0] === 'wait.stop') && window.sent().join('|') === 'Первый' && window.cards().join('|') === 'Четвёртый' && w.querySelector('.chat-shell__queue-held').textContent === 'Не отправлено: ожидание остановлено'; })()"
+        }
+      ]
+    },
+    {
+      "id": "p14-find",
+      "title": "open-find opens the search above the log (toggle {kind: find, open: true}, data-find-open), the query is found in questions and answers case aside, «N из M» starts at the last match, Enter goes up and Shift+Enter down round the ends, the current match is brought into view; nothing found says «Ничего не найдено»; the first Escape clears, the second closes and gives the focus back to what opened it",
+      "covers": "actions.open-find, actions.close-find, events.toggle, host-states.data-find-open, keyboard Mod+F, keyboard Escape, runtime.find-count, runtime.find-none",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.calls = [], window.msgs = [{\"id\": \"msg_01\", \"kind\": \"person\", \"author\": {\"id\": 7, \"own\": true}, \"body\": \"Сколько дней отпуска?\"}, {\"id\": \"msg_02\", \"kind\": \"assistant\", \"author\": {\"id\": \"personal\"}, \"status\": \"completed\", \"body\": \"Ежегодный отпуск — 28 дней.\", \"html\": \"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}], window.w = document.querySelector('#w'), window.finish = (status, wait) => { const last = window.msgs[window.msgs.length - 1]; window.msgs[window.msgs.length - 1] = {...last, status, ...(wait ? {wait} : {})}; window.w.setData({messages: window.msgs.slice()}); }, window.ask = (text) => { const c = window.w.querySelector('sf-chat-composer'); c.value = text; c.send(); }, window.cards = () => [...window.w.querySelectorAll('.chat-shell__queued-text')].map((one) => one.textContent), window.sent = () => window.calls.filter((one) => one[0] === 'message.send' || one[0] === 'message.retry').map((one) => one[1].body ?? one[1].client_key), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); if (intent === 'message.send') { const n = window.msgs.length; window.msgs.push({id: 'q' + n, kind: 'person', author: {id: 7, own: true}, body: payload.body}, {id: 'a' + n, kind: 'assistant', author: {id: 'personal'}, status: 'running', stage: 'writing'}); return {answer: 'applied', data: {messages: window.msgs.slice()}}; } if (intent === 'wait.stop') { const last = window.msgs[window.msgs.length - 1]; window.msgs[window.msgs.length - 1] = {...last, wait: 'stopped'}; return {answer: 'applied', data: {messages: window.msgs.slice()}}; } return {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'assistant feedback conversation-create'), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"interlocutors\": [{\"id\": \"personal\", \"kind\": \"personal\", \"title\": \"Мой помощник\", \"greeting\": \"Чем помочь?\"}], \"conversations\": [{\"id\": \"thr_01\", \"title\": \"Отпуск\", \"type\": \"assistant\", \"interlocutor\": \"personal\"}, {\"id\": \"thr_02\", \"title\": \"График\", \"type\": \"assistant\", \"interlocutor\": \"personal\"}], \"conversation\": {\"id\": \"thr_01\", \"title\": \"Отпуск\", \"interlocutor\": \"personal\", \"can_send\": true}, \"messages\": [{\"id\": \"msg_01\", \"kind\": \"person\", \"author\": {\"id\": 7, \"own\": true}, \"body\": \"Сколько дней отпуска?\"}, {\"id\": \"msg_02\", \"kind\": \"assistant\", \"author\": {\"id\": \"personal\"}, \"status\": \"completed\", \"body\": \"Ежегодный отпуск — 28 дней.\", \"html\": \"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}], \"history\": {\"has_older\": false}, \"feed_state\": \"ready\", \"limits\": {\"body_chars\": 4000}}), window.toggles = [], window.w.addEventListener('sf-chat-window-toggle', (e) => window.toggles.push(e.detail)), window.w.setData({messages: [...window.msgs, {id: 'msg_03', kind: 'person', author: {id: 7, own: true}, body: 'А ОТПУСК можно перенести?'}, {id: 'msg_04', kind: 'assistant', author: {id: 'personal'}, status: 'completed', body: 'Да, отпуск переносят по заявлению.'}]}), true)",
+          "wait": 800
+        },
+        {
+          "script": "(document.querySelector('#w .sf-chat-composer__input').focus(), document.querySelector('#w').openFind(), true)",
+          "wait": 200,
+          "check": "(() => { const w = document.querySelector('#w'); return !w.querySelector('.chat-shell__find').hidden && w.getAttribute('data-find-open') === 'true' && document.activeElement === w.querySelector('.chat-shell__find-input') && window.toggles.length === 1 && window.toggles[0].kind === 'find' && window.toggles[0].open === true; })()"
+        },
+        {
+          "script": "(document.querySelector('#w .chat-shell__find-input').value = 'отпуск', document.querySelector('#w .chat-shell__find-input').dispatchEvent(new Event('input')), true)",
+          "wait": 500,
+          "check": "(() => { const w = document.querySelector('#w'); return w.querySelector('.chat-shell__find-count').textContent === '4 из 4' && w.querySelector('.chat-shell__find [role=status]').textContent === '4 из 4' && (!globalThis.CSS?.highlights || CSS.highlights.get('sf-chat-window-found')?.size === 4); })()"
+        },
+        {
+          "user": "keyboard:Enter",
+          "wait": 150,
+          "check": "document.querySelector('#w .chat-shell__find-count').textContent === '3 из 4' && document.querySelector('#w .chat-shell__found')?.getAttribute('data-id') === 'msg_03'"
+        },
+        {
+          "user": "keyboard:Shift+Enter",
+          "wait": 100
+        },
+        {
+          "user": "keyboard:Shift+Enter",
+          "wait": 150,
+          "check": "document.querySelector('#w .chat-shell__find-count').textContent === '1 из 4'"
+        },
+        {
+          "user": "click:#w .chat-shell__find-previous",
+          "wait": 150,
+          "check": "document.querySelector('#w .chat-shell__find-count').textContent === '4 из 4'"
+        },
+        {
+          "script": "(document.querySelector('#w .chat-shell__find-input').value = 'командировка', document.querySelector('#w .chat-shell__find-input').dispatchEvent(new Event('input')), document.querySelector('#w .chat-shell__find-input').focus(), true)",
+          "wait": 500,
+          "check": "document.querySelector('#w .chat-shell__find-count').textContent === 'Ничего не найдено' && document.querySelector('#w .chat-shell__find [role=status]').textContent === 'Ничего не найдено' && document.querySelector('#w .chat-shell__find-next').disabled"
+        },
+        {
+          "user": "keyboard:Escape",
+          "wait": 150,
+          "check": "(() => { const w = document.querySelector('#w'); return w.querySelector('.chat-shell__find-input').value === '' && !w.querySelector('.chat-shell__find').hidden && w.querySelector('.chat-shell__find-count').textContent === ''; })()"
+        },
+        {
+          "user": "keyboard:Escape",
+          "wait": 150,
+          "check": "(() => { const w = document.querySelector('#w'); return w.querySelector('.chat-shell__find').hidden && !w.hasAttribute('data-find-open') && window.toggles.length === 2 && window.toggles[1].open === false && document.activeElement === w.querySelector('.sf-chat-composer__input') && (!globalThis.CSS?.highlights || !CSS.highlights.has('sf-chat-window-found')); })()"
+        },
+        {
+          "user": "keyboard:Control+f",
+          "wait": 150,
+          "check": "!document.querySelector('#w .chat-shell__find').hidden && document.activeElement === document.querySelector('#w .chat-shell__find-input')"
+        },
+        {
+          "action": {
+            "name": "close-find",
+            "with": {}
+          },
+          "target": "#w",
+          "wait": 150,
+          "check": "document.querySelector('#w .chat-shell__find').hidden"
+        }
+      ]
     }
   ]
 }

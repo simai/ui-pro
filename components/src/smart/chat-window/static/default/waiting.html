@@ -74,7 +74,7 @@
 </sf-context-menu>
 <span class="sf-chat-interlocutor__note sr-only" id="sf-chat-window-waiting-1">При смене помощника начнётся новый разговор</span>
 </div>
-</sf-chat-interlocutor><span class="chat-shell__thread-title">Отпуск и перенос</span><div class="chat-shell__spacer"></div></header><sf-message-log class="chat-shell__list" style="display: contents;">
+</sf-chat-interlocutor><span class="chat-shell__thread-title">Отпуск и перенос</span><div class="chat-shell__spacer"></div></header><div class="chat-shell__find" role="search" aria-label="Поиск в разговоре" hidden></div><sf-message-log class="chat-shell__list" style="display: contents;">
 <div role="region" tabindex="0" class="sf-message-log " aria-label="Переписка" data-sf-static>
 <div class="sf-message-log__earlier" hidden></div>
 <div class="sf-message-log__empty" hidden></div>
@@ -82,7 +82,7 @@
 <div class="sf-message-log__jump" hidden></div>
 <div class="sf-message-log__announcer sr-only" aria-live="polite"></div>
 </div>
-</sf-message-log><section class="chat-files" id="chat-files-1" hidden aria-labelledby="chat-files-1-title"></section><div class="chat-shell__composer" id="chat-composer" tabindex="-1"><div class="chat-shell__status chat-shell__status--standing" hidden></div><div class="chat-shell__status" role="status" aria-live="polite"></div><sf-chat-composer style="display: contents;" maxlength="4000" max-files="5" accept busy><script type="application/json" data-sf-settings>{"files":[]}</script>
+</sf-message-log><section class="chat-files" id="chat-files-1" hidden aria-labelledby="chat-files-1-title"></section><div class="chat-shell__composer" id="chat-composer" tabindex="-1"><div class="chat-shell__status chat-shell__status--standing" hidden></div><div class="chat-shell__status" role="status" aria-live="polite"></div><div class="chat-shell__queue" hidden></div><sf-chat-composer style="display: contents;" queue maxlength="4000" max-files="5" accept busy><script type="application/json" data-sf-settings>{"files":[]}</script>
 <form novalidate class="sf-chat-composer" data-sf-static>
 <div class="sf-chat-composer__box">
 <div class="sf-chat-composer__files" hidden></div>
@@ -90,13 +90,13 @@
 <button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__attach" aria-label="Прикрепить файл" title="Прикрепить файл" hidden></button>
 <label class="sf-textarea sf-textarea--size-1 sf-textarea--flush sf-chat-composer__field sf-textarea--auto-grow" data-sf-textarea-bound="1" for="sf-chat-window-waiting-2"><textarea class="sf-chat-composer__input" rows="1" data-auto-grow data-max-rows="8" id="sf-chat-window-waiting-2" aria-label="Сообщение" aria-describedby="sf-chat-window-waiting-3" placeholder="Спросите что-нибудь" style="--sf-textarea--min-rows: 1; --sf-textarea--max-rows: 8;"></textarea></label>
 <span class="sf-chat-composer__count" id="sf-chat-window-waiting-3" hidden></span>
-<button type="submit" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--tonal sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__send" aria-label="Отправить" title="Отправить" disabled hidden></button>
+<button type="submit" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--tonal sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__send" aria-label="Отправить после ответа" title="Отправить после ответа" disabled hidden></button>
 <button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--default sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__stop" aria-label="Остановить ожидание" title="Остановить ожидание"><sf-icon aria-hidden="true" icon="stop" size="2" style="display: contents;"><i class="sf-icon sf-icon--size-2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>stop</i></sf-icon></button>
 </div>
 <div class="sf-chat-composer__drop" aria-hidden="true">Отпустите, чтобы прикрепить</div>
 </div>
 <p class="sf-chat-composer__notice" role="alert" hidden></p>
-<p aria-live="polite" class="sf-chat-composer__hint" id="sf-chat-window-waiting-4">Enter — отправить, Shift+Enter — новая строка</p>
+<p aria-live="polite" class="sf-chat-composer__hint" id="sf-chat-window-waiting-4">Enter — отправить после ответа, Shift+Enter — новая строка</p>
 <input class="sf-chat-composer__picker" type="file" multiple hidden>
 <span class="sf-chat-composer__said sr-only" aria-live="polite"></span>
 </form>
