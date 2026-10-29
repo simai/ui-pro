@@ -144,12 +144,12 @@
       "since": "2026-10-27",
       "remove_after": "2026-12-01",
       "mode": "detail-adds",
-      "when": {
-        "kind": "menu"
-      },
       "cancelable": false,
       "section": "§8, vocabulary §5 query",
-      "note": "{query, requestId} becomes {kind: menu, query, requestId}; sent for kind menu only"
+      "note": "{query, requestId} becomes {kind: menu, query, requestId}; sent for kind menu only",
+      "when": {
+        "kind": "menu"
+      }
     },
     {
       "from": "sf-admin-menu-settings-reset",
@@ -159,12 +159,12 @@
       "since": "2026-10-27",
       "remove_after": "2026-12-01",
       "mode": "detail-adds",
-      "when": {
-        "kind": "settings"
-      },
       "cancelable": false,
       "section": "§8, vocabulary §5 reset",
-      "note": "{target, base_revision} becomes {kind: settings, target, base_revision, baseRevision}; sent for kind settings only"
+      "note": "{target, base_revision} becomes {kind: settings, target, base_revision, baseRevision}; sent for kind settings only",
+      "when": {
+        "kind": "settings"
+      }
     },
     {
       "from": "setRecentResults",

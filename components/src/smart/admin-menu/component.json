@@ -2,7 +2,7 @@
   "$comment": "The source of sf-admin-menu's interface (standard simai.smart-component 1.3.8). Taken from simai/ui-control control/smart-architecture/migration/out/admin-menu (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.admin-menu",
   "tag": "sf-admin-menu",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "kind": "leaf",
   "family": "menu",
   "settings": {
@@ -52,11 +52,15 @@
     },
     "settings-revision": {
       "type": "number",
-      "default": 0
+      "default": 0,
+      "integer": true,
+      "min": 0
     },
     "system-settings-revision": {
       "type": "number",
-      "default": 0
+      "default": 0,
+      "integer": true,
+      "min": 0
     },
     "allow-system-settings": {
       "type": "boolean",
@@ -80,27 +84,33 @@
         "row",
         "panel"
       ],
-      "default": "row"
+      "default": "row",
+      "summary": "Where the search lives: a row under the header, or a panel opened from a magnifier in the header."
     },
     "search-label": {
       "type": "string",
-      "default-from": "runtime.search-label"
+      "default-from": "runtime.search-label",
+      "summary": "Accessible name and tooltip of the magnifier that opens the search panel."
     },
     "search-shortcut": {
       "type": "string",
-      "default": "mod+k"
+      "default": "mod+k",
+      "summary": "The key that opens the search from anywhere on the page; empty turns it off."
     },
     "search-hint": {
       "type": "string",
-      "default-from": "runtime.search"
+      "default-from": "runtime.search",
+      "summary": "A short line shown under an empty query, when the host has one."
     },
     "search-keys-hint": {
       "type": "string",
-      "default-from": "runtime.search-keys-hint"
+      "default-from": "runtime.search-keys-hint",
+      "summary": "The line of key hints at the bottom of the search panel."
     },
     "search-title": {
       "type": "string",
-      "default-from": "runtime.search"
+      "default-from": "runtime.search",
+      "summary": "Heading shown above the search field in the navigation panel."
     },
     "recent-results": {
       "type": "list",
@@ -119,23 +129,33 @@
     "current": {
       "type": "string",
       "default": "",
-      "x-summary": "the row the page is on, by its key: it is marked current and its root's column follows it; empty: the row whose address the page is at (stand 24 A1)"
+      "x-summary": "the row the page is on, by its key: it is marked current and its root's column follows it; empty: the row whose address the page is at (stand 24 A1)",
+      "summary": "The row the page is on, by its key; empty: the row whose address the page is at."
     },
     "source": {
       "type": "enum",
-      "values": ["items", "port"],
+      "values": [
+        "items",
+        "port"
+      ],
       "default": "items",
-      "x-summary": "where the entries come from: items (the setting and the element's children) or port (simai.admin-navigation-port, which the host connects); with port the menu is its navigation skeleton until the host answers, never the empty items menu (first paint, standard 1.3.9 §5.4)"
+      "x-summary": "where the entries come from: items (the setting and the element's children) or port (simai.admin-navigation-port, which the host connects); with port the menu is its navigation skeleton until the host answers, never the empty items menu (first paint, standard 1.3.9 §5.4)",
+      "summary": "Where the entries come from: items (the setting and the children) or port (simai.admin-navigation-port, connected by the host). With port the menu is its navigation skeleton until the host answers."
     },
     "expected-columns": {
       "type": "number",
       "default": 2,
-      "x-summary": "how many columns the navigation skeleton draws on a wide screen before the host answers (source port): 1 where the page's row has no open root (a dashboard), 2 where it has; the server knows which. The shape of the first paint, never a limit: the answered menu takes the columns its rows need"
+      "x-summary": "how many columns the navigation skeleton draws on a wide screen before the host answers (source port): 1 where the page's row has no open root (a dashboard), 2 where it has; the server knows which. The shape of the first paint, never a limit: the answered menu takes the columns its rows need",
+      "summary": "How many columns the navigation skeleton draws on a wide screen before the host answers: 1 where the page's row has no open root (a dashboard), 2 where it has. The server knows which; with the right number the menu is as wide before the answer as after it. Never a limit: the answered menu takes the columns its rows need.",
+      "integer": true,
+      "min": 1,
+      "max": 2
     },
     "open": {
       "type": "boolean",
       "optional": true,
-      "x-summary": "whether the menu is shown where a page folds it away (narrower than 48rem): written by the page that opens it from its own button, reflected as data-open; not written: the menu shows as it always has (stand 24 A1)"
+      "x-summary": "whether the menu is shown where a page folds it away (narrower than 48rem): written by the page that opens it from its own button, reflected as data-open; not written: the menu shows as it always has (stand 24 A1)",
+      "summary": "Written by a page that opens the menu from its own button: on a narrow screen the menu is folded away while false (data-open). Not written: no change."
     }
   },
   "values": {
@@ -159,7 +179,8 @@
             "api"
           ]
         }
-      }
+      },
+      "summary": "Notify the host shell about width mode."
     },
     "query": {
       "carries": {
@@ -185,7 +206,8 @@
           "optional": true
         }
       },
-      "x-summary": "a query is asked for: the menu's own search (kind menu; was sf-admin-menu-search), a site (sites.search) or the admin search (search.query)"
+      "x-summary": "a query is asked for: the menu's own search (kind menu; was sf-admin-menu-search), a site (sites.search) or the admin search (search.query)",
+      "summary": "a query: kind menu (the items menu), site or search (vocabulary 1.1.5)."
     },
     "settings-cancel": {
       "carries": {
@@ -197,7 +219,8 @@
           ]
         },
         "base-revision": "number"
-      }
+      },
+      "summary": "Discard the local draft."
     },
     "settings-mode-change": {
       "carries": {
@@ -208,7 +231,8 @@
             "system"
           ]
         }
-      }
+      },
+      "summary": "Request state for another settings level."
     },
     "settings-refresh": {
       "carries": {
@@ -220,8 +244,14 @@
           ]
         },
         "base-revision": "number",
-        "profile": "object"
-      }
+        "profile": {
+          "type": "object",
+          "schema": {
+            "$ref": "#/contracts/settings_profile"
+          }
+        }
+      },
+      "summary": "Request fresh backend state after a conflict."
     },
     "settings-save": {
       "carries": {
@@ -233,8 +263,14 @@
           ]
         },
         "base-revision": "number",
-        "profile": "object"
-      }
+        "profile": {
+          "type": "object",
+          "schema": {
+            "$ref": "#/contracts/settings_profile"
+          }
+        }
+      },
+      "summary": "Request persistence of the current delta."
     },
     "reset": {
       "carries": {
@@ -266,7 +302,8 @@
           "optional": true
         }
       },
-      "x-summary": "vocabulary reset: the settings level (kind settings; was sf-admin-menu-settings-reset) or a view (view.reset)"
+      "x-summary": "vocabulary reset: the settings level (kind settings; was sf-admin-menu-settings-reset) or a view (view.reset)",
+      "summary": "kind settings (the items menu) or view (vocabulary 1.1.5)."
     },
     "navigate": {
       "carries": {
@@ -281,7 +318,8 @@
           "optional": true
         }
       },
-      "x-summary": "the host answered item.open, search.choose or session.sign-out applied: the page goes to href (region: the menu goes there itself)"
+      "x-summary": "the host answered item.open, search.choose or session.sign-out applied: the page goes to href (region: the menu goes there itself)",
+      "summary": "The host answered item.open applied: the page belongs to this row now. For a host that navigates in its own router rather than through the address it answered with."
     },
     "refresh": {
       "carries": {
@@ -290,13 +328,16 @@
         "payload": "object",
         "reason": {
           "type": "string",
-          "nullable": true
+          "nullable": true,
+          "optional": true
         },
         "site": {
           "type": "id",
-          "nullable": true
+          "nullable": true,
+          "optional": true
         }
-      }
+      },
+      "summary": "navigation.load / notifications.load asked of the host (vocabulary 1.1.5)."
     },
     "open": {
       "carries": {
@@ -314,7 +355,8 @@
           "nullable": true,
           "optional": true
         }
-      }
+      },
+      "summary": "item.open, site.switch, view.profile or search.choose asked (vocabulary 1.1.5)."
     },
     "toggle": {
       "carries": {
@@ -323,7 +365,8 @@
         "payload": "object",
         "id": "id",
         "on": "boolean"
-      }
+      },
+      "summary": "favourite.toggle asked (vocabulary 1.1.5)."
     },
     "save": {
       "carries": {
@@ -344,14 +387,16 @@
           "nullable": true,
           "optional": true
         }
-      }
+      },
+      "summary": "a preference or view.save asked (vocabulary 1.1.5)."
     },
     "create": {
       "carries": {
         "kind": "string",
         "intent": "string",
         "payload": "object"
-      }
+      },
+      "summary": "view.create asked (vocabulary 1.1.5)."
     },
     "rename": {
       "carries": {
@@ -360,7 +405,8 @@
         "payload": "object",
         "id": "id",
         "title": "string"
-      }
+      },
+      "summary": "view.rename asked (vocabulary 1.1.5)."
     },
     "delete": {
       "carries": {
@@ -368,7 +414,8 @@
         "intent": "string",
         "payload": "object",
         "ids": "list"
-      }
+      },
+      "summary": "view.delete asked (vocabulary 1.1.5)."
     },
     "read": {
       "carries": {
@@ -376,7 +423,8 @@
         "intent": "string",
         "payload": "object",
         "ids": "list"
-      }
+      },
+      "summary": "notifications.read asked (vocabulary 1.1.5)."
     },
     "sign-out": {
       "carries": {
@@ -384,7 +432,8 @@
         "intent": "string",
         "payload": "object"
       },
-      "own-verb": true
+      "own-verb": true,
+      "summary": "session.sign-out asked (vocabulary 1.1.5)."
     }
   },
   "actions": {
@@ -401,7 +450,11 @@
       },
       "x-outcomes": [
         "applied"
-      ]
+      ],
+      "summary": "Apply backend-resolved state and tree.",
+      "x-returns": {
+        "type": "null"
+      }
     },
     "apply-settings-result": {
       "with": {
@@ -409,7 +462,11 @@
       },
       "x-outcomes": [
         "applied"
-      ]
+      ],
+      "summary": "Commit a successful external save response.",
+      "x-returns": {
+        "type": "null"
+      }
     },
     "apply-settings-error": {
       "with": {
@@ -417,12 +474,20 @@
       },
       "x-outcomes": [
         "applied"
-      ]
+      ],
+      "summary": "Keep the draft and expose error or conflict state.",
+      "x-returns": {
+        "type": "null"
+      }
     },
     "toggle-menu-settings": {
       "x-outcomes": [
         "applied"
-      ]
+      ],
+      "summary": "Enter or leave the settings editor.",
+      "x-returns": {
+        "type": "null"
+      }
     },
     "refresh": {
       "concurrency": "latest",
@@ -431,7 +496,12 @@
         "unavailable",
         "cancelled"
       ],
-      "x-summary": "read the menu again from the host (navigation.load); the items menu has nothing to read"
+      "x-summary": "read the menu again from the host (navigation.load); the items menu has nothing to read",
+      "summary": "Read the navigation menu again from its host, after something outside the menu changed what it shows (a star in the page header). No effect on the items menu.",
+      "x-returns": {
+        "type": "object",
+        "description": "A promise that settles when the host has answered."
+      }
     },
     "set-search-results": {
       "with": {
@@ -445,7 +515,12 @@
         "applied",
         "refused"
       ],
-      "x-summary": "the host's answer to query {kind: menu, request-id}; an older request-id is refused"
+      "x-summary": "the host's answer to query {kind: menu, request-id}; an older request-id is refused",
+      "summary": "The host answers one search request with its own groups of results. An answer to a query the person has moved on from is dropped.",
+      "x-returns": {
+        "type": "boolean",
+        "description": "Whether the answer was for the current query and was shown."
+      }
     },
     "toggle": {
       "with": {
@@ -459,7 +534,12 @@
         "unavailable",
         "cancelled"
       ],
-      "x-summary": "add the row id to the person's favourites (on) or take it out (favourite.toggle); the items menu has no favourites and refuses (stand 24 A1)"
+      "x-summary": "add the row id to the person's favourites (on) or take it out (favourite.toggle); the items menu has no favourites and refuses (stand 24 A1)",
+      "summary": "Add a row to the person's favourites or take it out (favourite.toggle). The items menu refuses.",
+      "x-returns": {
+        "type": "object",
+        "description": "A promise of the outcome: applied, refused or unavailable."
+      }
     }
   },
   "side-effects": [
@@ -482,8 +562,77 @@
   "port": {
     "id": "simai.admin-navigation-port",
     "version": "1.0.0",
-    "contract": "contracts/ports/simai.admin-navigation-port/1.0.0/port.json"
+    "contract": "src/core/contracts/ports/simai.admin-navigation-port/1.0.0/port.json"
   },
+  "relations": [
+    {
+      "name": "admin-menu"
+    },
+    {
+      "name": "icons"
+    },
+    {
+      "name": "inputs"
+    },
+    {
+      "name": "badges"
+    },
+    {
+      "name": "cl-button"
+    },
+    {
+      "name": "cl-context-menu",
+      "lazy": true
+    },
+    {
+      "name": "cl-badge"
+    },
+    {
+      "name": "cl-icon"
+    },
+    {
+      "name": "cl-icon-button"
+    },
+    {
+      "name": "cl-input"
+    },
+    {
+      "name": "cl-sortable",
+      "lazy": true,
+      "$comment": [
+        "The navigation shell's edit mode moves rows with sf-sortable; a tag the",
+        "menu renders is a tag it fetches."
+      ]
+    },
+    {
+      "name": "cl-resizer",
+      "$comment": [
+        "The columns' edges widen and narrow them."
+      ]
+    },
+    {
+      "name": "cl-profile-picker",
+      "lazy": true,
+      "$comment": [
+        "The edit mode's profiles are the profile picker (owner, 2026-10-14)."
+      ]
+    },
+    {
+      "name": "cl-dropdown",
+      "lazy": true,
+      "$comment": [
+        "A row's glyph is chosen in the edit mode with the grid dropdown."
+      ]
+    },
+    {
+      "name": "cl-empty-state",
+      "lazy": true,
+      "$comment": [
+        "A search that finds nothing and a menu the host could not load say so",
+        "in sf-empty-state; neither is on screen when the page starts."
+      ]
+    }
+  ],
   "templates": {
     "default": {
       "file": "js/templates/default.js",
@@ -533,10 +682,194 @@
       "type": "length",
       "state": "default"
     },
-    "--sf-admin-menu-one-column-inline-size": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the menu of a page whose row has no open root (expected-columns 1) (docs/docs.md)"},
-    "--sf-admin-menu-two-columns-inline-size": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the menu with its section open (docs/docs.md)"},
-    "--sf-admin-menu-compact-one-column-inline-size": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the rail alone (docs/docs.md)"},
-    "--sf-admin-menu-compact-two-columns-inline-size": {"type": "length", "state": "default", "x-summary": "published on :root, set by the sheet, read by a page: the rail with its section open (docs/docs.md)"}
+    "--sf-admin-menu-one-column-inline-size": {
+      "type": "length",
+      "state": "default",
+      "x-summary": "published on :root, set by the sheet, read by a page: the menu of a page whose row has no open root (expected-columns 1) (docs/docs.md)"
+    },
+    "--sf-admin-menu-two-columns-inline-size": {
+      "type": "length",
+      "state": "default",
+      "x-summary": "published on :root, set by the sheet, read by a page: the menu with its section open (docs/docs.md)"
+    },
+    "--sf-admin-menu-compact-one-column-inline-size": {
+      "type": "length",
+      "state": "default",
+      "x-summary": "published on :root, set by the sheet, read by a page: the rail alone (docs/docs.md)"
+    },
+    "--sf-admin-menu-compact-two-columns-inline-size": {
+      "type": "length",
+      "state": "default",
+      "x-summary": "published on :root, set by the sheet, read by a page: the rail with its section open (docs/docs.md)"
+    }
+  },
+  "aliases": {
+    "$comment": "Dated aliases of sf-admin-menu for the shim (core/js/aliases.js, standard §16 item 20). sf-admin-menu-intent splits into one event per verb (vocabulary 1.1.5 §5.1): each row sends the old name after its new one, with the old detail {intent, payload} the element's adapter makes. compact-change, settings-cancel, settings-mode-change, settings-refresh, settings-save and navigate keep their DOM names.",
+    "since": "2026-10-27",
+    "remove-after": "2026-12-01",
+    "rows": [
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-refresh",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-open",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-toggle",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-save",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-query",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-create",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-rename",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-delete",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-read",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-reset",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-intent",
+        "to": "sf-admin-menu-sign-out",
+        "kind": "event",
+        "mode": "split",
+        "cancelable": false,
+        "section": "§8, vocabulary 1.1.5 §5.1",
+        "note": "split by detail.intent: the element's adapter (sfAliasAdapters) makes {intent, payload}; a request the port did not raise has none and sends no old name",
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-search",
+        "to": "sf-admin-menu-query",
+        "kind": "event",
+        "mode": "detail-adds",
+        "when": {
+          "kind": "menu"
+        },
+        "cancelable": false,
+        "section": "§8, vocabulary §5 query",
+        "note": "{query, requestId} becomes {kind: menu, query, requestId}; sent for kind menu only",
+        "summary": "1.0 name of sf-admin-menu-query {kind: menu, query, requestId}; follows it until 2026-12-01."
+      },
+      {
+        "from": "sf-admin-menu-settings-reset",
+        "to": "sf-admin-menu-reset",
+        "kind": "event",
+        "mode": "detail-adds",
+        "when": {
+          "kind": "settings"
+        },
+        "cancelable": false,
+        "section": "§8, vocabulary §5 reset",
+        "note": "{target, base_revision} becomes {kind: settings, target, base_revision, baseRevision}; sent for kind settings only",
+        "summary": "1.0 name of sf-admin-menu-reset {kind: settings, target, base_revision, baseRevision}; follows it until 2026-12-01."
+      },
+      {
+        "from": "setRecentResults",
+        "to": null,
+        "kind": "action",
+        "mode": "retired",
+        "section": "§4.4",
+        "note": "the setting recent-results; the method stays until the date and notes each call"
+      },
+      {
+        "from": "sf-host-port-request",
+        "to": null,
+        "kind": "event",
+        "mode": "retired",
+        "section": "§4.9 (1.3.7)",
+        "note": "the page or an assembly hands the port with connect-port {port}; the request is still sent until the date",
+        "summary": "Ask the page for a host port when connecting. A page that answers with simai.admin-navigation-port gets the navigation shell; a page that answers nothing gets the items menu, unchanged. Retired: the page hands the port with connectPort({port}); still sent until 2026-12-01."
+      },
+      {
+        "from": "aria-label",
+        "to": null,
+        "kind": "attribute",
+        "mode": "host-attribute",
+        "section": "§3.1",
+        "note": "stays a host attribute, read by the element (§3.1, §4.8); no shim"
+      }
+    ]
   },
   "x-summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "x-source": {
@@ -564,15 +897,239 @@
     "events.sf-host-port-request retires (§4.9): the page or an assembly hands the port with connect-port {port}; the request is still sent until 2026-12-01",
     "settings.aria-label: a host attribute, read by the element, never a setting (§3.1)"
   ],
-  "x-kept": {
-    "security": {
-      "permissions_owner": "host",
-      "untrusted_inputs": [
-        "Reject unknown item IDs",
-        "Reject package-owned field mutations",
-        "Treat labels, badges and URLs as untrusted render data"
+  "x-decisions": [
+    "version: 1.1.0 → 1.2.0, a minor while the old names hold dated aliases (§4.10).",
+    "shape (§7): a leaf. The report counts context-menu, dropdown, empty-state, inputs, profile-picker, resizer and sortable as placed parts; each is drawn by the menu's own templates as a control of the menu's own state (a row's menu, the site switcher, the width handle, the edit-mode lists), wired privately, and talks to the host only through the menu's one port. No rule runs between two of them and no key would have two writers, so keys, roles and rules would restate what the controller does (the smaller mechanism). The navigation shell composes the free menu's parts by markup, not by roles.",
+    "alias-conflict: vocabulary 1.1.5 §5.1 decides sf-admin-menu-intent: one name per verb, split by detail.intent -- neither the alias table's planned sf-admin-menu nor the conversion's sf-admin-menu-request.",
+    "events (vocabulary §5): each port intent is a verb with a kind -- navigation.load refresh; item.open, site.switch, view.profile and search.choose open (kind item, site, view, search); favourite.toggle toggle; preference.* and view.save save; sites.search and search.query query; view.create create; view.rename rename; view.delete delete {ids}; view.reset reset; session.sign-out the own verb sign-out (its word is lang events.sign-out.label). The detail keeps the port's intent and payload, so a 1.0 listener loses nothing.",
+    "own-verb-words: search became the vocabulary's query (kind menu); request is not an event (the conversion read it from the old alias plan); sign-out is the one own verb.",
+    "setter (§4.4): setRecentResults becomes the setting recent-results; setCompact stays a method of the class (compact is a value a person changes; compact-change reports it, as 1.0 did).",
+    "persistence (§7.5): local (localStorage, the key per identity) or external (the host saves; settings-save, settings-refresh, settings-reset carry the base revision); unchanged, and named by persistence-mode.",
+    "port (§4.9): simai.admin-navigation-port; connect-port {port} is the base action (setHostPort its alias). sf-host-port-request is still sent until 2026-12-01 for the pages that answer it (ui-admin navigation.ts).",
+    "item-shape: recent-results names its groups' fields with `of`; the items menu's own item contract stays in docs.",
+    "existing-aliases: none shipped; every rename is in aliases.json with its dates.",
+    "words (§11): lang/en.json and lang/ru.json are the one source; js/words.js makes the navigation's, the settings menu's and the counter's dictionaries from them by the keys they always used.",
+    "template: templates.default names the Lit templates in JavaScript, the migration form §5.2 allows.",
+    "skeleton (§5.4): the menu draws its own loading row while the port answers navigation.load; its first paint is the static snapshot (static/default/<example>.html); with a navigation port the loading row is part of it.",
+    "actions: declared with their 1.0 returns (x-outcomes applied). Their outcome objects (§4.4) come with the major at the aliases' end, with the callers in ui-admin -- a leftover of this migration.",
+    "examples: examples.json from studio.fixture.json and studio.scenario.json plus the search panel and the navigation shell over a port; probe.json drives the per-verb events through a port, the old intent name, the settings reset and the menu search (gate 16, gate 20).",
+    "css-variables: five public variables the navigation shell reads with the role tokens as fallback; the items menu's look is the free admin-menu class's, whose variables are internal.",
+    "side-effects: portal (the context menu is drawn in #sf-admin-menu-portal at the end of body).",
+    "version 1.3.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3.",
+    "version 1.4.0: source (items | port): a menu whose entries come from the navigation port is its navigation skeleton -- six rows in the real row markup, both columns on a wide screen and one on a phone by the stylesheet -- from the first paint until the host answers, never the empty items menu; the menu fills its region and its rows scroll inside, so its box holds when the host answers (gate 24 phase 3)."
+  ],
+  "x-registry": {
+    "kind": "composite",
+    "capabilities": [
+      "navigation",
+      "search",
+      "nested-panels",
+      "preferences",
+      "responsive"
+    ],
+    "persistence": {
+      "mode": "hybrid",
+      "source_of_truth": "host",
+      "network_owner": "host",
+      "revision_field": "base_revision"
+    },
+    "adapter": {
+      "kind": "owner",
+      "protocol": "simai.smart-studio-adapter.v1",
+      "module": null
+    },
+    "readiness": {
+      "level": "host-required",
+      "required_checks": [
+        "manifest",
+        "fixture",
+        "runtime-upgrade",
+        "scenario-smoke",
+        "host-settings-bridge"
+      ]
+    },
+    "tags": [
+      "admin",
+      "menu",
+      "navigation",
+      "settings"
+    ],
+    "composition-declarative": {
+      "standard": "simai.composition.document.v1",
+      "type": "smart.admin-menu",
+      "mode": "leaf",
+      "profiles": [
+        "ui-layout"
       ],
-      "network_policy": "host-only"
+      "props": [
+        "allow-system-settings",
+        "aria-label",
+        "brand",
+        "collapsible",
+        "compact",
+        "expected-columns",
+        "logo",
+        "logo-href",
+        "panel-class",
+        "persistence-mode",
+        "root-class",
+        "search-hint",
+        "search-keys-hint",
+        "search-label",
+        "search-mode",
+        "search-placeholder",
+        "search-shortcut",
+        "search-title",
+        "searchable",
+        "settings",
+        "settings-mode",
+        "settings-revision",
+        "settings-title",
+        "source",
+        "system-settings-revision",
+        "template",
+        "toggle-label"
+      ],
+      "presentation": {
+        "views": [
+          "default"
+        ],
+        "presets": [],
+        "modifiers": []
+      },
+      "slots": {},
+      "renderer": {
+        "kind": "custom-element",
+        "name": "sf-admin-menu"
+      },
+      "assets": [],
+      "data": {},
+      "events": [
+        "sf-admin-menu-intent",
+        "sf-admin-menu-navigate",
+        "sf-admin-menu-compact-change"
+      ],
+      "persistence": {
+        "settings_key_prop": null,
+        "revision_prop": null
+      },
+      "host_port": {
+        "port": "simai.admin-navigation-port",
+        "version": "1.0.0",
+        "path": "src/core/contracts/ports/simai.admin-navigation-port/1.0.0/port.json",
+        "sha256": "467091d6c2e61b9956551cfe532ef9508ef994fa685582edfeb34882aa3c178c",
+        "supported_versions": [
+          "1.0.0"
+        ]
+      }
+    },
+    "item_contract": {
+      "stable_id_attribute": "item-id",
+      "package_owned": [
+        "item-id",
+        "label",
+        "href",
+        "left-icon",
+        "badge",
+        "access"
+      ],
+      "preference_fields": [
+        "order",
+        "hidden",
+        "pinned"
+      ],
+      "supports": [
+        "nested-items",
+        "divider",
+        "main-slot",
+        "bottom-slot",
+        "active",
+        "current",
+        "disabled"
+      ],
+      "notes": [
+        "An sf-admin-menu-item takes its glyph from the left-icon attribute; an icon attribute on the item is not read. right-icon is read into the item data but no template draws it.",
+        "A navigation node from the host (applyExternalSettingsState, simai.admin-navigation-port) carries the glyph as its icon property, which becomes the item's left icon. That is the host's data field, not an alias of the markup attribute."
+      ]
+    },
+    "contracts": {
+      "settings_profile": {
+        "type": "object",
+        "required": [
+          "schema_version",
+          "items",
+          "layout"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": 1
+          },
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "order": {
+                  "type": "number"
+                },
+                "hidden": {
+                  "type": "boolean"
+                },
+                "pinned": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "layout": {
+            "type": "object",
+            "properties": {
+              "compact": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "state": {
+      "machines": {
+        "settings": [
+          "idle",
+          "saving",
+          "success",
+          "error",
+          "conflict"
+        ],
+        "navigation": [
+          "expanded",
+          "compact",
+          "nested",
+          "searching"
+        ]
+      },
+      "visual_states": [
+        "default",
+        "loading",
+        "empty",
+        "saving",
+        "success",
+        "error",
+        "conflict",
+        "disabled",
+        "open"
+      ]
+    },
+    "backend": {
+      "adapters": [
+        "larena:ui.admin_menu"
+      ],
+      "integration_examples": {
+        "larena_php": "Smart::render('ui.admin_menu', ['props' => $props]);",
+        "event_bridge": "Register the generic Smart event bridge for save, reset, mode-change and refresh events."
+      }
     },
     "ownership": {
       "source": "simai/ui-admin",
@@ -585,6 +1142,15 @@
         "cross-user identity selection",
         "HTTP endpoint invention"
       ]
+    },
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "Reject unknown item IDs",
+        "Reject package-owned field mutations",
+        "Treat labels, badges and URLs as untrusted render data"
+      ],
+      "network_policy": "host-only"
     },
     "presentation": {
       "skeleton": {
@@ -627,27 +1193,214 @@
         "node scripts/test.mjs",
         "node scripts/run-browser-probes.mjs <free output> <package output>"
       ]
-    }
-  },
-  "x-decisions": [
-    "version: 1.1.0 → 1.2.0, a minor while the old names hold dated aliases (§4.10).",
-    "shape (§7): a leaf. The report counts context-menu, dropdown, empty-state, inputs, profile-picker, resizer and sortable as placed parts; each is drawn by the menu's own templates as a control of the menu's own state (a row's menu, the site switcher, the width handle, the edit-mode lists), wired privately, and talks to the host only through the menu's one port. No rule runs between two of them and no key would have two writers, so keys, roles and rules would restate what the controller does (the smaller mechanism). The navigation shell composes the free menu's parts by markup, not by roles.",
-    "alias-conflict: vocabulary 1.1.5 §5.1 decides sf-admin-menu-intent: one name per verb, split by detail.intent -- neither the alias table's planned sf-admin-menu nor the conversion's sf-admin-menu-request.",
-    "events (vocabulary §5): each port intent is a verb with a kind -- navigation.load refresh; item.open, site.switch, view.profile and search.choose open (kind item, site, view, search); favourite.toggle toggle; preference.* and view.save save; sites.search and search.query query; view.create create; view.rename rename; view.delete delete {ids}; view.reset reset; session.sign-out the own verb sign-out (its word is lang events.sign-out.label). The detail keeps the port's intent and payload, so a 1.0 listener loses nothing.",
-    "own-verb-words: search became the vocabulary's query (kind menu); request is not an event (the conversion read it from the old alias plan); sign-out is the one own verb.",
-    "setter (§4.4): setRecentResults becomes the setting recent-results; setCompact stays a method of the class (compact is a value a person changes; compact-change reports it, as 1.0 did).",
-    "persistence (§7.5): local (localStorage, the key per identity) or external (the host saves; settings-save, settings-refresh, settings-reset carry the base revision); unchanged, and named by persistence-mode.",
-    "port (§4.9): simai.admin-navigation-port; connect-port {port} is the base action (setHostPort its alias). sf-host-port-request is still sent until 2026-12-01 for the pages that answer it (ui-admin navigation.ts).",
-    "item-shape: recent-results names its groups' fields with `of`; the items menu's own item contract stays in docs.",
-    "existing-aliases: none shipped; every rename is in aliases.json with its dates.",
-    "words (§11): lang/en.json and lang/ru.json are the one source; js/words.js makes the navigation's, the settings menu's and the counter's dictionaries from them by the keys they always used.",
-    "template: templates.default names the Lit templates in JavaScript, the migration form §5.2 allows.",
-    "skeleton (§5.4): the menu draws its own loading row while the port answers navigation.load; its first paint is the static snapshot (static/default/<example>.html); with a navigation port the loading row is part of it.",
-    "actions: declared with their 1.0 returns (x-outcomes applied). Their outcome objects (§4.4) come with the major at the aliases' end, with the callers in ui-admin -- a leftover of this migration.",
-    "examples: examples.json from studio.fixture.json and studio.scenario.json plus the search panel and the navigation shell over a port; probe.json drives the per-verb events through a port, the old intent name, the settings reset and the menu search (gate 16, gate 20).",
-    "css-variables: five public variables the navigation shell reads with the role tokens as fallback; the items menu's look is the free admin-menu class's, whose variables are internal.",
-    "side-effects: portal (the context menu is drawn in #sf-admin-menu-portal at the end of body).",
-    "version 1.3.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3.",
-    "version 1.4.0: source (items | port): a menu whose entries come from the navigation port is its navigation skeleton -- six rows in the real row markup, both columns on a wide screen and one on a phone by the stylesheet -- from the first paint until the host answers, never the empty items menu; the menu fills its region and its rows scroll inside, so its box holds when the host answers (gate 24 phase 3)."
-  ]
+    },
+    "accessibility": {
+      "accessible_name": "required",
+      "keyboard": [
+        "Tab",
+        "Enter",
+        "Space",
+        "Escape"
+      ],
+      "focus": "Context menus focus their first available native item after rendering. Escape returns to the native opener; Tab/Shift+Tab close and continue from the opener. Outside focus is preserved. If save/cancel removes the opener, abandoned body focus returns to the settings control or another available control in this Admin Menu. Shared portal ownership and stale callbacks are guarded. Popup geometry follows the native opener, including display-contents Smart hosts, LTR/RTL, responsive movement, content, font and viewport changes; --sf-context-menu-viewport-space derives from the spacing scale. Internal scrolling preserves the menu; outside document scrolling dismisses it. Search and nested drill-down layers make inactive panels inert. Opening a nested layer focuses its localized Back control; Back restores the corresponding tree trigger. Compact search focuses the revealed input. Search placement and directional chevrons follow LTR or RTL."
+    },
+    "compatibility": {
+      "migrations": [
+        {
+          "from": "1.0.0",
+          "to": "1.1.0",
+          "changes": [
+            "The manifest moves to smart-component-manifest v2: persistence, ownership, security, accessibility and state use the v2 shape, and adapter, artifacts and readiness are declared.",
+            "The conformance scenarios left the manifest (v2 keeps scenarios in artifacts) and are documented in docs/docs.md; studio.fixture.json and studio.scenario.json are the declared artifacts.",
+            "No runtime behaviour changes."
+          ]
+        },
+        {
+          "from": "1.1.0",
+          "to": "1.1.1",
+          "changes": [
+            "Follows SIMAI Framework release ui-92b4661762ca (standard 1.3.8 display groups A and B): the Loader relations and the composition name the renamed bundles and registry ids (cl-button, cl-badge, cl-icon, cl-icon-button, cl-input; smart.button, smart.badge, smart.icon, smart.icon-button, smart.input).",
+            "The navigation listens to sf-profile-picker-* and sf-resizer-resize, and to sf-context-menu-closed for a menu it opened; the search field takes icon-start and the edit form's cancel button the appearance link. No public attribute, property or event of sf-admin-menu changes."
+          ]
+        },
+        {
+          "from": "1.1.1",
+          "to": "1.2.0",
+          "changes": [
+            "standard simai.smart-component 1.3.8: the element is made from component.json; dated aliases in aliases.json",
+            "sf-admin-menu-intent -> sf-admin-menu-refresh until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-open until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-toggle until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-save until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-query until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-create until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-rename until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-delete until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-read until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-reset until 2026-12-01 (event)",
+            "sf-admin-menu-intent -> sf-admin-menu-sign-out until 2026-12-01 (event)",
+            "sf-admin-menu-search -> sf-admin-menu-query until 2026-12-01 (event)",
+            "sf-admin-menu-settings-reset -> sf-admin-menu-reset until 2026-12-01 (event)"
+          ]
+        }
+      ]
+    },
+    "alias-events": {
+      "sf-admin-menu-search": {
+        "summary": "1.0 name of sf-admin-menu-query {kind: menu, query, requestId}; follows it until 2026-12-01.",
+        "payload": {
+          "type": "object"
+        }
+      },
+      "sf-admin-menu-settings-reset": {
+        "summary": "1.0 name of sf-admin-menu-reset {kind: settings, target, base_revision, baseRevision}; follows it until 2026-12-01.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "target",
+            "base_revision"
+          ],
+          "properties": {
+            "target": {
+              "enum": [
+                "user",
+                "system"
+              ]
+            },
+            "base_revision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "sf-host-port-request": {
+        "summary": "Ask the page for a host port when connecting. A page that answers with simai.admin-navigation-port gets the navigation shell; a page that answers nothing gets the items menu, unchanged. Retired: the page hands the port with connectPort({port}); still sent until 2026-12-01.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "component",
+            "context"
+          ],
+          "properties": {
+            "component": {
+              "type": "object"
+            },
+            "context": {
+              "type": "object",
+              "required": [
+                "owner",
+                "record",
+                "group"
+              ],
+              "properties": {
+                "owner": {
+                  "type": "string",
+                  "const": "admin-menu"
+                },
+                "record": {
+                  "type": "null"
+                },
+                "group": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        }
+      },
+      "sf-admin-menu-intent": {
+        "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "intent",
+            "payload"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "intent": {
+              "type": "string",
+              "description": "The port intent, e.g. navigation.load or favourite.add."
+            },
+            "payload": {
+              "type": "object",
+              "description": "The intent's payload as the port declares it."
+            }
+          }
+        }
+      }
+    },
+    "methods": {
+      "setCompact": {
+        "summary": "Set compact navigation mode.",
+        "arguments": [
+          {
+            "name": "compact",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "returns": {
+          "type": "boolean"
+        }
+      },
+      "setHostPort": {
+        "summary": "Bind the host of simai.admin-navigation-port; the menu then draws the navigation shell instead of the items menu.",
+        "arguments": [
+          {
+            "name": "host",
+            "type": "object",
+            "required": true
+          }
+        ],
+        "returns": {
+          "type": "object",
+          "description": "The outcome of connect-port, whose alias this is: {outcome: \"applied\"}, or refused with no-port, other-port or port-unsupported."
+        }
+      },
+      "setRecentResults": {
+        "summary": "What the host offers an empty search field: a recent list, standing until it sets another. Deprecated: the setting recent-results (until 2026-12-01).",
+        "arguments": [
+          {
+            "name": "groups",
+            "type": "array",
+            "required": false
+          }
+        ],
+        "returns": {
+          "type": "boolean",
+          "description": "Always true."
+        }
+      },
+      "connectPort": {
+        "summary": "The Framework's base action connect-port {port} (standard 1.3.8 §4.1, §4.9): hands the navigation port, kept as sfPort; answers an outcome (refused other-port for another port, port-unsupported for a version the menu does not take). setHostPort is its alias.",
+        "arguments": [
+          {
+            "name": "port",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "returns": {
+          "type": "object"
+        }
+      }
+    },
+    "inputs": {
+      "template": {
+        "const": "default"
+      },
+      "aria-label": {
+        "minLength": 1,
+        "default": "Admin menu"
+      }
+    },
+    "inputs-required": [
+      "aria-label"
+    ]
+  }
 }

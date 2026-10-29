@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -52,33 +52,34 @@
         "ui-layout"
       ],
       "props": [
-        "allow-system-settings",
-        "aria-label",
+        "template",
         "brand",
-        "collapsible",
-        "compact",
-        "expected-columns",
         "logo",
         "logo-href",
-        "panel-class",
-        "persistence-mode",
-        "root-class",
-        "search-hint",
-        "search-keys-hint",
-        "search-label",
-        "search-mode",
-        "search-placeholder",
-        "search-shortcut",
-        "search-title",
         "searchable",
+        "collapsible",
         "settings",
+        "settings-title",
+        "persistence-mode",
         "settings-mode",
         "settings-revision",
-        "settings-title",
-        "source",
         "system-settings-revision",
-        "template",
-        "toggle-label"
+        "allow-system-settings",
+        "search-placeholder",
+        "toggle-label",
+        "panel-class",
+        "search-mode",
+        "search-label",
+        "search-shortcut",
+        "search-hint",
+        "search-keys-hint",
+        "search-title",
+        "current",
+        "source",
+        "expected-columns",
+        "open",
+        "compact",
+        "aria-label"
       ],
       "presentation": {
         "views": [
@@ -92,12 +93,28 @@
         "kind": "custom-element",
         "name": "sf-admin-menu"
       },
-      "assets": [],
+      "assets": [
+        "smart/admin-menu"
+      ],
       "data": {},
       "events": [
-        "sf-admin-menu-intent",
+        "sf-admin-menu-compact-change",
+        "sf-admin-menu-query",
+        "sf-admin-menu-settings-cancel",
+        "sf-admin-menu-settings-mode-change",
+        "sf-admin-menu-settings-refresh",
+        "sf-admin-menu-settings-save",
+        "sf-admin-menu-reset",
         "sf-admin-menu-navigate",
-        "sf-admin-menu-compact-change"
+        "sf-admin-menu-refresh",
+        "sf-admin-menu-open",
+        "sf-admin-menu-toggle",
+        "sf-admin-menu-save",
+        "sf-admin-menu-create",
+        "sf-admin-menu-rename",
+        "sf-admin-menu-delete",
+        "sf-admin-menu-read",
+        "sf-admin-menu-sign-out"
       ],
       "persistence": {
         "settings_key_prop": null,
@@ -116,15 +133,23 @@
   },
   "inputs": {
     "type": "object",
-    "additionalProperties": false,
     "required": [
       "aria-label"
     ],
     "properties": {
       "template": {
         "type": "string",
-        "const": "default",
-        "default": "default"
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates.",
+        "const": "default"
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
       },
       "brand": {
         "type": "string",
@@ -137,11 +162,6 @@
       "logo-href": {
         "type": "string",
         "default": "#"
-      },
-      "aria-label": {
-        "type": "string",
-        "minLength": 1,
-        "default": "Admin menu"
       },
       "searchable": {
         "type": "boolean",
@@ -156,80 +176,59 @@
         "default": true
       },
       "settings-title": {
-        "type": "string",
-        "default": "Menu settings"
-      },
-      "compact": {
-        "type": "boolean",
-        "default": false
+        "type": "string"
       },
       "persistence-mode": {
         "type": "string",
+        "default": "local",
         "enum": [
           "local",
           "external"
-        ],
-        "default": "local"
+        ]
       },
       "settings-mode": {
         "type": "string",
+        "default": "user",
         "enum": [
           "user",
           "system"
-        ],
-        "default": "user"
+        ]
       },
       "settings-revision": {
         "type": "integer",
-        "minimum": 0,
-        "default": 0
+        "default": 0,
+        "minimum": 0
       },
       "system-settings-revision": {
         "type": "integer",
-        "minimum": 0,
-        "default": 0
+        "default": 0,
+        "minimum": 0
       },
       "allow-system-settings": {
         "type": "boolean",
         "default": false
       },
       "search-placeholder": {
-        "type": "string",
-        "default": "Search sections"
+        "type": "string"
       },
       "toggle-label": {
-        "type": "string",
-        "default": "Menu"
+        "type": "string"
       },
       "panel-class": {
         "type": "string",
         "default": ""
       },
-      "root-class": {
-        "type": "string",
-        "default": ""
-      },
-      "source": {
-        "type": "string",
-        "enum": [
-          "items",
-          "port"
-        ],
-        "default": "items",
-        "description": "Where the entries come from: items (the setting and the children) or port (simai.admin-navigation-port, connected by the host). With port the menu is its navigation skeleton until the host answers."
-      },
       "search-mode": {
         "type": "string",
+        "default": "row",
+        "description": "Where the search lives: a row under the header, or a panel opened from a magnifier in the header.",
         "enum": [
           "row",
           "panel"
-        ],
-        "default": "row",
-        "description": "Where the search lives: a row under the header, or a panel opened from a magnifier in the header."
+        ]
       },
       "search-label": {
         "type": "string",
-        "default": "Search the admin (Ctrl+K)",
         "description": "Accessible name and tooltip of the magnifier that opens the search panel."
       },
       "search-shortcut": {
@@ -239,17 +238,14 @@
       },
       "search-hint": {
         "type": "string",
-        "default": "",
         "description": "A short line shown under an empty query, when the host has one."
       },
       "search-keys-hint": {
         "type": "string",
-        "default": "↑↓ select · Enter open · Esc close",
         "description": "The line of key hints at the bottom of the search panel."
       },
       "search-title": {
         "type": "string",
-        "default": "",
         "description": "Heading shown above the search field in the navigation panel."
       },
       "current": {
@@ -257,18 +253,42 @@
         "default": "",
         "description": "The row the page is on, by its key; empty: the row whose address the page is at."
       },
+      "source": {
+        "type": "string",
+        "default": "items",
+        "description": "Where the entries come from: items (the setting and the children) or port (simai.admin-navigation-port, connected by the host). With port the menu is its navigation skeleton until the host answers.",
+        "enum": [
+          "items",
+          "port"
+        ]
+      },
       "expected-columns": {
         "type": "integer",
-        "minimum": 1,
-        "maximum": 2,
         "default": 2,
-        "description": "How many columns the navigation skeleton draws on a wide screen before the host answers: 1 where the page's row has no open root (a dashboard), 2 where it has. The server knows which; with the right number the menu is as wide before the answer as after it. Never a limit: the answered menu takes the columns its rows need."
+        "description": "How many columns the navigation skeleton draws on a wide screen before the host answers: 1 where the page's row has no open root (a dashboard), 2 where it has. The server knows which; with the right number the menu is as wide before the answer as after it. Never a limit: the answered menu takes the columns its rows need.",
+        "minimum": 1,
+        "maximum": 2
       },
       "open": {
         "type": "boolean",
+        "default": false,
         "description": "Written by a page that opens the menu from its own button: on a narrow screen the menu is folded away while false (data-open). Not written: no change."
+      },
+      "compact": {
+        "type": "boolean",
+        "default": false
+      },
+      "aria-label": {
+        "type": "string",
+        "default": "Admin menu",
+        "minLength": 1
+      },
+      "recent-results": {
+        "type": "array",
+        "default": []
       }
-    }
+    },
+    "additionalProperties": false
   },
   "item_contract": {
     "stable_id_attribute": "item-id",
@@ -393,20 +413,6 @@
         "type": "null"
       }
     },
-    "setCompact": {
-      "summary": "Set compact navigation mode.",
-      "arguments": [
-        {
-          "name": "compact",
-          "schema": {
-            "type": "boolean"
-          }
-        }
-      ],
-      "returns": {
-        "type": "boolean"
-      }
-    },
     "toggleMenuSettings": {
       "summary": "Enter or leave the settings editor.",
       "arguments": [],
@@ -422,6 +428,60 @@
         "description": "A promise that settles when the host has answered."
       }
     },
+    "setSearchResults": {
+      "summary": "The host answers one search request with its own groups of results. An answer to a query the person has moved on from is dropped.",
+      "arguments": [
+        {
+          "name": "requestId",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "groups",
+          "schema": {
+            "type": "array"
+          }
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "Whether the answer was for the current query and was shown."
+      }
+    },
+    "toggle": {
+      "summary": "Add a row to the person's favourites or take it out (favourite.toggle). The items menu refuses.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        },
+        {
+          "name": "on",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "A promise of the outcome: applied, refused or unavailable."
+      }
+    },
+    "setCompact": {
+      "summary": "Set compact navigation mode.",
+      "arguments": [
+        {
+          "name": "compact",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      }
+    },
     "setHostPort": {
       "summary": "Bind the host of simai.admin-navigation-port; the menu then draws the navigation shell instead of the items menu.",
       "arguments": [
@@ -434,25 +494,6 @@
       "returns": {
         "type": "object",
         "description": "The outcome of connect-port, whose alias this is: {outcome: \"applied\"}, or refused with no-port, other-port or port-unsupported."
-      }
-    },
-    "setSearchResults": {
-      "summary": "The host answers one search request with its own groups of results. An answer to a query the person has moved on from is dropped.",
-      "arguments": [
-        {
-          "name": "requestId",
-          "type": "string",
-          "required": true
-        },
-        {
-          "name": "groups",
-          "type": "array",
-          "required": false
-        }
-      ],
-      "returns": {
-        "type": "boolean",
-        "description": "Whether the answer was for the current query and was shown."
       }
     },
     "setRecentResults": {
@@ -483,27 +524,6 @@
       "returns": {
         "type": "object"
       }
-    },
-    "toggle": {
-      "summary": "Add a row to the person's favourites or take it out (favourite.toggle). The items menu refuses.",
-      "arguments": [
-        {
-          "name": "id",
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "on",
-          "schema": {
-            "type": "boolean"
-          }
-        }
-      ],
-      "returns": {
-        "type": "object",
-        "description": "A promise of the outcome: applied, refused or unavailable."
-      }
     }
   },
   "events": {
@@ -520,29 +540,68 @@
             "type": "boolean"
           },
           "source": {
-            "type": "string"
+            "enum": [
+              "toggle",
+              "api"
+            ]
           }
-        }
+        },
+        "additionalProperties": true
       }
     },
-    "sf-admin-menu-search": {
-      "summary": "1.0 name of sf-admin-menu-query {kind: menu, query, requestId}; follows it until 2026-12-01.",
+    "sf-admin-menu-query": {
+      "summary": "a query: kind menu (the items menu), site or search (vocabulary 1.1.5).",
       "payload": {
-        "type": "object"
-      }
+        "type": "object",
+        "required": [
+          "kind",
+          "query"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "menu",
+              "site",
+              "search"
+            ]
+          },
+          "query": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-admin-menu-settings-cancel": {
       "summary": "Discard the local draft.",
       "payload": {
         "type": "object",
+        "required": [
+          "target",
+          "baseRevision"
+        ],
         "properties": {
           "target": {
             "enum": [
               "user",
               "system"
             ]
+          },
+          "baseRevision": {
+            "type": "number"
           }
-        }
+        },
+        "additionalProperties": true
       }
     },
     "sf-admin-menu-settings-mode-change": {
@@ -559,7 +618,8 @@
               "system"
             ]
           }
-        }
+        },
+        "additionalProperties": true
       }
     },
     "sf-admin-menu-settings-refresh": {
@@ -568,7 +628,7 @@
         "type": "object",
         "required": [
           "target",
-          "base_revision",
+          "baseRevision",
           "profile"
         ],
         "properties": {
@@ -578,15 +638,368 @@
               "system"
             ]
           },
-          "base_revision": {
-            "type": "integer",
-            "minimum": 0
+          "baseRevision": {
+            "type": "number"
           },
           "profile": {
+            "type": "object",
             "$ref": "#/contracts/settings_profile"
           }
-        }
+        },
+        "additionalProperties": true
       }
+    },
+    "sf-admin-menu-settings-save": {
+      "summary": "Request persistence of the current delta.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "target",
+          "baseRevision",
+          "profile"
+        ],
+        "properties": {
+          "target": {
+            "enum": [
+              "user",
+              "system"
+            ]
+          },
+          "baseRevision": {
+            "type": "number"
+          },
+          "profile": {
+            "type": "object",
+            "$ref": "#/contracts/settings_profile"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-reset": {
+      "summary": "kind settings (the items menu) or view (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "settings",
+              "view"
+            ]
+          },
+          "target": {
+            "type": "string"
+          },
+          "baseRevision": {
+            "type": "number"
+          },
+          "id": {},
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-admin-menu-navigate": {
+      "summary": "The host answered item.open applied: the page belongs to this row now. For a host that navigates in its own router rather than through the address it answered with.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "href"
+        ],
+        "properties": {
+          "id": {},
+          "key": {
+            "type": "string"
+          },
+          "href": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "region": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-refresh": {
+      "summary": "navigation.load / notifications.load asked of the host (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "intent",
+          "payload"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "site": {}
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-admin-menu-open": {
+      "summary": "item.open, site.switch, view.profile or search.choose asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "intent",
+          "payload",
+          "id"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "id": {},
+          "href": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "group": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-toggle": {
+      "summary": "favourite.toggle asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "intent",
+          "payload",
+          "id",
+          "on"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "id": {},
+          "on": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-save": {
+      "summary": "a preference or view.save asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "intent",
+          "payload"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "values": {
+            "type": "object"
+          },
+          "id": {},
+          "revision": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-create": {
+      "summary": "view.create asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "intent",
+          "payload"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-rename": {
+      "summary": "view.rename asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "intent",
+          "payload",
+          "id",
+          "title"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "id": {},
+          "title": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-delete": {
+      "summary": "view.delete asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "intent",
+          "payload",
+          "ids"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "ids": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-read": {
+      "summary": "notifications.read asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "intent",
+          "payload",
+          "ids"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "ids": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-sign-out": {
+      "summary": "session.sign-out asked (vocabulary 1.1.5).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "intent",
+          "payload"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-admin-menu-search": {
+      "summary": "1.0 name of sf-admin-menu-query {kind: menu, query, requestId}; follows it until 2026-12-01.",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-admin-menu-query"
     },
     "sf-admin-menu-settings-reset": {
       "summary": "1.0 name of sf-admin-menu-reset {kind: settings, target, base_revision, baseRevision}; follows it until 2026-12-01.",
@@ -608,33 +1021,8 @@
             "minimum": 0
           }
         }
-      }
-    },
-    "sf-admin-menu-settings-save": {
-      "summary": "Request persistence of the current delta.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "target",
-          "base_revision",
-          "profile"
-        ],
-        "properties": {
-          "target": {
-            "enum": [
-              "user",
-              "system"
-            ]
-          },
-          "base_revision": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "profile": {
-            "$ref": "#/contracts/settings_profile"
-          }
-        }
-      }
+      },
+      "alias_of": "sf-admin-menu-reset"
     },
     "sf-host-port-request": {
       "summary": "Ask the page for a host port when connecting. A page that answers with simai.admin-navigation-port gets the navigation shell; a page that answers nothing gets the items menu, unchanged. Retired: the page hands the port with connectPort({port}); still sent until 2026-12-01.",
@@ -671,27 +1059,6 @@
         }
       }
     },
-    "sf-admin-menu-navigate": {
-      "summary": "The host answered item.open applied: the page belongs to this row now. For a host that navigates in its own router rather than through the address it answered with.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "key",
-          "href"
-        ],
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "href": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        }
-      }
-    },
     "sf-admin-menu-intent": {
       "summary": "1.0: what a person asked of the host. Since 1.2.0 each intent is told by its verb (sf-admin-menu-refresh, -open, -toggle, -save, -query, -create, -rename, -delete, -read, -reset, -sign-out: {kind, ..., intent, payload}); this name follows each until 2026-12-01.",
       "payload": {
@@ -711,194 +1078,8 @@
             "description": "The intent's payload as the port declares it."
           }
         }
-      }
-    },
-    "sf-admin-menu-refresh": {
-      "summary": "navigation.load / notifications.load asked of the host (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-open": {
-      "summary": "item.open, site.switch, view.profile or search.choose asked (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-toggle": {
-      "summary": "favourite.toggle asked (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-save": {
-      "summary": "a preference or view.save asked (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-query": {
-      "summary": "a query: kind menu (the items menu), site or search (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-create": {
-      "summary": "view.create asked (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-rename": {
-      "summary": "view.rename asked (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-delete": {
-      "summary": "view.delete asked (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-read": {
-      "summary": "notifications.read asked (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-reset": {
-      "summary": "kind settings (the items menu) or view (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    "sf-admin-menu-sign-out": {
-      "summary": "session.sign-out asked (vocabulary 1.1.5).",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string"
-          },
-          "intent": {
-            "type": "string"
-          },
-          "payload": {
-            "type": "object"
-          }
-        }
-      }
+      },
+      "alias_of": "sf-admin-menu-refresh"
     }
   },
   "state": {
@@ -1118,11 +1299,11 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "58dd29fd76db0d6978f6e969f16af1e2fd4209fc9678483763988e8af67ead55"
+        "sha256": "850f76feace7341141e5add4a7a4c41ff944e08b867b4b882fbdf04f0d8c8961"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",
-        "sha256": "baea1799a8a7f9e61a2be67c5b76becf672372d55b2d92fd26d1e4171e982a53"
+        "sha256": "4bc759ba8a5cdc77295e1c0150a526e358361860ca191d6d51cb3bee85d5f953"
       },
       {
         "path": "src/smart/admin-menu/lang/en.json",

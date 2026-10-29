@@ -83,7 +83,7 @@ test('the port-fed components give gate 24 a fake port, so phase 3 checks their 
 test('sf-table brings the cells it draws with other Smart elements with it, not after the rows', () => {
   const rule = readFileSync(join(smart, 'table', 'rule.js'), 'utf8');
   for (const name of ['cl-reference-link', 'cl-file-preview', 'cl-color']) {
-    assert.match(rule, new RegExp(`\\{ name: "${name}" \\}`, 'u'), `${name} eager`);
+    assert.match(rule, new RegExp(`\\{ name: (['"])${name}\\1 \\}`, 'u'), `${name} eager`);
   }
   const table = describe(smart, 'table');
   assert.ok(table.examples.some((one) => one.name === 'typed-cells'), 'an example with those cells');
