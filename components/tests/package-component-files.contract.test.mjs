@@ -20,13 +20,13 @@ const root = resolve(import.meta.dirname, '..');
 
 // The package folders in the 1.4 form: every generated file is byte for byte
 // what the generator writes.
-const PHASE_A = ['chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window'];
+const PHASE_A = ['chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'change-confirm'];
 
 // The package folders still in the 1.3 form: the five files the generator
 // already gives back (rule.js, aliases.json, the fixture, the scenario,
 // probe.json) must stay equal to it; smart.manifest.json and meta.mjs follow
 // when the folder converts.
-const PENDING = ['admin-menu', 'change-confirm', 'data-view', 'message-log', 'property-view', 'table', 'thread-list'];
+const PENDING = ['admin-menu', 'data-view', 'message-log', 'property-view', 'table', 'thread-list'];
 const CHECKED = ['rule.js', 'aliases.json', 'studio.fixture.json', 'studio.scenario.json', 'probe.json'];
 
 // Gate 1 (§4): the top-level fields of component.json are a closed list; 1.4

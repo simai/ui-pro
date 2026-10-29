@@ -29,6 +29,7 @@ const known = (component, from) => recorded.has(`${component}|${from}`) || recor
 // Former event names of package components the journal does not record yet,
 // by component. Each has a dated row in its aliases.json.
 const PENDING = {
+  'sf-change-confirm': ['sf-change-confirm-accept', 'sf-change-confirm-decline', 'sf-change-confirm-expire'],
   'sf-chat-composer': ['sf-chat-send', 'sf-chat-stop', 'sf-chat-files', 'sf-chat-action'],
   'sf-chat-interlocutor': ['sf-chat-interlocutor'],
   'sf-chat-message': ['sf-chat-action'],
