@@ -34,6 +34,7 @@ const PENDING = {
   'sf-chat-interlocutor': ['sf-chat-interlocutor'],
   'sf-chat-message': ['sf-chat-action'],
   'sf-message-log': ['sf-message-log-load-earlier'],
+  'sf-property-view': ['sf-property-view-open-record', 'sf-property-view-delete-record'],
   'sf-thread-list': ['sf-thread-list-select', 'sf-thread-list-unarchive', 'sf-thread-list-action', 'sf-thread-list-view'],
   'sf-chat-window': [
     'chat-port:open', 'chat-port:older', 'chat-port:send', 'chat-port:retry', 'chat-port:edit', 'chat-port:delete',

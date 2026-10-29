@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
+import vm from 'node:vm';
 
 // sf-property-view on simai.property-view-port 1.16.0 (consumer simai.main,
 // agreed contract q-b0de123841): a masked string and a choice as buttons. The
@@ -75,6 +76,12 @@ test('a field its condition turns off reaches the set as disabled', () => {
 });
 
 test('the field editors the set draws for the two are fetched by the rule', () => {
-  const rule = read('src/smart/property-view/rule.js');
-  for (const name of ['cl-input', 'cl-button-group', 'cl-dropdown']) assert.match(rule, new RegExp(`\\{ name: "${name}", lazy: true \\}`, 'u'), name);
+  // rule.js is generated from component.json (standard 1.4): read as the rule
+  // the Loader evaluates, not as text in one quoting style.
+  const sandbox = {SF: {RuleLoader: {}}};
+  vm.runInContext(read('src/smart/property-view/rule.js'), vm.createContext(sandbox));
+  const relations = sandbox.SF.RuleLoader['cl-property-view'].relation;
+  for (const name of ['cl-input', 'cl-button-group', 'cl-dropdown']) {
+    assert.ok(relations.some((relation) => relation.name === name && relation.lazy === true), name);
+  }
 });
