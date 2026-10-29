@@ -1,0 +1,31 @@
+{
+  "title": "Письма",
+  "runtime": {
+    "actions-label": "Действия с письмом: {title}",
+    "blocks-text": {
+      "one": "{n} блок",
+      "few": "{n} блока",
+      "many": "{n} блоков",
+      "other": "{n} блока"
+    },
+    "copy-text": "Копия",
+    "create-text": "Новое письмо",
+    "current-text": "открыто сейчас",
+    "delete-text": "Удалить",
+    "empty-heading": "Писем пока нет",
+    "empty-text": "Создайте новое письмо или откройте проект из файла.",
+    "nothing-found-heading": "Ничего не найдено",
+    "nothing-found-text": "Нет писем с таким названием.",
+    "open-text": "Открыть",
+    "order-changed-text": "Сначала изменённые",
+    "order-label": "Порядок",
+    "order-title-text": "По названию",
+    "rename-text": "Переименовать",
+    "search-label": "Поиск по названию"
+  },
+  "events": {
+    "copy": {
+      "label": "Сделать копию письма"
+    }
+  }
+}

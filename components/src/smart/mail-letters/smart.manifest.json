@@ -1,0 +1,433 @@
+{
+  "schema_version": 2,
+  "id": "smart.mail-letters",
+  "version": "1.0.0",
+  "title": "Emails",
+  "summary": "Every letter a person has in SIMAI Email Editor: a search by name, an order, and what each row offers -- «Открыть» and, under ⋯, a copy, a rename and a delete. The moment and the block count are worded in the page's language. The element holds no letter and stores nothing; it says what the person chose.",
+  "kind": "smart",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "mail",
+    "letters",
+    "library",
+    "list"
+  ],
+  "capabilities": [
+    "interaction",
+    "keyboard",
+    "search",
+    "responsive"
+  ],
+  "custom_element": "sf-mail-letters",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "smart.button",
+      "smart.context-menu",
+      "smart.dropdown",
+      "smart.empty-state",
+      "smart.icon-button",
+      "smart.input"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "properties": {
+      "template": {
+        "type": "string",
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates.",
+        "const": "default"
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
+      },
+      "query": {
+        "type": "string",
+        "default": "",
+        "description": "The search by name; the field inside the element writes it while the person types."
+      },
+      "order": {
+        "type": "string",
+        "default": "changed",
+        "description": "changed (the newest first) or title (by name, sorted in the page's language); the order control inside the element writes it.",
+        "enum": [
+          "changed",
+          "title"
+        ]
+      },
+      "current": {
+        "type": "string",
+        "default": "",
+        "description": "The letter open in the editor: its row is marked, says «открыто сейчас» and offers no «Открыть»."
+      },
+      "letters": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "at": {
+              "type": "string"
+            },
+            "blocks": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id",
+            "title"
+          ]
+        },
+        "description": "The letters, one row each: {id, title, at, blocks}. at is the moment the letter changed; the row words it («5 минут назад») and the block count («4 блока») in the page's language."
+      }
+    },
+    "additionalProperties": false
+  },
+  "item_contract": {},
+  "contracts": {
+    "letter": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The letter's id: what the events carry."
+        },
+        "title": {
+          "type": "string",
+          "description": "Its name, drawn as text."
+        },
+        "at": {
+          "type": "string",
+          "description": "The moment it changed (ISO 8601), worded by the row."
+        },
+        "blocks": {
+          "type": "integer",
+          "description": "How many blocks it has, worded with its plural form."
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ]
+    },
+    "choice": {
+      "const": "«Открыть» dispatches sf-mail-letters-open {id}; the ⋯ menu sf-mail-letters-copy {id}, sf-mail-letters-rename {id} and sf-mail-letters-delete {ids, id}; «Новое письмо» sf-mail-letters-create {}. The element opens, copies, renames and deletes nothing: the host does, and passes letters back."
+    }
+  },
+  "methods": {
+    "search": {
+      "summary": "Search as the field does: sets query.",
+      "arguments": [
+        {
+          "name": "query",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "sort": {
+      "summary": "Order the rows as the order control does; refused unknown for an order that is not changed or title.",
+      "arguments": [
+        {
+          "name": "order",
+          "schema": {
+            "enum": [
+              "changed",
+              "title"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "choose": {
+      "summary": "Do what a row or the bar would: sends open, copy, rename, delete or create; refused current for opening the letter open now.",
+      "arguments": [
+        {
+          "name": "action",
+          "schema": {
+            "enum": [
+              "open",
+              "copy",
+              "rename",
+              "delete",
+              "create"
+            ]
+          }
+        },
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | current}"
+      }
+    }
+  },
+  "events": {
+    "sf-mail-letters-open": {
+      "summary": "Open this letter: {id}. The current letter is not offered.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-letters-copy": {
+      "summary": "Make a copy of this letter: {id}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-letters-rename": {
+      "summary": "Rename this letter: {id}. The host asks for the new name.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-letters-delete": {
+      "summary": "Delete this letter: {ids: [id], id}. The host confirms and deletes.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids",
+          "id"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array"
+          },
+          "id": {}
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-letters-create": {
+      "summary": "A new letter was asked for.",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": true
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "order": [
+        "changed",
+        "title"
+      ],
+      "search": [
+        "empty",
+        "filtered",
+        "nothing-found"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "selected",
+      "empty",
+      "open",
+      "closed"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "opening, copying, renaming or deleting a letter",
+      "reading or writing the letter store",
+      "asking for a new name or confirming a delete"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "letter titles (drawn as text)"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "list",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Tab",
+      "Enter",
+      "Space"
+    ],
+    "focus": "The bar comes first -- the search, the order, «Новое письмо» -- then every row's «Открыть» and its ⋯ in the tab order; the menu is sf-context-menu and keeps its own keyboard. A row's ⋯ is named «Действия с письмом: <name>», so two rows never sound alike. The open letter's row says «открыто сейчас» in its own words, not by colour alone, and offers no «Открыть»."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "mail-letters-probe"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "e2cff39223f1a4b004dafe332f081e5178fad2f3",
+      "ui_smart_revision": "e2cff39223f1a4b004dafe332f081e5178fad2f3"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": [
+      {
+        "from": "0.1.0",
+        "to": "1.0.0",
+        "changes": [
+          "moved from simai/ui-mail to ui-pro (D31): standard simai.smart-component 1.4, the element is made from component.json; words in lang/",
+          "sf-mail-letters-new -> sf-mail-letters-create (event; never released, no alias)",
+          "sf-mail-letters-delete carries {ids, id} (was {id})",
+          "choose, search and sort are actions"
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "1f5853f87e9e8db5438b9a99d691652a06fa9c75",
+    "source_artifacts": [
+      {
+        "path": "src/smart/mail-letters/index.js",
+        "sha256": "55311542eab2434b70db6c49702d0ac3781d77053d86304fd9ecc8401ead6b7b"
+      },
+      {
+        "path": "src/smart/mail-letters/js/templates/default.js",
+        "sha256": "a0086b57d95fba396142604f6fb304b1f160992e773bd8fe36c6114738e8456b"
+      },
+      {
+        "path": "src/smart/mail-letters/js/templates/default.css",
+        "sha256": "9edd09ba51724e6f77316359fddabec9d2ba16252df27ef0f7d8ce41064b5059"
+      },
+      {
+        "path": "src/smart/mail-letters/rule.js",
+        "sha256": "92be7b5693ab1b843dadfd523d91f11fc623ba0210c63bb2807b244cf535ee86"
+      },
+      {
+        "path": "src/smart/mail-letters/docs.md",
+        "sha256": "68934f1111150427c641dee07b0ebe6e29f9e8aca59fadf17662d139a9f3b3ff"
+      },
+      {
+        "path": "src/smart/mail-letters/component.json",
+        "sha256": "a4ad66817b7f7c4f9f884654990e7226f8c67aa2580bf713c5dbd536bea1d6c2"
+      },
+      {
+        "path": "src/smart/mail-letters/lang/en.json",
+        "sha256": "7545e7ab1c08ff88e5ff1f283c4428aaad4efa4c3f7cae526161753e0e60456d"
+      },
+      {
+        "path": "src/smart/mail-letters/lang/ru.json",
+        "sha256": "c649853f95213969a42591c5a18946abf564736d5c8d9d56b105fb18831473c5"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use sf-mail-letters wherever a person picks among the letters they have in SIMAI Email Editor.",
+    "do_not": [
+      "Do not open, copy, rename or delete in the element; listen for its events and do it in the host",
+      "Do not pass a worded date in at; pass the moment and let the row word it",
+      "Do not confirm a delete inside the element; the host asks",
+      "Do not draw a second search field or order control beside it; set query and order instead"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-mail-letters id=\"letters\"></sf-mail-letters> <script>letters.letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: '2026-10-29T08:00:00Z', blocks: 7}];</script>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-manifest-probes.mjs <free output> <package output> mail-letters"
+    ]
+  }
+}

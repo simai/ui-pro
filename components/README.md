@@ -27,6 +27,8 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/chat-composer` | `sf-chat-composer` | `smart.chat-composer` |
 | `src/smart/chat-message` | `sf-chat-message` | `smart.chat-message` |
 | `src/smart/chat-window` | `sf-chat-window` | `smart.chat-window` |
+| `src/smart/mail-library` | `sf-mail-library` | `smart.mail-library` |
+| `src/smart/mail-letters` | `sf-mail-letters` | `smart.mail-letters` |
 
 The three conversation components came from `simai/ui-chat` (`sf-chat-message-list`,
 `sf-chat-thread-list` and the proposal card) under neutral names (owner's decision
@@ -47,6 +49,15 @@ window, `sf-chat-window`: the whole chat on the host port `simai.chat-port` 1.0
 the three chat components by tag, with «Мои файлы» and the window's own
 capabilities (archive, paging, search, pinning, early upload, task brief) beside
 the port.
+
+`sf-mail-library` and `sf-mail-letters` moved from `simai/ui-mail` under their own
+names (D31, owner's decision 2026-10-29: a product repository makes no component
+set of its own). The first is the block library of SIMAI Email Editor (groups,
+category chips, a search, and the header and footer variants with the current one
+marked); the second its letters page (a search, an order, open, copy, rename,
+delete and a new letter, the moment and the block count worded in the page's
+language). Neither touches a letter: each says what the person chose and the host
+does it. Their documentation is in each folder's `docs.md`.
 
 Documentation (Russian): [sf-table and sf-data-view](https://ui.simai.io/ru/smart-components/content/table/),
 [sf-property-view](https://ui.simai.io/ru/smart-components/composite/property-view/),

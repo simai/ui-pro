@@ -1,0 +1,29 @@
+{
+  "title": "Emails",
+  "runtime": {
+    "actions-label": "Letter actions: {title}",
+    "blocks-text": {
+      "one": "{n} block",
+      "other": "{n} blocks"
+    },
+    "copy-text": "Copy",
+    "create-text": "New email",
+    "current-text": "open now",
+    "delete-text": "Delete",
+    "empty-heading": "No emails yet",
+    "empty-text": "Create a new email or open a project from a file.",
+    "nothing-found-heading": "Nothing found",
+    "nothing-found-text": "No email has that name.",
+    "open-text": "Open",
+    "order-changed-text": "Changed first",
+    "order-label": "Order",
+    "order-title-text": "By name",
+    "rename-text": "Rename",
+    "search-label": "Search by name"
+  },
+  "events": {
+    "copy": {
+      "label": "Copy the email"
+    }
+  }
+}

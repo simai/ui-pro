@@ -1,0 +1,431 @@
+{
+  "$comment": "The source of sf-mail-letters' element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Moved from simai/ui-mail package/src/smart/mail-letters (smart.manifest.json 0.1.0, ui-mail 750be03) by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. The name stays sf-mail-letters (owner decision q-08d1979fc9). Written by hand in the 1.4 form on the shape of sf-chat-interlocutor and sf-mail-library; x-decisions says how each point was decided.",
+  "id": "smart.mail-letters",
+  "tag": "sf-mail-letters",
+  "version": "1.0.0",
+  "kind": "leaf",
+  "family": "list",
+  "settings": {
+    "letters": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "id": "id",
+        "title": "string",
+        "at": {
+          "type": "date",
+          "optional": true
+        },
+        "blocks": {
+          "type": "number",
+          "integer": true,
+          "min": 0,
+          "optional": true
+        }
+      },
+      "entries": {
+        "key": "id",
+        "changes": "content"
+      },
+      "x-markup": "a property (a host has objects), or the JSON island a server prints; at is a moment (ISO 8601), never a worded date; title is text, never markup",
+      "summary": "The letters, one row each: {id, title, at, blocks}. at is the moment the letter changed; the row words it («5 минут назад») and the block count («4 блока») in the page's language."
+    },
+    "query": {
+      "type": "string",
+      "default": "",
+      "summary": "The search by name; the field inside the element writes it while the person types."
+    },
+    "order": {
+      "type": "enum",
+      "values": [
+        "changed",
+        "title"
+      ],
+      "default": "changed",
+      "summary": "changed (the newest first) or title (by name, sorted in the page's language); the order control inside the element writes it."
+    },
+    "current": {
+      "type": "id",
+      "default": "",
+      "summary": "The letter open in the editor: its row is marked, says «открыто сейчас» and offers no «Открыть»."
+    }
+  },
+  "values": {},
+  "events": {
+    "open": {
+      "carries": {
+        "id": "id"
+      },
+      "x-summary": "«Открыть» of a row (vocabulary §5 open); never for the current letter, which offers no «Открыть».",
+      "summary": "Open this letter: {id}. The current letter is not offered."
+    },
+    "copy": {
+      "carries": {
+        "id": "id"
+      },
+      "own-verb": true,
+      "x-summary": "«Копия» under ⋯: the host makes a copy of the letter (a verb of this element: no §5 verb makes a copy of an entry).",
+      "summary": "Make a copy of this letter: {id}."
+    },
+    "rename": {
+      "carries": {
+        "id": "id"
+      },
+      "x-summary": "«Переименовать» under ⋯ (vocabulary §5 rename). The element has no name field: the host asks for the new name, so the request carries the id alone, without title.",
+      "summary": "Rename this letter: {id}. The host asks for the new name."
+    },
+    "delete": {
+      "carries": {
+        "ids": "list",
+        "id": "id"
+      },
+      "x-summary": "«Удалить» under ⋯ (vocabulary §5 delete {ids}); one row is one letter, so ids holds that one and id names it, as sf-thread-list's archive does. The host confirms; the element deletes nothing.",
+      "summary": "Delete this letter: {ids: [id], id}. The host confirms and deletes."
+    },
+    "create": {
+      "carries": {},
+      "x-summary": "«Новое письмо» (vocabulary §5 create).",
+      "summary": "A new letter was asked for."
+    }
+  },
+  "actions": {
+    "search": {
+      "with": {
+        "query": "string"
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "the search field's input: the setting query",
+      "summary": "Search as the field does: sets query.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "sort": {
+      "with": {
+        "order": {
+          "type": "enum",
+          "values": [
+            "changed",
+            "title"
+          ]
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "the order control: the setting order; refused unknown for another word",
+      "summary": "Order the rows as the order control does; refused unknown for an order that is not changed or title.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "choose": {
+      "with": {
+        "action": {
+          "type": "enum",
+          "values": [
+            "open",
+            "copy",
+            "rename",
+            "delete",
+            "create"
+          ]
+        },
+        "id": {
+          "type": "id",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what a row's «Открыть», its ⋯ menu or «Новое письмо» does: sends the event of that verb; refused unknown for another action or a letter not given, current for open of the letter open now",
+      "summary": "Do what a row or the bar would: sends open, copy, rename, delete or create; refused current for opening the letter open now.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | current}"
+      }
+    }
+  },
+  "slots": {},
+  "keyboard": {
+    "host": {
+      "Tab": "reach"
+    },
+    "row": {
+      "Enter": "open",
+      "Space": "open"
+    }
+  },
+  "relations": [
+    {
+      "name": "cl-input"
+    },
+    {
+      "name": "cl-dropdown"
+    },
+    {
+      "name": "cl-button"
+    },
+    {
+      "name": "cl-icon-button"
+    },
+    {
+      "name": "cl-empty-state"
+    },
+    {
+      "name": "cl-context-menu",
+      "lazy": true
+    }
+  ],
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "list",
+    "name": {
+      "from": [
+        "runtime.search-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Enter": "open",
+      "Space": "open"
+    },
+    "x-keys": "the bar first -- the search, the order, «Новое письмо» -- then every row's «Открыть» and its ⋯ in the Tab order; Enter and Space press them; the ⋯ menu is sf-context-menu with its own keys"
+  },
+  "host-states": {},
+  "css-variables": {},
+  "x-summary": "Every letter a person has in SIMAI Email Editor: a search by name, an order, and what each row offers -- «Открыть» and, under ⋯, a copy, a rename and a delete. The moment and the block count are worded in the page's language. The element holds no letter and stores nothing; it says what the person chose.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "mail-letters",
+    "manifest": "simai/ui-mail@750be03 package/src/smart/mail-letters/smart.manifest.json (0.1.0)",
+    "converted": "by hand (D31, 2026-10-29): ui-mail wrote it in the 1.3 form of its pin (smart.manifest.json, index.js on smart-base); here it is made from component.json"
+  },
+  "x-words": [],
+  "x-renamed": [
+    "events.sf-mail-letters-new {} → create {} (vocabulary §5 create: «new» is not a verb); never released, so no dated alias",
+    "events.sf-mail-letters-delete {id} → delete {ids, id} (vocabulary §5 delete carries ids; id stays beside it, as sf-thread-list's archive carries both)",
+    "methods.choose(action, id), search(value), sort(value) → the actions choose {action, id}, search {query}, sort {order} (§4.4); choose answers refused current for open of the current letter, sort refused unknown for another order (it fell back to changed before)",
+    "words: ui-mail's MAIL_LETTERS_TEXT in index.js → lang/<locale>.json runtime words (§11); the block count's blocks-one/-few/-many/-other keys → one plural word blocks-text {one, few, many, other} with {n}, which the Framework picks by Intl.PluralRules (§11.1)",
+    "the delete row of the ⋯ menu: scheme error → danger: true, the context menu's entry field at the pin",
+    "sf-empty-state title → heading (title is a dated alias of heading at the pin); sf-context-menu takes popup, so it is not drawn until opened",
+    "css: scss/_smart__mail_letters.scss → js/templates/default.css, the same rules without the host's display: block (a Smart host is display: contents)"
+  ],
+  "x-decisions": [
+    "version: 0.1.0 in simai/ui-mail → 1.0.0 here: the first release, in ui-pro, of a tag ui-mail never released.",
+    "names: sf-mail-letters stays (owner decision q-08d1979fc9) and keeps the Framework's sf- prefix, as the package's other elements do.",
+    "shape: a leaf. It places sf-input, sf-dropdown, sf-button, sf-icon-button, sf-empty-state and one sf-context-menu as its own markup; no part is in a role a rule could bind.",
+    "events: open, rename, delete and create are vocabulary §5 verbs; copy is a verb of this element (no §5 verb makes a copy of an entry). None is cancelable: the element changes nothing, the host acts and passes letters back.",
+    "rename carries {id} without title: the element has no name field, the host asks for the new name (as the editor did before).",
+    "moment: at is a moment, worded by Intl.RelativeTimeFormat in the page's language with numeric auto («вчера», «5 минут назад»), in the largest unit it fills. The first-paint tools fix the clock (scripts/first-paint-lib.mjs FIRST_PAINT_NOW, 2026-10-27T12:00:00+03:00), and the examples are written against that instant.",
+    "count: blocks is worded by the plural word blocks-text, the form chosen by Intl.PluralRules of the language the word is found in: «1 блок», «4 блока», «7 блоков», «11 блоков». A single form said «4 блоков» in ui-mail's first draft; the conformance probe holds every form.",
+    "current: the letter open in the editor is marked (is-current), says «открыто сейчас» in words, not by colour alone, and offers no «Открыть»; choose open answers refused current for it.",
+    "empty: no letters at all is sf-empty-state no-data «Писем пока нет»; letters with none for the search is nothing-found «Ничего не найдено». They are different states, and the person sees which is theirs.",
+    "menu: one sf-context-menu, filled for the row it is opened from; the id is remembered, not read back out of the markup, so a redraw meanwhile does not move the answer to another row. It is fetched lazily and printed closed (popup).",
+    "first paint (§5.4): no late data declared. The editor's letters come from its local store with the page; a host that loads them later holds its own skeleton.",
+    "words: lang/ru.json and lang/en.json; ru is the source language. The own verb's word is events.copy.label.",
+    "css-variables: none yet. Every value is a Framework token, as it was in ui-mail.",
+    "self-contained: nothing from simai/ui-mail is imported."
+  ],
+  "x-rule": {
+    "$comment": [
+      "The letters page draws its search as sf-input, the order as sf-dropdown,",
+      "«Открыть» and «Новое письмо» as sf-button, the row's ⋯ as sf-icon-button",
+      "and «писем пока нет» as sf-empty-state; a tag it renders is a tag it",
+      "fetches. The ⋯ menu opens in sf-context-menu on a press, so the menu is",
+      "fetched after the page is ready, and the element waits for it before",
+      "opening it."
+    ]
+  },
+  "x-registry": {
+    "capabilities": [
+      "interaction",
+      "keyboard",
+      "search",
+      "responsive"
+    ],
+    "persistence": {
+      "mode": "none",
+      "source_of_truth": "host",
+      "network_owner": "host",
+      "revision_field": null
+    },
+    "readiness": {
+      "level": "host-required",
+      "required_checks": [
+        "manifest",
+        "loader-rule",
+        "mail-letters-probe"
+      ]
+    },
+    "tags": [
+      "mail",
+      "letters",
+      "library",
+      "list"
+    ],
+    "contracts": {
+      "letter": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The letter's id: what the events carry."
+          },
+          "title": {
+            "type": "string",
+            "description": "Its name, drawn as text."
+          },
+          "at": {
+            "type": "string",
+            "description": "The moment it changed (ISO 8601), worded by the row."
+          },
+          "blocks": {
+            "type": "integer",
+            "description": "How many blocks it has, worded with its plural form."
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ]
+      },
+      "choice": {
+        "const": "«Открыть» dispatches sf-mail-letters-open {id}; the ⋯ menu sf-mail-letters-copy {id}, sf-mail-letters-rename {id} and sf-mail-letters-delete {ids, id}; «Новое письмо» sf-mail-letters-create {}. The element opens, copies, renames and deletes nothing: the host does, and passes letters back."
+      }
+    },
+    "state": {
+      "machines": {
+        "order": [
+          "changed",
+          "title"
+        ],
+        "search": [
+          "empty",
+          "filtered",
+          "nothing-found"
+        ]
+      },
+      "visual_states": [
+        "default",
+        "selected",
+        "empty",
+        "open",
+        "closed"
+      ]
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "opening, copying, renaming or deleting a letter",
+        "reading or writing the letter store",
+        "asking for a new name or confirming a delete"
+      ]
+    },
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "letter titles (drawn as text)"
+      ],
+      "network_policy": "deny"
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-mail-letters wherever a person picks among the letters they have in SIMAI Email Editor.",
+      "do_not": [
+        "Do not open, copy, rename or delete in the element; listen for its events and do it in the host",
+        "Do not pass a worded date in at; pass the moment and let the row word it",
+        "Do not confirm a delete inside the element; the host asks",
+        "Do not draw a second search field or order control beside it; set query and order instead"
+      ],
+      "required_reads": [
+        "inputs",
+        "contracts",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-mail-letters id=\"letters\"></sf-mail-letters> <script>letters.letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: '2026-10-29T08:00:00Z', blocks: 7}];</script>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-manifest-probes.mjs <free output> <package output> mail-letters"
+      ]
+    },
+    "accessibility": {
+      "accessible_name": "internal",
+      "focus": "The bar comes first -- the search, the order, «Новое письмо» -- then every row's «Открыть» and its ⋯ in the tab order; the menu is sf-context-menu and keeps its own keyboard. A row's ⋯ is named «Действия с письмом: <name>», so two rows never sound alike. The open letter's row says «открыто сейчас» in its own words, not by colour alone, and offers no «Открыть»."
+    },
+    "compatibility": {
+      "migrations": [
+        {
+          "from": "0.1.0",
+          "to": "1.0.0",
+          "changes": [
+            "moved from simai/ui-mail to ui-pro (D31): standard simai.smart-component 1.4, the element is made from component.json; words in lang/",
+            "sf-mail-letters-new -> sf-mail-letters-create (event; never released, no alias)",
+            "sf-mail-letters-delete carries {ids, id} (was {id})",
+            "choose, search and sort are actions"
+          ]
+        }
+      ]
+    },
+    "inputs": {
+      "template": {
+        "const": "default"
+      },
+      "letters": {
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "at": {
+              "type": "string"
+            },
+            "blocks": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id",
+            "title"
+          ]
+        }
+      }
+    }
+  }
+}
