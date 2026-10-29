@@ -20,7 +20,7 @@ const root = resolve(import.meta.dirname, '..');
 
 // The package folders in the 1.4 form: every generated file is byte for byte
 // what the generator writes.
-const PHASE_A = ['change-confirm', 'message-log', 'thread-list', 'property-view', 'admin-menu'];
+const PHASE_A = ['change-confirm', 'message-log', 'thread-list', 'property-view', 'admin-menu', 'table'];
 
 // The package folders still in the 1.3 form: the five files the generator
 // already gives back (rule.js, aliases.json, the fixture, the scenario,
@@ -29,7 +29,7 @@ const PHASE_A = ['change-confirm', 'message-log', 'thread-list', 'property-view'
 // The chat components move on ui-pro chat/1.4 and sf-data-view with
 // simai.dataview-port 1.13.0 (the SIMAI Framework thread); they join PHASE_A
 // when those land.
-const PENDING = ['chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view', 'table'];
+const PENDING = ['chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view'];
 const CHECKED = ['rule.js', 'aliases.json', 'studio.fixture.json', 'studio.scenario.json', 'probe.json'];
 
 // Gate 1 (§4): the top-level fields of component.json are a closed list; 1.4
