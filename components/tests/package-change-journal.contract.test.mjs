@@ -31,9 +31,6 @@ const known = (component, from) => recorded.has(`${component}|${from}`) || recor
 const PENDING = {
   'sf-admin-menu': ['sf-admin-menu-search', 'sf-admin-menu-settings-reset', 'sf-admin-menu-intent'],
   'sf-change-confirm': ['sf-change-confirm-accept', 'sf-change-confirm-decline', 'sf-change-confirm-expire'],
-  'sf-chat-composer': ['sf-chat-send', 'sf-chat-stop', 'sf-chat-files', 'sf-chat-action'],
-  'sf-chat-interlocutor': ['sf-chat-interlocutor'],
-  'sf-chat-message': ['sf-chat-action'],
   'sf-message-log': ['sf-message-log-load-earlier'],
   'sf-property-view': ['sf-property-view-open-record', 'sf-property-view-delete-record'],
   'sf-table': [
@@ -42,13 +39,6 @@ const PENDING = {
     'sf-table:column-settings-change', 'onColumnSettingsChange', 'onSearchEnd', 'onTemplateSave', 'onFilterUpdate',
   ],
   'sf-thread-list': ['sf-thread-list-select', 'sf-thread-list-unarchive', 'sf-thread-list-action', 'sf-thread-list-view'],
-  'sf-chat-window': [
-    'chat-port:open', 'chat-port:older', 'chat-port:send', 'chat-port:retry', 'chat-port:edit', 'chat-port:delete',
-    'chat-port:read', 'chat-port:rate', 'chat-port:file-retry', 'chat-port:decide', 'chat-port:check', 'chat-port:stop',
-    'chat-port:create', 'chat-port:rename', 'chat-port:archive', 'chat-port:interlocutor', 'chat-window:view',
-    'chat-window:more', 'chat-window:search', 'chat-window:pin', 'chat-window:attach', 'chat-window:detach',
-    'chat-window:files', 'chat-window:file-remove',
-  ],
 };
 
 // The package's folders (scripts/overlay.mjs PACKAGE_COMPONENTS; the overlay
