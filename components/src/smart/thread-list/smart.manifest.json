@@ -814,7 +814,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "15a41da7244c7464c21e19ffedcb787ec55af987",
+    "source_revision": "ce2ba03a1bb03aaf0ee5e88a9691a7b79e9d6597",
     "source_artifacts": [
       {
         "path": "src/smart/thread-list/index.js",
