@@ -155,7 +155,7 @@ test('1.3.0 lets an answer leave the total out, and asks for it separately', () 
   assert.deepEqual(port.data.total.schema.type, ['integer', 'null']);
   assert.equal(port.data.has_next.schema.type, 'boolean');
   assert.equal(port.intents['query.count'].capability, 'count-on-request');
-  assert.equal(port.intents['query.count'].event, 'sf-pagination-count');
+  assert.equal(port.intents['query.count'].event, 'sf-count-request');
   assert.equal(port.intents['query.count'].carries_revision, false);
   assert.deepEqual(port.intents['query.count'].payload.properties.reason.enum, ['total', 'last-page', 'action-for-all']);
   assert.deepEqual(port.capabilities['count-on-request'].intents, ['query.count']);

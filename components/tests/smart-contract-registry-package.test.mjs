@@ -59,8 +59,8 @@ test("CLI discovers and describes the whole data view", () => {
   // recorded in the port files and the ledger rather than restated in a comment
   // that nothing holds to the truth. Every version before the current one stays
   // supported, so a host does not have to move.
-  assert.equal(composite.host_port.version, "1.12.0");
-  assert.deepEqual(composite.host_port.supported_versions, ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0"]);
+  assert.equal(composite.host_port.version, "1.13.0");
+  assert.deepEqual(composite.host_port.supported_versions, ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0"]);
 });
 
 test("CLI discovers, describes and verifies the whole composite", () => {
