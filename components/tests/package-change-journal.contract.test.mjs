@@ -34,7 +34,6 @@ const PENDING = {
   'sf-chat-composer': ['sf-chat-send', 'sf-chat-stop', 'sf-chat-files', 'sf-chat-action'],
   'sf-chat-interlocutor': ['sf-chat-interlocutor'],
   'sf-chat-message': ['sf-chat-action'],
-  'sf-data-view': ['sf-table-tree-intent'],
   'sf-message-log': ['sf-message-log-load-earlier'],
   'sf-property-view': ['sf-property-view-open-record', 'sf-property-view-delete-record'],
   'sf-table': [

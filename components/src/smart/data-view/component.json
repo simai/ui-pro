@@ -2,43 +2,33 @@
   "$comment": "sf-data-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/data-view; every x-todo decided in x-decisions.",
   "id": "smart.data-view-composite",
   "tag": "sf-data-view",
-  "version": "1.6.2",
+  "version": "1.6.1",
   "kind": "leaf",
   "family": "table",
   "settings": {
     "chrome": {
       "type": "string",
-      "default": "toolbar pagination select settings",
-      "summary": "Which chrome this list renders, as a space-separated list. `toolbar` and `pagination` are this element own parts; `select` and `settings` are the table two chrome columns, named here because they are furniture of the same kind -- a checkbox column exists to feed a bulk band and a gear column exists to reach column settings, and an embedded list has neither. Empty renders none of them, for a list inside something that already carries a heading. Named explicitly rather than inferred from the toolbar, so a consumer who wants a selection in an embedded list can ask for it alone. `status` is not in the list and cannot be switched off: a list that could not say a load failed would look empty when it is broken."
+      "default": "toolbar pagination select settings"
     },
     "row-cap": {
       "type": "number",
-      "default": 0,
-      "summary": "How many rows an embedded list draws at most, with a show-all action under it when it is hiding some. Zero is no cap, which is what a page list is. Named apart from `page-size`, which is the host paging, because a cap is what this element shows of a page it already has.",
-      "integer": true,
-      "min": 0
+      "default": 0
     },
     "expected-columns": {
       "type": "number",
-      "default": 4,
-      "summary": "How many columns the skeleton draws before the host first answers: the skeleton's shape, never a limit -- the answer brings its own columns. The page or server that renders a collection knows them; with the right number the list does not move when the data arrives.",
-      "integer": true,
-      "min": 1
+      "default": 4
     },
     "port-owner": {
       "type": "string",
-      "default": "",
-      "summary": "Which composite this list is embedded in, sent with the host-port request so a host knows which exchange it is answering. Names the composite rather than the element, so a list embedded somewhere else later needs no new value."
+      "default": ""
     },
     "port-record": {
       "type": "string",
-      "default": "",
-      "summary": "The record the embedding composite is showing, sent with the host-port request."
+      "default": ""
     },
     "port-group": {
       "type": "string",
-      "default": "",
-      "summary": "The group inside that composite this list stands in, sent with the host-port request."
+      "default": ""
     },
     "size": {
       "type": "enum",
@@ -46,110 +36,85 @@
         "1/2",
         "1"
       ],
-      "default": "1",
-      "summary": "The step of the size ladder the view's controls take, handed to its table, its page row and its selection band: 1, or the dense 1/2 of an admin."
+      "default": "1"
     },
     "column-search-placeholder": {
-      "type": "string",
-      "summary": "Passed on as column-search-placeholder to the table the view draws; absent, the table's own word for the page language applies."
+      "type": "string"
     },
     "column-search-empty-text": {
-      "type": "string",
-      "summary": "Passed on as column-search-empty-text to the table the view draws; absent, the table's own word for the page language applies."
+      "type": "string"
     },
     "column-move-label": {
-      "type": "string",
-      "summary": "Passed on as column-move-label to the table the view draws; absent, the table's own word for the page language applies."
+      "type": "string"
     },
     "filter-apply-text": {
-      "type": "string",
-      "summary": "Passed on as filter-apply-text to the table the view draws; absent, the table's own word for the page language applies."
+      "type": "string"
     },
     "show-more-text": {
-      "type": "string",
-      "summary": "Passed on as show-more-text to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "selected-label": {
-      "type": "string",
-      "summary": "Passed on as selected-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "total-label": {
-      "type": "string",
-      "summary": "Passed on as total-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "pages-label": {
-      "type": "string",
-      "summary": "Passed on as pages-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "first-label": {
-      "type": "string",
-      "summary": "Passed on as first-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "previous-label": {
-      "type": "string",
-      "summary": "Passed on as previous-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "page-label": {
-      "type": "string",
-      "summary": "Passed on as page-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "next-label": {
-      "type": "string",
-      "summary": "Passed on as next-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "last-label": {
-      "type": "string",
-      "summary": "Passed on as last-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "page-field-label": {
-      "type": "string",
-      "summary": "Passed on as page-field-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "action-choose-label": {
-      "type": "string",
-      "summary": "Passed on as action-choose-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "actions-label": {
-      "type": "string",
-      "summary": "Passed on as actions-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "actions-region-label": {
-      "type": "string",
-      "summary": "Passed on as actions-region-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "clear-selection-label": {
-      "type": "string",
-      "summary": "Passed on as clear-selection-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "page-size-label": {
-      "type": "string",
-      "summary": "Passed on as page-size-label to the pagination the view draws; absent, the pagination's own word for the page language applies."
+      "type": "string"
     },
     "pagination-aria-label": {
-      "type": "string",
-      "summary": "Passed on as aria-label to the pagination the view draws (the view's own aria-label names the view)."
+      "type": "string"
     },
     "preferences-key": {
       "type": "string",
-      "default": "",
-      "summary": "The key the person's view of this list is kept under (SF.Preferences, sf-table/<key>): the table's arrangement, the sort and the page size, applied before the first paint and the first query. Usually the collection."
+      "default": ""
     },
     "accept-files": {
       "type": "boolean",
-      "default": false,
-      "summary": "Files dropped from the computer on the view are the host's to upload: a drop zone shows while they are over it, and sf-data-view-files-drop {files} says they were dropped."
+      "default": false
     },
     "collection": {
       "type": "string",
       "default": "",
-      "x-shape": "the host's collection id; the view's preference key falls back to it",
-      "summary": "The host's collection id; the view's preference key falls back to it (component.json settings.collection)."
+      "x-shape": "the host's collection id; the view's preference key falls back to it"
     },
     "current": {
       "type": "string",
       "default": "",
-      "x-shape": "the id of the record the page has open; its row carries aria-current",
-      "summary": "The id of the record the page has open: its row carries aria-current. Writing it sends nothing (component.json settings.current)."
+      "x-shape": "the id of the record the page has open; its row carries aria-current"
     },
     "bulk-actions": {
       "type": "list",
@@ -190,21 +155,16 @@
       "carries": {
         "id": "id"
       },
-      "cancelable": true,
-      "summary": "A row's view action asks to open its record, vocabulary §5 open {id}: a cancelable request; the host's record.open follows unless a listener refused it."
+      "cancelable": true
     },
     "deleted": {
       "carries": {
         "ids": "list"
-      },
-      "summary": "The fact after an applied delete, vocabulary §4: {ids}."
+      }
     },
     "answer": {
       "carries": {
-        "intent": {
-          "type": "string",
-          "summary": "The port intent answered, e.g. query.change, view.save, settings.save_personal, record.mutate."
-        },
+        "intent": "string",
         "answer": {
           "type": "enum",
           "values": [
@@ -212,42 +172,11 @@
             "conflict",
             "refused",
             "unavailable"
-          ],
-          "summary": "The port answer."
-        },
-        "reason": {
-          "type": "string",
-          "optional": true,
-          "summary": "Why, when the answer is not applied: the host's reason, or the view's own (port-not-connected, capability-not-provided, action-not-allowed, no-base-revision). A refused query.change is «no access» (rows, toolbar, selection and create withdrawn) only for an access reason: none, forbidden, access_denied, scope_denied, or one ending in _access_denied or _scope_denied; any other reason (query_invalid) is a query error that keeps the toolbar and the query."
-        },
-        "message": {
-          "type": "string",
-          "optional": true,
-          "summary": "The host's own sentence for a person, as the port answer carries it. On a refused or unavailable query.change a non-empty message is what the view shows: the title of its empty or error state and the line its live region announces, drawn as text, never markup; an unavailable list with a message raises no error notice. Without one the view's own words, as before."
-        },
-        "data": {
-          "type": "object",
-          "optional": true,
-          "summary": "The host's data, copied as it answered."
-        },
-        "sequence": {
-          "type": "number",
-          "integer": true,
-          "optional": true,
-          "summary": "The query sequence the host echoed, when it did."
-        },
-        "effects": {
-          "type": "list",
-          "optional": true,
-          "summary": "Effects the host reported for the rest of the page."
-        },
-        "instance_id": {
-          "type": "string",
-          "summary": "The view's instance id, sf-data-view-<n>."
+          ]
         }
       },
       "own-verb": true,
-      "summary": "Fires after every port answer the view acts on, including the ones it makes itself (port not connected, capability not provided, action not allowed), so a page can watch outcomes without wrapping the port."
+      "x-detail": "also the port answer's reason, message, data, sequence and effects when it has them, and instance_id"
     },
     "state": {
       "carries": {
@@ -259,47 +188,25 @@
             "empty",
             "error",
             "no-access"
-          ],
-          "summary": "The new state, also written to data-state."
+          ]
         },
-        "message": {
-          "type": "string",
-          "summary": "The announced status text; empty when there is none."
-        },
-        "instance_id": {
-          "type": "string",
-          "summary": "The view's instance id, sf-data-view-<n>."
-        }
+        "message": "string"
       },
       "own-verb": true,
-      "summary": "Fires whenever the view's data state changes (loading, populated, empty, error), with the line it announces in its live region; for a page that mirrors the state elsewhere."
+      "x-detail": "also instance_id"
     },
     "tree": {
       "carries": {
         "intent": "string",
-        "payload": {
-          "type": "object",
-          "optional": true
-        }
+        "payload": "object"
       },
-      "own-verb": true,
-      "summary": "The tree's port intents announced, {intent, payload}; the old sf-table-tree-intent follows once until 2026-12-01 (aliases.json)."
+      "own-verb": true
     },
     "files-drop": {
       "carries": {
-        "files": {
-          "type": "list",
-          "summary": "The dropped File objects, at least one.",
-          "schema": {
-            "items": {
-              "type": "object"
-            },
-            "minItems": 1
-          }
-        }
+        "files": "list"
       },
-      "own-verb": true,
-      "summary": "Files from the computer were dropped on a view that has accept-files. The view uploads nothing and the files do not go through the port; the host uploads them."
+      "own-verb": true
     }
   },
   "actions": {
@@ -309,11 +216,6 @@
           "type": "string",
           "optional": true
         }
-      },
-      "summary": "Request current query with a new sequence.",
-      "x-returns": {
-        "type": "object",
-        "description": "A promise of the host answer: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
       }
     },
     "change-query": {
@@ -324,64 +226,33 @@
           "optional": true
         }
       },
-      "concurrency": "latest",
-      "summary": "Change search, filters, sort or window.",
-      "x-returns": {
-        "type": "object",
-        "description": "A promise of the host answer: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
-      }
+      "concurrency": "latest"
     },
     "open-view": {
       "with": {
         "key": "string"
-      },
-      "summary": "Open a saved view.",
-      "x-returns": {
-        "type": "object",
-        "description": "A promise of the host answer: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
       }
     },
     "save-view": {
       "with": {
         "view": "object"
       },
-      "concurrency": "drop",
-      "summary": "Save a personal or shared view: view.save, or view.save_shared on a port of 1.1.0 or later. Throws TypeError without key and label, or for another level.",
-      "x-returns": {
-        "type": "object",
-        "description": "A promise of the host answer: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it. A shared level on a port older than 1.1.0 resolves to {answer: 'unavailable', reason: 'saved-view-levels-require-port-1.1.0'}."
-      }
+      "concurrency": "drop"
     },
     "delete-view": {
       "with": {
         "key": "string"
       },
-      "concurrency": "drop",
-      "summary": "Delete a saved view.",
-      "x-returns": {
-        "type": "object",
-        "description": "A promise of the host answer: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
-      }
+      "concurrency": "drop"
     },
     "apply-under-filter": {
       "with": {
         "action-id": "string",
         "confirmed-total": "number"
       },
-      "concurrency": "drop",
-      "summary": "Raise a confirmed filter-wide action (bulk.apply_under_filter) over the current filters. Throws TypeError when confirmedTotal is not the current total.",
-      "x-returns": {
-        "type": "object",
-        "description": "A promise of the host answer: {answer: applied|conflict|refused|unavailable, …}, or of null when a newer request superseded it."
-      }
+      "concurrency": "drop"
     },
-    "reset-column-settings": {
-      "summary": "Reset the person's column layout: an empty personal layer written against its revision, which is the port's reset (a write, never a deletion). The host supplies the defaults.",
-      "x-returns": {
-        "type": "object",
-        "description": "A promise of the port answer, as saveColumnSettings returns it, including {answer: 'unavailable', reason: 'no-base-revision'}."
-      }
-    },
+    "reset-column-settings": {},
     "clear-selection": {},
     "notify": {
       "with": {
@@ -390,11 +261,6 @@
           "type": "object",
           "optional": true
         }
-      },
-      "summary": "Show one notice over the card, or clear it with an empty text. A refusal, a conflict and an unreachable host raise it by themselves.",
-      "x-returns": {
-        "type": "object",
-        "description": "The element, for chaining."
       }
     }
   },
@@ -416,33 +282,6 @@
     "version": "1.12.0",
     "contract": "src/core/contracts/ports/simai.dataview-port/1.12.0/port.json"
   },
-  "relations": [
-    {
-      "name": "icons"
-    },
-    {
-      "name": "cl-table"
-    },
-    {
-      "name": "cl-pagination"
-    },
-    {
-      "name": "cl-toast",
-      "lazy": true
-    },
-    {
-      "name": "cl-button"
-    },
-    {
-      "name": "cl-checkbox"
-    },
-    {
-      "name": "cl-dropdown"
-    },
-    {
-      "name": "cl-icon-button"
-    }
-  ],
   "templates": {
     "default": {
       "file": "index.js",
@@ -498,31 +337,6 @@
     "data-state": "string",
     "aria-busy": "string"
   },
-  "aliases": {
-    "$comment": "Dated aliases of sf-data-view for the shim (core/js/aliases.js, standard §16 item 20).",
-    "since": "2026-10-27",
-    "remove-after": "2026-12-01",
-    "rows": [
-      {
-        "from": "aria-label",
-        "to": null,
-        "kind": "attribute",
-        "mode": "host-attribute",
-        "section": "§3.1, §4.8",
-        "note": "stays a host attribute, read for the accessible name; no shim"
-      },
-      {
-        "from": "sf-table-tree-intent",
-        "to": "sf-data-view-tree",
-        "kind": "event",
-        "mode": "same-detail",
-        "cancelable": false,
-        "section": "§8, vocabulary §9",
-        "note": "the view's announcement of the tree's port intents carried a table name; the detail {intent, payload} is unchanged",
-        "summary": "A tree intent of simai.dataview-port 1.8.0 -- tree.expand, node.targets or node.move -- announced as the view raises it. The host answers through the port."
-      }
-    ]
-  },
   "x-summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "x-source": {
     "package": "ui-pro",
@@ -569,6 +383,64 @@
       "1.11.0",
       "1.12.0"
     ]
+  },
+  "x-kept": {
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "query",
+        "records",
+        "saved_views",
+        "answer messages"
+      ],
+      "network_policy": "deny"
+    },
+    "ownership": {
+      "source": "simai/ui-admin",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "access decisions",
+        "database writes",
+        "unspecified transport"
+      ]
+    },
+    "presentation": {
+      "skeleton": {
+        "shape": "rows",
+        "while_loading": "template"
+      },
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "ru",
+        "en"
+      ],
+      "responsive": [
+        "Slots and child components own responsive behaviour"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use for a host-driven CMS collection with toolbar, table and pagination.",
+      "do_not": [
+        "Do not embed rows in the composition recipe",
+        "Do not infer permissions from visible buttons"
+      ],
+      "required_reads": [
+        "host_port",
+        "events",
+        "ownership",
+        "compatibility",
+        "docs"
+      ],
+      "minimal_example": "<sf-data-view aria-label=\"Записи\"><sf-table slot=\"content\" aria-label=\"Записи\"></sf-table><sf-pagination slot=\"pagination\"></sf-pagination></sf-data-view>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-browser-probes.mjs <free output> <package output>"
+      ]
+    }
   },
   "x-renamed": [
     "settings.aria-label: a host attribute, read by the base, never a setting (§3.1)",
@@ -623,885 +495,5 @@
     "skeleton": "index.js _startFirstPaint: the toolbar, the head and a row per row of the page the list asks for (kept page size, else the printed page row's page-size, which the first query also asks for; capped by row-cap; else row-cap, else 10) of expected-columns cells, the compact list below 600 px, and the page row, until the host first answers; printed as the static markup and adopted. expected-columns is the skeleton's shape, never a limit: the answer brings its own columns.",
     "source-drift": "carried by hand: the estimated total «~N» (ui-pro 71ebff1) is the view's behaviour, not a member.",
     "docs": "docs.md, where the folder keeps it."
-  },
-  "x-rule": {
-    "$comment": [
-      "sf-data-view had no rule either, so its tag loaded nothing and every consumer",
-      "added the script by hand. Found while fixing the same gap in sf-property-view.",
-      "The relations are what the composite itself composes; the table brings its own",
-      "through cl-table."
-    ]
-  },
-  "x-registry": {
-    "kind": "composite",
-    "capabilities": [
-      "data-view",
-      "search",
-      "filtering",
-      "sorting",
-      "saved-views",
-      "pagination",
-      "responsive"
-    ],
-    "persistence": {
-      "mode": "external-host",
-      "source_of_truth": "host",
-      "network_owner": "host",
-      "revision_field": "revision"
-    },
-    "readiness": {
-      "level": "host-required",
-      "required_checks": [
-        "host-port-reference",
-        "data-view-composite",
-        "responsive-table",
-        "generated-pair"
-      ]
-    },
-    "tags": [
-      "admin",
-      "collection",
-      "data",
-      "table"
-    ],
-    "composition-declarative": {
-      "standard": "simai.composition.document.v1",
-      "type": "smart.data-view-composite",
-      "mode": "leaf",
-      "profiles": [
-        "ui-layout"
-      ],
-      "props": [
-        "aria-label"
-      ],
-      "data": {},
-      "events": [
-        "sf-count-request",
-        "sf-data-view-answer",
-        "sf-data-view-saved-view-intent",
-        "sf-data-view-state",
-        "sf-table-action-intent",
-        "sf-table-column-settings-change",
-        "sf-table-column-settings-reset",
-        "sf-table-create-intent",
-        "sf-table-query-intent",
-        "sf-table-template-delete",
-        "sf-table-template-save",
-        "sf-table-template-select",
-        "sf-table-tree-intent"
-      ],
-      "persistence": {
-        "settings_key_prop": null,
-        "revision_prop": null
-      },
-      "presentation": {
-        "views": [
-          "default"
-        ],
-        "presets": [],
-        "modifiers": []
-      },
-      "slots": {
-        "toolbar": {
-          "accepts": [
-            "smart.button",
-            "smart.input",
-            "smart.dropdown"
-          ]
-        },
-        "content": {
-          "accepts": [
-            "smart.data-view"
-          ]
-        },
-        "pagination": {
-          "accepts": [
-            "smart.pagination"
-          ]
-        }
-      },
-      "renderer": {
-        "kind": "custom-element",
-        "name": "sf-data-view"
-      },
-      "assets": [
-        "smart/data-view"
-      ],
-      "host_port": {
-        "port": "simai.dataview-port",
-        "version": "1.12.0",
-        "path": "src/core/contracts/ports/simai.dataview-port/1.12.0/port.json",
-        "sha256": "e024700fddc70464642e2f42604cd6d57d4c167c4583127f05bfb85ebbb3ffa1",
-        "supported_versions": [
-          "1.0.0",
-          "1.1.0",
-          "1.2.0",
-          "1.3.0",
-          "1.4.0",
-          "1.5.0",
-          "1.6.0",
-          "1.7.0",
-          "1.8.0",
-          "1.9.0",
-          "1.10.0",
-          "1.11.0",
-          "1.12.0"
-        ]
-      }
-    },
-    "item_contract": {
-      "page": "Positive one-based page number bounded by total and page-size.",
-      "ellipsis": "Non-interactive indicator for omitted pages."
-    },
-    "contracts": {
-      "navigation": {
-        "const": "The visible root is a named nav; page actions are native buttons because the component emits state events instead of owning URLs."
-      },
-      "current": {
-        "const": "Exactly one rendered page exposes aria-current=page when total is greater than zero."
-      },
-      "empty": {
-        "const": "A zero-sized collection renders no page controls and emits no page-change."
-      },
-      "responsive": {
-        "const": "A long desktop range keeps edge pages and static ellipses; a narrow range keeps the current page, adjacent pages and directional actions on one line."
-      },
-      "composition": {
-        "const": "Show-more, page-size and batch-action sections remain compatible optional compositions; data loading and host actions stay outside the component."
-      }
-    },
-    "state": {
-      "machines": {
-        "data": [
-          "loading",
-          "populated",
-          "empty",
-          "error"
-        ]
-      },
-      "visual_states": [
-        "default",
-        "loading",
-        "empty",
-        "error"
-      ]
-    },
-    "artifacts": {
-      "fixtures": [],
-      "scenarios": []
-    },
-    "ownership": {
-      "source": "simai/ui-admin",
-      "data": "host",
-      "effects": "host",
-      "forbidden_client_responsibilities": [
-        "access decisions",
-        "database writes",
-        "unspecified transport"
-      ]
-    },
-    "security": {
-      "permissions_owner": "host",
-      "untrusted_inputs": [
-        "query",
-        "records",
-        "saved_views",
-        "answer messages"
-      ],
-      "network_policy": "deny"
-    },
-    "presentation": {
-      "skeleton": {
-        "shape": "rows",
-        "while_loading": "template"
-      },
-      "themes": [
-        "light",
-        "dark"
-      ],
-      "locales": [
-        "ru",
-        "en"
-      ],
-      "responsive": [
-        "Slots and child components own responsive behaviour"
-      ]
-    },
-    "ai_guidance": {
-      "use_when": "Use for a host-driven CMS collection with toolbar, table and pagination.",
-      "do_not": [
-        "Do not embed rows in the composition recipe",
-        "Do not infer permissions from visible buttons"
-      ],
-      "required_reads": [
-        "host_port",
-        "events",
-        "ownership",
-        "compatibility",
-        "docs"
-      ],
-      "minimal_example": "<sf-data-view aria-label=\"Записи\"><sf-table slot=\"content\" aria-label=\"Записи\"></sf-table><sf-pagination slot=\"pagination\"></sf-pagination></sf-data-view>",
-      "owner_commands": [
-        "node scripts/test.mjs",
-        "node scripts/run-browser-probes.mjs <free output> <package output>"
-      ]
-    },
-    "accessibility": {
-      "accessible_name": "required",
-      "keyboard": [
-        "Native controls and child Smart components"
-      ],
-      "focus": "No focus movement on data refresh"
-    },
-    "compatibility": {
-      "migrations": [
-        {
-          "from": "1.0.0",
-          "to": "1.1.0",
-          "changes": [
-            "From component.json (standard simai.smart-component 1.3.8): sf-data-view-open {id} (cancelable) before the host's record.open, sf-data-view-deleted {ids} after an applied delete, sf-data-view-tree with sf-table-tree-intent as its dated alias; values state (vocabulary), total, selected, selection; settings collection and current; the actions answer outcomes."
-          ]
-        },
-        {
-          "from": "1.4.2",
-          "to": "1.4.3",
-          "changes": [
-            "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
-          ]
-        }
-      ]
-    },
-    "alias-events": {
-      "sf-count-request": {
-        "summary": "Raised by the view's pagination when the person asks for the total, the last page or an action under the filter while the count is unknown. The view answers it with the query.count intent; a host does not need to listen.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "component",
-            "tagName",
-            "template",
-            "reason",
-            "current",
-            "pageSize"
-          ],
-          "properties": {
-            "component": {
-              "type": "object",
-              "description": "The pagination element that asked."
-            },
-            "tagName": {
-              "type": "string",
-              "description": "Its tag name."
-            },
-            "template": {
-              "type": "string",
-              "description": "Its template name."
-            },
-            "reason": {
-              "type": "string",
-              "enum": [
-                "total",
-                "last-page",
-                "action-for-all"
-              ],
-              "description": "What the number is for."
-            },
-            "current": {
-              "type": "integer",
-              "description": "The current page."
-            },
-            "pageSize": {
-              "type": "integer",
-              "description": "The page size."
-            }
-          }
-        }
-      },
-      "sf-data-view-saved-view-intent": {
-        "summary": "An event a page raises on the view to save a shared saved view (port 1.1.0 or later): the view raises view.save_shared with the detail's key and label.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "key",
-            "label"
-          ],
-          "properties": {
-            "key": {
-              "type": "string",
-              "description": "The saved view's key."
-            },
-            "label": {
-              "type": "string",
-              "description": "Its name as shown."
-            },
-            "revision": {
-              "type": [
-                "string",
-                "integer"
-              ],
-              "description": "The revision it is written against, when it exists."
-            },
-            "roles": {
-              "type": "object",
-              "description": "Who may open it, as the host names roles."
-            }
-          }
-        }
-      },
-      "sf-table-action-intent": {
-        "summary": "A table event the view listens to: a row or bulk action chosen in its table. The view checks the row allows it and raises record.open (view), record.mutate (one row) or bulk.apply_selected, with the records' revisions; move and create on a tree open the move dialog or view.create_record.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "action_id",
-            "record_ids"
-          ],
-          "properties": {
-            "action_id": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The opaque id of the row or bulk action chosen."
-            },
-            "record_ids": {
-              "type": "array",
-              "items": {
-                "type": [
-                  "string",
-                  "integer"
-                ]
-              },
-              "minItems": 1,
-              "description": "The records it applies to: the row's own id, or the selected ids for a bulk action."
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "sf-table-column-settings-change": {
-        "summary": "A table event the view listens to: the person resized, moved, pinned or hid a column. The view writes it to the person's layer (settings.save_personal): the table offers no choice of layer, and the table it draws sends no target. The shared layer is written from page code with saveColumnSettings(settings, {shared: true}).",
-        "payload": {
-          "type": "object",
-          "required": [
-            "reason",
-            "columnSettings",
-            "tableSettingsKey"
-          ],
-          "properties": {
-            "reason": {
-              "type": "string",
-              "description": "What changed: column-resize, column-resize-reset, column-drag, column-order, column-pin, column-visibility, column-settings-restore, column-settings."
-            },
-            "columnSettings": {
-              "type": "object",
-              "description": "The whole column-preference delta after the change, keyed by column key (width, order, hidden, pinned)."
-            },
-            "tableSettingsKey": {
-              "type": "string",
-              "description": "The table's settings key, so a host can tell several tables apart."
-            },
-            "target": {
-              "type": "string",
-              "enum": [
-                "personal",
-                "shared"
-              ],
-              "description": "Not sent by the table. Another source may send shared to write the shared layer."
-            },
-            "base_revision": {
-              "type": [
-                "string",
-                "number"
-              ],
-              "description": "Not sent by the table. Another source may name the base revision; otherwise the view uses the layer's."
-            }
-          }
-        }
-      },
-      "sf-table-column-settings-reset": {
-        "summary": "A table event the view listens to: the person asked for the default columns back. The view calls resetColumnSettings, an empty personal layer written against its revision; the host supplies the defaults.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "target",
-            "tableSettingsKey"
-          ],
-          "properties": {
-            "target": {
-              "type": "string",
-              "const": "personal",
-              "description": "The layer to reset. The table only resets the person's own layer."
-            },
-            "tableSettingsKey": {
-              "type": [
-                "string",
-                "null"
-              ],
-              "description": "The table's settings key, or null when it has none."
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "sf-table-create-intent": {
-        "summary": "A table event the view listens to: the create button or one of its menu items was pressed. The view raises view.create_record with the detail as it came.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "item"
-          ],
-          "properties": {
-            "item": {
-              "type": [
-                "string",
-                "null"
-              ],
-              "description": "null for the main create button; the declared create item's id when one was chosen from its menu."
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "sf-table-query-intent": {
-        "summary": "A table event the view listens to: its table's context input port changed. The view ignores the table's sequence and re-reads the list with its own query.change.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "reason",
-            "context",
-            "sequence"
-          ],
-          "properties": {
-            "reason": {
-              "const": "context",
-              "description": "Always context: the context input port changed."
-            },
-            "context": {
-              "type": "object",
-              "description": "The immutable context last received through the context input port."
-            },
-            "sequence": {
-              "type": "integer",
-              "minimum": 1,
-              "description": "The pending query's sequence; only the newest is applied."
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "sf-table-template-delete": {
-        "summary": "A table event the view listens to: a saved template was deleted on the Templates tab, one event per template. The view raises view.delete with the key.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "key"
-          ],
-          "properties": {
-            "key": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The saved template's key."
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "sf-table-template-save": {
-        "summary": "A table event the view listens to: a filter template was saved. The view turns it into saveView (view.save) with key, label, revision, level, roles, layout and settings; an array detail is saved template by template, each one its own view.save, entries without a key skipped.",
-        "payload": {
-          "description": "One template object when a single template is saved from the form, or an array of them when Apply on the Templates tab changed several (order, pin, default, selected).",
-          "oneOf": [
-            {
-              "type": "object",
-              "required": [
-                "key",
-                "label",
-                "settings"
-              ],
-              "properties": {
-                "key": {
-                  "type": "string",
-                  "description": "The template's key; a new template gets filter_template_<n>."
-                },
-                "label": {
-                  "type": "string",
-                  "description": "The name the person gave it."
-                },
-                "selected": {
-                  "type": "boolean",
-                  "description": "Whether it is the applied template."
-                },
-                "data": {
-                  "type": "object",
-                  "description": "The filter draft it keeps: the form values, `values` and `tags`."
-                },
-                "settings": {
-                  "type": "object",
-                  "properties": {
-                    "filter_fields": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "description": "The filter fields it was showing, so opening it shows them again."
-                    }
-                  },
-                  "description": "Passed through by the port as it is."
-                }
-              }
-            },
-            {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": [
-                  "key",
-                  "label",
-                  "settings"
-                ],
-                "properties": {
-                  "key": {
-                    "type": "string",
-                    "description": "The template's key; a new template gets filter_template_<n>."
-                  },
-                  "label": {
-                    "type": "string",
-                    "description": "The name the person gave it."
-                  },
-                  "selected": {
-                    "type": "boolean",
-                    "description": "Whether it is the applied template."
-                  },
-                  "data": {
-                    "type": "object",
-                    "description": "The filter draft it keeps: the form values, `values` and `tags`."
-                  },
-                  "settings": {
-                    "type": "object",
-                    "properties": {
-                      "filter_fields": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "description": "The filter fields it was showing, so opening it shows them again."
-                      }
-                    },
-                    "description": "Passed through by the port as it is."
-                  }
-                }
-              },
-              "minItems": 1
-            }
-          ]
-        }
-      },
-      "sf-table-template-select": {
-        "summary": "A table event the view listens to: a different saved template was applied on the Templates tab. The view raises view.open with the key and restores the filter fields the view was saved with.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "key"
-          ],
-          "properties": {
-            "key": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The saved template's key."
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "sf-host-port-request": {
-        "summary": "Asks the page for a host port, once per connection and only while this element has none. The shared convention for every component that takes `setHostPort`, so a consumer composing one inside something else does not have to find the element and call a method on it. Answered by calling `setHostPort` on the event target, at once or later.",
-        "payload": {
-          "type": "object",
-          "properties": {
-            "component": {
-              "type": "object",
-              "description": "The element asking, so a host can answer it directly."
-            },
-            "context": {
-              "type": "object",
-              "description": "Which composite is asking and about what: owner, record, group. All null on a page list, which is asking about nothing but itself."
-            }
-          }
-        }
-      },
-      "sf-data-view-list-open": {
-        "summary": "The person asked to see the whole list a row cap is showing part of. Carries the query so the host opens the full view on the same records; the component builds no address of its own.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "reason",
-            "query"
-          ],
-          "properties": {
-            "reason": {
-              "enum": [
-                "row-cap"
-              ]
-            },
-            "query": {
-              "type": "object"
-            }
-          }
-        }
-      },
-      "sf-table-tree-intent": {
-        "summary": "A tree intent of simai.dataview-port 1.8.0 -- tree.expand, node.targets or node.move -- announced as the view raises it. The host answers through the port.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "intent",
-            "payload"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "intent": {
-              "type": "string"
-            },
-            "payload": {
-              "type": "object"
-            }
-          }
-        }
-      },
-      "sf-table-cell-set": {
-        "summary": "A table event the view listens to: a checkable cell was pressed. The view raises record.set of simai.dataview-port 1.11.0 (capability inline-edit) with record_id, key, value and revision, and resets the box when the answer is not applied.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "id",
-            "key",
-            "value",
-            "revision"
-          ],
-          "properties": {
-            "id": {
-              "type": [
-                "string",
-                "integer"
-              ],
-              "description": "The record's id."
-            },
-            "key": {
-              "type": "string",
-              "description": "The column (field) key of the cell."
-            },
-            "value": {
-              "description": "The value the cell now asks for (a checkbox: true or false)."
-            },
-            "revision": {
-              "type": [
-                "string",
-                "integer",
-                "null"
-              ],
-              "description": "The record's _revision or revision, or null."
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "sf-table-rows-reorder": {
-        "summary": "A table event the view listens to: rows were dragged into another order. The view shows the new order at once and raises record.reorder of simai.dataview-port 1.11.0 (capability row-reorder); a refusal or conflict puts the old order back.",
-        "payload": {
-          "type": "object",
-          "required": [
-            "ids",
-            "before",
-            "order"
-          ],
-          "properties": {
-            "ids": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "minItems": 1,
-              "description": "The ids of the rows that moved."
-            },
-            "before": {
-              "type": [
-                "string",
-                "null"
-              ],
-              "description": "The id of the row they now stand before; null for the end of the list."
-            },
-            "order": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "Every row id shown, in the new order."
-            }
-          },
-          "additionalProperties": false
-        }
-      }
-    },
-    "methods": {
-      "applyProjection": {
-        "summary": "Render a host answer in all three slots.",
-        "arguments": [
-          {
-            "name": "data",
-            "type": "object",
-            "required": true
-          }
-        ],
-        "returns": {
-          "type": "null"
-        }
-      },
-      "saveColumnSettings": {
-        "summary": "Write a column-settings layer, personal or shared, against its revision: settings.save_personal or settings.save_shared. The base revision is the one given, else the layer's, else the port target's. After a conflict the view takes the current_revision (and the layer's columns) the answer carries beside answer, as simai.dataview-port 1.12.0 states; it still reads data.current_revision and data.column_settings from a host that followed 1.10.0's words, and re-reads the list when the conflict names no revision.",
-        "arguments": [
-          {
-            "name": "columnSettings",
-            "type": "object",
-            "required": true,
-            "description": "The column-preference delta to write, keyed by column key."
-          },
-          {
-            "name": "options",
-            "type": "object",
-            "required": false,
-            "description": "{shared?: boolean, base_revision?: string|number}. shared writes the shared layer (default false); base_revision overrides the revision the view holds.",
-            "properties": {
-              "shared": {
-                "type": "boolean",
-                "default": false
-              },
-              "base_revision": {
-                "type": [
-                  "string",
-                  "number"
-                ]
-              }
-            }
-          }
-        ],
-        "returns": {
-          "type": "object",
-          "description": "A promise of the port answer {answer: applied|conflict|refused|unavailable, …}, or of null when superseded. Resolves to {answer: 'unavailable', reason: 'no-base-revision'} without asking the host when no revision is known."
-        }
-      },
-      "setHostPort": {
-        "summary": "Bind an exact host adapter.",
-        "arguments": [
-          {
-            "name": "host",
-            "type": "object",
-            "required": true
-          }
-        ],
-        "returns": {
-          "type": "object",
-          "description": "The element, for chaining."
-        }
-      },
-      "updateRecord": {
-        "summary": "Write one record in place: that row is rewritten and nothing is asked of the host. A write answered with records alone takes this path by itself.",
-        "arguments": [
-          {
-            "name": "id",
-            "type": [
-              "string",
-              "integer"
-            ],
-            "required": true
-          },
-          {
-            "name": "patch",
-            "type": "object",
-            "required": false
-          }
-        ],
-        "returns": {
-          "type": "boolean",
-          "description": "Whether a shown record was rewritten."
-        }
-      },
-      "expandNode": {
-        "summary": "Open a node the host said has children: from what the view holds, or by asking the host with tree.expand.",
-        "arguments": [
-          {
-            "name": "id",
-            "type": [
-              "string",
-              "integer"
-            ],
-            "required": true
-          }
-        ],
-        "returns": {
-          "type": "object",
-          "description": "A promise of the host answer, or of null when superseded; null at once when the node is unknown, has no children, or its children are already held."
-        }
-      },
-      "collapseNode": {
-        "summary": "Close an open node. The view's own business; the host is not asked.",
-        "arguments": [
-          {
-            "name": "id",
-            "type": [
-              "string",
-              "integer"
-            ],
-            "required": true
-          }
-        ],
-        "returns": {
-          "type": "null"
-        }
-      },
-      "loadMoreNodes": {
-        "summary": "The next page of one level: the roots through the query, a node's children through tree.expand with its cursor.",
-        "arguments": [
-          {
-            "name": "parent",
-            "type": [
-              "string",
-              "integer",
-              "null"
-            ],
-            "required": true
-          },
-          {
-            "name": "cursor",
-            "type": [
-              "string",
-              "null"
-            ],
-            "required": false
-          }
-        ],
-        "returns": {
-          "type": "object",
-          "description": "A promise of the host answer, or of null when superseded."
-        }
-      },
-      "openMoveDialog": {
-        "summary": "Ask the host where a record may go (node.targets), let the person choose among exactly those places, and move it there (node.move).",
-        "arguments": [
-          {
-            "name": "record",
-            "type": "object",
-            "required": true
-          }
-        ],
-        "returns": {
-          "type": "object",
-          "description": "A promise of the host answer, or of null when superseded."
-        }
-      }
-    },
-    "inputs": {
-      "aria-label": {
-        "default": "Представление данных"
-      }
-    }
   }
 }
