@@ -12,12 +12,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "conversation.open"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent conversation.open: open {kind: conversation} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent conversation.open: open {kind: conversation} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "conversation.open"
+      }
     },
     {
       "from": "chat-port:older",
@@ -27,12 +27,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "history.older"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent history.older: load-more {kind: history} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent history.older: load-more {kind: history} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "history.older"
+      }
     },
     {
       "from": "chat-port:send",
@@ -42,12 +42,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "message.send"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent message.send: submit {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent message.send: submit {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "message.send"
+      }
     },
     {
       "from": "chat-port:retry",
@@ -57,12 +57,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "message.retry"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent message.retry: retry {kind: message} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent message.retry: retry {kind: message} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "message.retry"
+      }
     },
     {
       "from": "chat-port:edit",
@@ -72,12 +72,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "message.edit"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent message.edit: save {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent message.edit: save {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "message.edit"
+      }
     },
     {
       "from": "chat-port:delete",
@@ -87,12 +87,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "message.delete"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent message.delete: delete {kind: message} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent message.delete: delete {kind: message} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "message.delete"
+      }
     },
     {
       "from": "chat-port:read",
@@ -102,12 +102,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "message.read"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent message.read: read {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent message.read: read {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "message.read"
+      }
     },
     {
       "from": "chat-port:rate",
@@ -117,12 +117,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "message.rate"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent message.rate: rate {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent message.rate: rate {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "message.rate"
+      }
     },
     {
       "from": "chat-port:file-retry",
@@ -132,12 +132,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "file.retry"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent file.retry: retry {kind: file} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent file.retry: retry {kind: file} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "file.retry"
+      }
     },
     {
       "from": "chat-port:decide",
@@ -147,12 +147,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "proposal.decide"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent proposal.decide: answer {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent proposal.decide: answer {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "proposal.decide"
+      }
     },
     {
       "from": "chat-port:check",
@@ -162,12 +162,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "wait.check"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent wait.check: check {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent wait.check: check {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "wait.check"
+      }
     },
     {
       "from": "chat-port:stop",
@@ -177,12 +177,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "wait.stop"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent wait.stop: stop {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent wait.stop: stop {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "wait.stop"
+      }
     },
     {
       "from": "chat-port:create",
@@ -192,12 +192,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "conversation.create"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent conversation.create: create {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent conversation.create: create {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "conversation.create"
+      }
     },
     {
       "from": "chat-port:rename",
@@ -207,12 +207,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "conversation.rename"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent conversation.rename: rename {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent conversation.rename: rename {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "conversation.rename"
+      }
     },
     {
       "from": "chat-port:archive",
@@ -222,12 +222,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "conversation.archive"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent conversation.archive: archive {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent conversation.archive: archive {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "conversation.archive"
+      }
     },
     {
       "from": "chat-port:archive",
@@ -237,12 +237,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "conversation.archive"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent conversation.archive with archived false: restore {request-id, intent, payload}; the 0.3 detail {request_id, conversation_id, archived: false} is made by the element adapter"
+      "note": "the port intent conversation.archive with archived false: restore {request-id, intent, payload}; the 0.3 detail {request_id, conversation_id, archived: false} is made by the element adapter",
+      "when": {
+        "intent": "conversation.archive"
+      }
     },
     {
       "from": "chat-port:interlocutor",
@@ -252,12 +252,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "interlocutor.choose"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the port intent interlocutor.choose: select {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the port intent interlocutor.choose: select {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "interlocutor.choose"
+      }
     },
     {
       "from": "chat-window:view",
@@ -267,12 +267,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "conversations.view"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the window capability x-archive-view, conversations.view: open {kind: list} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the window capability x-archive-view, conversations.view: open {kind: list} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "conversations.view"
+      }
     },
     {
       "from": "chat-window:more",
@@ -282,12 +282,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "conversations.more"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the window capability x-conversations-paging, conversations.more: load-more {kind: conversations} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the window capability x-conversations-paging, conversations.more: load-more {kind: conversations} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "conversations.more"
+      }
     },
     {
       "from": "chat-window:search",
@@ -297,12 +297,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "conversations.search"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the window capability x-conversations-search, conversations.search: query {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the window capability x-conversations-search, conversations.search: query {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "conversations.search"
+      }
     },
     {
       "from": "chat-window:pin",
@@ -312,12 +312,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "conversation.pin"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the window capability x-conversation-pin, conversation.pin: pin {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the window capability x-conversation-pin, conversation.pin: pin {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "conversation.pin"
+      }
     },
     {
       "from": "chat-window:attach",
@@ -327,12 +327,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "file.attach"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the window capability x-early-upload, file.attach: attach {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the window capability x-early-upload, file.attach: attach {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "file.attach"
+      }
     },
     {
       "from": "chat-window:detach",
@@ -342,12 +342,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "file.detach"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the window capability x-early-upload, file.detach: detach {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the window capability x-early-upload, file.detach: detach {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "file.detach"
+      }
     },
     {
       "from": "chat-window:files",
@@ -357,12 +357,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "files.list"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the window capability x-my-files, files.list: open {kind: files} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the window capability x-my-files, files.list: open {kind: files} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "files.list"
+      }
     },
     {
       "from": "chat-window:file-remove",
@@ -372,12 +372,12 @@
       "since": "2026-10-28",
       "remove_after": "2026-12-01",
       "mode": "split",
-      "when": {
-        "intent": "files.remove"
-      },
       "cancelable": true,
       "section": "§8, §4.9, vocabulary 1.1.5 §5, §5.1, §9",
-      "note": "the window capability x-my-files, files.remove: delete {kind: file} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only"
+      "note": "the window capability x-my-files, files.remove: delete {kind: file} {request-id, intent, payload}; the 0.3 detail {request_id, ...payload} is made by the element adapter (sfAliasAdapters) for this intent only",
+      "when": {
+        "intent": "files.remove"
+      }
     },
     {
       "from": "sf-chat-window-answer",

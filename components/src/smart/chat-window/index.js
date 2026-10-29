@@ -21,9 +21,9 @@
 // (me, conversations, conversation, messages, history, feed-state, limits,
 // interlocutors, notice, and the window's own conversation-list,
 // composer-files, my-files) or several at once with set-data. Every intent
-// is first an event of the window, sf-chat-window-<verb> {request-id,
+// is first an event of the window, sf-chat-window-<verb> {requestId,
 // intent, kind, payload}, cancelable: a page that cancels it refuses it. A
-// host with no port answers the event with the action settle {request-id,
+// host with no port answers the event with the action settle {requestId,
 // result} (the 0.3 method answer(request_id, result)), as 0.3 hosts answered chat-port:<name> -- those names follow
 // until 2026-12-01 (aliases.json). An applied answer's data is applied as
 // data, then settled says what the host answered.
@@ -159,11 +159,11 @@ function formerAdapters() {
     const names = new Set([...Object.values(INTENTS), ...Object.values(EXTENSION_INTENTS)].map((spec) => spec.former));
     for (const name of names) {
         adapters[name] = (detail) => (detail && formerOf(detail) === name
-            ? {request_id: detail["request-id"], ...(detail.payload || {})}
+            ? {request_id: detail.requestId, ...(detail.payload || {})}
             : undefined);
     }
     adapters["sf-chat-window-answer"] = (detail) => (detail ? {
-        request_id: detail["request-id"],
+        request_id: detail.requestId,
         intent: detail.intent,
         payload: detail.payload,
         answer: detail.answer,
@@ -186,8 +186,10 @@ const ChatWindowElement = elementFromManifest(manifest, {
         },
         // The 0.3 answer(request_id, result) stays the element's method (a
         // host without a port calls it); the action is its manifest form.
-        settle({"request-id": requestId, result}) {
-            return this.answer(requestId, result) ? applied() : {outcome: "refused", reason: "unknown-request"};
+        // requestId is the 1.4 name; "request-id" the 1.0 one, kept with the
+        // dated event names (until 2026-12-01).
+        settle({requestId, "request-id": former, result}) {
+            return this.answer(requestId ?? former, result) ? applied() : {outcome: "refused", reason: "unknown-request"};
         },
         "start-conversation"() {
             return this.startConversation().then(applied);
@@ -223,7 +225,7 @@ class SfChatWindow extends ChatWindowElement {
             conversation_list: {archived: false, has_more: false, loading: false}, composer_files: [], my_files: null,
         };
         this._root = null;
-        this._requests = new Map();  // request-id -> {intent, payload, resolve}
+        this._requests = new Map();  // requestId -> {intent, payload, resolve}
         this._drafts = new Map();    // draft key -> typed text, this page only
         this._retried = new Set();   // failed answers asked again: no second «Повторить»
         this._ratings = new Map();   // message key -> the rating given on this page {value, reason, note, asking, draft}
@@ -333,7 +335,8 @@ class SfChatWindow extends ChatWindowElement {
     finish(requestId, pending, result) {
         if (result.answer === "applied" && result.data && typeof result.data === "object") this.applyData(result.data);
         this.sfEmit("settled", {
-            "request-id": requestId,
+            requestId,
+            "request-id": requestId,  // the 1.0 spelling, until 2026-12-01
             intent: pending.intent,
             payload: pending.payload,
             answer: result.answer,
@@ -385,7 +388,7 @@ class SfChatWindow extends ChatWindowElement {
     // --- requests ----------------------------------------------------------
 
     /**
-     * Raise one intent: the event sf-chat-window-<verb> {request-id, intent,
+     * Raise one intent: the event sf-chat-window-<verb> {requestId, intent,
      * kind, payload}, then the port's raise, or the host's answer(). Resolves
      * with the host's answer; an undeclared capability resolves `unavailable`
      * without asking, a cancelled event `refused`.
@@ -395,7 +398,9 @@ class SfChatWindow extends ChatWindowElement {
         if (!spec) throw new Error(`sf-chat-window: unknown intent ${intent}`);
         if (spec.capability && !this.has(spec.capability)) return Promise.resolve({answer: "unavailable", reason: "capability-not-provided"});
         const requestId = `chat-window-${++requests}`;
-        const detail = {"request-id": requestId, intent, ...(spec.kind ? {kind: spec.kind} : {}), payload};
+        // requestId is the carried name (standard 1.4: camelCase); "request-id"
+        // is the 1.0 spelling, sent beside it until 2026-12-01.
+        const detail = {requestId, "request-id": requestId, intent, ...(spec.kind ? {kind: spec.kind} : {}), payload};
         const port = this.sfPort;
         return new Promise((resolve) => {
             const pending = {intent, payload, resolve};

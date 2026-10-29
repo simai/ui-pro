@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-interlocutor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "title": "Chat interlocutor",
   "summary": "Who the conversation is with: the server's interlocutors in the Framework's context menu, the current one checked, and a choice of another reported for the host to start a new conversation with. One interlocutor is a name, not a choice.",
   "kind": "smart",
@@ -33,20 +33,29 @@
   },
   "inputs": {
     "type": "object",
-    "additionalProperties": false,
     "properties": {
       "template": {
         "type": "string",
-        "const": "default",
-        "default": "default"
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates.",
+        "const": "default"
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
       },
       "value": {
         "type": "string",
         "default": "",
-        "description": "The id of the current interlocutor; written by the host, never by the element."
+        "description": "the current interlocutor; a choice asks for another with select {id} and the host writes it back when its new conversation is there"
       },
       "options": {
         "type": "array",
+        "default": [],
         "items": {
           "type": "object",
           "properties": {
@@ -68,11 +77,12 @@
             "title"
           ]
         },
-        "default": [],
         "description": "The interlocutors (bootstrap.interlocutors), a property or the JSON island; from eight the menu gets a search."
       }
-    }
+    },
+    "additionalProperties": false
   },
+  "item_contract": {},
   "contracts": {
     "option": {
       "type": "object",
@@ -125,7 +135,6 @@
       "arguments": [
         {
           "name": "options",
-          "required": true,
           "schema": {
             "type": "array",
             "items": {
@@ -175,11 +184,18 @@
           "id"
         ],
         "properties": {
-          "id": {
-            "type": "string"
-          }
-        }
-      }
+          "id": {}
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-chat-interlocutor": {
+      "summary": "Dated alias of sf-chat-interlocutor-select until 2026-12-01 (same-detail).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-chat-interlocutor-select"
     }
   },
   "state": {

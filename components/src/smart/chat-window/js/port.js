@@ -8,7 +8,7 @@
 // pair ui-89834691fb9d), at the revision framework.lock.json pins.
 //
 // Every intent goes out as one event of the window, sf-chat-window-<verb>,
-// with {request-id, intent, payload} (vocabulary 1.1.5 §5: one name per
+// with {requestId, intent, payload} (vocabulary 1.1.5 §5: one name per
 // verb; the port's payload keeps the port's own field names). Where two
 // intents share a verb the payload says which (open: a conversation, a list
 // or «Мои файлы»; retry: a message or a file; delete: a message or a file;
