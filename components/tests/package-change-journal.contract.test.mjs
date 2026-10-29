@@ -37,6 +37,11 @@ const PENDING = {
   'sf-data-view': ['sf-table-tree-intent'],
   'sf-message-log': ['sf-message-log-load-earlier'],
   'sf-property-view': ['sf-property-view-open-record', 'sf-property-view-delete-record'],
+  'sf-table': [
+    'sf-port-output', 'sf-table-action-intent', 'sf-table-column-settings-change', 'sf-table-create-intent',
+    'sf-table-query-intent', 'sf-table-retry', 'sf-table-tree-toggle', 'sf-table-tree-more', 'sf-table-rows-reorder',
+    'sf-table:column-settings-change', 'onColumnSettingsChange', 'onSearchEnd', 'onTemplateSave', 'onFilterUpdate',
+  ],
   'sf-thread-list': ['sf-thread-list-select', 'sf-thread-list-unarchive', 'sf-thread-list-action', 'sf-thread-list-view'],
   'sf-chat-window': [
     'chat-port:open', 'chat-port:older', 'chat-port:send', 'chat-port:retry', 'chat-port:edit', 'chat-port:delete',

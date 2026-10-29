@@ -21,7 +21,9 @@ test('a declared smart type carries its data, intents and settings key', async (
   assert.equal(type.data_schema.properties.rows.items.required[0], 'id');
   assert.equal(type.props_schema.properties.rows, undefined);
   // The intents a host must answer are declared, not discovered from the code.
-  assert.ok(type.events['sf-table-query-intent'].summary.length > 0);
+  // sf-table-query is the 1.3.8 name of the 1.0 sf-table-query-intent, which
+  // follows it until 2026-12-01 (aliases.json).
+  assert.ok(type.events['sf-table-query'].summary.length > 0);
   assert.ok(type.events['sf-table-template-delete'].payload.required.includes('key'));
   assert.equal(type.events['sf-after-render'], undefined);
   // Settings survive the projection: mode, owner and where the key lives.
