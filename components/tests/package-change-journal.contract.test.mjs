@@ -33,6 +33,7 @@ const PENDING = {
   'sf-chat-composer': ['sf-chat-send', 'sf-chat-stop', 'sf-chat-files', 'sf-chat-action'],
   'sf-chat-interlocutor': ['sf-chat-interlocutor'],
   'sf-chat-message': ['sf-chat-action'],
+  'sf-message-log': ['sf-message-log-load-earlier'],
   'sf-chat-window': [
     'chat-port:open', 'chat-port:older', 'chat-port:send', 'chat-port:retry', 'chat-port:edit', 'chat-port:delete',
     'chat-port:read', 'chat-port:rate', 'chat-port:file-retry', 'chat-port:decide', 'chat-port:check', 'chat-port:stop',

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "title": "Message log",
   "summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
   "kind": "composite",
@@ -33,12 +33,29 @@
   },
   "inputs": {
     "type": "object",
-    "additionalProperties": false,
     "properties": {
       "template": {
         "type": "string",
-        "const": "default",
-        "default": "default"
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates.",
+        "const": "default"
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
+      },
+      "changes": {
+        "type": "string",
+        "default": "content",
+        "description": "How two writes of one message compare (§18.4).",
+        "enum": [
+          "content",
+          "revision"
+        ]
       },
       "has-more": {
         "type": "boolean",
@@ -47,28 +64,28 @@
       },
       "label": {
         "type": "string",
-        "default": "",
         "description": "The region's accessible name; empty is «Conversation» in the page's language."
       },
       "live": {
+        "type": "string",
+        "default": "polite",
+        "description": "polite: a finished message from someone else is announced once. off: the host announces through announce(), or nothing is.",
         "enum": [
           "polite",
           "off"
-        ],
-        "default": "polite",
-        "description": "polite: a finished message from someone else is announced once. off: the host announces through announce(), or nothing is."
+        ]
       },
-      "changes": {
-        "type": "string",
-        "enum": [
-          "content",
-          "revision"
-        ],
-        "default": "content",
-        "description": "How two writes of one message compare (§18.4)."
+      "messages": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        }
       }
-    }
+    },
+    "additionalProperties": false
   },
+  "item_contract": {},
   "contracts": {
     "rendering": {
       "const": "A message is drawn by the host's renderMessage(message, context) -> Node | string | null; a string is text. Without one, a message is its author over the first of a run and its text, as text. The log never parses markup."
@@ -204,7 +221,6 @@
       "arguments": [
         {
           "name": "messages",
-          "required": true,
           "schema": {
             "type": "array",
             "items": {
@@ -247,7 +263,6 @@
         },
         {
           "name": "options",
-          "required": false,
           "schema": {
             "type": "object",
             "properties": {
@@ -260,7 +275,8 @@
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object",
+        "description": "{outcome: applied}"
       }
     },
     "prependMessages": {
@@ -268,7 +284,6 @@
       "arguments": [
         {
           "name": "messages",
-          "required": true,
           "schema": {
             "type": "array",
             "items": {
@@ -311,7 +326,6 @@
         },
         {
           "name": "options",
-          "required": false,
           "schema": {
             "type": "object",
             "properties": {
@@ -324,7 +338,8 @@
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object",
+        "description": "{outcome: applied}"
       }
     },
     "upsert": {
@@ -332,9 +347,9 @@
       "arguments": [
         {
           "name": "message",
-          "required": true,
           "schema": {
             "type": "object",
+            "description": "Plain data. Any further fields are the host renderer's; the log reads only these.",
             "properties": {
               "id": {
                 "type": [
@@ -366,13 +381,11 @@
             },
             "required": [
               "id"
-            ],
-            "description": "Plain data. Any further fields are the host renderer's; the log reads only these."
+            ]
           }
         },
         {
           "name": "view",
-          "required": false,
           "schema": {
             "type": "object",
             "description": "What the host knows that the message does not (a stopped wait, the person's rating). Reaches the renderer as context.view and is part of what decides a redraw."
@@ -380,7 +393,6 @@
         },
         {
           "name": "options",
-          "required": false,
           "schema": {
             "type": "object",
             "properties": {
@@ -397,7 +409,8 @@
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
       }
     },
     "setView": {
@@ -405,17 +418,10 @@
       "arguments": [
         {
           "name": "id",
-          "required": true,
-          "schema": {
-            "type": [
-              "string",
-              "number"
-            ]
-          }
+          "schema": {}
         },
         {
           "name": "view",
-          "required": true,
           "schema": {
             "type": "object",
             "description": "What the host knows that the message does not (a stopped wait, the person's rating). Reaches the renderer as context.view and is part of what decides a redraw."
@@ -423,7 +429,33 @@
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "detach": {
+      "summary": "Take one message off; a stream it was ends cancelled. remove(id) is read until 2026-12-01.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "cancel": {
+      "summary": "Stop drawing a growing message now; the stream ends cancelled.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object"
       }
     },
     "redraw": {
@@ -431,18 +463,66 @@
       "arguments": [
         {
           "name": "id",
-          "required": false,
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "requestEarlier": {
+      "summary": "Ask for earlier history, as the button and reaching the top do; nothing while a request is out.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "earlierFailed": {
+      "summary": "The host could not load earlier history: the button is pressable again.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "scrollToLatest": {
+      "summary": "Scroll to the last message; with focus, focus moves to it.",
+      "arguments": [
+        {
+          "name": "options",
           "schema": {
-            "type": [
-              "string",
-              "number",
-              "null"
-            ]
+            "type": "object",
+            "properties": {
+              "instant": {
+                "type": "boolean"
+              },
+              "focus": {
+                "type": "boolean"
+              }
+            }
           }
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "announce": {
+      "summary": "Say something once through the log's polite live region (cut at 240 characters).",
+      "arguments": [
+        {
+          "name": "text",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
       }
     },
     "setHasMore": {
@@ -460,96 +540,11 @@
         "type": "null"
       }
     },
-    "requestEarlier": {
-      "summary": "Ask for earlier history, as the button and reaching the top do; nothing while a request is out.",
-      "arguments": [],
-      "returns": {
-        "type": "null"
-      }
-    },
-    "earlierFailed": {
-      "summary": "The host could not load earlier history: the button is pressable again.",
-      "arguments": [],
-      "returns": {
-        "type": "null"
-      }
-    },
-    "scrollToLatest": {
-      "summary": "Scroll to the last message; with focus, focus moves to it.",
-      "arguments": [
-        {
-          "name": "options",
-          "required": false,
-          "schema": {
-            "type": "object",
-            "properties": {
-              "instant": {
-                "type": "boolean"
-              },
-              "focus": {
-                "type": "boolean"
-              }
-            }
-          }
-        }
-      ],
-      "returns": {
-        "type": "null"
-      }
-    },
     "isAtLatest": {
       "summary": "Whether the end of the conversation is in view.",
       "arguments": [],
       "returns": {
         "type": "boolean"
-      }
-    },
-    "announce": {
-      "summary": "Say something once through the log's polite live region (cut at 240 characters).",
-      "arguments": [
-        {
-          "name": "text",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
-      "returns": {
-        "type": "null"
-      }
-    },
-    "detach": {
-      "summary": "Take one message off; a stream it was ends cancelled. remove(id) is read until 2026-12-01.",
-      "arguments": [
-        {
-          "name": "id",
-          "required": true,
-          "schema": {
-            "type": [
-              "string",
-              "number"
-            ]
-          }
-        }
-      ],
-      "returns": {
-        "type": "null"
-      }
-    },
-    "cancel": {
-      "summary": "Stop drawing a growing message now; the stream ends cancelled.",
-      "arguments": [
-        {
-          "name": "id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
-      "returns": {
-        "type": "object"
       }
     }
   },
@@ -558,92 +553,103 @@
       "summary": "Earlier history is asked for: {direction: before, before}. Cancelling it is earlierFailed(). The 1.0 name sf-message-log-load-earlier follows until 2026-12-01.",
       "payload": {
         "type": "object",
-        "properties": {
-          "before": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "The id of the first message shown."
-          },
-          "direction": {
-            "const": "before"
-          }
-        },
         "required": [
           "before"
-        ]
-      }
+        ],
+        "properties": {
+          "direction": {
+            "const": "before"
+          },
+          "before": {
+            "description": "The id of the first message shown."
+          }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-message-log-begun": {
       "summary": "A growing message arrived (vocabulary §5.2).",
       "payload": {
         "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
         "required": [
           "id"
-        ]
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": true
       }
     },
     "sf-message-log-chunk": {
       "summary": "A growing message changed and was drawn again, in place.",
       "payload": {
         "type": "object",
+        "required": [
+          "id"
+        ],
         "properties": {
-          "id": {
+          "id": {},
+          "revision": {
             "type": "string"
           }
         },
-        "required": [
-          "id"
-        ]
+        "additionalProperties": true
       }
     },
     "sf-message-log-completed": {
       "summary": "It stopped growing whole.",
       "payload": {
         "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
         "required": [
           "id"
-        ]
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": true
       }
     },
     "sf-message-log-failed": {
       "summary": "It stopped growing with an error: {id, reason, message}.",
       "payload": {
         "type": "object",
+        "required": [
+          "id",
+          "reason",
+          "message"
+        ],
         "properties": {
-          "id": {
+          "id": {},
+          "reason": {
+            "type": "string"
+          },
+          "message": {
             "type": "string"
           }
         },
-        "required": [
-          "id"
-        ]
+        "additionalProperties": true
       }
     },
     "sf-message-log-cancelled": {
       "summary": "The stream was stopped: cancel, wait stopped, the message taken off, the conversation replaced.",
       "payload": {
         "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
         "required": [
           "id"
-        ]
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": true
       }
+    },
+    "sf-message-log-load-earlier": {
+      "summary": "Dated alias of sf-message-log-load-more until 2026-12-01 (detail-adds).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-message-log-load-more"
     }
   },
   "state": {
@@ -790,7 +796,7 @@
       },
       {
         "path": "src/smart/message-log/rule.js",
-        "sha256": "d8dcd6f5dd44c91070d941b5f47cfd708e7e7f8838c0cf9e375425c3f47039ff"
+        "sha256": "469ed32251ad9ecd3876ebf85c8dd170239ff1803b4b278fbd243a204814fe88"
       },
       {
         "path": "src/smart/message-log/docs.md",
@@ -798,7 +804,7 @@
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "c25206e07884c2c519f6809a5fd73faae66347e4c8fff1885a44973c5277035d"
+        "sha256": "7e1ed565801128bd6f912e0e5b07c4189c4961730e62b50cc68753189aa0f221"
       },
       {
         "path": "src/smart/message-log/aliases.json",

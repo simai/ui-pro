@@ -2,7 +2,7 @@
   "$comment": "The source of sf-message-log's element plumbing (core/js/element-manifest.js). Taken from simai/ui-control control/smart-architecture/migration/out/message-log (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); standard simai.smart-component 1.3.8, vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.message-log",
   "tag": "sf-message-log",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "kind": "leaf",
   "family": "feed",
   "settings": {
@@ -64,15 +64,18 @@
         "revision"
       ],
       "default": "content",
-      "x-summary": "how two writes of one entry are compared (§18.4): content (the entry's fields and its view) or revision (the host raises it with every change, a growing entry with every chunk)"
+      "x-summary": "how two writes of one entry are compared (§18.4): content (the entry's fields and its view) or revision (the host raises it with every change, a growing entry with every chunk)",
+      "summary": "How two writes of one message compare (§18.4)."
     },
     "has-more": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "summary": "Earlier history exists: the earlier button shows, and reaching the top asks for it."
     },
     "label": {
       "type": "string",
-      "default-from": "runtime.region-label"
+      "default-from": "runtime.region-label",
+      "summary": "The region's accessible name; empty is «Conversation» in the page's language."
     },
     "live": {
       "type": "enum",
@@ -80,7 +83,8 @@
         "polite",
         "off"
       ],
-      "default": "polite"
+      "default": "polite",
+      "summary": "polite: a finished message from someone else is announced once. off: the host announces through announce(), or nothing is."
     }
   },
   "values": {},
@@ -91,21 +95,25 @@
           "type": "enum",
           "values": [
             "before"
-          ]
+          ],
+          "optional": true
         },
         "before": {
           "type": "id",
-          "nullable": true
+          "nullable": true,
+          "summary": "The id of the first message shown."
         }
       },
       "cancelable": true,
-      "x-summary": "earlier history is asked for: the earlier button, ArrowUp on the first message, the top reached while has-more. Refused (preventDefault) it is earlier-failed"
+      "x-summary": "earlier history is asked for: the earlier button, ArrowUp on the first message, the top reached while has-more. Refused (preventDefault) it is earlier-failed",
+      "summary": "Earlier history is asked for: {direction: before, before}. Cancelling it is earlierFailed(). The 1.0 name sf-message-log-load-earlier follows until 2026-12-01."
     },
     "begun": {
       "carries": {
         "id": "id"
       },
-      "x-summary": "a growing entry arrived: the other side writes it (§10.8)"
+      "x-summary": "a growing entry arrived: the other side writes it (§10.8)",
+      "summary": "A growing message arrived (vocabulary §5.2)."
     },
     "chunk": {
       "carries": {
@@ -115,13 +123,15 @@
           "optional": true
         }
       },
-      "x-summary": "a growing entry changed and was drawn again, in place"
+      "x-summary": "a growing entry changed and was drawn again, in place",
+      "summary": "A growing message changed and was drawn again, in place."
     },
     "completed": {
       "carries": {
         "id": "id"
       },
-      "x-summary": "the entry stopped growing whole"
+      "x-summary": "the entry stopped growing whole",
+      "summary": "It stopped growing whole."
     },
     "failed": {
       "carries": {
@@ -129,69 +139,228 @@
         "reason": "string",
         "message": "string"
       },
-      "x-summary": "the entry stopped growing with an error (its error {reason, message}, or status failed)"
+      "x-summary": "the entry stopped growing with an error (its error {reason, message}, or status failed)",
+      "summary": "It stopped growing with an error: {id, reason, message}."
     },
     "cancelled": {
       "carries": {
         "id": "id"
       },
-      "x-summary": "the stream was stopped: cancel {id}, the entry wait stopped, the entry taken off, or the conversation replaced"
+      "x-summary": "the stream was stopped: cancel {id}, the entry wait stopped, the entry taken off, or the conversation replaced",
+      "summary": "The stream was stopped: cancel, wait stopped, the message taken off, the conversation replaced."
     }
   },
   "actions": {
     "set-messages": {
       "with": {
-        "messages": "list",
-        "options": {
-          "type": "object",
-          "optional": true
-        }
-      },
-      "x-outcomes": [
-        "applied"
-      ],
-      "x-summary": "replace the conversation and show its end; nothing it holds is announced (the conversation and has-more change together, §7.2)"
-    },
-    "prepend-messages": {
-      "with": {
-        "messages": "list",
-        "options": {
-          "type": "object",
-          "optional": true
-        }
-      },
-      "x-outcomes": [
-        "applied"
-      ],
-      "x-summary": "earlier history above, without moving what is read; ends the earlier request"
-    },
-    "upsert": {
-      "with": {
-        "message": "object",
-        "view": {
-          "type": "object",
-          "optional": true
+        "messages": {
+          "type": "list",
+          "schema": {
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": [
+                    "string",
+                    "number"
+                  ],
+                  "description": "The stable key of the message; a message that changes key is upserted with replaces."
+                },
+                "author": {
+                  "type": "string",
+                  "description": "Who wrote it, as an id: consecutive messages of one author make a run."
+                },
+                "author_name": {
+                  "type": "string",
+                  "description": "The name the default renderer and the default announcement say."
+                },
+                "own": {
+                  "type": "boolean",
+                  "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
+                },
+                "pending": {
+                  "type": "boolean",
+                  "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "Plain text; the default renderer draws it as text, never as markup."
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "description": "Plain data. Any further fields are the host renderer's; the log reads only these."
+            }
+          }
         },
         "options": {
           "type": "object",
-          "optional": true
+          "optional": true,
+          "schema": {
+            "properties": {
+              "hasMore": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "replace the conversation and show its end; nothing it holds is announced (the conversation and has-more change together, §7.2)",
+      "summary": "Replace the whole conversation and show its end. What it holds is not announced.",
+      "x-returns": "{outcome: applied}"
+    },
+    "prepend-messages": {
+      "with": {
+        "messages": {
+          "type": "list",
+          "schema": {
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": [
+                    "string",
+                    "number"
+                  ],
+                  "description": "The stable key of the message; a message that changes key is upserted with replaces."
+                },
+                "author": {
+                  "type": "string",
+                  "description": "Who wrote it, as an id: consecutive messages of one author make a run."
+                },
+                "author_name": {
+                  "type": "string",
+                  "description": "The name the default renderer and the default announcement say."
+                },
+                "own": {
+                  "type": "boolean",
+                  "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
+                },
+                "pending": {
+                  "type": "boolean",
+                  "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "Plain text; the default renderer draws it as text, never as markup."
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "description": "Plain data. Any further fields are the host renderer's; the log reads only these."
+            }
+          }
+        },
+        "options": {
+          "type": "object",
+          "optional": true,
+          "schema": {
+            "properties": {
+              "hasMore": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "earlier history above, without moving what is read; ends the earlier request",
+      "summary": "Earlier history above, without moving what is being read; ends the earlier request.",
+      "x-returns": "{outcome: applied}"
+    },
+    "upsert": {
+      "with": {
+        "message": {
+          "type": "object",
+          "summary": "Plain data. Any further fields are the host renderer's; the log reads only these.",
+          "schema": {
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "description": "The stable key of the message; a message that changes key is upserted with replaces."
+              },
+              "author": {
+                "type": "string",
+                "description": "Who wrote it, as an id: consecutive messages of one author make a run."
+              },
+              "author_name": {
+                "type": "string",
+                "description": "The name the default renderer and the default announcement say."
+              },
+              "own": {
+                "type": "boolean",
+                "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
+              },
+              "pending": {
+                "type": "boolean",
+                "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
+              },
+              "text": {
+                "type": "string",
+                "description": "Plain text; the default renderer draws it as text, never as markup."
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "view": {
+          "type": "object",
+          "optional": true,
+          "summary": "What the host knows that the message does not (a stopped wait, the person's rating). Reaches the renderer as context.view and is part of what decides a redraw."
+        },
+        "options": {
+          "type": "object",
+          "optional": true,
+          "schema": {
+            "properties": {
+              "replaces": {
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ],
+                "description": "The id the message had before (a local key the server has now numbered): it keeps its place."
+              }
+            }
+          }
         }
       },
       "x-outcomes": [
         "applied",
         "refused"
       ],
-      "x-summary": "add at the end or redraw in place; options.replaces keeps the place of a local key; refused cancelled for a cancelled stream until its end"
+      "x-summary": "add at the end or redraw in place; options.replaces keeps the place of a local key; refused cancelled for a cancelled stream until its end",
+      "summary": "Add a message at the end or update it in place; drawn again only when something it shows changed.",
+      "x-returns": "{outcome: applied} or {outcome: refused, reason}"
     },
     "set-view": {
       "with": {
         "id": "id",
-        "view": "object"
+        "view": {
+          "type": "object",
+          "summary": "What the host knows that the message does not (a stopped wait, the person's rating). Reaches the renderer as context.view and is part of what decides a redraw."
+        }
       },
       "x-outcomes": [
         "applied",
         "refused"
-      ]
+      ],
+      "summary": "Merge into the view of a message already shown.",
+      "x-returns": "{outcome: applied} or {outcome: refused, reason}"
     },
     "detach": {
       "with": {
@@ -201,7 +370,9 @@
         "applied",
         "refused"
       ],
-      "x-summary": "take one message off; a stream it was ends cancelled"
+      "x-summary": "take one message off; a stream it was ends cancelled",
+      "summary": "Take one message off; a stream it was ends cancelled. remove(id) is read until 2026-12-01.",
+      "x-returns": "{outcome: applied} or {outcome: refused, reason}"
     },
     "cancel": {
       "with": {
@@ -211,40 +382,60 @@
         "applied",
         "refused"
       ],
-      "x-summary": "vocabulary §5.2 cancel {id}: stop drawing a growing entry now -- its growth and its end -- its busy mark goes, the stream ends cancelled; telling the other side to stop is the host's"
+      "x-summary": "vocabulary §5.2 cancel {id}: stop drawing a growing entry now -- its growth and its end -- its busy mark goes, the stream ends cancelled; telling the other side to stop is the host's",
+      "summary": "Stop drawing a growing message now; the stream ends cancelled."
     },
     "redraw": {
       "with": {
         "id": {
           "type": "id",
-          "optional": true
+          "optional": true,
+          "nullable": true
         }
       },
       "x-outcomes": [
         "applied"
-      ]
+      ],
+      "summary": "Draw one message again, or all of them, after the renderer's own inputs changed.",
+      "x-returns": "{outcome: applied}"
     },
     "request-earlier": {
       "x-outcomes": [
         "applied",
         "refused"
-      ]
+      ],
+      "summary": "Ask for earlier history, as the button and reaching the top do; nothing while a request is out.",
+      "x-returns": "{outcome: applied} or {outcome: refused, reason}"
     },
     "earlier-failed": {
       "x-outcomes": [
         "applied"
-      ]
+      ],
+      "summary": "The host could not load earlier history: the button is pressable again.",
+      "x-returns": "{outcome: applied}"
     },
     "scroll-to-latest": {
       "with": {
         "options": {
           "type": "object",
-          "optional": true
+          "optional": true,
+          "schema": {
+            "properties": {
+              "instant": {
+                "type": "boolean"
+              },
+              "focus": {
+                "type": "boolean"
+              }
+            }
+          }
         }
       },
       "x-outcomes": [
         "applied"
-      ]
+      ],
+      "summary": "Scroll to the last message; with focus, focus moves to it.",
+      "x-returns": "{outcome: applied}"
     },
     "announce": {
       "with": {
@@ -253,7 +444,9 @@
       "x-outcomes": [
         "applied",
         "refused"
-      ]
+      ],
+      "summary": "Say something once through the log's polite live region (cut at 240 characters).",
+      "x-returns": "{outcome: applied} or {outcome: refused, reason}"
     }
   },
   "slots": {
@@ -270,6 +463,17 @@
       "End": "focus:last"
     }
   },
+  "relations": [
+    {
+      "name": "cl-button"
+    },
+    {
+      "name": "cl-icon-button"
+    },
+    {
+      "name": "sr-only/default"
+    }
+  ],
   "templates": {
     "default": {
       "file": "js/templates/default.js",
@@ -328,6 +532,30 @@
       "state": "default"
     }
   },
+  "aliases": {
+    "$comment": "Dated aliases of sf-message-log for the shim (core/js/aliases.js, standard §16 item 20). remove(id) is read by the element itself: remove is Element.prototype.remove, and remove() without an argument must stay the browser's, so no shim row may wrap it (its row below is refused by the shim by design: mode component).",
+    "since": "2026-10-27",
+    "remove-after": "2026-12-01",
+    "rows": [
+      {
+        "from": "sf-message-log-load-earlier",
+        "to": "sf-message-log-load-more",
+        "kind": "event",
+        "mode": "detail-adds",
+        "cancelable": true,
+        "section": "§8, vocabulary §5 load-more",
+        "note": "{before} becomes {direction: before, before}; one cancel for both names"
+      },
+      {
+        "from": "remove",
+        "to": "detach",
+        "kind": "action",
+        "mode": "component",
+        "section": "§3.1, §16 item 26",
+        "note": "remove(id) detaches and is noted; remove() is Element.remove()"
+      }
+    ]
+  },
   "x-summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
   "x-source": {
     "package": "ui-pro",
@@ -344,14 +572,214 @@
     "entry fields: author_name → author-name, pending → growing (§18.1, vocabulary §2.2); the old spellings are read until 2026-12-01 and noted",
     "css: the five --sf-message-log--* hooks become public variables --sf-message-log-<name>; the old hooks stay the internal layer"
   ],
-  "x-kept": {
-    "security": {
-      "permissions_owner": "host",
-      "untrusted_inputs": [
-        "message text and author names (drawn as text by the default renderer)",
-        "whatever the host renderer draws is the host renderer's to sanitise"
+  "x-decisions": [
+    "version: 1.0.0 → 1.1.0, a minor while the old names hold dated aliases (§4.10).",
+    "shape (§7): a leaf. The report reads it as a declared composite placing only drawing helpers (two sf-buttons of its frame); the messages are the host's renderer's nodes, not parts in roles. No key has two writers and no rule runs between parts: keys, roles and rules would add nothing (the smaller mechanism).",
+    "streams (§10.8, vocabulary §5.2): the entry key growing (1.0: pending) marks a message the other side still writes. The log sends begun {id} when one arrives, chunk {id, revision?} for each change it draws, and exactly one of completed, failed {id, reason, message} or cancelled {id} when it stops growing (wait stopped is cancelled, an error is failed). cancel {id} stops drawing the growth at once and ends the stream cancelled -- a host without the port's reply-cancel only stops waiting (vocabulary §5.2); the chat's stop {conversation, id?} stays the host's port call.",
+    "redraw in place (§18.4, migration item 31; stand 23 b found the focus dropped to body on every chunk at index.js:286-287, where the item node was replaced): the item element is kept for the life of the message, and while the focus or a selection is inside it the renderer's new drawing is laid over the old nodes (text written, attributes levelled, nodes of the same kind kept), so the focus and the selection stay. Otherwise the drawing is replaced: a host renderer's listeners are those of its latest drawing except while the person is inside the message.",
+    "entries (§18.4): messages is a list setting with entries {key: id, changes: content}; the setting changes chooses revision or content. content is the default because stand 23 b measured that a host keeping the revision while the body grows delivered 2 of 30 chunks under revision.",
+    "wait (vocabulary 1.1.5 §5.1): delayed | stopped | network | none; null is none. A view or an entry with wait stopped ends its stream cancelled.",
+    "load-earlier becomes the vocabulary's load-more {direction: before}, keeping before (the first message shown) and the cancel.",
+    "key-effects: the arrows, Home and End move between messages (focus:*), on the row element; Enter and Space are a message's own controls'.",
+    "a11y-name: label, else the runtime word region-label («Переписка»).",
+    "item-shape: messages names the fields the log reads with `of`; every other field is the renderer's.",
+    "actions answer outcomes (§4.4); set-messages and prepend-messages stay actions: the list and has-more change together and the reading position moves with them.",
+    "template: templates.default names the Lit template js/templates/default.js (the frame), the migration form §5.2 allows.",
+    "examples: examples.json from the conversations a host shows (people, an assistant's reply growing, empty); probe.json drives the arrows and Home/End, the earlier request and its old name, a stream begun/chunk/completed, cancel, and the focus through a chunk (gate 16, gate 20).",
+    "css-variables: the five hooks the sheet already had, as public variables in the Framework's form; --sf-message-log--* stay the internal layer.",
+    "side-effects: none.",
+    "version 1.2.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3."
+  ],
+  "x-rule": {
+    "$comment": [
+      "The log's frame draws two Smart controls -- «Show earlier messages» is an",
+      "sf-button, «To the latest» an sf-icon-button -- and a tag the log renders is a",
+      "tag it fetches. The announcer is visually hidden with the Framework's sr-only",
+      "utility, which a class scan can miss on a node that starts empty, so it comes",
+      "with the component. What a message looks like is the host's renderer; a host",
+      "whose renderer draws other Smart elements fetches them itself."
+    ]
+  },
+  "x-registry": {
+    "kind": "composite",
+    "capabilities": [
+      "content",
+      "scroll-position",
+      "live-announcement",
+      "responsive"
+    ],
+    "persistence": {
+      "mode": "none",
+      "source_of_truth": "host",
+      "network_owner": "host",
+      "revision_field": null
+    },
+    "readiness": {
+      "level": "host-required",
+      "required_checks": [
+        "manifest",
+        "loader-rule",
+        "message-log-contract",
+        "message-log-browser"
+      ]
+    },
+    "tags": [
+      "conversation",
+      "messages",
+      "chat",
+      "log"
+    ],
+    "contracts": {
+      "rendering": {
+        "const": "A message is drawn by the host's renderMessage(message, context) -> Node | string | null; a string is text. Without one, a message is its author over the first of a run and its text, as text. The log never parses markup."
+      },
+      "render_context": {
+        "type": "object",
+        "properties": {
+          "view": {
+            "type": "object",
+            "description": "What the host knows that the message does not (a stopped wait, the person's rating). Reaches the renderer as context.view and is part of what decides a redraw."
+          },
+          "previous": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "next": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "first": {
+            "type": "boolean",
+            "description": "The first message of its author's run."
+          },
+          "last": {
+            "type": "boolean",
+            "description": "The last message of its author's run."
+          },
+          "own": {
+            "type": "boolean"
+          },
+          "index": {
+            "type": "integer"
+          },
+          "document": {
+            "type": "object"
+          },
+          "log": {
+            "type": "object"
+          }
+        }
+      },
+      "message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "number"
+            ],
+            "description": "The stable key of the message; a message that changes key is upserted with replaces."
+          },
+          "author": {
+            "type": "string",
+            "description": "Who wrote it, as an id: consecutive messages of one author make a run."
+          },
+          "author_name": {
+            "type": "string",
+            "description": "The name the default renderer and the default announcement say."
+          },
+          "own": {
+            "type": "boolean",
+            "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
+          },
+          "pending": {
+            "type": "boolean",
+            "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
+          },
+          "text": {
+            "type": "string",
+            "description": "Plain text; the default renderer draws it as text, never as markup."
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "description": "Plain data. Any further fields are the host renderer's; the log reads only these."
+      },
+      "redraw": {
+        "const": "A message is drawn again when its data or its view changes (compared as sorted JSON), when its place in its run changes, or on redraw(id). Otherwise its node is kept, with focus inside it."
+      },
+      "slots": {
+        "type": "object",
+        "properties": {
+          "empty": {
+            "type": "string",
+            "description": "Shown instead of the column while there are no messages (a greeting, an empty state)."
+          }
+        }
+      },
+      "properties": {
+        "type": "object",
+        "properties": {
+          "renderMessage": {
+            "description": "function(message, context) -> Node | string | null"
+          },
+          "announceMessage": {
+            "description": "function(message, context) -> string | null: what is said when the message is new or finished; the same words for one message are said once."
+          },
+          "messages": {
+            "type": "array",
+            "description": "Read-only: the messages in display order."
+          }
+        }
+      },
+      "css_variables": {
+        "type": "object",
+        "properties": {
+          "--sf-message-log-column-width": {
+            "type": "string"
+          },
+          "--sf-message-log-inset": {
+            "type": "string"
+          },
+          "--sf-message-log-run-gap": {
+            "type": "string"
+          },
+          "--sf-message-log-turn-gap": {
+            "type": "string"
+          },
+          "--sf-message-log-fade-size": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "state": {
+      "machines": {
+        "earlier": [
+          "idle",
+          "loading"
+        ],
+        "position": [
+          "following-bottom",
+          "reading-above"
+        ]
+      },
+      "visual_states": [
+        "default",
+        "empty",
+        "loading"
+      ]
+    },
+    "artifacts": {
+      "fixtures": [
+        "studio.fixture.json"
       ],
-      "network_policy": "deny"
+      "scenarios": []
     },
     "ownership": {
       "source": "simai/ui-pro",
@@ -363,6 +791,14 @@
         "rendering untrusted markup",
         "access decisions"
       ]
+    },
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "message text and author names (drawn as text by the default renderer)",
+        "whatever the host renderer draws is the host renderer's to sanitise"
+      ],
+      "network_policy": "deny"
     },
     "presentation": {
       "themes": [
@@ -402,24 +838,68 @@
         "node scripts/test.mjs",
         "node scripts/run-browser-probes.mjs <free output> <package output>"
       ]
+    },
+    "accessibility": {
+      "accessible_name": "internal",
+      "keyboard": [
+        "Tab",
+        "Enter",
+        "Space",
+        "ArrowUp",
+        "ArrowDown",
+        "Home",
+        "End"
+      ],
+      "focus": "The scroller is a named, focusable region holding a log with aria-live off; one polite announcer says what is new once. «To the latest» moves focus to the last message (the host's article, else the item). From a focused message ArrowUp/ArrowDown move to the neighbour, Home/End to the first and last loaded; ArrowUp on the first asks for earlier history. Smooth scrolling follows prefers-reduced-motion."
+    },
+    "compatibility": {
+      "migrations": [
+        {
+          "from": "1.0.0",
+          "to": "1.1.0",
+          "changes": [
+            "standard simai.smart-component 1.3.8: the element is made from component.json; dated aliases in aliases.json",
+            "sf-message-log-load-earlier -> sf-message-log-load-more until 2026-12-01 (event)",
+            "remove -> detach until 2026-12-01 (action)"
+          ]
+        },
+        {
+          "from": "1.2.1",
+          "to": "1.2.2",
+          "changes": [
+            "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+          ]
+        }
+      ]
+    },
+    "methods": {
+      "setHasMore": {
+        "summary": "Whether earlier history exists.",
+        "arguments": [
+          {
+            "name": "value",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "returns": {
+          "type": "null"
+        }
+      },
+      "isAtLatest": {
+        "summary": "Whether the end of the conversation is in view.",
+        "arguments": [],
+        "returns": {
+          "type": "boolean"
+        }
+      }
+    },
+    "inputs": {
+      "template": {
+        "const": "default"
+      }
     }
-  },
-  "x-decisions": [
-    "version: 1.0.0 → 1.1.0, a minor while the old names hold dated aliases (§4.10).",
-    "shape (§7): a leaf. The report reads it as a declared composite placing only drawing helpers (two sf-buttons of its frame); the messages are the host's renderer's nodes, not parts in roles. No key has two writers and no rule runs between parts: keys, roles and rules would add nothing (the smaller mechanism).",
-    "streams (§10.8, vocabulary §5.2): the entry key growing (1.0: pending) marks a message the other side still writes. The log sends begun {id} when one arrives, chunk {id, revision?} for each change it draws, and exactly one of completed, failed {id, reason, message} or cancelled {id} when it stops growing (wait stopped is cancelled, an error is failed). cancel {id} stops drawing the growth at once and ends the stream cancelled -- a host without the port's reply-cancel only stops waiting (vocabulary §5.2); the chat's stop {conversation, id?} stays the host's port call.",
-    "redraw in place (§18.4, migration item 31; stand 23 b found the focus dropped to body on every chunk at index.js:286-287, where the item node was replaced): the item element is kept for the life of the message, and while the focus or a selection is inside it the renderer's new drawing is laid over the old nodes (text written, attributes levelled, nodes of the same kind kept), so the focus and the selection stay. Otherwise the drawing is replaced: a host renderer's listeners are those of its latest drawing except while the person is inside the message.",
-    "entries (§18.4): messages is a list setting with entries {key: id, changes: content}; the setting changes chooses revision or content. content is the default because stand 23 b measured that a host keeping the revision while the body grows delivered 2 of 30 chunks under revision.",
-    "wait (vocabulary 1.1.5 §5.1): delayed | stopped | network | none; null is none. A view or an entry with wait stopped ends its stream cancelled.",
-    "load-earlier becomes the vocabulary's load-more {direction: before}, keeping before (the first message shown) and the cancel.",
-    "key-effects: the arrows, Home and End move between messages (focus:*), on the row element; Enter and Space are a message's own controls'.",
-    "a11y-name: label, else the runtime word region-label («Переписка»).",
-    "item-shape: messages names the fields the log reads with `of`; every other field is the renderer's.",
-    "actions answer outcomes (§4.4); set-messages and prepend-messages stay actions: the list and has-more change together and the reading position moves with them.",
-    "template: templates.default names the Lit template js/templates/default.js (the frame), the migration form §5.2 allows.",
-    "examples: examples.json from the conversations a host shows (people, an assistant's reply growing, empty); probe.json drives the arrows and Home/End, the earlier request and its old name, a stream begun/chunk/completed, cancel, and the focus through a chunk (gate 16, gate 20).",
-    "css-variables: the five hooks the sheet already had, as public variables in the Framework's form; --sf-message-log--* stay the internal layer.",
-    "side-effects: none.",
-    "version 1.2.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3."
-  ]
+  }
 }
