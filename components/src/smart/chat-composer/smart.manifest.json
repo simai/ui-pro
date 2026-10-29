@@ -534,7 +534,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "3509a69c4af3bf7e716a5d9a320af5631b929d59",
+    "source_revision": "f04061a1d422f15f3bc500166c35d419762c604e",
     "source_artifacts": [
       {
         "path": "src/smart/chat-composer/index.js",
