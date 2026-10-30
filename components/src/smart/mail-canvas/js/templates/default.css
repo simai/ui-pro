@@ -27,6 +27,12 @@
     color: var(--sf-on-surface-variant);
   }
 
+  /* The overlay's parts float where its code places them: printed, they would
+     stand in the page's corner until it does. The first paint shows none. */
+  .sf-mail-canvas-layer [data-sf-static] {
+    display: none;
+  }
+
   /* The well holds its size from the first paint, whatever the letter's height:
      in a pane it fills what is left, on a page of its own it has the basis. The
      gutter is kept, so a letter that scrolls does not move the paper sideways. */
