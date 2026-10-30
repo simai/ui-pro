@@ -218,7 +218,13 @@
             "system"
           ]
         },
-        "base-revision": "number"
+        "base-revision": {
+          "type": "number",
+          "integer": true,
+          "schema": {
+            "minimum": 0
+          }
+        }
       },
       "summary": "Discard the local draft."
     },
@@ -243,7 +249,13 @@
             "system"
           ]
         },
-        "base-revision": "number",
+        "base-revision": {
+          "type": "number",
+          "integer": true,
+          "schema": {
+            "minimum": 0
+          }
+        },
         "profile": {
           "type": "object",
           "schema": {
@@ -262,7 +274,13 @@
             "system"
           ]
         },
-        "base-revision": "number",
+        "base-revision": {
+          "type": "number",
+          "integer": true,
+          "schema": {
+            "minimum": 0
+          }
+        },
         "profile": {
           "type": "object",
           "schema": {

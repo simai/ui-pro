@@ -11,5 +11,12 @@ import "./default.css";
 // The first paint is the message itself: it comes with the host's state, and
 // the element reads no clock but the message's own times (§5.4).
 export function renderChatMessageTemplate(context) {
-    return html`<div class="sf-chat-message-host">${context.node ?? nothing}</div>`;
+    return html`<div class="sf-chat-message-host">${renderDivider(context)}${context.node ?? nothing}</div>`;
+}
+
+// 1.2.0: display.divider -- a line before the message that a window draws
+// where the unread part of a conversation begins («Новые»). Plain text, so a
+// screen reader meets it in reading order; the message itself is unchanged.
+export function renderDivider(context) {
+    return context.divider ? html`<div class="sf-chat-divider"><span class="sf-chat-divider__text">${context.divider}</span></div>` : nothing;
 }

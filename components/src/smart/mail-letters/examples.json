@@ -1,0 +1,477 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Четыре письма, одно открыто",
+      "attributes": {
+        "current": "prj_1"
+      },
+      "settings": {
+        "letters": [
+          {
+            "id": "prj_1",
+            "title": "Осенняя рассылка",
+            "at": "2026-10-27T08:55:00Z",
+            "blocks": 7
+          },
+          {
+            "id": "prj_2",
+            "title": "Приглашение",
+            "at": "2026-10-26T07:00:00Z",
+            "blocks": 4
+          },
+          {
+            "id": "prj_3",
+            "title": "Анонс вебинара",
+            "at": "2026-10-18T09:00:00Z",
+            "blocks": 11
+          },
+          {
+            "id": "prj_4",
+            "title": "Летняя распродажа",
+            "at": "2026-09-17T09:00:00Z",
+            "blocks": 1
+          }
+        ]
+      },
+      "first-paint": {
+        "max-bytes": 12000,
+        "why": "the bar (sf-input, sf-dropdown, sf-button) and four rows, each with its «Открыть» and ⋯ buttons: the list is the first paint; the ⋯ menu is printed closed"
+      },
+      "expect": {
+        "texts": {
+          ".sf-mail-letters-row[data-letter=\"prj_2\"] .sf-mail-letters-summary": "вчера · 4 блока"
+        }
+      },
+      "studio": {
+        "id": "letters-reference",
+        "title": "Mail letters reference",
+        "summary": "Deterministic reference fixture for sf-mail-letters: four letters, the first one open in the editor.",
+        "props": {
+          "query": "",
+          "order": "changed",
+          "current": "prj_1",
+          "letters": [
+            {
+              "id": "prj_1",
+              "title": "Осенняя рассылка",
+              "at": "2026-10-27T08:55:00Z",
+              "blocks": 7
+            },
+            {
+              "id": "prj_2",
+              "title": "Приглашение",
+              "at": "2026-10-26T07:00:00Z",
+              "blocks": 4
+            },
+            {
+              "id": "prj_3",
+              "title": "Анонс вебинара",
+              "at": "2026-10-18T09:00:00Z",
+              "blocks": 11
+            },
+            {
+              "id": "prj_4",
+              "title": "Летняя распродажа",
+              "at": "2026-09-17T09:00:00Z",
+              "blocks": 1
+            }
+          ]
+        },
+        "scenario": {
+          "steps": [
+            {
+              "invoke": "sort",
+              "with": [
+                {
+                  "order": "title"
+                }
+              ]
+            },
+            {
+              "invoke": "sort",
+              "with": [
+                {
+                  "order": "changed"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "by-title",
+      "title": "По названию",
+      "attributes": {
+        "order": "title"
+      },
+      "settings": {
+        "letters": [
+          {
+            "id": "prj_1",
+            "title": "Осенняя рассылка",
+            "at": "2026-10-27T08:55:00Z",
+            "blocks": 7
+          },
+          {
+            "id": "prj_2",
+            "title": "Приглашение",
+            "at": "2026-10-26T07:00:00Z",
+            "blocks": 4
+          },
+          {
+            "id": "prj_3",
+            "title": "Анонс вебинара",
+            "at": "2026-10-18T09:00:00Z",
+            "blocks": 11
+          },
+          {
+            "id": "prj_4",
+            "title": "Летняя распродажа",
+            "at": "2026-09-17T09:00:00Z",
+            "blocks": 1
+          }
+        ]
+      },
+      "first-paint": {
+        "max-bytes": 12000,
+        "why": "the bar (sf-input, sf-dropdown, sf-button) and four rows, each with its «Открыть» and ⋯ buttons: the list is the first paint; the ⋯ menu is printed closed"
+      }
+    },
+    {
+      "name": "nothing-found",
+      "title": "Поиск, который ничего не нашёл",
+      "attributes": {
+        "query": "нет такого"
+      },
+      "settings": {
+        "letters": [
+          {
+            "id": "prj_1",
+            "title": "Осенняя рассылка",
+            "at": "2026-10-27T08:55:00Z",
+            "blocks": 7
+          },
+          {
+            "id": "prj_2",
+            "title": "Приглашение",
+            "at": "2026-10-26T07:00:00Z",
+            "blocks": 4
+          },
+          {
+            "id": "prj_3",
+            "title": "Анонс вебинара",
+            "at": "2026-10-18T09:00:00Z",
+            "blocks": 11
+          },
+          {
+            "id": "prj_4",
+            "title": "Летняя распродажа",
+            "at": "2026-09-17T09:00:00Z",
+            "blocks": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty",
+      "title": "Писем пока нет",
+      "settings": {
+        "letters": []
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "conformance",
+      "title": "sf-mail-letters against component.json (standard simai.smart-component 1.4 §12, gate 20); the behaviour simai/ui-mail package/tests/browser/mail-letters held for it: the rows newest first, the moment and the block count in the page language with every plural form, the open letter marked and not offered again, the search, the order, the two empty states, the events each action sends and the ⋯ menu answering for its own row",
+      "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+      "page": {
+        "lang": "ru",
+        "body": [
+          "<main>",
+          "  <sf-mail-letters id=\"letters\" current=\"prj_1\"></sf-mail-letters>",
+          "  <sf-mail-letters id=\"none\"></sf-mail-letters>",
+          "  <div lang=\"en\"><sf-mail-letters id=\"english\"></sf-mail-letters></div>",
+          "</main>"
+        ]
+      },
+      "checks": [
+        {
+          "id": "p1-newest-first",
+          "title": "the rows are the letters, the newest first",
+          "covers": "settings.letters, settings.order changed",
+          "steps": [
+            {
+              "script": "(() => { const ago = (minutes) => new Date(Date.now() - minutes * 60000).toISOString(); const letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: ago(5), blocks: 7}, {id: 'prj_2', title: 'Приглашение', at: ago(60 * 26), blocks: 4}, {id: 'prj_3', title: 'Анонс вебинара', at: ago(60 * 24 * 9), blocks: 11}, {id: 'prj_4', title: 'Летняя распродажа', at: ago(60 * 24 * 40), blocks: 1}]; document.querySelector('#letters').letters = letters; document.querySelector('#english').letters = letters.map((one) => ({...one})); return true; })()",
+              "wait": 400,
+              "check": "[...document.querySelectorAll('#letters [data-letter]')].map((row) => row.dataset.letter).join(',') === 'prj_1,prj_2,prj_3,prj_4'"
+            }
+          ]
+        },
+        {
+          "id": "p2-moment-and-plural",
+          "title": "a row words the moment and the block count in the page language with Russian's three plural forms -- «7 блоков», «4 блока», «11 блоков», «1 блок» -- and never says «4 блоков»; an English part of the page says it in English",
+          "covers": "settings.letters at, settings.letters blocks, runtime.blocks-text",
+          "steps": [
+            {
+              "script": "(() => { const ago = (minutes) => new Date(Date.now() - minutes * 60000).toISOString(); const letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: ago(5), blocks: 7}, {id: 'prj_2', title: 'Приглашение', at: ago(60 * 26), blocks: 4}, {id: 'prj_3', title: 'Анонс вебинара', at: ago(60 * 24 * 9), blocks: 11}, {id: 'prj_4', title: 'Летняя распродажа', at: ago(60 * 24 * 40), blocks: 1}]; document.querySelector('#letters').letters = letters; document.querySelector('#english').letters = letters.map((one) => ({...one})); return true; })()",
+              "wait": 400,
+              "check": "(() => { const ru = [...document.querySelectorAll('#letters .sf-mail-letters-summary')].map((line) => line.textContent.replace(/\\s+/gu, ' ').trim()); const en = [...document.querySelectorAll('#english .sf-mail-letters-summary')].map((line) => line.textContent.replace(/\\s+/gu, ' ').trim()); return /^5 минут назад · 7 блоков/u.test(ru[0]) && ru[1] === 'вчера · 4 блока' && /· 11 блоков$/u.test(ru[2]) && /· 1 блок$/u.test(ru[3]) && !ru.some((line) => /(?:^|\\D)(?:4 блоков|1 блоков|7 блока)(?:$|\\s)/u.test(line)) && en[0] === '5 minutes ago · 7 blocks' && en[1] === 'yesterday · 4 blocks' && /· 1 block$/u.test(en[3]); })()"
+            }
+          ]
+        },
+        {
+          "id": "p3-current-not-offered",
+          "title": "the open letter is marked, says «открыто сейчас» and offers no «Открыть»; choose open answers refused current for it and sends nothing",
+          "covers": "settings.current, runtime.current-text, actions.choose",
+          "steps": [
+            {
+              "script": "(() => { const ago = (minutes) => new Date(Date.now() - minutes * 60000).toISOString(); const letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: ago(5), blocks: 7}, {id: 'prj_2', title: 'Приглашение', at: ago(60 * 26), blocks: 4}, {id: 'prj_3', title: 'Анонс вебинара', at: ago(60 * 24 * 9), blocks: 11}, {id: 'prj_4', title: 'Летняя распродажа', at: ago(60 * 24 * 40), blocks: 1}]; document.querySelector('#letters').letters = letters; document.querySelector('#english').letters = letters.map((one) => ({...one})); return true; })()",
+              "wait": 400,
+              "check": "(() => { const marked = [...document.querySelectorAll('#letters .is-current')].map((row) => row.dataset.letter); const open = [...document.querySelectorAll('#letters [data-letter]')].map((row) => Boolean(row.querySelector('button[data-action=\"open\"]'))); return marked.join(',') === 'prj_1' && open.join(',') === 'false,true,true,true' && document.querySelector('#letters [data-letter=\"prj_1\"] .sf-mail-letters-current').textContent.trim() === 'открыто сейчас'; })()"
+            },
+            {
+              "action": {
+                "name": "choose",
+                "with": {
+                  "action": "open",
+                  "id": "prj_1"
+                }
+              },
+              "target": "#letters",
+              "wait": 60,
+              "expect": {
+                "returns": {
+                  "outcome": "refused",
+                  "reason": "current"
+                },
+                "events": [
+                  {
+                    "name": "sf-mail-letters-open",
+                    "count": 0
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p4-open-and-create",
+          "title": "«Открыть» sends sf-mail-letters-open {id} for its row, «Новое письмо» sends sf-mail-letters-create",
+          "covers": "events.open, events.create, runtime.open-text, runtime.create-text",
+          "steps": [
+            {
+              "script": "(() => { const ago = (minutes) => new Date(Date.now() - minutes * 60000).toISOString(); const letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: ago(5), blocks: 7}, {id: 'prj_2', title: 'Приглашение', at: ago(60 * 26), blocks: 4}, {id: 'prj_3', title: 'Анонс вебинара', at: ago(60 * 24 * 9), blocks: 11}, {id: 'prj_4', title: 'Летняя распродажа', at: ago(60 * 24 * 40), blocks: 1}]; document.querySelector('#letters').letters = letters; document.querySelector('#english').letters = letters.map((one) => ({...one})); return true; })()",
+              "wait": 400
+            },
+            {
+              "user": "click:#letters [data-letter=\"prj_2\"] button[data-action=\"open\"]",
+              "wait": 150,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-mail-letters-open",
+                    "count": 1,
+                    "detail": {
+                      "id": "prj_2"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "user": "click:#letters .sf-mail-letters-new button",
+              "wait": 150,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-mail-letters-create",
+                    "count": 1
+                  }
+                ]
+              },
+              "check": "document.querySelector('#letters .sf-mail-letters-new button').textContent.includes('Новое письмо')"
+            }
+          ]
+        },
+        {
+          "id": "p5-menu-answers-for-its-row",
+          "title": "the ⋯ of a row opens the menu with «Копия», «Переименовать» and «Удалить»; each answers for the row it was opened from: rename {id}, delete {ids, id}, copy {id}",
+          "covers": "events.copy, events.rename, events.delete, runtime.copy-text, runtime.rename-text, runtime.delete-text",
+          "steps": [
+            {
+              "script": "(() => { const ago = (minutes) => new Date(Date.now() - minutes * 60000).toISOString(); const letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: ago(5), blocks: 7}, {id: 'prj_2', title: 'Приглашение', at: ago(60 * 26), blocks: 4}, {id: 'prj_3', title: 'Анонс вебинара', at: ago(60 * 24 * 9), blocks: 11}, {id: 'prj_4', title: 'Летняя распродажа', at: ago(60 * 24 * 40), blocks: 1}]; document.querySelector('#letters').letters = letters; document.querySelector('#english').letters = letters.map((one) => ({...one})); return true; })()",
+              "wait": 400
+            },
+            {
+              "user": "click:#letters [data-letter=\"prj_3\"] button[data-action=\"more\"]",
+              "wait": 600,
+              "check": "(() => { const items = [...document.querySelectorAll('#letters sf-context-menu [role=menuitem]')].map((item) => item.textContent.replace(/\\s+/gu, ' ').trim()); return items.length === 3 && /Копия/u.test(items[0]) && /Переименовать/u.test(items[1]) && /Удалить/u.test(items[2]); })()"
+            },
+            {
+              "script": "([...document.querySelectorAll('#letters sf-context-menu [role=menuitem]')].find((item) => /Переименовать/u.test(item.textContent)).click(), true)",
+              "wait": 200,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-mail-letters-rename",
+                    "count": 1,
+                    "detail": {
+                      "id": "prj_3"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "user": "click:#letters [data-letter=\"prj_2\"] button[data-action=\"more\"]",
+              "wait": 600
+            },
+            {
+              "script": "([...document.querySelectorAll('#letters sf-context-menu [role=menuitem]')].find((item) => /Удалить/u.test(item.textContent)).click(), true)",
+              "wait": 200,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-mail-letters-delete",
+                    "count": 1,
+                    "detail": {
+                      "id": "prj_2",
+                      "ids": [
+                        "prj_2"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "user": "click:#letters [data-letter=\"prj_4\"] button[data-action=\"more\"]",
+              "wait": 600
+            },
+            {
+              "script": "([...document.querySelectorAll('#letters sf-context-menu [role=menuitem]')].find((item) => /Копия/u.test(item.textContent)).click(), true)",
+              "wait": 200,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-mail-letters-copy",
+                    "count": 1,
+                    "detail": {
+                      "id": "prj_4"
+                    }
+                  },
+                  {
+                    "name": "sf-mail-letters-delete",
+                    "count": 0
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p6-more-named-by-its-letter",
+          "title": "every ⋯ is named by its own letter: «Действия с письмом: <название>»",
+          "covers": "runtime.actions-label",
+          "steps": [
+            {
+              "script": "(() => { const ago = (minutes) => new Date(Date.now() - minutes * 60000).toISOString(); const letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: ago(5), blocks: 7}, {id: 'prj_2', title: 'Приглашение', at: ago(60 * 26), blocks: 4}, {id: 'prj_3', title: 'Анонс вебинара', at: ago(60 * 24 * 9), blocks: 11}, {id: 'prj_4', title: 'Летняя распродажа', at: ago(60 * 24 * 40), blocks: 1}]; document.querySelector('#letters').letters = letters; document.querySelector('#english').letters = letters.map((one) => ({...one})); return true; })()",
+              "wait": 400,
+              "check": "document.querySelectorAll('#letters button[aria-label=\"Действия с письмом: Приглашение\"]').length === 1 && document.querySelectorAll('#letters button[aria-label^=\"Действия с письмом: \"]').length === 4"
+            }
+          ]
+        },
+        {
+          "id": "p7-order-by-title",
+          "title": "«По названию» sorts by the page language; an order that is not one is refused and changes nothing",
+          "covers": "settings.order, actions.sort",
+          "steps": [
+            {
+              "script": "(() => { const ago = (minutes) => new Date(Date.now() - minutes * 60000).toISOString(); const letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: ago(5), blocks: 7}, {id: 'prj_2', title: 'Приглашение', at: ago(60 * 26), blocks: 4}, {id: 'prj_3', title: 'Анонс вебинара', at: ago(60 * 24 * 9), blocks: 11}, {id: 'prj_4', title: 'Летняя распродажа', at: ago(60 * 24 * 40), blocks: 1}]; document.querySelector('#letters').letters = letters; document.querySelector('#english').letters = letters.map((one) => ({...one})); return true; })()",
+              "wait": 400
+            },
+            {
+              "action": {
+                "name": "sort",
+                "with": {
+                  "order": "title"
+                }
+              },
+              "target": "#letters",
+              "wait": 300,
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                }
+              },
+              "check": "[...document.querySelectorAll('#letters [data-letter]')].map((row) => row.dataset.letter).join(',') === 'prj_3,prj_4,prj_1,prj_2' && document.querySelector('#letters').order === 'title'"
+            },
+            {
+              "action": {
+                "name": "sort",
+                "with": {
+                  "order": "size"
+                }
+              },
+              "target": "#letters",
+              "wait": 200,
+              "expect": {
+                "returns": {
+                  "outcome": "refused",
+                  "reason": "unknown"
+                }
+              },
+              "check": "document.querySelector('#letters').order === 'title' && [...document.querySelectorAll('#letters [data-letter]')].map((row) => row.dataset.letter).join(',') === 'prj_3,prj_4,prj_1,prj_2'"
+            }
+          ]
+        },
+        {
+          "id": "p8-two-empty-states",
+          "title": "a search that finds nothing says «Ничего не найдено»; no letters at all says «Писем пока нет»: two different states",
+          "covers": "settings.query, actions.search, runtime.nothing-found-heading, runtime.empty-heading",
+          "steps": [
+            {
+              "script": "(() => { const ago = (minutes) => new Date(Date.now() - minutes * 60000).toISOString(); const letters = [{id: 'prj_1', title: 'Осенняя рассылка', at: ago(5), blocks: 7}, {id: 'prj_2', title: 'Приглашение', at: ago(60 * 26), blocks: 4}, {id: 'prj_3', title: 'Анонс вебинара', at: ago(60 * 24 * 9), blocks: 11}, {id: 'prj_4', title: 'Летняя распродажа', at: ago(60 * 24 * 40), blocks: 1}]; document.querySelector('#letters').letters = letters; document.querySelector('#english').letters = letters.map((one) => ({...one})); return true; })()",
+              "wait": 400
+            },
+            {
+              "action": {
+                "name": "search",
+                "with": {
+                  "query": "нет такого"
+                }
+              },
+              "target": "#letters",
+              "wait": 400,
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                }
+              },
+              "check": "(() => { const empty = document.querySelector('#letters sf-empty-state'); return empty?.getAttribute('kind') === 'nothing-found' && empty.getAttribute('heading') === 'Ничего не найдено' && document.querySelectorAll('#letters [data-letter]').length === 0; })()"
+            },
+            {
+              "script": "true",
+              "wait": 60,
+              "check": "(() => { const empty = document.querySelector('#none sf-empty-state'); return empty?.getAttribute('kind') === 'no-data' && empty.getAttribute('heading') === 'Писем пока нет' && document.querySelectorAll('#none [data-letter]').length === 0; })()"
+            },
+            {
+              "action": {
+                "name": "search",
+                "with": {
+                  "query": "приглаш"
+                }
+              },
+              "target": "#letters",
+              "wait": 400,
+              "check": "[...document.querySelectorAll('#letters [data-letter]')].map((row) => row.dataset.letter).join(',') === 'prj_2' && document.querySelector('#letters sf-empty-state') === null"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

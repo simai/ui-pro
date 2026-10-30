@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.7.10",
-  "title": "Record",
+  "version": "1.8.1",
+  "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
   "reuse_mode": "whole",
@@ -195,9 +195,9 @@
       },
       "host_port": {
         "port": "simai.property-view-port",
-        "version": "1.16.0",
-        "path": "src/core/contracts/ports/simai.property-view-port/1.16.0/port.json",
-        "sha256": "5e4a47b0ce0d7226a388d3f7b146f725d0db72aa1d1022fb59368ae4526f2d6a",
+        "version": "1.17.0",
+        "path": "src/core/contracts/ports/simai.property-view-port/1.17.0/port.json",
+        "sha256": "123295c1e8fda146ebd25a814fc4695c6fdb6cb1f84911a66d4568e0c7504120",
         "supported_versions": [
           "1.0.0",
           "1.1.0",
@@ -214,7 +214,8 @@
           "1.13.0",
           "1.14.0",
           "1.15.0",
-          "1.16.0"
+          "1.16.0",
+          "1.17.0"
         ]
       }
     }
@@ -710,7 +711,8 @@
         {
           "name": "options",
           "schema": {
-            "type": "object"
+            "type": "object",
+            "description": "{confirm}: the digest of a confirmation the host asked for; set by confirmSave."
           }
         }
       ],
@@ -1385,16 +1387,30 @@
         "changes": [
           "Entering the arrangement on a cold page waits for the view chooser to be defined and drawn before placing the focus, so it lands on the chooser rather than Reset. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.7.9",
+        "to": "1.8.0",
+        "changes": [
+          "Port 1.17.0 (1.16.0 and earlier keep working; consumer Larena, msg-4208ef91ae5442ceb44b): a field of propertyType html is formatted text, an HTML string of the sf-rich-text subset; the Framework's field renderers edit it with sf-rich-text and show it cleaned when viewed. Nothing to change for a host that sends no html field."
+        ]
+      },
+      {
+        "from": "1.8.0",
+        "to": "1.8.1",
+        "changes": [
+          "Standard simai.smart-component 1.4: component.json and examples.json are the source; rule.js, aliases.json, probe.json and smart.manifest.json are generated from them. The registry gains the settings and events component.json declares, the dated event names with alias_of and canonical, the base settings root-class and root-style, and the Loader relations in composition.uses; a word setting's default is the page language's (default-from), so the registry names no fixed one. No runtime behaviour changes. Nothing to change for a host."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "a6ff5db0fc1b6608b0acea5dce338af1014f5781",
+    "source_revision": "168059613d97028f9f88cd8e8688063f6e789b34",
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "2d0fc86f3b02e7a52eea930d2ae8dc5aae16ac4477991b447814e14d58f90872"
+        "sha256": "e567d59f5701ac861357d164dd77c5e9996833b0011e166091f5e3bea4f86640"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",

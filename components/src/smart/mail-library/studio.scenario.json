@@ -1,0 +1,41 @@
+{
+  "schema": "simai.smart-component-scenario.v1",
+  "id": "smoke",
+  "component": "smart.mail-library",
+  "fixture": "library-reference",
+  "viewport": "desktop",
+  "actions": [
+    {
+      "type": "invoke",
+      "method": "filter",
+      "arguments": [
+        {
+          "category": "commerce"
+        }
+      ]
+    },
+    {
+      "type": "invoke",
+      "method": "filter",
+      "arguments": [
+        {
+          "category": "all"
+        }
+      ]
+    }
+  ],
+  "assertions": [
+    {
+      "type": "upgraded"
+    },
+    {
+      "type": "visible"
+    },
+    {
+      "type": "no-console-error"
+    },
+    {
+      "type": "no-network"
+    }
+  ]
+}

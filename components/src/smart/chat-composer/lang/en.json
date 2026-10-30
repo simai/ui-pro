@@ -3,6 +3,7 @@
   "runtime": {
     "attach-label": "Attach a file",
     "bad-type-text": "this file type is not supported",
+    "busy-files-text": "A message with files can be sent once the answer comes",
     "busy-text": "Wait for the answer or stop waiting",
     "count-text": "{count} of {max}",
     "drop-text": "Drop to attach",
@@ -10,6 +11,8 @@
     "file-label": "File {name}, {size}",
     "hint-text": "Enter to send, Shift+Enter for a new line",
     "placeholder-text": "Ask anything",
+    "queue-hint-text": "Enter to send after the answer, Shift+Enter for a new line",
+    "queue-label": "Send after the answer",
     "remove-label": "Remove the file {name}",
     "send-label": "Send",
     "size-b-text": "{n} B",

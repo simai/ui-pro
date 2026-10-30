@@ -356,6 +356,39 @@
           }
         }
       ]
+    },
+    {
+      "id": "p-create-commands",
+      "title": "create-commands stand in for New conversation; a press says create {kind: id}, the one button says create {}; no-create and the archive take them away",
+      "covers": "settings.create-commands, events.create",
+      "steps": [
+        {
+          "check": "document.querySelectorAll('#list .sf-thread-list__head .sf-thread-list__command:not([hidden])').length === 1 && document.querySelector('#list .sf-thread-list__command[data-action=\"create\"]')"
+        },
+        {
+          "user": "click:#list .sf-thread-list__command[data-action=\"create\"]",
+          "wait": 100,
+          "event": "sf-thread-list-create"
+        },
+        {
+          "script": "(document.querySelector('#list').createCommands = [{id: 'private', text: 'Новый диалог', icon: 'person_add'}, {id: 'group', text: 'Новая группа', icon: 'group_add'}], document.querySelector('#archive').createCommands = [{id: 'group', text: 'Новая группа'}], true)",
+          "wait": 200,
+          "check": "[...document.querySelectorAll('#list .sf-thread-list__head .sf-thread-list__command:not([hidden])')].map((one) => one.querySelector(':scope > span').textContent.trim()).join() === 'Новый диалог,Новая группа' && !document.querySelector('#archive .sf-thread-list__command[data-action=\"create:group\"]:not([hidden])')"
+        },
+        {
+          "user": "click:#list .sf-thread-list__command[data-action=\"create:group\"]",
+          "wait": 100,
+          "event": "sf-thread-list-create",
+          "detail": {
+            "kind": "group"
+          }
+        },
+        {
+          "script": "(document.querySelector('#list').toggleAttribute('no-create', true), true)",
+          "wait": 200,
+          "check": "document.querySelector('#list .sf-thread-list__head').hidden"
+        }
+      ]
     }
   ]
 }

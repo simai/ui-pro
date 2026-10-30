@@ -1,0 +1,472 @@
+{
+  "schema_version": 2,
+  "id": "smart.mail-library",
+  "version": "1.0.0",
+  "title": "Email block library",
+  "summary": "The blocks a letter of SIMAI Email Editor can take, grouped by what they are for, with category chips, a search over their names and purposes, and the variants of the letter's header and footer. A row adds its block or replaces its variant; the element raises an event and never touches a letter.",
+  "kind": "smart",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "mail",
+    "library",
+    "catalogue",
+    "blocks"
+  ],
+  "capabilities": [
+    "interaction",
+    "keyboard",
+    "search",
+    "responsive"
+  ],
+  "custom_element": "sf-mail-library",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "smart.button",
+      "smart.empty-state",
+      "smart.icon",
+      "smart.input"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "properties": {
+      "template": {
+        "type": "string",
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates.",
+        "const": "default"
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
+      },
+      "query": {
+        "type": "string",
+        "default": "",
+        "description": "The search words; the field inside the element writes it while the person types. A block is found by its name, its purpose and its type."
+      },
+      "category": {
+        "type": "string",
+        "default": "all",
+        "description": "all, or the id of one group, as its chip would set it. An id no group has shows every group, so a stale filter never leaves the Library empty."
+      },
+      "items": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "purpose": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            },
+            "group": {
+              "type": "string"
+            },
+            "sample": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "title",
+            "group"
+          ]
+        },
+        "description": "The blocks a letter can take, one row each: {type, title, purpose, icon, group, sample?}, in the person's words. A row whose group is not in groups is not shown."
+      },
+      "groups": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "title"
+          ]
+        },
+        "description": "The groups in the order they are shown: {id, title}. With more than one, the chips «Все» and one per group are drawn above the rows."
+      },
+      "places": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object",
+          "properties": {
+            "family": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "current": {
+              "type": "string"
+            },
+            "items": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "family",
+            "title",
+            "items"
+          ]
+        },
+        "description": "The places every letter has («Шапка», «Подвал») and their variants: {family, title, current, items: [{type, title, purpose, icon}]}. The current variant is marked and not offered again; shown with «Все» only."
+      }
+    },
+    "additionalProperties": false
+  },
+  "item_contract": {},
+  "contracts": {
+    "item": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The block's type: what add carries."
+        },
+        "title": {
+          "type": "string",
+          "description": "Its name in the person's words, drawn as text."
+        },
+        "purpose": {
+          "type": "string",
+          "description": "What it is for, the row's second line."
+        },
+        "icon": {
+          "type": "string",
+          "description": "A Framework icon name; widgets when none."
+        },
+        "group": {
+          "type": "string",
+          "description": "The id of the group it is shown under."
+        },
+        "sample": {
+          "type": "string",
+          "description": "A sample of its text, in the row's tooltip."
+        }
+      },
+      "required": [
+        "type",
+        "title",
+        "group"
+      ]
+    },
+    "place": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "type": "string",
+          "description": "The place: header or footer."
+        },
+        "title": {
+          "type": "string",
+          "description": "Its name: «Шапка», «Подвал»."
+        },
+        "current": {
+          "type": "string",
+          "description": "The type of the variant the letter has now."
+        },
+        "items": {
+          "type": "array",
+          "description": "Its variants, {type, title, purpose, icon}."
+        }
+      },
+      "required": [
+        "family",
+        "title",
+        "items"
+      ]
+    },
+    "choice": {
+      "const": "A row dispatches sf-mail-library-add {type}; another variant dispatches sf-mail-library-replace {family, type}. The element never changes a letter: the host adds or replaces, and passes the new current variant back in places."
+    }
+  },
+  "methods": {
+    "search": {
+      "summary": "Search as the field does: sets query and filters at once.",
+      "arguments": [
+        {
+          "name": "query",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "filter": {
+      "summary": "Show one group, or all, as its chip would.",
+      "arguments": [
+        {
+          "name": "category",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "add": {
+      "summary": "Add a block as its row would: sends add {type}; refused unknown for a type no item has.",
+      "arguments": [
+        {
+          "name": "type",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "replace": {
+      "summary": "Choose a variant of a place as its row would: sends replace {family, type}; refused current for the variant the letter has now.",
+      "arguments": [
+        {
+          "name": "family",
+          "schema": {}
+        },
+        {
+          "name": "type",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: current | unknown}"
+      }
+    }
+  },
+  "events": {
+    "sf-mail-library-add": {
+      "summary": "A block was chosen to add: {type}. The host adds it where it decides; the element never touches a letter.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {}
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-library-replace": {
+      "summary": "Another variant of a place was chosen: {family, type}. The host replaces the block; the variant the letter has now raises nothing.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "family",
+          "type"
+        ],
+        "properties": {
+          "family": {},
+          "type": {}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "search": [
+        "empty",
+        "filtered",
+        "nothing-found"
+      ],
+      "category": [
+        "all",
+        "one-group"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "selected"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "changing the letter",
+      "reading the block manifest file",
+      "deciding where a block is inserted"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "block titles, purposes and samples (drawn as text)"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "group",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Tab",
+      "Enter",
+      "Space"
+    ],
+    "focus": "The search field comes first, then the category chips (sf-button with aria-pressed, in a group named «Категория»), then every row as an ordinary button; Enter or Space adds its block or replaces the variant. A group is a role=group named by its title, and the title text is hidden from assistive technology so it is not read twice. A row's accessible name is its own words -- the block's name and purpose -- followed by the action; a variant row says «сейчас в письме» for the current one and carries aria-pressed. Icons are decorative."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "mail-library-probe"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "e2cff39223f1a4b004dafe332f081e5178fad2f3",
+      "ui_smart_revision": "e2cff39223f1a4b004dafe332f081e5178fad2f3"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": [
+      {
+        "from": "0.2.0",
+        "to": "1.0.0",
+        "changes": [
+          "moved from simai/ui-mail to ui-pro (D31): standard simai.smart-component 1.4, the element is made from component.json; words in lang/",
+          "sf-mail-library-variant -> sf-mail-library-replace (event; never released, no alias)",
+          "choose(family, type) -> the action replace {family, type}; add, search and filter are actions"
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "c0f42259c7bfdb44a5d775a44cea3d652027fd3f",
+    "source_artifacts": [
+      {
+        "path": "src/smart/mail-library/index.js",
+        "sha256": "231f51436a7e7588c5027001ccd79a858494cd3c523e41662b28410ed80a9dec"
+      },
+      {
+        "path": "src/smart/mail-library/js/templates/default.js",
+        "sha256": "9e25f804a1a5beae6dd623cfca2da49ea87807930a9939214fa20b22964f3b62"
+      },
+      {
+        "path": "src/smart/mail-library/js/templates/default.css",
+        "sha256": "a46d022ded0f644d3fc9dcf73cf9585d0e3c800c9f45956119e4062f9c7a5d21"
+      },
+      {
+        "path": "src/smart/mail-library/rule.js",
+        "sha256": "4936a7400ae6b9ef16df02bc6f1e738866b193e5f2deaa7cf3f615dd6ab77be9"
+      },
+      {
+        "path": "src/smart/mail-library/docs.md",
+        "sha256": "bb7f44a941d83addb225905de1fbfe5b4457d4f6cd7d7bd38d857551b9f3cbaf"
+      },
+      {
+        "path": "src/smart/mail-library/component.json",
+        "sha256": "15c8eaa7a0aea8fdb3b9a1c6a40f9c60509a146f4e76c0a4324c276996ac25a6"
+      },
+      {
+        "path": "src/smart/mail-library/lang/en.json",
+        "sha256": "01df548d8461ef4185dba94b065c03f609f273d0fd037a249d0dc779a279b48a"
+      },
+      {
+        "path": "src/smart/mail-library/lang/ru.json",
+        "sha256": "ddd0583f0e0b81da76689df04e0bce425430ac62c14ecca63379750904eb4f76"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use sf-mail-library wherever a person chooses a block to add to a letter of SIMAI Email Editor, or another variant of the letter's header or footer.",
+    "do_not": [
+      "Do not add the block in the element; listen for sf-mail-library-add and add it in the host",
+      "Do not pass the block manifest file; pass items and groups in the person's language",
+      "Do not draw a second search field beside it; set query instead",
+      "Do not replace the variant in the element; listen for sf-mail-library-replace and pass the new current back in places"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-mail-library id=\"library\"></sf-mail-library> <script>library.groups = [{id: 'basics', title: 'Основа'}]; library.items = [{type: 'heading', title: 'Заголовок', purpose: 'Главная мысль письма', icon: 'title', group: 'basics'}];</script>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-manifest-probes.mjs <free output> <package output> mail-library"
+    ]
+  }
+}

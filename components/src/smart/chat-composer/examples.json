@@ -474,6 +474,56 @@
               "check": "(() => { const c = document.querySelector('#plain'); return c.querySelector('.sf-chat-composer__input').disabled && c.querySelector('.sf-chat-composer__send').disabled && c.querySelector('.sf-chat-composer--disabled') !== null; })()"
             }
           ]
+        },
+        {
+          "id": "p9-queue",
+          "title": "queue: while busy a message of text still goes out as sf-chat-composer-submit, by Enter or by «Отправить после ответа» beside «Остановить ожидание», and the hint says it goes after the answer; a message with files waits and the hint says why",
+          "covers": "settings.queue, settings.busy, events.submit, runtime.queue-label, runtime.queue-hint-text, runtime.busy-files-text",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-composer'), document.querySelector('#plain').busy = true, document.querySelector('#plain').queue = true, document.querySelector('#plain').value = 'Ещё вопрос', document.querySelector('#plain .sf-chat-composer__input').focus(), true)",
+              "wait": 250,
+              "check": "(() => { const c = document.querySelector('#plain'); const send = c.querySelector('.sf-chat-composer__send'); return !send.hidden && !send.disabled && send.getAttribute('aria-label') === 'Отправить после ответа' && !c.querySelector('.sf-chat-composer__stop').hidden && c.querySelector('.sf-chat-composer__hint').textContent.trim() === 'Enter — отправить после ответа, Shift+Enter — новая строка'; })()"
+            },
+            {
+              "user": "keyboard:Enter",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-chat-composer-submit",
+                    "count": 1,
+                    "detail": {
+                      "text": "Ещё вопрос",
+                      "attachment-ids": []
+                    }
+                  }
+                ]
+              },
+              "check": "document.querySelector('#plain').value === 'Ещё вопрос'"
+            },
+            {
+              "script": "(document.querySelector('#plain').value = '', true)",
+              "wait": 200,
+              "check": "(() => { const c = document.querySelector('#plain'); return c.querySelector('.sf-chat-composer__send').hidden && !c.querySelector('.sf-chat-composer__stop').hidden; })()"
+            },
+            {
+              "script": "(document.querySelector('#files').busy = true, document.querySelector('#files').queue = true, document.querySelector('#files').files = [{id: 'att_1', name: 'Договор.pdf', bytes: 512}], document.querySelector('#files').value = 'С файлом', document.querySelector('#files .sf-chat-composer__input').focus(), true)",
+              "wait": 250,
+              "check": "document.querySelector('#files .sf-chat-composer__send').hidden"
+            },
+            {
+              "user": "keyboard:Enter",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-chat-composer-submit",
+                    "count": 0
+                  }
+                ]
+              },
+              "check": "document.querySelector('#files .sf-chat-composer__hint').textContent.trim() === 'Сообщение с файлами можно отправить, когда придёт ответ'"
+            }
+          ]
         }
       ]
     }

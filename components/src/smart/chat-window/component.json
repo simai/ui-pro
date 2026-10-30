@@ -2,15 +2,15 @@
   "$comment": "The source of sf-chat-window's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-window (smart.manifest.json 0.3.1, ui-chat 07bc988) by the D31 move, step 6 (owner yes 2026-10-27), with files-view.js, port.js, chat-core's larena.js words and smart.css, and the staff page's layout of the window's nodes; written by hand on the shape of sf-chat-interlocutor, sf-chat-composer and sf-chat-message (steps 3-5), since migration/convert-1.3.8.mjs takes only the pinned 66. x-decisions says how each point was decided.",
   "id": "smart.chat-window",
   "tag": "sf-chat-window",
-  "version": "1.0.4",
+  "version": "1.4.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
     "capabilities": {
       "type": "string",
       "default": "",
-      "x-markup": "the port's capabilities the host offers (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read) and the window's own (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief), space-separated; a connected port's capabilities count as well. What is not offered is not shown. The property also takes a list (0.3).",
-      "summary": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+      "x-markup": "the port's capabilities the host offers (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read) and the window's own (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members), space-separated; a connected port's capabilities count as well. What is not offered is not shown. The property also takes a list (0.3).",
+      "summary": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
     },
     "landmark": {
       "type": "enum",
@@ -36,6 +36,12 @@
       "default": false,
       "x-markup": "placed in a host page: the height comes from the container and the window draws its own frame",
       "summary": "Embedded in a host page: the window takes the container's height and draws its own edge."
+    },
+    "no-queue": {
+      "type": "boolean",
+      "default": false,
+      "x-markup": "no queue: while an answer is awaited the field sends nothing, as before 1.1.0",
+      "summary": "Turns the queue off: while an answer is awaited the field sends nothing and says why, as before 1.1.0."
     },
     "me": {
       "type": "object",
@@ -85,8 +91,8 @@
     "limits": {
       "type": "object",
       "default": {},
-      "x-markup": "port data limits {body_chars, files_per_message, file_bytes, file_types}",
-      "summary": "port data limits {body_chars, files_per_message, file_bytes, file_types}"
+      "x-markup": "port data limits {body_chars, files_per_message, file_bytes, file_types}; with x-conversation-start the window's own group {title_chars, members_max, search_min, search_max, query_chars?}, by default 120, 49, 2, 20, 80",
+      "summary": "port data limits {body_chars, files_per_message, file_bytes, file_types}; with x-conversation-start the window's own group {title_chars, members_max, search_min, search_max, query_chars?}, by default 120, 49, 2, 20, 80"
     },
     "interlocutors": {
       "type": "list",
@@ -145,8 +151,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files). Was chat-port:open, chat-window:view, chat-window:files.",
-      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files). Was chat-port:open, chat-window:view, chat-window:files. The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01."
+      "x-summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. Or a group's members asked for (1.4.0, x-members members.list {conversation_id}, kind members; no former name).",
+      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. Or a group's members asked for (1.4.0, x-members members.list {conversation_id}, kind members; no former name). The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01."
     },
     "load-more": {
       "carries": {
@@ -229,8 +235,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "A message edited against its revision (port message.edit). Was chat-port:edit.",
-      "summary": "A message edited against its revision (port message.edit). Was chat-port:edit. The 0.3 chat-port:edit {request_id, ...payload} follows it until 2026-12-01."
+      "x-summary": "A message edited against its revision (port message.edit {conversation_id, message_id, revision, body, client_key}). 1.3.0, with people and edit: «Изменить» on a person's message whose can_edit is true opens an editor in its place; Enter saves (this event), Escape cancels. After a conflict «Заменить своим» raises it again against the current revision. Was chat-port:edit.",
+      "summary": "A message edited against its revision (port message.edit); 1.3.0: raised from the editor of a person's message, again against the current revision after a conflict («Заменить своим»). Was chat-port:edit. The 0.3 chat-port:edit {request_id, ...payload} follows it until 2026-12-01."
     },
     "delete": {
       "carries": {
@@ -250,8 +256,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "A message deleted against its revision (port message.delete, kind message) or a kept file deleted (x-my-files files.remove {file_id}, kind file). Was chat-port:delete, chat-window:file-remove.",
-      "summary": "A message deleted against its revision (port message.delete, kind message) or a kept file deleted (x-my-files files.remove {file_id}, kind file). Was chat-port:delete, chat-window:file-remove. The 0.3 chat-port:delete, chat-window:file-remove {request_id, ...payload} follow it until 2026-12-01."
+      "x-summary": "A message deleted against its revision (port message.delete {conversation_id, message_id, revision, client_key}, kind message; 1.3.0, with people and delete: «Удалить» on a person's message whose can_delete is true asks in place, and its «Удалить» raises this) or a kept file deleted (x-my-files files.remove {file_id}, kind file). Was chat-port:delete, chat-window:file-remove.",
+      "summary": "A message deleted against its revision (port message.delete, kind message; 1.3.0: after the question in the message's place) or a kept file deleted (x-my-files files.remove {file_id}, kind file). Was chat-port:delete, chat-window:file-remove. The 0.3 chat-port:delete, chat-window:file-remove {request_id, ...payload} follow it until 2026-12-01."
     },
     "read": {
       "carries": {
@@ -271,8 +277,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "The last message actually seen (port message.read). Was chat-port:read.",
-      "summary": "The last message actually seen (port message.read). Was chat-port:read. The 0.3 chat-port:read {request_id, ...payload} follows it until 2026-12-01."
+      "x-summary": "The last message actually seen (port message.read {conversation_id, message_id}). 1.3.0, with read: raised when the last stored message has been in view at the bottom of a visible page, at most once in 2 s and only for a message later than the one reported. Was chat-port:read.",
+      "summary": "The last message actually seen (port message.read); 1.3.0: when the end of the conversation is in view, at most once in 2 s, only for a later message. Was chat-port:read. The 0.3 chat-port:read {request_id, ...payload} follows it until 2026-12-01."
     },
     "rate": {
       "carries": {
@@ -376,8 +382,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "A new conversation (port conversation.create {interlocutor}). Was chat-port:create.",
-      "summary": "A new conversation (port conversation.create {interlocutor}). Was chat-port:create. The 0.3 chat-port:create {request_id, ...payload} follows it until 2026-12-01."
+      "x-summary": "A new conversation (port conversation.create {interlocutor}; was chat-port:create), or a new one with a person or a group (1.4.0, x-conversation-start conversation.start, kind private {kind, user_id} or group {kind, title, member_ids, client_key}; no former name).",
+      "summary": "A new conversation (port conversation.create {interlocutor}; was chat-port:create), or a new one with a person or a group (1.4.0, x-conversation-start conversation.start, kind private {kind, user_id} or group {kind, title, member_ids, client_key}; no former name). The 0.3 chat-port:create {request_id, ...payload} follows conversation.create until 2026-12-01."
     },
     "rename": {
       "carries": {
@@ -481,8 +487,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "The list searched by title (x-conversations-search conversations.search {query}), after a pause in typing, on Enter, or emptied by Escape. Was chat-window:search.",
-      "summary": "The list searched by title (x-conversations-search conversations.search {query}), after a pause in typing, on Enter, or emptied by Escape. Was chat-window:search. The 0.3 chat-window:search {request_id, ...payload} follows it until 2026-12-01."
+      "x-summary": "The list searched by title (x-conversations-search conversations.search {query}), after a pause in typing, on Enter, or emptied by Escape; was chat-window:search. Or people found for a new conversation (1.4.0, x-conversation-start recipients.search {query}, kind recipients; no former name).",
+      "summary": "The list searched by title (x-conversations-search conversations.search {query}), after a pause in typing, on Enter, or emptied by Escape; was chat-window:search. Or people found for a new conversation (1.4.0, x-conversation-start recipients.search {query}, kind recipients; no former name). The 0.3 chat-window:search {request_id, ...payload} follows conversations.search until 2026-12-01."
     },
     "pin": {
       "carries": {
@@ -570,6 +576,31 @@
       },
       "x-summary": "The fact of a host's answer, from the port or from settle: {request-id, intent, payload, answer, reason}, said after the answer's data is applied and before the window's own follow-up (the focus). Was sf-chat-window-answer.",
       "summary": "The fact of a host's answer, from the port or from settle: {request-id, intent, payload, answer, reason}, said after the answer's data is applied and before the window's own follow-up (the focus). Was sf-chat-window-answer. The 0.3 sf-chat-window-answer {request_id, ...payload} follows it until 2026-12-01."
+    },
+    "toggle": {
+      "carries": {
+        "kind": {
+          "type": "enum",
+          "values": [
+            "find",
+            "preview",
+            "start",
+            "members"
+          ]
+        },
+        "open": "boolean",
+        "form": {
+          "type": "enum",
+          "values": [
+            "private",
+            "group"
+          ],
+          "optional": true,
+          "summary": "Which form, when kind start opens."
+        }
+      },
+      "x-summary": "The search in the open conversation was opened or closed (open-find, close-find, Ctrl/Cmd+F, Escape, its close button): kind find; the source preview beside the conversation (1.2.0: open-preview, close-preview, a footnote, «Назад», Escape): kind preview; open true or false. The form of a new conversation (1.4.0: open-start, close-start, a command of the list, «Назад», Escape): kind start, form private or group when it opens; a group's members (1.4.0: open-members, close-members, the header's «Участники», «Назад», Escape): kind members. A page that draws a button for either marks it pressed by this, or by the host states data-find-open, data-preview-open, data-start-open and data-members-open. Not cancelable: it says what happened.",
+      "summary": "The search in the conversation, the source preview, the form of a new conversation or a group's members opened or closed: {kind: find|preview|start|members, open, form?}. The host states data-find-open, data-preview-open, data-start-open and data-members-open say the same."
     }
   },
   "actions": {
@@ -652,13 +683,119 @@
       ],
       "x-summary": "what the page shows under the list of conversations, after «Мои файлы» (Mirai24: the spending); null takes it away",
       "summary": "what the page shows under the list of conversations, after «Мои файлы» (Mirai24: the spending); null takes it away (action set-list-footer; answers an outcome)"
+    },
+    "open-find": {
+      "with": {
+        "query": {
+          "type": "string",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "opens the search in the open conversation above the log and puts the focus in it (a page's button in the header calls it; Ctrl/Cmd+F inside the window does the same); query searches at once. It searches only the loaded messages and asks the host nothing",
+      "summary": "Open the search in the conversation, focus in its field; query searches at once (action open-find; answers an outcome)."
+    },
+    "close-find": {
+      "with": {
+        "focus": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "closes the search: the marks go and the focus returns to what opened it, else to the field; focus false leaves the focus where it is unless it was in the search",
+      "summary": "Close the search in the conversation; the focus returns to what opened it (action close-find; answers an outcome)."
+    },
+    "open-preview": {
+      "with": {
+        "source": {
+          "type": "object",
+          "summary": "{title, kind, preview_url, locator, mime, n?}: preview_url of the page's origin; locator {from, to} characters of the text, or {page} of a PDF."
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "opens the source preview beside the conversation (a sheet over it when the conversation would keep less than 900px) and puts the focus on its title; refused not-shown for a source without a same-origin preview_url or when the page cancels the open event. The panel loads the preview_url itself (GET, the page's cookies), draws HTML sanitized, never run, and marks the {from, to} passage",
+      "summary": "Open the source preview beside the conversation (action open-preview; answers an outcome)."
+    },
+    "close-preview": {
+      "with": {
+        "focus": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "closes the source preview; the focus returns to what opened it (the footnote, else the field); focus false leaves the focus where it is unless it was in the panel",
+      "summary": "Close the source preview; the focus returns to what opened it (action close-preview; answers an outcome)."
+    },
+    "open-start": {
+      "with": {
+        "kind": {
+          "type": "enum",
+          "values": [
+            "private",
+            "group"
+          ],
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "the form of a new conversation or group in place of the conversation (x-conversation-start); kind private, the default, or group; refused capability-not-provided without it",
+      "summary": "the form of a new conversation or group in place of the conversation (x-conversation-start); kind private, the default, or group; refused capability-not-provided without it (action open-start; answers an outcome)"
+    },
+    "close-start": {
+      "with": {
+        "focus": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "closes the form; focus false leaves the focus where it is, else it returns to the command that opened it",
+      "summary": "closes the form; focus false leaves the focus where it is, else it returns to the command that opened it (action close-start; answers an outcome)"
+    },
+    "open-members": {
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "a group's members in place of the conversation (x-members); refused capability-not-provided without it, no-members when the open conversation is no group",
+      "summary": "a group's members in place of the conversation (x-members); refused capability-not-provided without it, no-members when the open conversation is no group (action open-members; answers an outcome)"
+    },
+    "close-members": {
+      "with": {
+        "focus": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "closes the members; focus false leaves the focus where it is, else it returns to the command that opened it",
+      "summary": "closes the members; focus false leaves the focus where it is, else it returns to the command that opened it (action close-members; answers an outcome)"
     }
   },
   "slots": {},
   "keyboard": {
     "host": {
       "Tab": "reach",
-      "Escape": "close"
+      "Escape": "close",
+      "Mod+F": "open"
     }
   },
   "port": {
@@ -709,6 +846,22 @@
     {
       "name": "cl-empty-state",
       "lazy": true
+    },
+    {
+      "name": "avatars",
+      "lazy": true
+    },
+    {
+      "name": "cl-lookup",
+      "lazy": true
+    },
+    {
+      "name": "cl-input",
+      "lazy": true
+    },
+    {
+      "name": "cl-button",
+      "lazy": true
     }
   ],
   "templates": {
@@ -737,11 +890,17 @@
     },
     "keys": {
       "Tab": "reach",
-      "Escape": "close"
+      "Escape": "close",
+      "Mod+F": "open"
     },
-    "x-keys": "The window is the page's main landmark (landmark main) or a region (section) with an off-screen heading of the conversation's title (heading-level). The conversations are sf-thread-list (a navigation list), the conversation sf-message-log (a log that says each new answer once: the stage while it waits, «Ответ готов» before it, footnote marks not read), the field sf-chat-composer. The search above the list is a search landmark; Enter asks at once, Escape clears it first and then belongs to the page; what was found is said politely. A passing line above the field (role=status) says what was just done and offers its undo («Вернуть»); an error is role=alert with «Повторить». The focus never falls to the page: an archived row gives it to «Вернуть», a pinned or restored row keeps it, an answer that comes back gives it to the field, «Мои файлы» take it on their heading and give it back to the field; in «Мои файлы» Escape closes a delete question first, then the view, and a delete question takes the focus on «Отмена»."
+    "x-keys": "The window is the page's main landmark (landmark main) or a region (section) with an off-screen heading of the conversation's title (heading-level). The conversations are sf-thread-list (a navigation list), the conversation sf-message-log (a log that says each new answer once: the stage while it waits, «Ответ готов» before it, footnote marks not read), the field sf-chat-composer. The search above the list is a search landmark; Enter asks at once, Escape clears it first and then belongs to the page; what was found is said politely. A passing line above the field (role=status) says what was just done and offers its undo («Вернуть»); an error is role=alert with «Повторить». The focus never falls to the page: an archived row gives it to «Вернуть», a pinned or restored row keeps it, an answer that comes back gives it to the field, «Мои файлы» take it on their heading and give it back to the field; in «Мои файлы» Escape closes a delete question first, then the view, and a delete question takes the focus on «Отмена». The queue (1.1.0): a question asked while an answer is awaited waits over the field as a card in a list named «Отправлю после ответа», with «Изменить» and «Убрать» (and «Отправить» when held), each described by its question; that it was queued, and why a queue is held, is said politely. The search in the conversation (1.1.0) is a search landmark over the log, opened by open-find or Ctrl/Cmd+F with the focus inside the window: Enter goes to the earlier match, Shift+Enter to the later one, as up and down do; «N из M» and «Ничего не найдено» are said politely after a pause; Escape clears the query first, then closes the search and returns the focus to what opened it. Matches are painted with the CSS Custom Highlight API (Mark and Highlight in forced colours), the message's text is not touched. The source preview (1.2.0) is a complementary landmark named by its title, beside the log or, on a narrow window, a sheet over it (the conversation inert behind it) with «Назад»; it takes the focus on its title, its text is a scrollable region reachable by Tab, the passage the answer cites is a mark brought into view, «Открыт просмотр» and «Отрывок выделен» are said politely; Escape, «Назад» or the close button closes it and returns the focus to the footnote or title that opened it. Between people (1.3.0, capability people): each person's message is an article named by its author («Вы» for the reader's own); «Изменить» and «Удалить» are buttons named so, shown on hover or focus and always on touch. «Изменить» puts an editor (a textarea named «Текст сообщения») in the message's place with the focus at the end of its text: Enter saves, Shift+Enter is a new line, Escape cancels and returns the focus to «Изменить». A conflict draws the message as it is now above the kept text with «Сообщение уже изменили», said once through the log's polite announcer, and «Оставить их» / «Заменить своим»; the focus stays in the field. «Удалить» asks in place with the focus on «Отмена»; Escape or «Отмена» takes the question back to «Удалить»; a deleted message stays as «Сообщение удалено» and takes the focus. Another author's new message is said politely with the author's name. «Новые» before the first unread message is plain text in reading order."
   },
-  "host-states": {},
+  "host-states": {
+    "data-find-open": "boolean",
+    "data-preview-open": "boolean",
+    "data-start-open": "boolean",
+    "data-members-open": "boolean"
+  },
   "css-variables": {
     "--sf-chat-window-side-width": {
       "type": "length",
@@ -1085,7 +1244,7 @@
       }
     ]
   },
-  "x-summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
+  "x-summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "x-source": {
     "package": "ui-pro",
     "folder": "chat-window",
@@ -1118,7 +1277,9 @@
       "x-conversation-pin",
       "x-early-upload",
       "x-my-files",
-      "x-brief"
+      "x-brief",
+      "x-conversation-start",
+      "x-members"
     ],
     "own-data": [
       "conversation_list",
@@ -1150,10 +1311,23 @@
     "layout: the window brings the layout of its own nodes (the grid of side and main, the search, the header, the field's column, the empty and «Мои файлы» states, the phone's sliding side panel); the page keeps its furniture (the skip link, the scrim, its buttons, the spending, the expired-session dialog). The shell carries sf-chat-surface, so the message's sheet sets its tokens there and the window's error notice reads as a message's.",
     "files-view: «Мои файлы» (x-my-files) is js/files-view.js, drawn with sf-chat-message's helpers (iconButton, iconNode, textButton, formatBytes) imported by relative path, sf-progress-bar for the space used, sf-empty-state for an empty or failed list, the delete asked in its row.",
     "words: lang/ru.json and lang/en.json, runtime only, ru the source language; the code asks for the 0.3 dotted keys and the element maps them to the kebab names. The window repeats the stage and status words sf-chat-message has: it announces them itself.",
-    "network: deny. The window never requests: every write is an intent the host answers; download addresses are the host's.",
+    "network: deny. The window never requests: every write is an intent the host answers; download addresses are the host's. 1.2.0: one exception, the source preview: the window reads the preview_url the message names (a GET with the page's own cookies, of the page's own origin only, as the message's HEAD check of a download), since the passage has to be marked in its text; nothing is written.",
     "first paint (§5.4): no late data; the static markup is the whole window with the host data of its island, the parts' markup inside it (sf-thread-list, sf-message-log with sf-chat-message, sf-chat-interlocutor, sf-chat-composer). A window is larger than a closed control: each example declares first-paint max-bytes 20000 with its why. The element reads no clock (the list's day groups are the host's updated_at).",
     "css-variables: six public variables in the Framework's form (single dash, read with the token as fallback, never set): the side panel's width and surface, the reading column, the text, the muted text and the edges.",
-    "standard 1.4 (2026-10-29): component.json and examples.json in the 1.4 form; rule.js, aliases.json, studio files, probe.json and smart.manifest.json generated by ui-source scripts/generate-component-files.mjs. The carried field is requestId (camelCase, as the registry says); the detail keeps \"request-id\" beside it and settle takes either, until 2026-12-01 with the dated event names."
+    "standard 1.4 (2026-10-29): component.json and examples.json in the 1.4 form; rule.js, aliases.json, studio files, probe.json and smart.manifest.json generated by ui-source scripts/generate-component-files.mjs. The carried field is requestId (camelCase, as the registry says); the detail keeps \"request-id\" beside it and settle takes either, until 2026-12-01 with the dated event names.",
+    "queue (1.1.0): the queue is the window's, not the composer's: what a conversation is, when an answer is over and how it ended are the window's data (messages, status, wait), and a queue belongs to its conversation. The composer only lets a message of text out while busy (its setting queue, 1.1.0), and the window keeps it per conversation key (as the drafts) and draws its cards above the field, where the passing line already is. When the field lets go of busy, the last turn decides: answered (completed, partial; without the assistant capability, a question taken) sends the first card, which waits for its own answer before the next; failed, limit, refused, withheld, a stopped or unfinished wait, a send not taken, or a conversation left before its answer hold the queue with a quiet line, and each card can be sent («Отправить», which lets the rest go on after its answer) or taken away. Stop stops the wait only. A queued question goes out as an ordinary message.send (no new intent, no new port word); one that did not go is tried again under its first client_key (message.retry). A message with files is not queued (its chips are the host's upload state). Off with no-queue. Nothing is stored.",
+    "find (1.1.0): the search in the conversation reads only the drawn messages (the question's bubble, the answer's body, a person's message; not buttons, sources or off-screen words) and asks the host nothing; the port 1.0.0 has no search of a conversation and a server search would be the port's 1.1.0. The Framework offers no find helper (its highlight component colours code), so the marks are the CSS Custom Highlight API, which touches no node of a sanitized message; without it the message holding the current match is outlined. The current match starts at the last one, nearest where the reader is, and Enter goes up, as in a chat's history. open-find and close-find are the actions (as open-files and close-files), toggle {kind: find, open} the event and data-find-open the host state, so a page's header button can show itself pressed. Ctrl/Cmd+F is taken only while the focus is inside the window (as the inline editor's Mod+K), so the page's own find stays the browser's elsewhere.",
+    "preview (1.2.0, API.md v1.3 proposed: sources[].preview_url, locator, mime; an answer's attachments[].preview_url): the panel is the window's, not the message's: only the window has room beside the conversation, and a message asks for it with sf-chat-message-open {kind: preview}, which the window cancels when it shows it (cancelling sf-chat-window-open {kind: preview} keeps it closed, and the footnote then opens the list). It is js/preview-view.js, beside the log at the inline end (grid column after main), or a full-height sheet in the conversation's own cell when the conversation would keep less than 900px (PREVIEW_DOCK_MIN): decided from the shell's width less a docked side panel, because a container query on the conversation would change with the panel it places; main is inert behind the sheet. Content: Mirai24 gives text/html (the accepted revision, whole or a fragment), so the panel fetches it and draws it through SF.sanitizeHtml, never run and never in a frame of scripts; that is also the only way to mark the {from, to} passage, counted in characters of the text as drawn; plain text as text; a PDF in a same-origin frame at {page} (Mirai24 gives none yet); other types are offered in a new tab. sf-file-preview is the Framework's file row (icon, name, download, remove) and shows no content, so it is not used. Same origin only, through chat-message's proposed.js. open-preview and close-preview are the actions (as open-files and open-find), toggle {kind: preview, open} the event and data-preview-open the host state. Closed when the conversation changes and when «Мои файлы» open.",
+    "steps (1.2.0): the window passes an assistant message's steps through toView as they come (PROPOSED_MESSAGE_FIELDS of chat-message's proposed.js), remembers the reader's toggle {kind: steps} as display.steps_open, and its announcer says the step at work (stepsSay) instead of the stage while there are steps; an answer's files keep mime and preview_url.",
+    "people (1.3.0): the port 1.0 already has the words (capabilities people, edit, delete, read; message kind, author {id, name, avatar_url, own}, body, created_at, revision, can_edit, can_delete, is_edited, is_deleted, files, local; answers conflict with current; conversations[].unread_count), so nothing is added to it. With people a person's message is sf-chat-message's template person (sf-chat-message 1.2.0), mapped by js/people.js (toPersonView); without it every message draws as in 1.2.0, so Mirai24's window (its questions are kind person, own true, and it announces none of the four) is unchanged. Runs are the window's, not the log's: sf-message-log groups by author alone, the window also breaks a run on another day, a pause over 5 minutes or an assistant's message, and passes first, last and showName (others' names unless the conversation is private) as the message's display. Rights are the host's flags only (can_edit, can_delete), offered when the window also has edit or delete. author.kind is not in the port and is not read: an assistant's message in a people conversation keeps the assistant's look (kind assistant).",
+    "edit and delete (1.3.0): the editor, the question and the conflict are the message's (template person), what they mean is the window's: the editor's text lives in the display object the window keeps (editing.body, quiet in the redraw key), so a redraw never loses it. A save raises message.edit against the revision the editor was opened on; applied, data.message is merged into messages by id (a newer revision wins; without it the typed text is drawn until the host's comes); conflict, answer.current is merged, the line «Сообщение уже изменили» stands over the message as it is now and the typed text stays, «Оставить их» closes, «Заменить своим» raises it again against the current revision under a new client_key; refused or unavailable, the editor stays with the text and the reason is shown, and saving the same text against the same revision again reuses its client_key. A delete raises message.delete against the revision the question was asked on; applied, the tombstone (data.message, is_deleted) keeps its place; conflict, the current message is shown and the question asks again against it. An edit or a delete on its way shows as the message's local state («Сохраняется…», «Удаляется…»). A host's own local failure («Повторить» on a person's message) is retried with message.retry under its client_key.",
+    "read (1.3.0): the port names no last read message, only conversations[].unread_count, so «Новые» stands before the unread_count-th message from the end not written by the reader, decided once when a conversation's messages first come and kept until another opens (display.divider of sf-chat-message 1.2.0, drawn in both templates). When it is above what is in view the log is moved to it once the log rests at its end, and nothing is reported read until the end is reached. message.read {conversation_id, message_id} names the last stored message when it has been in view at the bottom of a visible page (not under «Мои файлы», a preview sheet or a hidden tab), at most once in 2 s (a later one waits for its turn) and only for a message later than the last reported; one not taken may be reported again.",
+    "preview by fragment (1.3.0, Mirai24's form of API.md v1.3): preview_url carries a #fragment, the page wraps the passage in the element of that id (<mark id=\"cite\">) and the message's locator has only {line_from, line_to}. Without {from, to} the panel finds that element in the fetched page before cleaning (an inert DOMParser parse, nothing runs), puts two private-use characters at its edges as text, cleans the page with SF.sanitizeHtml as before, and takes their places after it as the {from, to} it marks; a page <mark> left around the passage is unwrapped, so it reads as the panel's one mark. {from, to}, when given, still decides. Response headers (X-Mirai-Locator) are product-specific and not read.",
+    "x-conversation-start (1.4.0): the window's own, as x-my-files is; simai.chat-port 1.0 does not change (owner, q-0c04e83775). The form stands in the conversation's place like «Мои файлы» (chat-shell--start, toggle {kind: start}, open-start, close-start), one per opening: closing it forgets what was typed. The people are the Framework's sf-lookup (owner, q-efb6397065), its provider answered by recipients.search, its limits the host's limits.group. refused access-denied is one form line, «Создание недоступно», and closes the list (the module's disabled directory and missing rights are one answer); no results is sf-lookup's own «Ничего не найдено». A person chosen starts at once under a quiet «Открываю…». A group's client_key lives with its form (js/start-model.js GroupKey): the same title and members keep it, so a retry is one group; a change or a host's conflict takes a new one. Back and Escape do nothing while an answer is awaited; 30 s without one is no answer, with «Повторить», and a later answer still opens the conversation while the form stands idle.",
+    "conversation.start's answer: the window applies its data when the form takes the answer, not when the answer comes (finish), since a form closed meanwhile must not move the person. With no messages among them and another conversation than the open one, it clears the log and raises the port's conversation.open: an existing private conversation comes with its history and no new word is asked of the port. The list stays the host's: selected is set whether or not the row is there yet.",
+    "«Показаны первые 20. Уточните запрос.»: sf-lookup's hint, the one means it offers for a host's line. Its list is a popover over that line, so the line is read when the list closes and said at once by the window's status. sf-lookup 1.0.2 has no line of the host's in the list itself: a gap for the Framework, not worked around here.",
+    "x-members (1.4.0), read only: a «Участники» command in the header for an open group or channel, never a private conversation; members.list when the view opens and again on «Повторить», the latest answer drawn. Up to 500 rows in one answer: plain markup with content-visibility, no element per row. refused is «Состав недоступен» and nothing else; an unknown role shows no label. Only id, name and role are read.",
+    "in the conversation's place (1.4.0): for start and members the window hides the log, the field, the search in the conversation, the title and the interlocutor itself, display: none !important since a page's unlayered layout of these nodes outranks this layered sheet (ui-chat staff.css), and makes them inert, so nothing in them takes focus. The files view keeps its rule, which pages repeat: unchanged."
   ],
   "x-rule": {
     "$comment": [
@@ -1165,7 +1339,10 @@
       "back above the field and an error's «Повторить» are plain button markup,",
       "the search above the list the Framework's input markup; every glyph is a",
       "Smart sf-icon. «Мои файлы» (x-my-files) draw the space used and an empty",
-      "or failed list only once the view is opened."
+      "or failed list only once the view is opened. The form of a new",
+      "conversation (x-conversation-start) is sf-lookup, sf-input and sf-button,",
+      "and a group's members (x-members) the avatars' class markup, each only",
+      "once its view is opened."
     ]
   },
   "x-registry": {
@@ -1294,6 +1471,45 @@
         "conversation": [
           "none",
           "open"
+        ],
+        "queue": [
+          "empty",
+          "waiting",
+          "held"
+        ],
+        "find": [
+          "closed",
+          "open"
+        ],
+        "preview": [
+          "closed",
+          "beside",
+          "sheet"
+        ],
+        "message": [
+          "shown",
+          "editing",
+          "asking",
+          "saving",
+          "conflict",
+          "deleted"
+        ],
+        "unread": [
+          "none",
+          "divider"
+        ],
+        "start": [
+          "closed",
+          "private",
+          "group",
+          "sending"
+        ],
+        "members": [
+          "closed",
+          "loading",
+          "ready",
+          "denied",
+          "error"
         ]
       },
       "visual_states": [
@@ -1323,9 +1539,10 @@
         "interlocutor greetings and suggestions (drawn as text)",
         "file names (drawn as text)",
         "download addresses (the host's, used as given)",
-        "the host's refusal words (drawn as text)"
+        "the host's refusal words (drawn as text)",
+        "a source's preview (fetched from a same-origin preview_url only, drawn sanitized: SF.sanitizeHtml)"
       ],
-      "network_policy": "deny"
+      "network_policy": "host-only"
     },
     "presentation": {
       "themes": [
@@ -1347,7 +1564,8 @@
         "Do not fetch from the element: hand it a port (connect-port) or answer its events with settle",
         "Do not answer an intent both through a port and through settle",
         "Do not decide what a person may do from who wrote a message; give can_edit and can_delete",
-        "Do not build a second list of conversations beside it; the window's sf-thread-list is the one"
+        "Do not build a second list of conversations beside it; the window's sf-thread-list is the one",
+        "Do not keep a queue of your own for messages sent while an answer is awaited; the window queues and sends them after the answer (no-queue turns it off)"
       ],
       "required_reads": [
         "settings",
@@ -1375,9 +1593,10 @@
         "Home",
         "End",
         "F2",
-        "Shift+F10"
+        "Shift+F10",
+        "Mod+F"
       ],
-      "focus": "The parts keep their own keyboard (the list's roving focus, the field's Enter). After a new conversation or another interlocutor the focus goes to the field; when the last awaited answer of the conversation ends it returns there without scrolling. When what held the focus is gone (an archived row), the way back above the field takes it, never the page. A passing line leaves only when no pointer or focus is on it and hands the focus back to the field."
+      "focus": "The parts keep their own keyboard (the list's roving focus, the field's Enter). After a new conversation or another interlocutor the focus goes to the field; when the last awaited answer of the conversation ends it returns there without scrolling. When what held the focus is gone (an archived row), the way back above the field takes it, never the page. A passing line leaves only when no pointer or focus is on it and hands the focus back to the field. The queue's «Изменить» puts the question back in the field and the focus there; «Убрать» moves the focus to the card in its place, else to the field. The search in the conversation takes the focus when opened and gives it back to what opened it when closed."
     },
     "compatibility": {
       "migrations": [
@@ -1397,6 +1616,42 @@
           "to": "1.0.3",
           "changes": [
             "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.0.4",
+          "to": "1.1.0",
+          "changes": [
+            "The queue: a question sent while an answer is awaited waits above the field as a card («Отправлю после ответа», «Изменить», «Убрать») and goes as an ordinary message.send after a successful answer, one at a time; an answer that ended otherwise holds the queue for «Отправить» by hand. Per conversation, on this page only. The setting no-queue turns it off. No new intent and no change for a host.",
+            "The search in the open conversation: the actions open-find {query} and close-find {focus}, Ctrl/Cmd+F inside the window, the event toggle {kind: find, open} and the host state data-find-open. It searches the loaded messages only and asks the host nothing."
+          ]
+        },
+        {
+          "from": "1.1.0",
+          "to": "1.2.0",
+          "changes": [
+            "The source preview (API.md v1.3, proposed): a footnote or a source title with a same-origin preview_url opens the source beside the conversation (a sheet over it on a narrow window), with the passage {from, to} marked; the actions open-preview {source} and close-preview {focus}, the event toggle {kind: preview, open}, the cancelable open {kind: preview} and the host state data-preview-open. Without preview_url nothing changes.",
+            "An assistant message's steps and an answer's files (mime, preview_url) are passed to sf-chat-message 1.1.0, and while there are steps the announcer says the step at work. No new intent: the host answers nothing new."
+          ]
+        },
+        {
+          "from": "1.2.0",
+          "to": "1.3.0",
+          "changes": [
+            "Between people: with the capability people a person's message draws as sf-chat-message's template person (author, avatar, own on the end side, runs of one author within 5 minutes on one day, time, «изменено», files, tombstone). Without it nothing changes.",
+            "edit and delete: «Изменить» and «Удалить» on a person's message the host allows (can_edit, can_delete) raise message.edit and message.delete with the revision and a client_key; a conflict shows the current message with «Сообщение уже изменили», «Оставить их» and «Заменить своим»; data.message of an applied answer is merged (a newer revision wins).",
+            "read: «Новые» before the first unread message (from the conversation's unread_count) when a conversation opens, and message.read for the last message seen at the bottom, at most once in 2 s.",
+            "Between people the field says «Напишите сообщение». No new intent and no new port field.",
+            "The source preview marks the passage named by preview_url's #fragment (the element of that id, e.g. <mark id=\"cite\">) when the locator has no {from, to}."
+          ]
+        },
+        {
+          "from": "1.3.0",
+          "to": "1.4.0",
+          "changes": [
+            "x-conversation-start: the list head offers «Новый диалог» and «Новая группа» (sf-thread-list 1.5.0 create-commands) and the form stands in the conversation's place; intents recipients.search (query, kind recipients) and conversation.start (create, kind private or group), limits.group from the host. After applied the host supplies conversations by set-data, before or after; the window opens data.conversation itself, raising conversation.open when no messages came.",
+            "x-members: a read-only «Участники» view for an open group or channel; intent members.list (open, kind members), roles owner, manager, member, observer.",
+            "Actions open-start, close-start, open-members, close-members; toggle kinds start and members; host states data-start-open and data-members-open. Without the capabilities nothing changes; simai.chat-port 1.0 is unchanged."
           ]
         }
       ]

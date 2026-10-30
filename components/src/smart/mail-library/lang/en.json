@@ -1,0 +1,21 @@
+{
+  "title": "Email block library",
+  "runtime": {
+    "add-text": "Add",
+    "all-text": "All",
+    "category-label": "Category",
+    "change-variant-text": "Change the variant:",
+    "current-text": "in the letter now",
+    "nothing-found-heading": "Nothing found",
+    "nothing-found-text": "Try another word: a block is found by its name and by what it is for",
+    "search-label": "Find a block"
+  },
+  "events": {
+    "add": {
+      "label": "Add a block"
+    },
+    "replace": {
+      "label": "Change the variant"
+    }
+  }
+}

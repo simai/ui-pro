@@ -5,8 +5,9 @@ import "./default.css";
 
 // Where a question is written and files are added: a form with the box (the
 // chips over the line they go with, then attach, the field, the count, send
-// or stop), the notice of refused files, the hint under the field, the hidden
-// file picker and the polite line that speaks a threshold of the count.
+// or stop, or both while a typed message would be queued), the notice of
+// refused files, the hint under the field, the hidden file picker and the
+// polite line that speaks a threshold of the count.
 //
 // The field is the Framework's flush sf-textarea with its auto-grow (eight
 // rows). Its value is never bound: a redraw keeps the text, the caret and an
@@ -71,7 +72,8 @@ export function renderChatComposerTemplate(context) {
                         size: "1",
                         className: "sf-chat-composer__send",
                         type: "submit",
-                        hidden: context.busy,
+                        // Busy, it stands beside stop only for a message the host queues.
+                        hidden: context.busy && !(context.queueing && context.ready),
                         disabled: !context.ready,
                     })}
                     ${iconButton({

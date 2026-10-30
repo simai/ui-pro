@@ -1,0 +1,75 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "library-reference",
+  "component": "smart.mail-library",
+  "title": "Mail library reference",
+  "summary": "Deterministic reference fixture for sf-mail-library: two groups of blocks and the header with its current variant.",
+  "locale": "ru",
+  "props": {
+    "query": "",
+    "category": "all",
+    "groups": [
+      {
+        "id": "basics",
+        "title": "Основа"
+      },
+      {
+        "id": "commerce",
+        "title": "Товары"
+      }
+    ],
+    "items": [
+      {
+        "type": "heading",
+        "title": "Заголовок",
+        "purpose": "Главная мысль письма",
+        "icon": "title",
+        "group": "basics"
+      },
+      {
+        "type": "text",
+        "title": "Текст",
+        "purpose": "Абзац или два",
+        "icon": "notes",
+        "group": "basics"
+      },
+      {
+        "type": "price",
+        "title": "Цена",
+        "purpose": "Цена и старая цена",
+        "icon": "sell",
+        "group": "commerce"
+      },
+      {
+        "type": "hidden",
+        "title": "Без группы",
+        "purpose": "Не показывается",
+        "icon": "help",
+        "group": "nowhere"
+      }
+    ],
+    "places": [
+      {
+        "family": "header",
+        "title": "Шапка",
+        "current": "header-logo",
+        "items": [
+          {
+            "type": "header-logo",
+            "title": "Логотип",
+            "purpose": "Логотип по центру",
+            "icon": "image"
+          },
+          {
+            "type": "header-band",
+            "title": "Полоса",
+            "purpose": "Цветная полоса с логотипом",
+            "icon": "view_carousel"
+          }
+        ]
+      }
+    ]
+  },
+  "children": [],
+  "state": "default"
+}

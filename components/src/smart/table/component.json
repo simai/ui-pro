@@ -406,7 +406,7 @@
         }
       },
       "own-verb": true,
-      "summary": "Request a host-side query after the active filter changes: Apply in the filter window, a chip removed, or the filter cleared. A data view turns it into query.change with filters from values.",
+      "summary": "Request a host-side query after the active filter changes: Apply in the filter window, a chip removed, or the filter cleared. A data view turns it into query.change with filters from values. The detail is the table's getFilterPayload(): the selected template's own data fields spread first, then these four.",
       "x-detail": "also the selected template's data"
     },
     "query": {
@@ -2469,6 +2469,16 @@
     "inputs-required": [
       "aria-label",
       "table-settings-key"
-    ]
+    ],
+    "event-fields": {
+      "sf-table-template-save": {
+        "payload": {
+          "type": [
+            "object",
+            "array"
+          ]
+        }
+      }
+    }
   }
 }

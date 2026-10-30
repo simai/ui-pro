@@ -1328,7 +1328,7 @@
       "canonical": true
     },
     "sf-table-filter-change": {
-      "summary": "Request a host-side query after the active filter changes: Apply in the filter window, a chip removed, or the filter cleared. A data view turns it into query.change with filters from values.",
+      "summary": "Request a host-side query after the active filter changes: Apply in the filter window, a chip removed, or the filter cleared. A data view turns it into query.change with filters from values. The detail is the table's getFilterPayload(): the selected template's own data fields spread first, then these four.",
       "payload": {
         "type": "object",
         "required": [
@@ -1452,10 +1452,10 @@
     "sf-table-template-save": {
       "summary": "Request persistence of one or more filter templates (order, pin, delete, default, selected flags or data). Loading a saved view is reported by sf-table-template-select.",
       "payload": {
-        "type": "object",
-        "required": [],
-        "properties": {},
-        "additionalProperties": true
+        "type": [
+          "object",
+          "array"
+        ]
       },
       "canonical": true
     },

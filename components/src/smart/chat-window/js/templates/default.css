@@ -13,7 +13,7 @@
      The nodes keep the 0.3 classes chat-shell__* and chat-files__*, which
      pages style and test (component.json x-decisions classes). The page
      toggles chat-shell--side-hidden and chat-shell--side-open on
-     parts.shell; the window toggles chat-shell--empty and chat-shell--files.
+     parts.shell; the window toggles chat-shell--empty, chat-shell--files, chat-shell--start and chat-shell--members.
 
      The public variables (component.json css-variables) are read here and
      never set, on the element or any ancestor:
@@ -48,6 +48,9 @@
     --sf-chat-window--greeting-max: var(--sf-g6);
     /* The least height of an embedded window (ui-chat's 30rem, a step). */
     --sf-chat-window--embedded-min: var(--sf-g5);
+    /* The source preview beside the conversation (1.2.0): two fifths of the
+       window between a column step and a reading measure. */
+    --sf-chat-window--preview: clamp(var(--sf-f6), 40%, var(--sf-g5));
   }
 
   /* sf-focus-ring: none -- the field's box, the «Мои файлы» heading and a
@@ -164,6 +167,23 @@
   .chat-shell--files .chat-shell__composer,
   .chat-shell--files .chat-shell__header .sf-chat-interlocutor,
   .chat-shell--files .chat-shell__thread-title { display: none; }
+
+  /* The form of a new conversation and a group's members do the same without
+     the page's help. Important: this sheet is in a layer, and a page's own
+     unlayered layout of these nodes (staff.css: .chat-shell__composer {display:
+     flex}) would otherwise win. The window also makes them inert (syncViews). */
+  .chat-shell--start .chat-shell__list > .sf-message-log,
+  .chat-shell--start .chat-shell__composer,
+  .chat-shell--start .chat-shell__find,
+  .chat-shell--start .chat-shell__header .sf-chat-interlocutor,
+  .chat-shell--start .chat-shell__thread-title,
+  .chat-shell--members .chat-shell__list > .sf-message-log,
+  .chat-shell--members .chat-shell__composer,
+  .chat-shell--members .chat-shell__find,
+  .chat-shell--members .chat-shell__header .sf-chat-interlocutor,
+  .chat-shell--members .chat-shell__thread-title { display: none !important; }
+
+  .chat-shell__members-open[hidden] { display: none; }
 
   .chat-shell__error { align-self: center; }
 
@@ -371,6 +391,150 @@
 
   .sf-chat-greeting__suggestion:hover { background: var(--sf-surface-transparent-hover); }
 
+  /* --- the source preview (1.2.0) ---------------------------------------- */
+
+  /* Beside the conversation at its inline end (chat-shell--preview), or,
+     where the conversation would keep less than 900px, a full-height sheet
+     over it (chat-shell--preview-sheet, decided by the window from the room
+     it has, as the conversation's own width would change with the panel). */
+  .chat-shell--preview:not(.chat-shell--preview-sheet) {
+    grid-template-columns: var(--sf-chat-window--side) minmax(0, 1fr) var(--sf-chat-window--preview);
+  }
+
+  .chat-shell--preview.chat-shell--side-hidden:not(.chat-shell--preview-sheet) {
+    grid-template-columns: 0 minmax(0, 1fr) var(--sf-chat-window--preview);
+  }
+
+  /* The last column: the panel's own beside the conversation, or the
+     conversation's when it is a sheet. */
+  .chat-preview {
+    display: flex;
+    flex-direction: column;
+    grid-row: 1;
+    grid-column: -2 / -1;
+    min-block-size: 0;
+    min-inline-size: 0;
+    border-inline-start: var(--sf-chat-window--line) solid var(--sf-chat-window--edge);
+    background: var(--sf-surface-0);
+    color: var(--sf-chat-window--ink);
+  }
+
+  .chat-preview[hidden] { display: none; }
+
+  /* The conversation keeps its own column, placed before the panel is. */
+  .chat-shell--preview:not(.chat-shell--preview-sheet) .chat-shell__main { grid-row: 1; grid-column: -3 / -2; }
+  .chat-shell--preview-sheet .chat-shell__main { grid-row: 1; grid-column: -2 / -1; }
+
+  /* Where the side panel slides over the page, the conversation and the
+     panel are the only columns. */
+  @media (max-width: 1023px) {
+    .chat-shell--preview:not(.chat-shell--preview-sheet),
+    .chat-shell--preview.chat-shell--side-hidden:not(.chat-shell--preview-sheet) {
+      grid-template-columns: minmax(0, 1fr) var(--sf-chat-window--preview);
+    }
+  }
+
+  /* The sheet takes the conversation's own cell, over it. */
+  .chat-shell--preview-sheet .chat-preview {
+    z-index: 2;
+    border-inline-start: 0;
+  }
+
+  .chat-preview__head {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    min-block-size: calc(var(--sf-ui-1--control-height) + 2 * var(--sf-space-1\/3));
+    padding-inline: var(--sf-space-1\/2) var(--sf-space-1\/3);
+    border-block-end: var(--sf-chat-window--line) solid var(--sf-chat-window--edge);
+  }
+
+  .chat-preview__back { display: none; flex: none; color: var(--sf-chat-window--ink-muted); }
+  .chat-shell--preview-sheet .chat-preview__back { display: inline-flex; }
+  .chat-shell--preview-sheet .chat-preview__close { display: none; }
+  .chat-preview__tab,
+  .chat-preview__close { flex: none; color: var(--sf-chat-window--ink-muted); }
+
+  .chat-preview__titles {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-inline-size: 0;
+    padding-block: var(--sf-space-1\/3);
+  }
+
+  .chat-preview__title {
+    margin: 0;
+    overflow: hidden;
+    color: var(--sf-chat-window--ink);
+    font-size: var(--sf-chat-window--ui-size);
+    line-height: var(--sf-chat-window--ui-height);
+    font-weight: var(--sf-font-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    outline: none;
+  }
+
+  .chat-preview__meta {
+    margin: 0;
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  .chat-preview__meta[hidden] { display: none; }
+
+  .chat-preview__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-block-size: 0;
+    overflow-y: auto;
+    padding: var(--sf-space-1) var(--sf-space-1\/2) var(--sf-space-2);
+    scrollbar-width: thin;
+  }
+
+  .chat-preview__text { max-inline-size: var(--sf-chat-window--column); }
+
+  .chat-preview__plain { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+  /* The passage the answer leans on: the reading colour of a found match. */
+  .chat-preview__mark {
+    border-radius: var(--sf-radius--ui);
+    background: var(--sf-warning-container);
+    color: var(--sf-on-warning-container);
+  }
+
+  .chat-preview__note {
+    margin: 0;
+    color: var(--sf-chat-window--ink-muted);
+  }
+
+  .chat-preview__problem {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sf-space-1\/2);
+  }
+
+  .chat-preview__frame {
+    flex: 1;
+    inline-size: 100%;
+    min-block-size: var(--sf-g4);
+    border: 0;
+  }
+
+  @media (forced-colors: active) {
+    .chat-preview__mark { background: Mark; color: MarkText; }
+  }
+
+  @media (pointer: coarse) {
+    .chat-preview__head .sf-icon-button {
+      min-inline-size: var(--sf-chat-window--touch);
+      min-block-size: var(--sf-chat-window--touch);
+    }
+  }
+
   /* --- «Мои файлы» (x-my-files) ------------------------------------------ */
 
   /* The entry under the conversations is the list's own row command; open,
@@ -561,6 +725,125 @@
     .chat-files { padding-inline: var(--sf-space-1); }
   }
 
+  /* --- a new conversation or group (x-conversation-start, 1.4.0) and a group's
+     members (x-members, 1.4.0): in the conversation's place, as «Мои файлы». */
+
+  .chat-start,
+  .chat-members {
+    flex: 1;
+    min-block-size: 0;
+    overflow-y: auto;
+    padding-inline: var(--sf-space-1);
+    padding-block: 0 var(--sf-space-3);
+    color: var(--sf-chat-window--ink);
+    font-size: var(--sf-chat-window--ui-size);
+    line-height: var(--sf-chat-window--ui-height);
+    scrollbar-width: thin;
+  }
+
+  .chat-start[hidden],
+  .chat-members[hidden] { display: none; }
+
+  .chat-start > *,
+  .chat-members > * {
+    box-sizing: border-box;
+    max-inline-size: var(--sf-chat-window--column);
+    margin-inline: auto;
+  }
+
+  .chat-start__head,
+  .chat-members__head {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    padding-block: var(--sf-space-1\/2);
+  }
+
+  .chat-start__back,
+  .chat-members__back { flex: none; color: var(--sf-chat-window--ink-muted); }
+
+  .chat-start__title,
+  .chat-members__title {
+    margin: 0;
+    min-inline-size: 0;
+    font-size: var(--sf-text--size-2);
+    line-height: var(--sf-text--height-2);
+    font-weight: var(--sf-font-weight-bold);
+    outline: none;
+  }
+
+  .chat-start__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1);
+  }
+
+  .chat-start__line:empty,
+  .chat-start__quiet[hidden] { display: none; }
+
+  .chat-start__quiet {
+    margin: 0;
+    color: var(--sf-chat-window--ink-muted);
+  }
+
+  .chat-start__actions { display: flex; justify-content: flex-start; }
+
+  .chat-members__count {
+    margin-inline-start: auto;
+    flex: none;
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  .chat-members__line {
+    margin: 0;
+    padding-block: var(--sf-space-1);
+    color: var(--sf-chat-window--ink-muted);
+  }
+
+  .chat-members__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Up to 500 rows, one answer: the browser skips those out of view. */
+  .chat-members__row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    min-block-size: var(--sf-chat-window--touch);
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto var(--sf-chat-window--touch);
+  }
+
+  .chat-members__row + .chat-members__row { border-block-start: var(--sf-chat-window--line) solid var(--sf-chat-window--edge); }
+
+  .chat-members__name {
+    flex: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chat-members__role {
+    flex: none;
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  @media (pointer: coarse) {
+    .chat-start__back,
+    .chat-members__back,
+    .chat-shell__members-open {
+      min-block-size: var(--sf-chat-window--touch);
+      min-inline-size: var(--sf-chat-window--touch);
+    }
+  }
+
   @media (pointer: coarse) {
     .chat-files__actions .sf-button,
     .chat-files__ask .sf-button,
@@ -582,6 +865,161 @@
     .chat-shell .sf-thread-list__more {
       inline-size: var(--sf-chat-window--touch);
       block-size: var(--sf-chat-window--touch);
+    }
+  }
+
+  /* --- the search in the conversation (1.1.0) --------------------------- */
+
+  /* Over the log, on the reading column: the field with «N из M» inside it,
+     then up, down and close. On a phone the column is the window's width. */
+  .chat-shell__find {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: calc(var(--sf-chat-window--column) + 2 * var(--sf-space-3));
+    margin-inline: auto;
+    padding-inline: var(--sf-space-3);
+    padding-block: 0 var(--sf-space-1\/3);
+  }
+
+  .chat-shell__find[hidden],
+  .chat-shell--files .chat-shell__find { display: none; }
+
+  .chat-shell__find-field { flex: 1; min-inline-size: 0; }
+
+  .chat-shell__find-input { flex: 1; min-inline-size: 0; }
+
+  .chat-shell__find-input::-webkit-search-cancel-button { display: none; }
+
+  .chat-shell__find-count {
+    flex: none;
+    padding-inline-end: var(--sf-space-1\/3);
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .chat-shell__find .sf-icon-button { flex: none; color: var(--sf-chat-window--ink-muted); }
+
+  /* What was found, painted over the text (CSS Custom Highlight API): every
+     match in the Framework's mark colour, the current one stronger and
+     underlined. A browser without it outlines the message instead. */
+  ::highlight(sf-chat-window-found) { background-color: var(--sf-warning-container); }
+
+  ::highlight(sf-chat-window-found-current) {
+    background-color: var(--sf-mark--color);
+    text-decoration: underline var(--sf-warning);
+  }
+
+  @supports not selector(::highlight(sf-chat-window-found)) {
+    .chat-shell .chat-shell__found {
+      outline: var(--sf-chat-window--line) solid var(--sf-warning);
+      outline-offset: var(--sf-space-1\/4);
+      border-radius: var(--sf-chat-window--card-radius);
+    }
+  }
+
+  @media (forced-colors: active) {
+    ::highlight(sf-chat-window-found) { background-color: Mark; color: MarkText; }
+    ::highlight(sf-chat-window-found-current) { background-color: Highlight; color: HighlightText; }
+  }
+
+  @media (max-width: 599px) {
+    .chat-shell__find { padding-inline: var(--sf-space-1\/3); gap: 0; }
+
+    /* iOS zooms into a field under 16px. */
+    .chat-shell__find-input { font-size: max(1rem, var(--sf-label-large--size)); }
+  }
+
+  /* --- the queue over the field (1.1.0) --------------------------------- */
+
+  /* A card per question asked while an answer was awaited: what it is, one
+     or two lines of the question, and its actions. Quiet, as the passing
+     line is: a note on the field, not a message. */
+  .chat-shell__queue {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .chat-shell__queue[hidden],
+  .chat-shell__queue-held[hidden] { display: none; }
+
+  .chat-shell__queue-held {
+    margin: 0;
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  .chat-shell__queue-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chat-shell__queued {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--sf-space-1\/2);
+    padding-block: var(--sf-space-1\/4);
+    padding-inline: var(--sf-space-1\/2);
+    border: var(--sf-chat-window--line) solid var(--sf-chat-window--edge);
+    border-radius: var(--sf-chat-window--card-radius);
+    color: var(--sf-chat-window--ink);
+    font-size: var(--sf-chat-window--ui-size);
+    line-height: var(--sf-chat-window--ui-height);
+  }
+
+  .chat-shell__queued-label {
+    grid-column: 1;
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  .chat-shell__queued-text {
+    grid-column: 1;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+  }
+
+  .chat-shell__queued-actions {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+  }
+
+  /* A phone: the actions go under the question. */
+  @media (max-width: 599px) {
+    .chat-shell__queued { grid-template-columns: minmax(0, 1fr); }
+
+    .chat-shell__queued-actions { grid-column: 1; grid-row: auto; flex-wrap: wrap; }
+  }
+
+  @media (pointer: coarse) {
+    .chat-shell__queued-actions .sf-button { min-block-size: var(--sf-chat-window--touch); }
+
+    .chat-shell__find .sf-icon-button {
+      min-inline-size: var(--sf-chat-window--touch);
+      min-block-size: var(--sf-chat-window--touch);
     }
   }
 }

@@ -62,6 +62,7 @@ list.addEventListener('sf-thread-list-apply', (event) => {
 | `has-more` | `false` | A next page exists: reaching the end asks for it. |
 | `archived` | `false` | Show the archive: a way back, Restore instead of Archive, no New conversation. |
 | `no-create` | `false` | No New conversation. |
+| `create-commands` | `[]` | A property (`createCommands`): commands in the head in place of New conversation (below). |
 | `no-manage` | `false` | No row actions: no menu, no F2. |
 | `no-archive` | `false` | No archive: no way to it, no Archive among the actions. |
 | `group-by` | `day` | `day`: Today, Yesterday, Earlier. `none`: one list. |
@@ -75,11 +76,14 @@ list.addEventListener('sf-thread-list-apply', (event) => {
 |:---|:---|
 | `threads` | The conversations, newest first; written whole, read as copies. Rows are keyed by id. |
 | `actions` | `[{id, text, icon?}]`: the host's own row actions. |
+| `createCommands` | `[{id, text, icon?}]` (1.5.0): commands in the head in place of New conversation, e.g. a dialogue and a group; empty is the one New conversation. `no-create` and the archive take them away as well. |
 | `selected`, `archived`, `hasMore`, `loading`, `status` | The attributes, as properties. |
 
 ## The thread
 
-`{id, title, updated-at, archived?, pinned?, caption?, unread?, avatar?: {image-url?, text?}}`.
+`{id, title, updated-at, archived?, pinned?, caption?, activity?, unread?, avatar?: {image-url?, text?}}`.
+`activity` (`running`, `waiting`, `done`, `stopped`, `failed`) is where the work in the
+conversation is: a compact `sf-badge` in the row, its word the accessible name.
 A pinned conversation (`pinned: true`, Mirai24 API v1.1) leads the list under its own
 heading «Закреплённые» (`pinned`) and carries a quiet «Закреплён» line
 (`pinned-text`); without groups (`group-by="none"`) the pinned ones simply lead.
@@ -112,7 +116,7 @@ Each answers an outcome.
 
 | Event | Detail | When |
 |:---|:---|:---|
-| `sf-thread-list-create` | `{}` | New conversation. |
+| `sf-thread-list-create` | `{}`, or `{kind}` | New conversation; from a command of `createCommands`, `kind` is its id (1.5.0). |
 | `sf-thread-list-open` | `{id}` | A conversation is asked for. |
 | `sf-thread-list-rename` | `{id, title}` | Renamed in place; shown at once. A host that cannot keep it upserts the old title. |
 | `sf-thread-list-archive` | `{ids, id}` | Archive. |

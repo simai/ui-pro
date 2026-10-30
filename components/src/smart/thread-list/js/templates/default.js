@@ -15,6 +15,8 @@ import "./default.css";
 // The rows are keyed by id, so a conversation that moves to the top keeps its
 // node and a redraw does not take focus from the row a person is on.
 
+const ACTIVITIES = new Set(["running", "waiting", "done", "stopped", "failed"]);
+
 const row = (context, thread) => {
     const {component} = context;
     const title = String(thread.title ?? "") || context.untitledText;
@@ -23,6 +25,9 @@ const row = (context, thread) => {
     const current = thread.id === context.selected;
     const avatar = thread.avatar && typeof thread.avatar === "object" ? thread.avatar : null;
     const pinned = thread.pinned === true;
+    // Only the words the badge knows: an unknown one draws no mark rather than
+    // a badge with no state.
+    const activity = ACTIVITIES.has(thread.activity) ? thread.activity : "";
 
     if (context.editing === thread.id) {
         return html`
@@ -73,6 +78,10 @@ const row = (context, thread) => {
                     ${caption ? html`<span class="sf-thread-list__caption">${caption}</span>` : nothing}
                     ${pinned ? html`<span class="sf-thread-list__pinned">${context.pinnedText}</span>` : nothing}
                 </span>
+                ${activity
+                    ? html`<sf-badge class="sf-thread-list__activity" size="1/3" appearance="tonal" compact
+                                     activity=${activity}></sf-badge>`
+                    : nothing}
                 ${unread
                     ? html`<sf-badge class="sf-thread-list__unread" size="1/3" scheme="primary"
                                      text=${unread > 99 ? "99+" : String(unread)}
@@ -106,7 +115,9 @@ export function renderThreadListTemplate(context) {
     return html`
         <nav class="sf-thread-list ${context.archived ? "sf-thread-list--archive" : ""}" aria-label=${context.label}>
             <div class="sf-thread-list__head" ?hidden=${!context.canCreate && !context.archived}>
-                ${command("edit_square", context.createText, "create", () => component.create(), !context.canCreate)}
+                ${context.createCommands.length
+                    ? context.createCommands.map((one) => command(one.icon || "edit_square", one.text, `create:${one.id}`, () => component.create(one.id), !context.canCreate))
+                    : command("edit_square", context.createText, "create", () => component.create(), !context.canCreate)}
                 ${command("arrow_back", context.backText, "back", () => component.showArchive(false), !context.archived)}
                 ${context.archived ? html`<h2 class="sf-thread-list__heading-view">${context.archiveView}</h2>` : nothing}
             </div>

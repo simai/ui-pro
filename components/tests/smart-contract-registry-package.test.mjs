@@ -14,15 +14,17 @@ test("the package composites are generated into the searchable registry beside t
   run("build");
   const registry = JSON.parse(readFileSync(new URL("../contracts/generated/smart-component-contract-registry.json", import.meta.url), "utf8"));
   assert.equal(registry.schema, "simai.smart-component-contract-registry.v2");
-  // The free registry's Smart components (sf-progress-ring and sf-site-header
-  // the latest) and the package's own make 72: 61
+  // The free registry's Smart components (sf-settings-menu folded into
+  // sf-context-menu the latest) and the package's own make 79: 66
   // free, the four admin composites, the three conversation components
-  // promoted from simai/ui-chat (2026-10-25), and sf-chat-interlocutor,
+  // promoted from simai/ui-chat (2026-10-25), sf-chat-interlocutor,
   // sf-chat-composer, sf-chat-message and sf-chat-window, moved from it (D31,
-  // 2026-10-28).
-  assert.equal(registry.entries.length, 72);
+  // 2026-10-28), and sf-mail-library and sf-mail-letters, moved from
+  // simai/ui-mail (D31, 2026-10-29).
+  assert.equal(registry.entries.length, 79);
   for (const id of ["smart.admin-menu", "smart.data-view", "smart.data-view-composite", "smart.property-view",
-    "smart.message-log", "smart.thread-list", "smart.change-confirm", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window"]) {
+    "smart.message-log", "smart.thread-list", "smart.change-confirm", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
+    "smart.mail-library", "smart.mail-letters"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
   }
   assert.ok(registry.entries.find(({id}) => id === "smart.admin-menu").capabilities.includes("navigation"));
@@ -65,9 +67,9 @@ test("CLI discovers and describes the whole data view", () => {
 
 test("CLI discovers, describes and verifies the whole composite", () => {
   const listed = JSON.parse(run("list", "--kind", "smart", "--capability", "navigation"));
-  // The free sf-menu and sf-site-header (site navigation) and the package's
-  // admin menu.
-  assert.deepEqual(listed.map(({id}) => id), ["smart.admin-menu", "smart.menu", "smart.site-header"]);
+  // The free sf-contents, sf-menu, sf-pager, sf-search and sf-site-header
+  // (site navigation) and the package's admin menu.
+  assert.deepEqual(listed.map(({id}) => id), ["smart.admin-menu", "smart.contents", "smart.menu", "smart.pager", "smart.search", "smart.site-header"]);
   const packet = JSON.parse(run("describe", "smart.admin-menu", "--format", "ai"));
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-admin-menu");

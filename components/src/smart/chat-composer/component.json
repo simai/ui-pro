@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-composer's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-composer (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 4 (owner yes 2026-10-27), with the pieces of chat-core and component/chat it drew on; written by hand on the shape of sf-chat-interlocutor (step 3), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-composer",
   "tag": "sf-chat-composer",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -47,8 +47,14 @@
     "busy": {
       "type": "boolean",
       "default": false,
-      "x-markup": "an answer is awaited: send becomes «stop waiting», Enter sends nothing and says why",
+      "x-markup": "an answer is awaited: send becomes «stop waiting», Enter sends nothing and says why (with queue, a message of text still goes out)",
       "summary": "An answer is awaited: send becomes stop."
+    },
+    "queue": {
+      "type": "boolean",
+      "default": false,
+      "x-markup": "the host queues what is sent while busy: Enter and send still submit a message of text, the hint says it goes after the answer; a message with files is not queued",
+      "summary": "While busy, a message of text is still submitted: the host keeps it until the answer is over. A message with files waits as before."
     },
     "disabled": {
       "type": "boolean",
@@ -99,8 +105,8 @@
         "attachment-ids": "list"
       },
       "cancelable": true,
-      "x-summary": "Send (vocabulary §5 submit, chat 1.1.3: the composer's send): the trimmed text and the ids of the ready files (attachment-ids). Enter or the send button; never while busy, disabled, uploading, over the limit or with nothing to send. Cancelled, the notice stays.",
-      "summary": "Send: the trimmed text and the ids of the ready files. Cancelling it keeps the notice. The 0.3 name sf-chat-send {text, attachmentIds} follows it until 2026-12-01."
+      "x-summary": "Send (vocabulary §5 submit, chat 1.1.3: the composer's send): the trimmed text and the ids of the ready files (attachment-ids). Enter or the send button; never while busy (with queue: a message of text is, for the host to queue), disabled, uploading, over the limit or with nothing to send. Cancelled, the notice stays.",
+      "summary": "Send: the trimmed text and the ids of the ready files. While busy only with queue, and only a message of text. Cancelling it keeps the notice. The 0.3 name sf-chat-send {text, attachmentIds} follows it until 2026-12-01."
     },
     "stop": {
       "carries": {},
@@ -259,7 +265,7 @@
       "Tab": "reach",
       "Enter": "commit"
     },
-    "x-keys": "Enter sends, Shift+Enter breaks the line, an Enter inside an IME composition does not send; while busy Enter sends nothing and the hint under the field says why. The field is a native textarea named field-label and described by the count, which shows past 80 % of maxlength; a polite line speaks only when a threshold is crossed. A refused file is a role=alert notice. «Остановить ожидание» returns focus to the field."
+    "x-keys": "Enter sends, Shift+Enter breaks the line, an Enter inside an IME composition does not send; while busy Enter sends nothing and the hint under the field says why; with queue it sends a message of text, and the hint says it goes after the answer. The field is a native textarea named field-label and described by the count, which shows past 80 % of maxlength; a polite line speaks only when a threshold is crossed. A refused file is a role=alert notice. «Остановить ожидание» returns focus to the field."
   },
   "host-states": {},
   "css-variables": {
@@ -355,7 +361,8 @@
     "words: lang/ru.json and lang/en.json, runtime only; ru is the source language (the 0.3 words were written in Russian first). The too-many reason has plural forms (one, other) as 0.3 had composer.tooMany.one.",
     "css-variables: four public variables in the Framework's form (single dash, read with the token as fallback, never set): the box's ground and edge, the hint and count, and the control height (a finger's on a coarse pointer). Their fallbacks are the tokens ui-chat's sheets gave the same places, so the look in ui-chat does not change.",
     "page attribute: [data-chat-input=pointer] (the chat page marks a pointer's input) still takes the keyboard ring off the box after a click, as in 0.3; without it the ring shows.",
-    "standard 1.4 (2026-10-29): component.json and examples.json in the 1.4 form, the other files generated. submit carries attachmentIds (camelCase, as the registry says); \"attachment-ids\" stays beside it until 2026-12-01 with the dated event names."
+    "standard 1.4 (2026-10-29): component.json and examples.json in the 1.4 form, the other files generated. submit carries attachmentIds (camelCase, as the registry says); \"attachment-ids\" stays beside it until 2026-12-01 with the dated event names.",
+    "queue (1.1.0): the composer only lets a message of text out while busy and says so; the queue itself is the host's (sf-chat-window keeps it per conversation, draws its cards above the field and sends them after the answer), since what an answer's end means and what a conversation is are the host's. A message with files is not queued: its chips are the host's upload state, which a queued message would have to hold apart from the field; while busy it waits as before, and the hint says so. Without queue nothing changes."
   ],
   "x-rule": {
     "$comment": [
@@ -433,7 +440,7 @@
         }
       },
       "send": {
-        "const": "Enter or the send button dispatches sf-chat-composer-submit {text, attachment-ids} (cancelable) when there is text or a ready chip, nothing uploading, not busy, not disabled and within maxlength. The host sends and calls clear() once it took the message."
+        "const": "Enter or the send button dispatches sf-chat-composer-submit {text, attachment-ids} (cancelable) when there is text or a ready chip, nothing uploading, not busy (or busy with queue and no chips), not disabled and within maxlength. The host sends and calls clear() once it took the message."
       },
       "files": {
         "const": "Files offered by the button, a drop or a paste are checked by accept, max-bytes and max-files; sf-chat-composer-attach {files, rejected} reports them and the notice names each refusal. The host uploads and sets files; a chip's remove dispatches sf-chat-composer-detach {id, name}."
@@ -538,7 +545,7 @@
         "Shift+Enter",
         "Tab"
       ],
-      "focus": "The field is named and described by the character count shown past 80 % of the limit; a polite line speaks only when a threshold is crossed. A rejected file is a role=alert notice. Enter while an answer is awaited says why nothing was sent. «Stop waiting» returns focus to the field."
+      "focus": "The field is named and described by the character count shown past 80 % of the limit; a polite line speaks only when a threshold is crossed. A rejected file is a role=alert notice. Enter while an answer is awaited says why nothing was sent, or, with queue, that the message goes after the answer. «Stop waiting» returns focus to the field."
     },
     "compatibility": {
       "migrations": [
@@ -559,6 +566,13 @@
           "to": "1.0.1",
           "changes": [
             "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.0.2",
+          "to": "1.1.0",
+          "changes": [
+            "The setting queue (default off): while busy, Enter and send still submit a message of text, beside «Остановить ожидание», for the host to queue; the hint under the field says so. A message with files waits as before. Without queue nothing changes for a host."
           ]
         }
       ]

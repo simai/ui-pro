@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.thread-list",
-  "version": "1.3.2",
+  "version": "1.5.1",
   "title": "Thread list",
   "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "kind": "composite",
@@ -110,6 +110,29 @@
           "type": "object"
         }
       },
+      "create-commands": {
+        "type": "array",
+        "default": [],
+        "description": "Commands in the head in place of New conversation: [{id, text, icon?}], a property. Pressed, one says create {kind: id}. Empty, the one New conversation as before; no-create and the archive take them away as well.",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "text"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "actions": {
         "type": "array",
         "default": []
@@ -145,6 +168,17 @@
         "caption": {
           "type": "string",
           "description": "A quiet second line: who it is with, the last message."
+        },
+        "activity": {
+          "type": "string",
+          "enum": [
+            "running",
+            "waiting",
+            "done",
+            "stopped",
+            "failed"
+          ],
+          "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
         },
         "unread": {
           "type": "integer",
@@ -263,6 +297,17 @@
                   "type": "string",
                   "description": "A quiet second line: who it is with, the last message."
                 },
+                "activity": {
+                  "type": "string",
+                  "enum": [
+                    "running",
+                    "waiting",
+                    "done",
+                    "stopped",
+                    "failed"
+                  ],
+                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                },
                 "unread": {
                   "type": "integer",
                   "minimum": 0
@@ -332,6 +377,17 @@
                   "type": "string",
                   "description": "A quiet second line: who it is with, the last message."
                 },
+                "activity": {
+                  "type": "string",
+                  "enum": [
+                    "running",
+                    "waiting",
+                    "done",
+                    "stopped",
+                    "failed"
+                  ],
+                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                },
                 "unread": {
                   "type": "integer",
                   "minimum": 0
@@ -398,6 +454,17 @@
               "caption": {
                 "type": "string",
                 "description": "A quiet second line: who it is with, the last message."
+              },
+              "activity": {
+                "type": "string",
+                "enum": [
+                  "running",
+                  "waiting",
+                  "done",
+                  "stopped",
+                  "failed"
+                ],
+                "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
               },
               "unread": {
                 "type": "integer",
@@ -507,11 +574,16 @@
   },
   "events": {
     "sf-thread-list-create": {
-      "summary": "New conversation was pressed.",
+      "summary": "New conversation was pressed, or a create command (kind: its id).",
       "payload": {
         "type": "object",
         "required": [],
-        "properties": {},
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "The id of the create command pressed; absent for the one New conversation."
+          }
+        },
         "additionalProperties": true
       }
     },
@@ -809,24 +881,45 @@
         "changes": [
           "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.3.1",
+        "to": "1.4.0",
+        "changes": [
+          "A conversation may carry activity (running, waiting, done, stopped, failed), drawn in the row as a compact sf-badge (smart.badge 1.2.0): the icon alone is visible and the word is the accessible name. Nothing to change for a host that sends none."
+        ]
+      },
+      {
+        "from": "1.4.0",
+        "to": "1.5.0",
+        "changes": [
+          "create-commands: several commands in the head in place of New conversation, a press saying create {kind: id}. Nothing to change for a host that sets none."
+        ]
+      },
+      {
+        "from": "1.5.0",
+        "to": "1.5.1",
+        "changes": [
+          "Standard simai.smart-component 1.4: component.json and examples.json are the source; rule.js, aliases.json, studio.fixture.json, studio.scenario.json, probe.json and smart.manifest.json are generated from them. The registry gains the dated event names with alias_of and canonical, the base settings root-class and root-style, and the settings' own words. No runtime behaviour changes. Nothing to change for a host."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "ce2ba03a1bb03aaf0ee5e88a9691a7b79e9d6597",
+    "source_revision": "e82f8f8420ffb060a528780ec921e657877f01f6",
     "source_artifacts": [
       {
         "path": "src/smart/thread-list/index.js",
-        "sha256": "2181ecbbadcb1f58d950e6e17d2584bc21819e10340e6197cfd67e5be60abe1f"
+        "sha256": "9b7798a23c9b1f301737485d62aa0f57edc2e057cbe60afc931a8ad203158775"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.js",
-        "sha256": "9ed2a3cea2b45e4ce23bc39c8cecf29f7f0adea36ac51f36645159d3c4005673"
+        "sha256": "76e8429c9be4b7719e124ecee08af5522d46a1a95fd267a1ebbd4aa17bcdd778"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.css",
-        "sha256": "e5d7fefb77da132ba6667de9c77c5691a8af19e4c8d81b32028463690abb9dca"
+        "sha256": "fb8f226c9fb754f18daaa989bb608575230d8471b5ccd31446657c69ad957125"
       },
       {
         "path": "src/smart/thread-list/rule.js",
@@ -834,11 +927,11 @@
       },
       {
         "path": "src/smart/thread-list/docs.md",
-        "sha256": "a9d7bcf2a6d4a24f443e84544c153cec0d07111bd2f48c73cdf168290666f922"
+        "sha256": "a10e23582567bfd5a993e982c325709844c3c9d6a42b4a8b17d1aeca182b2d60"
       },
       {
         "path": "src/smart/thread-list/component.json",
-        "sha256": "646e86541fd09f9ac9435d0df6d37007da1a8c8796ab665ba2d8e382fbe8c57f"
+        "sha256": "ad493ecd261274ec9302eeccf5f78a0b5dbab18d4ea39d622eb438c61f06eb0b"
       },
       {
         "path": "src/smart/thread-list/aliases.json",

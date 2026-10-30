@@ -12,6 +12,12 @@
 // ctx.onAction: edit | delete | retry | retry-file | edit-start | edit-cancel |
 // delete-ask | delete-cancel. What a person may do comes from the message's
 // own canEdit / canDelete, never from who wrote it.
+//
+// 1.2.0: view.conflict {deleted} -- an edit or a delete met a newer revision
+// (port answer conflict): the message is drawn as it is now, with the line
+// «Сообщение уже изменили» (or «уже удалили»); the editor keeps the typed
+// text and offers «Оставить их» and «Заменить своим», the delete question
+// asks again. message.authorAvatar is shown beside the first of a run.
 import { element, text, iconButton, iconNode, renderAttachment } from './message.js';
 
 const PENDING_WORD = { send: 'people.sending', edit: 'people.saving', delete: 'people.deleting' };
@@ -63,6 +69,12 @@ export function renderPersonMessage(ctx, message, view = {}) {
   if (!view.own) {
     const avatar = element(ctx, 'span', 'sf-chat-person__avatar', { 'aria-hidden': 'true' });
     if (view.first) avatar.textContent = initials(message.authorName);
+    // The host's picture over the initials, which stay if it does not load.
+    if (view.first && message.authorAvatar) {
+      const picture = element(ctx, 'img', 'sf-chat-person__picture', { src: message.authorAvatar, alt: '', loading: 'lazy', decoding: 'async' });
+      picture.addEventListener('error', () => picture.remove());
+      avatar.append(picture);
+    }
     root.append(avatar);
   }
 
@@ -74,11 +86,18 @@ export function renderPersonMessage(ctx, message, view = {}) {
     const tomb = element(ctx, 'p', 'sf-chat-person__bubble sf-chat-person__bubble--tomb');
     tomb.append(iconNode(ctx, 'block', 'sf-chat-person__tomb-icon', '1'), text(ctx, 'span', '', words('people.deleted')));
     body.append(tomb);
+    // Deleted while it was being edited: the typed text stays to be copied.
+    if (view.editing && view.conflict) body.append(renderConflict(ctx, { deleted: true }), renderEditor(ctx, message, view.editing, { deleted: true }));
     return root;
   }
 
   if (view.editing) {
-    body.append(renderEditor(ctx, message, view.editing));
+    // In a conflict the message as it is now stands above the typed text.
+    if (view.conflict) {
+      body.append(renderConflict(ctx, view.conflict));
+      if (message.body) body.append(text(ctx, 'p', 'sf-chat-person__bubble sf-chat-person__bubble--current', message.body));
+    }
+    body.append(renderEditor(ctx, message, view.editing, view.conflict));
   } else {
     // An edit on its way (or refused) shows the words the person wrote.
     const shown = local?.action === 'edit' && local.state !== 'sent' && local.body != null ? local.body : message.body;
@@ -108,16 +127,16 @@ export function renderPersonMessage(ctx, message, view = {}) {
   if (meta.childNodes.length) body.append(meta);
 
   if (view.askDelete) {
-    body.append(renderDeleteAsk(ctx, message));
+    body.append(renderDeleteAsk(ctx, message, view.conflict));
   } else if (!view.editing && !pending && message.id != null && (message.canEdit || message.canDelete)) {
     const tools = element(ctx, 'div', 'sf-chat-person__tools', { role: 'group', 'aria-label': words('people.actions') });
     if (message.canEdit) {
-      const edit = iconButton(ctx, { icon: 'edit', label: words('people.edit'), size: '1/2' });
+      const edit = iconButton(ctx, { icon: 'edit', label: words('people.edit'), size: '1/2', className: 'sf-chat-person__edit' });
       edit.addEventListener('click', () => ctx.onAction?.('edit-start', { message }));
       tools.append(edit);
     }
     if (message.canDelete) {
-      const remove = iconButton(ctx, { icon: 'delete', label: words('people.delete'), size: '1/2' });
+      const remove = iconButton(ctx, { icon: 'delete', label: words('people.delete'), size: '1/2', className: 'sf-chat-person__delete' });
       remove.addEventListener('click', () => ctx.onAction?.('delete-ask', { message }));
       tools.append(remove);
     }
@@ -140,9 +159,17 @@ function whenPlaced(node, run, frames = 3) {
   });
 }
 
-function renderEditor(ctx, message, editing) {
+// The line a conflict puts over the editor or the question. It is drawn
+// again with the message, so it is not a live region: the host says it
+// once (sf-chat-window announces it through its log).
+function renderConflict(ctx, conflict) {
+  return text(ctx, 'p', 'sf-chat-person__conflict', ctx.words(conflict.deleted ? 'people.conflictDeleted' : 'people.conflict'));
+}
+
+function renderEditor(ctx, message, editing, conflict = null) {
   const words = ctx.words;
   const form = element(ctx, 'form', 'sf-chat-person__editor');
+  if (conflict) form.classList.add('sf-chat-person__editor--conflict');
   const field = element(ctx, 'textarea', 'sf-chat-person__edit-field', { 'aria-label': words('people.editLabel'), rows: '1' });
   field.value = editing.body ?? message.body ?? '';
   field.addEventListener('input', () => {
@@ -151,20 +178,25 @@ function renderEditor(ctx, message, editing) {
     field.style.blockSize = `${field.scrollHeight}px`;
   });
   field.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') { event.preventDefault(); ctx.onAction?.('edit-cancel', { message }); }
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); ctx.onAction?.('edit-cancel', { message }); }
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); form.requestSubmit(); }
   });
   const actions = element(ctx, 'div', 'sf-chat-person__edit-actions');
-  const cancel = text(ctx, 'button', 'sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface', words('people.cancel'), { type: 'button' });
+  // A conflict: «Оставить их» drops the typed text, «Заменить своим» saves it
+  // over the message as it is now; a deleted message can only be left.
+  const cancelWord = conflict ? (conflict.deleted ? 'people.close' : 'people.keepTheirs') : 'people.cancel';
+  const cancel = text(ctx, 'button', 'sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface sf-chat-person__edit-cancel', words(cancelWord), { type: 'button' });
   cancel.addEventListener('click', () => ctx.onAction?.('edit-cancel', { message }));
-  const save = text(ctx, 'button', 'sf-button sf-button--size-1/2 sf-button--default sf-button--primary', words('people.save'), { type: 'submit' });
+  const save = text(ctx, 'button', 'sf-button sf-button--size-1/2 sf-button--default sf-button--primary sf-chat-person__edit-save', words(conflict ? 'people.replaceMine' : 'people.save'), { type: 'submit' });
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    if (conflict?.deleted) return;
     const value = field.value.trim();
     if (!value || value === message.body) { ctx.onAction?.('edit-cancel', { message }); return; }
     ctx.onAction?.('edit', { message, body: value });
   });
-  actions.append(cancel, save);
+  actions.append(cancel);
+  if (!conflict?.deleted) actions.append(save);
   form.append(field, actions);
   // Placed and focused once the form is in the page.
   whenPlaced(field, () => {
@@ -175,15 +207,23 @@ function renderEditor(ctx, message, editing) {
   return form;
 }
 
-function renderDeleteAsk(ctx, message) {
+function renderDeleteAsk(ctx, message, conflict = null) {
   const words = ctx.words;
   const row = element(ctx, 'div', 'sf-chat-person__ask', { role: 'group', 'aria-label': words('people.deleteAsk') });
+  if (conflict) row.append(renderConflict(ctx, conflict));
   row.append(text(ctx, 'span', '', words('people.deleteAsk')));
   const cancel = text(ctx, 'button', 'sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface', words('people.cancel'), { type: 'button' });
   cancel.addEventListener('click', () => ctx.onAction?.('delete-cancel', { message }));
   const confirm = text(ctx, 'button', 'sf-button sf-button--size-1/2 sf-button--outline sf-button--error', words('people.delete'), { type: 'button' });
   confirm.addEventListener('click', () => ctx.onAction?.('delete', { message }));
   row.append(cancel, confirm);
+  // Escape takes the question back, as «Отмена» does (1.2.0).
+  row.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    event.preventDefault();
+    event.stopPropagation();
+    ctx.onAction?.('delete-cancel', { message });
+  });
   whenPlaced(cancel, () => cancel.focus());
   return row;
 }

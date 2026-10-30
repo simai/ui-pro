@@ -598,7 +598,8 @@
             ]
           },
           "baseRevision": {
-            "type": "number"
+            "type": "integer",
+            "minimum": 0
           }
         },
         "additionalProperties": true
@@ -639,7 +640,8 @@
             ]
           },
           "baseRevision": {
-            "type": "number"
+            "type": "integer",
+            "minimum": 0
           },
           "profile": {
             "type": "object",
@@ -666,7 +668,8 @@
             ]
           },
           "baseRevision": {
-            "type": "number"
+            "type": "integer",
+            "minimum": 0
           },
           "profile": {
             "type": "object",
@@ -1299,7 +1302,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "850f76feace7341141e5add4a7a4c41ff944e08b867b4b882fbdf04f0d8c8961"
+        "sha256": "ae1c8273a4264a4af9221a5d6549c570e4afbee3cc115a4b7476de456c357c99"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

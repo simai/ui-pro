@@ -24,7 +24,7 @@ import {elementFromManifest} from "../../core/js/element-manifest";
 import {pageLocale} from "../../core/js/page-language";
 import {renderChatMessageTemplate} from "./js/templates/default.js";
 import {renderChatPersonTemplate} from "./js/templates/person.js";
-import {disposeRendering, renderMessage} from "./js/view/message.js";
+import {disposeRendering, renderMessage, resumeRendering} from "./js/view/message.js";
 import {renderPersonMessage} from "./js/view/person.js";
 import manifest from "./component.json";
 import aliases from "./aliases.json";
@@ -212,6 +212,14 @@ class SfChatMessage extends ChatMessageElement {
             case "sources":
                 this.sfEmit("toggle", {id, kind: "sources", open: Boolean(detail.open)});
                 return;
+            case "steps":
+                this.sfEmit("toggle", {id, kind: "steps", open: Boolean(detail.open)});
+                return;
+            // A source's or a file's preview (API.md v1.3): a host that shows
+            // it cancels the event, and the view does nothing more; the
+            // answer goes back to the view (false: taken).
+            case "preview":
+                return this.sfEmit("open", {id, kind: "preview", source: detail.source}, {cancelable: true});
             case "copy":
                 this.sfEmit("copied", {id, done: Boolean(detail.done)});
                 return;
@@ -241,6 +249,7 @@ class SfChatMessage extends ChatMessageElement {
     /** The view's node for the message as it is now; null without a message. */
     draw() {
         if (this._node) disposeRendering(this._node);
+        this._away = false;
         const message = this.message;
         if (!message || typeof message !== "object") return null;
         const display = this.display && typeof this.display === "object" ? this.display : {};
@@ -255,7 +264,8 @@ class SfChatMessage extends ChatMessageElement {
             this._drawn = drawn;
             this._stale = false;
         }
-        return {component: this, node: this._node};
+        const display = this.display && typeof this.display === "object" ? this.display : {};
+        return {component: this, node: this._node, divider: display.divider === "unread" ? this.sfWord("divider-unread") : null};
     }
 
     template() {
@@ -263,8 +273,17 @@ class SfChatMessage extends ChatMessageElement {
         return this.viewTemplate === "person" ? renderChatPersonTemplate(context) : renderChatMessageTemplate(context);
     }
 
+    // A message moved within its list comes back with its clock (a running
+    // answer's steps), which leaving the page stopped.
+    connectedCallback() {
+        super.connectedCallback();
+        if (this._node && this._away) resumeRendering(this._node);
+        this._away = false;
+    }
+
     disconnectedCallback() {
         if (this._node) disposeRendering(this._node);
+        this._away = true;
         super.disconnectedCallback();
     }
 }

@@ -1,0 +1,21 @@
+{
+  "title": "Библиотека блоков письма",
+  "runtime": {
+    "add-text": "Добавить",
+    "all-text": "Все",
+    "category-label": "Категория",
+    "change-variant-text": "Сменить вариант:",
+    "current-text": "сейчас в письме",
+    "nothing-found-heading": "Ничего не найдено",
+    "nothing-found-text": "Попробуйте другое слово: блок находится по названию и по тому, для чего он",
+    "search-label": "Найти блок"
+  },
+  "events": {
+    "add": {
+      "label": "Добавить блок"
+    },
+    "replace": {
+      "label": "Сменить вариант"
+    }
+  }
+}
