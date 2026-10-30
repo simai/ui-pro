@@ -15,7 +15,7 @@ test("the package composites are generated into the searchable registry beside t
   const registry = JSON.parse(readFileSync(new URL("../contracts/generated/smart-component-contract-registry.json", import.meta.url), "utf8"));
   assert.equal(registry.schema, "simai.smart-component-contract-registry.v2");
   // The free registry's Smart components (sf-settings-menu folded into
-  // sf-context-menu the latest) and the package's own make 81: 66
+  // sf-context-menu the latest) and the package's own make 82: 66
   // free, the four admin composites, the three conversation components
   // promoted from simai/ui-chat (2026-10-25), sf-chat-interlocutor,
   // sf-chat-composer, sf-chat-message and sf-chat-window, moved from it (D31,
