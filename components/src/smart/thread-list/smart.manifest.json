@@ -914,7 +914,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "ed3c2a43c480135e29f8c2fb5667169deb87a655",
+    "source_revision": "a4c36cc7cc6de050945a0836b74446e256554e5b",
     "source_artifacts": [
       {
         "path": "src/smart/thread-list/index.js",
@@ -922,7 +922,7 @@
       },
       {
         "path": "src/smart/thread-list/js/templates/default.js",
-        "sha256": "66cb30ca7985b43c179824d023f407fc3c46df292bbf1ccac2487251c39ddf03"
+        "sha256": "b3cc84a58d2bafaffcea99488a0b7c7d84a40753a4fde6ebcd512ca1bb6232ee"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.css",
@@ -934,11 +934,11 @@
       },
       {
         "path": "src/smart/thread-list/docs.md",
-        "sha256": "184bf260ed650c9c625a2649743c883277d2ddb19e9a3a992849f0c6c96a4fb4"
+        "sha256": "d2133455ae29b771fd6cf8d2bb32eda7fcffd2c857fb4749efd393eee2c89ff8"
       },
       {
         "path": "src/smart/thread-list/component.json",
-        "sha256": "495646146b7010c04f6d96f20904e38426c615c993bf4115f54c71563d499ad6"
+        "sha256": "86fda3de925c6325c2fe3f23f3b935df2b601d7936394200b7ef52225996e9de"
       },
       {
         "path": "src/smart/thread-list/aliases.json",

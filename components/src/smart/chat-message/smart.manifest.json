@@ -583,11 +583,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "ed3c2a43c480135e29f8c2fb5667169deb87a655",
+    "source_revision": "a4c36cc7cc6de050945a0836b74446e256554e5b",
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
-        "sha256": "9e792a8c7d998fe0b64bbf9d52d7a330bb80e0c9fbe5bc15be8af609db98fb4a"
+        "sha256": "b9bab4ba2c0152e45563d1428111b5432ba3a13d3cc57b370b6c4a58ed266aa9"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.js",
@@ -603,7 +603,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
-        "sha256": "726877519db650eb0551cddb861d821b838cf275d120a9e44c83599c8cb38574"
+        "sha256": "d024c8cef2eb3fa632519b829404cded5621bc61fffce44f241cddd0afa0cf23"
       },
       {
         "path": "src/smart/chat-message/js/view/proposed.js",
@@ -623,11 +623,11 @@
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "c5dd49bbb3680c2b8d51bc1d250da69dc4896345b7e7e6c101cf2b32e90a2d9c"
+        "sha256": "efaa9045b5aa15bbdd543204c52ac7126d742fbfeb6f189175d9519c49ac8fb3"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "477da6c361934c2faca865c15bd4b6a5d5403de410dae58fa570ec97c786e16c"
+        "sha256": "33760c16de6cdad899847b62b11eb3c53df981e8851ce3cfb5b8b2f38c340253"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
