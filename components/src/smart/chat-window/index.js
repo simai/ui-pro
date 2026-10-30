@@ -2194,6 +2194,8 @@ class SfChatWindow extends ChatWindowElement {
         }
         const avatar = doc.createElement("sf-avatar");
         avatar.setAttribute("size", "1");
+        avatar.setAttribute("tone", "auto");
+        avatar.setAttribute("aria-label", conversation.title || listed?.title || "");
         avatar.setAttribute("aria-hidden", "true");
         avatar.setAttribute("inert", "");
         if (square) avatar.setAttribute("shape", "square");

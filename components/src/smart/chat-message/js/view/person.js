@@ -83,7 +83,7 @@ export function renderPersonMessage(ctx, message, view = {}) {
   if (!view.own) {
     const avatar = element(ctx, 'span', 'sf-chat-person__avatar', { 'aria-hidden': 'true' });
     if (view.first && ctx.avatar) {
-      avatar.append(ctx.avatar({ text: initials(message.authorName), image: message.authorAvatar }));
+      avatar.append(ctx.avatar({ text: initials(message.authorName), image: message.authorAvatar, name: message.authorName }));
     } else if (view.first) {
       avatar.textContent = initials(message.authorName);
       // The host's picture over the initials, which stay if it does not load.

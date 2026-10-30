@@ -24,13 +24,13 @@ const ACTIVITIES = new Set(["running", "waiting", "done", "stopped", "failed"]);
 // shape. No avatar given draws nothing: an AI-only list keeps no empty column.
 const SHAPES = new Set(["circle", "square"]);
 
-const avatarOf = (avatar) => {
+const avatarOf = (avatar, title = "") => {
     const shape = SHAPES.has(avatar.shape) ? avatar.shape : "circle";
     const icon = typeof avatar.icon === "string" ? avatar.icon.trim() : "";
     if (icon && !avatar["image-url"]) {
         return html`<span class="sf-thread-list__avatar sf-avatar sf-avatar--size-1/2 sf-avatar--placeholder ${shape === "square" ? "sf-avatar--square" : ""} inline-flex flex-none items-cross-center content-main-center overflow-hidden" aria-hidden="true"><sf-icon icon=${icon} size="1" aria-hidden="true"></sf-icon></span>`;
     }
-    return html`<sf-avatar class="sf-thread-list__avatar" size="1/2" aria-hidden="true" shape=${shape === "square" ? "square" : nothing}
+    return html`<sf-avatar class="sf-thread-list__avatar" size="1/2" aria-hidden="true" tone="auto" aria-label=${title} shape=${shape === "square" ? "square" : nothing}
                            image-url=${avatar["image-url"] ?? ""} text=${avatar.text ?? ""}></sf-avatar>`;
 };
 
@@ -86,7 +86,7 @@ const row = (context, thread) => {
                     title=${caption ? `${title} · ${caption}` : title}
                     @click=${() => component.open(thread.id)}
             >
-                ${avatar ? avatarOf(avatar) : nothing}
+                ${avatar ? avatarOf(avatar, title) : nothing}
                 <span class="sf-thread-list__text">
                     <span class="sf-thread-list__title">${title}</span>
                     ${caption ? html`<span class="sf-thread-list__caption">${caption}</span>` : nothing}

@@ -140,7 +140,7 @@ class SfChatMessage extends ChatMessageElement {
             // feed (inert, as its default template is a button), the initials
             // back when a picture does not load; a sign is the avatars' class
             // markup, since sf-avatar has no setting for a glyph.
-            avatar({text = "", image = "", icon = ""} = {}) {
+            avatar({text = "", image = "", icon = "", name = ""} = {}) {
                 if (icon) {
                     const sign = documentRef.createElement("span");
                     sign.className = "sf-avatar sf-avatar--size-1/2 sf-avatar--placeholder inline-flex flex-none items-cross-center content-main-center overflow-hidden";
@@ -155,6 +155,9 @@ class SfChatMessage extends ChatMessageElement {
                 const avatar = documentRef.createElement("sf-avatar");
                 avatar.setAttribute("size", "1/2");
                 avatar.setAttribute("text", text);
+                // The same person keeps one muted tone: sf-avatar 1.2.0 picks it from the name.
+                avatar.setAttribute("tone", "auto");
+                if (name) avatar.setAttribute("aria-label", name);
                 avatar.setAttribute("aria-hidden", "true");
                 avatar.toggleAttribute("inert", true);
                 if (image) {

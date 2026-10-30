@@ -226,3 +226,5 @@ Escape — отмена; вопрос об удалении ставит фок�
 1.3.0: `display.day` рисует подпись нового дня перед сообщением тем же разделителем (оба шаблона), над «Новые»; оба — `role="separator"` с именем-подписью. У `person`: `display.editLimit` — предел длины в правке: после 80 % счётчик как у `sf-chat-composer`, сверх предела сохранение не уходит (нет `save`), строка «Не сохранено: сообщение длиннее N знаков», текст остаётся целиком. Без этих полей сообщение прежнее.
 
 1.4.0: среди людей: `display.document` и `message.speaker`, `asked_by`; `message.reactions` и `reply_to` в обоих шаблонах; `display.canReact`, `canReply`, `reacting`, `picker`, `replyLoaded`, `replyDeleted`, `canStop`, `fold_open`; события `react`, `reply`, `stop`, `open {kind: quote}`, `toggle {kind: react | fold}`; аватар человека — `sf-avatar`. Без этих полей сообщение прежнее.
+
+1.4.1: инициалы приглушённым тоном по имени (`tone="auto"`, sf-avatar 1.2.0).

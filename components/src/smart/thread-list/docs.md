@@ -173,3 +173,5 @@ Keys: `label`, `create-text`, `today`, `yesterday`, `earlier`, `actions-label`,
 
 Under a finger (`pointer: coarse`) every target is at least 44px (`--sf-d1`):
 a row, «Новый разговор» and the other row-like commands, and a row's «⋯».
+
+1.6.1: инициалы приглушённым тоном по имени (`tone="auto"`, sf-avatar 1.2.0).
