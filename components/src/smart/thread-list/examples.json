@@ -191,6 +191,10 @@
       },
       "expect": {
         "name": "Разговоры"
+      },
+      "first-paint": {
+        "max-bytes": 14000,
+        "why": "Four rows, each with a run-state mark: the running one prints its spinner's SVG, about 4.7 KB."
       }
     }
   ]
