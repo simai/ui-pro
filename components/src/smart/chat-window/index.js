@@ -644,7 +644,15 @@ class SfChatWindow extends ChatWindowElement {
         const spacer = element("div", "chat-shell__spacer");
         const start = this._start.build(this._headingTag);
         const members = this._members.build(this._headingTag);
-        header.append(interlocutor, threadTitle, spacer, members.command);
+        // Between people the header says who this is (1.6.0): the list's avatar,
+        // the title, a line under it. Elsewhere the wrapper is display: contents.
+        const headMark = element("span", "chat-shell__head-mark");
+        headMark.hidden = true;
+        const threadSub = element("span", "chat-shell__thread-sub");
+        threadSub.hidden = true;
+        const headWho = element("span", "chat-shell__head-who");
+        headWho.append(threadTitle, threadSub);
+        header.append(interlocutor, headMark, headWho, spacer, members.command);
         const find = this.buildFind(element, words);
         const list = element("sf-message-log", "chat-shell__list");
         const files = this._files.build(this._headingTag);
@@ -669,7 +677,7 @@ class SfChatWindow extends ChatWindowElement {
         main.append(pageTitle, header, find.box, list, files.root, start.root, members.root, composerBox);
         shell.append(side, main, preview.root);
         this._parts = {
-            shell, side, sideHead, main, header, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, statusLine, archivedNote, suggestions,
+            shell, side, sideHead, main, header, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, headMark, threadSub, statusLine, archivedNote, suggestions,
             search: search.box, searchInput: search.input, searchStatus: search.status,
             find: find.box, findInput: find.input, findCount: find.count, findStatus: find.status, findPrevious: find.previous, findNext: find.next,
             queue, queueHeld, queueList, queueSaid,
@@ -1815,6 +1823,7 @@ class SfChatWindow extends ChatWindowElement {
         composer.toggleAttribute("attachments", this.has("files") && this.has("x-early-upload") && Boolean(caps ? caps.attachments : true));
         // Between people Stop is a message's own (1.6.0): the field never offers it.
         composer.toggleAttribute("no-stop", this.has("people"));
+        this.parts.interlocutor.hidden = this.has("people") && !this.has("interlocutors");
         // Between people the field asks for a message, not a question (1.3.0).
         if (this.has("people")) {
             composer.setAttribute("placeholder", this.words("people.placeholder"));
@@ -2153,6 +2162,46 @@ class SfChatWindow extends ChatWindowElement {
         this.syncTitles();
     }
 
+    // Who the conversation is with, between people: nothing of this without
+    // `people`, and an AI-only conversation passes no avatar and shows none.
+    syncHeadWho(conversation, listed) {
+        const {shell, headMark, threadSub, interlocutor} = this.parts;
+        const people = this.has("people");
+        shell.classList.toggle("chat-shell--people", people);
+        interlocutor.hidden = people && !this.has("interlocutors");
+        const sub = people ? (listed?.subtitle ?? conversation?.subtitle ?? "") : "";
+        threadSub.textContent = sub;
+        threadSub.hidden = !sub;
+        const mark = people && conversation && listed?.avatar && typeof listed.avatar === "object" ? listed.avatar : null;
+        const key = mark ? JSON.stringify(mark) : "";
+        if (key === this._headMarkKey) return;
+        this._headMarkKey = key;
+        headMark.replaceChildren();
+        headMark.hidden = !mark;
+        if (!mark) return;
+        const doc = this.ownerDocument;
+        const square = mark.shape === "square";
+        const icon = typeof mark.icon === "string" ? mark.icon.trim() : "";
+        if (icon && !mark["image-url"]) {
+            const box = doc.createElement("span");
+            box.className = `sf-avatar sf-avatar--size-1 sf-avatar--placeholder ${square ? "sf-avatar--square" : ""} inline-flex flex-none items-cross-center content-main-center`;
+            box.setAttribute("aria-hidden", "true");
+            const glyph = doc.createElement("sf-icon");
+            glyph.setAttribute("icon", icon);
+            box.append(glyph);
+            headMark.append(box);
+            return;
+        }
+        const avatar = doc.createElement("sf-avatar");
+        avatar.setAttribute("size", "1");
+        avatar.setAttribute("aria-hidden", "true");
+        avatar.setAttribute("inert", "");
+        if (square) avatar.setAttribute("shape", "square");
+        if (mark["image-url"]) avatar.setAttribute("image-url", mark["image-url"]);
+        if (mark.text) avatar.setAttribute("text", mark.text);
+        headMark.append(avatar);
+    }
+
     syncTitles() {
         const {threadTitle, pageTitle, archivedNote} = this.parts;
         const conversation = this._data.conversation;
@@ -2160,7 +2209,8 @@ class SfChatWindow extends ChatWindowElement {
         // A private conversation may come without a title (x-conversation-start):
         // the name is the list's, or until it comes the person who was chosen.
         const named = conversation && this.has("x-conversation-start") ? (listed?.title || this._pairNames.get(String(conversation.id)) || "") : "";
-        threadTitle.textContent = conversation?.title || named;
+        threadTitle.textContent = conversation?.title || listed?.title || named;
+        this.syncHeadWho(conversation, listed);
         pageTitle.textContent = conversation?.title || named || this.who?.title || "";
         const archived = conversation ? Boolean(conversation.archived ?? listed?.archived) : false;
         if (archived === this._archivedShown && conversation?.id === this._archivedFor) return;

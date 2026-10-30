@@ -159,6 +159,16 @@
   .chat-shell--empty .sf-message-log { flex: 0 0 auto; overflow: visible; }
   .chat-shell--empty .chat-shell__composer { padding-block-end: 12vh; }
 
+  /* Between people the header says who this is. Before the views' rules: they hide it the same way. */
+  .chat-shell__head-who { display: contents; }
+  .chat-shell--people .chat-shell__head-who { display: flex; flex-direction: column; min-inline-size: 0; }
+  .chat-shell--people:not(.chat-shell--files) .chat-shell__thread-title { display: block !important; color: var(--sf-on-surface); font-weight: 600; }
+  .chat-shell__thread-sub { overflow: hidden; color: var(--sf-on-surface-variant); font-size: var(--sf-label-medium--size); line-height: var(--sf-label-medium--height); text-overflow: ellipsis; white-space: nowrap; }
+  .chat-shell__thread-sub[hidden], .chat-shell__head-mark[hidden], .chat-shell--people sf-chat-interlocutor[hidden] { display: none !important; }
+  .chat-shell__head-mark { display: inline-flex; flex: none; margin-inline-end: var(--sf-space-1\/2); }
+  .chat-shell--start .chat-shell__head-mark, .chat-shell--members .chat-shell__head-mark, .chat-shell--files .chat-shell__head-mark,
+  .chat-shell--start .chat-shell__thread-sub, .chat-shell--members .chat-shell__thread-sub, .chat-shell--files .chat-shell__thread-sub { display: none !important; }
+
   /* «Мои файлы» open (the window's chat-shell--files): they take the
      conversation's place -- its log, field, title and whom it is with step
      aside; the header with the page's buttons stays. The log's host is
