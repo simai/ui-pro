@@ -399,6 +399,100 @@
           ".sf-chat-person__bubble": "Хорошо, посмотрю"
         }
       }
+    },
+    {
+      "name": "steps",
+      "title": "Ответ со строкой шагов: «Сделано за … · N шагов», свёрнуто (API.md v1.3, предложено)",
+      "settings": {
+        "message": {
+          "id": "msg_20",
+          "role": "assistant",
+          "status": "completed",
+          "html": "<p>Ежегодный отпуск — <strong>28 календарных дней</strong>[1].</p>",
+          "text": "Ежегодный отпуск — 28 календарных дней[1].",
+          "sources": [
+            {
+              "n": 1,
+              "kind": "base",
+              "title": "Положение об отпусках"
+            }
+          ],
+          "finished_at": "2026-10-30T10:01:40Z",
+          "steps": [
+            {
+              "code": "search",
+              "label": "Ищу в базе знаний",
+              "state": "done",
+              "started_at": "2026-10-30T10:00:00Z",
+              "finished_at": "2026-10-30T10:00:12Z"
+            },
+            {
+              "code": "read",
+              "label": "Читаю положение об отпусках",
+              "state": "done",
+              "started_at": "2026-10-30T10:00:12Z",
+              "finished_at": "2026-10-30T10:00:41Z"
+            },
+            {
+              "code": "check",
+              "label": "Проверяю по Трудовому кодексу",
+              "state": "done",
+              "started_at": "2026-10-30T10:00:41Z",
+              "finished_at": "2026-10-30T10:01:20Z"
+            },
+            {
+              "code": "write",
+              "label": "Пишу ответ",
+              "state": "done",
+              "started_at": "2026-10-30T10:01:20Z",
+              "finished_at": "2026-10-30T10:01:40Z"
+            }
+          ]
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-steps__line": "Сделано за 1 мин 40 с · 4 шага"
+        }
+      }
+    },
+    {
+      "name": "deliverables",
+      "title": "Ответ с готовыми файлами: «Что готово», «Просмотр» и «Скачать» (API.md v1.3, предложено)",
+      "settings": {
+        "message": {
+          "id": "msg_21",
+          "role": "assistant",
+          "status": "completed",
+          "html": "<p>Подготовил отчёт и график отпусков.</p>",
+          "text": "Подготовил отчёт и график отпусков.",
+          "attachments": [
+            {
+              "id": "f1",
+              "name": "Отчёт по отпускам.pdf",
+              "bytes": 248213,
+              "mime": "application/pdf",
+              "href": "/files/f1",
+              "preview_url": "/files/f1/preview"
+            },
+            {
+              "id": "f2",
+              "name": "График.xlsx",
+              "bytes": 18432,
+              "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              "href": "/files/f2"
+            }
+          ]
+        }
+      },
+      "expect": {
+        "name": "Помощник",
+        "texts": {
+          ".sf-chat-deliverables__title": "Что готово",
+          ".sf-chat-deliverable__name": "Отчёт по отпускам.pdf"
+        }
+      }
     }
   ],
   "pages": [
@@ -815,7 +909,7 @@
         },
         {
           "id": "p7-question-files",
-          "title": "a person's question: a bubble and its files as sf-chat-composer's chips; a sent file with href is a download link, checked first — a file gone (404) loses its link and says «Файл удалён»; a question sent by a button is a note",
+          "title": "a person's question: a bubble and its files as sf-chat-composer's chips; a sent file with href is a download link, checked first — a file gone (404) loses its link and says «Файл недоступен»; a question sent by a button is a note",
           "covers": "message.attachments, runtime.attachment-deleted, runtime.files-download-label, display.note",
           "steps": [
             {
@@ -826,7 +920,7 @@
             {
               "user": "click:#a .sf-chat-attachment__link",
               "wait": 600,
-              "check": "(() => { const a = document.querySelector('#a'); const meta = a.querySelector('.sf-chat-attachment__meta'); return !a.querySelector('.sf-chat-attachment__link') && meta.textContent === 'Файл удалён' && meta.getAttribute('role') === 'status'; })()"
+              "check": "(() => { const a = document.querySelector('#a'); const meta = a.querySelector('.sf-chat-attachment__meta'); return !a.querySelector('.sf-chat-attachment__link') && meta.textContent === 'Файл недоступен' && meta.getAttribute('role') === 'status'; })()"
             },
             {
               "script": "(document.querySelector('#a').display = {note: 'confirm', code: 'P-17'}, document.querySelector('#a').message = {id: 'q2', role: 'user', text: 'подтверждаю P-17'}, true)",
@@ -978,6 +1072,131 @@
                 ]
               },
               "check": "document.querySelector('#e').display.wait === 'delayed' && document.querySelector('#e .sf-chat-notice__text').textContent === 'The answer is taking longer than usual' && document.querySelector('#e .sf-chat-notice__action').textContent === 'Refresh'"
+            }
+          ]
+        },
+        {
+          "id": "p11-steps-final",
+          "title": "an answer's steps after it (API.md v1.3, proposed): one folded line «Сделано за 1 мин 40 с · 4 шага» above the answer that opens the list (toggle {kind: steps}); each step with its state said and its own time; a failed answer with a failed step keeps the list open under «Прервано через …»; steps without times have no time; English plural forms",
+          "covers": "message.steps, events.toggle, display.steps_open, runtime.steps-done-in, runtime.steps-stopped-in, runtime.steps-count-*, runtime.time-*",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.tg = [], document.querySelector('#a').addEventListener('sf-chat-message-toggle', (e) => window.tg.push(e.detail)), document.querySelector('#a').display = {}, document.querySelector('#a').message = {\"id\": \"s1\", \"role\": \"assistant\", \"status\": \"completed\", \"html\": \"<p>Ежегодный отпуск — <strong>28 календарных дней</strong>[1].</p>\", \"text\": \"x\", \"sources\": [{\"n\": 1, \"kind\": \"base\", \"title\": \"Положение об отпусках\"}], \"finished_at\": \"2026-10-30T10:01:40Z\", \"steps\": [{\"code\": \"search\", \"label\": \"Ищу в базе знаний\", \"state\": \"done\", \"started_at\": \"2026-10-30T10:00:00Z\", \"finished_at\": \"2026-10-30T10:00:12Z\"}, {\"code\": \"read\", \"label\": \"Читаю положение об отпусках\", \"state\": \"done\", \"started_at\": \"2026-10-30T10:00:12Z\", \"finished_at\": \"2026-10-30T10:00:41Z\"}, {\"code\": \"check\", \"label\": \"Проверяю по Трудовому кодексу\", \"state\": \"done\", \"started_at\": \"2026-10-30T10:00:41Z\", \"finished_at\": \"2026-10-30T10:01:20Z\"}, {\"code\": \"write\", \"label\": \"Пишу ответ\", \"state\": \"done\", \"started_at\": \"2026-10-30T10:01:20Z\", \"finished_at\": \"2026-10-30T10:01:40Z\"}]}, true)",
+              "wait": 300,
+              "check": "(() => { const a = document.querySelector('#a'); const t = a.querySelector('.sf-chat-steps__toggle'); const list = a.querySelector('.sf-chat-steps__list'); return a.querySelector('.sf-chat-steps__line').textContent === 'Сделано за 1 мин 40 с · 4 шага' && t.getAttribute('aria-expanded') === 'false' && t.getAttribute('aria-controls') === list.id && list.hidden && a.querySelector('.sf-chat-steps').compareDocumentPosition(a.querySelector('.sf-chat-markup')) === 4 && !a.querySelector('.sf-chat-steps__spinner'); })()"
+            },
+            {
+              "user": "click:#a .sf-chat-steps__toggle",
+              "wait": 200,
+              "check": "(() => { const a = document.querySelector('#a'); const items = [...a.querySelectorAll('.sf-chat-steps__item')]; return a.querySelector('.sf-chat-steps__toggle').getAttribute('aria-expanded') === 'true' && !a.querySelector('.sf-chat-steps__list').hidden && items.length === 4 && items[0].querySelector('.sf-chat-steps__label').textContent === 'Ищу в базе знаний' && items[0].querySelector('.sf-chat-steps__took').textContent === '12 с' && items[0].querySelector('.sf-chat-offscreen').textContent === ', готово' && a.querySelector('.sf-chat-steps__list').getAttribute('aria-label') === 'Шаги работы' && window.tg.length === 1 && window.tg[0].kind === 'steps' && window.tg[0].open === true && window.tg[0].id === 's1'; })()"
+            },
+            {
+              "script": "(document.querySelector('#a').display = {}, document.querySelector('#a').message = {\"id\": \"s2\", \"role\": \"assistant\", \"status\": \"failed\", \"text\": \"Не удалось проверить ответ\", \"steps\": [{\"code\": \"search\", \"label\": \"Ищу в базе знаний\", \"state\": \"done\", \"started_at\": \"2026-10-30T10:00:00Z\", \"finished_at\": \"2026-10-30T10:00:12Z\"}, {\"code\": \"check\", \"label\": \"Проверяю по Трудовому кодексу\", \"state\": \"failed\", \"started_at\": \"2026-10-30T10:00:12Z\", \"finished_at\": \"2026-10-30T10:00:40Z\"}], \"finished_at\": \"2026-10-30T10:00:40Z\"}, true)",
+              "wait": 300,
+              "check": "(() => { const a = document.querySelector('#a'); return a.querySelector('.sf-chat-steps__line').textContent === 'Прервано через 40 с · 2 шага' && !a.querySelector('.sf-chat-steps__list').hidden && a.querySelector('.sf-chat-steps__item--failed .sf-chat-offscreen').textContent === ', ошибка' && Boolean(a.querySelector('.sf-chat-notice--failed')); })()"
+            },
+            {
+              "script": "(document.querySelector('#a').display = {steps_open: false}, document.querySelector('#a').message = {\"id\": \"s2\", \"role\": \"assistant\", \"status\": \"failed\", \"text\": \"Не удалось проверить ответ\", \"steps\": [{\"code\": \"search\", \"label\": \"Ищу в базе знаний\", \"state\": \"done\", \"started_at\": \"2026-10-30T10:00:00Z\", \"finished_at\": \"2026-10-30T10:00:12Z\"}, {\"code\": \"check\", \"label\": \"Проверяю по Трудовому кодексу\", \"state\": \"failed\", \"started_at\": \"2026-10-30T10:00:12Z\", \"finished_at\": \"2026-10-30T10:00:40Z\"}], \"finished_at\": \"2026-10-30T10:00:40Z\"}, true)",
+              "wait": 300,
+              "check": "document.querySelector('#a .sf-chat-steps__list').hidden"
+            },
+            {
+              "script": "(document.querySelector('#a').display = {}, document.querySelector('#a').message = {\"id\": \"s3\", \"role\": \"assistant\", \"status\": \"completed\", \"html\": \"<p>Готово.</p>\", \"text\": \"Готово.\", \"steps\": [{\"label\": \"Ищу в базе знаний\", \"state\": \"done\"}]}, document.querySelector('#e').message = {\"id\": \"s4\", \"role\": \"assistant\", \"status\": \"completed\", \"html\": \"<p>Done.</p>\", \"text\": \"Done.\", \"finished_at\": \"2026-10-30T10:00:40Z\", \"steps\": [{\"code\": \"search\", \"label\": \"Ищу в базе знаний\", \"state\": \"done\", \"started_at\": \"2026-10-30T10:00:00Z\", \"finished_at\": \"2026-10-30T10:00:12Z\"}, {\"code\": \"read\", \"label\": \"Читаю положение об отпусках\", \"state\": \"done\", \"started_at\": \"2026-10-30T10:00:12Z\", \"finished_at\": \"2026-10-30T10:00:41Z\"}]}, true)",
+              "wait": 300,
+              "check": "document.querySelector('#a .sf-chat-steps__line').textContent === 'Сделано · 1 шаг' && !document.querySelector('#a .sf-chat-steps__took') && document.querySelector('#e .sf-chat-steps__line').textContent === 'Done in 40 s · 2 steps'"
+            }
+          ]
+        },
+        {
+          "id": "p12-steps-running",
+          "title": "an answer's steps while it is written: «Работаю · 1 мин 12 с · 3 шага» with a spinner instead of the stage line, the time ticking each second from the first step's start, the step at work last in the list; the article stays busy",
+          "covers": "message.steps, runtime.steps-running, runtime.steps-state-running",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.t0 = Date.now(), document.querySelector('#a').display = {}, document.querySelector('#a').message = {id: 'r1', role: 'assistant', status: 'running', stage: 'writing', created_at: new Date(window.t0 - 80000).toISOString(), steps: [{code: 'a', label: 'Ищу в базе знаний', state: 'done', started_at: new Date(window.t0 - 72000).toISOString(), finished_at: new Date(window.t0 - 60000).toISOString()}, {code: 'c', label: 'Проверяю ссылки', state: 'running', started_at: new Date(window.t0 - 10000).toISOString()}, {code: 'b', label: 'Читаю положение', state: 'done', started_at: new Date(window.t0 - 60000).toISOString(), finished_at: new Date(window.t0 - 10000).toISOString()}]}, true)",
+              "wait": 300,
+              "check": "(() => { const a = document.querySelector('#a'); const items = [...a.querySelectorAll('.sf-chat-steps__item')]; window.l1 = a.querySelector('.sf-chat-steps__line').textContent; return /^Работаю · 1 мин 1[2-4] с · 3 шага$/.test(window.l1) && Boolean(a.querySelector('.sf-chat-steps__toggle .sf-chat-steps__spinner')) && !a.querySelector('.sf-chat-stages') && a.querySelector('article').getAttribute('aria-busy') === 'true' && items.map((one) => one.dataset.code).join('') === 'abc' && items[2].classList.contains('sf-chat-steps__item--running') && items[2].querySelector('.sf-chat-offscreen').textContent === ', выполняется' && Boolean(items[2].querySelector('.sf-chat-steps__spinner')); })()"
+            },
+            {
+              "script": "true",
+              "wait": 1300,
+              "check": "document.querySelector('#a .sf-chat-steps__line').textContent !== window.l1 && /^Работаю · 1 мин 1[3-6] с · 3 шага$/.test(document.querySelector('#a .sf-chat-steps__line').textContent)"
+            }
+          ]
+        },
+        {
+          "id": "p13-no-steps",
+          "title": "without steps nothing changes: a written answer shows its stage line, a finished one no steps line; a stopped wait with steps is the notice with «Обновить», as before",
+          "covers": "message.stage, display.wait",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').display = {}, document.querySelector('#a').message = {id: 'n1', role: 'assistant', status: 'running', stage: 'writing'}, true)",
+              "wait": 300,
+              "check": "document.querySelector('#a .sf-chat-stages__label').textContent === 'Пишу ответ' && !document.querySelector('#a .sf-chat-steps')"
+            },
+            {
+              "script": "(document.querySelector('#a').message = {id: 'n2', role: 'assistant', status: 'completed', html: '<p>Готово.</p>', text: 'Готово.', steps: []}, true)",
+              "wait": 300,
+              "check": "!document.querySelector('#a .sf-chat-steps') && document.querySelector('#a .sf-chat-markup').textContent === 'Готово.'"
+            },
+            {
+              "script": "(document.querySelector('#a').display = {wait: 'stopped'}, document.querySelector('#a').message = {id: 'n3', role: 'assistant', status: 'running', steps: [{label: 'Ищу', state: 'running'}]}, true)",
+              "wait": 300,
+              "check": "!document.querySelector('#a .sf-chat-steps') && Boolean(document.querySelector('#a .sf-chat-notice--stopped'))"
+            }
+          ]
+        },
+        {
+          "id": "p14-preview-asked",
+          "title": "a source with a same-origin preview_url asks for its preview from its footnote and its title (open {id, kind: preview, source} with its locator); not taken, the footnote opens the list as before; taken (the event cancelled), the list stays closed; a source without preview_url, or with one of another origin, asks nothing and opens the list",
+          "covers": "events.open, message.sources[].preview_url, message.sources[].locator, runtime.sources-preview",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.op = [], window.take = false, window.opWired || (window.opWired = true, document.querySelector('#a').addEventListener('sf-chat-message-open', (e) => { window.op.push(e.detail); if (window.take) e.preventDefault(); })), window.pm = {id: 'v1', role: 'assistant', status: 'completed', html: '<p>Отпуск — 28 дней[1]. Перенос по заявлению[2]. Ещё правило[3].</p>', text: 'x', sources: [{n: 1, kind: 'base', title: 'Положение об отпусках', preview_url: '/kb/vacation', locator: {from: 10, to: 40, line_from: 2}, mime: 'text/html'}, {n: 2, kind: 'base', title: 'Приказ о переносе'}, {n: 3, kind: 'base', title: 'Чужой', preview_url: 'https://elsewhere.example/kb/3'}]}, document.querySelector('#a').display = {}, document.querySelector('#a').message = window.pm, true)",
+              "wait": 300,
+              "check": "(() => { const a = document.querySelector('#a'); const b = a.querySelectorAll('.sf-chat-sources__preview'); return b.length === 1 && b[0].textContent === 'Положение об отпусках' && b[0].getAttribute('aria-label') === 'Открыть источник: Положение об отпусках' && a.querySelectorAll('.sf-chat-footnote').length === 3; })()"
+            },
+            {
+              "user": "click:#a .sf-chat-footnote",
+              "wait": 300,
+              "check": "(() => { const a = document.querySelector('#a'); const one = window.op[0]; return window.op.length === 1 && one.id === 'v1' && one.kind === 'preview' && one.source.n === 1 && one.source.preview_url === '/kb/vacation' && one.source.locator.from === 10 && one.source.locator.to === 40 && one.source.mime === 'text/html' && one.source.kind === 'base' && one.source.title === 'Положение об отпусках' && !a.querySelector('.sf-chat-sources').hidden; })()"
+            },
+            {
+              "script": "(window.take = true, document.querySelector('#a').display = {}, document.querySelector('#a').message = {...window.pm}, document.querySelector('#a .sf-chat-footnote').click(), true)",
+              "wait": 300,
+              "check": "window.op.length === 2 && document.querySelector('#a .sf-chat-sources').hidden"
+            },
+            {
+              "script": "(document.querySelectorAll('#a .sf-chat-footnote')[1].click(), true)",
+              "wait": 300,
+              "check": "window.op.length === 2 && !document.querySelector('#a .sf-chat-sources').hidden && document.querySelector('#a .sf-chat-sources__item--target').id.endsWith('-source-2')"
+            },
+            {
+              "script": "(document.querySelectorAll('#a .sf-chat-footnote')[2].click(), document.querySelector('#a .sf-chat-sources__preview').click(), true)",
+              "wait": 300,
+              "check": "window.op.length === 3 && window.op[2].source.n === 1 && document.querySelector('#a .sf-chat-sources__item--target').id.endsWith('-source-3')"
+            }
+          ]
+        },
+        {
+          "id": "p15-files-made",
+          "title": "an answer's files (API.md v1.3, proposed): «Что готово» with a card per file: icon by type, name, size and extension; «Просмотр» only with a same-origin preview_url (open {kind: preview, source: {kind: file}}), «Скачать» only with a same-origin href, checked first: a file gone says «Файл недоступен»",
+          "covers": "message.attachments (assistant), events.open, runtime.files-ready, runtime.files-preview, runtime.files-download, runtime.attachment-deleted",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.op = window.op || [], window.take = true, window.opWired || (window.opWired = true, document.querySelector('#a').addEventListener('sf-chat-message-open', (e) => { window.op.push(e.detail); if (window.take) e.preventDefault(); })), document.querySelector('#a').display = {}, document.querySelector('#a').message = {id: 'd1', role: 'assistant', status: 'completed', html: '<p>Готово.</p>', text: 'Готово.', attachments: [{id: 'f1', name: 'Отчёт.pdf', bytes: 248213, mime: 'application/pdf', href: '/sf-chat-message-probe/report.pdf', preview_url: '/sf-chat-message-probe/report'}, {id: 'f2', name: 'График.xlsx', bytes: 18432, href: '/sf-chat-message-probe/missing.xlsx'}, {id: 'f3', name: 'Чужой.zip', bytes: 10, href: 'https://elsewhere.example/f3.zip', preview_url: 'https://elsewhere.example/f3'}]}, true)",
+              "wait": 300,
+              "check": "(() => { const a = document.querySelector('#a'); const cards = [...a.querySelectorAll('.sf-chat-deliverable')]; const icon = (c) => c.querySelector('.sf-chat-deliverable__icon sf-icon').getAttribute('icon'); return a.querySelector('.sf-chat-deliverables__title').textContent === 'Что готово' && a.querySelector('.sf-chat-deliverables').getAttribute('aria-labelledby') === a.querySelector('.sf-chat-deliverables__title').id && cards.length === 3 && cards[0].querySelector('.sf-chat-deliverable__meta').textContent === '242 КБ · PDF' && icon(cards[0]) === 'picture_as_pdf' && icon(cards[1]) === 'table_chart' && icon(cards[2]) === 'folder_zip' && cards[0].querySelector('.sf-chat-deliverable__preview').textContent === 'Просмотр' && cards[0].querySelector('.sf-chat-deliverable__download').getAttribute('href') === '/sf-chat-message-probe/report.pdf' && !cards[1].querySelector('.sf-chat-deliverable__preview') && Boolean(cards[1].querySelector('.sf-chat-deliverable__download')) && !cards[2].querySelector('.sf-chat-deliverable__actions'); })()"
+            },
+            {
+              "script": "(window.opBefore = window.op.length, document.querySelector('#a .sf-chat-deliverable__preview').click(), true)",
+              "wait": 200,
+              "check": "(() => { const one = window.op[window.op.length - 1]; return window.op.length === window.opBefore + 1 && one.kind === 'preview' && one.id === 'd1' && one.source.kind === 'file' && one.source.title === 'Отчёт.pdf' && one.source.preview_url === '/sf-chat-message-probe/report' && one.source.href === '/sf-chat-message-probe/report.pdf'; })()"
+            },
+            {
+              "user": "click:#a .sf-chat-deliverable:nth-child(2) .sf-chat-deliverable__download",
+              "wait": 600,
+              "check": "(() => { const card = document.querySelectorAll('#a .sf-chat-deliverable')[1]; const meta = card.querySelector('.sf-chat-deliverable__meta'); return meta.textContent === 'Файл недоступен' && meta.getAttribute('role') === 'status' && !card.querySelector('.sf-chat-deliverable__download'); })()"
             }
           ]
         }

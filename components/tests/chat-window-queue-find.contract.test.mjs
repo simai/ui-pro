@@ -19,7 +19,8 @@ test('the window declares the search as actions, an event and a host state, and 
   assert.ok(manifest.actions['open-find'] && manifest.actions['close-find']);
   assert.deepEqual(Object.keys(manifest.actions['open-find'].with), ['query']);
   assert.deepEqual(Object.keys(manifest.actions['close-find'].with), ['focus']);
-  assert.deepEqual(manifest.events.toggle.carries.kind.values, ['find']);
+  // 1.2.0 adds the source preview's toggle beside the search's.
+  assert.ok(manifest.events.toggle.carries.kind.values.includes('find'));
   assert.ok(!manifest.events.toggle.cancelable, 'toggle says what happened, it is not a request');
   assert.equal(manifest['host-states']['data-find-open'], 'boolean');
   assert.equal(manifest.keyboard.host['Mod+F'], 'open');
