@@ -1,0 +1,616 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Блоки по группам, с шапкой",
+      "settings": {
+        "groups": [
+          {
+            "id": "basics",
+            "title": "Основа"
+          },
+          {
+            "id": "commerce",
+            "title": "Товары"
+          }
+        ],
+        "items": [
+          {
+            "type": "heading",
+            "title": "Заголовок",
+            "purpose": "Главная мысль письма",
+            "icon": "title",
+            "group": "basics"
+          },
+          {
+            "type": "text",
+            "title": "Текст",
+            "purpose": "Абзац или два",
+            "icon": "notes",
+            "group": "basics"
+          },
+          {
+            "type": "price",
+            "title": "Цена",
+            "purpose": "Цена и старая цена",
+            "icon": "sell",
+            "group": "commerce"
+          },
+          {
+            "type": "hidden",
+            "title": "Без группы",
+            "purpose": "Не показывается",
+            "icon": "help",
+            "group": "nowhere"
+          }
+        ],
+        "places": [
+          {
+            "family": "header",
+            "title": "Шапка",
+            "current": "header-logo",
+            "items": [
+              {
+                "type": "header-logo",
+                "title": "Логотип",
+                "purpose": "Логотип по центру",
+                "icon": "image"
+              },
+              {
+                "type": "header-band",
+                "title": "Полоса",
+                "purpose": "Цветная полоса с логотипом",
+                "icon": "view_carousel"
+              }
+            ]
+          }
+        ]
+      },
+      "first-paint": {
+        "max-bytes": 12000,
+        "why": "the search field, three chips and five rows, each a native button with its icons and the words a screen reader hears: the whole Library is the first paint, nothing in it is a closed surface"
+      },
+      "expect": {
+        "texts": {
+          ".sf-mail-library-group[data-group=\"basics\"] .sf-mail-library-group-title": "Основа"
+        }
+      },
+      "studio": {
+        "id": "library-reference",
+        "title": "Mail library reference",
+        "summary": "Deterministic reference fixture for sf-mail-library: two groups of blocks and the header with its current variant.",
+        "props": {
+          "query": "",
+          "category": "all",
+          "groups": [
+            {
+              "id": "basics",
+              "title": "Основа"
+            },
+            {
+              "id": "commerce",
+              "title": "Товары"
+            }
+          ],
+          "items": [
+            {
+              "type": "heading",
+              "title": "Заголовок",
+              "purpose": "Главная мысль письма",
+              "icon": "title",
+              "group": "basics"
+            },
+            {
+              "type": "text",
+              "title": "Текст",
+              "purpose": "Абзац или два",
+              "icon": "notes",
+              "group": "basics"
+            },
+            {
+              "type": "price",
+              "title": "Цена",
+              "purpose": "Цена и старая цена",
+              "icon": "sell",
+              "group": "commerce"
+            },
+            {
+              "type": "hidden",
+              "title": "Без группы",
+              "purpose": "Не показывается",
+              "icon": "help",
+              "group": "nowhere"
+            }
+          ],
+          "places": [
+            {
+              "family": "header",
+              "title": "Шапка",
+              "current": "header-logo",
+              "items": [
+                {
+                  "type": "header-logo",
+                  "title": "Логотип",
+                  "purpose": "Логотип по центру",
+                  "icon": "image"
+                },
+                {
+                  "type": "header-band",
+                  "title": "Полоса",
+                  "purpose": "Цветная полоса с логотипом",
+                  "icon": "view_carousel"
+                }
+              ]
+            }
+          ]
+        },
+        "scenario": {
+          "steps": [
+            {
+              "invoke": "filter",
+              "with": [
+                {
+                  "category": "commerce"
+                }
+              ]
+            },
+            {
+              "invoke": "filter",
+              "with": [
+                {
+                  "category": "all"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "category",
+      "title": "Одна категория: шапка и подвал скрыты",
+      "settings": {
+        "groups": [
+          {
+            "id": "basics",
+            "title": "Основа"
+          },
+          {
+            "id": "commerce",
+            "title": "Товары"
+          }
+        ],
+        "items": [
+          {
+            "type": "heading",
+            "title": "Заголовок",
+            "purpose": "Главная мысль письма",
+            "icon": "title",
+            "group": "basics"
+          },
+          {
+            "type": "text",
+            "title": "Текст",
+            "purpose": "Абзац или два",
+            "icon": "notes",
+            "group": "basics"
+          },
+          {
+            "type": "price",
+            "title": "Цена",
+            "purpose": "Цена и старая цена",
+            "icon": "sell",
+            "group": "commerce"
+          },
+          {
+            "type": "hidden",
+            "title": "Без группы",
+            "purpose": "Не показывается",
+            "icon": "help",
+            "group": "nowhere"
+          }
+        ],
+        "places": [
+          {
+            "family": "header",
+            "title": "Шапка",
+            "current": "header-logo",
+            "items": [
+              {
+                "type": "header-logo",
+                "title": "Логотип",
+                "purpose": "Логотип по центру",
+                "icon": "image"
+              },
+              {
+                "type": "header-band",
+                "title": "Полоса",
+                "purpose": "Цветная полоса с логотипом",
+                "icon": "view_carousel"
+              }
+            ]
+          }
+        ],
+        "category": "commerce"
+      },
+      "expect": {
+        "texts": {
+          ".sf-mail-library-row[data-add=\"price\"] .sf-mail-library-row-title": "Цена"
+        }
+      }
+    },
+    {
+      "name": "nothing-found",
+      "title": "Поиск, который ничего не нашёл",
+      "settings": {
+        "groups": [
+          {
+            "id": "basics",
+            "title": "Основа"
+          },
+          {
+            "id": "commerce",
+            "title": "Товары"
+          }
+        ],
+        "items": [
+          {
+            "type": "heading",
+            "title": "Заголовок",
+            "purpose": "Главная мысль письма",
+            "icon": "title",
+            "group": "basics"
+          },
+          {
+            "type": "text",
+            "title": "Текст",
+            "purpose": "Абзац или два",
+            "icon": "notes",
+            "group": "basics"
+          },
+          {
+            "type": "price",
+            "title": "Цена",
+            "purpose": "Цена и старая цена",
+            "icon": "sell",
+            "group": "commerce"
+          },
+          {
+            "type": "hidden",
+            "title": "Без группы",
+            "purpose": "Не показывается",
+            "icon": "help",
+            "group": "nowhere"
+          }
+        ],
+        "places": [
+          {
+            "family": "header",
+            "title": "Шапка",
+            "current": "header-logo",
+            "items": [
+              {
+                "type": "header-logo",
+                "title": "Логотип",
+                "purpose": "Логотип по центру",
+                "icon": "image"
+              },
+              {
+                "type": "header-band",
+                "title": "Полоса",
+                "purpose": "Цветная полоса с логотипом",
+                "icon": "view_carousel"
+              }
+            ]
+          }
+        ],
+        "query": "нет такого"
+      }
+    },
+    {
+      "name": "one-group",
+      "title": "Одна группа: без чипов",
+      "settings": {
+        "groups": [
+          {
+            "id": "basics",
+            "title": "Основа"
+          }
+        ],
+        "items": [
+          {
+            "type": "heading",
+            "title": "Заголовок",
+            "purpose": "Главная мысль письма",
+            "icon": "title",
+            "group": "basics"
+          },
+          {
+            "type": "text",
+            "title": "Текст",
+            "purpose": "Абзац или два",
+            "icon": "notes",
+            "group": "basics"
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "conformance",
+      "title": "sf-mail-library against component.json (standard simai.smart-component 1.4 §12, gate 20); the behaviour simai/ui-mail package/tests/browser/mail-library held for it: the groups and their rows, the search, nothing found, the chips with «Все», the places with the current variant marked and never offered again, and the add and replace events",
+      "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+      "page": {
+        "lang": "ru",
+        "body": [
+          "<main>",
+          "  <sf-mail-library id=\"library\"><script type=\"application/json\" data-sf-settings>{\"groups\":[{\"id\":\"basics\",\"title\":\"Основа\"},{\"id\":\"commerce\",\"title\":\"Товары\"}],\"items\":[{\"type\":\"heading\",\"title\":\"Заголовок\",\"purpose\":\"Главная мысль письма\",\"icon\":\"title\",\"group\":\"basics\"},{\"type\":\"text\",\"title\":\"Текст\",\"purpose\":\"Абзац или два\",\"icon\":\"notes\",\"group\":\"basics\"},{\"type\":\"price\",\"title\":\"Цена\",\"purpose\":\"Цена и старая цена\",\"icon\":\"sell\",\"group\":\"commerce\"},{\"type\":\"hidden\",\"title\":\"Без группы\",\"purpose\":\"Не показывается\",\"icon\":\"help\",\"group\":\"nowhere\"}],\"places\":[{\"family\":\"header\",\"title\":\"Шапка\",\"current\":\"header-logo\",\"items\":[{\"type\":\"header-logo\",\"title\":\"Логотип\",\"purpose\":\"Логотип по центру\",\"icon\":\"image\"},{\"type\":\"header-band\",\"title\":\"Полоса\",\"purpose\":\"Цветная полоса с логотипом\",\"icon\":\"view_carousel\"}]}]}</script></sf-mail-library>",
+          "  <sf-mail-library id=\"stale\" category=\"nowhere\"><script type=\"application/json\" data-sf-settings>{\"groups\":[{\"id\":\"basics\",\"title\":\"Основа\"},{\"id\":\"commerce\",\"title\":\"Товары\"}],\"items\":[{\"type\":\"heading\",\"title\":\"Заголовок\",\"purpose\":\"Главная мысль письма\",\"icon\":\"title\",\"group\":\"basics\"},{\"type\":\"text\",\"title\":\"Текст\",\"purpose\":\"Абзац или два\",\"icon\":\"notes\",\"group\":\"basics\"},{\"type\":\"price\",\"title\":\"Цена\",\"purpose\":\"Цена и старая цена\",\"icon\":\"sell\",\"group\":\"commerce\"},{\"type\":\"hidden\",\"title\":\"Без группы\",\"purpose\":\"Не показывается\",\"icon\":\"help\",\"group\":\"nowhere\"}]}</script></sf-mail-library>",
+          "</main>"
+        ]
+      },
+      "checks": [
+        {
+          "id": "p1-groups-and-rows",
+          "title": "the groups are drawn in their order, the places after them; a row per block, and a block of a group nobody named is not drawn; the search field is there",
+          "covers": "settings.items, settings.groups, settings.places",
+          "steps": [
+            {
+              "script": "true",
+              "wait": 60,
+              "check": "(() => { const el = document.querySelector('#library'); return [...el.querySelectorAll('.sf-mail-library-group')].map((g) => g.dataset.group).join(',') === 'basics,commerce,pinned-header' && [...document.querySelectorAll('#library [data-add]')].map((row) => row.dataset.add).join(',') === 'heading,text,price' && el.querySelector('sf-input') !== null; })()"
+            }
+          ]
+        },
+        {
+          "id": "p2-row-name-is-its-words",
+          "title": "a row's accessible name is the block's words, then the action; the icons are aria-hidden and add nothing to it (WCAG 2.5.3)",
+          "covers": "accessibility.name, runtime.add-text",
+          "steps": [
+            {
+              "script": "true",
+              "wait": 60,
+              "check": "(() => { const row = document.querySelector('#library [data-add=\"heading\"]'); const words = [...row.querySelectorAll('.sf-mail-library-row-words > span')].map((one) => one.textContent.trim()).join(' '); const icons = [...row.querySelectorAll('sf-icon')].every((icon) => icon.closest('[aria-hidden=\"true\"]')); return words === 'Заголовок Главная мысль письма Добавить' && icons && row.querySelector('.sr-only').textContent.trim() === 'Добавить' && row.closest('[role=group]').getAttribute('aria-label') === 'Основа'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p3-click-and-enter-add",
+          "title": "a click and Enter on a row each send sf-mail-library-add {type} once",
+          "covers": "events.add, keyboard.row Enter add, actions.add",
+          "steps": [
+            {
+              "user": "click:#library [data-add=\"price\"]",
+              "wait": 150,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-mail-library-add",
+                    "count": 1,
+                    "detail": {
+                      "type": "price"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "script": "(document.querySelector('#library [data-add=\"text\"]').focus(), true)",
+              "wait": 60
+            },
+            {
+              "user": "keyboard:Enter",
+              "wait": 150,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-mail-library-add",
+                    "count": 1,
+                    "detail": {
+                      "type": "text"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "action": {
+                "name": "add",
+                "with": {
+                  "type": "nowhere"
+                }
+              },
+              "target": "#library",
+              "wait": 60,
+              "expect": {
+                "returns": {
+                  "outcome": "refused",
+                  "reason": "unknown"
+                },
+                "events": [
+                  {
+                    "name": "sf-mail-library-add",
+                    "count": 0
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p4-search",
+          "title": "the search keeps the rows whose words match, the places' variants included («цен» finds «по центру»), and drops a group left empty; the field writes query as the person types, and a block is found by its type too",
+          "covers": "settings.query, actions.search",
+          "steps": [
+            {
+              "action": {
+                "name": "search",
+                "with": {
+                  "query": "цен"
+                }
+              },
+              "target": "#library",
+              "wait": 250,
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                }
+              },
+              "check": "[...document.querySelectorAll('#library [data-add]')].map((row) => row.dataset.add).join(',') === 'price' && document.querySelector('#library').query === 'цен' && [...document.querySelectorAll('#library [data-variant]')].map((row) => row.dataset.variant).join(',') === 'header-logo'"
+            },
+            {
+              "script": "(document.querySelector('#library').query = '', true)",
+              "wait": 250
+            },
+            {
+              "user": "click:#library sf-input input",
+              "wait": 60
+            },
+            {
+              "user": "keyboard:b",
+              "wait": 30
+            },
+            {
+              "user": "keyboard:a",
+              "wait": 30
+            },
+            {
+              "user": "keyboard:n",
+              "wait": 30
+            },
+            {
+              "user": "keyboard:d",
+              "wait": 30
+            },
+            {
+              "script": "true",
+              "wait": 300,
+              "check": "document.querySelector('#library').query === 'band' && [...document.querySelectorAll('#library [data-add]')].map((row) => row.dataset.add).join(',') === '' && [...document.querySelectorAll('#library [data-variant]')].map((row) => row.dataset.variant).join(',') === 'header-band'"
+            }
+          ]
+        },
+        {
+          "id": "p5-nothing-found",
+          "title": "a search that finds nothing says so with sf-empty-state «Ничего не найдено», and draws no row",
+          "covers": "runtime.nothing-found-heading, runtime.nothing-found-text",
+          "steps": [
+            {
+              "script": "(document.querySelector('#library').query = 'нет такого', true)",
+              "wait": 400,
+              "check": "(() => { const empty = document.querySelector('#library sf-empty-state[kind=\"nothing-found\"]'); return document.querySelectorAll('#library [data-add], #library [data-variant]').length === 0 && empty !== null && empty.getAttribute('heading') === 'Ничего не найдено'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p6-chips",
+          "title": "the chips are «Все» and one per group, «Все» pressed; a chip shows its group only and hides the places; «Все» brings them back",
+          "covers": "settings.category, actions.filter, runtime.all-text, runtime.category-label",
+          "steps": [
+            {
+              "script": "true",
+              "wait": 60,
+              "check": "[...document.querySelectorAll('#library .sf-mail-library-chips button[data-category]')].map((chip) => `${chip.dataset.category}:${chip.getAttribute('aria-pressed')}`).join(',') === 'all:true,basics:false,commerce:false' && document.querySelector('#library .sf-mail-library-chips').getAttribute('aria-label') === 'Категория' && document.querySelector('#library button[data-category=\"all\"]').textContent.trim() === 'Все'"
+            },
+            {
+              "user": "click:#library button[data-category=\"commerce\"]",
+              "wait": 300,
+              "check": "[...document.querySelectorAll('#library [data-add]')].map((row) => row.dataset.add).join(',') === 'price' && document.querySelectorAll('#library [data-variant]').length === 0 && document.querySelector('#library button[data-category=\"commerce\"]').getAttribute('aria-pressed') === 'true' && document.querySelector('#library').category === 'commerce'"
+            },
+            {
+              "action": {
+                "name": "filter",
+                "with": {
+                  "category": "all"
+                }
+              },
+              "target": "#library",
+              "wait": 300,
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                }
+              },
+              "check": "[...document.querySelectorAll('#library [data-add]')].map((row) => row.dataset.add).join(',') === 'heading,text,price' && document.querySelectorAll('#library [data-variant]').length === 2"
+            }
+          ]
+        },
+        {
+          "id": "p7-stale-category",
+          "title": "a category no group has shows every group: a stale filter never leaves the Library empty",
+          "covers": "settings.category",
+          "steps": [
+            {
+              "script": "true",
+              "wait": 60,
+              "check": "[...document.querySelectorAll('#stale [data-add]')].map((row) => row.dataset.add).join(',') === 'heading,text,price' && document.querySelector('#stale button[data-category=\"all\"]').getAttribute('aria-pressed') === 'true'"
+            }
+          ]
+        },
+        {
+          "id": "p8-current-variant-not-offered",
+          "title": "the variant the letter has now is marked, says «сейчас в письме» and is never offered again: pressing it sends nothing and replace answers refused current; another variant sends sf-mail-library-replace {family, type} once",
+          "covers": "settings.places current, events.replace, actions.replace, runtime.current-text, runtime.change-variant-text",
+          "steps": [
+            {
+              "script": "true",
+              "wait": 60,
+              "check": "(() => { const variants = [...document.querySelectorAll('#library [data-variant]')]; const current = document.querySelector('#library [data-variant=\"header-logo\"]'); const other = document.querySelector('#library [data-variant=\"header-band\"]'); return variants.map((row) => `${row.dataset.variant}:${row.getAttribute('aria-pressed')}`).join(',') === 'header-logo:true,header-band:false' && current.classList.contains('is-selected') && current.querySelector('.sr-only').textContent.trim() === 'сейчас в письме' && other.querySelector('.sr-only').textContent.trim() === 'Сменить вариант: Шапка'; })()"
+            },
+            {
+              "user": "click:#library [data-variant=\"header-logo\"]",
+              "wait": 150,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-mail-library-replace",
+                    "count": 0
+                  }
+                ]
+              }
+            },
+            {
+              "action": {
+                "name": "replace",
+                "with": {
+                  "family": "header",
+                  "type": "header-logo"
+                }
+              },
+              "target": "#library",
+              "wait": 60,
+              "expect": {
+                "returns": {
+                  "outcome": "refused",
+                  "reason": "current"
+                },
+                "events": [
+                  {
+                    "name": "sf-mail-library-replace",
+                    "count": 0
+                  }
+                ]
+              }
+            },
+            {
+              "user": "click:#library [data-variant=\"header-band\"]",
+              "wait": 150,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-mail-library-replace",
+                    "count": 1,
+                    "detail": {
+                      "family": "header",
+                      "type": "header-band"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

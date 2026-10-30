@@ -1,0 +1,41 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "letters-reference",
+  "component": "smart.mail-letters",
+  "title": "Mail letters reference",
+  "summary": "Deterministic reference fixture for sf-mail-letters: four letters, the first one open in the editor.",
+  "locale": "ru",
+  "props": {
+    "query": "",
+    "order": "changed",
+    "current": "prj_1",
+    "letters": [
+      {
+        "id": "prj_1",
+        "title": "Осенняя рассылка",
+        "at": "2026-10-27T08:55:00Z",
+        "blocks": 7
+      },
+      {
+        "id": "prj_2",
+        "title": "Приглашение",
+        "at": "2026-10-26T07:00:00Z",
+        "blocks": 4
+      },
+      {
+        "id": "prj_3",
+        "title": "Анонс вебинара",
+        "at": "2026-10-18T09:00:00Z",
+        "blocks": 11
+      },
+      {
+        "id": "prj_4",
+        "title": "Летняя распродажа",
+        "at": "2026-09-17T09:00:00Z",
+        "blocks": 1
+      }
+    ]
+  },
+  "children": [],
+  "state": "default"
+}

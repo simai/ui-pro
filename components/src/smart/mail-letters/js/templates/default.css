@@ -1,0 +1,75 @@
+@layer sf.components {
+  /* sf-mail-letters, the letters page of SIMAI Email Editor: a bar (search,
+     order, «Новое письмо») over a list of rows. A row is the name, when it
+     changed and how many blocks, with «Открыть» and ⋯ at its end; the open
+     letter is marked. The host is display: contents; .sf-mail-letters is what
+     a page places. Every value is a Framework token. */
+  .sf-mail-letters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/2);
+  }
+
+  .sf-mail-letters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--sf-space-1\/2);
+  }
+
+  .sf-mail-letters-search {
+    flex-grow: 1;
+    min-inline-size: var(--sf-g0);
+  }
+
+  .sf-mail-letters-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sf-mail-letters-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/4) var(--sf-space-1\/2);
+    border-radius: var(--sf-radius--ui);
+    font-size: var(--sf-text--size-1\/2);
+    line-height: var(--sf-text--height-1\/2);
+  }
+
+  .sf-mail-letters-row:hover {
+    background: var(--sf-surface-transparent-hover);
+  }
+
+  .sf-mail-letters-row.is-current {
+    background: var(--sf-primary-transparent-select);
+  }
+
+  .sf-mail-letters-words {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-inline-size: 0;
+  }
+
+  .sf-mail-letters-title {
+    overflow: hidden;
+    font-weight: var(--sf-font-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-mail-letters-summary {
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-mail-letters-actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+  }
+}
