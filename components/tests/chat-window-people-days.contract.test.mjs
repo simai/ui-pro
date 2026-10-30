@@ -90,8 +90,8 @@ test('a run restarts after a divider, also beside a message with no time', () =>
 test('the manifests, the words and the sources declare it, and the port is not extended', () => {
   const window = json('chat-window', 'component.json');
   const message = json('chat-message', 'component.json');
-  assert.equal(window.version, '1.6.0');
-  assert.equal(message.version, '1.4.0');
+  assert.equal(window.version, '1.6.1');
+  assert.equal(message.version, '1.4.1');
   assert.deepEqual(window['x-port'].supports, ['1.0.0']);
   assert.ok(window['x-registry'].compatibility.migrations.some((one) => one.from === '1.4.0' && one.to === '1.5.0'));
   assert.ok(message['x-registry'].compatibility.migrations.some((one) => one.from === '1.2.0' && one.to === '1.3.0'));

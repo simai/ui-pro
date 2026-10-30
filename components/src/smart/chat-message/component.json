@@ -645,6 +645,11 @@
             "Both templates among people: message.reactions as pills, message.reply_to as a quote at the top; display.canReact and canReply replace the two buttons with reply, reaction and «⋯»; the events react, reply, open {kind: quote}, toggle {kind: react}.",
             "Template default with display.document: a document without a bubble, who speaks (speaker, asked_by), a long text folded, stop on the message (canStop). Without these a message draws as before."
           ]
+        },
+{
+          "from": "1.4.0",
+          "to": "1.4.1",
+          "changes": ["Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."]
         }
       ]
     },

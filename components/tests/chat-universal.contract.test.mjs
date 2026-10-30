@@ -87,7 +87,7 @@ test('the versions, the events and the words are declared', () => {
   const message = json('chat-message', 'component.json');
   const list = json('thread-list', 'component.json');
   const composer = json('chat-composer', 'component.json');
-  assert.deepEqual([window.version, message.version, list.version, composer.version], ['1.6.0', '1.4.0', '1.6.0', '1.2.0']);
+  assert.deepEqual([window.version, message.version, list.version, composer.version], ['1.6.1', '1.4.1', '1.6.1', '1.2.0']);
   for (const [manifest, from, to] of [[window, '1.5.1', '1.6.0'], [message, '1.3.0', '1.4.0'], [list, '1.5.1', '1.6.0'], [composer, '1.1.0', '1.2.0']]) {
     assert.ok(manifest['x-registry'].compatibility.migrations.some((one) => one.from === from && one.to === to), `${manifest.tag} ${to}`);
   }

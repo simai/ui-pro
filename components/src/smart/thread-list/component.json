@@ -1022,6 +1022,11 @@
           "changes": [
             "A thread's avatar takes shape (circle, square) and icon (a sign instead of initials); both optional, a thread without them draws as before."
           ]
+        },
+{
+          "from": "1.6.0",
+          "to": "1.6.1",
+          "changes": ["Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."]
         }
       ]
     },
