@@ -64,7 +64,7 @@ import {StartView} from "./js/start-view.js";
 import {hasMembers} from "./js/start-model.js";
 import {PREVIEW_DOCK_MIN, PreviewView} from "./js/preview-view.js";
 import {registerPartWords} from "./js/part-words.js";
-import {compareRevisions, keyOf, runsOf, toPersonView, unreadKeyOf} from "./js/people.js";
+import {compareRevisions, dayDividersOf, keyOf, lastOwnEditableKey, messageCharsOf, runsOf, toPersonView, unreadKeyOf} from "./js/people.js";
 import {
     ANSWERS, DATA, EXTENSION_DATA, EXTENSION_INTENTS, INTENTS, SUPPORTED_PORT_VERSIONS, formerOf, kindOf, verbOf,
 } from "./js/port.js";
@@ -1088,6 +1088,7 @@ class SfChatWindow extends ChatWindowElement {
         list.addEventListener("sf-updated", (event) => {
             if (event.target?.localName === "sf-chat-message") this.messagesDrawn();
         });
+        composer.addEventListener("keydown", (event) => this.editLast(event));
         composer.addEventListener("sf-chat-composer-submit", (event) => {
             event.preventDefault();
             // Asked while an answer is awaited: it waits its turn over the field.
@@ -1603,10 +1604,15 @@ class SfChatWindow extends ChatWindowElement {
         }
     }
 
+    /** The most characters a message may have: the field's limit and the editor's. */
+    get messageChars() {
+        return messageCharsOf(this._data.limits, {people: this.has("people")});
+    }
+
     syncLimits() {
         const {composer} = this.parts;
         const limits = this._data.limits || {};
-        composer.setAttribute("maxlength", String(limits.body_chars || 4000));
+        composer.setAttribute("maxlength", String(this.messageChars));
         composer.setAttribute("max-files", String(limits.files_per_message || 5));
         if (limits.file_bytes) composer.setAttribute("max-bytes", String(limits.file_bytes));
         else composer.removeAttribute("max-bytes");
@@ -1782,7 +1788,10 @@ class SfChatWindow extends ChatWindowElement {
     }
 
     viewOf(message) {
-        const view = this.ownViewOf(message);
+        let view = this.ownViewOf(message);
+        // The day's divider (1.5.0, between people): only from a real created_at.
+        const day = this.has("people") ? this.daysOf().get(keyOf(message)) : null;
+        if (day) view = {...(view || {}), day};
         // «Новые» (1.3.0, capability read): before the first unread message.
         if (this._unread?.key && this._unread.listKey === this._listKey && this._unread.key === keyOf(message)) return {...(view || {}), divider: "unread"};
         return view;
@@ -1924,6 +1933,10 @@ class SfChatWindow extends ChatWindowElement {
         const feed = data.feed_state;
         // The capabilities between people draw a message otherwise: all again.
         const mode = ["people", "edit", "delete", "read"].map((one) => (this.has(one) ? one : "")).join(" ");
+        if (mode !== this._mode) {
+            this.syncLimits();
+            this.watchDay();
+        }
         const reload = listKey !== this._listKey || (feed === "loading") !== (this._feed === "loading") || feed === "revoked" || mode !== this._mode;
         const hasMore = Boolean(data.history?.has_older);
         if (listKey !== this._listKey) this.leavePeople();
@@ -1943,7 +1956,8 @@ class SfChatWindow extends ChatWindowElement {
             return;
         }
         // Between people the conversation's type decides whether names show.
-        const people = this.has("people") && (changed.has("conversation") || changed.has("conversations"));
+        // So does a changed limit an editor is open under (1.5.0).
+        const people = this.has("people") && (changed.has("conversation") || changed.has("conversations") || (changed.has("limits") && this._editing.size > 0));
         if (!changed.has("messages") && !changed.has("history") && !people && changed.size) return;
         const keys = new Set(messages.map(keyOf));
         for (const key of [...this._shown.keys()]) {
@@ -1955,6 +1969,8 @@ class SfChatWindow extends ChatWindowElement {
         const first = messages.findIndex((one) => this._shown.has(keyOf(one)));
         if (first > 0) {
             const earlier = messages.slice(0, first);
+            // A day's divider moves with what came (1.5.0): what is read stays put.
+            if (this.has("people") && this.daysOf().size) this.holdReading();
             for (const message of earlier) this._shown.set(keyOf(message), {message, viewKey: viewKeyOf(this.viewOf(message))});
             list.prependMessages(earlier.map((message) => this.placed(message)), {hasMore});
             this._prepended = true;
@@ -2083,6 +2099,7 @@ class SfChatWindow extends ChatWindowElement {
         const asking = this._asking.get(key);
         if (editing && !acting) {
             view.editing = editing.draft;
+            view.editLimit = this.messageChars;
             if (editing.conflict) view.conflict = {deleted: Boolean(message.is_deleted)};
         } else if (asking && !acting && !message.is_deleted) {
             view.askDelete = true;
@@ -2091,13 +2108,72 @@ class SfChatWindow extends ChatWindowElement {
         return view;
     }
 
+    // Day dividers (js/people.js), counted again when the messages, the day or
+    // the page's language change.
+    daysOf() {
+        const messages = this._data.messages || [];
+        const now = new Date();
+        const today = now.toDateString();
+        const locale = pageLocale(this);
+        if (this._days?.of !== messages || this._days.today !== today || this._days.locale !== locale) {
+            this._days = {of: messages, today, locale, map: dayDividersOf(messages, {now, locale, today: this.words("people.today"), yesterday: this.words("people.yesterday")})};
+        }
+        return this._days.map;
+    }
+
+    // «Сегодня» said yesterday is wrong by morning: at the reader's midnight,
+    // or when the page comes back to a later day, the dividers are said again.
+    watchDay() {
+        clearTimeout(this._dayTimer);
+        this._dayTimer = 0;
+        if (!this.isConnected || !this._partsReady || !this.has("people")) return;
+        const now = new Date();
+        const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        this._dayTimer = setTimeout(() => this.dayTurned(), next - now + 1000);
+    }
+
+    dayTurned() {
+        this.watchDay();
+        if (this._days && this._days.today !== new Date().toDateString()) this.syncMessages(new Set(["messages"]));
+    }
+
+    // What is on the screen stands where it stood while earlier history comes
+    // and a day's divider moves between messages. The log holds the place only
+    // for what it drew at once; the messages and their dividers draw a frame or
+    // two later, and above the reader that would push the text away. The window
+    // measures one message in view and puts it back until the drawing settles.
+    holdReading() {
+        const {list} = this.parts;
+        const scroller = list.scroller;
+        if (!scroller) return;
+        const top = scroller.getBoundingClientRect().top;
+        const item = [...list.querySelectorAll(".sf-message-log__item")].find((one) => one.getBoundingClientRect().bottom > top);
+        if (!item) return;
+        // The message's own node, not its item: a divider inside the item may
+        // be what goes, and it is drawn anew each time.
+        const place = () => (item.querySelector("article") ?? item).getBoundingClientRect().top;
+        const at = place();
+        const hold = this._hold = {};
+        let frames = 8;
+        const run = () => {
+            if (this._hold !== hold || !item.isConnected) return;
+            const moved = place() - at;
+            if (moved) scroller.scrollTop += moved;
+            if (--frames > 0) requestAnimationFrame(run);
+        };
+        requestAnimationFrame(run);
+    }
+
     // Runs of one author (js/people.js), counted again when the messages change.
     runsOf() {
         const messages = this._data.messages || [];
         const conversation = this._data.conversation;
         const listed = conversation ? this._data.conversations?.find((one) => String(one.id) === String(conversation.id)) : null;
         const type = conversation?.type ?? listed?.type ?? null;
-        if (this._runs?.of !== messages || this._runs.type !== type) this._runs = {of: messages, type, map: runsOf(messages, {type})};
+        const days = this.daysOf();
+        if (this._runs?.of !== messages || this._runs.type !== type || this._runs.days !== days) {
+            this._runs = {of: messages, type, days, map: runsOf(messages, {type, breaks: days})};
+        }
         return this._runs.map;
     }
 
@@ -2135,7 +2211,8 @@ class SfChatWindow extends ChatWindowElement {
         let still = 0;
         const run = (frames) => {
             if (this._unread !== state) return;
-            const divider = list.querySelector(".sf-chat-divider");
+            // The whole place: a day's divider, if it shares it, stands above «Новые».
+            const divider = list.querySelector(".sf-chat-divider--unread")?.parentElement.querySelector(".sf-chat-divider") ?? null;
             const scroller = list.scroller;
             // The log is still finding its end (it follows each message drawn
             // at the bottom): the move waits until it rests.
@@ -2209,14 +2286,20 @@ class SfChatWindow extends ChatWindowElement {
 
     connectedCallback() {
         super.connectedCallback?.();
-        this._onVisible ??= () => this.maybeRead();
+        this._onVisible ??= () => {
+            this.maybeRead();
+            this.dayTurned();
+        };
         this.ownerDocument.addEventListener("visibilitychange", this._onVisible);
+        this.watchDay();
     }
 
     disconnectedCallback() {
         this.ownerDocument.removeEventListener("visibilitychange", this._onVisible);
         clearTimeout(this._read.timer);
         this._read.timer = 0;
+        clearTimeout(this._dayTimer);
+        this._dayTimer = 0;
         super.disconnectedCallback?.();
     }
 
@@ -2232,8 +2315,10 @@ class SfChatWindow extends ChatWindowElement {
         const message = this.messageOf(key);
         if (!message || !this.has("people")) return;
         if (!open) {
+            const back = kind === "edit" && this._editing.get(key)?.fromField;
             if (kind === "edit") this._editing.delete(key); else this._asking.delete(key);
-            this.redrawPerson(key, kind === "edit" ? ".sf-chat-person__edit" : ".sf-chat-person__delete");
+            this.redrawPerson(key, back ? null : kind === "edit" ? ".sf-chat-person__edit" : ".sf-chat-person__delete");
+            if (back) this.parts.composer.focus({preventScroll: true});
             return;
         }
         if (this._acting.has(key) || message.is_deleted) return;
@@ -2255,6 +2340,36 @@ class SfChatWindow extends ChatWindowElement {
     }
 
     /**
+     * Arrow up in the empty field (1.5.0, capabilities people and edit): the
+     * newest message of the reader's own the host lets them edit opens its
+     * editor and comes into view; leaving that editor gives the focus back to
+     * the field. Anything else in the field, files beside it, an IME at work or
+     * a modifier held, and the key is the field's own.
+     */
+    editLast(event) {
+        if (event.key !== "ArrowUp" || event.defaultPrevented || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
+        if (event.isComposing || event.keyCode === 229 || !this.has("people") || !this.has("edit")) return;
+        const {composer, list} = this.parts;
+        if (event.target !== composer.field || composer.value !== "" || composer.chips.length || composer.disabled) return;
+        const data = this._data;
+        if (!data.conversation || data.conversation.revoked === true || data.feed_state !== "ready" || this.covered) return;
+        const key = lastOwnEditableKey(data.messages);
+        if (key === null || this._acting.has(key)) return;
+        event.preventDefault();
+        this.peopleToggle(key, "edit", true);
+        const entry = this._editing.get(key);
+        if (!entry) return;
+        entry.fromField = true;
+        const item = () => list.querySelector(`.sf-message-log__item[data-id="${CSS.escape(key)}"]`);
+        this.afterDraw(() => item()?.querySelector(".sf-chat-person__edit-field"), (field) => {
+            // An editor already open has no reason to take the focus by itself.
+            field?.focus({preventScroll: true});
+            // After the log's own following of its end (two frames at most).
+            requestAnimationFrame(() => requestAnimationFrame(() => item()?.querySelector("article")?.scrollIntoView({block: "nearest"})));
+        });
+    }
+
+    /**
      * Save an edit: message.edit {conversation_id, message_id, revision,
      * body, client_key} against the revision the editor was opened on (or,
      * after a conflict, «Заменить своим», the current one). Applied: the
@@ -2270,6 +2385,8 @@ class SfChatWindow extends ChatWindowElement {
         const message = this.messageOf(key);
         const body = String(typed ?? "").trim();
         if (!entry || !message || !body || this._acting.has(key)) return;
+        // Over the limit nothing leaves (the editor says so itself, 1.5.0).
+        if (body.length > this.messageChars) return;
         entry.draft.body = body;
         const revision = entry.revision;
         if (!entry.clientKey || entry.sentRevision !== revision || entry.sentBody !== body) entry.clientKey = clientKey();
@@ -2287,7 +2404,8 @@ class SfChatWindow extends ChatWindowElement {
             const given = result.data?.message;
             if (given) this.mergeMessage(given);
             else if (!result.data?.messages) this.mergeMessage({...(this.messageOf(key) ?? message), body, is_edited: true}, {same: true});
-            this.redrawPerson(key, ".sf-chat-person__edit");
+            this.redrawPerson(key, entry.fromField ? null : ".sf-chat-person__edit");
+            if (entry.fromField) this.parts.composer.focus({preventScroll: true});
             return;
         }
         if (result.answer === "conflict") {

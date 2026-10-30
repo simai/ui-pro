@@ -1372,6 +1372,22 @@
     resize: none;
   }
 
+  .sf-chat-person__edit-count,
+  .sf-chat-person__edit-refused {
+    margin: 0;
+    color: var(--sf-chat-message--muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  .sf-chat-person__edit-count[hidden],
+  .sf-chat-person__edit-refused[hidden] { display: none; }
+
+  .sf-chat-person__editor--over .sf-chat-person__edit-field { border-color: var(--sf-outline-error); }
+
+  .sf-chat-person__editor--over .sf-chat-person__edit-count,
+  .sf-chat-person__edit-refused { color: var(--sf-error); }
+
   .sf-chat-person__edit-actions,
   .sf-chat-person__ask {
     display: flex;

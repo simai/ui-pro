@@ -265,7 +265,12 @@ class SfChatMessage extends ChatMessageElement {
             this._stale = false;
         }
         const display = this.display && typeof this.display === "object" ? this.display : {};
-        return {component: this, node: this._node, divider: display.divider === "unread" ? this.sfWord("divider-unread") : null};
+        return {
+            component: this,
+            node: this._node,
+            divider: display.divider === "unread" ? this.sfWord("divider-unread") : null,
+            day: display.day ? String(display.day) : null,
+        };
     }
 
     template() {

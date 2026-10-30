@@ -14,9 +14,14 @@ export function renderChatMessageTemplate(context) {
     return html`<div class="sf-chat-message-host">${renderDivider(context)}${context.node ?? nothing}</div>`;
 }
 
-// 1.2.0: display.divider -- a line before the message that a window draws
-// where the unread part of a conversation begins («Новые»). Plain text, so a
-// screen reader meets it in reading order; the message itself is unchanged.
+// A line before the message that a window draws. 1.2.0: display.divider, where
+// the unread part of a conversation begins («Новые»). 1.3.0: display.day, the
+// words of a new calendar day, above «Новые» when both fall here. Nothing to
+// press: a separator named by its words, so a screen reader meets it in
+// reading order; the message itself is unchanged.
+const line = (words, kind) => html`<div class="sf-chat-divider sf-chat-divider--${kind}" role="separator" aria-label=${words}><span class="sf-chat-divider__text">${words}</span></div>`;
+
 export function renderDivider(context) {
-    return context.divider ? html`<div class="sf-chat-divider"><span class="sf-chat-divider__text">${context.divider}</span></div>` : nothing;
+    if (!context.day && !context.divider) return nothing;
+    return html`${context.day ? line(context.day, "day") : nothing}${context.divider ? line(context.divider, "unread") : nothing}`;
 }

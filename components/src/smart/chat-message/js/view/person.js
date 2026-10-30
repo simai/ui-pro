@@ -18,7 +18,14 @@
 // «Сообщение уже изменили» (or «уже удалили»); the editor keeps the typed
 // text and offers «Оставить их» and «Заменить своим», the delete question
 // asks again. message.authorAvatar is shown beside the first of a run.
+//
+// 1.3.0: view.editLimit -- the most characters the editor takes (the host's
+// limit for a message): past 80 % the count shows as in sf-chat-composer, past
+// the limit saving is refused with a line and the typed text stays as it is,
+// never cut. Without it the editor is as it was.
 import { element, text, iconButton, iconNode, renderAttachment } from './message.js';
+
+let editCounts = 0;
 
 const PENDING_WORD = { send: 'people.sending', edit: 'people.saving', delete: 'people.deleting' };
 const FAILED_WORD = { send: 'people.failed', edit: 'people.failedEdit', delete: 'people.failedDelete' };
@@ -97,7 +104,7 @@ export function renderPersonMessage(ctx, message, view = {}) {
       body.append(renderConflict(ctx, view.conflict));
       if (message.body) body.append(text(ctx, 'p', 'sf-chat-person__bubble sf-chat-person__bubble--current', message.body));
     }
-    body.append(renderEditor(ctx, message, view.editing, view.conflict));
+    body.append(renderEditor(ctx, message, view.editing, view.conflict, view.editLimit));
   } else {
     // An edit on its way (or refused) shows the words the person wrote.
     const shown = local?.action === 'edit' && local.state !== 'sent' && local.body != null ? local.body : message.body;
@@ -166,16 +173,60 @@ function renderConflict(ctx, conflict) {
   return text(ctx, 'p', 'sf-chat-person__conflict', ctx.words(conflict.deleted ? 'people.conflictDeleted' : 'people.conflict'));
 }
 
-function renderEditor(ctx, message, editing, conflict = null) {
+// The field's count, as sf-chat-composer shows its own: nothing up to 80 % of
+// the limit, then «n из max», then that the message is too long; the polite
+// line speaks only when a threshold is crossed, not on every key. `refuse`
+// says a save was refused; the next change of the text takes that back.
+function renderEditCount(ctx, form, field, limit) {
+  const words = ctx.words;
+  const count = element(ctx, 'p', 'sf-chat-person__edit-count', { id: `sf-chat-person-edit-${++editCounts}` });
+  const refusal = element(ctx, 'p', 'sf-chat-person__edit-refused', { role: 'alert' });
+  const said = element(ctx, 'span', 'sf-chat-offscreen', { 'aria-live': 'polite' });
+  refusal.hidden = true;
+  field.setAttribute('aria-describedby', count.id);
+  let level = '';
+  const update = () => {
+    const length = field.value.length;
+    const near = length > limit * 0.8;
+    const over = length > limit;
+    const line = over ? words('people.editTooLong', { max: limit }) : near ? words('people.editCount', { count: length, max: limit }) : '';
+    count.textContent = line;
+    count.hidden = !near || !refusal.hidden;
+    form.classList.toggle('sf-chat-person__editor--over', over);
+    const next = over ? 'over' : near ? 'near' : '';
+    if (next !== level) {
+      level = next;
+      said.textContent = line;
+    }
+  };
+  return {
+    nodes: [count, refusal, said],
+    update() {
+      refusal.hidden = true;
+      refusal.textContent = '';
+      update();
+    },
+    refuse() {
+      refusal.hidden = false;
+      refusal.textContent = words('people.editRefused', { max: limit });
+      update();
+    },
+  };
+}
+
+function renderEditor(ctx, message, editing, conflict = null, editLimit = 0) {
   const words = ctx.words;
   const form = element(ctx, 'form', 'sf-chat-person__editor');
   if (conflict) form.classList.add('sf-chat-person__editor--conflict');
   const field = element(ctx, 'textarea', 'sf-chat-person__edit-field', { 'aria-label': words('people.editLabel'), rows: '1' });
   field.value = editing.body ?? message.body ?? '';
+  const limit = Number(editLimit) > 0 && !conflict?.deleted ? Number(editLimit) : 0;
+  const count = limit ? renderEditCount(ctx, form, field, limit) : null;
   field.addEventListener('input', () => {
     editing.body = field.value;
     field.style.blockSize = 'auto';
     field.style.blockSize = `${field.scrollHeight}px`;
+    count?.update();
   });
   field.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); ctx.onAction?.('edit-cancel', { message }); }
@@ -193,11 +244,13 @@ function renderEditor(ctx, message, editing, conflict = null) {
     if (conflict?.deleted) return;
     const value = field.value.trim();
     if (!value || value === message.body) { ctx.onAction?.('edit-cancel', { message }); return; }
+    if (limit && field.value.length > limit) { count.refuse(); field.focus(); return; }
     ctx.onAction?.('edit', { message, body: value });
   });
   actions.append(cancel);
   if (!conflict?.deleted) actions.append(save);
-  form.append(field, actions);
+  form.append(field, ...(count?.nodes ?? []), actions);
+  count?.update();
   // Placed and focused once the form is in the page.
   whenPlaced(field, () => {
     field.style.blockSize = `${field.scrollHeight}px`;
