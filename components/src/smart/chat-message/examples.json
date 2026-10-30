@@ -1274,6 +1274,53 @@
               "check": "(() => { const p = document.querySelector('#p'); const a = document.querySelector('#a'); const line = p.querySelector('.sf-chat-divider'); return line?.textContent === 'Новые' && line.nextElementSibling?.matches('article.sf-chat-person') && Boolean(p.querySelector('.sf-chat-person__avatar .sf-chat-person__picture')) && a.querySelector('.sf-chat-divider')?.textContent === 'Новые' && !document.querySelector('#b .sf-chat-divider'); })()"
             }
           ]
+        },
+        {
+          "id": "p17-person-day-limit",
+          "title": "1.3.0: display.day draws a day's divider above «Новые» in either template, both role separator named by their words; display.editLimit gives the editor its count past 80 %, its too-long line and a refused save with the typed text kept and no save event; without editLimit the editor neither counts nor refuses",
+          "covers": "settings.display, templates.person, events.save, runtime.people-edit-count, runtime.people-edit-too-long, runtime.people-edit-refused",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.saves = 0, document.addEventListener('sf-chat-message-save', () => { window.saves += 1; }), document.querySelector('#p').message = {id: 50, body: 'Коротко', authorName: 'Вы', canEdit: true}, document.querySelector('#p').display = {own: true, first: true, day: 'Сегодня', divider: 'unread', editing: {body: 'Коротко'}, editLimit: 10}, document.querySelector('#a').message = {id: 51, role: 'assistant', status: 'completed', text: 'Ответ'}, document.querySelector('#a').display = {day: '28 октября'}, true)",
+              "wait": 400,
+              "check": "(() => { const lines = [...document.querySelectorAll('#p .sf-chat-divider')]; const a = document.querySelector('#a .sf-chat-divider'); const c = document.querySelector('#p .sf-chat-person__edit-count'); return lines.map((one) => one.getAttribute('aria-label')).join() === 'Сегодня,Новые' && lines.every((one) => one.getAttribute('role') === 'separator') && a.textContent === '28 октября' && a.getAttribute('role') === 'separator' && c.hidden; })()"
+            },
+            {
+              "script": "(() => { const f = document.querySelector('#p .sf-chat-person__edit-field'); f.value = 'x'.repeat(9); f.dispatchEvent(new Event('input')); return true; })()",
+              "wait": 50,
+              "check": "document.querySelector('#p .sf-chat-person__edit-count').textContent === '9 из 10'"
+            },
+            {
+              "script": "(() => { const f = document.querySelector('#p .sf-chat-person__edit-field'); f.value = 'x'.repeat(11); f.dispatchEvent(new Event('input')); return true; })()",
+              "wait": 50,
+              "check": "document.querySelector('#p .sf-chat-person__edit-count').textContent === 'Сообщение длиннее 10 знаков'"
+            },
+            {
+              "user": "click:#p .sf-chat-person__edit-save",
+              "wait": 100,
+              "check": "(() => { const r = document.querySelector('#p .sf-chat-person__edit-refused'); return window.saves === 0 && !r.hidden && r.textContent === 'Не сохранено: сообщение длиннее 10 знаков' && document.querySelector('#p .sf-chat-person__edit-count').hidden && document.querySelector('#p .sf-chat-person__edit-field').value === 'x'.repeat(11); })()"
+            },
+            {
+              "script": "(() => { const f = document.querySelector('#p .sf-chat-person__edit-field'); f.value = 'x'.repeat(10); f.dispatchEvent(new Event('input')); return true; })()",
+              "wait": 50,
+              "check": "document.querySelector('#p .sf-chat-person__edit-refused').hidden"
+            },
+            {
+              "user": "click:#p .sf-chat-person__edit-save",
+              "wait": 100,
+              "check": "window.saves === 1"
+            },
+            {
+              "script": "(document.querySelector('#p').display = {own: true, first: true, editing: {body: 'y'.repeat(5000)}}, true)",
+              "wait": 300,
+              "check": "!document.querySelector('#p .sf-chat-divider') && !document.querySelector('#p .sf-chat-person__edit-count') && document.querySelector('#p .sf-chat-person__edit-field').value.length === 5000"
+            },
+            {
+              "user": "click:#p .sf-chat-person__edit-save",
+              "wait": 100,
+              "check": "window.saves === 2 && !document.querySelector('#p .sf-chat-person__edit-refused')"
+            }
+          ]
         }
       ]
     }

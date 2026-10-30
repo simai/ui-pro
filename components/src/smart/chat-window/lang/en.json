@@ -54,6 +54,8 @@
     "people-conflict": "Someone has already changed this message",
     "people-conflict-deleted": "Someone has already deleted this message",
     "people-placeholder": "Write a message",
+    "people-today": "Today",
+    "people-yesterday": "Yesterday",
     "preview-back": "Back",
     "preview-close": "Close preview",
     "preview-error": "Could not load the source",

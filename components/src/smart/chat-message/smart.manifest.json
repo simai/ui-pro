@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -61,7 +61,7 @@
       "display": {
         "type": "object",
         "default": {},
-        "description": "What the host knows that the server does not (the 0.3 view): wait, busy, feedback, retried, note, code, sources_open, steps_open, brief, brief_draft; for person own, first, last, showName, editing, askDelete, conflict (1.2.0); divider (1.2.0)."
+        "description": "What the host knows that the server does not (the 0.3 view): wait, busy, feedback, retried, note, code, sources_open, steps_open, brief, brief_draft; for person own, first, last, showName, editing, askDelete, conflict (1.2.0); divider (1.2.0); day, editLimit (1.3.0)."
       },
       "features": {
         "type": "object",
@@ -502,6 +502,14 @@
           "Template person: display.conflict {deleted} shows «Сообщение уже изменили» with the message as it is now over the kept typed text, «Оставить их» and «Заменить своим»; message.authorAvatar beside the first of a run; Escape cancels the delete question.",
           "Both templates: display.divider unread draws «Новые» before the message. Without the new fields a message draws as before."
         ]
+      },
+      {
+        "from": "1.2.0",
+        "to": "1.3.0",
+        "changes": [
+          "Template person: display.editLimit, the editor's limit: the count past 80 %, past the limit a save refused with a line and the typed text kept.",
+          "Both templates: display.day draws the words of a new day before the message, above «Новые»; both are role=separator (sf-chat-divider--day, sf-chat-divider--unread)."
+        ]
       }
     ]
   },
@@ -511,11 +519,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
-        "sha256": "ed87e7c4e00eac52f9d2f1db4d231613b054827780b3ed3b59e301b6ea5524fd"
+        "sha256": "bf84dc6382b2cf23755117a4d8ab829aeb45ac151ffe3eb8496c2f89ca69e94d"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.js",
-        "sha256": "769057037192e0279b9f6e69ac4e35d8063cb69cef45f8b4eb393f450923a808"
+        "sha256": "0a95fefab8383f9975c8ff69d85e52e7f1a81472ae0dd1afa71710e3d565635b"
       },
       {
         "path": "src/smart/chat-message/js/templates/person.js",
@@ -527,7 +535,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
-        "sha256": "7b6458fde770c19120bfdef57f86bbb66a36258f150d2d94b240b93cc1c1f280"
+        "sha256": "e6c42a1789d11e3c8b9904a8d523069360785d7e3cc66fb65d3b5d8502f17089"
       },
       {
         "path": "src/smart/chat-message/js/view/proposed.js",
@@ -535,7 +543,7 @@
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
-        "sha256": "989d88ec73eceb0bb7cf0806e90e747634bb2f2b738f30cf2bbda578e2980f47"
+        "sha256": "cec16711cc7abccb5d0f98de5f9734e9e7d1b0cfc92dcd3b56f887ccd568406c"
       },
       {
         "path": "src/smart/chat-message/rule.js",
@@ -543,11 +551,11 @@
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "c35069178e2971abf2c9fe94fccd0be1bdd734344fe87db698470bbd6040330d"
+        "sha256": "f439212746f14c39d453360d9fc6a7dcf0be53857055a0605cafd724f10bbe16"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "34c749a1874e37d3288420ce11df65be9fcdec3df1673e46ddb73589e0dbb76d"
+        "sha256": "bf0488c18941e06807b4fc3fb8cc6e413b009f0431b5606facec1b8d12cd62e8"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
@@ -555,11 +563,11 @@
       },
       {
         "path": "src/smart/chat-message/lang/en.json",
-        "sha256": "c8f908729b5e2a55319dc672453a7314adea833a10df1a28b48637bb8a2a8cf5"
+        "sha256": "bdeef8373a04d0d982dadb1e57c7fe080c0d945b1ca7b2e85e3240d2a82958ec"
       },
       {
         "path": "src/smart/chat-message/lang/ru.json",
-        "sha256": "fefa6b3451f2ef39496d42d91d61e0d9e51fc525f6c4679bcd49156a7eb732e6"
+        "sha256": "316ca4d6de0ebddc2b5fcb0333a7249f01c084ae2c879ad06693976639c08766"
       }
     ],
     "generated_runtime": []
