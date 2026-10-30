@@ -2468,7 +2468,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "74656d5be19a3456d928d87b56311d9e4bb215f0",
+    "source_revision": "3eb6b238650b385be7175b6a23d5cca293919bb3",
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
@@ -2500,7 +2500,7 @@
       },
       {
         "path": "src/smart/chat-window/js/start-view.js",
-        "sha256": "984be33723c311c9636b823028124d1722fdcebaebcf361487408f0c4b9f2b79"
+        "sha256": "8ad2a4d9d47d22f811f25daa07e226ca4a8fc1d4cc11673b25e8ddd07f3eaa7b"
       },
       {
         "path": "src/smart/chat-window/js/start-model.js",
@@ -2520,7 +2520,7 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "4f3e4235123d83497099fc27f7b86b46f558830ccc64b21acde6b336744b5a2b"
+        "sha256": "fc84504d1449e989d429414befba49277ed60c598ca22ab606190134375235ff"
       },
       {
         "path": "src/smart/chat-window/component.json",
