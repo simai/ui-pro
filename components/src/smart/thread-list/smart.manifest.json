@@ -852,11 +852,11 @@
       },
       {
         "path": "src/smart/thread-list/js/templates/default.js",
-        "sha256": "9ed2a3cea2b45e4ce23bc39c8cecf29f7f0adea36ac51f36645159d3c4005673"
+        "sha256": "df27e4d97a0ed1c175d858842034281080c6ca0b1270eca9c653c4ebbf0c559c"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.css",
-        "sha256": "e5d7fefb77da132ba6667de9c77c5691a8af19e4c8d81b32028463690abb9dca"
+        "sha256": "fb8f226c9fb754f18daaa989bb608575230d8471b5ccd31446657c69ad957125"
       },
       {
         "path": "src/smart/thread-list/rule.js",
@@ -864,11 +864,11 @@
       },
       {
         "path": "src/smart/thread-list/docs.md",
-        "sha256": "a9d7bcf2a6d4a24f443e84544c153cec0d07111bd2f48c73cdf168290666f922"
+        "sha256": "9a74c351e8066678392370a8a0d7b2b0d9fcec14c5603193709b61dedfdb9b2c"
       },
       {
         "path": "src/smart/thread-list/component.json",
-        "sha256": "fa1e14c41ea389cecc9d04dbd7ad039aba4be5dc90b46637df281a18073bd787"
+        "sha256": "afcb1ff7f2a0c1b5549472244c528f3676ffc0db475bcf855fb8bc2126f60b33"
       },
       {
         "path": "src/smart/thread-list/aliases.json",
