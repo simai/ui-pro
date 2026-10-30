@@ -23,7 +23,7 @@ import {fileURLToPath} from 'node:url';
 
 export const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const OVERLAY_DIRECTORIES = ['src', 'tests', 'docs'];
-export const PACKAGE_COMPONENTS = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'property-view', 'table', 'thread-list'];
+export const PACKAGE_COMPONENTS = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'property-view', 'table', 'thread-list'];
 
 export function readLock(root = PACKAGE_ROOT) {
   const lock = JSON.parse(readFileSync(join(root, 'framework.lock.json'), 'utf8'));

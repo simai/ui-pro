@@ -1,0 +1,540 @@
+{
+  "schema_version": 2,
+  "id": "smart.mail-canvas",
+  "version": "1.0.0",
+  "title": "Letter canvas",
+  "summary": "The canvas of SIMAI Email Editor: a rendered letter in a frame that runs nothing, the width switch, the out-of-date and weight notes and sf-composition-overlay on top. The element knows no letter, no block manifest and no renderer: the host passes the HTML and the data about it, and hears what the person did.",
+  "kind": "smart",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "mail",
+    "canvas",
+    "preview",
+    "letter"
+  ],
+  "capabilities": [
+    "interaction",
+    "keyboard",
+    "responsive"
+  ],
+  "custom_element": "sf-mail-canvas",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "smart.button-group",
+      "smart.composition-overlay"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "properties": {
+      "template": {
+        "type": "string",
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates."
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
+      },
+      "html": {
+        "type": "string",
+        "default": "",
+        "description": "The rendered letter, the string the frame shows. Empty keeps the last good picture."
+      },
+      "selected": {
+        "type": "string",
+        "default": "",
+        "description": "The chosen block; empty means none is."
+      },
+      "width": {
+        "type": "string",
+        "default": "",
+        "description": "The width in use, by value; empty or unknown is the first of widths. The element changes it itself when the person presses a width."
+      },
+      "stale": {
+        "type": "boolean",
+        "default": false,
+        "description": "Says the picture is out of date; the picture stays."
+      },
+      "accepts": {
+        "type": "string",
+        "default": "",
+        "description": "The sf-sortable groups whose items may be dropped on the letter, separated by spaces (the overlay's accepts)."
+      },
+      "mark-attribute": {
+        "type": "string",
+        "default": "data-block",
+        "description": "The attribute that marks a block in the letter; its value is the item's id. A data- name."
+      },
+      "box-attribute": {
+        "type": "string",
+        "default": "",
+        "description": "The attribute that marks a block's box inside it: the box takes the tint and the overlay's line. Empty is the block itself. A data- name."
+      },
+      "paper": {
+        "type": "string",
+        "default": "",
+        "description": "A selector of the letter's paper inside the frame: it casts the shadow when the frame is wider than the letter. Otherwise the frame casts it."
+      },
+      "overlay-target": {
+        "type": "string",
+        "default": "",
+        "description": "The id of an sf-composition-overlay the host placed elsewhere on the page, outside a contained ancestor (simai/ui-source#58). Empty places one in the element's own markup."
+      },
+      "widths": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        },
+        "description": "The widths offered, as sf-button-group takes them: {value, label, icon, icon-only, aria-label}. value is the letter's width; frame is the frame's width in pixels when it differs from value. Empty shows no switch and the frame fills the well."
+      },
+      "weight": {
+        "type": "object",
+        "default": {},
+        "description": "How heavy the letter's HTML is, {bytes, max} in kilobytes, when it comes near the clip size. Empty shows no note."
+      },
+      "items": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        },
+        "description": "What the letter holds, for the overlay and for what counts as a block: {id, label, kind, parent, editable, rect}. A mark in the letter whose id is not here is not a block."
+      },
+      "actions": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        },
+        "description": "The toolbar of the chosen block: up to 16 {id, label}, through the overlay's own check."
+      }
+    },
+    "additionalProperties": false
+  },
+  "item_contract": {},
+  "contracts": {
+    "item": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The block's id: what the events carry and what the mark holds."
+        },
+        "label": {
+          "type": "string",
+          "description": "Its name, in the overlay's frame and tree."
+        },
+        "kind": {
+          "type": "string",
+          "description": "The host's kind of node."
+        },
+        "parent": {
+          "type": "string",
+          "description": "The id of another item."
+        },
+        "editable": {
+          "type": "boolean",
+          "description": "Allows plain-string editing on the letter."
+        },
+        "rect": {
+          "type": "object",
+          "description": "{x, y, width, height} in frame coordinates, for a part with no element."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "choice": {
+      "const": "A press in the frame or the tree dispatches sf-mail-canvas-select {ids, id}; the pointer sf-mail-canvas-hover {id}; a width button change {value, previous}; the overlay sf-mail-canvas-apply {action, scope, ids}, sf-mail-canvas-insert {parent, slot, index, item, from, mode}, sf-mail-canvas-move {ids, id, parent, position, slot} and sf-mail-canvas-edit {id, value, previous}; a loaded letter sf-mail-canvas-draw {}. The element changes no letter: the host does, and passes the HTML back."
+    }
+  },
+  "methods": {
+    "select": {
+      "summary": "Choose a block as a press does; no id chooses none; refused unknown for a block not in items.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "setWidth": {
+      "summary": "Switch the width as its button does; refused unknown for a width not offered, unchanged when it is in use.",
+      "arguments": [
+        {
+          "name": "value",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | unchanged}"
+      }
+    },
+    "reveal": {
+      "summary": "Bring a block into view on the canvas, the chosen one without an id; refused unknown, unchanged when it is already in view.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | unchanged}"
+      }
+    },
+    "refresh": {
+      "summary": "Measure the frame and update the overlay again, after a change nothing reports (a transform on an ancestor).",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    }
+  },
+  "events": {
+    "sf-mail-canvas-select": {
+      "summary": "This block was chosen: {ids, id}. An empty id is none.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids",
+          "id"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array"
+          },
+          "id": {}
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-canvas-hover": {
+      "summary": "The pointer is over this block: {id}. An empty id is none.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": true
+      }
+    },
+    "change": {
+      "summary": "The width in use is now this: {value, previous}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "value",
+          "previous"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "previous": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-canvas-apply": {
+      "summary": "This toolbar action was chosen for this block: {action, scope, ids}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "action",
+          "scope",
+          "ids"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "scope": {
+            "const": "entry"
+          },
+          "ids": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-canvas-insert": {
+      "summary": "A block was asked for at this place: {parent, slot, index, item, from, mode}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "parent",
+          "slot",
+          "index"
+        ],
+        "properties": {
+          "parent": {},
+          "slot": {
+            "type": "string"
+          },
+          "index": {
+            "type": "integer"
+          },
+          "item": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "move",
+              "copy"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-canvas-move": {
+      "summary": "Move this block to this place: {ids, id, parent, position, slot}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids",
+          "id",
+          "parent",
+          "position",
+          "slot"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array"
+          },
+          "id": {},
+          "parent": {},
+          "position": {
+            "type": "number"
+          },
+          "slot": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-canvas-edit": {
+      "summary": "This node's text now reads this: {id, value, previous}. Cancel to put the text back.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id",
+          "value",
+          "previous"
+        ],
+        "properties": {
+          "id": {},
+          "value": {
+            "type": "string"
+          },
+          "previous": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-canvas-draw": {
+      "summary": "A new letter is in the frame, not yet measured.",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": true
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "picture": [
+        "none",
+        "shown",
+        "drawing"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "selected",
+      "loading"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "rendering or changing the letter",
+      "knowing the block manifest",
+      "running anything from the letter"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "html (shown in a sandboxed frame with no scripts)",
+      "marks in html (a block only when items names it)"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "region",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Tab",
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+      "Home",
+      "End",
+      "Enter",
+      "Escape"
+    ],
+    "focus": "The width switch, then the overlay's tree. The frame and the letter's links take no tab stop. The frame and the layer are named in the page language."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "mail-canvas-probe"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2",
+      "ui_smart_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": []
+  },
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "0149826f7822e531be1f2b85ecf6ded38b9a5eaf",
+    "source_artifacts": [
+      {
+        "path": "src/smart/mail-canvas/index.js",
+        "sha256": "63dee8e43bb1bbdc096571a67da621b16675c894e78b1c0bc1b51e32eea52086"
+      },
+      {
+        "path": "src/smart/mail-canvas/js/templates/default.js",
+        "sha256": "302c02023476218f4bd4d3ddc75bb90105b43352673fb1c4007df57484b165b5"
+      },
+      {
+        "path": "src/smart/mail-canvas/js/templates/default.css",
+        "sha256": "5f29f7229a0b38311b669bb61745d1a14851f31e30c5c03280e982179ea69be4"
+      },
+      {
+        "path": "src/smart/mail-canvas/rule.js",
+        "sha256": "a163b81e25f00c2c2316ef95209429a68ecf7e1fd889b5cb7ea55544e0d72466"
+      },
+      {
+        "path": "src/smart/mail-canvas/docs.md",
+        "sha256": "c01f16047003a65ad895a4ba25cc256b5122e79d1f46c9790822501cd27b5290"
+      },
+      {
+        "path": "src/smart/mail-canvas/component.json",
+        "sha256": "4ef6abb1517f800904a0264302ac0a7d69f89b6c826ee2d2c9491e0624535565"
+      },
+      {
+        "path": "src/smart/mail-canvas/lang/en.json",
+        "sha256": "bc46bd17c3b7aae142e66d52332759daaad872c476a9852c4baafd1bb57132f3"
+      },
+      {
+        "path": "src/smart/mail-canvas/lang/ru.json",
+        "sha256": "991edbb8e3d7ee68ffb3605ef307f71b868feed79d8c368ddafc559067930dce"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use sf-mail-canvas wherever a person sees and presses on a rendered letter in SIMAI Email Editor.",
+    "do_not": [
+      "Do not give the frame scripts or a wider sandbox",
+      "Do not place the element's own overlay under an ancestor with contain: layout; pass overlay-target",
+      "Do not render or change the letter in the element; listen for its events and do it in the host"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-mail-canvas id=\"canvas\"></sf-mail-canvas> <script>canvas.items = [{id: 'b1', label: 'Заголовок'}]; canvas.html = '<p data-block=\"b1\">Письмо</p>';</script>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-manifest-probes.mjs <free output> <package output> mail-canvas"
+    ]
+  }
+}

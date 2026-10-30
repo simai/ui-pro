@@ -1,0 +1,525 @@
+{
+  "$comment": "The source of sf-mail-canvas's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-mail by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
+  "id": "smart.mail-canvas",
+  "tag": "sf-mail-canvas",
+  "version": "1.0.0",
+  "kind": "leaf",
+  "family": "editor",
+  "settings": {
+    "html": {
+      "type": "string",
+      "default": "",
+      "x-markup": "a property: a letter is too long for an attribute; the attribute is read until a property is written. Untrusted: it is shown in a frame that runs no script.",
+      "summary": "The rendered letter, the string the frame shows. Empty keeps the last good picture."
+    },
+    "selected": {
+      "type": "id",
+      "default": "",
+      "summary": "The chosen block; empty means none is."
+    },
+    "widths": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "value": "string",
+        "label": "string",
+        "icon": {
+          "type": "icon",
+          "optional": true
+        },
+        "frame": {
+          "type": "number",
+          "optional": true
+        },
+        "icon-only": {
+          "type": "boolean",
+          "optional": true
+        },
+        "aria-label": {
+          "type": "string",
+          "optional": true
+        }
+      },
+      "entries": {
+        "key": "value",
+        "changes": "content"
+      },
+      "x-markup": "a property, or the JSON island a server prints; label is text, never markup.",
+      "summary": "The widths offered, as sf-button-group takes them: {value, label, icon, icon-only, aria-label}. value is the letter's width; frame is the frame's width in pixels when it differs from value. Empty shows no switch and the frame fills the well."
+    },
+    "width": {
+      "type": "string",
+      "default": "",
+      "summary": "The width in use, by value; empty or unknown is the first of widths. The element changes it itself when the person presses a width."
+    },
+    "stale": {
+      "type": "boolean",
+      "default": false,
+      "summary": "Says the picture is out of date; the picture stays."
+    },
+    "weight": {
+      "type": "object",
+      "default": {},
+      "of": {
+        "bytes": "number",
+        "max": "number"
+      },
+      "x-markup": "a property, or the JSON island a server prints.",
+      "summary": "How heavy the letter's HTML is, {bytes, max} in kilobytes, when it comes near the clip size. Empty shows no note."
+    },
+    "items": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "id": "id",
+        "label": {
+          "type": "string",
+          "optional": true
+        },
+        "kind": {
+          "type": "string",
+          "optional": true
+        },
+        "parent": {
+          "type": "id",
+          "optional": true
+        },
+        "editable": {
+          "type": "boolean",
+          "optional": true
+        },
+        "rect": {
+          "type": "object",
+          "optional": true
+        }
+      },
+      "entries": {
+        "key": "id",
+        "changes": "content"
+      },
+      "x-markup": "a property, or the JSON island a server prints; label is text, never markup.",
+      "summary": "What the letter holds, for the overlay and for what counts as a block: {id, label, kind, parent, editable, rect}. A mark in the letter whose id is not here is not a block."
+    },
+    "actions": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "id": "string",
+        "label": "string"
+      },
+      "entries": {
+        "key": "id",
+        "changes": "content"
+      },
+      "summary": "The toolbar of the chosen block: up to 16 {id, label}, through the overlay's own check."
+    },
+    "accepts": {
+      "type": "string",
+      "default": "",
+      "summary": "The sf-sortable groups whose items may be dropped on the letter, separated by spaces (the overlay's accepts)."
+    },
+    "mark-attribute": {
+      "type": "string",
+      "default": "data-block",
+      "summary": "The attribute that marks a block in the letter; its value is the item's id. A data- name."
+    },
+    "box-attribute": {
+      "type": "string",
+      "default": "",
+      "summary": "The attribute that marks a block's box inside it: the box takes the tint and the overlay's line. Empty is the block itself. A data- name."
+    },
+    "paper": {
+      "type": "string",
+      "default": "",
+      "summary": "A selector of the letter's paper inside the frame: it casts the shadow when the frame is wider than the letter. Otherwise the frame casts it."
+    },
+    "overlay-target": {
+      "type": "string",
+      "default": "",
+      "summary": "The id of an sf-composition-overlay the host placed elsewhere on the page, outside a contained ancestor (simai/ui-source#58). Empty places one in the element's own markup."
+    }
+  },
+  "values": {},
+  "events": {
+    "select": {
+      "carries": {
+        "ids": "list",
+        "id": "id"
+      },
+      "x-summary": "a press in the frame or the overlay's tree chose a block (vocabulary §5 select); an empty id and ids means nothing is chosen. The host passes selected back.",
+      "summary": "This block was chosen: {ids, id}. An empty id is none."
+    },
+    "hover": {
+      "carries": {
+        "id": "id"
+      },
+      "own-verb": true,
+      "x-summary": "the pointer came to another block in the frame (a verb of this element, as view state: the tint is already drawn).",
+      "summary": "The pointer is over this block: {id}. An empty id is none."
+    },
+    "change": {
+      "carries": {
+        "value": "string",
+        "previous": "string"
+      },
+      "x-summary": "the person pressed another width (vocabulary §5 change, under the plain native name). The element has already applied it: this is view state.",
+      "summary": "The width in use is now this: {value, previous}."
+    },
+    "apply": {
+      "carries": {
+        "action": "string",
+        "scope": {
+          "type": "enum",
+          "values": [
+            "entry"
+          ]
+        },
+        "ids": "list"
+      },
+      "x-summary": "an action of the overlay's toolbar (vocabulary §5 apply).",
+      "summary": "This toolbar action was chosen for this block: {action, scope, ids}."
+    },
+    "insert": {
+      "carries": {
+        "parent": "id",
+        "slot": "string",
+        "index": {
+          "type": "number",
+          "integer": true
+        },
+        "item": {
+          "type": "string",
+          "optional": true
+        },
+        "from": {
+          "type": "string",
+          "optional": true
+        },
+        "mode": {
+          "type": "enum",
+          "values": [
+            "move",
+            "copy"
+          ],
+          "optional": true
+        }
+      },
+      "own-verb": true,
+      "x-summary": "an insertion point on the letter or an item dropped on it (a verb of the overlay, kept). The top level is parent empty.",
+      "summary": "A block was asked for at this place: {parent, slot, index, item, from, mode}."
+    },
+    "move": {
+      "carries": {
+        "ids": "list",
+        "id": "id",
+        "parent": "id",
+        "position": "number",
+        "slot": "string"
+      },
+      "x-summary": "the overlay's handle moved a node to a place (vocabulary §5 move).",
+      "summary": "Move this block to this place: {ids, id, parent, position, slot}."
+    },
+    "edit": {
+      "carries": {
+        "id": "id",
+        "value": "string",
+        "previous": "string"
+      },
+      "own-verb": true,
+      "cancelable": true,
+      "x-summary": "a plain-string edit on the letter was committed: the overlay's change, under a verb of this element, because change here is the width. Cancelled, the text shows what it showed before.",
+      "summary": "This node's text now reads this: {id, value, previous}. Cancel to put the text back."
+    },
+    "draw": {
+      "carries": {},
+      "own-verb": true,
+      "x-summary": "a new letter has loaded and is about to be measured (a verb of this element): what a host adjusts in frameDocument counts in the frame's height.",
+      "summary": "A new letter is in the frame, not yet measured."
+    }
+  },
+  "actions": {
+    "select": {
+      "with": {
+        "id": {
+          "type": "id",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "choose as a press does; refused unknown",
+      "summary": "Choose a block as a press does; no id chooses none; refused unknown for a block not in items.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "set-width": {
+      "with": {
+        "value": "string"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what a width button does; refused unknown, unchanged",
+      "summary": "Switch the width as its button does; refused unknown for a width not offered, unchanged when it is in use.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | unchanged}"
+      }
+    },
+    "reveal": {
+      "with": {
+        "id": {
+          "type": "id",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "bring a block into view on the canvas; refused unknown, unchanged",
+      "summary": "Bring a block into view on the canvas, the chosen one without an id; refused unknown, unchanged when it is already in view.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | unchanged}"
+      }
+    },
+    "refresh": {
+      "with": {},
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "measure the frame and update the overlay again",
+      "summary": "Measure the frame and update the overlay again, after a change nothing reports (a transform on an ancestor).",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    }
+  },
+  "slots": {},
+  "keyboard": {
+    "host": {
+      "Tab": "reach"
+    },
+    "tree": {
+      "ArrowUp": "previous",
+      "ArrowDown": "next",
+      "ArrowLeft": "parent",
+      "ArrowRight": "child",
+      "Home": "first",
+      "End": "last",
+      "Enter": "toolbar",
+      "Escape": "clear"
+    }
+  },
+  "relations": [
+    {
+      "name": "cl-button-group"
+    },
+    {
+      "name": "cl-composition-overlay"
+    }
+  ],
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "region",
+    "name": {
+      "from": [
+        "runtime.preview-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "ArrowUp": "previous",
+      "ArrowDown": "next",
+      "ArrowLeft": "parent",
+      "ArrowRight": "child",
+      "Home": "first",
+      "End": "last",
+      "Enter": "toolbar",
+      "Escape": "clear"
+    },
+    "x-keys": "the width switch, then the overlay's tree as one tab stop; the frame and the letter's links take no tab stop. The keys of the tree and the toolbar are sf-composition-overlay's, and work inside the frame after a press on it."
+  },
+  "host-states": {},
+  "css-variables": {},
+  "x-summary": "The canvas of SIMAI Email Editor: a rendered letter in a frame that runs nothing, the width switch, the out-of-date and weight notes and sf-composition-overlay on top. The element knows no letter, no block manifest and no renderer: the host passes the HTML and the data about it, and hears what the person did.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "mail-canvas",
+    "manifest": "simai/ui-mail src/ui/app.ts drawPreview, wireFrame, wireOverlay and src/ui/index.html #canvas",
+    "converted": "written by hand (D31, 2026-10-30) from the editor's own canvas, so the words, the frame and the behaviour are the ones the editor proved"
+  },
+  "x-words": [],
+  "x-renamed": [],
+  "x-decisions": [
+    "names: sf-mail-canvas, as the dispatcher's plan names it.",
+    "boundary: the element knows no letter, no block manifest and no renderer. html is a string the host rendered; the marks are attributes the host names (mark-attribute, box-attribute), the paper a selector it names (paper). What the letter's own styles do, its background and the box's geometry among them, is part of html.",
+    "untrusted content: the frame's sandbox is allow-same-origin and nothing else, written in the template and proved by a probe. A mark counts as a block only when its id is in items, so a letter cannot choose for the host.",
+    "last good picture: an empty html changes nothing and a new one replaces the old only when it has loaded; stale only says so. A host whose render failed passes no new html.",
+    "html is a property kept by the element: the manifest's string makes an attribute, and a letter does not belong in one. The attribute is read until a property is written, so an example or a printed page still works.",
+    "width: the element applies a pressed width itself and says so with change, view state like a section's toggle; the host redraws only if it wants to. A frame wider than the letter's width leaves the shadow to the paper inside it, as the editor does at its 600 px width.",
+    "tints: the paper roles (--sf-paper-hover, --sf-paper-select) resolved on the page and written into a sheet in the frame, which has no tokens. The frame casts its shadow through the shadow-1 utility and the paper inside through --sf-elevation-1--shadow read in the light scheme: a letter takes no surface of the interface, and the elevation contract reads the stylesheet.",
+    "events: select, change, apply and move are vocabulary §5 verbs; hover, insert, edit and draw are verbs of this element. The overlay's change (a plain-string edit) is edit here, because change here is the width, under the plain native name.",
+    "overlay: simai/ui-source#58 is the Framework's and open: under an ancestor with contain: layout (a docked sf-drawer's container) the overlay's fixed layer lands offset. The element does not hide that. It places the overlay in its own markup by default, and overlay-target binds one the host placed outside such an ancestor; docs.md says which is which.",
+    "first paint: a printed frame shows the letter (sandbox and srcdoc as drawn) and the well holds its size, so nothing below moves when the letter is measured. The overlay's parts float where its code places them, so printed they are not shown; and its toolbar is not shown until placed, because sf-composition-overlay unhides it before the frame that places it and the gate measured the shift (a Framework behaviour, worked around in this element's sheet only)."
+  ],
+  "x-rule": {
+    "$comment": [
+      "The canvas draws its width switch as sf-button-group and places sf-composition-overlay over the frame;",
+      "a tag it renders is a tag it fetches. Both are drawn at once: the overlay is what makes the letter",
+      "something to press on. The element waits for the overlay before it attaches the frame."
+    ]
+  },
+  "x-registry": {
+    "capabilities": [
+      "interaction",
+      "keyboard",
+      "responsive"
+    ],
+    "persistence": {
+      "mode": "none",
+      "source_of_truth": "host",
+      "network_owner": "host",
+      "revision_field": null
+    },
+    "readiness": {
+      "level": "host-required",
+      "required_checks": [
+        "manifest",
+        "loader-rule",
+        "mail-canvas-probe"
+      ]
+    },
+    "tags": [
+      "mail",
+      "canvas",
+      "preview",
+      "letter"
+    ],
+    "contracts": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The block's id: what the events carry and what the mark holds."
+          },
+          "label": {
+            "type": "string",
+            "description": "Its name, in the overlay's frame and tree."
+          },
+          "kind": {
+            "type": "string",
+            "description": "The host's kind of node."
+          },
+          "parent": {
+            "type": "string",
+            "description": "The id of another item."
+          },
+          "editable": {
+            "type": "boolean",
+            "description": "Allows plain-string editing on the letter."
+          },
+          "rect": {
+            "type": "object",
+            "description": "{x, y, width, height} in frame coordinates, for a part with no element."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "choice": {
+        "const": "A press in the frame or the tree dispatches sf-mail-canvas-select {ids, id}; the pointer sf-mail-canvas-hover {id}; a width button change {value, previous}; the overlay sf-mail-canvas-apply {action, scope, ids}, sf-mail-canvas-insert {parent, slot, index, item, from, mode}, sf-mail-canvas-move {ids, id, parent, position, slot} and sf-mail-canvas-edit {id, value, previous}; a loaded letter sf-mail-canvas-draw {}. The element changes no letter: the host does, and passes the HTML back."
+      }
+    },
+    "state": {
+      "machines": {
+        "picture": [
+          "none",
+          "shown",
+          "drawing"
+        ]
+      },
+      "visual_states": [
+        "default",
+        "selected",
+        "loading"
+      ]
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "rendering or changing the letter",
+        "knowing the block manifest",
+        "running anything from the letter"
+      ]
+    },
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "html (shown in a sandboxed frame with no scripts)",
+        "marks in html (a block only when items names it)"
+      ],
+      "network_policy": "deny"
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-mail-canvas wherever a person sees and presses on a rendered letter in SIMAI Email Editor.",
+      "do_not": [
+        "Do not give the frame scripts or a wider sandbox",
+        "Do not place the element's own overlay under an ancestor with contain: layout; pass overlay-target",
+        "Do not render or change the letter in the element; listen for its events and do it in the host"
+      ],
+      "required_reads": [
+        "inputs",
+        "contracts",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-mail-canvas id=\"canvas\"></sf-mail-canvas> <script>canvas.items = [{id: 'b1', label: 'Заголовок'}]; canvas.html = '<p data-block=\"b1\">Письмо</p>';</script>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-manifest-probes.mjs <free output> <package output> mail-canvas"
+      ]
+    },
+    "accessibility": {
+      "accessible_name": "internal",
+      "focus": "The width switch, then the overlay's tree. The frame and the letter's links take no tab stop. The frame and the layer are named in the page language."
+    },
+    "compatibility": {
+      "migrations": []
+    }
+  }
+}

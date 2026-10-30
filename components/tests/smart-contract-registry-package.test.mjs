@@ -19,12 +19,12 @@ test("the package composites are generated into the searchable registry beside t
   // free, the four admin composites, the three conversation components
   // promoted from simai/ui-chat (2026-10-25), sf-chat-interlocutor,
   // sf-chat-composer, sf-chat-message and sf-chat-window, moved from it (D31,
-  // 2026-10-28), and sf-mail-library, sf-mail-letters, sf-mail-structure and
-  // sf-mail-inspector, moved from simai/ui-mail (D31, 2026-10-29).
-  assert.equal(registry.entries.length, 81);
+  // 2026-10-28), and sf-mail-library, sf-mail-letters, sf-mail-structure,
+  // sf-mail-inspector and sf-mail-canvas, moved from simai/ui-mail (D31, 2026-10-29).
+  assert.equal(registry.entries.length, 82);
   for (const id of ["smart.admin-menu", "smart.data-view", "smart.data-view-composite", "smart.property-view",
     "smart.message-log", "smart.thread-list", "smart.change-confirm", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
-    "smart.mail-library", "smart.mail-letters", "smart.mail-structure", "smart.mail-inspector"]) {
+    "smart.mail-library", "smart.mail-letters", "smart.mail-structure", "smart.mail-inspector", "smart.mail-canvas"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
   }
   assert.ok(registry.entries.find(({id}) => id === "smart.admin-menu").capabilities.includes("navigation"));
