@@ -285,11 +285,13 @@ class SfMailCanvas extends MailCanvasElement {
         letter.addEventListener("mouseout", (event) => {
             if (!event.relatedTarget) this.sayHovered("");
         });
-        this.drawTints();
-        this.syncOverlay();
         // Before the measure, so what a host adjusts counts in the frame's height.
         this.sfEmit("draw", {});
-        this.fitFrame();
+        // Measured before the overlay hears of the letter, so its toolbar is
+        // placed once, in the frame's real height.
+        this.measureFrame();
+        this.drawTints();
+        this.syncOverlay();
     }
 
     sayHovered(id) {
@@ -298,28 +300,32 @@ class SfMailCanvas extends MailCanvasElement {
         this.sfEmit("hover", {id});
     }
 
+    /** Measures on the next frame, after a change the page has not laid out yet. */
+    fitFrame() {
+        requestAnimationFrame(() => this.measureFrame());
+    }
+
     /**
      * The frame is as tall as the letter. The height is measured from nothing,
      * because scrollHeight never drops below the frame; the scroll position the
-     * person had is put back in the same task, so no paint sees the difference.
+     * person had is put back at once, in the same task and not animated, so no
+     * paint sees the difference.
      */
-    fitFrame() {
-        requestAnimationFrame(() => {
-            const frame = this.frame;
-            const scroller = this.scroller;
-            const letter = this.frameDocument?.documentElement;
-            if (!frame || !scroller || !letter || !this.written) return;
-            const top = scroller.scrollTop;
-            frame.style.height = "0";
-            let height = letter.scrollHeight;
-            // A letter whose height follows its frame settles in a step or two.
-            for (let step = 0; step < 4; step += 1) {
-                frame.style.height = `${height}px`;
-                if (letter.scrollHeight <= letter.clientHeight) break;
-                height = letter.scrollHeight + (letter.scrollHeight - letter.clientHeight);
-            }
-            scroller.scrollTop = top;
-        });
+    measureFrame() {
+        const frame = this.frame;
+        const scroller = this.scroller;
+        const letter = this.frameDocument?.documentElement;
+        if (!frame || !scroller || !letter || !this.written) return;
+        const top = scroller.scrollTop;
+        frame.style.height = "0";
+        let height = letter.scrollHeight;
+        // A letter whose height follows its frame settles in a step or two.
+        for (let step = 0; step < 4; step += 1) {
+            frame.style.height = `${height}px`;
+            if (letter.scrollHeight <= letter.clientHeight) break;
+            height = letter.scrollHeight + (letter.scrollHeight - letter.clientHeight);
+        }
+        scroller.scrollTo({top, behavior: "instant"});
     }
 
     /** A Framework value as the frame needs it: the frame has no Framework tokens. */
