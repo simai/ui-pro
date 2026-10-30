@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -350,6 +350,35 @@
     },
     "closeFind": {
       "summary": "Close the search in the conversation; the focus returns to what opened it (action close-find; answers an outcome).",
+      "arguments": [
+        {
+          "name": "focus",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "openPreview": {
+      "summary": "Open the source preview beside the conversation (action open-preview; answers an outcome).",
+      "arguments": [
+        {
+          "name": "source",
+          "schema": {
+            "type": "object",
+            "description": "{title, kind, preview_url, locator, mime, n?}: preview_url of the page's origin; locator {from, to} characters of the text, or {page} of a PDF."
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "closePreview": {
+      "summary": "Close the source preview; the focus returns to what opened it (action close-preview; answers an outcome).",
       "arguments": [
         {
           "name": "focus",
@@ -1318,7 +1347,7 @@
   },
   "events": {
     "sf-chat-window-open": {
-      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files). Was chat-port:open, chat-window:view, chat-window:files. The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01.",
+      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -1955,7 +1984,7 @@
       }
     },
     "sf-chat-window-toggle": {
-      "summary": "The search in the conversation opened or closed: {kind: find, open}. The host state data-find-open says the same.",
+      "summary": "The search in the conversation or the source preview opened or closed: {kind: find|preview, open}. The host states data-find-open and data-preview-open say the same.",
       "payload": {
         "type": "object",
         "required": [
@@ -1964,7 +1993,10 @@
         ],
         "properties": {
           "kind": {
-            "const": "find"
+            "enum": [
+              "find",
+              "preview"
+            ]
           },
           "open": {
             "type": "boolean"
@@ -2167,6 +2199,11 @@
       "find": [
         "closed",
         "open"
+      ],
+      "preview": [
+        "closed",
+        "beside",
+        "sheet"
       ]
     },
     "visual_states": [
@@ -2202,9 +2239,10 @@
       "interlocutor greetings and suggestions (drawn as text)",
       "file names (drawn as text)",
       "download addresses (the host's, used as given)",
-      "the host's refusal words (drawn as text)"
+      "the host's refusal words (drawn as text)",
+      "a source's preview (fetched from a same-origin preview_url only, drawn sanitized: SF.sanitizeHtml)"
     ],
-    "network_policy": "deny"
+    "network_policy": "host-only"
   },
   "accessibility": {
     "role": "region",
@@ -2297,6 +2335,14 @@
           "The queue: a question sent while an answer is awaited waits above the field as a card («Отправлю после ответа», «Изменить», «Убрать») and goes as an ordinary message.send after a successful answer, one at a time; an answer that ended otherwise holds the queue for «Отправить» by hand. Per conversation, on this page only. The setting no-queue turns it off. No new intent and no change for a host.",
           "The search in the open conversation: the actions open-find {query} and close-find {focus}, Ctrl/Cmd+F inside the window, the event toggle {kind: find, open} and the host state data-find-open. It searches the loaded messages only and asks the host nothing."
         ]
+      },
+      {
+        "from": "1.1.0",
+        "to": "1.2.0",
+        "changes": [
+          "The source preview (API.md v1.3, proposed): a footnote or a source title with a same-origin preview_url opens the source beside the conversation (a sheet over it on a narrow window), with the passage {from, to} marked; the actions open-preview {source} and close-preview {focus}, the event toggle {kind: preview, open}, the cancelable open {kind: preview} and the host state data-preview-open. Without preview_url nothing changes.",
+          "An assistant message's steps and an answer's files (mime, preview_url) are passed to sf-chat-message 1.1.0, and while there are steps the announcer says the step at work. No new intent: the host answers nothing new."
+        ]
       }
     ]
   },
@@ -2306,7 +2352,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "4ee677989b376e34fe9ba5303962f35aaac2217bdc52c64cca7eb8d732b78fd9"
+        "sha256": "16c7cddcd307eb0c5a17a9e0948ae0bb4badaa000211a222beeb24fd5c23d5e2"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2321,12 +2367,16 @@
         "sha256": "c19cddea561b6a81f88a6993b0c6571c4749a3c29a80db4090b96a10efbb720f"
       },
       {
+        "path": "src/smart/chat-window/js/preview-view.js",
+        "sha256": "3aef0a7188cfeb6d2a0d637151af2f163fc7b245e5116ffda5ce01db66a53b8e"
+      },
+      {
         "path": "src/smart/chat-window/js/templates/default.js",
         "sha256": "e618ad146e539305dbe35b4a5259617fa2370bbd9fa38bcac4434610c4d18a2d"
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "9fe8528da872fc3c4f0f8d1e9428b3b8a076acb67fe4b2833643d51dd4d5132a"
+        "sha256": "a35ac1741bd490457a2e7d5c52e3c9c0057af75d8eb0671b38be35b14445289d"
       },
       {
         "path": "src/smart/chat-window/rule.js",
@@ -2334,11 +2384,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "85356d1bb43422a2db49a35a244543d3a29eb38ecf517c3b25f160a2eda0620a"
+        "sha256": "f1d59442cc8a0fec09fdc45c67bc7a9261d240f1173c2876354440ede2b7cb2e"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "c7a8a4fc5153c4c4003551a19e05a4ae57e3e083b50f664766430064ad01e43a"
+        "sha256": "ac1dca4b142671a3c1892e24dffbc904d65dfefb6c8a6441001ec312219488bf"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2346,11 +2396,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "d0dc57ba20e9d64dd4a2119a2a9b97adce9a1aa5d0947a2eda7bd551aa9a2e90"
+        "sha256": "3daa23428d925f49a0e9e03668f358da073a39b0e630f695f342aa5101cb002e"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "0736d9f8577bded078bad56d0ec6178ceba9c5039e3a3665a9454325788c3a5a"
+        "sha256": "fac8b060a1cf03e651b8a4cb6e808f3e32af815e66d1fddcac453d35fbec1c40"
       }
     ],
     "generated_runtime": []

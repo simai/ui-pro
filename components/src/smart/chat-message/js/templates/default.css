@@ -57,6 +57,7 @@
     --sf-chat-message--greeting-max: var(--sf-g6);
     --sf-chat-message--pulse-period: 1.4s;
     --sf-chat-message--shimmer-period: 2.2s;
+    --sf-chat-message--spin-period: 0.9s;
     --sf-chat-message--tools-height: var(--sf-ui-1\/2--control-height);
   }
 
@@ -751,6 +752,218 @@
     .sf-chat-stages__label { color: CanvasText; background: none; }
   }
 
+  /* --- steps (API.md v1.3, proposed) ------------------------------------ */
+
+  /* One quiet line that opens the list: the stage line's size and colour,
+     a disclosure, not a card. */
+  .sf-chat-steps {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sf-chat-message--gap-tight);
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  .sf-chat-steps__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    max-inline-size: 100%;
+    min-block-size: var(--sf-text--height);
+    margin-inline-start: calc(-1 * var(--sf-space-1\/4));
+    padding-inline: var(--sf-space-1\/4);
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .sf-chat-steps__toggle:hover { color: var(--sf-chat-message--ink); }
+
+  .sf-chat-steps__line {
+    min-inline-size: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sf-chat-steps__chevron {
+    flex: none;
+    transition: rotate var(--sf-duration-fast);
+  }
+
+  .sf-chat-steps__toggle[aria-expanded='true'] .sf-chat-steps__chevron { rotate: 180deg; }
+
+  .sf-chat-steps__mark { flex: none; }
+  .sf-chat-steps--done .sf-chat-steps__mark { color: var(--sf-success); }
+  .sf-chat-steps--failed .sf-chat-steps__mark { color: var(--sf-error); }
+
+  /* A small ring that turns while a step is at work; still where motion is reduced. */
+  .sf-chat-steps__spinner {
+    flex: none;
+    box-sizing: border-box;
+    inline-size: 1em;
+    block-size: 1em;
+    border: calc(2 * var(--sf-chat-message--line)) solid var(--sf-chat-message--edge);
+    border-block-start-color: var(--sf-primary);
+    border-radius: var(--sf-radius-circle);
+    animation: sf-chat-spin var(--sf-chat-message--spin-period) linear infinite;
+  }
+
+  .sf-chat-steps__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-chat-message--gap-tight);
+    margin: 0;
+    padding-block: 0;
+    padding-inline: var(--sf-space-1\/4) 0;
+    border-inline-start: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    list-style: none;
+  }
+
+  .sf-chat-steps__list[hidden] { display: none; }
+
+  .sf-chat-steps__item {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    padding-inline-start: var(--sf-space-1\/3);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  .sf-chat-steps__item .sf-chat-steps__spinner { inline-size: 0.9em; block-size: 0.9em; }
+  .sf-chat-steps__item--running { color: var(--sf-chat-message--ink); }
+  .sf-chat-steps__item--done .sf-chat-steps__state { color: var(--sf-success); }
+  .sf-chat-steps__item--failed { color: var(--sf-chat-message--ink); }
+  .sf-chat-steps__item--failed .sf-chat-steps__state { color: var(--sf-error); }
+
+  .sf-chat-steps__state { flex: none; }
+
+  .sf-chat-steps__label {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .sf-chat-steps__took {
+    flex: none;
+    margin-inline-start: auto;
+    padding-inline-start: var(--sf-space-1\/2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @keyframes sf-chat-spin {
+    to { rotate: 360deg; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sf-chat-steps__spinner { animation: none; }
+    .sf-chat-steps__chevron { transition: none; }
+  }
+
+  @media (forced-colors: active) {
+    .sf-chat-steps__spinner { border-color: CanvasText; border-block-start-color: Highlight; }
+  }
+
+  /* --- an answer's files (API.md v1.3, proposed) ------------------------- */
+
+  .sf-chat-deliverables {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-chat-message--gap-tight);
+  }
+
+  .sf-chat-deliverables__title {
+    margin: 0;
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-chat-deliverables__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-chat-message--gap-tight);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sf-chat-deliverable {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-space-1\/3) var(--sf-space-1\/2);
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1\/3) var(--sf-space-1\/2);
+    border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    border-radius: var(--sf-chat-message--card-radius);
+    background: var(--sf-surface-0);
+  }
+
+  .sf-chat-deliverable__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    inline-size: var(--sf-ui-1--control-height);
+    block-size: var(--sf-ui-1--control-height);
+    border-radius: var(--sf-radius--ui);
+    background: var(--sf-chat-message--fill);
+    color: var(--sf-chat-message--ink-muted);
+  }
+
+  .sf-chat-deliverable__body {
+    display: flex;
+    flex: 1 1 10em;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .sf-chat-deliverable__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--sf-chat-message--ink);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+  }
+
+  .sf-chat-deliverable__meta {
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  .sf-chat-deliverable__actions {
+    display: flex;
+    flex: none;
+    gap: var(--sf-chat-message--gap);
+    margin-inline-start: auto;
+  }
+
+  .sf-chat-deliverable__download { text-decoration: none; }
+
+  /* --- a source opened in the host's preview ----------------------------- */
+
+  .sf-chat-sources__preview {
+    padding: 0;
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: none;
+    color: var(--sf-primary);
+    font: inherit;
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .sf-chat-sources__preview:hover { text-decoration: underline; }
+
   /* --- notices: statuses that are not an answer ------------------------ */
 
   /* A status is a quiet line: its icon carries the colour, the text stays
@@ -978,6 +1191,8 @@
     .sf-chat-chip,
     .sf-chat-sources__more,
     .sf-chat-notice__action,
+    .sf-chat-steps__toggle,
+    .sf-chat-deliverable .sf-button,
     .sf-chat-brief .sf-button {
       min-inline-size: var(--sf-chat-message--touch);
       min-block-size: var(--sf-chat-message--touch);

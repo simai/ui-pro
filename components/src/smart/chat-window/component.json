@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-window's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-window (smart.manifest.json 0.3.1, ui-chat 07bc988) by the D31 move, step 6 (owner yes 2026-10-27), with files-view.js, port.js, chat-core's larena.js words and smart.css, and the staff page's layout of the window's nodes; written by hand on the shape of sf-chat-interlocutor, sf-chat-composer and sf-chat-message (steps 3-5), since migration/convert-1.3.8.mjs takes only the pinned 66. x-decisions says how each point was decided.",
   "id": "smart.chat-window",
   "tag": "sf-chat-window",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -151,8 +151,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files). Was chat-port:open, chat-window:view, chat-window:files.",
-      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files). Was chat-port:open, chat-window:view, chat-window:files. The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01."
+      "x-summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files.",
+      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01."
     },
     "load-more": {
       "carries": {
@@ -582,13 +582,14 @@
         "kind": {
           "type": "enum",
           "values": [
-            "find"
+            "find",
+            "preview"
           ]
         },
         "open": "boolean"
       },
-      "x-summary": "The search in the open conversation was opened or closed (open-find, close-find, Ctrl/Cmd+F, Escape, its close button): kind find, open true or false. A page that draws a button for it marks it pressed by this, or by the host state data-find-open. Not cancelable: it says what happened.",
-      "summary": "The search in the conversation opened or closed: {kind: find, open}. The host state data-find-open says the same."
+      "x-summary": "The search in the open conversation was opened or closed (open-find, close-find, Ctrl/Cmd+F, Escape, its close button): kind find; the source preview beside the conversation (1.2.0: open-preview, close-preview, a footnote, «Назад», Escape): kind preview; open true or false. A page that draws a button for either marks it pressed by this, or by the host states data-find-open and data-preview-open. Not cancelable: it says what happened.",
+      "summary": "The search in the conversation or the source preview opened or closed: {kind: find|preview, open}. The host states data-find-open and data-preview-open say the same."
     }
   },
   "actions": {
@@ -697,6 +698,33 @@
       ],
       "x-summary": "closes the search: the marks go and the focus returns to what opened it, else to the field; focus false leaves the focus where it is unless it was in the search",
       "summary": "Close the search in the conversation; the focus returns to what opened it (action close-find; answers an outcome)."
+    },
+    "open-preview": {
+      "with": {
+        "source": {
+          "type": "object",
+          "summary": "{title, kind, preview_url, locator, mime, n?}: preview_url of the page's origin; locator {from, to} characters of the text, or {page} of a PDF."
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "opens the source preview beside the conversation (a sheet over it when the conversation would keep less than 900px) and puts the focus on its title; refused not-shown for a source without a same-origin preview_url or when the page cancels the open event. The panel loads the preview_url itself (GET, the page's cookies), draws HTML sanitized, never run, and marks the {from, to} passage",
+      "summary": "Open the source preview beside the conversation (action open-preview; answers an outcome)."
+    },
+    "close-preview": {
+      "with": {
+        "focus": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "closes the source preview; the focus returns to what opened it (the footnote, else the field); focus false leaves the focus where it is unless it was in the panel",
+      "summary": "Close the source preview; the focus returns to what opened it (action close-preview; answers an outcome)."
     }
   },
   "slots": {},
@@ -786,10 +814,11 @@
       "Escape": "close",
       "Mod+F": "open"
     },
-    "x-keys": "The window is the page's main landmark (landmark main) or a region (section) with an off-screen heading of the conversation's title (heading-level). The conversations are sf-thread-list (a navigation list), the conversation sf-message-log (a log that says each new answer once: the stage while it waits, «Ответ готов» before it, footnote marks not read), the field sf-chat-composer. The search above the list is a search landmark; Enter asks at once, Escape clears it first and then belongs to the page; what was found is said politely. A passing line above the field (role=status) says what was just done and offers its undo («Вернуть»); an error is role=alert with «Повторить». The focus never falls to the page: an archived row gives it to «Вернуть», a pinned or restored row keeps it, an answer that comes back gives it to the field, «Мои файлы» take it on their heading and give it back to the field; in «Мои файлы» Escape closes a delete question first, then the view, and a delete question takes the focus on «Отмена». The queue (1.1.0): a question asked while an answer is awaited waits over the field as a card in a list named «Отправлю после ответа», with «Изменить» and «Убрать» (and «Отправить» when held), each described by its question; that it was queued, and why a queue is held, is said politely. The search in the conversation (1.1.0) is a search landmark over the log, opened by open-find or Ctrl/Cmd+F with the focus inside the window: Enter goes to the earlier match, Shift+Enter to the later one, as up and down do; «N из M» and «Ничего не найдено» are said politely after a pause; Escape clears the query first, then closes the search and returns the focus to what opened it. Matches are painted with the CSS Custom Highlight API (Mark and Highlight in forced colours), the message's text is not touched."
+    "x-keys": "The window is the page's main landmark (landmark main) or a region (section) with an off-screen heading of the conversation's title (heading-level). The conversations are sf-thread-list (a navigation list), the conversation sf-message-log (a log that says each new answer once: the stage while it waits, «Ответ готов» before it, footnote marks not read), the field sf-chat-composer. The search above the list is a search landmark; Enter asks at once, Escape clears it first and then belongs to the page; what was found is said politely. A passing line above the field (role=status) says what was just done and offers its undo («Вернуть»); an error is role=alert with «Повторить». The focus never falls to the page: an archived row gives it to «Вернуть», a pinned or restored row keeps it, an answer that comes back gives it to the field, «Мои файлы» take it on their heading and give it back to the field; in «Мои файлы» Escape closes a delete question first, then the view, and a delete question takes the focus on «Отмена». The queue (1.1.0): a question asked while an answer is awaited waits over the field as a card in a list named «Отправлю после ответа», with «Изменить» and «Убрать» (and «Отправить» when held), each described by its question; that it was queued, and why a queue is held, is said politely. The search in the conversation (1.1.0) is a search landmark over the log, opened by open-find or Ctrl/Cmd+F with the focus inside the window: Enter goes to the earlier match, Shift+Enter to the later one, as up and down do; «N из M» and «Ничего не найдено» are said politely after a pause; Escape clears the query first, then closes the search and returns the focus to what opened it. Matches are painted with the CSS Custom Highlight API (Mark and Highlight in forced colours), the message's text is not touched. The source preview (1.2.0) is a complementary landmark named by its title, beside the log or, on a narrow window, a sheet over it (the conversation inert behind it) with «Назад»; it takes the focus on its title, its text is a scrollable region reachable by Tab, the passage the answer cites is a mark brought into view, «Открыт просмотр» and «Отрывок выделен» are said politely; Escape, «Назад» or the close button closes it and returns the focus to the footnote or title that opened it."
   },
   "host-states": {
-    "data-find-open": "boolean"
+    "data-find-open": "boolean",
+    "data-preview-open": "boolean"
   },
   "css-variables": {
     "--sf-chat-window-side-width": {
@@ -1199,12 +1228,14 @@
     "layout: the window brings the layout of its own nodes (the grid of side and main, the search, the header, the field's column, the empty and «Мои файлы» states, the phone's sliding side panel); the page keeps its furniture (the skip link, the scrim, its buttons, the spending, the expired-session dialog). The shell carries sf-chat-surface, so the message's sheet sets its tokens there and the window's error notice reads as a message's.",
     "files-view: «Мои файлы» (x-my-files) is js/files-view.js, drawn with sf-chat-message's helpers (iconButton, iconNode, textButton, formatBytes) imported by relative path, sf-progress-bar for the space used, sf-empty-state for an empty or failed list, the delete asked in its row.",
     "words: lang/ru.json and lang/en.json, runtime only, ru the source language; the code asks for the 0.3 dotted keys and the element maps them to the kebab names. The window repeats the stage and status words sf-chat-message has: it announces them itself.",
-    "network: deny. The window never requests: every write is an intent the host answers; download addresses are the host's.",
+    "network: deny. The window never requests: every write is an intent the host answers; download addresses are the host's. 1.2.0: one exception, the source preview: the window reads the preview_url the message names (a GET with the page's own cookies, of the page's own origin only, as the message's HEAD check of a download), since the passage has to be marked in its text; nothing is written.",
     "first paint (§5.4): no late data; the static markup is the whole window with the host data of its island, the parts' markup inside it (sf-thread-list, sf-message-log with sf-chat-message, sf-chat-interlocutor, sf-chat-composer). A window is larger than a closed control: each example declares first-paint max-bytes 20000 with its why. The element reads no clock (the list's day groups are the host's updated_at).",
     "css-variables: six public variables in the Framework's form (single dash, read with the token as fallback, never set): the side panel's width and surface, the reading column, the text, the muted text and the edges.",
     "standard 1.4 (2026-10-29): component.json and examples.json in the 1.4 form; rule.js, aliases.json, studio files, probe.json and smart.manifest.json generated by ui-source scripts/generate-component-files.mjs. The carried field is requestId (camelCase, as the registry says); the detail keeps \"request-id\" beside it and settle takes either, until 2026-12-01 with the dated event names.",
     "queue (1.1.0): the queue is the window's, not the composer's: what a conversation is, when an answer is over and how it ended are the window's data (messages, status, wait), and a queue belongs to its conversation. The composer only lets a message of text out while busy (its setting queue, 1.1.0), and the window keeps it per conversation key (as the drafts) and draws its cards above the field, where the passing line already is. When the field lets go of busy, the last turn decides: answered (completed, partial; without the assistant capability, a question taken) sends the first card, which waits for its own answer before the next; failed, limit, refused, withheld, a stopped or unfinished wait, a send not taken, or a conversation left before its answer hold the queue with a quiet line, and each card can be sent («Отправить», which lets the rest go on after its answer) or taken away. Stop stops the wait only. A queued question goes out as an ordinary message.send (no new intent, no new port word); one that did not go is tried again under its first client_key (message.retry). A message with files is not queued (its chips are the host's upload state). Off with no-queue. Nothing is stored.",
-    "find (1.1.0): the search in the conversation reads only the drawn messages (the question's bubble, the answer's body, a person's message; not buttons, sources or off-screen words) and asks the host nothing; the port 1.0.0 has no search of a conversation and a server search would be the port's 1.1.0. The Framework offers no find helper (its highlight component colours code), so the marks are the CSS Custom Highlight API, which touches no node of a sanitized message; without it the message holding the current match is outlined. The current match starts at the last one, nearest where the reader is, and Enter goes up, as in a chat's history. open-find and close-find are the actions (as open-files and close-files), toggle {kind: find, open} the event and data-find-open the host state, so a page's header button can show itself pressed. Ctrl/Cmd+F is taken only while the focus is inside the window (as the inline editor's Mod+K), so the page's own find stays the browser's elsewhere."
+    "find (1.1.0): the search in the conversation reads only the drawn messages (the question's bubble, the answer's body, a person's message; not buttons, sources or off-screen words) and asks the host nothing; the port 1.0.0 has no search of a conversation and a server search would be the port's 1.1.0. The Framework offers no find helper (its highlight component colours code), so the marks are the CSS Custom Highlight API, which touches no node of a sanitized message; without it the message holding the current match is outlined. The current match starts at the last one, nearest where the reader is, and Enter goes up, as in a chat's history. open-find and close-find are the actions (as open-files and close-files), toggle {kind: find, open} the event and data-find-open the host state, so a page's header button can show itself pressed. Ctrl/Cmd+F is taken only while the focus is inside the window (as the inline editor's Mod+K), so the page's own find stays the browser's elsewhere.",
+    "preview (1.2.0, API.md v1.3 proposed: sources[].preview_url, locator, mime; an answer's attachments[].preview_url): the panel is the window's, not the message's: only the window has room beside the conversation, and a message asks for it with sf-chat-message-open {kind: preview}, which the window cancels when it shows it (cancelling sf-chat-window-open {kind: preview} keeps it closed, and the footnote then opens the list). It is js/preview-view.js, beside the log at the inline end (grid column after main), or a full-height sheet in the conversation's own cell when the conversation would keep less than 900px (PREVIEW_DOCK_MIN): decided from the shell's width less a docked side panel, because a container query on the conversation would change with the panel it places; main is inert behind the sheet. Content: Mirai24 gives text/html (the accepted revision, whole or a fragment), so the panel fetches it and draws it through SF.sanitizeHtml, never run and never in a frame of scripts; that is also the only way to mark the {from, to} passage, counted in characters of the text as drawn; plain text as text; a PDF in a same-origin frame at {page} (Mirai24 gives none yet); other types are offered in a new tab. sf-file-preview is the Framework's file row (icon, name, download, remove) and shows no content, so it is not used. Same origin only, through chat-message's proposed.js. open-preview and close-preview are the actions (as open-files and open-find), toggle {kind: preview, open} the event and data-preview-open the host state. Closed when the conversation changes and when «Мои файлы» open.",
+    "steps (1.2.0): the window passes an assistant message's steps through toView as they come (PROPOSED_MESSAGE_FIELDS of chat-message's proposed.js), remembers the reader's toggle {kind: steps} as display.steps_open, and its announcer says the step at work (stepsSay) instead of the stage while there are steps; an answer's files keep mime and preview_url."
   ],
   "x-rule": {
     "$comment": [
@@ -1354,6 +1385,11 @@
         "find": [
           "closed",
           "open"
+        ],
+        "preview": [
+          "closed",
+          "beside",
+          "sheet"
         ]
       },
       "visual_states": [
@@ -1383,9 +1419,10 @@
         "interlocutor greetings and suggestions (drawn as text)",
         "file names (drawn as text)",
         "download addresses (the host's, used as given)",
-        "the host's refusal words (drawn as text)"
+        "the host's refusal words (drawn as text)",
+        "a source's preview (fetched from a same-origin preview_url only, drawn sanitized: SF.sanitizeHtml)"
       ],
-      "network_policy": "deny"
+      "network_policy": "host-only"
     },
     "presentation": {
       "themes": [
@@ -1467,6 +1504,14 @@
           "changes": [
             "The queue: a question sent while an answer is awaited waits above the field as a card («Отправлю после ответа», «Изменить», «Убрать») and goes as an ordinary message.send after a successful answer, one at a time; an answer that ended otherwise holds the queue for «Отправить» by hand. Per conversation, on this page only. The setting no-queue turns it off. No new intent and no change for a host.",
             "The search in the open conversation: the actions open-find {query} and close-find {focus}, Ctrl/Cmd+F inside the window, the event toggle {kind: find, open} and the host state data-find-open. It searches the loaded messages only and asks the host nothing."
+          ]
+        },
+        {
+          "from": "1.1.0",
+          "to": "1.2.0",
+          "changes": [
+            "The source preview (API.md v1.3, proposed): a footnote or a source title with a same-origin preview_url opens the source beside the conversation (a sheet over it on a narrow window), with the passage {from, to} marked; the actions open-preview {source} and close-preview {focus}, the event toggle {kind: preview, open}, the cancelable open {kind: preview} and the host state data-preview-open. Without preview_url nothing changes.",
+            "An assistant message's steps and an answer's files (mime, preview_url) are passed to sf-chat-message 1.1.0, and while there are steps the announcer says the step at work. No new intent: the host answers nothing new."
           ]
         }
       ]

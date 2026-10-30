@@ -9,7 +9,12 @@
 // sf-message-log through the log's renderMessage hook. Controls are the
 // Framework's plain markup (sf-button, sf-icon-button, sf-input); a file chip
 // is sf-chat-composer's (js/templates/parts.js), with the download link and
-// the «Файл удалён» check added here for a sent file.
+// the «Файл недоступен» check added here for a sent file.
+//
+// The fields proposed to Mirai24 as API.md v1.3 (an answer's steps, a
+// source's preview, an answer's files) are read only through ./proposed.js,
+// so their names can still change in one place; without them nothing here
+// draws differently.
 //
 // Nothing here talks to a server. What a person does is reported through
 // ctx.onAction(action, detail); the element turns it into its events.
@@ -19,9 +24,11 @@
 //   locale: 'ru'|'en',
 //   words: (key, values?) => string,     the 0.3 dotted keys (stage.queued, …)
 //   icon: (name, {size}) => Node,        smart sf-icon on a Framework page, an SVG in the widget
-//   onAction?: (action, detail) => void, retry | check | feedback | feedback-draft |
+//   onAction?: (action, detail) => any,  retry | check | feedback | feedback-draft |
 //                                        feedback-send | feedback-skip | sources | copy |
-//                                        remove-attachment | brief-answer
+//                                        remove-attachment | brief-answer | steps | preview;
+//                                        for preview, false means the host took it (the
+//                                        element's open event was cancelled)
 //   enhanceCode?: (pre) => void,         SF.Highlight on a Framework page
 //   renderProposal?: (proposal, {disabled}) => Node,
 //                                        sf-change-confirm (index.js)
@@ -34,6 +41,7 @@ import {render} from 'lit';
 // renderMessage without the Framework runtime) and never replaces Core's.
 import '../../../../core/js/sanitize.js';
 import {attachmentState, renderAttachment as attachmentChip} from '../../../chat-composer/js/templates/parts.js';
+import {deliverablesOf, previewTarget, stepsOf, timeOf} from './proposed.js';
 
 export const safeHref = (value) => globalThis.SF.safeHref(value);
 const sanitizeHtml = (html, policy) => globalThis.SF.sanitizeHtml(html, policy);
@@ -225,7 +233,7 @@ export function renderMarkup(ctx, html, { sources = [], idPrefix = 'chat', onFoo
  * its message, a rating for one); `onToggle` hears every opening and closing.
  * @returns {{root: HTMLElement, toggle: HTMLElement, reveal: (n: number) => void}}
  */
-export function renderSources(ctx, sources, { idPrefix = 'chat', open: startOpen = false, onToggle } = {}) {
+export function renderSources(ctx, sources, { idPrefix = 'chat', open: startOpen = false, onToggle, previews = null, onPreview } = {}) {
   const listId = `${idPrefix}-sources`;
   const root = element(ctx, 'ol', 'sf-chat-sources', { id: listId, 'aria-label': ctx.words('sources.title', { count: sources.length }) });
   root.hidden = !startOpen;
@@ -234,8 +242,17 @@ export function renderSources(ctx, sources, { idPrefix = 'chat', open: startOpen
     item.append(text(ctx, 'span', 'sf-chat-sources__number', String(source.n)));
     const body = element(ctx, 'span', 'sf-chat-sources__body');
     const href = source.kind === 'web' ? webHref(source.url) : null;
+    // A source with a preview of its own (v1.3 preview_url, the knowledge
+    // base's) opens it by its title; a site keeps its link.
+    const preview = href ? null : previews?.get(Number(source.n));
     if (href) {
       body.append(text(ctx, 'a', 'sf-chat-sources__title', source.title, { href, target: '_blank', rel: 'noopener noreferrer nofollow' }));
+    } else if (preview && onPreview) {
+      const button = text(ctx, 'button', 'sf-chat-sources__title sf-chat-sources__preview', source.title, {
+        type: 'button', 'aria-label': ctx.words('sources.preview', { title: source.title }),
+      });
+      button.addEventListener('click', () => onPreview(preview, button));
+      body.append(button);
     } else {
       body.append(text(ctx, 'span', 'sf-chat-sources__title', source.title));
     }
@@ -366,24 +383,248 @@ export function renderAttachment(ctx, file) {
 
 // The server keeps a sent file's attachment after the file is deleted from
 // «Мои файлы» (Mirai24, 27.10): the address is asked first, and a file that is
-// gone is said so in its chip -- the name without a link, «Файл удалён».
+// gone is said so in its chip -- the name without a link, «Файл недоступен»
+// (the neutral word a people messenger can say as well: 1.1.0, was «Файл удалён»).
 async function checkDownload(ctx, event, link, metaNode, name) {
+  await checkFirst(ctx, event, link, () => {
+    const plain = text(ctx, 'span', 'sf-chat-attachment__name', name, { title: name });
+    link.replaceWith(plain);
+    metaNode.textContent = ctx.words('attachment.deleted');
+    metaNode.setAttribute('role', 'status');
+  });
+}
+
+// A download link asks its address first (HEAD, the page's own cookies) and
+// follows it unless the file is gone (404 or 410): then `gone` says so.
+async function checkFirst(ctx, event, link, gone) {
   if (link.dataset.checked) { delete link.dataset.checked; return; }
   event.preventDefault();
-  let gone = false;
+  let missing = false;
   try {
     const response = await ctx.document.defaultView.fetch(link.href, { method: 'HEAD', credentials: 'same-origin' });
-    gone = response.status === 404 || response.status === 410;
-  } catch { gone = false; }
-  if (!gone) {
+    missing = response.status === 404 || response.status === 410;
+  } catch { missing = false; }
+  if (!missing) {
     link.dataset.checked = '1';
     link.click();
     return;
   }
-  const plain = text(ctx, 'span', 'sf-chat-attachment__name', name, { title: name });
-  link.replaceWith(plain);
-  metaNode.textContent = ctx.words('attachment.deleted');
-  metaNode.setAttribute('role', 'status');
+  gone();
+}
+
+// --- sf-chat-steps (API.md v1.3, proposed) ---------------------------------
+
+/** 72000 → «1 мин 12 с»: whole seconds, then minutes, then hours. */
+export function formatDuration(ctx, ms) {
+  const seconds = Math.max(0, Math.floor(Number(ms) / 1000) || 0);
+  if (seconds < 60) return ctx.words('time.seconds', { s: seconds });
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) {
+    const s = seconds % 60;
+    return s ? ctx.words('time.minutesSeconds', { m: minutes, s }) : ctx.words('time.minutes', { m: minutes });
+  }
+  const hours = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m ? ctx.words('time.hoursMinutes', { h: hours, m }) : ctx.words('time.hours', { h: hours });
+}
+
+/** «4 шага»: the plural form of the page's language (Intl.PluralRules). */
+export function stepCount(ctx, count) {
+  let form = 'other';
+  try { form = new Intl.PluralRules(ctx.locale).select(count); } catch { form = 'other'; }
+  if (!['one', 'few', 'many', 'other'].includes(form)) form = 'other';
+  return ctx.words(`steps.count.${form}`, { n: count });
+}
+
+const STEP_ICON = { done: 'check_circle', failed: 'error' };
+
+/** What the conversation's announcer says of an answer's steps: the step at work, or one that failed. */
+export function stepsSay(ctx, message) {
+  const steps = stepsOf(message);
+  if (!steps.length) return '';
+  const failed = steps.findLast((one) => one.state === 'failed');
+  if (failed) return ctx.words('steps.sayFailed', { label: failed.label });
+  const running = steps.findLast((one) => one.state === 'running');
+  const at = running ? steps.indexOf(running) : steps.length - 1;
+  return ctx.words('steps.say', { n: at + 1, label: steps[at].label });
+}
+
+/**
+ * An answer's steps (v1.3 steps), one compact line that opens the list.
+ * While the answer is written: «Работаю · 1 мин 12 с · 4 шага», the time
+ * ticking each second from the first step's start (else the message's
+ * created_at), a spinner, the step at work last in the list. After it:
+ * «Сделано за 1 мин 40 с · 4 шага» (or «Прервано…» for an answer that did
+ * not come), folded; a failed answer with a failed step keeps the list open.
+ * A step without its times has no time of its own, and the line none when
+ * the start or the end is unknown. The ticking time is not a live region:
+ * the conversation's announcer says a new step (stepsSay), never the clock.
+ * `open` (display.steps_open) is the reader's choice the window remembers.
+ * @returns {HTMLElement|null}
+ */
+export function renderSteps(ctx, message, { idPrefix = 'chat', open } = {}) {
+  const steps = stepsOf(message);
+  if (!steps.length) return null;
+  const pending = PENDING_STATUSES.has(message.status);
+  const answered = message.status === 'completed' || message.status === 'partial';
+  const anyFailed = steps.some((one) => one.state === 'failed');
+  // An answer that did not come (failed, refused, a limit) ends as stopped.
+  const state = pending ? 'running' : (answered ? 'done' : 'failed');
+  const listId = `${idPrefix}-steps`;
+  const startOpen = typeof open === 'boolean' ? open : (message.status === 'failed' && anyFailed);
+  const root = element(ctx, 'div', `sf-chat-steps sf-chat-steps--${state}`, { 'data-sf-chat-dispose': pending ? '' : null });
+  const toggle = element(ctx, 'button', 'sf-chat-steps__toggle', { type: 'button', 'aria-expanded': String(startOpen), 'aria-controls': listId });
+  const mark = pending
+    ? element(ctx, 'span', 'sf-chat-steps__spinner', { 'aria-hidden': 'true' })
+    : iconNode(ctx, STEP_ICON[state], 'sf-chat-steps__mark', '1');
+  const label = element(ctx, 'span', 'sf-chat-steps__line');
+  toggle.append(mark, label, iconNode(ctx, 'expand_more', 'sf-chat-steps__chevron', '1'));
+
+  // The running one last: the list reads as what was done, then what is done now.
+  const ordered = [...steps.filter((one) => one.state !== 'running'), ...steps.filter((one) => one.state === 'running')];
+  const list = element(ctx, 'ol', 'sf-chat-steps__list', { id: listId, 'aria-label': ctx.words('steps.label') });
+  list.hidden = !startOpen;
+  for (const step of ordered) {
+    const item = element(ctx, 'li', `sf-chat-steps__item sf-chat-steps__item--${step.state}`, { 'data-code': step.code });
+    item.append(
+      step.state === 'running'
+        ? element(ctx, 'span', 'sf-chat-steps__spinner', { 'aria-hidden': 'true' })
+        : iconNode(ctx, STEP_ICON[step.state], 'sf-chat-steps__state', '1'),
+      text(ctx, 'span', 'sf-chat-steps__label', step.label),
+      text(ctx, 'span', 'sf-chat-offscreen', `, ${ctx.words(`steps.state.${step.state}`)}`),
+    );
+    if (step.started != null && step.finished != null && step.finished >= step.started) {
+      item.append(text(ctx, 'span', 'sf-chat-steps__took', formatDuration(ctx, step.finished - step.started)));
+    }
+    list.append(item);
+  }
+  root.append(toggle, list);
+
+  const starts = steps.map((one) => one.started).filter((one) => one != null);
+  const start = starts.length ? Math.min(...starts) : timeOf(message.created_at);
+  const ends = steps.map((one) => one.finished).filter((one) => one != null);
+  const end = timeOf(message.finished_at) ?? (ends.length ? Math.max(...ends) : null);
+  const count = stepCount(ctx, steps.length);
+  const write = () => {
+    let head;
+    if (pending) {
+      const now = Date.now();
+      head = start != null && now >= start ? `${ctx.words('steps.running')} · ${formatDuration(ctx, now - start)}` : ctx.words('steps.running');
+    } else {
+      const took = start != null && end != null && end >= start ? formatDuration(ctx, end - start) : '';
+      const key = state === 'done' ? 'steps.done' : 'steps.stopped';
+      head = took ? ctx.words(`${key}In`, { time: took }) : ctx.words(key);
+    }
+    label.textContent = `${head} · ${count}`;
+  };
+  write();
+
+  toggle.addEventListener('click', () => {
+    const next = list.hidden;
+    list.hidden = !next;
+    toggle.setAttribute('aria-expanded', String(next));
+    ctx.onAction?.('steps', { id: message.id, open: next });
+  });
+
+  // The clock of a running line: each second while its node is on the page;
+  // stopped when the rendering is let go (disposeRendering), started again
+  // when it comes back (resumeRendering).
+  if (pending && start != null) {
+    let timer = 0;
+    let away = 0;
+    const stop = () => { clearInterval(timer); timer = 0; };
+    const run = () => {
+      if (timer) return;
+      away = 0;
+      timer = setInterval(() => {
+        if (!root.isConnected) { if (++away > 5) stop(); return; }
+        away = 0;
+        write();
+      }, 1000);
+    };
+    root.addEventListener('sf-chat-dispose', stop);
+    root.addEventListener('sf-chat-resume', () => { write(); run(); });
+    run();
+  }
+  return root;
+}
+
+// --- sf-chat-deliverables (API.md v1.3, proposed) --------------------------
+
+// The icon of a file by its type (or its name's extension).
+function fileIcon(file) {
+  const type = file.mime;
+  const extension = /\.([a-z0-9]{1,5})$/iu.exec(file.name)?.[1]?.toLowerCase() || '';
+  if (type === 'application/pdf' || extension === 'pdf') return 'picture_as_pdf';
+  if (type.startsWith('image/')) return 'image';
+  if (/spreadsheet|excel|csv/u.test(type) || ['xlsx', 'xls', 'csv', 'ods'].includes(extension)) return 'table_chart';
+  if (/presentation|powerpoint/u.test(type) || ['pptx', 'ppt', 'odp'].includes(extension)) return 'slideshow';
+  if (/zip|compressed|tar|rar|7z/u.test(type) || ['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) return 'folder_zip';
+  return 'description';
+}
+
+/**
+ * An answer's files (v1.3 attachments): «Что готово», a card per file with
+ * its icon, name and size, «Просмотр» when it has a preview (the host's
+ * panel, through ctx.onAction('preview'); without a host, a new tab) and
+ * «Скачать» when its address is the page's own, checked first: a file gone
+ * says «Файл недоступен» in its card.
+ * @returns {HTMLElement|null}
+ */
+export function renderDeliverables(ctx, message, idPrefix = 'chat') {
+  const files = deliverablesOf(message, ctx.document);
+  if (!files.length) return null;
+  const titleId = `${idPrefix}-files-title`;
+  const root = element(ctx, 'section', 'sf-chat-deliverables', { 'aria-labelledby': titleId });
+  root.append(text(ctx, 'p', 'sf-chat-deliverables__title', ctx.words('files.ready'), { id: titleId }));
+  const list = element(ctx, 'ul', 'sf-chat-deliverables__list');
+  files.forEach((file, index) => {
+    const nameId = `${idPrefix}-file-${index}`;
+    const card = element(ctx, 'li', 'sf-chat-deliverable', { 'data-id': file.id });
+    const icon = element(ctx, 'span', 'sf-chat-deliverable__icon', { 'aria-hidden': 'true' });
+    icon.append(iconNode(ctx, fileIcon(file), '', '2'));
+    const body = element(ctx, 'span', 'sf-chat-deliverable__body');
+    const extension = /\.([a-z0-9]{1,5})$/iu.exec(file.name)?.[1]?.toUpperCase() || '';
+    const meta = [file.bytes == null ? '' : formatBytes(file.bytes, ctx.words, ctx.locale), extension].filter(Boolean).join(' · ');
+    body.append(text(ctx, 'span', 'sf-chat-deliverable__name', file.name, { id: nameId, title: file.name }));
+    const metaNode = text(ctx, 'span', 'sf-chat-deliverable__meta', meta);
+    body.append(metaNode);
+    const actions = element(ctx, 'span', 'sf-chat-deliverable__actions');
+    if (file.preview) {
+      const view = textButton(ctx, { label: ctx.words('files.preview'), appearance: 'outline', scheme: 'primary', size: '1/2', className: 'sf-chat-deliverable__preview' });
+      view.setAttribute('aria-describedby', nameId);
+      view.addEventListener('click', () => openPreview(ctx, message, file.preview, view));
+      actions.append(view);
+    }
+    if (file.href) {
+      const link = element(ctx, 'a', 'sf-button sf-button--size-1/2 sf-button--outline sf-button--primary flex items-cross-center content-main-center sf-chat-deliverable__download', {
+        href: file.href, download: file.name, 'aria-describedby': nameId,
+      });
+      link.append(iconNode(ctx, 'download', '', '1'), text(ctx, 'span', 'sf-button-text-container', ctx.words('files.download')));
+      link.addEventListener('click', (event) => checkFirst(ctx, event, link, () => {
+        card.classList.add('sf-chat-deliverable--gone');
+        actions.replaceChildren();
+        metaNode.textContent = ctx.words('attachment.deleted');
+        metaNode.setAttribute('role', 'status');
+      }));
+      actions.append(link);
+    }
+    card.append(icon, body);
+    if (actions.childNodes.length) card.append(actions);
+    list.append(card);
+  });
+  root.append(list);
+  return root;
+}
+
+// A preview is the host's (the window's panel): the message asks, and a host
+// that shows it says so by cancelling the element's open event (onAction
+// answers false). Nobody took it: a source opens in the list (`fallback`), a
+// file's preview in a new tab.
+function openPreview(ctx, message, target, opener, fallback) {
+  if (ctx.onAction?.('preview', { id: message.id, source: target, opener }) === false) return;
+  if (fallback) { fallback(); return; }
+  ctx.document.defaultView?.open(target.preview_url, '_blank', 'noopener');
 }
 
 // --- sf-chat-message -----------------------------------------------------
@@ -480,14 +721,18 @@ export function renderMessage(ctx, message, view = {}) {
   const body = element(ctx, 'div', 'sf-chat-message__body');
   root.append(body);
 
+  // The steps (v1.3): while the answer is written they stand for the stage
+  // line; after it, a folded line above the answer.
+  const steps = PENDING_STATUSES.has(message.status) && view.wait ? null : renderSteps(ctx, message, { idPrefix, open: view.steps_open });
   if (PENDING_STATUSES.has(message.status)) {
     if (view.wait) {
       body.append(renderNotice(ctx, view.wait, ctx.words(`status.${view.wait}`), { label: 'action.check', run: () => ctx.onAction?.('check', { id: message.id }) }));
     } else {
-      body.append(renderStages(ctx, message));
+      body.append(steps || renderStages(ctx, message));
     }
     return root;
   }
+  if (steps) body.append(steps);
 
   let sources = null;
   const answered = message.status === 'completed' || message.status === 'partial';
@@ -499,12 +744,25 @@ export function renderMessage(ctx, message, view = {}) {
   if (lead) {
     body.append(text(ctx, 'p', 'sf-chat-message__plain', lead));
   } else if (message.html && answered) {
+    // A source with a preview (v1.3 preview_url) opens it in the host's
+    // panel, from its footnote or its title; without one, as before.
+    const previews = new Map();
+    for (const source of message.sources || []) {
+      const target = previewTarget(source, { n: Number(source.n), kind: source.kind, title: source.title }, ctx.document);
+      if (target) previews.set(Number(source.n), target);
+    }
     if (message.sources?.length) {
       sources = renderSources(ctx, message.sources, {
         idPrefix, open: Boolean(view.sources_open), onToggle: (open) => ctx.onAction?.('sources', { id: message.id, open }),
+        previews, onPreview: (target, button) => openPreview(ctx, message, target, button),
       });
     }
-    body.append(renderMarkup(ctx, message.html, { sources: message.sources || [], idPrefix, onFootnote: (n) => sources?.reveal(n) }));
+    const onFootnote = (n) => {
+      const target = previews.get(n);
+      if (target) openPreview(ctx, message, target, null, () => sources?.reveal(n));
+      else sources?.reveal(n);
+    };
+    body.append(renderMarkup(ctx, message.html, { sources: message.sources || [], idPrefix, onFootnote }));
   } else if (answered) {
     if (message.text) body.append(text(ctx, 'p', 'sf-chat-message__plain', message.text));
   } else {
@@ -535,6 +793,9 @@ export function renderMessage(ctx, message, view = {}) {
     body.append(ctx.renderProposal(message.proposal, { disabled: Boolean(view.busy) }));
   }
   if (brief) body.append(renderBrief(ctx, message, brief, view, idPrefix));
+  // What the answer made (v1.3 attachments), under it.
+  const made = answered ? renderDeliverables(ctx, message, idPrefix) : null;
+  if (made) body.append(made);
 
   if (answered) body.append(renderActions(ctx, message, view, features, sources));
   // «Не полезно» asks why, once, in place; the window says when (view).
@@ -924,12 +1185,16 @@ function renderActions(ctx, message, view, features, sources) {
 }
 
 /**
- * Let what a detached rendering still runs go. Nothing does now: the one timer
- * a rendering had, the proposal's expiry, went with the card to
- * sf-change-confirm, which stops its own timer when it leaves the page. Kept
- * for the widget and the pilot, which call it on every node they drop, so the
- * next thing that does need it has one place to go.
+ * Let what a detached rendering still runs go: the clock of a running
+ * answer's steps (v1.3). The proposal's expiry went with the card to
+ * sf-change-confirm, which stops its own timer when it leaves the page. The
+ * widget and the pilot call it on every node they drop.
  */
 export function disposeRendering(root) {
   for (const node of root.querySelectorAll('[data-sf-chat-dispose]')) node.dispatchEvent(new Event('sf-chat-dispose'));
+}
+
+/** Start again what disposeRendering stopped: a rendering back on the page (a running answer's clock). */
+export function resumeRendering(root) {
+  for (const node of root.querySelectorAll('[data-sf-chat-dispose]')) node.dispatchEvent(new Event('sf-chat-resume'));
 }

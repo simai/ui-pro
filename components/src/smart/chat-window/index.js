@@ -31,9 +31,10 @@
 // What stays here is what only the page sees: what was typed per
 // conversation (never stored: U-05), which failed answer was asked again,
 // where the focus goes, the passing line above the field and its undo, the
-// questions asked while an answer was awaited (the queue, 1.1.0) and the
-// search within the open conversation (1.1.0). What is allowed, what is
-// stored and what an answer says stays the host's.
+// questions asked while an answer was awaited (the queue, 1.1.0), the
+// search within the open conversation (1.1.0) and the source preview beside
+// it (1.2.0). What is allowed, what is stored and what an answer says stays
+// the host's.
 //
 // A capability the host does not declare (the setting capabilities, or the
 // port's capabilities) is not offered, and its intent is answered
@@ -51,8 +52,10 @@ import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {pageLocale} from "../../core/js/page-language";
 import {renderChatWindowTemplate} from "./js/templates/default.js";
-import {iconButton, stageKey, textButton} from "../chat-message/js/view/message.js";
+import {iconButton, stageKey, stepsSay, textButton} from "../chat-message/js/view/message.js";
+import {PROPOSED_MESSAGE_FIELDS} from "../chat-message/js/view/proposed.js";
 import {FilesView} from "./js/files-view.js";
+import {PREVIEW_DOCK_MIN, PreviewView} from "./js/preview-view.js";
 import {registerPartWords} from "./js/part-words.js";
 import {
     ANSWERS, DATA, EXTENSION_DATA, EXTENSION_INTENTS, INTENTS, SUPPORTED_PORT_VERSIONS, formerOf, verbOf,
@@ -97,7 +100,7 @@ const keyOf = (message) => String(message.id ?? message.local?.client_key ?? "")
 // The view as compared between redraws: what is being typed into «why not
 // helpful» and whether the sources are open are the reader's doing, already
 // on the page, not a change of the message to draw again.
-const QUIET_VIEW = new Set(["draft", "sources_open", "brief_draft"]);
+const QUIET_VIEW = new Set(["draft", "sources_open", "steps_open", "brief_draft"]);
 const viewKeyOf = (view) => JSON.stringify(view ?? null, (key, value) => (QUIET_VIEW.has(key) ? undefined : value));
 
 // A search is asked for once typing pauses this long.
@@ -148,9 +151,13 @@ export function toView(message) {
         pending: assistant && PENDING.has(message.status),
         text: message.body ?? "",
         // A file the host names a download address for downloads from it.
+        // An answer's files (API.md v1.3, proposed) may add their type and
+        // a preview address.
         attachments: (message.files || []).map((file) => ({
             id: file.id ?? file.key, name: file.name, bytes: file.size ?? undefined,
             ...(file.download_url ? {href: file.download_url} : {}),
+            ...(file.mime ? {mime: file.mime} : {}),
+            ...(file.preview_url ? {preview_url: file.preview_url} : {}),
         })),
     };
     if (message.created_at) view.created_at = message.created_at;
@@ -171,6 +178,9 @@ export function toView(message) {
         ...(message.limit_resets_at !== undefined ? {limit_resets_at: message.limit_resets_at} : {}),
         // The task brief (API.md v1.2, x-brief), drawn only where it is offered.
         ...(message.brief ? {brief: message.brief} : {}),
+        // The fields proposed as API.md v1.3 (steps), as they come; the view
+        // reads them (chat-message js/view/proposed.js).
+        ...Object.fromEntries(PROPOSED_MESSAGE_FIELDS.filter((name) => message[name] !== undefined).map((name) => [name, message[name]])),
     });
 }
 
@@ -243,6 +253,13 @@ const ChatWindowElement = elementFromManifest(manifest, {
             this.closeFind({focus: focus !== false});
             return applied();
         },
+        "open-preview"({source} = {}) {
+            return this.openPreview(source) ? applied() : {outcome: "refused", reason: "not-shown"};
+        },
+        "close-preview"({focus} = {}) {
+            this.closePreview({focus: focus !== false});
+            return applied();
+        },
     },
 });
 
@@ -260,6 +277,9 @@ class SfChatWindow extends ChatWindowElement {
         this._retried = new Set();   // failed answers asked again: no second «Повторить»
         this._ratings = new Map();   // message key -> the rating given on this page {value, reason, note, asking, draft}
         this._sourcesOpen = new Set(); // message keys whose sources the reader opened
+        this._stepsOpen = new Map();   // message key -> whether the reader opened or closed its steps
+        this._preview = null;          // the source preview (1.2.0), made with the shell
+        this._pressed = null;          // the last control pressed in the log: a preview's way back
         this._searchTimer = null;    // the pause before a search is asked for
         this._searchStatus = false;  // the list says «nothing found» for a search
         this._repeats = new Set();   // client_keys of questions asked again (U-09)
@@ -406,6 +426,7 @@ class SfChatWindow extends ChatWindowElement {
     /** «Новый разговор», wherever the page puts the button. */
     async startConversation() {
         this.closeFiles({focus: false});
+        this.closePreview({focus: false});
         if (this._data.conversation_list?.archived) this.showList(false);
         this._navigating++;
         const result = await this.request("conversation.create", {interlocutor: this.interlocutorId});
@@ -416,6 +437,7 @@ class SfChatWindow extends ChatWindowElement {
 
     async openConversation(id) {
         this.closeFiles({focus: false});
+        this.closePreview({focus: false});
         this.notify("");
         this._navigating++;
         const result = await this.request("conversation.open", {conversation_id: id});
@@ -524,6 +546,7 @@ class SfChatWindow extends ChatWindowElement {
         registerPartWords({ru, en});
         this._headingTag = Number(this.getAttribute("heading-level")) === 2 ? "h2" : "h1";
         this._files = new FilesView(this);
+        this._preview = new PreviewView(this);
 
         // sf-chat-surface: the message's sheet sets its tokens there, so the
         // window's notices (an error's «Повторить») read as a message's do.
@@ -546,6 +569,7 @@ class SfChatWindow extends ChatWindowElement {
         const find = this.buildFind(element, words);
         const list = element("sf-message-log", "chat-shell__list");
         const files = this._files.build(this._headingTag);
+        const preview = this._preview.build(this._headingTag);
         const composerBox = element("div", "chat-shell__composer", {id: "chat-composer", tabindex: "-1"});
         const composer = element("sf-chat-composer");
         // What happened just now (archived, restored), with its one way back;
@@ -564,12 +588,13 @@ class SfChatWindow extends ChatWindowElement {
         queue.append(queueHeld, queueList, queueSaid);
         composerBox.append(archivedNote, statusLine, queue, composer, suggestions);
         main.append(pageTitle, header, find.box, list, files.root, composerBox);
-        shell.append(side, main);
+        shell.append(side, main, preview.root);
         this._parts = {
             shell, side, sideHead, main, header, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, statusLine, archivedNote, suggestions,
             search: search.box, searchInput: search.input, searchStatus: search.status,
             find: find.box, findInput: find.input, findCount: find.count, findStatus: find.status, findPrevious: find.previous, findNext: find.next,
             queue, queueHeld, queueList, queueSaid,
+            preview: preview.root,
         };
         this.wire();
         Promise.all(PARTS.map((tag) => customElements.whenDefined(tag))).then(() => this.partsDefined());
@@ -968,9 +993,21 @@ class SfChatWindow extends ChatWindowElement {
         list.addEventListener("sf-chat-message-submit", (event) => this.answerBrief(event.detail.id, event.detail.text));
         list.addEventListener("sf-chat-message-toggle", (event) => {
             // Remembered, not redrawn: the list is open on the page already.
-            if (event.detail.kind !== "sources") return;
             const key = String(event.detail.id);
+            if (event.detail.kind === "steps") this._stepsOpen.set(key, Boolean(event.detail.open));
+            if (event.detail.kind !== "sources") return;
             if (event.detail.open) this._sourcesOpen.add(key); else this._sourcesOpen.delete(key);
+        });
+        // A source's or a file's preview (API.md v1.3): shown here, the
+        // message's event is cancelled, so its footnote does not open the
+        // list as well; a page that cancels the window's open keeps the list.
+        list.addEventListener("click", (event) => {
+            this._pressed = event.target.closest?.("button, a") ?? null;
+        }, true);
+        list.addEventListener("sf-chat-message-open", (event) => {
+            if (event.detail?.kind !== "preview") return;
+            const pressed = this._pressed && event.target.contains(this._pressed) ? this._pressed : null;
+            if (this.openPreview(event.detail.source, {opener: pressed ?? this.ownerDocument.activeElement})) event.preventDefault();
         });
         // A message drew itself (sf-chat-message renders a frame after it is
         // given its message): the last answer and the waiting controls follow.
@@ -1580,6 +1617,8 @@ class SfChatWindow extends ChatWindowElement {
         const text = composer.value;
         if (text.trim()) this._drafts.set(previous, text); else this._drafts.delete(previous);
         composer.value = this._drafts.get(next) || "";
+        // A source's preview belongs to the conversation it was opened from.
+        this.closePreview({focus: false});
         // A queue waits with its conversation; come back to it, it is held
         // unless its answer is still awaited (syncBusy lets it go on then).
         const queue = this._queues.get(next);
@@ -1661,6 +1700,7 @@ class SfChatWindow extends ChatWindowElement {
                 retried: this._retried.has(keyOf(message)) || undefined,
                 ...(rating ? {feedback: rating} : {}),
                 ...(this._sourcesOpen.has(keyOf(message)) ? {sources_open: true} : {}),
+                ...(this._stepsOpen.has(keyOf(message)) ? {steps_open: this._stepsOpen.get(keyOf(message))} : {}),
                 ...this.briefView(message),
             };
         }
@@ -1733,7 +1773,11 @@ class SfChatWindow extends ChatWindowElement {
      */
     sayOf(message, {view} = {}) {
         if (message.role !== "assistant") return "";
-        if (PENDING.has(message.status)) return this.words(view?.wait ? `status.${view.wait}` : stageKey(message));
+        if (PENDING.has(message.status)) {
+            if (view?.wait) return this.words(`status.${view.wait}`);
+            // With steps (API.md v1.3): the step at work, never the ticking time.
+            return stepsSay(this.ctx, message) || this.words(stageKey(message));
+        }
         const words = (message.text || "").replace(/\s*\[\d+\]/gu, "").replace(/\s+/gu, " ").trim();
         const head = message.status === "completed" ? this.words("list.answered")
             : message.status === "partial" ? this.words("status.partial") : "";
@@ -1897,6 +1941,7 @@ class SfChatWindow extends ChatWindowElement {
         const view = this._files;
         if (!view.open) {
             this.closeFind({focus: false});
+            this.closePreview({focus: false});
             view.open = true;
             view.asking = null;
             view.problem = null;
@@ -1926,6 +1971,101 @@ class SfChatWindow extends ChatWindowElement {
         this.syncSelected();
         this.syncLayout();
         if (focus) this.parts.composer.focus({preventScroll: true});
+    }
+
+    // --- the source preview (1.2.0) -----------------------------------------
+
+    /**
+     * Show a source (or an answer's file) beside the conversation: {title,
+     * kind, preview_url, locator, mime, n?}. Only a same-origin preview_url
+     * is shown; the page may cancel the window's open {kind: preview}.
+     * Answers whether it is shown. `opener` is where the focus goes back.
+     */
+    openPreview(source, {opener = null} = {}) {
+        const view = this._preview;
+        const target = view?.targetOf(source);
+        if (!target) return false;
+        const requestId = `chat-window-${++requests}`;
+        const allowed = this.sfEmit("open", {
+            requestId, "request-id": requestId, intent: "preview.open", kind: "preview", payload: {source: target},
+        }, {cancelable: true});
+        if (!allowed) return false;
+        const active = this.ownerDocument.activeElement;
+        const from = opener ?? (active && active !== this.ownerDocument.body ? active : null);
+        if (!view.open) {
+            this.closeFiles({focus: false});
+            view.open = true;
+            view.root.hidden = false;
+            this.parts.shell.classList.add("chat-shell--preview");
+            this.sfHostState("data-preview-open", true);
+            this.sfEmit("toggle", {kind: "preview", open: true});
+            this.watchPreviewRoom();
+        }
+        // The way back: the node pressed, or, when its message was drawn
+        // again meanwhile, the same footnote or title in the new drawing.
+        view.opener = from && !view.root.contains(from) ? from : view.opener;
+        view.openerFinder = this.findAgain(from);
+        this.placePreview();
+        view.show(target);
+        view.title.focus({preventScroll: true});
+        return true;
+    }
+
+    /** Close it; `focus` returns the focus to what opened it (else the field). */
+    closePreview({focus = true} = {}) {
+        const view = this._preview;
+        if (!view?.open) return;
+        const hadFocus = view.root.contains(this.ownerDocument.activeElement);
+        view.open = false;
+        view.root.hidden = true;
+        view.clear();
+        this.parts.shell.classList.remove("chat-shell--preview", "chat-shell--preview-sheet");
+        this.parts.main.inert = false;
+        this.sfHostState("data-preview-open", false);
+        this.sfEmit("toggle", {kind: "preview", open: false});
+        this._previewRoom?.disconnect();
+        this._previewRoom = null;
+        const opener = view.opener?.isConnected ? view.opener : view.openerFinder?.();
+        view.opener = null;
+        view.openerFinder = null;
+        if (!focus && !hadFocus) return;
+        (opener?.isConnected && opener.offsetParent !== null ? opener : this.parts.composer).focus({preventScroll: true});
+    }
+
+    // A footnote or a source's title found again by its message and place.
+    findAgain(node) {
+        const message = node?.closest?.(".sf-chat-message[data-id]");
+        if (!message) return null;
+        const id = message.getAttribute("data-id");
+        const controls = node.getAttribute("aria-controls");
+        const cls = [...node.classList].find((one) => /^sf-chat-(footnote|sources__preview|deliverable__preview)$/u.test(one));
+        const index = cls ? [...message.querySelectorAll(`.${cls}`)].indexOf(node) : -1;
+        return () => {
+            const again = [...this.parts.list.querySelectorAll(".sf-chat-message[data-id]")].find((one) => one.getAttribute("data-id") === id);
+            if (!again) return null;
+            if (controls && cls === "sf-chat-footnote") return again.querySelector(`.sf-chat-footnote[aria-controls="${CSS.escape(controls)}"]`);
+            return cls && index >= 0 ? again.querySelectorAll(`.${cls}`)[index] ?? null : null;
+        };
+    }
+
+    // Beside the conversation while it keeps PREVIEW_DOCK_MIN of room (the
+    // window less its docked side panel); a sheet over it otherwise, with
+    // the conversation inert behind it.
+    placePreview() {
+        const {shell, side, main} = this.parts;
+        if (!this._preview?.open) return;
+        const width = shell.getBoundingClientRect().width;
+        const docked = side && getComputedStyle(side).position !== "fixed" && !shell.classList.contains("chat-shell--side-hidden");
+        const room = width - (docked ? side.getBoundingClientRect().width : 0);
+        const sheet = room < PREVIEW_DOCK_MIN;
+        shell.classList.toggle("chat-shell--preview-sheet", sheet);
+        main.inert = sheet;
+    }
+
+    watchPreviewRoom() {
+        if (this._previewRoom || typeof ResizeObserver !== "function") return;
+        this._previewRoom = new ResizeObserver(() => this.placePreview());
+        this._previewRoom.observe(this.parts.shell);
     }
 
     async loadFiles() {
