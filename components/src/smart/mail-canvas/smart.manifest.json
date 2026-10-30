@@ -471,13 +471,54 @@
       "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
       "version": 2
     },
-    "runtime_pair": null,
+    "runtime_pair": {
+      "ui_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2",
+      "ui_smart_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2"
+    },
     "aliases": [],
     "deprecations": [],
     "replacement": null,
     "migrations": []
   },
-  "provenance": null,
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "03c4c20aaf0d792586b96be6ef7e7d4a5e5044e8",
+    "source_artifacts": [
+      {
+        "path": "src/smart/mail-canvas/index.js",
+        "sha256": "63dee8e43bb1bbdc096571a67da621b16675c894e78b1c0bc1b51e32eea52086"
+      },
+      {
+        "path": "src/smart/mail-canvas/js/templates/default.js",
+        "sha256": "302c02023476218f4bd4d3ddc75bb90105b43352673fb1c4007df57484b165b5"
+      },
+      {
+        "path": "src/smart/mail-canvas/js/templates/default.css",
+        "sha256": "5f29f7229a0b38311b669bb61745d1a14851f31e30c5c03280e982179ea69be4"
+      },
+      {
+        "path": "src/smart/mail-canvas/rule.js",
+        "sha256": "a163b81e25f00c2c2316ef95209429a68ecf7e1fd889b5cb7ea55544e0d72466"
+      },
+      {
+        "path": "src/smart/mail-canvas/docs.md",
+        "sha256": "c01f16047003a65ad895a4ba25cc256b5122e79d1f46c9790822501cd27b5290"
+      },
+      {
+        "path": "src/smart/mail-canvas/component.json",
+        "sha256": "25774972525d970dfe4ad67ec459bd51db50a834122c5e63362ce3be14188fb8"
+      },
+      {
+        "path": "src/smart/mail-canvas/lang/en.json",
+        "sha256": "bc46bd17c3b7aae142e66d52332759daaad872c476a9852c4baafd1bb57132f3"
+      },
+      {
+        "path": "src/smart/mail-canvas/lang/ru.json",
+        "sha256": "991edbb8e3d7ee68ffb3605ef307f71b868feed79d8c368ddafc559067930dce"
+      }
+    ],
+    "generated_runtime": []
+  },
   "ai_guidance": {
     "use_when": "Use sf-mail-canvas wherever a person sees and presses on a rendered letter in SIMAI Email Editor.",
     "do_not": [
