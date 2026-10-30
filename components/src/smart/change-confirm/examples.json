@@ -24,6 +24,40 @@
         "host": {
           "state": "open"
         }
+      },
+      "studio": {
+        "title": "Change confirm reference",
+        "summary": "Deterministic reference fixture for sf-change-confirm: a proposed change waiting for an answer.",
+        "props": {
+          "heading": "Изменить настройки рассылки",
+          "heading-level": "3",
+          "state": "open",
+          "change-id": "chg-1",
+          "accept-text": "Применить",
+          "decline-text": "Отклонить",
+          "changes": [
+            {
+              "label": "Частота",
+              "before": "Раз в неделю",
+              "after": "Каждый день"
+            },
+            {
+              "label": "Время",
+              "before": "09:00",
+              "after": "18:00"
+            }
+          ]
+        },
+        "children": [
+          {
+            "element": "p",
+            "props": {
+              "slot": "description"
+            },
+            "text": "Ассистент предлагает изменить две настройки.",
+            "children": []
+          }
+        ]
       }
     },
     {
@@ -166,6 +200,283 @@
       "expect": {
         "name": "Изменить статус задачи"
       }
+    }
+  ],
+  "pages": [
+    {
+      "name": "conformance",
+      "title": "sf-change-confirm against component.json (standard simai.smart-component 1.3.8 §12, gate 20)",
+      "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+      "page": {
+        "lang": "ru",
+        "body": [
+          "<main>",
+          "  <sf-change-confirm id=\"c\" heading=\"Переименовать раздел\" change-id=\"c1\" changes='[{\"label\": \"Название\", \"before\": \"Новости\", \"after\": \"События\"}, {\"label\": \"Адрес\", \"before\": \"/news/\", \"after\": \"/events/\"}]'></sf-change-confirm>",
+          "  <sf-change-confirm id=\"d\" change-id=\"c2\" changes='[{\"label\": \"Название\", \"before\": \"Новости\", \"after\": \"События\"}, {\"label\": \"Адрес\", \"before\": \"/news/\", \"after\": \"/events/\"}]'></sf-change-confirm>",
+          "  <button id=\"page-confirm\" type=\"button\" data-sf-action=\"d.confirm\">Да</button>",
+          "</main>"
+        ]
+      },
+      "checks": [
+        {
+          "id": "p1-tab-enter-confirms",
+          "title": "Tab reaches the first answer; Enter confirms: sf-change-confirm-answer {id, accepted: true} once and sf-change-confirm-accept once, noted with its dates; the card is pending and the focus is on its status line",
+          "covers": "keyboard.host Tab reach, Enter select, events.answer, aliases sf-change-confirm-accept, accessibility.name heading",
+          "steps": [
+            {
+              "script": "(document.activeElement?.blur?.(), true)",
+              "wait": 60,
+              "check": "document.querySelector('#c section').getAttribute('aria-labelledby') === document.querySelector('#c [role=heading]').id && document.querySelector('#c [role=heading]').id === 'page-c--heading'"
+            },
+            {
+              "user": "keyboard:Tab",
+              "wait": 80,
+              "check": "document.activeElement === document.querySelector('#c button[data-action=\"accept\"]')"
+            },
+            {
+              "user": "keyboard:Enter",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-change-confirm-answer",
+                    "count": 1,
+                    "detail": {
+                      "id": "c1",
+                      "accepted": true
+                    }
+                  },
+                  {
+                    "name": "sf-change-confirm-accept",
+                    "count": 1,
+                    "detail": {
+                      "id": "c1"
+                    }
+                  },
+                  {
+                    "name": "sf-change-confirm-decline",
+                    "count": 0
+                  }
+                ],
+                "journal": [
+                  {
+                    "from": "sf-change-confirm-accept",
+                    "to": "sf-change-confirm-answer",
+                    "since": "2026-10-27",
+                    "remove_after": "2026-12-01"
+                  }
+                ]
+              },
+              "check": "document.querySelector('#c').state === 'pending' && document.activeElement === document.querySelector('#c .sf-change-confirm__status')"
+            }
+          ]
+        },
+        {
+          "id": "p2-space-declines-refused",
+          "title": "Space on the second answer declines; a page that refuses the old name keeps the question open (one cancel for both names) and the first answer takes the focus back",
+          "covers": "keyboard.host Space select, events.answer cancelable, aliases sf-change-confirm-decline",
+          "steps": [
+            {
+              "script": "(document.addEventListener('sf-change-confirm-decline', (event) => event.preventDefault(), {once: true}), document.querySelector('#c button[data-action=\"decline\"]').focus(), true)",
+              "wait": 60
+            },
+            {
+              "user": "keyboard:Space",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-change-confirm-answer",
+                    "count": 1,
+                    "detail": {
+                      "id": "c1",
+                      "accepted": false
+                    }
+                  },
+                  {
+                    "name": "sf-change-confirm-decline",
+                    "count": 1
+                  }
+                ]
+              },
+              "check": "document.querySelector('#c').state === 'open' && document.activeElement === document.querySelector('#c button[data-action=\"accept\"]')"
+            }
+          ]
+        },
+        {
+          "id": "p3-page-trigger-and-outcome",
+          "title": "a page button data-sf-action=\"d.confirm\" confirms the untitled card; the host's outcome leaves only the words «Применено»",
+          "covers": "actions.confirm (§8 one page trigger, §19.4), accessibility.name runtime.changes-label",
+          "steps": [
+            {
+              "user": "click:#page-confirm",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-change-confirm-answer",
+                    "count": 1,
+                    "detail": {
+                      "id": "c2",
+                      "accepted": true
+                    }
+                  }
+                ]
+              },
+              "check": "document.querySelector('#d').state === 'pending' && document.querySelector('#d section').getAttribute('aria-label') === 'Что изменится'"
+            },
+            {
+              "script": "(document.querySelector('#d').state = 'accepted', true)",
+              "wait": 200,
+              "check": "document.querySelector('#d .sf-change-confirm__status').querySelector('span').textContent.trim() === 'Применено' && document.querySelector('#d .sf-change-confirm__actions').hidden"
+            }
+          ]
+        },
+        {
+          "id": "p4-actions-answer-outcomes",
+          "title": "answer {accepted} answers outcomes: applied once, refused closed after; cancel on a closed card is refused",
+          "covers": "actions.answer, actions.cancel (§4.4)",
+          "steps": [
+            {
+              "action": {
+                "name": "answer",
+                "with": {
+                  "accepted": false
+                }
+              },
+              "target": "#c",
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                },
+                "events": [
+                  {
+                    "name": "sf-change-confirm-answer",
+                    "count": 1,
+                    "detail": {
+                      "accepted": false
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "action": {
+                "name": "cancel"
+              },
+              "target": "#c",
+              "expect": {
+                "returns": {
+                  "outcome": "refused",
+                  "reason": "closed"
+                },
+                "events": [
+                  {
+                    "name": "sf-change-confirm-answer",
+                    "count": 0
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p5-old-answer-kind",
+          "title": "answer(\"decline\"), the 1.0 call, still declines and is noted with its dates",
+          "covers": "aliases answer(kind)",
+          "steps": [
+            {
+              "script": "document.querySelector('#c').answer('decline')",
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                },
+                "events": [
+                  {
+                    "name": "sf-change-confirm-answer",
+                    "count": 1,
+                    "detail": {
+                      "accepted": false
+                    }
+                  }
+                ],
+                "journal": [
+                  {
+                    "from": "answer(\"decline\")",
+                    "kind": "action",
+                    "since": "2026-10-27",
+                    "remove_after": "2026-12-01"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p6-expired",
+          "title": "an open card past expires-at reads as expired, says sf-change-confirm-expired once and the old -expire once, and offers no answer",
+          "covers": "events.expired (own verb), aliases sf-change-confirm-expire",
+          "steps": [
+            {
+              "script": "(document.querySelector('#c').setAttribute('expires-at', '2020-01-01T00:00:00Z'), true)",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-change-confirm-expired",
+                    "count": 1,
+                    "detail": {
+                      "id": "c1"
+                    }
+                  },
+                  {
+                    "name": "sf-change-confirm-expire",
+                    "count": 1
+                  }
+                ],
+                "journal": [
+                  {
+                    "from": "sf-change-confirm-expire",
+                    "to": "sf-change-confirm-expired"
+                  }
+                ]
+              },
+              "check": "document.querySelector('#c').shownState === 'expired' && document.querySelector('#c .sf-change-confirm__actions').hidden && document.querySelector('#c .sf-change-confirm__status').querySelector('span').textContent.trim() === 'Время подтверждения истекло'"
+            }
+          ]
+        },
+        {
+          "id": "p7-ask",
+          "title": "asked by an assembly (open with a signal) the card waits and answers the person's answer {accepted: true, reason: close}; an aborted ask answers cancelled",
+          "covers": "actions.open (§19.4 ask)",
+          "steps": [
+            {
+              "script": "(window.__ask = document.querySelector('#c').open({}, {signal: new AbortController().signal}), true)",
+              "wait": 60
+            },
+            {
+              "user": "click:#c button[data-action=\"accept\"]",
+              "wait": 60
+            },
+            {
+              "script": "window.__ask",
+              "expect": {
+                "returns": {
+                  "outcome": "applied",
+                  "value": {
+                    "accepted": true,
+                    "reason": "close"
+                  }
+                }
+              }
+            },
+            {
+              "script": "(() => { const c = new AbortController(); const asked = document.querySelector('#d').open({}, {signal: c.signal}); c.abort(); return asked; })()",
+              "expect": {
+                "returns": {
+                  "outcome": "cancelled"
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

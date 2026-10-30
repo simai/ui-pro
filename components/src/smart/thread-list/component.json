@@ -2,7 +2,7 @@
   "$comment": "The source of sf-thread-list's element plumbing (core/js/element-manifest.js). Taken from simai/ui-control control/smart-architecture/migration/out/thread-list (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); standard simai.smart-component 1.3.8, vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.thread-list",
   "tag": "sf-thread-list",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "kind": "leaf",
   "family": "list",
   "settings": {
@@ -56,15 +56,18 @@
     },
     "has-more": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "summary": "A next page exists: reaching the end asks for it."
     },
     "archived": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "summary": "Show the archive: a way back, Restore instead of Archive, no New conversation."
     },
     "no-create": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "summary": "No New conversation."
     },
     "create-commands": {
       "type": "list",
@@ -81,11 +84,13 @@
     },
     "no-manage": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "summary": "No row actions: no menu, no F2."
     },
     "no-archive": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "summary": "No archive: no way to it and no Archive among the row actions."
     },
     "group-by": {
       "type": "enum",
@@ -93,21 +98,25 @@
         "day",
         "none"
       ],
-      "default": "day"
+      "default": "day",
+      "summary": "day: Today, Yesterday, Earlier by updated_at in the reader's time zone. none: one list."
     },
     "label": {
       "type": "string",
-      "default-from": "runtime.label"
+      "default-from": "runtime.label",
+      "summary": "The navigation's accessible name; empty is Conversations, or Archive, in the page's language."
     },
     "loading": {
       "type": "boolean",
       "default": false,
-      "x-summary": "while the first page loads: the shape of the list instead of words (was setLoading)"
+      "x-summary": "while the first page loads: the shape of the list instead of words (was setLoading)",
+      "summary": "The shape of the list while the first page loads."
     },
     "status": {
       "type": "string",
       "default": "",
-      "x-summary": "a sentence in place of the list, an error the host could not recover from; empty clears it (was setStatus)"
+      "x-summary": "a sentence in place of the list, an error the host could not recover from; empty clears it (was setStatus)",
+      "summary": "A sentence in place of the list (an error); empty clears it."
     },
     "actions": {
       "type": "list",
@@ -139,30 +148,57 @@
           "optional": true,
           "summary": "The id of the create command pressed; absent for the one New conversation."
         }
-      }
+      },
+      "summary": "New conversation was pressed, or a create command (kind: its id)."
     },
     "open": {
       "carries": {
         "id": "id"
-      }
+      },
+      "summary": "A conversation is asked for (vocabulary open); the host writes selected back. The 1.0 name sf-thread-list-select follows until 2026-12-01."
     },
     "rename": {
       "carries": {
         "id": "id",
-        "title": "string"
-      }
+        "title": {
+          "type": "string",
+          "schema": {
+            "minLength": 1,
+            "maxLength": 120
+          }
+        }
+      },
+      "summary": "A conversation was renamed in place; the new title is shown at once. A host that cannot keep it upserts the old title."
     },
     "archive": {
       "carries": {
-        "ids": "list",
+        "ids": {
+          "type": "list",
+          "schema": {
+            "items": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
         "id": "id"
-      }
+      },
+      "summary": "Archive {ids, id} (vocabulary archive; id stays for 1.0 listeners)."
     },
     "restore": {
       "carries": {
-        "ids": "list",
+        "ids": {
+          "type": "list",
+          "schema": {
+            "items": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
         "id": "id"
-      }
+      },
+      "summary": "Restore {ids, id} (vocabulary restore). The 1.0 name sf-thread-list-unarchive follows until 2026-12-01."
     },
     "apply": {
       "carries": {
@@ -171,11 +207,21 @@
           "type": "enum",
           "values": [
             "entry"
-          ]
+          ],
+          "optional": true
         },
-        "ids": "list",
+        "ids": {
+          "type": "list",
+          "schema": {
+            "items": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
         "id": "id"
-      }
+      },
+      "summary": "One of the host's row actions: {action, scope: entry, ids, id} (vocabulary apply). The 1.0 name sf-thread-list-action follows until 2026-12-01."
     },
     "load-more": {
       "carries": {
@@ -185,18 +231,83 @@
             "after"
           ]
         }
-      }
+      },
+      "summary": "The end came into view while has-more: {direction: after}."
     },
     "toggle": {
       "carries": {
         "archived": "boolean"
-      }
+      },
+      "summary": "The archive, or the way back. The 1.0 name sf-thread-list-view follows until 2026-12-01."
     }
   },
   "actions": {
     "set-threads": {
       "with": {
-        "threads": "list",
+        "threads": {
+          "type": "list",
+          "schema": {
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "description": "ISO 8601; orders the list and groups it by day."
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "pinned": {
+                  "type": "boolean",
+                  "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
+                },
+                "caption": {
+                  "type": "string",
+                  "description": "A quiet second line: who it is with, the last message."
+                },
+                "activity": {
+                  "type": "string",
+                  "enum": [
+                    "running",
+                    "waiting",
+                    "done",
+                    "stopped",
+                    "failed"
+                  ],
+                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                },
+                "unread": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "avatar": {
+                  "type": "object",
+                  "properties": {
+                    "image_url": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "title"
+              ]
+            }
+          }
+        },
         "has-more": {
           "type": "boolean",
           "optional": true
@@ -205,11 +316,76 @@
       "x-outcomes": [
         "applied"
       ],
-      "x-summary": "the whole list and whether more follows, together (§7.2 values that go together); ends a page request"
+      "x-summary": "the whole list and whether more follows, together (§7.2 values that go together); ends a page request",
+      "summary": "Replace the list; only the conversations of the shown view (archived or not) are kept.",
+      "x-returns": "{outcome: applied}"
     },
     "append-threads": {
       "with": {
-        "threads": "list",
+        "threads": {
+          "type": "list",
+          "schema": {
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "description": "ISO 8601; orders the list and groups it by day."
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "pinned": {
+                  "type": "boolean",
+                  "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
+                },
+                "caption": {
+                  "type": "string",
+                  "description": "A quiet second line: who it is with, the last message."
+                },
+                "activity": {
+                  "type": "string",
+                  "enum": [
+                    "running",
+                    "waiting",
+                    "done",
+                    "stopped",
+                    "failed"
+                  ],
+                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                },
+                "unread": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "avatar": {
+                  "type": "object",
+                  "properties": {
+                    "image_url": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "title"
+              ]
+            }
+          }
+        },
         "has-more": {
           "type": "boolean",
           "optional": true
@@ -218,17 +394,81 @@
       "x-outcomes": [
         "applied"
       ],
-      "x-summary": "the next page; ids already shown are kept where they are"
+      "x-summary": "the next page; ids already shown are kept where they are",
+      "summary": "The next page, after the ones shown; a conversation already listed is not repeated.",
+      "x-returns": "{outcome: applied}"
     },
     "upsert": {
       "with": {
-        "thread": "object"
+        "thread": {
+          "type": "object",
+          "schema": {
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "number"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "ISO 8601; orders the list and groups it by day."
+              },
+              "archived": {
+                "type": "boolean"
+              },
+              "pinned": {
+                "type": "boolean",
+                "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
+              },
+              "caption": {
+                "type": "string",
+                "description": "A quiet second line: who it is with, the last message."
+              },
+              "activity": {
+                "type": "string",
+                "enum": [
+                  "running",
+                  "waiting",
+                  "done",
+                  "stopped",
+                  "failed"
+                ],
+                "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+              },
+              "unread": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "avatar": {
+                "type": "object",
+                "properties": {
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ]
+          }
+        }
       },
       "x-outcomes": [
         "applied",
         "refused"
       ],
-      "x-summary": "a new or changed conversation moves where its date puts it"
+      "x-summary": "a new or changed conversation moves where its date puts it",
+      "summary": "A new or changed conversation, placed where its date puts it.",
+      "x-returns": "{outcome: applied} or {outcome: refused, reason}"
     },
     "remove-thread": {
       "with": {
@@ -237,13 +477,17 @@
       "x-outcomes": [
         "applied",
         "refused"
-      ]
+      ],
+      "summary": "Take one conversation off the list.",
+      "x-returns": "{outcome: applied} or {outcome: refused, reason}"
     },
     "more-failed": {
       "x-outcomes": [
         "applied"
       ],
-      "x-summary": "the next page could not be loaded: reaching the end asks again"
+      "x-summary": "the next page could not be loaded: reaching the end asks again",
+      "summary": "The next page could not be loaded: reaching the end asks again.",
+      "x-returns": "{outcome: applied}"
     },
     "rename": {
       "with": {
@@ -253,7 +497,9 @@
         "applied",
         "refused"
       ],
-      "x-summary": "opens the rename field in place (F2)"
+      "x-summary": "opens the rename field in place (F2)",
+      "summary": "Start renaming a conversation in place, as F2 does.",
+      "x-returns": "{outcome: applied} or {outcome: refused, reason}"
     },
     "open-menu": {
       "with": {
@@ -263,7 +509,9 @@
         "applied",
         "refused"
       ],
-      "x-summary": "opens the row's actions (Shift+F10, the menu key, the «⋯» button)"
+      "x-summary": "opens the row's actions (Shift+F10, the menu key, the «⋯» button)",
+      "summary": "Open a conversation's actions, as the row's «⋯» and Shift+F10 do.",
+      "x-returns": "{outcome: applied} or {outcome: refused, reason}"
     }
   },
   "slots": {
@@ -286,6 +534,24 @@
       "ContextMenu": "open-menu"
     }
   },
+  "relations": [
+    {
+      "name": "cl-icon"
+    },
+    {
+      "name": "cl-badge"
+    },
+    {
+      "name": "cl-avatar"
+    },
+    {
+      "name": "cl-context-menu",
+      "lazy": true
+    },
+    {
+      "name": "sr-only/default"
+    }
+  ],
   "templates": {
     "default": {
       "file": "js/templates/default.js",
@@ -349,6 +615,63 @@
       "state": "current"
     }
   },
+  "aliases": {
+    "$comment": "Dated aliases of sf-thread-list for the shim (core/js/aliases.js, standard §16 item 20). create, rename, archive and load-more keep their DOM names (archive and load-more gain the vocabulary's ids and direction beside the old fields). setLoading and setStatus became the settings loading and status: the component reads them and notes each call (no shim row can map a method to a setting).",
+    "since": "2026-10-27",
+    "remove-after": "2026-12-01",
+    "rows": [
+      {
+        "from": "sf-thread-list-select",
+        "to": "sf-thread-list-open",
+        "kind": "event",
+        "mode": "same-detail",
+        "cancelable": false,
+        "section": "§8, vocabulary §5 open"
+      },
+      {
+        "from": "sf-thread-list-unarchive",
+        "to": "sf-thread-list-restore",
+        "kind": "event",
+        "mode": "detail-adds",
+        "cancelable": false,
+        "section": "§8, vocabulary §5 restore",
+        "note": "{id} becomes {ids, id}"
+      },
+      {
+        "from": "sf-thread-list-action",
+        "to": "sf-thread-list-apply",
+        "kind": "event",
+        "mode": "detail-adds",
+        "cancelable": false,
+        "section": "§8, §18.3, vocabulary §5 apply",
+        "note": "{id, action} becomes {action, scope: entry, ids, id}"
+      },
+      {
+        "from": "sf-thread-list-view",
+        "to": "sf-thread-list-toggle",
+        "kind": "event",
+        "mode": "same-detail",
+        "cancelable": false,
+        "section": "§8, §3.1 (view is reserved)"
+      },
+      {
+        "from": "setLoading",
+        "to": null,
+        "kind": "action",
+        "mode": "retired",
+        "section": "§4.4",
+        "note": "the setting loading; the method stays until the date and notes each call"
+      },
+      {
+        "from": "setStatus",
+        "to": null,
+        "kind": "action",
+        "mode": "retired",
+        "section": "§4.4",
+        "note": "the setting status; the method stays until the date and notes each call"
+      }
+    ]
+  },
   "x-summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "x-source": {
     "package": "ui-pro",
@@ -368,14 +691,214 @@
     "settings: loading and status replace setLoading() and setStatus(), which are read until 2026-12-01 and noted",
     "entry fields: updated_at → updated-at, avatar.image_url → avatar.image-url (§18.1 kebab-case); the old spellings are read until 2026-12-01 and noted"
   ],
-  "x-kept": {
-    "security": {
-      "permissions_owner": "host",
-      "untrusted_inputs": [
-        "titles and captions (drawn as text)",
-        "avatar image URLs (passed to sf-avatar)"
+  "x-decisions": [
+    "version: 1.0.0 → 1.1.0, a minor while the old names hold dated aliases (§4.10).",
+    "shape (§7): a leaf. The report counts sf-avatar and sf-context-menu as placed parts; both are its own drawing -- the avatar shows a row's picture, the one context menu is the rows' shared surface, filled and opened by the list itself. No rule runs between them and no key would be bound by two writers, so keys, roles and rules would restate what the template already does (the smaller mechanism).",
+    "events (vocabulary 1.1.5 §5): create, open {id}, rename {id, title}, archive {ids}, restore {ids}, apply {action, scope: entry, ids} (§18.3: a row's own action), load-more {direction: after}, toggle {archived}. Each detail keeps the 1.0 field id beside ids, so the renamed names follow in detail-adds mode and the kept names lose nothing.",
+    "own-verb-words: none left -- action became the vocabulary's apply.",
+    "setter (§4.4): setLoading and setStatus become the settings loading and status; the methods stay until 2026-12-01 and note each call. set-threads stays an action: the list and has-more change together and a page request ends with them (§7.2 values that go together); the setting threads is the same list for a binding.",
+    "threads (§18.4): a list setting with entries {key: id, changes: content}; the rows are keyed by id, so a changed conversation redraws its own row in place and keeps the focus.",
+    "selected is a controlled value (§4.3): a press asks open {id}; the host writes selected back.",
+    "key-effects: arrows, Home and End move between rows (focus:*), Enter and Space open (select, a native button), F2 opens the rename field and Shift+F10 / the menu key the row's actions (open), as the keyboard map (row) names the actions rename and open-menu.",
+    "a11y-name: label, else the runtime word label («Разговоры»), or archive-view while the archive is shown.",
+    "item-shape: threads and actions name their fields with `of`; entry fields are kebab-case (§18.1), the 1.0 snake spellings read until the aliases' day.",
+    "template: templates.default names the Lit template js/templates/default.js, the migration form §5.2 allows.",
+    "skeleton (§5.4): the loading shape is the template's own, drawn while `loading`; its first paint is the static snapshot, and the skeleton is derived from it (presentation.skeleton.late threads).",
+    "examples: examples.json from the conversations a host shows (grouped, ungrouped, the archive, loading, empty); probe.json drives the arrows, Enter, F2, Escape and Shift+F10 and the old names (gate 16, gate 20).",
+    "css-variables: the five hooks the sheet already had, as public variables in the Framework's form, the hover and current rows each with its own (§6 a variable per state); the 1.0 --sf-thread-list--* hooks stay the internal layer.",
+    "side-effects: none. The context menu draws as sf-context-menu does (its own layer).",
+    "version 1.2.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3.",
+    "version 1.5.0: a minor (§4.10): create-commands, the several ways to start a host may offer (simai.chat: a dialogue, a group). A list of {id, text, icon?} as the row's actions are, drawn as the head's row-like commands in place of New conversation; a press is the same create event with kind: id, so one event keeps meaning one request to start, and a host that sets none sees nothing change."
+  ],
+  "x-rule": {
+    "$comment": [
+      "The list draws its glyphs as sf-icon, an unread count as sf-badge and a",
+      "conversation's picture as sf-avatar; a tag it renders is a tag it fetches. A",
+      "row's actions open in sf-context-menu on a press, so the menu is fetched after",
+      "the page is ready, and the list waits for the element before opening it. The",
+      "loading sentence is visually hidden with the sr-only utility, which a class",
+      "scan can miss on a node drawn later, so it comes with the component."
+    ]
+  },
+  "x-registry": {
+    "kind": "composite",
+    "capabilities": [
+      "conversations",
+      "rename-in-place",
+      "pagination",
+      "responsive"
+    ],
+    "persistence": {
+      "mode": "none",
+      "source_of_truth": "host",
+      "network_owner": "host",
+      "revision_field": null
+    },
+    "readiness": {
+      "level": "host-required",
+      "required_checks": [
+        "manifest",
+        "loader-rule",
+        "thread-list-contract",
+        "thread-list-browser"
+      ]
+    },
+    "tags": [
+      "conversation",
+      "threads",
+      "chat",
+      "navigation"
+    ],
+    "contracts": {
+      "thread": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "number"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "description": "ISO 8601; orders the list and groups it by day."
+          },
+          "archived": {
+            "type": "boolean"
+          },
+          "pinned": {
+            "type": "boolean",
+            "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
+          },
+          "caption": {
+            "type": "string",
+            "description": "A quiet second line: who it is with, the last message."
+          },
+          "activity": {
+            "type": "string",
+            "enum": [
+              "running",
+              "waiting",
+              "done",
+              "stopped",
+              "failed"
+            ],
+            "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+          },
+          "unread": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "avatar": {
+            "type": "object",
+            "properties": {
+              "image_url": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ]
+      },
+      "slots": {
+        "type": "object",
+        "properties": {
+          "footer": {
+            "type": "string",
+            "description": "Under the list, after the way to the archive (a usage meter, a settings link)."
+          }
+        }
+      },
+      "properties": {
+        "type": "object",
+        "properties": {
+          "threads": {
+            "type": "array",
+            "description": "Read-only: the conversations shown, newest first."
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "text"
+              ]
+            },
+            "description": "Row actions of the host's own, after Rename and Archive."
+          }
+        }
+      },
+      "css_variables": {
+        "type": "object",
+        "properties": {
+          "--sf-thread-list-inset": {
+            "type": "string"
+          },
+          "--sf-thread-list-row-height": {
+            "type": "string"
+          },
+          "--sf-thread-list-radius": {
+            "type": "string"
+          },
+          "--sf-thread-list-hover-background-color": {
+            "type": "string"
+          },
+          "--sf-thread-list-current-background-color": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "state": {
+      "machines": {
+        "list": [
+          "loading",
+          "ready",
+          "empty"
+        ],
+        "row": [
+          "idle",
+          "renaming"
+        ],
+        "more": [
+          "idle",
+          "loading"
+        ]
+      },
+      "visual_states": [
+        "default",
+        "loading",
+        "empty",
+        "selected",
+        "disabled"
+      ]
+    },
+    "artifacts": {
+      "fixtures": [
+        "studio.fixture.json"
       ],
-      "network_policy": "deny"
+      "scenarios": []
     },
     "ownership": {
       "source": "simai/ui-pro",
@@ -386,6 +909,14 @@
         "deciding which conversation is open",
         "access decisions"
       ]
+    },
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "titles and captions (drawn as text)",
+        "avatar image URLs (passed to sf-avatar)"
+      ],
+      "network_policy": "deny"
     },
     "presentation": {
       "themes": [
@@ -425,25 +956,123 @@
         "node scripts/test.mjs",
         "node scripts/run-browser-probes.mjs <free output> <package output>"
       ]
+    },
+    "accessibility": {
+      "accessible_name": "internal",
+      "keyboard": [
+        "Tab",
+        "ArrowUp",
+        "ArrowDown",
+        "Home",
+        "End",
+        "Enter",
+        "Space",
+        "F2",
+        "Shift+F10",
+        "ContextMenu",
+        "Escape"
+      ],
+      "focus": "One Tab stop for the list (roving tabindex: the row last moved to, else the open one, else the first). The open row carries aria-current=page and medium weight, and the system highlight in forced colours. F2 renames in place (Enter keeps, Escape gives up and does not reach a surrounding panel, leaving keeps); focus returns to the row. Shift+F10 or the menu key opens the row's actions; the «⋯» is not a Tab stop."
+    },
+    "compatibility": {
+      "migrations": [
+        {
+          "from": "1.0.0",
+          "to": "1.1.0",
+          "changes": [
+            "standard simai.smart-component 1.3.8: the element is made from component.json; dated aliases in aliases.json",
+            "sf-thread-list-select -> sf-thread-list-open until 2026-12-01 (event)",
+            "sf-thread-list-unarchive -> sf-thread-list-restore until 2026-12-01 (event)",
+            "sf-thread-list-action -> sf-thread-list-apply until 2026-12-01 (event)",
+            "sf-thread-list-view -> sf-thread-list-toggle until 2026-12-01 (event)"
+          ]
+        },
+        {
+          "from": "1.3.0",
+          "to": "1.3.1",
+          "changes": [
+            "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.3.1",
+          "to": "1.4.0",
+          "changes": [
+            "A conversation may carry activity (running, waiting, done, stopped, failed), drawn in the row as a compact sf-badge (smart.badge 1.2.0): the icon alone is visible and the word is the accessible name. Nothing to change for a host that sends none."
+          ]
+        },
+        {
+          "from": "1.4.0",
+          "to": "1.5.0",
+          "changes": [
+            "create-commands: several commands in the head in place of New conversation, a press saying create {kind: id}. Nothing to change for a host that sets none."
+          ]
+        },
+        {
+          "from": "1.5.0",
+          "to": "1.5.1",
+          "changes": [
+            "Standard simai.smart-component 1.4: component.json and examples.json are the source; rule.js, aliases.json, studio.fixture.json, studio.scenario.json, probe.json and smart.manifest.json are generated from them. The registry gains the dated event names with alias_of and canonical, the base settings root-class and root-style, and the settings' own words. No runtime behaviour changes. Nothing to change for a host."
+          ]
+        }
+      ]
+    },
+    "methods": {
+      "setLoading": {
+        "summary": "While the first page loads: the shape of the list, and the list busy. Deprecated: the setting loading (until 2026-12-01).",
+        "arguments": [
+          {
+            "name": "loading",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "returns": {
+          "type": "null"
+        }
+      },
+      "setStatus": {
+        "summary": "A sentence in place of the list (an error); empty clears it. Deprecated: the setting status (until 2026-12-01).",
+        "arguments": [
+          {
+            "name": "message",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "returns": {
+          "type": "null"
+        }
+      }
+    },
+    "inputs": {
+      "template": {
+        "const": "default"
+      },
+      "create-commands": {
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "text"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            }
+          }
+        }
+      }
     }
-  },
-  "x-decisions": [
-    "version: 1.0.0 → 1.1.0, a minor while the old names hold dated aliases (§4.10).",
-    "shape (§7): a leaf. The report counts sf-avatar and sf-context-menu as placed parts; both are its own drawing -- the avatar shows a row's picture, the one context menu is the rows' shared surface, filled and opened by the list itself. No rule runs between them and no key would be bound by two writers, so keys, roles and rules would restate what the template already does (the smaller mechanism).",
-    "events (vocabulary 1.1.5 §5): create, open {id}, rename {id, title}, archive {ids}, restore {ids}, apply {action, scope: entry, ids} (§18.3: a row's own action), load-more {direction: after}, toggle {archived}. Each detail keeps the 1.0 field id beside ids, so the renamed names follow in detail-adds mode and the kept names lose nothing.",
-    "own-verb-words: none left -- action became the vocabulary's apply.",
-    "setter (§4.4): setLoading and setStatus become the settings loading and status; the methods stay until 2026-12-01 and note each call. set-threads stays an action: the list and has-more change together and a page request ends with them (§7.2 values that go together); the setting threads is the same list for a binding.",
-    "threads (§18.4): a list setting with entries {key: id, changes: content}; the rows are keyed by id, so a changed conversation redraws its own row in place and keeps the focus.",
-    "selected is a controlled value (§4.3): a press asks open {id}; the host writes selected back.",
-    "key-effects: arrows, Home and End move between rows (focus:*), Enter and Space open (select, a native button), F2 opens the rename field and Shift+F10 / the menu key the row's actions (open), as the keyboard map (row) names the actions rename and open-menu.",
-    "a11y-name: label, else the runtime word label («Разговоры»), or archive-view while the archive is shown.",
-    "item-shape: threads and actions name their fields with `of`; entry fields are kebab-case (§18.1), the 1.0 snake spellings read until the aliases' day.",
-    "template: templates.default names the Lit template js/templates/default.js, the migration form §5.2 allows.",
-    "skeleton (§5.4): the loading shape is the template's own, drawn while `loading`; its first paint is the static snapshot, and the skeleton is derived from it (presentation.skeleton.late threads).",
-    "examples: examples.json from the conversations a host shows (grouped, ungrouped, the archive, loading, empty); probe.json drives the arrows, Enter, F2, Escape and Shift+F10 and the old names (gate 16, gate 20).",
-    "css-variables: the five hooks the sheet already had, as public variables in the Framework's form, the hover and current rows each with its own (§6 a variable per state); the 1.0 --sf-thread-list--* hooks stay the internal layer.",
-    "side-effects: none. The context menu draws as sf-context-menu does (its own layer).",
-    "version 1.2.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3.",
-    "version 1.5.0: a minor (§4.10): create-commands, the several ways to start a host may offer (simai.chat: a dialogue, a group). A list of {id, text, icon?} as the row's actions are, drawn as the head's row-like commands in place of New conversation; a press is the same create event with kind: id, so one event keeps meaning one request to start, and a host that sets none sees nothing change."
-  ]
+  }
 }

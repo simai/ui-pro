@@ -112,7 +112,7 @@ test('the window itself hides the conversation under the form and the members, o
 
 test('the list declares its commands additively', () => {
   const list = json('thread-list', 'component.json');
-  assert.equal(list.version, '1.5.0');
+  assert.equal(list.version, '1.5.1');
   assert.deepEqual(list.settings['create-commands'].default, []);
   assert.equal(list.events.create.carries.kind.optional, true);
   assert.ok(json('thread-list', 'smart.manifest.json').compatibility.migrations.some((one) => one.from === '1.4.0' && one.to === '1.5.0'));

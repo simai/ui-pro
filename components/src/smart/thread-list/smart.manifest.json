@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.thread-list",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "title": "Thread list",
   "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "kind": "composite",
@@ -35,17 +35,20 @@
   },
   "inputs": {
     "type": "object",
-    "additionalProperties": false,
     "properties": {
       "template": {
         "type": "string",
-        "const": "default",
-        "default": "default"
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates.",
+        "const": "default"
       },
-      "selected": {
+      "root-class": {
         "type": "string",
-        "default": "",
-        "description": "The id of the open conversation."
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
       },
       "has-more": {
         "type": "boolean",
@@ -62,9 +65,55 @@
         "default": false,
         "description": "No New conversation."
       },
+      "no-manage": {
+        "type": "boolean",
+        "default": false,
+        "description": "No row actions: no menu, no F2."
+      },
+      "no-archive": {
+        "type": "boolean",
+        "default": false,
+        "description": "No archive: no way to it and no Archive among the row actions."
+      },
+      "group-by": {
+        "type": "string",
+        "default": "day",
+        "description": "day: Today, Yesterday, Earlier by updated_at in the reader's time zone. none: one list.",
+        "enum": [
+          "day",
+          "none"
+        ]
+      },
+      "label": {
+        "type": "string",
+        "description": "The navigation's accessible name; empty is Conversations, or Archive, in the page's language."
+      },
+      "loading": {
+        "type": "boolean",
+        "default": false,
+        "description": "The shape of the list while the first page loads."
+      },
+      "status": {
+        "type": "string",
+        "default": "",
+        "description": "A sentence in place of the list (an error); empty clears it."
+      },
+      "selected": {
+        "type": "string",
+        "default": "",
+        "description": "the open conversation; a press asks for it with open {id} and the host writes it back"
+      },
+      "threads": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        }
+      },
       "create-commands": {
         "type": "array",
         "default": [],
+        "description": "Commands in the head in place of New conversation: [{id, text, icon?}], a property. Pressed, one says create {kind: id}. Empty, the one New conversation as before; no-create and the archive take them away as well.",
         "items": {
           "type": "object",
           "required": [
@@ -82,44 +131,16 @@
               "type": "string"
             }
           }
-        },
-        "description": "Commands in the head in place of New conversation: [{id, text, icon?}], a property. Pressed, one says create {kind: id}. Empty, the one New conversation as before."
+        }
       },
-      "no-manage": {
-        "type": "boolean",
-        "default": false,
-        "description": "No row actions: no menu, no F2."
-      },
-      "no-archive": {
-        "type": "boolean",
-        "default": false,
-        "description": "No archive: no way to it and no Archive among the row actions."
-      },
-      "group-by": {
-        "enum": [
-          "day",
-          "none"
-        ],
-        "default": "day",
-        "description": "day: Today, Yesterday, Earlier by updated_at in the reader's time zone. none: one list."
-      },
-      "label": {
-        "type": "string",
-        "default": "",
-        "description": "The navigation's accessible name; empty is Conversations, or Archive, in the page's language."
-      },
-      "loading": {
-        "type": "boolean",
-        "default": false,
-        "description": "The shape of the list while the first page loads."
-      },
-      "status": {
-        "type": "string",
-        "default": "",
-        "description": "A sentence in place of the list (an error); empty clears it."
+      "actions": {
+        "type": "array",
+        "default": []
       }
-    }
+    },
+    "additionalProperties": false
   },
+  "item_contract": {},
   "contracts": {
     "thread": {
       "type": "object",
@@ -247,7 +268,6 @@
       "arguments": [
         {
           "name": "threads",
-          "required": true,
           "schema": {
             "type": "array",
             "items": {
@@ -312,21 +332,15 @@
           }
         },
         {
-          "name": "options",
-          "required": false,
+          "name": "hasMore",
           "schema": {
-            "type": "object",
-            "properties": {
-              "hasMore": {
-                "type": "boolean",
-                "default": false
-              }
-            }
+            "type": "boolean"
           }
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object",
+        "description": "{outcome: applied}"
       }
     },
     "appendThreads": {
@@ -334,7 +348,6 @@
       "arguments": [
         {
           "name": "threads",
-          "required": true,
           "schema": {
             "type": "array",
             "items": {
@@ -399,21 +412,15 @@
           }
         },
         {
-          "name": "options",
-          "required": false,
+          "name": "hasMore",
           "schema": {
-            "type": "object",
-            "properties": {
-              "hasMore": {
-                "type": "boolean",
-                "default": false
-              }
-            }
+            "type": "boolean"
           }
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object",
+        "description": "{outcome: applied}"
       }
     },
     "upsert": {
@@ -421,7 +428,6 @@
       "arguments": [
         {
           "name": "thread",
-          "required": true,
           "schema": {
             "type": "object",
             "properties": {
@@ -484,7 +490,8 @@
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
       }
     },
     "removeThread": {
@@ -492,17 +499,46 @@
       "arguments": [
         {
           "name": "id",
-          "required": true,
-          "schema": {
-            "type": [
-              "string",
-              "number"
-            ]
-          }
+          "schema": {}
         }
       ],
       "returns": {
-        "type": "null"
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "moreFailed": {
+      "summary": "The next page could not be loaded: reaching the end asks again.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "rename": {
+      "summary": "Start renaming a conversation in place, as F2 does.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "openMenu": {
+      "summary": "Open a conversation's actions, as the row's «⋯» and Shift+F10 do.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
       }
     },
     "setLoading": {
@@ -534,53 +570,6 @@
       "returns": {
         "type": "null"
       }
-    },
-    "moreFailed": {
-      "summary": "The next page could not be loaded: reaching the end asks again.",
-      "arguments": [],
-      "returns": {
-        "type": "null"
-      }
-    },
-    "rename": {
-      "summary": "Start renaming a conversation in place, as F2 does.",
-      "arguments": [
-        {
-          "name": "id",
-          "required": true,
-          "schema": {
-            "type": [
-              "string",
-              "number"
-            ]
-          }
-        }
-      ],
-      "returns": {
-        "type": "null"
-      }
-    },
-    "openMenu": {
-      "summary": "Open a conversation's actions, as the row's «⋯» and Shift+F10 do.",
-      "arguments": [
-        {
-          "name": "id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "anchor",
-          "required": true,
-          "schema": {
-            "type": "object"
-          }
-        }
-      ],
-      "returns": {
-        "type": "null"
-      }
     }
   },
   "events": {
@@ -588,98 +577,102 @@
       "summary": "New conversation was pressed, or a create command (kind: its id).",
       "payload": {
         "type": "object",
+        "required": [],
         "properties": {
           "kind": {
-            "type": "string"
+            "type": "string",
+            "description": "The id of the create command pressed; absent for the one New conversation."
           }
         },
-        "additionalProperties": false
+        "additionalProperties": true
       }
     },
     "sf-thread-list-open": {
       "summary": "A conversation is asked for (vocabulary open); the host writes selected back. The 1.0 name sf-thread-list-select follows until 2026-12-01.",
       "payload": {
         "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
         "required": [
           "id"
-        ]
-      }
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-thread-list-rename": {
       "summary": "A conversation was renamed in place; the new title is shown at once. A host that cannot keep it upserts the old title.",
       "payload": {
         "type": "object",
+        "required": [
+          "id",
+          "title"
+        ],
         "properties": {
-          "id": {
-            "type": "string"
-          },
+          "id": {},
           "title": {
             "type": "string",
             "minLength": 1,
             "maxLength": 120
           }
         },
-        "required": [
-          "id",
-          "title"
-        ]
+        "additionalProperties": true
       }
     },
     "sf-thread-list-archive": {
       "summary": "Archive {ids, id} (vocabulary archive; id stays for 1.0 listeners).",
       "payload": {
         "type": "object",
+        "required": [
+          "id"
+        ],
         "properties": {
-          "id": {
-            "type": "string"
-          },
           "ids": {
             "type": "array",
             "items": {
               "type": "string"
             }
-          }
+          },
+          "id": {}
         },
-        "required": [
-          "id"
-        ]
+        "additionalProperties": true
       }
     },
     "sf-thread-list-restore": {
       "summary": "Restore {ids, id} (vocabulary restore). The 1.0 name sf-thread-list-unarchive follows until 2026-12-01.",
       "payload": {
         "type": "object",
+        "required": [
+          "id"
+        ],
         "properties": {
-          "id": {
-            "type": "string"
-          },
           "ids": {
             "type": "array",
             "items": {
               "type": "string"
             }
-          }
+          },
+          "id": {}
         },
-        "required": [
-          "id"
-        ]
-      }
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-thread-list-apply": {
       "summary": "One of the host's row actions: {action, scope: entry, ids, id} (vocabulary apply). The 1.0 name sf-thread-list-action follows until 2026-12-01.",
       "payload": {
         "type": "object",
+        "required": [
+          "action",
+          "id"
+        ],
         "properties": {
-          "id": {
-            "type": "string"
-          },
           "action": {
             "type": "string"
+          },
+          "scope": {
+            "const": "entry"
           },
           "ids": {
             "type": "array",
@@ -687,41 +680,70 @@
               "type": "string"
             }
           },
-          "scope": {
-            "const": "entry"
-          }
+          "id": {}
         },
-        "required": [
-          "id",
-          "action"
-        ]
-      }
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-thread-list-load-more": {
       "summary": "The end came into view while has-more: {direction: after}.",
       "payload": {
         "type": "object",
+        "required": [
+          "direction"
+        ],
         "properties": {
           "direction": {
             "const": "after"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": true
       }
     },
     "sf-thread-list-toggle": {
       "summary": "The archive, or the way back. The 1.0 name sf-thread-list-view follows until 2026-12-01.",
       "payload": {
         "type": "object",
+        "required": [
+          "archived"
+        ],
         "properties": {
           "archived": {
             "type": "boolean"
           }
         },
-        "required": [
-          "archived"
-        ]
-      }
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-thread-list-select": {
+      "summary": "Dated alias of sf-thread-list-open until 2026-12-01 (same-detail).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-thread-list-open"
+    },
+    "sf-thread-list-unarchive": {
+      "summary": "Dated alias of sf-thread-list-restore until 2026-12-01 (detail-adds).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-thread-list-restore"
+    },
+    "sf-thread-list-action": {
+      "summary": "Dated alias of sf-thread-list-apply until 2026-12-01 (detail-adds).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-thread-list-apply"
+    },
+    "sf-thread-list-view": {
+      "summary": "Dated alias of sf-thread-list-toggle until 2026-12-01 (same-detail).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-thread-list-toggle"
     }
   },
   "state": {
@@ -873,12 +895,19 @@
         "changes": [
           "create-commands: several commands in the head in place of New conversation, a press saying create {kind: id}. Nothing to change for a host that sets none."
         ]
+      },
+      {
+        "from": "1.5.0",
+        "to": "1.5.1",
+        "changes": [
+          "Standard simai.smart-component 1.4: component.json and examples.json are the source; rule.js, aliases.json, studio.fixture.json, studio.scenario.json, probe.json and smart.manifest.json are generated from them. The registry gains the dated event names with alias_of and canonical, the base settings root-class and root-style, and the settings' own words. No runtime behaviour changes. Nothing to change for a host."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "e82f8f8420ffb060a528780ec921e657877f01f6",
+    "source_revision": "0ab14848460f9e5155662ed99ae7582c47568934",
     "source_artifacts": [
       {
         "path": "src/smart/thread-list/index.js",
@@ -894,7 +923,7 @@
       },
       {
         "path": "src/smart/thread-list/rule.js",
-        "sha256": "d98c6889fe3cc3c21e5ce55489a691c7d609db4cfa9509bcc8dfe111449ce9a3"
+        "sha256": "0c18330edbfafd3b8f288f6c805efd3c1a0766cf197692d6cd4bec5116443379"
       },
       {
         "path": "src/smart/thread-list/docs.md",
@@ -902,7 +931,7 @@
       },
       {
         "path": "src/smart/thread-list/component.json",
-        "sha256": "8dbd328658de4e88b5b0da2c6a3e90ae4ebfe1ed9c482f75f4a0e0710f5ee289"
+        "sha256": "ad493ecd261274ec9302eeccf5f78a0b5dbab18d4ea39d622eb438c61f06eb0b"
       },
       {
         "path": "src/smart/thread-list/aliases.json",

@@ -34,6 +34,23 @@
         "values": {
           "selected": "t1"
         }
+      },
+      "studio": {
+        "summary": "Deterministic reference fixture for sf-thread-list. Threads arrive from the host through setThreads; the fixture shows the frame and its footer.",
+        "props": {
+          "label": "Беседы",
+          "group-by": "day"
+        },
+        "children": [
+          {
+            "element": "p",
+            "props": {
+              "slot": "footer"
+            },
+            "text": "Беседы хранятся 30 дней",
+            "children": []
+          }
+        ]
       }
     },
     {
@@ -196,6 +213,402 @@
         "max-bytes": 14000,
         "why": "Four conversations, each with a compact sf-badge in its row; the running one prints its spinner's SVG, about 4.7 KB."
       }
+    }
+  ],
+  "pages": [
+    {
+      "name": "conformance",
+      "title": "sf-thread-list against component.json (standard simai.smart-component 1.3.8 §12, gate 20)",
+      "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+      "page": {
+        "lang": "ru",
+        "body": [
+          "<main style=\"display: flex; gap: 16px\">",
+          "  <div style=\"inline-size: 320px; block-size: 420px\"><sf-thread-list id=\"list\" group-by=\"none\" selected=\"t1\"></sf-thread-list></div>",
+          "  <div style=\"inline-size: 320px; block-size: 420px\"><sf-thread-list id=\"archive\" archived group-by=\"none\"></sf-thread-list></div>",
+          "</main>",
+          "<script>customElements.whenDefined('sf-thread-list').then(() => {const list = document.querySelector('#list'); list.threads = [{\"id\": \"t1\", \"title\": \"Отпуск в ноябре\", \"caption\": \"Анна: подпишу завтра\", \"updated-at\": \"2026-10-27T09:00:00Z\", \"unread\": 2}, {\"id\": \"t2\", \"title\": \"Отчёт за квартал\", \"caption\": \"Вы: отправил\", \"updated-at\": \"2026-10-26T15:00:00Z\"}, {\"id\": \"t3\", \"title\": \"Новый сотрудник\", \"updated-at\": \"2026-10-20T10:00:00Z\", \"avatar\": {\"text\": \"НС\"}}]; list.actions = [{id: 'pin', text: 'Закрепить'}];const archive = document.querySelector('#archive'); archive.threads = [{\"id\": \"t9\", \"title\": \"Старый проект\", \"updated-at\": \"2026-09-01T10:00:00Z\", \"archived\": true}];});</script>"
+        ]
+      },
+      "checks": [
+        {
+          "id": "p1-arrows-enter-open",
+          "title": "one Tab stop for the list; ArrowDown and End move between rows; Enter asks open {id}: sf-thread-list-open once and sf-thread-list-select once, noted with its dates",
+          "covers": "keyboard.row ArrowDown focus:next, End focus:last, Enter open, events.open, aliases sf-thread-list-select, accessibility.name runtime.label",
+          "steps": [
+            {
+              "script": "(document.querySelector('#list .sf-thread-list__link[data-id=\"t1\"]').focus(), true)",
+              "wait": 60,
+              "check": "document.querySelectorAll('#list .sf-thread-list__link[tabindex=\"0\"]').length === 1 && document.querySelector('#list nav').getAttribute('aria-label') === 'Разговоры'"
+            },
+            {
+              "user": "keyboard:ArrowDown",
+              "wait": 60,
+              "check": "document.activeElement === document.querySelector('#list .sf-thread-list__link[data-id=\"t2\"]')"
+            },
+            {
+              "user": "keyboard:End",
+              "wait": 60,
+              "check": "document.activeElement === document.querySelector('#list .sf-thread-list__link[data-id=\"t3\"]')"
+            },
+            {
+              "user": "keyboard:Enter",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-thread-list-open",
+                    "count": 1,
+                    "detail": {
+                      "id": "t3"
+                    }
+                  },
+                  {
+                    "name": "sf-thread-list-select",
+                    "count": 1,
+                    "detail": {
+                      "id": "t3"
+                    }
+                  }
+                ],
+                "journal": [
+                  {
+                    "from": "sf-thread-list-select",
+                    "to": "sf-thread-list-open",
+                    "since": "2026-10-27",
+                    "remove_after": "2026-12-01"
+                  }
+                ]
+              },
+              "check": "document.querySelector('#list').selected === 't1'"
+            }
+          ]
+        },
+        {
+          "id": "p2-f2-rename",
+          "title": "F2 opens the rename field; Escape reverts without an event; F2 again and Enter keep the new title: sf-thread-list-rename {id, title} once",
+          "covers": "keyboard.row F2 rename, accessibility.keys Escape revert, Enter commit, events.rename",
+          "steps": [
+            {
+              "script": "(document.querySelector('#list .sf-thread-list__link[data-id=\"t2\"]').focus(), true)",
+              "wait": 60
+            },
+            {
+              "user": "keyboard:F2",
+              "wait": 120,
+              "check": "document.activeElement === document.querySelector('#list .sf-thread-list__rename')"
+            },
+            {
+              "user": "keyboard:Escape",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-thread-list-rename",
+                    "count": 0
+                  }
+                ]
+              },
+              "check": "!document.querySelector('#list .sf-thread-list__rename') && document.activeElement === document.querySelector('#list .sf-thread-list__link[data-id=\"t2\"]')"
+            },
+            {
+              "user": "keyboard:F2",
+              "wait": 120
+            },
+            {
+              "script": "(document.querySelector('#list .sf-thread-list__rename').value = 'Отчёт за третий квартал', true)",
+              "wait": 30
+            },
+            {
+              "user": "keyboard:Enter",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-thread-list-rename",
+                    "count": 1,
+                    "detail": {
+                      "id": "t2",
+                      "title": "Отчёт за третий квартал"
+                    }
+                  }
+                ]
+              },
+              "check": "document.querySelector('#list .sf-thread-list__link[data-id=\"t2\"]').querySelector('.sf-thread-list__title').textContent === 'Отчёт за третий квартал'"
+            }
+          ]
+        },
+        {
+          "id": "p3-menu-archive-apply",
+          "title": "Shift+F10 opens the row's actions; Archive sends archive {ids, id}; the host's own action sends apply {action, scope: entry, ids} and the old -action once, noted",
+          "covers": "keyboard.row Shift+F10 open-menu, events.archive, events.apply, aliases sf-thread-list-action",
+          "steps": [
+            {
+              "script": "(document.querySelector('#list .sf-thread-list__link[data-id=\"t1\"]').focus(), true)",
+              "wait": 60
+            },
+            {
+              "user": "keyboard:Shift+F10",
+              "wait": 300,
+              "check": "document.querySelector('#list .sf-thread-list__menu').entries.map((one) => one.id).join() === 'rename,archive,action:pin'"
+            },
+            {
+              "script": "(document.querySelector('#list').onMenu({id: 'archive'}), true)",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-thread-list-archive",
+                    "count": 1,
+                    "detail": {
+                      "ids": [
+                        "t1"
+                      ],
+                      "id": "t1"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "script": "(document.querySelector('#list').onMenu({id: 'action:pin'}), true)",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-thread-list-apply",
+                    "count": 1,
+                    "detail": {
+                      "action": "pin",
+                      "scope": "entry",
+                      "ids": [
+                        "t1"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "sf-thread-list-action",
+                    "count": 1,
+                    "detail": {
+                      "id": "t1",
+                      "action": "pin"
+                    }
+                  }
+                ],
+                "journal": [
+                  {
+                    "from": "sf-thread-list-action",
+                    "to": "sf-thread-list-apply"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p4-restore",
+          "title": "in the archive the row's action is Restore: restore {ids, id} and the old -unarchive once, noted",
+          "covers": "events.restore, aliases sf-thread-list-unarchive",
+          "steps": [
+            {
+              "action": {
+                "name": "open-menu",
+                "with": {
+                  "id": "t9"
+                }
+              },
+              "target": "#archive",
+              "wait": 300,
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                }
+              },
+              "check": "document.querySelector('#archive .sf-thread-list__menu').entries.map((one) => one.id).join() === 'rename,unarchive'"
+            },
+            {
+              "script": "(document.querySelector('#archive').onMenu({id: 'unarchive'}), true)",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-thread-list-restore",
+                    "count": 1,
+                    "detail": {
+                      "ids": [
+                        "t9"
+                      ],
+                      "id": "t9"
+                    }
+                  },
+                  {
+                    "name": "sf-thread-list-unarchive",
+                    "count": 1,
+                    "detail": {
+                      "id": "t9"
+                    }
+                  }
+                ],
+                "journal": [
+                  {
+                    "from": "sf-thread-list-unarchive",
+                    "to": "sf-thread-list-restore"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p5-archive-view",
+          "title": "the way to the archive sends toggle {archived: true} and the old -view once, noted; the way back toggle {archived: false}",
+          "covers": "events.toggle, aliases sf-thread-list-view",
+          "steps": [
+            {
+              "user": "click:#list [data-action=\"archive-view\"]",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-thread-list-toggle",
+                    "count": 1,
+                    "detail": {
+                      "archived": true
+                    }
+                  },
+                  {
+                    "name": "sf-thread-list-view",
+                    "count": 1,
+                    "detail": {
+                      "archived": true
+                    }
+                  }
+                ],
+                "journal": [
+                  {
+                    "from": "sf-thread-list-view",
+                    "to": "sf-thread-list-toggle"
+                  }
+                ]
+              }
+            },
+            {
+              "user": "click:#archive [data-action=\"back\"]",
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-thread-list-toggle",
+                    "count": 1,
+                    "detail": {
+                      "archived": false
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p6-settings-and-outcomes",
+          "title": "loading and status are settings; setLoading, the 1.0 setter, still works and is noted; actions answer outcomes; has-more asks load-more {direction: after} once",
+          "covers": "settings.loading, settings.status, actions rename/remove-thread outcomes, events.load-more",
+          "steps": [
+            {
+              "script": "document.querySelector('#list').setLoading(true)",
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                },
+                "journal": [
+                  {
+                    "from": "setLoading",
+                    "kind": "action",
+                    "since": "2026-10-27",
+                    "remove_after": "2026-12-01"
+                  }
+                ]
+              },
+              "check": "document.querySelector('#list').hasAttribute('loading') && document.querySelector('#list .sf-thread-list__scroller').getAttribute('aria-busy') === 'true'"
+            },
+            {
+              "script": "(document.querySelector('#list').loading = false, document.querySelector('#list').status = 'Не удалось загрузить', true)",
+              "wait": 200,
+              "check": "document.querySelector('#list .sf-thread-list__status').textContent === 'Не удалось загрузить'"
+            },
+            {
+              "action": {
+                "name": "rename",
+                "with": {
+                  "id": "nope"
+                }
+              },
+              "target": "#list",
+              "expect": {
+                "returns": {
+                  "outcome": "refused",
+                  "reason": "unknown"
+                }
+              }
+            },
+            {
+              "action": {
+                "name": "remove-thread",
+                "with": {
+                  "id": "t3"
+                }
+              },
+              "target": "#list",
+              "expect": {
+                "returns": {
+                  "outcome": "applied"
+                }
+              },
+              "check": "!document.querySelector('#list .sf-thread-list__link[data-id=\"t3\"]')"
+            },
+            {
+              "script": "(document.querySelector('#list').hasMore = true, true)",
+              "wait": 500,
+              "expect": {
+                "events": [
+                  {
+                    "name": "sf-thread-list-load-more",
+                    "count": 1,
+                    "detail": {
+                      "direction": "after"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "p-create-commands",
+          "title": "create-commands stand in for New conversation; a press says create {kind: id}, the one button says create {}; no-create and the archive take them away",
+          "covers": "settings.create-commands, events.create",
+          "steps": [
+            {
+              "check": "document.querySelectorAll('#list .sf-thread-list__head .sf-thread-list__command:not([hidden])').length === 1 && document.querySelector('#list .sf-thread-list__command[data-action=\"create\"]')"
+            },
+            {
+              "user": "click:#list .sf-thread-list__command[data-action=\"create\"]",
+              "wait": 100,
+              "event": "sf-thread-list-create"
+            },
+            {
+              "script": "(document.querySelector('#list').createCommands = [{id: 'private', text: 'Новый диалог', icon: 'person_add'}, {id: 'group', text: 'Новая группа', icon: 'group_add'}], document.querySelector('#archive').createCommands = [{id: 'group', text: 'Новая группа'}], true)",
+              "wait": 200,
+              "check": "[...document.querySelectorAll('#list .sf-thread-list__head .sf-thread-list__command:not([hidden])')].map((one) => one.querySelector(':scope > span').textContent.trim()).join() === 'Новый диалог,Новая группа' && !document.querySelector('#archive .sf-thread-list__command[data-action=\"create:group\"]:not([hidden])')"
+            },
+            {
+              "user": "click:#list .sf-thread-list__command[data-action=\"create:group\"]",
+              "wait": 100,
+              "event": "sf-thread-list-create",
+              "detail": {
+                "kind": "group"
+              }
+            },
+            {
+              "script": "(document.querySelector('#list').toggleAttribute('no-create', true), true)",
+              "wait": 200,
+              "check": "document.querySelector('#list .sf-thread-list__head').hidden"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

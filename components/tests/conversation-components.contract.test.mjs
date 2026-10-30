@@ -12,10 +12,18 @@ import assert from 'node:assert/strict';
 import {existsSync, readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import test from 'node:test';
+import vm from 'node:vm';
 
 const root = resolve(import.meta.dirname, '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
 const json = (path) => JSON.parse(read(path));
+// A rule file as the Loader reads it: what it writes into SF.RuleLoader.
+const evaluateRule = (text) => {
+  const sandbox = {SF: {RuleLoader: {}}};
+  vm.runInContext(text, vm.createContext(sandbox));
+  // Out of the sandbox's realm, so deepEqual compares plain values.
+  return JSON.parse(JSON.stringify(sandbox.SF.RuleLoader));
+};
 
 const COMPONENTS = {
   'message-log': {element: 'sf-message-log', id: 'smart.message-log', dictionary: 'MESSAGE_LOG_TEXT'},
@@ -144,9 +152,12 @@ test('the rule, the manifest and the folder name one component', () => {
     const rule = read(`src/smart/${name}/rule.js`);
     const manifest = json(`src/smart/${name}/smart.manifest.json`);
     // The package build requires smart/<folder>/rule.js to write cl-<folder>.
-    assert.match(rule, new RegExp(`SF\\.RuleLoader\\["cl-${name}"\\]`, 'u'), `${name}: the rule key`);
-    assert.match(rule, new RegExp(`tags: \\["${element}"\\]`, 'u'), `${name}: the tag`);
-    assert.match(rule, /css: true/u, `${name}: the template's sheet ships`);
+    // rule.js is generated from component.json (standard 1.4), so it is read
+    // as the rule it evaluates to, not as text in one quoting style.
+    const rules = evaluateRule(rule);
+    assert.deepEqual(Object.keys(rules), [`cl-${name}`], `${name}: the rule key`);
+    assert.deepEqual(rules[`cl-${name}`].tags, [element], `${name}: the tag`);
+    assert.equal(rules[`cl-${name}`].css, true, `${name}: the template's sheet ships`);
     assert.equal(manifest.id, id);
     assert.equal(manifest.custom_element, element);
     if (migrated(name)) {
@@ -157,7 +168,7 @@ test('the rule, the manifest and the folder name one component', () => {
     assert.match(read(`src/smart/${name}/index.js`), new RegExp(`\\.define\\("${element}"\\)`, 'u'));
     // What the rule fetches is what the manifest says the component is built
     // from: a Smart relation cl-x is the registry's smart.x.
-    const relations = [...rule.matchAll(/name:\s*"(cl-[a-z-]+)"/gu)].map(([, relation]) => `smart.${relation.slice(3)}`).sort();
+    const relations = rules[`cl-${name}`].relation.map((relation) => relation.name).filter((relation) => relation.startsWith('cl-')).map((relation) => `smart.${relation.slice(3)}`).sort();
     assert.deepEqual([...manifest.composition.uses].sort(), relations, `${name}: composition.uses and the rule's Smart relations`);
     assert.equal(manifest.ownership.source, 'simai/ui-pro');
     assert.ok(existsSync(resolve(root, `src/smart/${name}/docs.md`)), `${name}: docs.md`);

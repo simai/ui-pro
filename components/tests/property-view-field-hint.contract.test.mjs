@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
+import vm from 'node:vm';
 
 // A field's hint was drawn as a glyph carrying its words in a native `title`:
 // <i class="sf-icon" tabindex="0" title=... aria-label=...>info</i>. A title
@@ -22,6 +23,13 @@ const read = (path) => readFileSync(resolve(root, path), 'utf8');
 const template = read('src/smart/property-view/js/templates/default.js');
 const styles = read('src/smart/property-view/js/templates/default.css');
 const rule = read('src/smart/property-view/rule.js');
+// rule.js is generated from component.json (standard 1.4): read as the rule
+// the Loader evaluates, not as text in one quoting style.
+const relationNames = (() => {
+  const sandbox = {SF: {RuleLoader: {}}};
+  vm.runInContext(rule, vm.createContext(sandbox));
+  return Object.values(sandbox.SF.RuleLoader).flatMap((one) => one.relation.map((relation) => relation.name));
+})();
 const manifest = JSON.parse(read('src/smart/property-view/smart.manifest.json'));
 
 // The one branch that draws the hint beside a field's label.
@@ -48,10 +56,10 @@ test('the component declares sf-help-mark where the Loader reads and where a rea
     manifest.composition.uses.includes('smart.help-mark'),
     'the manifest says what the component is built from',
   );
-  assert.match(rule, /\{\s*name:\s*"cl-help-mark"\s*\}/u, 'and the rule fetches it');
+  assert.ok(relationNames.includes('cl-help-mark'), 'and the rule fetches it');
   // A page that loads sf-property-view on demand gets only what the rule
   // fetches: an undeclared tag is an element that never upgrades, which looks
   // exactly like a hint that does nothing.
-  const relations = new Set([...rule.matchAll(/name:\s*"([^"]+)"/gu)].map((match) => match[1]));
+  const relations = new Set(relationNames);
   assert.ok(relations.has('cl-help-mark'));
 });

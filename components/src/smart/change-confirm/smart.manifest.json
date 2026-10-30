@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.change-confirm",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "title": "Change confirmation",
   "summary": "A prepared change put to a person: each value as it was and as it will be, two answers of equal weight, until when it can be answered, and then only the outcome. Applies nothing; a press is an event.",
   "kind": "smart",
@@ -32,12 +32,20 @@
   },
   "inputs": {
     "type": "object",
-    "additionalProperties": false,
     "properties": {
       "template": {
         "type": "string",
-        "const": "default",
-        "default": "default"
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates.",
+        "const": "default"
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
       },
       "heading": {
         "type": "string",
@@ -45,31 +53,33 @@
         "description": "What the change is; without one the card is named «What will change»."
       },
       "heading-level": {
+        "type": "string",
+        "default": "3",
+        "description": "The heading's level where the card is placed.",
         "enum": [
           "2",
           "3",
           "4",
           "5",
           "6"
-        ],
-        "default": "3",
-        "description": "The heading's level where the card is placed."
+        ]
       },
       "state": {
+        "type": "string",
+        "default": "open",
+        "description": "open: the answers are offered. pending: an answer is on its way (set by a press). accepted, declined, expired: only the outcome is shown.",
         "enum": [
           "open",
           "pending",
           "accepted",
           "declined",
           "expired"
-        ],
-        "default": "open",
-        "description": "open: the answers are offered. pending: an answer is on its way (set by a press). accepted, declined, expired: only the outcome is shown."
+        ]
       },
       "expires-at": {
         "type": "string",
         "default": "",
-        "description": "ISO 8601. Past it an open card reads as expired and says so once with sf-change-confirm-expire."
+        "description": "ISO 8601. Past it an open card reads as expired and says so once with sf-change-confirm-expired."
       },
       "change-id": {
         "type": "string",
@@ -83,16 +93,16 @@
       },
       "accept-text": {
         "type": "string",
-        "default": "",
         "description": "The accepting answer; empty is Confirm in the page's language."
       },
       "decline-text": {
         "type": "string",
-        "default": "",
         "description": "The declining answer; empty is Decline in the page's language."
       },
       "changes": {
         "type": "array",
+        "default": [],
+        "description": "The values, as JSON in markup; a property set from script wins.",
         "items": {
           "type": "object",
           "properties": {
@@ -120,12 +130,12 @@
           "required": [
             "label"
           ]
-        },
-        "default": [],
-        "description": "The values, as JSON in markup; a property set from script wins."
+        }
       }
-    }
+    },
+    "additionalProperties": false
   },
+  "item_contract": {},
   "contracts": {
     "change": {
       "type": "object",
@@ -192,12 +202,19 @@
     }
   },
   "methods": {
+    "open": {
+      "summary": "Puts the question again; asked by an assembly it answers {accepted, reason, value} when the person answers or the time runs out.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
     "answer": {
       "summary": "Answer as the person would: accepted true confirms, false declines. Refused closed, disabled or prevented. answer('accept') and answer('decline') are read until 2026-12-01.",
       "arguments": [
         {
           "name": "accepted",
-          "required": true,
           "schema": {
             "type": "boolean"
           }
@@ -223,14 +240,6 @@
         "type": "object",
         "description": "{outcome: applied} or {outcome: refused, reason}"
       }
-    },
-    "open": {
-      "summary": "Puts the question again; asked by an assembly it answers {accepted, reason, value} when the person answers or the time runs out.",
-      "arguments": [],
-      "returns": {
-        "type": "object",
-        "description": "{outcome: applied} or {outcome: refused, reason}"
-      }
     }
   },
   "events": {
@@ -238,35 +247,58 @@
       "summary": "The person answered (vocabulary answer). Cancel it to keep the question open. The 1.0 names sf-change-confirm-accept and -decline follow it until 2026-12-01.",
       "payload": {
         "type": "object",
+        "required": [
+          "id",
+          "accepted"
+        ],
         "properties": {
           "id": {
-            "type": "string",
             "description": "change-id"
           },
           "accepted": {
             "type": "boolean"
           }
         },
-        "required": [
-          "id",
-          "accepted"
-        ]
-      }
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-change-confirm-expired": {
       "summary": "An open card passed expires-at; said once per time. The 1.0 name sf-change-confirm-expire follows it until 2026-12-01.",
       "payload": {
         "type": "object",
+        "required": [
+          "id"
+        ],
         "properties": {
           "id": {
-            "type": "string",
             "description": "change-id"
           }
         },
-        "required": [
-          "id"
-        ]
-      }
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-change-confirm-accept": {
+      "summary": "Dated alias of sf-change-confirm-answer until 2026-12-01 (detail-adds).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-change-confirm-answer"
+    },
+    "sf-change-confirm-decline": {
+      "summary": "Dated alias of sf-change-confirm-answer until 2026-12-01 (detail-adds).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-change-confirm-answer"
+    },
+    "sf-change-confirm-expire": {
+      "summary": "Dated alias of sf-change-confirm-expired until 2026-12-01 (same-detail).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-change-confirm-expired"
     }
   },
   "state": {
@@ -391,7 +423,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "563149a667f24207f24a4a30e6f231348bddd3ce",
+    "source_revision": "81cec911c8234fc4df9c93ddb846fcfc75f942e9",
     "source_artifacts": [
       {
         "path": "src/smart/change-confirm/index.js",
@@ -407,7 +439,7 @@
       },
       {
         "path": "src/smart/change-confirm/rule.js",
-        "sha256": "101acdaacaf85cb29e9261db8cccd0057dbd66390dd8ed2a0257576ba494fc85"
+        "sha256": "fe74f00ecfb1210571a1c594ec6cdfeff24d3e2b45d7ef827f0d9c65f7bf6398"
       },
       {
         "path": "src/smart/change-confirm/docs.md",
@@ -415,11 +447,11 @@
       },
       {
         "path": "src/smart/change-confirm/component.json",
-        "sha256": "064d941c198dec777073102e494df61dd85147ed81fbbfd794a83fc55b43d71e"
+        "sha256": "dfee51753a5eb4c8cec0368d62030067ba654ae204c1e4626c952efc4fe1180c"
       },
       {
         "path": "src/smart/change-confirm/aliases.json",
-        "sha256": "bb216a77643e2fb27cb59c7dfa4813c1115c167349263f6974ec9adb54981000"
+        "sha256": "762f46e22933258ea6de1498a11eddfbb7dbf4925e0b3e09a2bed9d9a1910689"
       },
       {
         "path": "src/smart/change-confirm/lang/en.json",

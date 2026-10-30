@@ -24,7 +24,10 @@ export const CROSS_CUTTING = [
   'alpha-scale.contract.test.mjs',
   'border-roles.contract.test.mjs',
   'change-event.contract.test.mjs',
-  'change-lifecycle.contract.test.mjs',
+  // change-lifecycle.contract.test.mjs is not here since standard 1.4: the
+  // package manifests now list their former event names (alias_of), which the
+  // free journal does not record; its package half is
+  // tests/package-change-journal.contract.test.mjs.
   'component-inputs.contract.test.mjs',
   'component-naming.contract.test.mjs',
   'component-pixel-borders.test.mjs',

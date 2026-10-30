@@ -88,7 +88,7 @@ test('the navigation rail anchors a row\'s counter on its icon', async () => {
 test('the badges component that styles the counts is a relation of the package component', async () => {
   const rule = await read('src/smart/admin-menu/rule.js');
   const manifest = JSON.parse(await read('src/smart/admin-menu/smart.manifest.json'));
-  assert.match(rule, /\{ name: "badges" \}/);
+  assert.match(rule, /\{ name: (['"])badges\1 \}/u);
   assert.ok(manifest.composition.uses.includes('component.badges'));
   const sheet = await read('src/component/badges/scss/_css__badges_anchored.scss');
   assert.match(sheet, /\.sf-badge-anchor > \.sf-badge--anchored \{/);

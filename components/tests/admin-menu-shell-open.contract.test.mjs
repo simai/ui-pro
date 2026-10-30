@@ -42,5 +42,5 @@ test('the theme is a row with a submenu, and the columns are widened by their ed
   assert.match(template, /<sf-resizer min=\$\{limits\.min\} max=\$\{limits\.max\}/u);
   assert.match(template, /property=\$\{`--sf-admin-nav-\$\{column\}--inline-size`\}/u);
   const rule = await read('src/smart/admin-menu/rule.js');
-  assert.match(rule, /\{ name: "cl-resizer" \}/u);
+  assert.match(rule, /\{ name: (['"])cl-resizer\1 \}/u);
 });

@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "id": "smart.data-view",
-  "version": "1.13.0",
-  "title": "Data view",
+  "version": "1.13.1",
+  "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
   "reuse_mode": "whole",
@@ -31,13 +31,18 @@
   "exported_parts": [],
   "composition": {
     "uses": [
+      "component.icons",
       "smart.avatar",
       "smart.badge",
       "smart.button",
       "smart.checkbox",
+      "smart.color",
       "smart.context-menu",
+      "smart.country-code",
       "smart.datepicker",
       "smart.dropdown",
+      "smart.empty-state",
+      "smart.file-preview",
       "smart.icon-button",
       "smart.input",
       "smart.list-item",
@@ -45,8 +50,11 @@
       "smart.pagination",
       "smart.radio",
       "smart.range-slider",
+      "smart.reference-link",
       "smart.resizer",
+      "smart.sortable",
       "smart.spinner",
+      "smart.tabs",
       "smart.tag"
     ],
     "public_parts": [],
@@ -58,28 +66,50 @@
         "ui-layout"
       ],
       "props": [
-        "aria-label",
-        "table-settings-key",
+        "template",
         "selectable",
-        "toolbar",
         "settings",
         "actions",
         "row-actions",
+        "creatable",
+        "filter-templates",
+        "settings-menu",
         "pagin",
-        "pagination-total",
-        "pagination-page-size",
-        "page-sizes",
         "filter-text",
         "clear-text",
         "search-placeholder",
         "create-text",
+        "pagination-total",
+        "pagination-page-size",
+        "page-sizes",
+        "context-menu-columns",
+        "remember-widths",
+        "table-settings-key",
+        "data-state",
         "loading-text",
         "empty-text",
         "empty-description",
         "error-text",
         "retry-text",
-        "context-menu-columns",
-        "data-state"
+        "toolbar",
+        "pin-column-label",
+        "unpin-column-label",
+        "column-move-label",
+        "column-search-placeholder",
+        "column-search-empty-text",
+        "vertical-scroll",
+        "filter-apply-text",
+        "layout",
+        "list-below",
+        "list-fields",
+        "size",
+        "preferences-key",
+        "row-actions-visible",
+        "drag-rows",
+        "row-reorder",
+        "inline-edit",
+        "current",
+        "aria-label"
       ],
       "data": {
         "columns": {
@@ -90,18 +120,28 @@
         }
       },
       "events": [
-        "sf-table-search-change",
+        "sf-table-select",
+        "sf-table-apply",
+        "sf-table-save",
+        "sf-table-column-settings-reset",
+        "sf-table-create",
         "sf-table-filter-change",
+        "sf-table-query",
+        "sf-table-refresh",
+        "sf-table-search-change",
         "sf-table-sort-change",
-        "sf-table-create-intent",
+        "sf-table-template-delete",
         "sf-table-template-save",
         "sf-table-template-select",
-        "sf-table-template-delete",
-        "sf-table-column-settings-change",
-        "sf-table-action-intent",
-        "sf-table-query-intent",
-        "sf-table-retry",
-        "sf-table-toolbar-action"
+        "sf-table-toolbar-action",
+        "sf-table-reference-open",
+        "sf-table-expand",
+        "sf-table-load-more",
+        "sf-table-rows-drag",
+        "sf-table-move",
+        "sf-table-cell-set",
+        "sf-table-view-change",
+        "sf-table-window"
       ],
       "persistence": {
         "settings_key_prop": "table-settings-key",
@@ -135,7 +175,6 @@
   },
   "inputs": {
     "type": "object",
-    "additionalProperties": false,
     "required": [
       "aria-label",
       "table-settings-key"
@@ -143,14 +182,17 @@
     "properties": {
       "template": {
         "type": "string",
-        "const": "default",
-        "default": "default"
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates.",
+        "const": "default"
       },
-      "aria-label": {
+      "root-class": {
         "type": "string",
-        "minLength": 1,
-        "default": "Data table",
-        "description": "The table's accessible name. Read it from the props context and never from the element: `aria-label` is reflected by the platform, so element.ariaLabel returns null with no attribute set and shadows what the component resolves. Whether an English default belongs in a family whose other fourteen text inputs default to Russian is the owner's open question about the Framework's default language."
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
       },
       "selectable": {
         "type": "boolean",
@@ -188,31 +230,27 @@
         "default": false
       },
       "filter-text": {
-        "type": "string",
-        "default": "Filter"
+        "type": "string"
       },
       "clear-text": {
-        "type": "string",
-        "default": "Clear"
+        "type": "string"
       },
       "search-placeholder": {
-        "type": "string",
-        "default": "Search"
+        "type": "string"
       },
       "create-text": {
-        "type": "string",
-        "default": "Create"
+        "type": "string"
       },
       "pagination-total": {
         "type": "integer",
-        "minimum": 0,
-        "default": 10
+        "default": 10,
+        "minimum": 0
       },
       "pagination-page-size": {
         "type": "integer",
+        "default": 10,
         "minimum": 1,
-        "maximum": 100,
-        "default": 10
+        "maximum": 100
       },
       "page-sizes": {
         "type": "string",
@@ -220,10 +258,10 @@
       },
       "context-menu-columns": {
         "type": "integer",
-        "minimum": 1,
-        "maximum": 4,
         "default": 1,
-        "description": "How many columns the settings menu splits its items into. One until a host asks for more: the read was bare for the whole life of this input, so neither its declared default nor a value a host passed ever reached the menu."
+        "description": "How many columns the settings menu splits its items into. One until a host asks for more: the read was bare for the whole life of this input, so neither its declared default nor a value a host passed ever reached the menu.",
+        "minimum": 1,
+        "maximum": 4
       },
       "remember-widths": {
         "type": "boolean",
@@ -232,40 +270,37 @@
       },
       "table-settings-key": {
         "type": "string",
-        "minLength": 1,
         "default": "",
-        "description": "Which stored settings this table uses. Empty means the element's own id, and then its instance id, so each table on a page keeps its own. A real default here would make every table share one key and overwrite the others."
+        "description": "Which stored settings this table uses. Empty means the element's own id, and then its instance id, so each table on a page keeps its own. A real default here would make every table share one key and overwrite the others.",
+        "minLength": 1
       },
       "data-state": {
         "type": "string",
+        "default": "auto",
         "enum": [
           "auto",
           "loading",
+          "ready",
           "populated",
           "empty",
           "error"
-        ],
-        "default": "auto"
+        ]
       },
       "loading-text": {
-        "type": "string",
-        "default": "Loading"
+        "type": "string"
       },
       "empty-text": {
-        "type": "string",
-        "default": "No data"
+        "type": "string"
       },
       "empty-description": {
         "type": "string",
         "default": ""
       },
       "error-text": {
-        "type": "string",
-        "default": "The data could not be loaded"
+        "type": "string"
       },
       "retry-text": {
-        "type": "string",
-        "default": "Try again"
+        "type": "string"
       },
       "toolbar": {
         "type": "boolean",
@@ -274,27 +309,22 @@
       },
       "pin-column-label": {
         "type": "string",
-        "default": "Pin the column",
         "description": "Accessible name and tooltip of the control that pins a column."
       },
       "unpin-column-label": {
         "type": "string",
-        "default": "Unpin the column",
         "description": "Accessible name and tooltip of the control that unpins a column."
       },
       "column-move-label": {
         "type": "string",
-        "default": "Move the column",
         "description": "Accessible name of the handle that moves a column in the settings list; the column label is appended to it."
       },
       "column-search-placeholder": {
         "type": "string",
-        "default": "Search the fields",
         "description": "Placeholder and accessible name of the search field above the column settings list."
       },
       "column-search-empty-text": {
         "type": "string",
-        "default": "No field matches",
         "description": "Shown in place of the column settings list when the search matches no field."
       },
       "vertical-scroll": {
@@ -308,18 +338,17 @@
       },
       "filter-apply-text": {
         "type": "string",
-        "default": "Apply",
         "description": "Label of the filter window’s commit button; the number of conditions a press would change is appended to it while a draft is pending."
       },
       "layout": {
         "type": "string",
         "default": "table",
+        "description": "How the records are drawn: a table, a compact list of records, or auto -- a table while the table's container is at least list-below pixels wide, the list below that. sf-data-view asks for auto on a page's list.",
         "enum": [
           "auto",
           "table",
           "list"
-        ],
-        "description": "How the records are drawn: a table, a compact list of records, or auto -- a table while the table's container is at least list-below pixels wide, the list below that. sf-data-view asks for auto on a page's list."
+        ]
       },
       "list-below": {
         "type": "number",
@@ -334,11 +363,11 @@
       "size": {
         "type": "string",
         "default": "1",
+        "description": "The step of the size ladder the table's controls and rows take: 1, or the dense 1/2 -- 32px controls, 14/20 text, rows of the step's height. A size of 1 written on an element the table draws becomes the table's.",
         "enum": [
           "1/2",
           "1"
-        ],
-        "description": "The step of the size ladder the table's controls and rows take: 1, or the dense 1/2 -- 32px controls, 14/20 text, rows of the step's height. A size of 1 written on an element the table draws becomes the table's."
+        ]
       },
       "preferences-key": {
         "type": "string",
@@ -347,12 +376,12 @@
       },
       "row-actions-visible": {
         "type": "string",
+        "default": "hover",
+        "description": "Where a row's action buttons are drawn: in the row under the pointer, with the focus or current (hover, the default), or in every row (always).",
         "enum": [
           "hover",
           "always"
-        ],
-        "default": "hover",
-        "description": "Where a row's action buttons are drawn: in the row under the pointer, with the focus or current (hover, the default), or in every row (always)."
+        ]
       },
       "drag-rows": {
         "type": "boolean",
@@ -373,8 +402,59 @@
         "type": "string",
         "default": "",
         "description": "The id of the row the page has open: that row carries aria-current and data-current. Writing it marks the row; it does not focus it and sends no event (component.json settings.current)."
+      },
+      "aria-label": {
+        "type": "string",
+        "default": "Data table",
+        "description": "The table's accessible name. Read it from the props context and never from the element: `aria-label` is reflected by the platform, so element.ariaLabel returns null with no attribute set and shadows what the component resolves. Whether an English default belongs in a family whose other fourteen text inputs default to Russian is the owner's open question about the Framework's default language.",
+        "minLength": 1
+      },
+      "active-filter-fields": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "bulk-actions": {
+        "type": "array"
+      },
+      "columns": {
+        "type": "array"
+      },
+      "create-items": {
+        "type": "array"
+      },
+      "filter-fields": {
+        "type": "array"
+      },
+      "rows": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "table-data": {
+        "type": "object"
+      },
+      "table-settings": {
+        "type": "object"
+      },
+      "templates": {
+        "type": "array"
+      },
+      "toolbar-actions": {
+        "type": "array"
+      },
+      "sort": {
+        "type": "array"
+      },
+      "selection": {
+        "type": "array",
+        "default": [],
+        "description": "the marked rows' ids, in row order"
       }
-    }
+    },
+    "additionalProperties": false
   },
   "item_contract": {
     "stable_id_attribute": "row.id",
@@ -663,6 +743,128 @@
         "type": "object"
       }
     },
+    "requestActionIntent": {
+      "summary": "Emit a typed row or bulk action request; the host owns execution and authorization. Invalid arguments throw TypeError before emission.",
+      "arguments": [
+        {
+          "name": "actionId",
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "name": "recordIds",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ],
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "requestCreateIntent": {
+      "summary": "Emit sf-table-create-intent for the main button (null) or a declared create item id.",
+      "arguments": [
+        {
+          "name": "itemId",
+          "schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "requestRetry": {
+      "summary": "Emit a retry intent after a failed data request.",
+      "arguments": [],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setSort": {
+      "summary": "Show the host's current sort on the headers without emitting an event; (null, null) clears it.",
+      "arguments": [
+        {
+          "name": "key",
+          "schema": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        {
+          "name": "direction",
+          "schema": {
+            "enum": [
+              "asc",
+              "desc",
+              null
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "toggleTreeRow": {
+      "summary": "Say that a tree row was opened or closed (sf-table-tree-toggle).",
+      "arguments": [
+        {
+          "name": "row",
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element."
+      }
+    },
+    "requestTreeMore": {
+      "summary": "Ask for the next page of a tree level (sf-table-tree-more).",
+      "arguments": [
+        {
+          "name": "row",
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "The element."
+      }
+    },
+    "focusRow": {
+      "summary": "The action focus-row.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
     "getActiveFilterFieldKeys": {
       "summary": "Which filter fields the filter is showing, in the host's field order.",
       "arguments": [],
@@ -728,35 +930,6 @@
         "type": "array"
       }
     },
-    "requestActionIntent": {
-      "summary": "Emit a typed row or bulk action request; the host owns execution and authorization. Invalid arguments throw TypeError before emission.",
-      "arguments": [
-        {
-          "name": "actionId",
-          "schema": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        {
-          "name": "recordIds",
-          "schema": {
-            "type": "array",
-            "items": {
-              "type": [
-                "string",
-                "integer"
-              ],
-              "minLength": 1
-            },
-            "minItems": 1
-          }
-        }
-      ],
-      "returns": {
-        "type": "object"
-      }
-    },
     "requestContextQuery": {
       "summary": "Internal to the context port: emit sf-table-query-intent for the current context with a new pending sequence.",
       "arguments": [
@@ -768,30 +941,6 @@
           }
         }
       ],
-      "returns": {
-        "type": "object"
-      }
-    },
-    "requestCreateIntent": {
-      "summary": "Emit sf-table-create-intent for the main button (null) or a declared create item id.",
-      "arguments": [
-        {
-          "name": "itemId",
-          "schema": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        }
-      ],
-      "returns": {
-        "type": "object"
-      }
-    },
-    "requestRetry": {
-      "summary": "Emit a retry intent after a failed data request.",
-      "arguments": [],
       "returns": {
         "type": "object"
       }
@@ -940,33 +1089,6 @@
         "type": "object"
       }
     },
-    "setSort": {
-      "summary": "Show the host's current sort on the headers without emitting an event; (null, null) clears it.",
-      "arguments": [
-        {
-          "name": "key",
-          "schema": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        },
-        {
-          "name": "direction",
-          "schema": {
-            "enum": [
-              "asc",
-              "desc",
-              null
-            ]
-          }
-        }
-      ],
-      "returns": {
-        "type": "object"
-      }
-    },
     "setTableData": {
       "summary": "Patch columns, rows or related table state supplied by the host.",
       "arguments": [
@@ -1084,408 +1206,24 @@
           "null"
         ]
       }
-    },
-    "toggleTreeRow": {
-      "summary": "Say that a tree row was opened or closed (sf-table-tree-toggle).",
-      "arguments": [
-        {
-          "name": "row",
-          "type": "object",
-          "required": true
-        }
-      ],
-      "returns": {
-        "type": "object",
-        "description": "The element."
-      }
-    },
-    "requestTreeMore": {
-      "summary": "Ask for the next page of a tree level (sf-table-tree-more).",
-      "arguments": [
-        {
-          "name": "row",
-          "type": "object",
-          "required": true
-        }
-      ],
-      "returns": {
-        "type": "object",
-        "description": "The element."
-      }
     }
   },
   "events": {
-    "sf-port-output": {
-      "summary": "Composition port output. The table emits port selection (record-ids.v1) once per change of its explicit selection, including clearing; a common sf-composition-scope routes it.",
+    "sf-table-select": {
+      "summary": "The marked rows changed, vocabulary §5 select {ids}: once per change of the explicit selection, clearing included. The old name sf-port-output follows once with its old detail until 2026-12-01 (aliases.json).",
       "payload": {
         "type": "object",
         "required": [
-          "port",
-          "value"
-        ],
-        "properties": {
-          "port": {
-            "const": "selection"
-          },
-          "value": {
-            "type": "array",
-            "maxItems": 1000,
-            "uniqueItems": true,
-            "items": {
-              "type": [
-                "string",
-                "integer"
-              ],
-              "minLength": 1,
-              "maxLength": 256
-            }
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-action-intent": {
-      "summary": "Request one host-resolved row or bulk operation. Event source is the owning table instance; emission is not operation success.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "action_id",
-          "record_ids"
-        ],
-        "properties": {
-          "action_id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "record_ids": {
-            "type": "array",
-            "items": {
-              "type": [
-                "string",
-                "integer"
-              ],
-              "minLength": 1
-            },
-            "minItems": 1
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-column-settings-change": {
-      "summary": "Request persistence of a column preference delta after resize, reorder or visibility changes.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "reason",
-          "tableSettingsKey",
-          "columnSettings"
-        ],
-        "properties": {
-          "reason": {
-            "type": "string"
-          },
-          "tableSettingsKey": {
-            "type": "string"
-          },
-          "columnSettings": {
-            "$ref": "#/contracts/column_settings"
-          }
-        }
-      }
-    },
-    "sf-table-column-settings-reset": {
-      "summary": "The person asked for the default columns back. The table drops its own stored arrangement and names no defaults: the host (or a data view) resets the person's layer and answers with its defaults.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "target",
-          "tableSettingsKey"
-        ],
-        "properties": {
-          "target": {
-            "type": "string",
-            "const": "personal",
-            "description": "The layer to reset. The table only resets the person's own layer."
-          },
-          "tableSettingsKey": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "The table's settings key, or null when it has none."
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-create-intent": {
-      "summary": "The user pressed the create button (item null) or chose an item from its menu (item id). Intent only: the host opens its create form.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "item"
-        ],
-        "properties": {
-          "item": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-filter-change": {
-      "summary": "Request a host-side query after the active filter changes: Apply in the filter window, a chip removed, or the filter cleared. A data view turns it into query.change with filters from values.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "templateKey",
-          "templateLabel",
-          "values",
-          "tags"
-        ],
-        "properties": {
-          "templateKey": {
-            "type": "string",
-            "description": "The selected template's key, or an empty string."
-          },
-          "templateLabel": {
-            "type": "string",
-            "description": "The selected template's label, or an empty string."
-          },
-          "values": {
-            "type": "object",
-            "description": "The filter values now in force, keyed by filter field."
-          },
-          "tags": {
-            "type": "object",
-            "description": "The active filter chips, keyed by filter field."
-          }
-        },
-        "description": "The table's getFilterPayload(): the selected template's own data fields spread first, then these four."
-      }
-    },
-    "sf-table-query-intent": {
-      "summary": "Request a host-side query after the context input port changed. The host resolves the relation and access, then answers with applyQueryResult(sequence, rows); older sequences are ignored.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "reason",
-          "context",
-          "sequence"
-        ],
-        "properties": {
-          "reason": {
-            "const": "context"
-          },
-          "context": {
-            "$ref": "#/contracts/query_context"
-          },
-          "sequence": {
-            "type": "integer",
-            "minimum": 1
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-retry": {
-      "summary": "Request another host-side load after the error state.",
-      "payload": {
-        "type": "null"
-      }
-    },
-    "sf-table-search-change": {
-      "summary": "Request a host-side query after the debounced search value changes.",
-      "payload": {
-        "type": "string"
-      }
-    },
-    "sf-table-sort-change": {
-      "summary": "The user activated a sortable header. Direction cycles asc, desc, null (unsorted). Intent only: the table marks the header but does not reorder rows; the host reorders or reloads.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "key",
-          "direction"
-        ],
-        "properties": {
-          "key": {
-            "type": "string",
-            "minLength": 1
-          },
-          "direction": {
-            "enum": [
-              "asc",
-              "desc",
-              null
-            ]
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-template-delete": {
-      "summary": "The user deleted saved templates on the Templates tab and pressed Apply. Intent only: the host removes the saved view. One event per deleted template.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "key"
-        ],
-        "properties": {
-          "key": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-template-save": {
-      "summary": "Request persistence of one or more filter templates (order, pin, delete, default, selected flags or data). Loading a saved view is reported by sf-table-template-select.",
-      "payload": {
-        "type": [
-          "object",
-          "array"
-        ]
-      }
-    },
-    "sf-table-template-select": {
-      "summary": "The user applied a different saved template on the Templates tab. Intent only: the host loads that saved view.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "key"
-        ],
-        "properties": {
-          "key": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-toolbar-action": {
-      "summary": "The user chose one of the view's own actions from the toolbar menu. Intent only, and cancelable: the component follows an item's same-site href unless the host takes the navigation over with preventDefault.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "action"
-        ],
-        "properties": {
-          "action": {
-            "type": "string"
-          },
-          "href": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-tree-toggle": {
-      "summary": "The person opened or closed a tree row. The data view answers it; the table only says which row and whether it was open.",
-      "payload": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": [
-              "string",
-              "integer"
-            ]
-          },
-          "expanded": {
-            "type": "boolean"
-          }
-        }
-      }
-    },
-    "sf-table-tree-more": {
-      "summary": "The person asked for the next page of one tree level.",
-      "payload": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "parent": {
-            "type": [
-              "string",
-              "integer",
-              "null"
-            ]
-          },
-          "cursor": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        }
-      }
-    },
-    "sf-table-rows-drag": {
-      "summary": "Rows began to be dragged out of a list with drag-rows, for a drop target such as a tree; the same {ids, source} rides in the drag data as application/x-sf-records+json.",
-      "payload": {
-        "type": "object",
-        "required": [
-          "ids",
-          "source"
+          "ids"
         ],
         "properties": {
           "ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "minItems": 1,
-            "description": "The ids dragged: every selected id when the dragged row is selected, otherwise that row's id alone."
-          },
-          "source": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "description": "Where the rows come from: the table's preferences-key, table-settings-key or id, or null."
+            "type": "array"
           }
         },
-        "additionalProperties": false
-      }
-    },
-    "sf-table-rows-reorder": {
-      "summary": "Rows were dragged into another order inside the list: the ids that moved, the row they now stand before (null: the end) and the whole order shown.",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "ids": {
-            "type": "array"
-          },
-          "before": {},
-          "order": {
-            "type": "array"
-          }
-        }
-      }
-    },
-    "sf-table-cell-set": {
-      "summary": "A checkable cell was pressed: the record, the field, the new value and the record's revision.",
-      "payload": {
-        "type": "object",
-        "properties": {
-          "id": {},
-          "key": {
-            "type": "string"
-          },
-          "value": {},
-          "revision": {}
-        }
-      }
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-table-apply": {
       "summary": "A row's or the selection's action, vocabulary §5 apply: {action, scope: entry | selection, ids, revisions}. The host decides; emission is not success. The old name sf-table-action-intent follows once with its old detail until 2026-12-01 (aliases.json).",
@@ -1515,36 +1253,58 @@
           }
         },
         "additionalProperties": true
-      }
-    },
-    "sf-table-select": {
-      "summary": "The marked rows changed, vocabulary §5 select {ids}: once per change of the explicit selection, clearing included. The old name sf-port-output follows once with its old detail until 2026-12-01 (aliases.json).",
-      "payload": {
-        "type": "object",
-        "required": [
-          "ids"
-        ],
-        "properties": {
-          "ids": {
-            "type": "array"
-          }
-        },
-        "additionalProperties": true
-      }
+      },
+      "canonical": true
     },
     "sf-table-save": {
       "summary": "The person's column settings, vocabulary §5 save {kind: columns, reason, columnSettings, tableSettingsKey}. The old name sf-table-column-settings-change follows once with its old detail until 2026-12-01 (aliases.json).",
       "payload": {
         "type": "object",
         "required": [
-          "kind"
+          "kind",
+          "reason",
+          "columnSettings",
+          "tableSettingsKey"
         ],
         "properties": {
           "kind": {
             "const": "columns"
           },
+          "reason": {
+            "type": "string"
+          },
           "columnSettings": {
-            "type": "object"
+            "type": "object",
+            "description": "The column settings now in force (order, widths, pinned, hidden)."
+          },
+          "tableSettingsKey": {
+            "type": "string",
+            "description": "The table's settings key."
+          }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-table-column-settings-reset": {
+      "summary": "The person asked for the default columns back. The table drops its own stored arrangement and names no defaults: the host (or a data view) resets the person's layer and answers with its defaults.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "target",
+          "tableSettingsKey"
+        ],
+        "properties": {
+          "target": {
+            "const": "personal",
+            "description": "The layer to reset. The table only resets the person's own layer."
+          },
+          "tableSettingsKey": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The table's settings key, or null when it has none."
           }
         },
         "additionalProperties": true
@@ -1564,23 +1324,64 @@
           }
         },
         "additionalProperties": true
-      }
+      },
+      "canonical": true
+    },
+    "sf-table-filter-change": {
+      "summary": "Request a host-side query after the active filter changes: Apply in the filter window, a chip removed, or the filter cleared. A data view turns it into query.change with filters from values. The detail is the table's getFilterPayload(): the selected template's own data fields spread first, then these four.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "templateKey",
+          "templateLabel",
+          "values",
+          "tags"
+        ],
+        "properties": {
+          "templateKey": {
+            "type": "string",
+            "description": "The selected template's key, or an empty string."
+          },
+          "templateLabel": {
+            "type": "string",
+            "description": "The selected template's label, or an empty string."
+          },
+          "values": {
+            "type": "object",
+            "description": "The filter values now in force, keyed by filter field."
+          },
+          "tags": {
+            "type": "object",
+            "description": "The active filter chips, keyed by filter field."
+          }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
     },
     "sf-table-query": {
       "summary": "A context query of the composition input port, vocabulary §5.1 query {reason, context, sequence}. The old name sf-table-query-intent follows once with its old detail until 2026-12-01 (aliases.json).",
       "payload": {
         "type": "object",
-        "required": [],
+        "required": [
+          "reason",
+          "context",
+          "sequence"
+        ],
         "properties": {
           "reason": {
             "type": "string"
+          },
+          "context": {
+            "type": "object"
           },
           "sequence": {
             "type": "integer"
           }
         },
         "additionalProperties": true
-      }
+      },
+      "canonical": true
     },
     "sf-table-refresh": {
       "summary": "The retry button of a failed list, vocabulary §5 refresh. The old name sf-table-retry follows once with its old detail until 2026-12-01 (aliases.json).",
@@ -1588,6 +1389,133 @@
         "type": "object",
         "required": [],
         "properties": {},
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-table-search-change": {
+      "summary": "Request a host-side query after the debounced search value changes.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "search"
+        ],
+        "properties": {
+          "search": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-table-sort-change": {
+      "summary": "The user activated a sortable header. Direction cycles asc, desc, null (unsorted). Intent only: the table marks the header but does not reorder rows; the host reorders or reloads.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "key",
+          "direction"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "direction": {
+            "enum": [
+              "asc",
+              "desc",
+              null
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-template-delete": {
+      "summary": "The user deleted saved templates on the Templates tab and pressed Apply. Intent only: the host removes the saved view. One event per deleted template.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-template-save": {
+      "summary": "Request persistence of one or more filter templates (order, pin, delete, default, selected flags or data). Loading a saved view is reported by sf-table-template-select.",
+      "payload": {
+        "type": [
+          "object",
+          "array"
+        ]
+      },
+      "canonical": true
+    },
+    "sf-table-template-select": {
+      "summary": "The user applied a different saved template on the Templates tab. Intent only: the host loads that saved view.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-toolbar-action": {
+      "summary": "The user chose one of the view's own actions from the toolbar menu. Intent only, and cancelable: the component follows an item's same-site href unless the host takes the navigation over with preventDefault.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "href": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-reference-open": {
+      "summary": "reference-open (vocabulary).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "field",
+          "value",
+          "href"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "value": {
+            "type": "object"
+          },
+          "href": {
+            "type": "string"
+          }
+        },
         "additionalProperties": true
       }
     },
@@ -1605,16 +1533,57 @@
           }
         },
         "additionalProperties": true
-      }
+      },
+      "canonical": true
     },
     "sf-table-load-more": {
       "summary": "The next page of a tree level, vocabulary §5 load-more {direction: after, parent, cursor}. The old name sf-table-tree-more follows once with its old detail until 2026-12-01 (aliases.json).",
       "payload": {
         "type": "object",
-        "required": [],
+        "required": [
+          "direction",
+          "parent",
+          "cursor"
+        ],
         "properties": {
           "direction": {
             "const": "after"
+          },
+          "parent": {},
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-table-rows-drag": {
+      "summary": "Rows began to be dragged out of a list with drag-rows, for a drop target such as a tree; the same {ids, source} rides in the drag data as application/x-sf-records+json.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids",
+          "source"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array",
+            "description": "The ids dragged: every selected id when the dragged row is selected, otherwise that row's id alone.",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Where the rows come from: the table's preferences-key, table-settings-key or id, or null."
           }
         },
         "additionalProperties": true
@@ -1625,11 +1594,64 @@
       "payload": {
         "type": "object",
         "required": [
-          "ids"
+          "ids",
+          "before",
+          "order"
         ],
         "properties": {
           "ids": {
             "type": "array"
+          },
+          "before": {},
+          "order": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      },
+      "canonical": true
+    },
+    "sf-table-cell-set": {
+      "summary": "A checkable cell was pressed: the record, the field, the new value and the record's revision.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "value",
+          "revision"
+        ],
+        "properties": {
+          "id": {
+            "type": "object"
+          },
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "object"
+          },
+          "revision": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-table-view-change": {
+      "summary": "view-change (vocabulary).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "view",
+          "everywhere"
+        ],
+        "properties": {
+          "view": {
+            "type": "object"
+          },
+          "everywhere": {
+            "type": "boolean"
           }
         },
         "additionalProperties": true
@@ -1653,6 +1675,232 @@
         },
         "additionalProperties": true
       }
+    },
+    "sf-port-output": {
+      "summary": "Composition port output. The table emits port selection (record-ids.v1) once per change of its explicit selection, including clearing; a common sf-composition-scope routes it.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "port",
+          "value"
+        ],
+        "properties": {
+          "port": {
+            "const": "selection"
+          },
+          "value": {
+            "type": "array",
+            "maxItems": 1000,
+            "uniqueItems": true,
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ],
+              "minLength": 1,
+              "maxLength": 256
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "alias_of": "sf-table-select"
+    },
+    "sf-table-action-intent": {
+      "summary": "Request one host-resolved row or bulk operation. Event source is the owning table instance; emission is not operation success.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "action_id",
+          "record_ids"
+        ],
+        "properties": {
+          "action_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "record_ids": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ],
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "alias_of": "sf-table-apply"
+    },
+    "sf-table-column-settings-change": {
+      "summary": "Request persistence of a column preference delta after resize, reorder or visibility changes.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "reason",
+          "tableSettingsKey",
+          "columnSettings"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "tableSettingsKey": {
+            "type": "string"
+          },
+          "columnSettings": {
+            "$ref": "#/contracts/column_settings"
+          }
+        }
+      },
+      "alias_of": "sf-table-save"
+    },
+    "sf-table-create-intent": {
+      "summary": "The user pressed the create button (item null) or chose an item from its menu (item id). Intent only: the host opens its create form.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "item"
+        ],
+        "properties": {
+          "item": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "alias_of": "sf-table-create"
+    },
+    "sf-table-query-intent": {
+      "summary": "Request a host-side query after the context input port changed. The host resolves the relation and access, then answers with applyQueryResult(sequence, rows); older sequences are ignored.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "reason",
+          "context",
+          "sequence"
+        ],
+        "properties": {
+          "reason": {
+            "const": "context"
+          },
+          "context": {
+            "$ref": "#/contracts/query_context"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "alias_of": "sf-table-query"
+    },
+    "sf-table-retry": {
+      "summary": "Request another host-side load after the error state.",
+      "payload": {
+        "type": "null"
+      },
+      "alias_of": "sf-table-refresh"
+    },
+    "sf-table-tree-toggle": {
+      "summary": "The person opened or closed a tree row. The data view answers it; the table only says which row and whether it was open.",
+      "payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "integer"
+            ]
+          },
+          "expanded": {
+            "type": "boolean"
+          }
+        }
+      },
+      "alias_of": "sf-table-expand"
+    },
+    "sf-table-tree-more": {
+      "summary": "The person asked for the next page of one tree level.",
+      "payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "parent": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ]
+          },
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "alias_of": "sf-table-load-more"
+    },
+    "sf-table-rows-reorder": {
+      "summary": "Rows were dragged into another order inside the list: the ids that moved, the row they now stand before (null: the end) and the whole order shown.",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array"
+          },
+          "before": {},
+          "order": {
+            "type": "array"
+          }
+        }
+      },
+      "alias_of": "sf-table-move"
+    },
+    "sf-table:column-settings-change": {
+      "summary": "Dated alias of sf-table-save until 2026-12-01 (detail-adds).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-table-save"
+    },
+    "onColumnSettingsChange": {
+      "summary": "Dated alias of sf-table-save until 2026-12-01 (detail-adds).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-table-save"
+    },
+    "onSearchEnd": {
+      "summary": "Dated alias of sf-table-search-change until 2026-12-01 (split).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-table-search-change"
+    },
+    "onTemplateSave": {
+      "summary": "Dated alias of sf-table-template-save until 2026-12-01 (same-detail).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-table-template-save"
+    },
+    "onFilterUpdate": {
+      "summary": "Dated alias of sf-table-filter-change until 2026-12-01 (same-detail).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-table-filter-change"
     }
   },
   "state": {
@@ -1850,7 +2098,7 @@
     "network_policy": "host-only"
   },
   "accessibility": {
-    "role": "region",
+    "role": "grid",
     "accessible_name": "required",
     "keyboard": [
       "Tab",
@@ -2025,7 +2273,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "7253884bacf540e601a5c3ae566433d8d0626c6f",
+    "source_revision": "12c1d63cf99a9863771a43315622fc501a7397d7",
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
@@ -2045,7 +2293,7 @@
       },
       {
         "path": "src/smart/table/rule.js",
-        "sha256": "2ea64a9991b28ea2d650bfe96909cfd49619c9ee08e8ddec010e0d1d08c1a7e4"
+        "sha256": "38fcfa15582767a8da8dcaaabef4bc852d842737a7bcb362674e0ce425039c56"
       },
       {
         "path": "src/smart/table/docs/smart-table-guide.md",
