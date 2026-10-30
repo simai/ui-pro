@@ -1,7 +1,7 @@
 {
   "name": "@simai/larena-components",
   "version": "1.0.0",
-  "description": "The SIMAI Pro Smart components, the component package larena: sf-table, sf-data-view, sf-property-view, sf-admin-menu, sf-message-log, sf-thread-list, sf-change-confirm, the chat components (sf-chat-interlocutor, sf-chat-composer, sf-chat-message, sf-chat-window) and the mail components (sf-mail-library, sf-mail-letters, sf-mail-structure)",
+  "description": "The SIMAI Pro Smart components, the component package larena: sf-table, sf-data-view, sf-property-view, sf-admin-menu, sf-message-log, sf-thread-list, sf-change-confirm, the chat components (sf-chat-interlocutor, sf-chat-composer, sf-chat-message, sf-chat-window) and the mail components (sf-mail-library, sf-mail-letters, sf-mail-structure, sf-mail-inspector)",
   "private": true,
   "license": "PolyForm-Small-Business-1.0.0 OR PolyForm-Noncommercial-1.0.0 OR LicenseRef-SIMAI-Commercial",
   "author": "Rim Zabarov",

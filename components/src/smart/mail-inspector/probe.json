@@ -1,0 +1,640 @@
+{
+  "component": "sf-mail-inspector",
+  "probe": "sf-mail-inspector against component.json (standard simai.smart-component 1.4 §12, gate 20): every kind of field, typed text across redraws, each event, section memory, the list verbs, the path and the tabs",
+  "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+  "page": {
+    "lang": "ru",
+    "body": [
+      "<main>",
+      "  <sf-mail-inspector id=\"panel\" heading=\"Кнопка\" heading-icon=\"smart_button\" form-key=\"b7\"></sf-mail-inspector>",
+      "</main>"
+    ]
+  },
+  "probes": [
+    {
+      "id": "p1-draws-every-field",
+      "title": "every kind is drawn as its Framework element, and a hint is real text under the field",
+      "covers": "settings.sections, settings.heading, settings.head-actions",
+      "steps": [
+        {
+          "wait": 900,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "wait": 50,
+          "check": "(() => { const q = (s) => one.querySelector(s); return q('sf-input[data-path=\"/text\"]') && q('sf-input[data-path=\"/url\"]') && q('sf-input[data-path=\"/discount\"]') && q('sf-textarea[data-path=\"/note\"]') && q('sf-dropdown[data-path=\"/tone\"]') && q('sf-switch[data-path=\"/wide\"]') && q('[data-path=\"/image\"] sf-image-field') && q('[data-group=\"/price\"] .sf-mail-inspector-pair sf-input[data-path=\"/price/old\"]') && q('[data-items=\"/items\"] sf-sortable [data-item=\"2\"].has-problem') && q('sf-textarea[data-path=\"/note\"]').textContent.includes('Как в бренде') && q('.sf-mail-inspector-title').textContent === 'Кнопка' && one.querySelectorAll('.sf-mail-inspector-action').length === 2 && !q('sf-breadcrumbs') && one.querySelectorAll('.sf-accordion').length === 5 && native('/discount').inputMode === 'numeric' && native('/url').type === 'url' && native('/price/current').inputMode === 'decimal' && q('[data-path=\"/image\"] sf-dropdown'); })()"
+        }
+      ]
+    },
+    {
+      "id": "p2-draft-kept-focus-kept",
+      "title": "text the host did not take stays across redraws, marked, with the focus and the caret where they were",
+      "covers": "events.change, settings.sections",
+      "steps": [
+        {
+          "wait": 900,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { const input = put('/url', 'x'); globalThis.input = input; input.setSelectionRange(3, 3); one.sections = withField('/url', {error: 'Нужен адрес https://'}); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "native('/url') === input && document.activeElement === input && input.value === 'https://simai.rux' && input.selectionStart === 3 && input.selectionEnd === 3 && one.querySelector('sf-input[data-path=\"/url\"]').hasAttribute('invalid') && one.querySelector('sf-input[data-path=\"/url\"]').dataset.draft === 'true' && one.querySelector('sf-input[data-path=\"/url\"]').textContent.includes('Нужен адрес') && JSON.stringify(heard) === JSON.stringify([['change', {path: '/url', value: 'https://simai.rux', typed: true}]])"
+        },
+        {
+          "script": "(() => { document.execCommand('insertText', false, 'Q'); one.sections = withField('/url', {error: 'Нужен адрес https://'}); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "document.activeElement === input && input.value === 'httQps://simai.rux' && input.selectionStart === 4"
+        },
+        {
+          "script": "(() => { input.blur(); one.sections = withField('/url', {error: 'Нужен адрес https://'}); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "input.value === 'httQps://simai.rux' && one.querySelector('sf-input[data-path=\"/url\"]').hasAttribute('invalid')"
+        },
+        {
+          "script": "(() => { one.sections = withField('/url', {value: 'https://ok.ru'}); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "native('/url').value === 'https://ok.ru' && !one.querySelector('sf-input[data-path=\"/url\"]').hasAttribute('invalid') && !one.querySelector('sf-input[data-path=\"/url\"]').dataset.draft"
+        }
+      ]
+    },
+    {
+      "id": "p3-typing-through-a-late-answer",
+      "title": "a late answer of the host never overwrites the field being typed in; leaving it shows the host's value",
+      "covers": "events.change, settings.sections",
+      "steps": [
+        {
+          "wait": 900,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { globalThis.input = put('/text', ' сейчас'); one.sections = withField('/text', {value: 'Подробнее сей'}); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "document.activeElement === input && input.value === 'Подробнее сейчас' && input.selectionStart === input.value.length"
+        },
+        {
+          "script": "(() => { input.blur(); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "native('/text').value === 'Подробнее сей'"
+        }
+      ]
+    },
+    {
+      "id": "p4-multiline-and-group-keep-drafts",
+      "title": "a text area and a field in a group keep a draft the same way",
+      "covers": "settings.sections",
+      "steps": [
+        {
+          "wait": 900,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { put('/price/current', 'abc'); one.sections = withField('/price/current', {error: 'Нужно число'}); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "native('/price/current').value === '990abc' && document.activeElement === native('/price/current') && one.querySelector('[data-path=\"/price/current\"]').hasAttribute('invalid')"
+        },
+        {
+          "script": "(() => { globalThis.area = put('/note', 'Первая строка'); area.setSelectionRange(2, 2); one.sections = withField('/note', {error: 'Слишком длинно'}); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "native('/note') === area && area.value === 'Первая строка' && document.activeElement === area && area.selectionStart === 2 && one.querySelector('sf-textarea[data-path=\"/note\"]').hasAttribute('invalid')"
+        }
+      ]
+    },
+    {
+      "id": "p5-choices-say-change",
+      "title": "a choice, a switch and a typed link each say change, and the element changes nothing",
+      "covers": "events.change",
+      "steps": [
+        {
+          "wait": 900,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { one.querySelector('sf-dropdown[data-path=\"/tone\"]').selectValue('muted'); const toggle = one.querySelector('sf-switch[data-path=\"/wide\"] input'); toggle.click(); return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['change', {path: '/tone', value: 'muted', typed: false}], ['change', {path: '/wide', value: true, typed: false}]])"
+        },
+        {
+          "script": "(() => { one.sections = base(); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "one.querySelector('sf-dropdown[data-path=\"/tone\"]').getAttribute('value') === 'accent' && one.querySelector('sf-switch[data-path=\"/wide\"]').isChecked() === false"
+        }
+      ]
+    },
+    {
+      "id": "p6-image",
+      "title": "a file says attach, a removal detach, a required image stays and says why, a refused file brings the stored image back, and a choice is a change",
+      "covers": "events.attach, events.detach",
+      "steps": [
+        {
+          "wait": 1200,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { const well = one.querySelector('[data-path=\"/image\"] sf-image-field'); globalThis.file = new File(['probe'], 'new.png', {type: 'image/png'}); well.takeFile(file, 'input'); return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "heard.length === 1 && heard[0][0] === 'attach' && heard[0][1].path === '/image' && heard[0][1].files[0] === file && one.querySelector('[data-path=\"/image\"] sf-image-field').value.href.startsWith('blob:')"
+        },
+        {
+          "script": "(() => { one.sections = withField('/image', {error: 'Файл слишком большой'}); return true; })()",
+          "wait": 500
+        },
+        {
+          "wait": 50,
+          "check": "one.querySelector('[data-path=\"/image\"] sf-image-field').value.value === 'a1' && one.querySelector('[data-path=\"/image\"] sf-image-field').textContent.includes('Файл слишком большой')"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.sections = base(); return true; })()",
+          "wait": 400
+        },
+        {
+          "script": "(() => { one.querySelector('[data-path=\"/image\"] sf-image-field').removeImage(); return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['detach', {path: '/image'}]])"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.querySelector('[data-path=\"/logo\"] sf-image-field').removeImage(); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "heard.length === 0 && one.querySelector('[data-path=\"/logo\"] sf-image-field').value.value === 'a1' && one.querySelector('[data-path=\"/logo\"] sf-image-field').textContent.includes('обязательно')"
+        },
+        {
+          "script": "(() => { one.querySelector('[data-choose=\"/image\"]').selectValue('a2'); return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['change', {path: '/image', value: 'a2', typed: false}]])"
+        }
+      ]
+    },
+    {
+      "id": "p7-head-actions",
+      "title": "the heading's buttons say duplicate and delete, a pinned place's says replace, and an action not offered is refused",
+      "covers": "events.duplicate, events.delete, events.replace, actions.duplicate, actions.replace",
+      "steps": [
+        {
+          "wait": 900,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { one.querySelector('[data-action=\"duplicate\"]').click(); one.querySelector('[data-action=\"delete\"]').click(); globalThis.notOffered = one.replace().reason; return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "names() === 'duplicate,delete' && notOffered === 'unknown'"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.headActions = ['replace']; return true; })()",
+          "wait": 400
+        },
+        {
+          "script": "(() => { one.querySelector('[data-action=\"replace\"]').click(); return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "names() === 'replace' && !one.querySelector('[data-action=\"delete\"]')"
+        }
+      ]
+    },
+    {
+      "id": "p8-section-memory",
+      "title": "a section closes, is told, stays closed under new data with the same key, and comes back from the host's list",
+      "covers": "events.toggle, settings.closed-sections",
+      "steps": [
+        {
+          "wait": 900,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { one.querySelector('[data-section=\"button:look\"] .sf-accordion-trigger').click(); return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['toggle', {key: 'button:look', open: false}]]) && one.querySelector('[data-section=\"button:look\"] .sf-accordion-content').hidden && one.querySelector('[data-section=\"button:look\"] .sf-accordion-trigger').getAttribute('aria-expanded') === 'false' && JSON.stringify(one.closedSections) === JSON.stringify(['button:look'])"
+        },
+        {
+          "script": "(() => { one.setAttribute('form-key', 'b8'); one.sections = base(); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "one.querySelector('[data-section=\"button:look\"] .sf-accordion-content').hidden && !one.querySelector('[data-section=\"button:content\"] .sf-accordion-content').hidden"
+        },
+        {
+          "script": "(() => { one.closedSections = ['button:content']; return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "!one.querySelector('[data-section=\"button:look\"] .sf-accordion-content').hidden && one.querySelector('[data-section=\"button:content\"] .sf-accordion-content').hidden && one.toggleSection({key: 'nope'}).reason === 'unknown'"
+        },
+        {
+          "script": "(() => { const data = base(); one.sections = [data[0]]; return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "one.querySelectorAll('.sf-accordion').length === 0 && one.querySelector('sf-input[data-path=\"/text\"]') !== null"
+        }
+      ]
+    },
+    {
+      "id": "p9-list-verbs",
+      "title": "an item opens, adds, copies, removes and moves, each told with its list, and the focus goes to the item that changed",
+      "covers": "events.item-toggle, events.item-add, events.item-duplicate, events.item-delete, events.item-move",
+      "steps": [
+        {
+          "wait": 1200,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { one.querySelector('[data-items=\"/items\"] [data-toggle=\"1\"]').click(); return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['item-toggle', {path: '/items', index: 1, open: true}]]) && !one.querySelector('[data-path=\"/items/1/title\"]')"
+        },
+        {
+          "script": "(() => { heard.length = 0; const data = withField('/items', {open: 1}); one.sections = data; return true; })()",
+          "wait": 500
+        },
+        {
+          "wait": 50,
+          "check": "one.querySelector('sf-input[data-path=\"/items/1/title\"]') && one.querySelector('[data-item=\"1\"]').classList.contains('is-open') && one.querySelector('[data-toggle=\"1\"]').getAttribute('aria-expanded') === 'true' && !one.querySelector('[data-item=\"0\"] .sf-mail-inspector-item-body').querySelector('sf-input')"
+        },
+        {
+          "script": "(() => { one.querySelector('[data-item-add=\"/items\"]').click(); return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['item-add', {path: '/items'}]])"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.openItemMenu('/items', 1, one.querySelector('[data-item-menu=\"1\"]')); one.onMenuSelect({id: 'duplicate'}); return true; })()",
+          "wait": 300
+        },
+        {
+          "script": "(() => { one.onMenuSelect({id: 'remove'}); return true; })()",
+          "wait": 300
+        },
+        {
+          "script": "(() => { one.onMenuSelect({id: 'up'}); return true; })()",
+          "wait": 300
+        },
+        {
+          "script": "(() => { one.onMenuSelect({id: 'down'}); return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['item-duplicate', {path: '/items', index: 1}], ['item-delete', {path: '/items', index: 1}], ['item-move', {path: '/items', from: 1, to: 0}], ['item-move', {path: '/items', from: 1, to: 2}]])"
+        },
+        {
+          "script": "(() => { one.sections = base(); return true; })()",
+          "wait": 500
+        },
+        {
+          "wait": 50,
+          "check": "document.activeElement === one.querySelector('[data-toggle=\"2\"]')"
+        }
+      ]
+    },
+    {
+      "id": "p10-item-moves-are-free",
+      "title": "any item moves anywhere: first to last, by drag and by keys, and the ends only refuse going beyond them",
+      "covers": "actions.item-move, events.item-move",
+      "steps": [
+        {
+          "wait": 1200,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { globalThis.answers = [one.itemMove({path: '/items', index: 0, to: 2}).outcome, one.itemMove({path: '/items', index: 2, to: 0}).outcome, one.itemMove({path: '/items', index: 0, by: -1}).reason, one.itemMove({path: '/items', index: 2, by: 1}).reason, one.itemMove({path: '/nope', index: 0, by: 1}).reason]; return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "answers.join(',') === 'applied,applied,unchanged,unchanged,unknown' && JSON.stringify(heard) === JSON.stringify([['item-move', {path: '/items', from: 0, to: 2}], ['item-move', {path: '/items', from: 2, to: 0}]])"
+        },
+        {
+          "script": "(() => { heard.length = 0; const list = one.querySelector('[data-items=\"/items\"] sf-sortable'); list.dispatchEvent(new CustomEvent('sf-sortable-move', {bubbles: true, detail: {item: 'item-2', from: list.getAttribute('group'), to: list.getAttribute('group'), index: 0}})); return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['item-move', {path: '/items', from: 2, to: 0}]])"
+        },
+        {
+          "script": "(() => { heard.length = 0; const toggle = one.querySelector('[data-toggle=\"1\"]'); toggle.focus(); toggle.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowUp', altKey: true, bubbles: true, cancelable: true})); return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['item-move', {path: '/items', from: 1, to: 0}]]) && one.querySelector('.sf-mail-inspector-said[role=\"status\"]').textContent.includes('позиция 1 из 3')"
+        }
+      ]
+    },
+    {
+      "id": "p11-list-bounds",
+      "title": "at max nothing is added or copied, at min nothing is removed, and the buttons say so",
+      "covers": "actions.item-add, actions.item-duplicate, actions.item-delete",
+      "steps": [
+        {
+          "wait": 1200,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { one.sections = withField('/items', {max: 3, min: 3}); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "one.itemAdd({path: '/items'}).reason === 'full' && one.itemDuplicate({path: '/items', index: 0}).reason === 'full' && one.itemDelete({path: '/items', index: 0}).reason === 'least' && one.querySelector('[data-item-add=\"/items\"]').hasAttribute('disabled') && heard.length === 0 && one.menuEntries(fieldOf(one.sections, '/items'), 0).filter((entry) => entry.disabled).map((entry) => entry.id).join(',') === 'up,duplicate,remove'"
+        }
+      ]
+    },
+    {
+      "id": "p12-level-and-escape",
+      "title": "the path is drawn from two levels; a press and Escape ask for a level, and Escape takes the focus from a closing item to its row",
+      "covers": "events.level, settings.levels, actions.level-up",
+      "steps": [
+        {
+          "wait": 1200,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { one.levels = [{text: 'Кнопка'}, {text: 'Расширенный'}]; one.sections = withField('/items', {open: 1}); return true; })()",
+          "wait": 600
+        },
+        {
+          "script": "(() => { const crumbs = one.querySelector('sf-breadcrumbs'); globalThis.crumbs = crumbs; crumbs.querySelector('a').click(); return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "crumbs && JSON.stringify(heard) === JSON.stringify([['level', {index: 0}]]) && location.hash === ''"
+        },
+        {
+          "script": "(() => { heard.length = 0; globalThis.input = native('/items/1/title'); input.focus(); globalThis.escape = new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true}); input.dispatchEvent(escape); return true; })()",
+          "wait": 200
+        },
+        {
+          "script": "(() => { one.levels = [{text: 'Кнопка'}]; one.sections = base(); return true; })()",
+          "wait": 500
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['level', {index: 0}]]) && escape.defaultPrevented && document.activeElement === one.querySelector('[data-toggle=\"1\"]') && !one.querySelector('sf-breadcrumbs')"
+        },
+        {
+          "script": "(() => { heard.length = 0; native('/text').dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true})); return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['level', {index: -1}]])"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.levels = []; return true; })()",
+          "wait": 300
+        },
+        {
+          "script": "(() => { globalThis.free = new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true}); native('/text').dispatchEvent(free); globalThis.atTop = one.levelUp().reason; return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "heard.length === 0 && !free.defaultPrevented && atTop === 'top'"
+        }
+      ]
+    },
+    {
+      "id": "p13-tabs-and-host-panels",
+      "title": "tabs show the form and the host's panels from slots; a press says tab, the host's tab moves it, and a draft in the form survives",
+      "covers": "events.tab, settings.tabs, settings.tab",
+      "steps": [
+        {
+          "wait": 1200,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { const brand = document.createElement('div'); brand.id = 'brand-panel'; brand.textContent = 'Панель бренда'; one.setSlot('brand', brand); one.tabs = [{id: 'content', label: 'Основное'}, {id: 'brand', label: 'Бренд', slot: 'brand'}, {id: 'images', label: 'Картинки', slot: 'images'}, {id: 'versions', label: 'Версии', slot: 'versions'}]; one.setAttribute('tab', 'content'); return true; })()",
+          "wait": 800
+        },
+        {
+          "wait": 50,
+          "check": "one.querySelector('sf-tabs [data-tab=\"content\"] sf-input[data-path=\"/text\"]') && one.querySelector('sf-tabs [data-tab=\"brand\"] #brand-panel') && one.querySelectorAll('sf-tabs [role=\"tab\"]').length === 4 && one.querySelector('sf-tabs [data-tab=\"content\"]').closest('[role=\"tabpanel\"]').hidden === false && one.querySelector('sf-tabs [data-tab=\"brand\"]').closest('[role=\"tabpanel\"]').hidden === true"
+        },
+        {
+          "script": "(() => { heard.length = 0; globalThis.input = put('/url', 'x'); one.sections = withField('/url', {error: 'Нужен адрес https://'}); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "native('/url') === input && document.activeElement === input && input.value === 'https://simai.rux'"
+        },
+        {
+          "script": "(() => { heard.length = 0; [...one.querySelectorAll('sf-tabs [role=\"tab\"]')][1].click(); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['tab', {id: 'brand'}]]) && one.querySelector('sf-tabs [data-tab=\"brand\"]').closest('[role=\"tabpanel\"]').hidden === false"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.setAttribute('tab', 'content'); return true; })()",
+          "wait": 500
+        },
+        {
+          "wait": 50,
+          "check": "heard.length === 0 && one.querySelector('sf-tabs [data-tab=\"content\"]').closest('[role=\"tabpanel\"]').hidden === false && native('/url').value === 'https://simai.rux'"
+        },
+        {
+          "script": "(() => { const next = document.createElement('div'); next.id = 'brand-next'; one.setSlot('brand', next); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "one.querySelector('sf-tabs [data-tab=\"brand\"] #brand-next') && !one.querySelector('#brand-panel')"
+        }
+      ]
+    },
+    {
+      "id": "p15-real-keys",
+      "title": "with real key presses: typing through redraws loses nothing, Enter and Space open an item, Alt+arrows move it, Shift+F10 opens its menu, Escape goes up",
+      "covers": "keyboard.item, keyboard.host",
+      "steps": [
+        {
+          "wait": 1200,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { globalThis.input = native('/text'); input.focus(); input.setSelectionRange(9, 9); globalThis.redraws = setInterval(() => { one.sections = withField('/text', {error: 'Не подходит'}); }, 5); return true; })()",
+          "wait": 50
+        },
+        {
+          "user": "keyboard:a",
+          "wait": 30
+        },
+        {
+          "user": "keyboard:b",
+          "wait": 30
+        },
+        {
+          "user": "keyboard:c",
+          "wait": 30
+        },
+        {
+          "user": "keyboard:ArrowLeft",
+          "wait": 30
+        },
+        {
+          "user": "keyboard:d",
+          "wait": 200
+        },
+        {
+          "script": "(() => { clearInterval(redraws); return true; })()",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "input === native('/text') && document.activeElement === input && input.value === 'Подробнееabdc' && input.selectionStart === 12 && heard.at(-1)[1].value === 'Подробнееabdc'"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.sections = base(); one.querySelector('[data-toggle=\"0\"]').focus(); return true; })()",
+          "wait": 300
+        },
+        {
+          "user": "keyboard:Enter",
+          "wait": 200
+        },
+        {
+          "user": "keyboard:Space",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['item-toggle', {path: '/items', index: 0, open: true}], ['item-toggle', {path: '/items', index: 0, open: true}]])"
+        },
+        {
+          "script": "(() => { heard.length = 0; return true; })()",
+          "wait": 50
+        },
+        {
+          "user": "keyboard:Alt+ArrowDown",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['item-move', {path: '/items', from: 0, to: 1}]])"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.sections = base(); return true; })()",
+          "wait": 400
+        },
+        {
+          "wait": 50,
+          "check": "document.activeElement === one.querySelector('[data-toggle=\"1\"]')"
+        },
+        {
+          "user": "keyboard:Shift+F10",
+          "wait": 700
+        },
+        {
+          "wait": 50,
+          "check": "document.querySelector('sf-context-menu.sf-mail-inspector-menu [role=\"menu\"], sf-context-menu.sf-mail-inspector-menu[open]') !== null && one.menuFor.index === 1"
+        },
+        {
+          "user": "keyboard:Escape",
+          "wait": 300
+        },
+        {
+          "wait": 50,
+          "check": "heard.length === 0"
+        },
+        {
+          "user": "keyboard:Escape",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "JSON.stringify(heard) === JSON.stringify([['level', {index: -1}]])"
+        }
+      ]
+    },
+    {
+      "id": "p14-form-key-and-notice",
+      "title": "a new form-key draws the form anew and drops what was typed; the notice's button says so",
+      "covers": "settings.form-key, settings.notice, events.notice-action",
+      "steps": [
+        {
+          "wait": 900,
+          "script": "(() => {\n  const one = document.querySelector('#panel');\n  globalThis.one = one;\n  globalThis.base = () => JSON.parse(JSON.stringify([{\"key\": \"button:content\", \"title\": \"Содержимое\", \"fields\": [{\"kind\": \"text\", \"path\": \"/text\", \"label\": \"Текст\", \"value\": \"Подробнее\", \"required\": true}, {\"kind\": \"link\", \"path\": \"/url\", \"label\": \"Ссылка\", \"value\": \"https://simai.ru\", \"placeholder\": \"https://\"}, {\"kind\": \"number\", \"path\": \"/discount\", \"label\": \"Скидка\", \"value\": \"10\"}, {\"kind\": \"multiline\", \"path\": \"/note\", \"label\": \"Примечание\", \"value\": \"\", \"hint\": \"Как в бренде: Спасибо, что вы с нами\"}]}, {\"key\": \"button:look\", \"title\": \"Оформление\", \"fields\": [{\"kind\": \"select\", \"path\": \"/tone\", \"label\": \"Тон\", \"value\": \"accent\", \"options\": [{\"value\": \"\", \"text\": \"— нет —\"}, {\"value\": \"accent\", \"text\": \"Акцент\"}, {\"value\": \"muted\", \"text\": \"Спокойный\"}]}, {\"kind\": \"switch\", \"path\": \"/wide\", \"label\": \"Во всю ширину\", \"value\": false}]}, {\"key\": \"button:image\", \"title\": \"Изображение\", \"fields\": [{\"kind\": \"image\", \"path\": \"/image\", \"label\": \"Изображение\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\", \"choices\": [{\"value\": \"a2\", \"text\": \"logo.png\"}], \"chooseLabel\": \"Выбрать из изображений письма\"}, {\"kind\": \"image\", \"path\": \"/logo\", \"label\": \"Логотип\", \"value\": {\"value\": \"a1\", \"label\": \"cover.png\", \"mime\": \"image/png\", \"size\": 2048, \"href\": \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"}, \"required\": true, \"accept\": \".png,.jpg,.jpeg,image/png,image/jpeg\"}]}, {\"key\": \"button:price\", \"title\": \"Цена\", \"fields\": [{\"kind\": \"group\", \"path\": \"/price\", \"label\": \"Цена\", \"rows\": [[{\"kind\": \"number\", \"path\": \"/price/current\", \"label\": \"Цена\", \"value\": \"990\", \"inputmode\": \"decimal\"}, {\"kind\": \"number\", \"path\": \"/price/old\", \"label\": \"Прежняя цена\", \"value\": \"\", \"inputmode\": \"decimal\"}], [{\"kind\": \"text\", \"path\": \"/price/currency\", \"label\": \"Валюта\", \"value\": \"₽\"}, {\"kind\": \"text\", \"path\": \"/price/unit\", \"label\": \"Единица\", \"value\": \"\"}], [{\"kind\": \"text\", \"path\": \"/price/note\", \"label\": \"Пояснение к цене\", \"value\": \"\"}]]}]}, {\"key\": \"button:items\", \"title\": \"Элементы\", \"fields\": [{\"kind\": \"items\", \"path\": \"/items\", \"label\": \"Элементы\", \"min\": 1, \"max\": 4, \"open\": null, \"items\": [{\"label\": \"Базовый\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/0/title\", \"label\": \"Заголовок\", \"value\": \"Базовый\"}]}, {\"label\": \"Расширенный\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/1/title\", \"label\": \"Заголовок\", \"value\": \"Расширенный\"}]}, {\"label\": \"Команда\", \"fields\": [{\"kind\": \"text\", \"path\": \"/items/2/title\", \"label\": \"Заголовок\", \"value\": \"Команда\"}], \"problem\": true}]}]}]));\n  globalThis.heard = [];\n  for (const name of ['change','attach','detach','toggle','level','tab','notice-action','duplicate','delete','replace','item-toggle','item-add','item-move','item-duplicate','item-delete']) one.addEventListener(name === 'change' ? name : 'sf-mail-inspector-' + name, (event) => globalThis.heard.push([name, event.detail]));\n  globalThis.fieldOf = (sections, path) => { for (const section of sections) { const walk = (fields) => { for (const field of fields) { if (field.path === path) return field; if (field.rows) for (const row of field.rows) { const got = walk(row); if (got) return got; } for (const item of field.items ?? []) { const got = walk(item.fields); if (got) return got; } } return null; }; const got = walk(section.fields); if (got) return got; } return null; };\n  globalThis.withField = (path, change) => { const data = base(); Object.assign(fieldOf(data, path), change); return data; };\n  globalThis.native = (path) => one.querySelector('[data-path=\"' + path + '\"] input, [data-path=\"' + path + '\"] textarea');\n  globalThis.put = (path, text) => { const input = native(path); input.focus(); input.setSelectionRange(input.value.length, input.value.length); document.execCommand('insertText', false, text); return input; };\n  globalThis.names = () => heard.map(([name]) => name).join(',');\n  globalThis.detailOf = (name) => (heard.find(([one]) => one === name) ?? [])[1];\n  one.headActions = ['duplicate', 'delete'];\n  one.levels = [{text: 'Кнопка'}];\n  one.sections = base();\n  return true;\n})()"
+        },
+        {
+          "script": "(() => { put('/url', 'x'); one.sections = withField('/url', {error: 'Нужен адрес https://'}); return true; })()",
+          "wait": 400
+        },
+        {
+          "script": "(() => { native('/url').blur(); one.setAttribute('form-key', 'b8'); one.sections = withField('/url', {error: 'Другая ошибка'}); one.notice = {text: 'Причина получения и ссылка отписки — в параметрах письма.', action: 'Открыть параметры письма'}; return true; })()",
+          "wait": 500
+        },
+        {
+          "wait": 50,
+          "check": "native('/url').value === 'https://simai.ru' && !one.querySelector('sf-input[data-path=\"/url\"]').dataset.draft && one.querySelector('.sf-mail-inspector-notice-text').textContent.includes('Причина')"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.querySelector('[data-notice-action]').click(); return true; })()",
+          "wait": 200
+        },
+        {
+          "wait": 50,
+          "check": "names() === 'notice-action'"
+        }
+      ]
+    }
+  ]
+}

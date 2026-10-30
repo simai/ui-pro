@@ -22,7 +22,7 @@ const FREE_BOOT = "window.SF_BOOT_CONFIG={preloader:{enabled:false}};";
 const PACKAGE_BOOT = "window.SF_BOOT_CONFIG={preloader:{enabled:false},packages:{larena:{base:'/distr/smart'}}};";
 const source = readFileSync(runner, 'utf8');
 if (!source.includes(FREE_BOOT)) throw new Error('the Framework runner no longer boots the page as this wrapper expects');
-const PACKAGE = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'property-view', 'table', 'thread-list'];
+const PACKAGE = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'property-view', 'table', 'thread-list'];
 const asked = process.argv.slice(3);
 const folders = (asked.length ? asked : PACKAGE).filter((folder) => existsSync(join(here, '..', '..', 'src', 'smart', folder, 'probe.json')));
 if (!folders.length) throw new Error('no package component has a probe.json');

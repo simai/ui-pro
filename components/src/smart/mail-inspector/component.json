@@ -1,0 +1,749 @@
+{
+  "$comment": "The source of sf-mail-inspector's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-mail by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
+  "id": "smart.mail-inspector",
+  "tag": "sf-mail-inspector",
+  "version": "1.0.0",
+  "kind": "leaf",
+  "family": "form",
+  "settings": {
+    "heading": {
+      "type": "string",
+      "default": "",
+      "summary": "What is being edited, in the person's language: the panel's title."
+    },
+    "heading-icon": {
+      "type": "icon",
+      "default": "",
+      "summary": "The icon before the heading."
+    },
+    "form-key": {
+      "type": "string",
+      "default": "",
+      "summary": "Whose form this is (a block's id, say). When it changes the form is drawn anew and text typed for the previous one is dropped."
+    },
+    "tab": {
+      "type": "id",
+      "default": "",
+      "summary": "The tab shown, by id; empty is the first."
+    },
+    "levels": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "text": "string"
+      },
+      "entries": {
+        "key": "text",
+        "changes": "content"
+      },
+      "x-markup": "a property; text is text, never markup.",
+      "summary": "The path, top first: [{text}], the last is where the person is. Two or more are drawn as the path. One is not drawn, but Escape still asks for what is above it."
+    },
+    "head-actions": {
+      "type": "list",
+      "default": [],
+      "of": "string",
+      "summary": "The actions beside the heading, in order: any of duplicate, delete, replace."
+    },
+    "notice": {
+      "type": "object",
+      "default": {},
+      "x-markup": "a property; text and action are text, never markup.",
+      "summary": "A line under the heading: {text, action}. With action it has a button of that name, which sends notice-action."
+    },
+    "tabs": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "id": "id",
+        "label": "string",
+        "slot": {
+          "type": "string",
+          "optional": true
+        }
+      },
+      "entries": {
+        "key": "id",
+        "changes": "content"
+      },
+      "summary": "The tabs: {id, label, slot}. A tab with slot shows the host's own panel from that slot; a tab without one shows the form (sections). Empty draws the form with no tabs."
+    },
+    "sections": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "key": "id",
+        "title": "string",
+        "fields": "list"
+      },
+      "entries": {
+        "key": "key",
+        "changes": "content"
+      },
+      "x-markup": "a property (a host has objects); every text in it is text, never markup.",
+      "summary": "The form: {key, title, fields}. One section needs no disclosure, its fields stand on their own. A field is {kind, path, label, value, error, hint, placeholder, required, disabled, ...}; x-registry.contracts.field says each kind."
+    },
+    "closed-sections": {
+      "type": "list",
+      "default": [],
+      "of": "string",
+      "summary": "The keys of the sections the person closed. The element keeps it up to date as the person toggles; a host that remembers it longer passes it back. A key shared by two forms is remembered across them."
+    }
+  },
+  "values": {},
+  "events": {
+    "change": {
+      "carries": {
+        "path": "string",
+        "value": {
+          "type": "string",
+          "summary": "The raw text as typed, the chosen value, or a boolean from a switch."
+        },
+        "typed": "boolean"
+      },
+      "x-summary": "the person changed a field (vocabulary §5 change). value is what they typed, raw, unvalidated; typed says it came from typing, so a host can coalesce the writes.",
+      "summary": "This field now reads this: {path, value, typed}."
+    },
+    "attach": {
+      "carries": {
+        "path": "string",
+        "files": "list"
+      },
+      "x-summary": "a file was chosen for or dropped on an image field (vocabulary §5 attach). The host stores it and passes the stored value back, or an error.",
+      "summary": "Store these files for this field: {path, files}."
+    },
+    "detach": {
+      "carries": {
+        "path": "string"
+      },
+      "x-summary": "«Убрать» on an image that is not required (vocabulary §5 detach).",
+      "summary": "Remove this field's image: {path}."
+    },
+    "toggle": {
+      "carries": {
+        "key": "id",
+        "open": "boolean"
+      },
+      "x-summary": "a section was opened or closed (vocabulary §5 toggle). The element has already done it: this is view state.",
+      "summary": "This section is now open or closed: {key, open}."
+    },
+    "level": {
+      "carries": {
+        "index": "number"
+      },
+      "own-verb": true,
+      "x-summary": "a press on the path or Escape asked for a level (a verb of this element). Escape asks for the one above the last, so with one level its index is -1: what is above what is drawn.",
+      "summary": "Go to this level of the path: {index}."
+    },
+    "tab": {
+      "carries": {
+        "id": "id"
+      },
+      "own-verb": true,
+      "x-summary": "the person chose a tab (a verb of this element, as sf-tabs-change is its own). sf-tabs has shown it already.",
+      "summary": "This tab was chosen: {id}."
+    },
+    "notice-action": {
+      "carries": {},
+      "own-verb": true,
+      "x-summary": "the button of the notice was pressed (a verb of this element).",
+      "summary": "The notice's button was pressed."
+    },
+    "duplicate": {
+      "carries": {},
+      "own-verb": true,
+      "x-summary": "«Дублировать» beside the heading (a verb of this element, as sf-mail-structure's).",
+      "summary": "Make a copy of what is being edited."
+    },
+    "delete": {
+      "carries": {},
+      "x-summary": "«Удалить» beside the heading (vocabulary §5 delete; what is meant is the host's: the element holds no ids).",
+      "summary": "Remove what is being edited."
+    },
+    "replace": {
+      "carries": {},
+      "x-summary": "«Сменить вариант…» beside the heading (vocabulary §5 replace): the host shows the variants.",
+      "summary": "Another variant of what is being edited was asked for."
+    },
+    "item-toggle": {
+      "carries": {
+        "path": "string",
+        "index": "number",
+        "open": "boolean"
+      },
+      "own-verb": true,
+      "x-summary": "an item's disclosure was pressed (a verb of this element). The host passes field.open back.",
+      "summary": "Open or close this item: {path, index, open}."
+    },
+    "item-add": {
+      "carries": {
+        "path": "string"
+      },
+      "own-verb": true,
+      "x-summary": "«Добавить элемент» (a verb of this element). Never sent at max.",
+      "summary": "Add an item to this list: {path}."
+    },
+    "item-move": {
+      "carries": {
+        "path": "string",
+        "from": "number",
+        "to": "number"
+      },
+      "own-verb": true,
+      "x-summary": "a drag, Alt+arrows or ⋯ asked to move an item (a verb of this element; carries a list's path, which vocabulary move does not). to is the final place. Nothing in a list is pinned.",
+      "summary": "Move an item within its list: {path, from, to}."
+    },
+    "item-duplicate": {
+      "carries": {
+        "path": "string",
+        "index": "number"
+      },
+      "own-verb": true,
+      "x-summary": "«Дублировать» under ⋯ (a verb of this element). Never sent at max.",
+      "summary": "Make a copy of this item: {path, index}."
+    },
+    "item-delete": {
+      "carries": {
+        "path": "string",
+        "index": "number"
+      },
+      "own-verb": true,
+      "x-summary": "«Удалить» under ⋯ (a verb of this element). Never sent at min.",
+      "summary": "Remove this item: {path, index}."
+    }
+  },
+  "actions": {
+    "duplicate": {
+      "with": {},
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what «Дублировать» does; refused unknown when head-actions does not offer it",
+      "summary": "what «Дублировать» does; refused unknown when head-actions does not offer it",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "delete": {
+      "with": {},
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what «Удалить» does; refused unknown when head-actions does not offer it",
+      "summary": "what «Удалить» does; refused unknown when head-actions does not offer it",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "replace": {
+      "with": {},
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what «Сменить вариант…» does; refused unknown when head-actions does not offer it",
+      "summary": "what «Сменить вариант…» does; refused unknown when head-actions does not offer it",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "level-up": {
+      "with": {},
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what Escape does; refused top with no levels",
+      "summary": "what Escape does; refused top with no levels",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: top}"
+      }
+    },
+    "go-to-level": {
+      "with": {
+        "index": "number"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what a press on the path does; refused unknown",
+      "summary": "what a press on the path does; refused unknown",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "open-tab": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "asks for a tab as a press does: sends tab, the host passes it back; refused unknown",
+      "summary": "asks for a tab as a press does: sends tab, the host passes it back; refused unknown",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "toggle-section": {
+      "with": {
+        "key": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "opens or closes a section as its heading does; refused unknown",
+      "summary": "opens or closes a section as its heading does; refused unknown",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "item-toggle": {
+      "with": {
+        "path": "string",
+        "index": "number"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what an item's disclosure does; refused unknown",
+      "summary": "what an item's disclosure does; refused unknown",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "item-add": {
+      "with": {
+        "path": "string"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what «Добавить элемент» does; refused unknown, full",
+      "summary": "what «Добавить элемент» does; refused unknown, full",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | full}"
+      }
+    },
+    "item-move": {
+      "with": {
+        "path": "string",
+        "index": "number",
+        "to": {
+          "type": "number",
+          "optional": true
+        },
+        "by": {
+          "type": "number",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "asks to move an item to a place or by steps; refused unknown, unchanged",
+      "summary": "asks to move an item to a place or by steps; refused unknown, unchanged",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | unchanged}"
+      }
+    },
+    "item-duplicate": {
+      "with": {
+        "path": "string",
+        "index": "number"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what «Дублировать» under ⋯ does; refused unknown, full",
+      "summary": "what «Дублировать» under ⋯ does; refused unknown, full",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | full}"
+      }
+    },
+    "item-delete": {
+      "with": {
+        "path": "string",
+        "index": "number"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what «Удалить» under ⋯ does; refused unknown, least",
+      "summary": "what «Удалить» under ⋯ does; refused unknown, least",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | least}"
+      }
+    },
+    "focus-item": {
+      "with": {
+        "path": "string",
+        "index": "number"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "puts the focus on an item's disclosure, after the draw; refused unknown with no path",
+      "summary": "puts the focus on an item's disclosure, after the draw; refused unknown with no path",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    }
+  },
+  "slots": {
+    "brand": {
+      "$comment": "The host's panel of the tab whose slot names it. Slot names are the tabs'; these three are the editor's."
+    },
+    "images": {
+      "$comment": "As brand."
+    },
+    "versions": {
+      "$comment": "As brand."
+    }
+  },
+  "keyboard": {
+    "host": {
+      "Tab": "reach",
+      "Escape": "level"
+    },
+    "item": {
+      "Enter": "toggle",
+      "Space": "toggle",
+      "Alt+ArrowUp": "move",
+      "Alt+ArrowDown": "move",
+      "Shift+F10": "menu",
+      "ContextMenu": "menu"
+    }
+  },
+  "relations": [
+    {
+      "name": "accordion"
+    },
+    {
+      "name": "cl-icon"
+    },
+    {
+      "name": "cl-input"
+    },
+    {
+      "name": "cl-textarea"
+    },
+    {
+      "name": "cl-dropdown"
+    },
+    {
+      "name": "cl-switch"
+    },
+    {
+      "name": "cl-image-field"
+    },
+    {
+      "name": "cl-sortable"
+    },
+    {
+      "name": "cl-tabs"
+    },
+    {
+      "name": "cl-breadcrumbs"
+    },
+    {
+      "name": "cl-button"
+    },
+    {
+      "name": "cl-icon-button"
+    },
+    {
+      "name": "cl-context-menu",
+      "lazy": true
+    }
+  ],
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "form",
+    "name": {
+      "from": [
+        "settings.heading"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Escape": "level",
+      "Enter": "toggle",
+      "Space": "toggle",
+      "Alt+ArrowUp": "move",
+      "Alt+ArrowDown": "move",
+      "Shift+F10": "menu"
+    },
+    "x-keys": "Escape anywhere in the form goes one level up, unless a list, a menu, a window or a drag has it; on an item's disclosure Enter and Space open it, Alt+arrows move it, Shift+F10 opens ⋯; a held row is sf-sortable's own keyboard; a move by keys is said in a status line"
+  },
+  "host-states": {},
+  "css-variables": {},
+  "x-summary": "The right panel of SIMAI Email Editor as a form drawn from data: a heading with its actions, the path of levels, tabs, accordion sections and every field the editor has. The host passes the form in the person's language, including each field's value, error, hint and placeholder; the element says what the person did and changes nothing. Typed text the host did not take survives a redraw, and a redraw never moves the focus or the caret out of the field being typed in.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "mail-inspector",
+    "manifest": "simai/ui-mail src/ui/inspector.ts and src/ui/repeater.ts (0.12.0)",
+    "converted": "written by hand (D31, 2026-10-30) from the editor's own panel, so the words, the keys and the field rules are the ones the editor proved"
+  },
+  "x-words": [],
+  "x-renamed": [],
+  "x-decisions": [
+    "boundary (the dispatcher's decision): a form drawn from data. It knows no letter, no block manifest, no store and no URL rules. The host passes everything in the person's language, including value, error, hint and placeholder.",
+    "events (the dispatcher's decision): it says what the person did and changes nothing. change, attach, detach, toggle, delete and replace are vocabulary §5 verbs; level, tab, notice-action, duplicate and the item- verbs are verbs of this element. None is cancelable.",
+    "typed text (the dispatcher's decision): a field whose value the host did not take keeps what the person typed while the host passes error, and a redraw never moves the focus or the caret out of the field being typed in. A field holding the focus is never written to; it shows the host's value once the person leaves it.",
+    "host panels (the dispatcher's decision): the contents of the Brand, Images and Versions tabs are the host's, through slots; the brand editor is not absorbed.",
+    "shape (the dispatcher's decision): a leaf that places sf-input, sf-textarea, sf-dropdown, sf-switch, sf-image-field, sf-sortable, sf-tabs, sf-breadcrumbs, sf-button, sf-icon-button and one sf-context-menu. Every CSS value is a Framework token.",
+    "sf-image-field, not bare sf-file-upload: it is what the editor uses today (its well, «Заменить…», «Убрать», a dropped file), so nothing the editor does is lost.",
+    "sections: the class accordion's markup with the element's own state, as the editor draws it. sf-accordion's slots are read once, and these sections change with the data.",
+    "a required image: «Убрать» puts it back and says why in the element's own word, and sends nothing: that is not the host's rule but the field's, carried by required.",
+    "a section's disclosure is view state, so the element toggles it itself and tells; an item's is the third level of the path, so the host holds it (field.open)."
+  ],
+  "x-rule": {
+    "$comment": [
+      "The inspector draws its fields as sf-input, sf-textarea, sf-dropdown, sf-switch and sf-image-field,",
+      "its lists as sf-sortable, its tabs as sf-tabs, its path as sf-breadcrumbs, its marks as sf-icon and its",
+      "buttons as sf-button and sf-icon-button; a tag it renders is a tag it fetches. The sections are the class",
+      "accordion's markup, so its sheet comes too. The ⋯ menu opens in sf-context-menu on a press, so the menu",
+      "is fetched after the page is ready, and the element waits for it before opening it."
+    ]
+  },
+  "x-registry": {
+    "capabilities": [
+      "interaction",
+      "keyboard",
+      "responsive"
+    ],
+    "persistence": {
+      "mode": "none",
+      "source_of_truth": "host",
+      "network_owner": "host",
+      "revision_field": null
+    },
+    "readiness": {
+      "level": "host-required",
+      "required_checks": [
+        "manifest",
+        "loader-rule",
+        "mail-inspector-probe"
+      ]
+    },
+    "tags": [
+      "mail",
+      "inspector",
+      "form",
+      "fields"
+    ],
+    "contracts": {
+      "field": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "text, multiline, link, number, select, switch, group, image or items."
+          },
+          "path": {
+            "type": "string",
+            "description": "The field's address: what the events carry. Unique in the form."
+          },
+          "label": {
+            "type": "string",
+            "description": "Its name, drawn as text."
+          },
+          "value": {
+            "description": "text kinds and select: a string; switch: a boolean; image: {value, label, mime, size, href} or null."
+          },
+          "error": {
+            "type": "string",
+            "description": "What is wrong, drawn under the field. While it is passed the typed text stays."
+          },
+          "hint": {
+            "type": "string",
+            "description": "Real text under the field."
+          },
+          "placeholder": {
+            "type": "string",
+            "description": "Shown in an empty field."
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Marked as required; an image then cannot be removed."
+          },
+          "disabled": {
+            "type": "boolean",
+            "description": "Shown, not editable."
+          },
+          "inputmode": {
+            "type": "string",
+            "description": "text kinds: the keyboard to offer; number defaults to numeric."
+          },
+          "inheritedValue": {
+            "type": "string",
+            "description": "text kinds: what an empty field falls back to (the Framework's inherited value)."
+          },
+          "ariaLabel": {
+            "type": "string",
+            "description": "The name when no label is drawn."
+          },
+          "options": {
+            "type": "array",
+            "description": "select: [{value, text}]. A value of '' is the choice of nothing."
+          },
+          "rows": {
+            "type": "array",
+            "description": "group: rows of fields; a row of two stands in a pair."
+          },
+          "accept": {
+            "type": "string",
+            "description": "image: what the file dialog offers."
+          },
+          "emptyText": {
+            "type": "string",
+            "description": "image: the empty field's text."
+          },
+          "choices": {
+            "type": "array",
+            "description": "image: [{value, text}], images to choose again; the choice is a change."
+          },
+          "chooseLabel": {
+            "type": "string",
+            "description": "image: the name of that list."
+          },
+          "choosePlaceholder": {
+            "type": "string",
+            "description": "image: what that list reads before a choice."
+          },
+          "items": {
+            "type": "array",
+            "description": "items: [{label, problem, fields}]; problem marks a closed item that has one."
+          },
+          "open": {
+            "type": "number",
+            "description": "items: the open item's index, or null."
+          },
+          "min": {
+            "type": "number",
+            "description": "items: below this no item can be removed."
+          },
+          "max": {
+            "type": "number",
+            "description": "items: at this none can be added or copied."
+          }
+        },
+        "required": [
+          "kind",
+          "path"
+        ]
+      },
+      "choice": {
+        "const": "A field dispatches change {path, value, typed} on the host, under its native name (the fields' own stop inside); an image sf-mail-inspector-attach {path, files} and -detach {path}; a section -toggle {key, open}; the path and Escape -level {index}; a tab -tab {id}; the notice -notice-action {}; the heading's buttons -duplicate {}, -delete {} and -replace {}; a list -item-toggle {path, index, open}, -item-add {path}, -item-move {path, from, to}, -item-duplicate {path, index} and -item-delete {path, index}. The element changes nothing but its sections' disclosure: the host passes the form back."
+      }
+    },
+    "state": {
+      "machines": {
+        "typed": [
+          "host-value",
+          "typing",
+          "draft"
+        ]
+      },
+      "visual_states": [
+        "default",
+        "error",
+        "open",
+        "closed"
+      ]
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "validating a value or a link",
+        "changing the letter or its blocks",
+        "storing a file",
+        "reading or writing the letter store"
+      ]
+    },
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "every text in the form (drawn as text)",
+        "an image's href (the host's stored address)"
+      ],
+      "network_policy": "deny"
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-mail-inspector for the panel where a person edits the letter's settings or a selected block in SIMAI Email Editor.",
+      "do_not": [
+        "Do not validate in the element; pass error back",
+        "Do not change value while the person types to echo them; the element keeps what they typed",
+        "Do not draw the brand editor in fields here; put it in a tab's slot"
+      ],
+      "required_reads": [
+        "inputs",
+        "contracts",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-mail-inspector id=\"panel\" heading=\"Кнопка\"></sf-mail-inspector> <script>panel.sections = [{key: 'content', title: 'Содержимое', fields: [{kind: 'text', path: '/text', label: 'Текст', value: 'Подробнее'}]}];</script>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-manifest-probes.mjs <free output> <package output> mail-inspector"
+      ]
+    },
+    "accessibility": {
+      "accessible_name": "internal",
+      "focus": "A redraw keeps the focus and the caret in the field being typed in. An item's disclosure is the item's one tab stop; ⋯ is named «Действия с элементом: <name>», so two items never sound alike. After a list verb the focus goes to the item that changed, once the host has passed the list back."
+    },
+    "compatibility": {
+      "migrations": []
+    }
+  }
+}

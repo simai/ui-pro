@@ -1,0 +1,232 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "inspector-reference",
+  "component": "smart.mail-inspector",
+  "title": "Mail inspector reference",
+  "summary": "Deterministic reference fixture for sf-mail-inspector: a block with every kind of field.",
+  "locale": "ru",
+  "props": {
+    "heading": "Кнопка",
+    "heading-icon": "smart_button",
+    "form-key": "b7",
+    "head-actions": [
+      "duplicate",
+      "delete"
+    ],
+    "levels": [
+      {
+        "text": "Кнопка"
+      }
+    ],
+    "sections": [
+      {
+        "key": "button:content",
+        "title": "Содержимое",
+        "fields": [
+          {
+            "kind": "text",
+            "path": "/text",
+            "label": "Текст",
+            "value": "Подробнее",
+            "required": true
+          },
+          {
+            "kind": "link",
+            "path": "/url",
+            "label": "Ссылка",
+            "value": "https://simai.ru",
+            "placeholder": "https://"
+          },
+          {
+            "kind": "number",
+            "path": "/discount",
+            "label": "Скидка",
+            "value": "10"
+          },
+          {
+            "kind": "multiline",
+            "path": "/note",
+            "label": "Примечание",
+            "value": "",
+            "hint": "Как в бренде: Спасибо, что вы с нами"
+          }
+        ]
+      },
+      {
+        "key": "button:look",
+        "title": "Оформление",
+        "fields": [
+          {
+            "kind": "select",
+            "path": "/tone",
+            "label": "Тон",
+            "value": "accent",
+            "options": [
+              {
+                "value": "",
+                "text": "— нет —"
+              },
+              {
+                "value": "accent",
+                "text": "Акцент"
+              },
+              {
+                "value": "muted",
+                "text": "Спокойный"
+              }
+            ]
+          },
+          {
+            "kind": "switch",
+            "path": "/wide",
+            "label": "Во всю ширину",
+            "value": false
+          }
+        ]
+      },
+      {
+        "key": "button:image",
+        "title": "Изображение",
+        "fields": [
+          {
+            "kind": "image",
+            "path": "/image",
+            "label": "Изображение",
+            "value": {
+              "value": "a1",
+              "label": "cover.png",
+              "mime": "image/png",
+              "size": 2048,
+              "href": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+            },
+            "accept": ".png,.jpg,.jpeg,image/png,image/jpeg",
+            "choices": [
+              {
+                "value": "a2",
+                "text": "logo.png"
+              }
+            ],
+            "chooseLabel": "Выбрать из изображений письма"
+          },
+          {
+            "kind": "image",
+            "path": "/logo",
+            "label": "Логотип",
+            "value": {
+              "value": "a1",
+              "label": "cover.png",
+              "mime": "image/png",
+              "size": 2048,
+              "href": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+            },
+            "required": true,
+            "accept": ".png,.jpg,.jpeg,image/png,image/jpeg"
+          }
+        ]
+      },
+      {
+        "key": "button:price",
+        "title": "Цена",
+        "fields": [
+          {
+            "kind": "group",
+            "path": "/price",
+            "label": "Цена",
+            "rows": [
+              [
+                {
+                  "kind": "number",
+                  "path": "/price/current",
+                  "label": "Цена",
+                  "value": "990",
+                  "inputmode": "decimal"
+                },
+                {
+                  "kind": "number",
+                  "path": "/price/old",
+                  "label": "Прежняя цена",
+                  "value": "",
+                  "inputmode": "decimal"
+                }
+              ],
+              [
+                {
+                  "kind": "text",
+                  "path": "/price/currency",
+                  "label": "Валюта",
+                  "value": "₽"
+                },
+                {
+                  "kind": "text",
+                  "path": "/price/unit",
+                  "label": "Единица",
+                  "value": ""
+                }
+              ],
+              [
+                {
+                  "kind": "text",
+                  "path": "/price/note",
+                  "label": "Пояснение к цене",
+                  "value": ""
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "key": "button:items",
+        "title": "Элементы",
+        "fields": [
+          {
+            "kind": "items",
+            "path": "/items",
+            "label": "Элементы",
+            "min": 1,
+            "max": 4,
+            "open": null,
+            "items": [
+              {
+                "label": "Базовый",
+                "fields": [
+                  {
+                    "kind": "text",
+                    "path": "/items/0/title",
+                    "label": "Заголовок",
+                    "value": "Базовый"
+                  }
+                ]
+              },
+              {
+                "label": "Расширенный",
+                "fields": [
+                  {
+                    "kind": "text",
+                    "path": "/items/1/title",
+                    "label": "Заголовок",
+                    "value": "Расширенный"
+                  }
+                ]
+              },
+              {
+                "label": "Команда",
+                "fields": [
+                  {
+                    "kind": "text",
+                    "path": "/items/2/title",
+                    "label": "Заголовок",
+                    "value": "Команда"
+                  }
+                ],
+                "problem": true
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "children": [],
+  "state": "default"
+}

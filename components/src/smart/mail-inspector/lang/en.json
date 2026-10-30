@@ -1,0 +1,29 @@
+{
+  "title": "Letter inspector",
+  "runtime": {
+    "delete-text": "Remove",
+    "down-text": "Move down",
+    "duplicate-text": "Duplicate",
+    "image-empty-text": "Add an image…",
+    "image-formats-text": "Only PNG and JPEG images fit",
+    "image-required-text": "This image is required: it can be replaced, not removed",
+    "item-actions-label": "Item actions: {label}",
+    "item-add-text": "Add an item",
+    "item-menu-label": "Item actions",
+    "item-moved-text": "Item: position {n} of {total}",
+    "path-label": "Path",
+    "replace-text": "Change the variant…",
+    "up-text": "Move up"
+  },
+  "events": {
+    "duplicate": {"label": "Duplicate what is being edited"},
+    "level": {"label": "Go to a level of the path"},
+    "tab": {"label": "Go to a tab"},
+    "notice-action": {"label": "Press the notice's button"},
+    "item-toggle": {"label": "Open or close an item"},
+    "item-add": {"label": "Add an item"},
+    "item-move": {"label": "Move an item"},
+    "item-duplicate": {"label": "Duplicate an item"},
+    "item-delete": {"label": "Remove an item"}
+  }
+}

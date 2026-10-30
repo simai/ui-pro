@@ -30,12 +30,13 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/mail-library` | `sf-mail-library` | `smart.mail-library` |
 | `src/smart/mail-letters` | `sf-mail-letters` | `smart.mail-letters` |
 | `src/smart/mail-structure` | `sf-mail-structure` | `smart.mail-structure` |
+| `src/smart/mail-inspector` | `sf-mail-inspector` | `smart.mail-inspector` |
 
 The three conversation components came from `simai/ui-chat` (`sf-chat-message-list`,
 `sf-chat-thread-list` and the proposal card) under neutral names (owner's decision
 2026-10-25): they serve a conversation with an assistant and one between people
 (simai.chat) alike, so what a message is, who wrote it and what a change means are
-the host's. `sf-mail-structure` is the same editor's list of a letter's blocks. Their documentation is in each folder's `docs.md`.
+the host's. `sf-mail-structure` is the same editor's list of a letter's blocks, `sf-mail-inspector` its right panel, a form drawn from data. Their documentation is in each folder's `docs.md`.
 
 `sf-chat-interlocutor` moved from `simai/ui-chat` under its own name (D31, owner's
 approval 2026-10-27): who a chat conversation is with, a thin element over the
