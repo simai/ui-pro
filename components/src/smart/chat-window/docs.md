@@ -228,6 +228,100 @@ to}` (у Mirai24 там только строки), отрывком счита�
 | `x-early-upload` | файлы загружаются сразу при выборе | `file.attach` → `attach`, `file.detach` → `detach` |
 | `x-my-files` | «Мои файлы» под списком, на месте разговора | `files.list` → `open {kind: files}`, `files.remove` → `delete {kind: file}` |
 | `x-brief` | уточнение задачи в ответе (API.md v1.2) | ответ уходит обычным `message.send` |
+| `x-conversation-start` | «Новый диалог» и «Новая группа» в голове списка, форма на месте разговора (1.4.0) | `recipients.search` → `query {kind: recipients}`, `conversation.start` → `create {kind: private \| group}` |
+| `x-members` | «Участники» в шапке открытой группы, только чтение (1.4.0) | `members.list` → `open {kind: members}` |
+
+### Новый диалог и новая группа (`x-conversation-start`, 1.4.0)
+
+Без возможности команд нет, и всё остальное работает как раньше: существующие
+разговоры доступны, хост только с `conversation-create` видит прежнюю кнопку.
+С возможностью голова списка показывает две команды вместо одной кнопки
+(`sf-thread-list` 1.5.0, `create-commands`). Порт 1.0 не меняется.
+
+Людей ищет `sf-lookup` Фреймворка; окно отвечает ему через хоста.
+
+- `recipients.search {query}`, событие `query`, `kind: recipients`. Ответ
+  `applied`, `data: {items: [{id, name}]}`; окно читает только `id` и `name`.
+  Ответ `refused` с причиной `access-denied`: только строка «Создание недоступно»,
+  без причины, это не «Ничего не найдено». Другой отказ — строка ошибки поля
+  с «Повторить». Устаревший ответ отбрасывает `sf-lookup`.
+- `conversation.start {kind: 'private', user_id}`, событие `create`, `kind:
+  private`. Ответ `applied`, `data: {conversation}`: существующий или новый,
+  человек между дублями не выбирает.
+- `conversation.start {kind: 'group', title, member_ids, client_key}`, событие
+  `create`, `kind: group`. Тот же ключ повторяется только с теми же названием и
+  составом; изменили форму — новый ключ; повтор после потерянного ответа — прежний.
+
+| Отказ `conversation.start` | Что видит человек |
+|:---|:---|
+| `access-denied` | «Создание недоступно», без причины |
+| `invalid-recipient` | «Этому человеку нельзя написать»; в группе — ошибка у поля людей |
+| `invalid-group` | ошибка у поля названия |
+| `conflict` | форма изменилась после отправки; следующее нажатие идёт с новым ключом |
+| `busy`, нет ответа 30 с, любой другой | строка с «Повторить» |
+
+**Что делает хост после `applied`.** Отвечает `data: {conversation}` и даёт список
+`conversations` через `set-data` — до ответа или сразу после: окно терпит и то и
+другое, открытый разговор отмечается, как только его строка появится. Дальше окно
+само закрывает форму, применяет `data` (не раньше: закрытая тем временем форма
+никого никуда не переносит) и переводит фокус в поле ввода. Если среди `data` нет
+`messages` и это не уже открытый разговор, окно очищает ленту и поднимает обычное
+`conversation.open {conversation_id}`, так что хост отвечает на него, как при выборе
+в списке. Хост, давший `messages` в ответе, второго намерения не получит. У личного
+разговора без `title` в шапке — название из списка, а пока его нет — имя выбранного.
+
+Пределы — из данных окна: `limits.group = {title_chars, members_max, search_min,
+search_max}`, по умолчанию 120 / 49 / 2 / 20 (это умолчания окна, не Фреймворка);
+необязательное `query_chars` (80) — длина строки поиска. `me.id` уходит в
+`exclude`, себя выбрать нельзя.
+
+Форма занимает место разговора, как «Мои файлы»; на телефоне — весь экран. Ленту,
+поле ввода, поиск в разговоре, заголовок и выбор собеседника окно на это время прячет
+и делает недоступными для фокуса само, странице для этого ничего не нужно (так же
+и «Участники»). Открывают
+её команды списка и действие `open-start {kind}`, закрывают «Назад», Esc и
+`close-start {focus}`; фокус при открытии в первом поле, при закрытии — на команде,
+открывшей форму (скрыта — в поле ввода). Страница с боковой панелью закрывает панель
+по `toggle {kind: 'start', open: true, form}`, по `open: false` может показать её
+снова: так «Назад» на телефоне возвращает к списку. Во время отправки Esc и «Назад»
+не работают, форма не закрывается до подтверждения, при ошибке всё введённое остаётся;
+закрытие с набранным просто закрывает. Личный диалог начинается сразу при выборе
+человека, с тихим «Открываю…». В группе «Создать» доступна всегда: неполная форма
+показывает ошибки полей и ведёт в первое, отправка показывает занятость кнопки.
+
+Если пришло `search_max` результатов, под полем — «Показаны первые 20. Уточните
+запрос.» (подсказка `hint` у `sf-lookup`, и окно говорит её вслух): 20 не значит, что
+есть ещё. Список `sf-lookup` закрывает эту строку, пока открыт, — в списке для слов
+хоста места нет.
+
+```js
+const chat = document.querySelector('sf-chat-window');
+chat.setAttribute('capabilities', 'people conversation-create x-conversation-start x-members');
+chat.setData({me: {id: 7, name: 'Анна'}, limits: {group: {members_max: 49}}});
+chat.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => {
+  if (intent === 'recipients.search') return {answer: 'applied', data: {items: await api.people(payload.query)}};
+  if (intent === 'conversation.start') {
+    const conversation = await api.start(payload); // тот же client_key — та же группа
+    chat.setData({conversations: await api.conversations()});
+    return {answer: 'applied', data: {conversation}};
+  }
+  if (intent === 'members.list') return {answer: 'applied', data: {participants: await api.members(payload.conversation_id)}};
+  // … conversation.open и остальные намерения порта
+}});
+```
+
+### Участники (`x-members`, 1.4.0)
+
+Для открытой группы (`conversation.type` — `group` или `channel`, тип можно дать и в
+строке списка) в шапке — команда «Участники»; у личного разговора её нет никогда.
+Вид стоит на месте разговора, с заголовком и «Назад»; Esc и `close-members {focus}`
+закрывают, фокус возвращается на команду. Состав спрашивается при открытии:
+`members.list {conversation_id}`, событие `open`, `kind: members`; ответ `applied`,
+`data: {participants: [{id, name, role}]}`, весь состав одним ответом, до 500. Роли:
+`owner` «Владелец», `manager` «Руководитель», `member` «Участник», `observer`
+«Наблюдатель»; у неизвестной роли подписи нет. Отказ `refused` — только «Состав
+недоступен»; другой сбой — пустое состояние с «Повторить». Вверху число с правильным
+склонением. Действий в строках нет; в этой версии только чтение.
 
 ## События
 
@@ -250,13 +344,18 @@ to}` (у Mirai24 там только строки), отрывком счита�
 | `archive` / `restore` | `conversation.archive` с `archived: true` / `false` | `chat-port:archive` |
 | `select` | `interlocutor.choose` | `chat-port:interlocutor` |
 | `query`, `pin`, `attach`, `detach` | свои возможности окна | `chat-window:search`, `-pin`, `-attach`, `-detach` |
+| `query` с `kind: recipients` | `recipients.search` (1.4.0) | — |
+| `create` с `kind: private` или `group` | `conversation.start` (1.4.0) | — |
+| `open` с `kind: members` | `members.list` (1.4.0) | — |
 | `settled` | ответ хоста: `{request-id, intent, payload, answer, reason}` | `sf-chat-window-answer` |
-| `toggle` | поиск в разговоре (`{kind: 'find', open}`, 1.1.0) или просмотр источника (`{kind: 'preview', open}`, 1.2.0) открыт или закрыт; не отменяемое, не намерение | — |
+| `toggle` | поиск в разговоре (`{kind: 'find', open}`, 1.1.0) или просмотр источника (`{kind: 'preview', open}`, 1.2.0), форма нового разговора (`{kind: 'start', open, form?}`, 1.4.0) или участники (`{kind: 'members', open}`, 1.4.0) открыты или закрыты; не отменяемое, не намерение | — |
 
 Старые имена приходят следом за новыми с прежним `detail` `{request_id,
 ...payload}` и отмечаются в `SF.deprecations` (`aliases.json`). `settled`
 приходит после применения данных ответа и до того, как окно само на него
-отреагирует: по нему страница, например, закрывает боковую панель.
+отреагирует: по нему страница, например, закрывает боковую панель. Данные
+`conversation.start` — исключение: окно применяет их после `settled`, когда ответ
+принимает форма.
 
 Окно слушает новые имена частей: `sf-thread-list-open`, `-apply`, `-restore`,
 `-toggle`, `-load-more`, `-create`, `-rename`, `-archive`;
@@ -283,8 +382,12 @@ preview}` (1.2.0).
 | `close-find {focus}` | Закрыть поиск; фокус возвращается туда, откуда открыли (метод `closeFind()`); `focus: false` оставляет его на месте. |
 | `open-preview {source}` | Открыть просмотр источника `{title, kind, preview_url, locator, mime}` (метод `openPreview()`, отвечает `true` или `false`); `refused`, если адрес не того же сайта или страница отменила `open`. |
 | `close-preview {focus}` | Закрыть просмотр; фокус — туда, откуда открыли (метод `closePreview()`). |
+| `open-start {kind}` | Форма нового разговора на месте разговора, `kind` — `private` (по умолчанию) или `group` (метод `openStart()`); `refused capability-not-provided` без `x-conversation-start`. |
+| `close-start {focus}` | Закрыть форму; фокус — на открывшую команду (метод `closeStart()`); `focus: false` оставляет его на месте. |
+| `open-members` | Участники открытой группы (метод `openMembers()`); `refused capability-not-provided` без `x-members`, `no-members`, если открыта не группа. |
+| `close-members {focus}` | Закрыть участников; фокус — на открывшую команду (метод `closeMembers()`). |
 
-Атрибут `data-find-open="true"` стоит на элементе, пока поиск открыт, `data-preview-open="true"` — пока открыт просмотр.
+Атрибут `data-find-open="true"` стоит на элементе, пока поиск открыт, `data-preview-open="true"` — пока открыт просмотр, `data-start-open="true"` — форма нового разговора, `data-members-open="true"` — участники.
 
 `parts` — узлы окна (`shell`, `side`, `sideHead`, `main`, `header`, …): в них
 страница добавляет свои кнопки до подключения окна. Классы узлов остались от

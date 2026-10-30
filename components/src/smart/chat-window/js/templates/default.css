@@ -13,7 +13,7 @@
      The nodes keep the 0.3 classes chat-shell__* and chat-files__*, which
      pages style and test (component.json x-decisions classes). The page
      toggles chat-shell--side-hidden and chat-shell--side-open on
-     parts.shell; the window toggles chat-shell--empty and chat-shell--files.
+     parts.shell; the window toggles chat-shell--empty, chat-shell--files, chat-shell--start and chat-shell--members.
 
      The public variables (component.json css-variables) are read here and
      never set, on the element or any ancestor:
@@ -167,6 +167,23 @@
   .chat-shell--files .chat-shell__composer,
   .chat-shell--files .chat-shell__header .sf-chat-interlocutor,
   .chat-shell--files .chat-shell__thread-title { display: none; }
+
+  /* The form of a new conversation and a group's members do the same without
+     the page's help. Important: this sheet is in a layer, and a page's own
+     unlayered layout of these nodes (staff.css: .chat-shell__composer {display:
+     flex}) would otherwise win. The window also makes them inert (syncViews). */
+  .chat-shell--start .chat-shell__list > .sf-message-log,
+  .chat-shell--start .chat-shell__composer,
+  .chat-shell--start .chat-shell__find,
+  .chat-shell--start .chat-shell__header .sf-chat-interlocutor,
+  .chat-shell--start .chat-shell__thread-title,
+  .chat-shell--members .chat-shell__list > .sf-message-log,
+  .chat-shell--members .chat-shell__composer,
+  .chat-shell--members .chat-shell__find,
+  .chat-shell--members .chat-shell__header .sf-chat-interlocutor,
+  .chat-shell--members .chat-shell__thread-title { display: none !important; }
+
+  .chat-shell__members-open[hidden] { display: none; }
 
   .chat-shell__error { align-self: center; }
 
@@ -706,6 +723,125 @@
 
   @media (max-width: 599px) {
     .chat-files { padding-inline: var(--sf-space-1); }
+  }
+
+  /* --- a new conversation or group (x-conversation-start, 1.4.0) and a group's
+     members (x-members, 1.4.0): in the conversation's place, as «Мои файлы». */
+
+  .chat-start,
+  .chat-members {
+    flex: 1;
+    min-block-size: 0;
+    overflow-y: auto;
+    padding-inline: var(--sf-space-1);
+    padding-block: 0 var(--sf-space-3);
+    color: var(--sf-chat-window--ink);
+    font-size: var(--sf-chat-window--ui-size);
+    line-height: var(--sf-chat-window--ui-height);
+    scrollbar-width: thin;
+  }
+
+  .chat-start[hidden],
+  .chat-members[hidden] { display: none; }
+
+  .chat-start > *,
+  .chat-members > * {
+    box-sizing: border-box;
+    max-inline-size: var(--sf-chat-window--column);
+    margin-inline: auto;
+  }
+
+  .chat-start__head,
+  .chat-members__head {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    padding-block: var(--sf-space-1\/2);
+  }
+
+  .chat-start__back,
+  .chat-members__back { flex: none; color: var(--sf-chat-window--ink-muted); }
+
+  .chat-start__title,
+  .chat-members__title {
+    margin: 0;
+    min-inline-size: 0;
+    font-size: var(--sf-text--size-2);
+    line-height: var(--sf-text--height-2);
+    font-weight: var(--sf-font-weight-bold);
+    outline: none;
+  }
+
+  .chat-start__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1);
+  }
+
+  .chat-start__line:empty,
+  .chat-start__quiet[hidden] { display: none; }
+
+  .chat-start__quiet {
+    margin: 0;
+    color: var(--sf-chat-window--ink-muted);
+  }
+
+  .chat-start__actions { display: flex; justify-content: flex-start; }
+
+  .chat-members__count {
+    margin-inline-start: auto;
+    flex: none;
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  .chat-members__line {
+    margin: 0;
+    padding-block: var(--sf-space-1);
+    color: var(--sf-chat-window--ink-muted);
+  }
+
+  .chat-members__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Up to 500 rows, one answer: the browser skips those out of view. */
+  .chat-members__row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    min-block-size: var(--sf-chat-window--touch);
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto var(--sf-chat-window--touch);
+  }
+
+  .chat-members__row + .chat-members__row { border-block-start: var(--sf-chat-window--line) solid var(--sf-chat-window--edge); }
+
+  .chat-members__name {
+    flex: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chat-members__role {
+    flex: none;
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  @media (pointer: coarse) {
+    .chat-start__back,
+    .chat-members__back,
+    .chat-shell__members-open {
+      min-block-size: var(--sf-chat-window--touch);
+      min-inline-size: var(--sf-chat-window--touch);
+    }
   }
 
   @media (pointer: coarse) {

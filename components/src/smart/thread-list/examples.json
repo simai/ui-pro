@@ -194,7 +194,7 @@
       },
       "first-paint": {
         "max-bytes": 14000,
-        "why": "Four rows, each with a run-state mark: the running one prints its spinner's SVG, about 4.7 KB."
+        "why": "five conversations, each with a compact sf-badge in its row: the activity mark is what this example shows."
       }
     }
   ]

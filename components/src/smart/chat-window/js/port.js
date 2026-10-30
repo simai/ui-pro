@@ -69,12 +69,18 @@ export const EXTENSION_INTENTS = {
   'file.detach': {verb: 'detach', kind: null, capability: 'x-early-upload', former: 'chat-window:detach'},
   'files.list': {verb: 'open', kind: 'files', capability: 'x-my-files', former: 'chat-window:files'},
   'files.remove': {verb: 'delete', kind: 'file', capability: 'x-my-files', former: 'chat-window:file-remove'},
+  // Born after 0.3, so with no former name (former null): a new conversation or
+  // group and the people found for it, and a group's members (js/start-view.js,
+  // js/members-view.js). kind 'payload': the payload's own kind says which.
+  'recipients.search': {verb: 'query', kind: 'recipients', capability: 'x-conversation-start', former: null},
+  'conversation.start': {verb: 'create', kind: 'payload', capability: 'x-conversation-start', former: null},
+  'members.list': {verb: 'open', kind: 'members', capability: 'x-members', former: null},
 };
 
 // x-brief (API.md v1.2) has no intent of its own: a host that declares it
 // gives an assistant message its `brief`, and the window draws it; the answer
 // goes out as an ordinary message.send.
-export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief'];
+export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief', 'x-conversation-start', 'x-members'];
 
 /** Data a host with the window's capabilities sets beside the port's. */
 export const EXTENSION_DATA = ['conversation_list', 'composer_files', 'my_files'];
@@ -85,6 +91,13 @@ export function verbOf(intent, payload = {}) {
   if (!spec) return '';
   if (intent === 'conversation.archive' && payload.archived === false) return 'restore';
   return spec.verb;
+}
+
+/** Which of the verb's intents an event says it is (conversation.start: private or group). */
+export function kindOf(intent, payload = {}) {
+  const spec = INTENTS[intent] || EXTENSION_INTENTS[intent];
+  if (!spec?.kind) return null;
+  return spec.kind === 'payload' ? (payload.kind ?? null) : spec.kind;
 }
 
 /** The 0.3 event name of a verb's detail, for the dated aliases. */

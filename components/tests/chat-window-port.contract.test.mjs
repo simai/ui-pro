@@ -39,7 +39,8 @@ test('the window\'s own capabilities never take the port\'s names', () => {
   for (const [intent, spec] of Object.entries(port.EXTENSION_INTENTS)) {
     assert.ok(!(intent in contract.intents), intent);
     assert.match(spec.capability, /^x-/u, intent);
-    assert.match(spec.former, /^chat-window:/u, intent);
+    // An intent born after 0.3 has no former name to follow it.
+    if (spec.former !== null) assert.match(spec.former, /^chat-window:/u, intent);
   }
   for (const capability of port.EXTENSION_CAPABILITIES) assert.ok(!(capability in contract.capabilities), capability);
 });
@@ -49,6 +50,7 @@ test('every intent goes out under a declared event, and its 0.3 name follows it 
     const verbs = intent === 'conversation.archive' ? ['archive', 'restore'] : [spec.verb];
     for (const verb of verbs) {
       assert.ok(manifest.events[verb], `${intent}: ${verb} is not an event of the window`);
+      if (spec.former === null) continue;
       const row = aliases.find((one) => one.from === spec.former && one.to === `sf-chat-window-${verb}`);
       assert.ok(row, `${intent}: no alias ${spec.former} → sf-chat-window-${verb}`);
       assert.equal(row.mode, 'split');

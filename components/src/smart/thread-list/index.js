@@ -26,6 +26,9 @@
 // conversation», «Restore» instead of «Archive». Which list it holds is the
 // host's call. `no-create` takes «New conversation» away, `no-manage` a row's
 // actions and `no-archive` the archive: what a host does not offer is not shown.
+// `create-commands` (1.5.0) stand in for the one «New conversation»: several
+// ways to start (a dialogue, a group), each its own row-like command, and a press
+// says which: create {kind: id}. Without them nothing changes.
 //
 // From its component.json (standard simai.smart-component 1.3.8 §3, §4, §8,
 // §11, §18): the settings are attributes and properties made by
@@ -116,6 +119,7 @@ class SfThreadList extends ThreadListElement {
         super();
         this._threads = [];
         this._actions = [];
+        this._createCommands = [];
         this._loadingMore = false;
         this._editing = null;
         this._tabStop = null;
@@ -125,7 +129,7 @@ class SfThreadList extends ThreadListElement {
         this._observed = null;
         // A value set as a property before the element was defined is an own
         // property that would hide the accessor; it is taken through it.
-        for (const name of ["threads", "actions"]) {
+        for (const name of ["threads", "actions", "createCommands"]) {
             if (!Object.prototype.hasOwnProperty.call(this, name)) continue;
             const early = this[name];
             delete this[name];
@@ -175,6 +179,21 @@ class SfThreadList extends ThreadListElement {
         this._actions = Array.isArray(value)
             ? value.filter((action) => action && action.id && action.text).map((action) => ({...action}))
             : [];
+    }
+
+    /**
+     * The commands in the head in place of «New conversation»: [{id, text,
+     * icon?}]. Pressed, one leaves as sf-thread-list-create {kind: id}.
+     */
+    get createCommands() {
+        return this._createCommands.map((command) => ({...command}));
+    }
+
+    set createCommands(value) {
+        this._createCommands = Array.isArray(value)
+            ? value.filter((command) => command && command.id && command.text).map((command) => ({...command, id: String(command.id)}))
+            : [];
+        this.requestComponentUpdate("create-commands");
     }
 
     // ── actions (§4.4) ───────────────────────────────────────────────────────
@@ -277,6 +296,7 @@ class SfThreadList extends ThreadListElement {
             label: this.getAttribute("label") || this.sfWord(archived ? "archive-view" : "label"),
             archived,
             canCreate: !archived && !this.getProp("noCreate"),
+            createCommands: this._createCommands,
             canArchive: !this.getProp("noArchive"),
             manage,
             loading,
@@ -373,8 +393,8 @@ class SfThreadList extends ThreadListElement {
 
     // ── what a person does ───────────────────────────────────────────────────
 
-    create() {
-        this.sfEmit("create", {});
+    create(kind) {
+        this.sfEmit("create", kind ? {kind} : {});
     }
 
     // A press asks for the conversation (selected is controlled, §4.3): the
