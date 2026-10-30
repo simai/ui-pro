@@ -115,7 +115,9 @@ export function renderThreadListTemplate(context) {
     return html`
         <nav class="sf-thread-list ${context.archived ? "sf-thread-list--archive" : ""}" aria-label=${context.label}>
             <div class="sf-thread-list__head" ?hidden=${!context.canCreate && !context.archived}>
-                ${command("edit_square", context.createText, "create", () => component.create(), !context.canCreate)}
+                ${context.createCommands.length
+                    ? context.createCommands.map((one) => command(one.icon || "edit_square", one.text, `create:${one.id}`, () => component.create(one.id), !context.canCreate))
+                    : command("edit_square", context.createText, "create", () => component.create(), !context.canCreate)}
                 ${command("arrow_back", context.backText, "back", () => component.showArchive(false), !context.archived)}
                 ${context.archived ? html`<h2 class="sf-thread-list__heading-view">${context.archiveView}</h2>` : nothing}
             </div>

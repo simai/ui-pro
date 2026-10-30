@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.thread-list",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "title": "Thread list",
   "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "kind": "composite",
@@ -61,6 +61,29 @@
         "type": "boolean",
         "default": false,
         "description": "No New conversation."
+      },
+      "create-commands": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "text"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Commands in the head in place of New conversation: [{id, text, icon?}], a property. Pressed, one says create {kind: id}. Empty, the one New conversation as before."
       },
       "no-manage": {
         "type": "boolean",
@@ -562,10 +585,14 @@
   },
   "events": {
     "sf-thread-list-create": {
-      "summary": "New conversation was pressed.",
+      "summary": "New conversation was pressed, or a create command (kind: its id).",
       "payload": {
         "type": "object",
-        "properties": {},
+        "properties": {
+          "kind": {
+            "type": "string"
+          }
+        },
         "additionalProperties": false
       }
     },
@@ -839,6 +866,13 @@
         "changes": [
           "A conversation may carry activity (running, waiting, done, stopped, failed), drawn in the row as a compact sf-badge (smart.badge 1.2.0): the icon alone is visible and the word is the accessible name. Nothing to change for a host that sends none."
         ]
+      },
+      {
+        "from": "1.4.0",
+        "to": "1.5.0",
+        "changes": [
+          "create-commands: several commands in the head in place of New conversation, a press saying create {kind: id}. Nothing to change for a host that sets none."
+        ]
       }
     ]
   },
@@ -848,11 +882,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/thread-list/index.js",
-        "sha256": "2181ecbbadcb1f58d950e6e17d2584bc21819e10340e6197cfd67e5be60abe1f"
+        "sha256": "9b7798a23c9b1f301737485d62aa0f57edc2e057cbe60afc931a8ad203158775"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.js",
-        "sha256": "df27e4d97a0ed1c175d858842034281080c6ca0b1270eca9c653c4ebbf0c559c"
+        "sha256": "76e8429c9be4b7719e124ecee08af5522d46a1a95fd267a1ebbd4aa17bcdd778"
       },
       {
         "path": "src/smart/thread-list/js/templates/default.css",
@@ -864,11 +898,11 @@
       },
       {
         "path": "src/smart/thread-list/docs.md",
-        "sha256": "9a74c351e8066678392370a8a0d7b2b0d9fcec14c5603193709b61dedfdb9b2c"
+        "sha256": "a10e23582567bfd5a993e982c325709844c3c9d6a42b4a8b17d1aeca182b2d60"
       },
       {
         "path": "src/smart/thread-list/component.json",
-        "sha256": "afcb1ff7f2a0c1b5549472244c528f3676ffc0db475bcf855fb8bc2126f60b33"
+        "sha256": "8dbd328658de4e88b5b0da2c6a3e90ae4ebfe1ed9c482f75f4a0e0710f5ee289"
       },
       {
         "path": "src/smart/thread-list/aliases.json",

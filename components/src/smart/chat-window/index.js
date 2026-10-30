@@ -43,7 +43,10 @@
 // port 1.0.0 has no word for -- the archive as a list of its own, the list's
 // next page, files uploaded when picked, the list searched by title, a
 // conversation pinned, «Мои файлы» and the task brief -- so they are the
-// window's own capabilities (x-…, js/port.js), never in the port's name.
+// window's own capabilities (x-…, js/port.js), never in the port's name. So are
+// a new conversation or group with the people found for it (1.4.0,
+// x-conversation-start, js/start-view.js) and a group's members, read only
+// (1.4.0, x-members, js/members-view.js).
 //
 // Light DOM: the window's nodes keep the 0.3 classes (chat-shell__*,
 // chat-files__*) that pages style and test, and the page adds its own
@@ -56,11 +59,14 @@ import {renderChatWindowTemplate} from "./js/templates/default.js";
 import {iconButton, stageKey, stepsSay, textButton} from "../chat-message/js/view/message.js";
 import {PROPOSED_MESSAGE_FIELDS} from "../chat-message/js/view/proposed.js";
 import {FilesView} from "./js/files-view.js";
+import {MembersView} from "./js/members-view.js";
+import {StartView} from "./js/start-view.js";
+import {hasMembers} from "./js/start-model.js";
 import {PREVIEW_DOCK_MIN, PreviewView} from "./js/preview-view.js";
 import {registerPartWords} from "./js/part-words.js";
 import {compareRevisions, keyOf, runsOf, toPersonView, unreadKeyOf} from "./js/people.js";
 import {
-    ANSWERS, DATA, EXTENSION_DATA, EXTENSION_INTENTS, INTENTS, SUPPORTED_PORT_VERSIONS, formerOf, verbOf,
+    ANSWERS, DATA, EXTENSION_DATA, EXTENSION_INTENTS, INTENTS, SUPPORTED_PORT_VERSIONS, formerOf, kindOf, verbOf,
 } from "./js/port.js";
 import manifest from "./component.json";
 import aliases from "./aliases.json";
@@ -194,7 +200,7 @@ export function toView(message, {people = false, edit = false, remove = false, a
 // old name the intent went out as (port.js former), and the 0.3 answer fact.
 function formerAdapters() {
     const adapters = {};
-    const names = new Set([...Object.values(INTENTS), ...Object.values(EXTENSION_INTENTS)].map((spec) => spec.former));
+    const names = new Set([...Object.values(INTENTS), ...Object.values(EXTENSION_INTENTS)].map((spec) => spec.former).filter(Boolean));
     for (const name of names) {
         adapters[name] = (detail) => (detail && formerOf(detail) === name
             ? {request_id: detail.requestId, ...(detail.payload || {})}
@@ -266,6 +272,23 @@ const ChatWindowElement = elementFromManifest(manifest, {
             this.closePreview({focus: focus !== false});
             return applied();
         },
+        "open-start"({kind} = {}) {
+            if (!this.has("x-conversation-start")) return {outcome: "refused", reason: "capability-not-provided"};
+            this.openStart({kind});
+            return applied();
+        },
+        "close-start"({focus} = {}) {
+            this.closeStart({focus: focus !== false});
+            return applied();
+        },
+        "open-members"() {
+            if (!this.has("x-members")) return {outcome: "refused", reason: "capability-not-provided"};
+            return this.openMembers() ? applied() : {outcome: "refused", reason: "no-members"};
+        },
+        "close-members"({focus} = {}) {
+            this.closeMembers({focus: focus !== false});
+            return applied();
+        },
     },
 });
 
@@ -298,6 +321,9 @@ class SfChatWindow extends ChatWindowElement {
         this._held = new Set();      // what changed while they were not
         this._footer = null;         // what the page puts under the list (Mirai24: spending)
         this._files = null;          // «Мои файлы» (x-my-files), made with the shell
+        this._start = null;          // the form of a new conversation (x-conversation-start), too
+        this._members = null;        // a group's members (x-members), too
+        this._pairNames = new Map(); // conversation id -> the person chosen, while the host names no title
         this._interlocutor = null;   // whom a new conversation is with
         this._sending = 0;           // sends and decisions awaiting their answer
         this._navigating = 0;        // opens and new conversations awaiting theirs
@@ -409,7 +435,8 @@ class SfChatWindow extends ChatWindowElement {
     // later -- a page that closes its side panel on it does so before the
     // focus moves.
     finish(requestId, pending, result) {
-        if (result.answer === "applied" && result.data && typeof result.data === "object") this.applyData(result.data);
+        // conversation.start's data wait for the form, which may be gone (startAnswered).
+        if (result.answer === "applied" && result.data && typeof result.data === "object" && pending.intent !== "conversation.start") this.applyData(result.data);
         this.sfEmit("settled", {
             requestId,
             "request-id": requestId,  // the 1.0 spelling, until 2026-12-01
@@ -437,13 +464,13 @@ class SfChatWindow extends ChatWindowElement {
 
     /** The field; from «Мои файлы» it is the way back to the conversation. */
     focusComposer(options) {
-        this.closeFiles({focus: false});
+        this.closeViews();
         this.parts.composer.focus(options);
     }
 
     /** «Новый разговор», wherever the page puts the button. */
     async startConversation() {
-        this.closeFiles({focus: false});
+        this.closeViews();
         this.closePreview({focus: false});
         if (this._data.conversation_list?.archived) this.showList(false);
         this._navigating++;
@@ -454,7 +481,7 @@ class SfChatWindow extends ChatWindowElement {
     }
 
     async openConversation(id) {
-        this.closeFiles({focus: false});
+        this.closeViews();
         this.closePreview({focus: false});
         this.notify("");
         this._navigating++;
@@ -478,7 +505,8 @@ class SfChatWindow extends ChatWindowElement {
         const requestId = `chat-window-${++requests}`;
         // requestId is the carried name (standard 1.4: camelCase); "request-id"
         // is the 1.0 spelling, sent beside it until 2026-12-01.
-        const detail = {requestId, "request-id": requestId, intent, ...(spec.kind ? {kind: spec.kind} : {}), payload};
+        const kind = kindOf(intent, payload);
+        const detail = {requestId, "request-id": requestId, intent, ...(kind ? {kind} : {}), payload};
         const port = this.sfPort;
         return new Promise((resolve) => {
             const pending = {intent, payload, resolve};
@@ -564,6 +592,8 @@ class SfChatWindow extends ChatWindowElement {
         registerPartWords({ru, en});
         this._headingTag = Number(this.getAttribute("heading-level")) === 2 ? "h2" : "h1";
         this._files = new FilesView(this);
+        this._start = new StartView(this, clientKey);
+        this._members = new MembersView(this);
         this._preview = new PreviewView(this);
 
         // sf-chat-surface: the message's sheet sets its tokens there, so the
@@ -583,7 +613,9 @@ class SfChatWindow extends ChatWindowElement {
         const interlocutor = element("sf-chat-interlocutor");
         const threadTitle = element("span", "chat-shell__thread-title");
         const spacer = element("div", "chat-shell__spacer");
-        header.append(interlocutor, threadTitle, spacer);
+        const start = this._start.build(this._headingTag);
+        const members = this._members.build(this._headingTag);
+        header.append(interlocutor, threadTitle, spacer, members.command);
         const find = this.buildFind(element, words);
         const list = element("sf-message-log", "chat-shell__list");
         const files = this._files.build(this._headingTag);
@@ -605,7 +637,7 @@ class SfChatWindow extends ChatWindowElement {
         const queueSaid = element("span", "sf-chat-offscreen", {role: "status", "aria-live": "polite"});
         queue.append(queueHeld, queueList, queueSaid);
         composerBox.append(archivedNote, statusLine, queue, composer, suggestions);
-        main.append(pageTitle, header, find.box, list, files.root, composerBox);
+        main.append(pageTitle, header, find.box, list, files.root, start.root, members.root, composerBox);
         shell.append(side, main, preview.root);
         this._parts = {
             shell, side, sideHead, main, header, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, statusLine, archivedNote, suggestions,
@@ -736,7 +768,7 @@ class SfChatWindow extends ChatWindowElement {
         const {find, findInput} = this.parts;
         const state = this._find;
         if (!state.open) {
-            this.closeFiles({focus: false});
+            this.closeViews();
             const active = this.ownerDocument.activeElement;
             state.open = true;
             state.opener = active && active !== this.ownerDocument.body ? active : null;
@@ -945,11 +977,19 @@ class SfChatWindow extends ChatWindowElement {
         shell.addEventListener("keydown", (event) => {
             if (!(event.ctrlKey || event.metaKey) || event.altKey || event.shiftKey) return;
             if (event.code !== "KeyF" && event.key?.toLowerCase() !== "f") return;
-            if (!this._data.conversation || this._files.open) return;
+            if (!this._data.conversation || this.covered) return;
             event.preventDefault();
             this.openFind();
         });
-        threads.addEventListener("sf-thread-list-create", () => this.startConversation());
+        // A command of the list's (kind) is a form of ours; else the one create button.
+        threads.addEventListener("sf-thread-list-create", (event) => {
+            const kind = event.detail?.kind;
+            if (!kind) {
+                this.startConversation();
+                return;
+            }
+            this.openStart({kind, opener: threads.querySelector(`.sf-thread-list__command[data-action="create:${CSS.escape(kind)}"]`)});
+        });
         threads.addEventListener("sf-thread-list-open", (event) => this.openConversation(event.detail.id));
         threads.addEventListener("sf-thread-list-rename", async (event) => {
             const result = await this.request("conversation.rename", {conversation_id: event.detail.id, title: event.detail.title});
@@ -1408,7 +1448,7 @@ class SfChatWindow extends ChatWindowElement {
     }
 
     async choose(id) {
-        this.closeFiles({focus: false});
+        this.closeViews();
         const before = this._interlocutor;
         this._interlocutor = id;
         this._navigating++;
@@ -1536,6 +1576,7 @@ class SfChatWindow extends ChatWindowElement {
             this.syncFooter();
         }
         if (changed.has("my_files")) this.drawFiles();
+        this.syncViews();
         const revoked = data.feed_state === "revoked" || data.conversation?.revoked === true;
         if (revoked) this.revoke();
         const keyChanged = this.syncDraft();
@@ -1556,7 +1597,7 @@ class SfChatWindow extends ChatWindowElement {
     syncSelected() {
         const {threads} = this.parts;
         const data = this._data;
-        const selected = data.conversation && !this._files.open ? String(data.conversation.id) : "";
+        const selected = data.conversation && !this._files.open && !this._start.open ? String(data.conversation.id) : "";
         if ((threads.getAttribute("selected") || "") !== selected) {
             if (selected) threads.setAttribute("selected", selected); else threads.removeAttribute("selected");
         }
@@ -1582,7 +1623,15 @@ class SfChatWindow extends ChatWindowElement {
         if (!this._threadsReady) return;
         const meta = this._data.conversation_list || {};
         threads.toggleAttribute("archived", Boolean(meta.archived));
-        threads.toggleAttribute("no-create", !this.has("conversation-create"));
+        const starting = this.has("x-conversation-start");
+        threads.toggleAttribute("no-create", !this.has("conversation-create") && !starting);
+        // The two commands stand in for the one button; words once, set when it changes.
+        if (starting !== Boolean(threads.createCommands.length)) {
+            threads.createCommands = starting ? [
+                {id: "private", text: this.words("start.private"), icon: "person_add"},
+                {id: "group", text: this.words("start.group"), icon: "group_add"},
+            ] : [];
+        }
         threads.toggleAttribute("no-manage", !this.has("conversation-manage"));
         if (meta.loading) {
             threads.setThreads([], {hasMore: false});
@@ -1946,10 +1995,10 @@ class SfChatWindow extends ChatWindowElement {
         const data = this._data;
         const {shell, suggestions, pageTitle} = this.parts;
         const empty = !data.conversation || (data.feed_state === "ready" && (data.messages || []).length === 0);
-        shell.classList.toggle("chat-shell--empty", empty && !this._files.open);
+        shell.classList.toggle("chat-shell--empty", empty && !this.covered);
         suggestions.hidden = !empty || !suggestions.childElementCount;
-        // «Мои файлы» have a heading of their own.
-        pageTitle.hidden = empty || this._files.open;
+        // «Мои файлы» and the like have a heading of their own.
+        pageTitle.hidden = empty || this.covered;
         this.syncTitles();
     }
 
@@ -1957,8 +2006,11 @@ class SfChatWindow extends ChatWindowElement {
         const {threadTitle, pageTitle, archivedNote} = this.parts;
         const conversation = this._data.conversation;
         const listed = conversation ? this._data.conversations?.find((one) => String(one.id) === String(conversation.id)) : null;
-        threadTitle.textContent = conversation?.title || "";
-        pageTitle.textContent = conversation?.title || this.who?.title || "";
+        // A private conversation may come without a title (x-conversation-start):
+        // the name is the list's, or until it comes the person who was chosen.
+        const named = conversation && this.has("x-conversation-start") ? (listed?.title || this._pairNames.get(String(conversation.id)) || "") : "";
+        threadTitle.textContent = conversation?.title || named;
+        pageTitle.textContent = conversation?.title || named || this.who?.title || "";
         const archived = conversation ? Boolean(conversation.archived ?? listed?.archived) : false;
         if (archived === this._archivedShown && conversation?.id === this._archivedFor) return;
         this._archivedShown = archived;
@@ -2150,7 +2202,7 @@ class SfChatWindow extends ChatWindowElement {
     lastSeen() {
         const {list, main} = this.parts;
         const scroller = list.scroller;
-        if (!scroller || !scroller.clientHeight || this._files?.open || main.inert) return false;
+        if (!scroller || !scroller.clientHeight || this.covered || main.inert) return false;
         if (this.ownerDocument.visibilityState === "hidden") return false;
         return list.isAtLatest();
     }
@@ -2368,6 +2420,8 @@ class SfChatWindow extends ChatWindowElement {
         if (!view.open) {
             this.closeFind({focus: false});
             this.closePreview({focus: false});
+            this.closeStart({focus: false});
+            this.closeMembers({focus: false});
             view.open = true;
             view.asking = null;
             view.problem = null;
@@ -2399,6 +2453,198 @@ class SfChatWindow extends ChatWindowElement {
         if (focus) this.parts.composer.focus({preventScroll: true});
     }
 
+    // --- in place of the conversation --------------------------------------
+
+    /** Something stands where the conversation stands: its log is out of sight. */
+    get covered() {
+        return Boolean(this._files?.open || this._start?.open || this._members?.open);
+    }
+
+    /** Whatever stands in the conversation's place steps aside, the focus left to the caller. */
+    closeViews() {
+        this.closeFiles({focus: false});
+        this.closeStart({focus: false});
+        this.closeMembers({focus: false});
+    }
+
+    // Back to what opened a view; a command the page has hidden meanwhile (a side
+    // panel closed on a phone) takes no focus, and then the field does.
+    returnFocus(opener) {
+        const {composer} = this.parts;
+        if (!opener?.isConnected) {
+            composer.focus({preventScroll: true});
+            return;
+        }
+        opener.focus({preventScroll: true});
+        if (this.ownerDocument.activeElement !== opener) composer.focus({preventScroll: true});
+    }
+
+    // What the capabilities and the open conversation allow now.
+    syncViews() {
+        const members = this._members;
+        const allowed = this.membersOffered;
+        if (members.open && (!allowed || members.conversation !== String(this._data.conversation.id))) this.closeMembers({focus: false});
+        if (this._start.open && !this.has("x-conversation-start")) this.closeStart({focus: false});
+        members.command.hidden = !allowed || this.covered;
+    }
+
+    /** The open conversation is a group or a channel, and the host shows its members. */
+    get membersOffered() {
+        const conversation = this._data.conversation;
+        if (!conversation || !this.has("x-members")) return false;
+        const listed = this._data.conversations?.find((one) => String(one.id) === String(conversation.id));
+        return hasMembers(conversation.type ?? listed?.type);
+    }
+
+    // --- a new conversation or group (x-conversation-start) ------------------
+
+    /** The form in place of the conversation: kind private or group. */
+    openStart(asked = {}) {
+        const {kind, opener = null} = typeof asked === "string" ? {kind: asked} : (asked ?? {});
+        if (!this.has("x-conversation-start")) return false;
+        const view = this._start;
+        if (view.form?.sending) return false;
+        const form = kind === "group" ? "group" : "private";
+        this.closeFind({focus: false});
+        this.closePreview({focus: false});
+        this.closeFiles({focus: false});
+        this.closeMembers({focus: false});
+        const active = this.ownerDocument.activeElement;
+        const from = opener ?? (active && active !== this.ownerDocument.body && !view.root.contains(active) ? active : null);
+        view.opener = from ?? view.opener;
+        if (!view.open) {
+            view.open = true;
+            view.root.hidden = false;
+            this.parts.shell.classList.add("chat-shell--start");
+            this.sfHostState("data-start-open", true);
+        }
+        // Said first: a page whose side panel covers the window closes it on
+        // the event, and only then can the form take the focus.
+        this.sfEmit("toggle", {kind: "start", open: true, form});
+        this.syncSelected();
+        this.syncLayout();
+        this.syncViews();
+        view.show(form);
+        view.title.focus({preventScroll: true});
+        return true;
+    }
+
+    /** Close the form, what was typed with it; `focus` returns to what opened it. */
+    closeStart({focus = true} = {}) {
+        const view = this._start;
+        if (!view?.open) return;
+        const hadFocus = view.root.contains(this.ownerDocument.activeElement);
+        view.open = false;
+        view.root.hidden = true;
+        view.clear();
+        this.parts.shell.classList.remove("chat-shell--start");
+        this.sfHostState("data-start-open", false);
+        this.sfEmit("toggle", {kind: "start", open: false});
+        this.syncSelected();
+        this.syncLayout();
+        this.syncViews();
+        const {opener} = view;
+        view.opener = null;
+        if (focus || hadFocus) this.returnFocus(opener);
+    }
+
+    /**
+     * The host confirmed conversation.start: the form closes and its answer's
+     * data are applied. With no messages among them, and another conversation
+     * than the open one, the window opens it as the list would
+     * (conversation.open), so an existing one comes with its history; the list
+     * is the host's to give, before or after.
+     */
+    async startAnswered(result, {person = null} = {}) {
+        const data = result.data && typeof result.data === "object" ? result.data : {};
+        const given = data.conversation;
+        this._navigating++;
+        this.closeStart({focus: false});
+        if (given && person?.label) this._pairNames.set(String(given.id), person.label);
+        if (this._data.conversation_list?.archived) this.showList(false);
+        const other = given && String(this._data.conversation?.id) !== String(given.id);
+        if (other && data.messages === undefined) {
+            this.applyData({...data, messages: [], history: {has_older: false}, feed_state: "loading"});
+            const opened = await this.request("conversation.open", {conversation_id: given.id});
+            const left = this._data.feed_state === "loading" && String(this._data.conversation?.id) === String(given.id);
+            if (left && (opened.answer !== "applied" || opened.data?.messages !== undefined)) this.applyData({feed_state: "ready"});
+            this.showResult(opened, () => this.openConversation(given.id));
+        } else if (Object.keys(data).length) {
+            this.applyData(data);
+        }
+        this._navigating--;
+        this.focusComposer();
+    }
+
+    // --- a group's members (x-members) ---------------------------------------
+
+    /** Who is in the open group, in place of the conversation. */
+    openMembers({opener = null} = {}) {
+        const view = this._members;
+        const id = this._data.conversation?.id;
+        if (!this.membersOffered) return false;
+        if (!view.open) {
+            this.closeFind({focus: false});
+            this.closePreview({focus: false});
+            this.closeFiles({focus: false});
+            this.closeStart({focus: false});
+            const active = this.ownerDocument.activeElement;
+            view.opener = opener ?? (active && active !== this.ownerDocument.body ? active : null);
+            view.open = true;
+            view.conversation = String(id);
+            view.members = [];
+            view.root.hidden = false;
+            this.parts.shell.classList.add("chat-shell--members");
+            this.sfHostState("data-members-open", true);
+            this.sfEmit("toggle", {kind: "members", open: true});
+            this.syncLayout();
+            this.syncViews();
+        }
+        this.loadMembers();
+        view.title.focus({preventScroll: true});
+        return true;
+    }
+
+    closeMembers({focus = true} = {}) {
+        const view = this._members;
+        if (!view?.open) return;
+        const hadFocus = view.root.contains(this.ownerDocument.activeElement);
+        view.open = false;
+        view.asked++;
+        view.state = "idle";
+        view.members = [];
+        view.root.hidden = true;
+        view.body.replaceChildren();
+        this.parts.shell.classList.remove("chat-shell--members");
+        this.sfHostState("data-members-open", false);
+        this.sfEmit("toggle", {kind: "members", open: false});
+        this.syncLayout();
+        this.syncViews();
+        const {opener} = view;
+        view.opener = null;
+        if (focus || hadFocus) this.returnFocus(opener);
+    }
+
+    // members.list, when the view opens; only the latest answer is drawn.
+    async loadMembers() {
+        const view = this._members;
+        const asked = ++view.asked;
+        view.state = "loading";
+        view.draw();
+        const result = await this.request("members.list", {conversation_id: this._data.conversation?.id ?? null});
+        if (!view.open || asked !== view.asked) return;
+        if (result.answer === "applied") {
+            view.state = "ready";
+            view.members = Array.isArray(result.data?.participants) ? result.data.participants : [];
+            view.draw();
+            view.say(view.countText(view.members.length));
+            return;
+        }
+        view.state = result.answer === "refused" ? "denied" : "error";
+        view.draw();
+        view.say(this.words(view.state === "denied" ? "members.denied" : "members.failed"));
+    }
+
     // --- the source preview (1.2.0) -----------------------------------------
 
     /**
@@ -2419,7 +2665,7 @@ class SfChatWindow extends ChatWindowElement {
         const active = this.ownerDocument.activeElement;
         const from = opener ?? (active && active !== this.ownerDocument.body ? active : null);
         if (!view.open) {
-            this.closeFiles({focus: false});
+            this.closeViews();
             view.open = true;
             view.root.hidden = false;
             this.parts.shell.classList.add("chat-shell--preview");

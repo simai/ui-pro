@@ -982,6 +982,296 @@
           "check": "(() => { const pv = window.w.querySelector('.chat-preview'); const marks = pv.querySelectorAll('.chat-preview__mark'); return !pv.hidden && marks.length === 1 && marks[0].textContent === 'предоставляется ежегодный отпуск 28 дней' && pv.querySelectorAll('mark:not(.chat-preview__mark)').length === 0 && !/[\\uE000\\uE001]/u.test(pv.textContent) && pv.querySelector('.chat-preview__tab').getAttribute('href') === '/kb/vacation#cite' && !pv.querySelector('script') && !window.ran && pv.querySelector('.chat-preview__text').textContent.includes('Работнику предоставляется ежегодный отпуск 28 дней.'); })()"
         }
       ]
+    },
+    {
+      "id": "p24-start-absent",
+      "title": "without x-conversation-start and x-members (the pilot, Mirai24): the one «Новый разговор», no commands, no «Участники», no form; open-start and open-members refused, nothing raised",
+      "covers": "capabilities.x-conversation-start, capabilities.x-members, compatibility.1.4.0",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.events = [], window.answers = {}, ['toggle','create','query','open'].forEach((v) => window.w.addEventListener('sf-chat-window-' + v, (e) => window.events.push([v, e.detail.kind ?? null, e.detail.open ?? null]))), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; const answer = typeof given === 'function' ? await given(payload) : given; return answer ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', \"people conversation-create\"), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"conversations\": [{\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, {\"id\": \"p1\", \"title\": \"Иван Петров\", \"type\": \"private\"}], \"conversation\": {\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, \"messages\": []}), window.of = (intent) => window.calls.filter((one) => one[0] === intent), window.lookup = () => window.w.querySelector('.chat-start__people'), window.titleField = () => window.w.querySelector('.chat-start__name'), window.people = {a: {id: 102, name: 'Иван Петров', email: 'ivan@example.com'}, b: {id: 103, name: 'Вера Смирнова'}, me: {id: 7, name: 'Анна'}}, true)",
+          "wait": 400,
+          "check": "(() => { const commands = [...window.w.querySelectorAll('.sf-thread-list__head .sf-thread-list__command:not([hidden])')]; return commands.length === 1 && commands[0].dataset.action === 'create' && window.w.querySelector('.chat-shell__members-open').hidden && window.w.querySelector('.chat-start').hidden && window.w.querySelector('.chat-members').hidden; })()"
+        },
+        {
+          "script": "window.w.setAttribute('capabilities', 'people'), window.w.sfAction?.('open-start', {kind: 'group'}), window.w.openStart({kind: 'group'}), window.w.openMembers(), true",
+          "check": "window.w.querySelector('.chat-start').hidden && window.w.querySelector('.chat-members').hidden && !window.calls.some((one) => /recipients|start|members/u.test(one[0])) && window.w.querySelector('.sf-thread-list__head').hidden"
+        }
+      ]
+    },
+    {
+      "id": "p25-commands-form-focus",
+      "title": "with x-conversation-start the head offers «Новый диалог» and «Новая группа» instead of the one button; a command opens its form in the conversation's place, the focus in its first field, toggle {kind: start}; Escape closes, what was typed goes and the focus returns to that command",
+      "covers": "capabilities.x-conversation-start, actions.open-start, actions.close-start, events.toggle, keyboard.Escape",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.events = [], window.answers = {}, ['toggle','create','query','open'].forEach((v) => window.w.addEventListener('sf-chat-window-' + v, (e) => window.events.push([v, e.detail.kind ?? null, e.detail.open ?? null]))), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; const answer = typeof given === 'function' ? await given(payload) : given; return answer ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', \"people conversation-create x-conversation-start\"), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"conversations\": [{\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, {\"id\": \"p1\", \"title\": \"Иван Петров\", \"type\": \"private\"}], \"conversation\": {\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, \"messages\": []}), window.of = (intent) => window.calls.filter((one) => one[0] === intent), window.lookup = () => window.w.querySelector('.chat-start__people'), window.titleField = () => window.w.querySelector('.chat-start__name'), window.people = {a: {id: 102, name: 'Иван Петров', email: 'ivan@example.com'}, b: {id: 103, name: 'Вера Смирнова'}, me: {id: 7, name: 'Анна'}}, true)",
+          "wait": 400,
+          "check": "(() => { const words = [...window.w.querySelectorAll('.sf-thread-list__head .sf-thread-list__command:not([hidden])')].map((one) => one.querySelector(':scope > span').textContent.trim()); return JSON.stringify(words) === JSON.stringify(['Новый диалог', 'Новая группа']); })()"
+        },
+        {
+          "user": "click:.sf-thread-list__command[data-action=\"create:group\"]",
+          "wait": 500,
+          "check": "(() => { const input = window.titleField()?.querySelector('input'); return input && document.activeElement === input && !window.w.querySelector('.chat-start').hidden && window.w.querySelector('.chat-start__title').textContent === 'Новая группа' && window.w.hasAttribute('data-start-open') && window.w.querySelector('.chat-shell').classList.contains('chat-shell--start') && getComputedStyle(window.w.querySelector('.chat-shell__composer')).display === 'none' && window.events.some((one) => one[0] === 'toggle' && one[1] === 'start' && one[2] === true); })()"
+        },
+        {
+          "script": "(window.titleField().querySelector('input').value = 'Черновик', window.titleField().querySelector('input').dispatchEvent(new Event('input', {bubbles: true})), true)"
+        },
+        {
+          "user": "keyboard:Escape",
+          "wait": 200,
+          "check": "window.w.querySelector('.chat-start').hidden && document.activeElement === window.w.querySelector('.sf-thread-list__command[data-action=\"create:group\"]') && !window.w.querySelector('.chat-start__form') && window.events.some((one) => one[0] === 'toggle' && one[1] === 'start' && one[2] === false)"
+        },
+        {
+          "script": "window.w.openStart({kind: 'group'}), true",
+          "wait": 400,
+          "check": "window.titleField().value === '' || window.titleField().value == null"
+        }
+      ]
+    },
+    {
+      "id": "p26-search-stale-denied-truncated",
+      "title": "recipients.search {query}, kind recipients: a stale answer does not replace a newer one; me.id is excluded and only id and name are read; no results is the list's own line; refused access-denied is only «Создание недоступно», visibly otherwise, and an applied answer takes it away; search_max results bring the narrowing hint",
+      "covers": "events.query, runtime.start-denied, runtime.start-truncated, settings.limits",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.events = [], window.answers = {}, ['toggle','create','query','open'].forEach((v) => window.w.addEventListener('sf-chat-window-' + v, (e) => window.events.push([v, e.detail.kind ?? null, e.detail.open ?? null]))), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; const answer = typeof given === 'function' ? await given(payload) : given; return answer ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', \"people conversation-create x-conversation-start\"), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"conversations\": [{\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, {\"id\": \"p1\", \"title\": \"Иван Петров\", \"type\": \"private\"}], \"conversation\": {\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, \"messages\": [], \"limits\": {\"group\": {\"search_max\": 3, \"search_min\": 2}}}), window.of = (intent) => window.calls.filter((one) => one[0] === intent), window.lookup = () => window.w.querySelector('.chat-start__people'), window.titleField = () => window.w.querySelector('.chat-start__name'), window.people = {a: {id: 102, name: 'Иван Петров', email: 'ivan@example.com'}, b: {id: 103, name: 'Вера Смирнова'}, me: {id: 7, name: 'Анна'}}, true)",
+          "wait": 300
+        },
+        {
+          "script": "window.w.openStart({kind: 'private'}), true",
+          "wait": 500,
+          "check": "document.activeElement === window.lookup().querySelector('input') && window.lookup().getAttribute('min-length') === '2' && window.lookup().getAttribute('max-results') === '3'"
+        },
+        {
+          "script": "(window.release = null, window.answers['recipients.search'] = ({query}) => (query === 'ив' ? new Promise((resolve) => { window.release = () => resolve({answer: 'applied', data: {items: [window.people.b]}}); }) : {answer: 'applied', data: {items: [window.people.a, window.people.me]}}), window.lookup().search('ив'), window.lookup().search('иван'), true)",
+          "wait": 200,
+          "check": "window.of('recipients.search').length === 2 && JSON.stringify(window.of('recipients.search')[1][1]) === JSON.stringify({query: 'иван'}) && window.events.some((one) => one[0] === 'query' && one[1] === 'recipients') && [...window.lookup().querySelectorAll('.sf-lookup-option-label')].map((one) => one.textContent).join() === 'Иван Петров'"
+        },
+        {
+          "script": "(window.release(), true)",
+          "wait": 200,
+          "check": "[...window.lookup().querySelectorAll('.sf-lookup-option-label')].map((one) => one.textContent).join() === 'Иван Петров' && !window.lookup().textContent.includes('example.com')"
+        },
+        {
+          "script": "(window.answers['recipients.search'] = () => ({answer: 'applied', data: {items: []}}), window.lookup().search('яя'), true)",
+          "wait": 200,
+          "check": "window.lookup().querySelector('.sf-lookup-status').textContent.includes('Ничего не найдено') && !window.w.querySelector('.chat-start__line').textContent"
+        },
+        {
+          "script": "(window.answers['recipients.search'] = () => ({answer: 'refused', reason: 'access-denied', text: 'причина'}), window.lookup().search('ию'), true)",
+          "wait": 200,
+          "check": "window.w.querySelector('.chat-start__line [role=alert]').textContent === 'Создание недоступно' && !window.w.querySelector('.chat-start').textContent.includes('причина') && !window.lookup().querySelector('.sf-lookup-status').textContent.includes('Ничего') && !window.w.querySelector('.chat-start__line button')"
+        },
+        {
+          "script": "(window.answers['recipients.search'] = () => ({answer: 'applied', data: {items: [{id: 1, name: 'А Б'}, {id: 2, name: 'В Г'}, {id: 3, name: 'Д Е'}]}}), window.lookup().search('ия'), true)",
+          "wait": 200,
+          "check": "!window.w.querySelector('.chat-start__line').textContent && window.lookup().getAttribute('hint') === 'Показаны первые 3. Уточните запрос.'"
+        },
+        {
+          "script": "(window.answers['recipients.search'] = () => ({answer: 'unavailable', reason: 'port-failed'}), window.lookup().search('иэ'), true)",
+          "wait": 200,
+          "check": "window.lookup().querySelector('.sf-lookup-retry') && !window.w.querySelector('.chat-start__line').textContent"
+        }
+      ]
+    },
+    {
+      "id": "p27-private-start",
+      "title": "choosing a person starts at once under a quiet «Открываю…» (conversation.start {kind: private, user_id}, event create kind private); a failure keeps the person with a line and «Повторить»; applied closes the form, opens the conversation by conversation.open and the field has the focus, the list arriving after that",
+      "covers": "events.create, runtime.start-opening, runtime.start-private-failed",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.events = [], window.answers = {}, ['toggle','create','query','open'].forEach((v) => window.w.addEventListener('sf-chat-window-' + v, (e) => window.events.push([v, e.detail.kind ?? null, e.detail.open ?? null]))), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; const answer = typeof given === 'function' ? await given(payload) : given; return answer ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', \"people conversation-create x-conversation-start\"), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"conversations\": [{\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, {\"id\": \"p1\", \"title\": \"Иван Петров\", \"type\": \"private\"}], \"conversation\": null, \"messages\": []}), window.of = (intent) => window.calls.filter((one) => one[0] === intent), window.lookup = () => window.w.querySelector('.chat-start__people'), window.titleField = () => window.w.querySelector('.chat-start__name'), window.people = {a: {id: 102, name: 'Иван Петров', email: 'ivan@example.com'}, b: {id: 103, name: 'Вера Смирнова'}, me: {id: 7, name: 'Анна'}}, true)",
+          "wait": 300
+        },
+        {
+          "script": "(window.w.openStart({kind: 'private'}), window.answers['recipients.search'] = () => ({answer: 'applied', data: {items: [window.people.a]}}), window.answers['conversation.start'] = () => new Promise((resolve) => { window.release = resolve; }), true)",
+          "wait": 500
+        },
+        {
+          "script": "(window.lookup().search('ив'), true)",
+          "wait": 200
+        },
+        {
+          "user": "click:.sf-lookup-option",
+          "wait": 120,
+          "check": "JSON.stringify(window.of('conversation.start')[0][1]) === JSON.stringify({kind: 'private', user_id: 102}) && window.w.querySelector('.chat-start__quiet').textContent === 'Открываю…' && !window.w.querySelector('.chat-start__quiet').hidden && window.events.some((one) => one[0] === 'create' && one[1] === 'private')"
+        },
+        {
+          "user": "keyboard:Escape",
+          "wait": 60,
+          "check": "!window.w.querySelector('.chat-start').hidden"
+        },
+        {
+          "script": "(window.release({answer: 'refused', reason: 'busy'}), true)",
+          "wait": 200,
+          "check": "window.lookup().value?.value === 102 && window.w.querySelector('.chat-start__line [role=alert]').textContent.includes('Не удалось открыть диалог') && document.activeElement === window.w.querySelector('.chat-start__line button') && window.w.querySelector('.chat-start__quiet').hidden"
+        },
+        {
+          "script": "(window.answers['conversation.start'] = () => ({answer: 'applied', data: {conversation: {id: 'p9', type: 'private', title: null}}}), window.answers['conversation.open'] = () => ({answer: 'applied', data: {messages: [{id: 1, kind: 'person', author: {id: 102, name: 'Иван Петров'}, body: 'Привет', revision: 1}]}}), window.w.querySelector('.chat-start__line button').click(), true)",
+          "wait": 400,
+          "check": "window.of('conversation.start').length === 2 && JSON.stringify(window.of('conversation.start')[1][1]) === JSON.stringify({kind: 'private', user_id: 102}) && window.w.querySelector('.chat-start').hidden && JSON.stringify(window.of('conversation.open')[0][1]) === JSON.stringify({conversation_id: 'p9'}) && window.w.conversation.id === 'p9' && window.w.feedState === 'ready' && window.w.querySelector('sf-thread-list').getAttribute('selected') === 'p9' && window.w.querySelector('.chat-shell__thread-title').textContent === 'Иван Петров' && window.w.querySelector('.chat-shell__composer').contains(document.activeElement)"
+        },
+        {
+          "script": "(window.w.setData({conversations: [{id: 'p9', title: 'Иван Петров', type: 'private'}, ...window.w.conversations]}), true)",
+          "wait": 200,
+          "check": "window.w.querySelector('.sf-thread-list__link[data-id=\"p9\"]')?.getAttribute('aria-current') === 'page'"
+        }
+      ]
+    },
+    {
+      "id": "p28-group-key-errors",
+      "title": "«Создать» with an incomplete form shows field errors and goes to the first; while sending it waits and a second press does nothing; a lost answer keeps the form with «Повторить» under the same client_key; a changed form takes a new key; conflict says so and the next press takes a new key; invalid-recipient marks the people field, invalid-group the name; everything entered stays",
+      "covers": "events.create, runtime.start-conflict, runtime.start-group-failed, settings.limits",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.events = [], window.answers = {}, ['toggle','create','query','open'].forEach((v) => window.w.addEventListener('sf-chat-window-' + v, (e) => window.events.push([v, e.detail.kind ?? null, e.detail.open ?? null]))), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; const answer = typeof given === 'function' ? await given(payload) : given; return answer ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', \"people conversation-create x-conversation-start\"), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"conversations\": [{\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, {\"id\": \"p1\", \"title\": \"Иван Петров\", \"type\": \"private\"}], \"conversation\": {\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, \"messages\": [], \"limits\": {\"group\": {\"title_chars\": 10, \"members_max\": 2}}}), window.of = (intent) => window.calls.filter((one) => one[0] === intent), window.lookup = () => window.w.querySelector('.chat-start__people'), window.titleField = () => window.w.querySelector('.chat-start__name'), window.people = {a: {id: 102, name: 'Иван Петров', email: 'ivan@example.com'}, b: {id: 103, name: 'Вера Смирнова'}, me: {id: 7, name: 'Анна'}}, true)",
+          "wait": 300
+        },
+        {
+          "script": "(window.w.openStart({kind: 'group'}), window.answers['recipients.search'] = () => ({answer: 'applied', data: {items: [window.people.a, window.people.b]}}), true)",
+          "wait": 600,
+          "check": "window.lookup().getAttribute('max-items') === '2' && window.titleField().querySelector('input').maxLength === 10 && JSON.stringify(window.lookup().exclude) === '[7]'"
+        },
+        {
+          "script": "(window.w.querySelector('.chat-start__create button').click(), true)",
+          "wait": 200,
+          "check": "window.of('conversation.start').length === 0 && window.titleField().hasAttribute('invalid') && window.lookup().hasAttribute('invalid') && window.titleField().getAttribute('error-message') === 'Введите название' && document.activeElement === window.titleField().querySelector('input') && !window.w.querySelector('.chat-start__create button').disabled"
+        },
+        {
+          "script": "(window.titleField().focus(), window.titleField().querySelector('input').value = '  Отдел ', window.titleField().querySelector('input').dispatchEvent(new Event('input', {bubbles: true})), window.w.querySelector('.chat-start__create button').click(), true)",
+          "wait": 200,
+          "check": "!window.titleField().hasAttribute('invalid') && window.lookup().hasAttribute('invalid') && document.activeElement === window.lookup().querySelector('input') && window.of('conversation.start').length === 0"
+        },
+        {
+          "script": "(window.lookup().search('ив'), true)",
+          "wait": 200
+        },
+        {
+          "user": "click:.sf-lookup-option",
+          "wait": 100,
+          "check": "!window.lookup().hasAttribute('invalid') && window.lookup().value.length === 1"
+        },
+        {
+          "script": "(window.answers['conversation.start'] = () => new Promise((resolve) => { window.release = resolve; }), window.w.querySelector('.chat-start__create button').click(), true)",
+          "wait": 200,
+          "check": "(() => { const [one] = window.of('conversation.start'); const button = window.w.querySelector('.chat-start__create button'); return window.of('conversation.start').length === 1 && one[1].kind === 'group' && one[1].title === 'Отдел' && JSON.stringify(one[1].member_ids) === '[102]' && Boolean(one[1].client_key) && window.w.querySelector('.chat-start__create').hasAttribute('loading') && button.getAttribute('aria-busy') === 'true' && window.events.some((e) => e[0] === 'create' && e[1] === 'group'); })()"
+        },
+        {
+          "script": "(window.w.querySelector('.chat-start__create button').click(), window.w.querySelector('.chat-start__form').requestSubmit(), window.key = window.of('conversation.start')[0][1].client_key, true)",
+          "wait": 60,
+          "check": "window.of('conversation.start').length === 1 && !window.w.querySelector('.chat-start').hidden"
+        },
+        {
+          "script": "(window.release({answer: 'unavailable', reason: 'port-failed'}), true)",
+          "wait": 200,
+          "check": "!window.w.querySelector('.chat-start').hidden && window.titleField().value === 'Отдел'.padStart(5) || window.titleField().querySelector('input').value.trim() === 'Отдел'"
+        },
+        {
+          "check": "window.lookup().value.length === 1 && window.w.querySelector('.chat-start__line button') && !window.w.querySelector('.chat-start__create').hasAttribute('loading')"
+        },
+        {
+          "script": "(window.answers['conversation.start'] = () => ({answer: 'refused', reason: 'busy'}), window.w.querySelector('.chat-start__line button').click(), true)",
+          "wait": 200,
+          "check": "window.of('conversation.start').length === 2 && window.of('conversation.start')[1][1].client_key === window.key"
+        },
+        {
+          "script": "(window.lookup().search('ве'), true)",
+          "wait": 200
+        },
+        {
+          "script": "(window.lookup().chooseIndex(1), window.w.querySelector('.chat-start__create button').click(), true)",
+          "wait": 200,
+          "check": "window.of('conversation.start').length === 3 && window.of('conversation.start')[2][1].client_key !== window.key && JSON.stringify(window.of('conversation.start')[2][1].member_ids) === '[102,103]'"
+        },
+        {
+          "script": "(window.key2 = window.of('conversation.start')[2][1].client_key, window.answers['conversation.start'] = () => ({answer: 'refused', reason: 'conflict'}), window.w.querySelector('.chat-start__create button').click(), true)",
+          "wait": 200,
+          "check": "window.of('conversation.start')[3][1].client_key === window.key2 && window.w.querySelector('.chat-start__line [role=alert]').textContent.includes('Форма изменилась') && !window.w.querySelector('.chat-start__line button')"
+        },
+        {
+          "script": "(window.answers['conversation.start'] = () => ({answer: 'refused', reason: 'invalid-recipient'}), window.w.querySelector('.chat-start__create button').click(), true)",
+          "wait": 200,
+          "check": "window.of('conversation.start')[4][1].client_key !== window.key2 && window.lookup().hasAttribute('invalid') && document.activeElement === window.lookup().querySelector('input') && window.lookup().value.length === 2"
+        },
+        {
+          "script": "(window.answers['conversation.start'] = () => ({answer: 'refused', reason: 'invalid-group'}), window.w.querySelector('.chat-start__create button').click(), true)",
+          "wait": 200,
+          "check": "window.titleField().hasAttribute('invalid') && document.activeElement === window.titleField().querySelector('input') && window.titleField().querySelector('input').value.trim() === 'Отдел'"
+        },
+        {
+          "script": "(window.answers['conversation.start'] = () => ({answer: 'refused', reason: 'access-denied'}), window.w.querySelector('.chat-start__create button').click(), true)",
+          "wait": 200,
+          "check": "window.w.querySelector('.chat-start__line [role=alert]').textContent === 'Создание недоступно' && !window.w.querySelector('.chat-start').hidden"
+        },
+        {
+          "script": "(window.answers['conversation.start'] = () => ({answer: 'applied', data: {conversation: {id: 'g1', type: 'group', title: 'Отдел'}, messages: []}}), window.w.querySelector('.chat-start__create button').click(), true)",
+          "wait": 300,
+          "check": "window.w.querySelector('.chat-start').hidden && window.w.conversation.id === 'g1' && window.of('conversation.open').length === 0 && !window.w.querySelector('.chat-shell__members-open').hidden === false"
+        }
+      ]
+    },
+    {
+      "id": "p29-members",
+      "title": "x-members: «Участники» in the header only for a group or a channel, never a private conversation; members.list {conversation_id}, kind members, on opening; the count with its plural, role words, no label for an unknown role, nothing but id, name and role; refused is only «Состав недоступен»; another failure offers «Повторить»; Escape returns to the command; 500 rows draw",
+      "covers": "capabilities.x-members, actions.open-members, actions.close-members, events.open, runtime.members-count, runtime.members-denied",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.events = [], window.answers = {}, ['toggle','create','query','open'].forEach((v) => window.w.addEventListener('sf-chat-window-' + v, (e) => window.events.push([v, e.detail.kind ?? null, e.detail.open ?? null]))), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; const answer = typeof given === 'function' ? await given(payload) : given; return answer ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', \"people x-members\"), window.w.setData({\"me\": {\"id\": 7, \"name\": \"Анна\"}, \"conversations\": [{\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, {\"id\": \"p1\", \"title\": \"Иван Петров\", \"type\": \"private\"}], \"conversation\": {\"id\": \"c1\", \"title\": \"Отчёт\", \"type\": \"group\"}, \"messages\": []}), window.of = (intent) => window.calls.filter((one) => one[0] === intent), window.lookup = () => window.w.querySelector('.chat-start__people'), window.titleField = () => window.w.querySelector('.chat-start__name'), window.people = {a: {id: 102, name: 'Иван Петров', email: 'ivan@example.com'}, b: {id: 103, name: 'Вера Смирнова'}, me: {id: 7, name: 'Анна'}}, true)",
+          "wait": 400,
+          "check": "!window.w.querySelector('.chat-shell__members-open').hidden"
+        },
+        {
+          "script": "(window.w.setData({conversation: {id: 'p1', title: 'Иван', type: 'private'}}), true)",
+          "wait": 100,
+          "check": "window.w.querySelector('.chat-shell__members-open').hidden && window.w.openMembers() === false"
+        },
+        {
+          "script": "(window.w.setData({conversation: {id: 'c2', title: 'Канал', type: 'channel'}}), window.answers['members.list'] = () => ({answer: 'applied', data: {participants: [{id: 1, name: 'Анна Соколова', role: 'owner', email: 'a@example.com'}, {id: 2, name: 'Иван Петров', role: 'manager'}, {id: 3, name: 'Вера', role: 'member'}, {id: 4, name: 'Гость', role: 'observer'}, {id: 5, name: 'Новенький', role: 'superuser'}]}}), true)",
+          "wait": 100,
+          "check": "!window.w.querySelector('.chat-shell__members-open').hidden"
+        },
+        {
+          "user": "click:.chat-shell__members-open",
+          "wait": 300,
+          "check": "(() => { const rows = [...window.w.querySelectorAll('.chat-members__row')]; const roles = rows.map((one) => one.querySelector('.chat-members__role')?.textContent ?? null); return JSON.stringify(window.of('members.list')[0][1]) === JSON.stringify({conversation_id: 'c2'}) && window.events.some((one) => one[0] === 'open' && one[1] === 'members') && rows.length === 5 && JSON.stringify(roles) === JSON.stringify(['Владелец', 'Руководитель', 'Участник', 'Наблюдатель', null]) && window.w.querySelector('.chat-members__count').textContent === '5 участников' && !window.w.querySelector('.chat-members').textContent.includes('example.com') && !window.w.querySelector('.chat-members__row button') && document.activeElement === window.w.querySelector('.chat-members__title') && window.w.hasAttribute('data-members-open') && getComputedStyle(window.w.querySelector('.chat-shell__composer')).display === 'none'; })()"
+        },
+        {
+          "user": "keyboard:Escape",
+          "wait": 100,
+          "check": "window.w.querySelector('.chat-members').hidden && document.activeElement === window.w.querySelector('.chat-shell__members-open') && !window.w.hasAttribute('data-members-open')"
+        },
+        {
+          "script": "(window.answers['members.list'] = () => ({answer: 'applied', data: {participants: [{id: 1, name: 'Анна', role: 'owner'}]}}), window.w.openMembers(), true)",
+          "wait": 200,
+          "check": "window.w.querySelector('.chat-members__count').textContent === '1 участник'"
+        },
+        {
+          "script": "(window.w.closeMembers(), window.answers['members.list'] = () => ({answer: 'applied', data: {participants: [{id: 1, name: 'А'}, {id: 2, name: 'Б'}]}}), window.w.openMembers(), true)",
+          "wait": 200,
+          "check": "window.w.querySelector('.chat-members__count').textContent === '2 участника'"
+        },
+        {
+          "script": "(window.w.closeMembers(), window.answers['members.list'] = () => ({answer: 'refused', reason: 'access-denied', text: 'причина'}), window.w.openMembers(), true)",
+          "wait": 200,
+          "check": "window.w.querySelector('.chat-members__body').textContent === 'Состав недоступен' && !window.w.querySelector('.chat-members__count').textContent"
+        },
+        {
+          "script": "(window.w.closeMembers(), window.answers['members.list'] = () => ({answer: 'unavailable', reason: 'port-failed'}), window.w.openMembers(), true)",
+          "wait": 400,
+          "check": "window.w.querySelector('.chat-members__body sf-empty-state') && !window.w.querySelector('.chat-members__body').textContent.includes('Состав недоступен')"
+        },
+        {
+          "script": "(window.w.closeMembers(), window.answers['members.list'] = () => ({answer: 'applied', data: {participants: Array.from({length: 500}, (_, at) => ({id: at, name: 'Человек ' + at, role: 'member'}))}}), window.w.openMembers(), true)",
+          "wait": 400,
+          "check": "window.w.querySelectorAll('.chat-members__row').length === 500 && window.w.querySelector('.chat-members__count').textContent === '500 участников' && getComputedStyle(window.w.querySelector('.chat-members__row')).contentVisibility === 'auto'"
+        },
+        {
+          "script": "(window.w.setData({conversation: {id: 'p1', title: 'Иван', type: 'private'}}), true)",
+          "wait": 100,
+          "check": "window.w.querySelector('.chat-members').hidden"
+        }
+      ]
     }
   ]
 }

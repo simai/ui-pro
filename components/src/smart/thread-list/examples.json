@@ -191,6 +191,10 @@
       },
       "expect": {
         "name": "Разговоры"
+      },
+      "first-paint": {
+        "max-bytes": 14000,
+        "why": "five conversations, each with a compact sf-badge in its row: the activity mark is what this example shows."
       }
     }
   ]

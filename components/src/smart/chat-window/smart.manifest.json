@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -26,9 +26,11 @@
   "exported_parts": [],
   "composition": {
     "uses": [
+      "component.avatars",
       "component.buttons",
       "component.icon-buttons",
       "component.inputs",
+      "smart.button",
       "smart.change-confirm",
       "smart.chat-composer",
       "smart.chat-interlocutor",
@@ -36,6 +38,8 @@
       "smart.context-menu",
       "smart.empty-state",
       "smart.icon",
+      "smart.input",
+      "smart.lookup",
       "smart.message-log",
       "smart.progress-bar",
       "smart.thread-list"
@@ -131,7 +135,7 @@
       "capabilities": {
         "type": "string",
         "default": "",
-        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
       },
       "landmark": {
         "type": "string",
@@ -197,7 +201,7 @@
       "limits": {
         "type": "object",
         "default": {},
-        "description": "port data limits {body_chars, files_per_message, file_bytes, file_types}"
+        "description": "port data limits {body_chars, files_per_message, file_bytes, file_types}; with x-conversation-start the window's own group {title_chars, members_max, search_min, search_max, query_chars?}, by default 120, 49, 2, 20, 80"
       },
       "interlocutors": {
         "type": "array",
@@ -379,6 +383,58 @@
     },
     "closePreview": {
       "summary": "Close the source preview; the focus returns to what opened it (action close-preview; answers an outcome).",
+      "arguments": [
+        {
+          "name": "focus",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "openStart": {
+      "summary": "the form of a new conversation or group in place of the conversation (x-conversation-start); kind private, the default, or group; refused capability-not-provided without it (action open-start; answers an outcome)",
+      "arguments": [
+        {
+          "name": "kind",
+          "schema": {
+            "enum": [
+              "private",
+              "group"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "closeStart": {
+      "summary": "closes the form; focus false leaves the focus where it is, else it returns to the command that opened it (action close-start; answers an outcome)",
+      "arguments": [
+        {
+          "name": "focus",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "openMembers": {
+      "summary": "a group's members in place of the conversation (x-members); refused capability-not-provided without it, no-members when the open conversation is no group (action open-members; answers an outcome)",
+      "arguments": [],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "closeMembers": {
+      "summary": "closes the members; focus false leaves the focus where it is, else it returns to the command that opened it (action close-members; answers an outcome)",
       "arguments": [
         {
           "name": "focus",
@@ -1347,7 +1403,7 @@
   },
   "events": {
     "sf-chat-window-open": {
-      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01.",
+      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. Or a group's members asked for (1.4.0, x-members members.list {conversation_id}, kind members; no former name). The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -1677,7 +1733,7 @@
       "canonical": true
     },
     "sf-chat-window-create": {
-      "summary": "A new conversation (port conversation.create {interlocutor}). Was chat-port:create. The 0.3 chat-port:create {request_id, ...payload} follows it until 2026-12-01.",
+      "summary": "A new conversation (port conversation.create {interlocutor}; was chat-port:create), or a new one with a person or a group (1.4.0, x-conversation-start conversation.start, kind private {kind, user_id} or group {kind, title, member_ids, client_key}; no former name). The 0.3 chat-port:create {request_id, ...payload} follows conversation.create until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -1826,7 +1882,7 @@
       "canonical": true
     },
     "sf-chat-window-query": {
-      "summary": "The list searched by title (x-conversations-search conversations.search {query}), after a pause in typing, on Enter, or emptied by Escape. Was chat-window:search. The 0.3 chat-window:search {request_id, ...payload} follows it until 2026-12-01.",
+      "summary": "The list searched by title (x-conversations-search conversations.search {query}), after a pause in typing, on Enter, or emptied by Escape; was chat-window:search. Or people found for a new conversation (1.4.0, x-conversation-start recipients.search {query}, kind recipients; no former name). The 0.3 chat-window:search {request_id, ...payload} follows conversations.search until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -1984,7 +2040,7 @@
       }
     },
     "sf-chat-window-toggle": {
-      "summary": "The search in the conversation or the source preview opened or closed: {kind: find|preview, open}. The host states data-find-open and data-preview-open say the same.",
+      "summary": "The search in the conversation, the source preview, the form of a new conversation or a group's members opened or closed: {kind: find|preview|start|members, open, form?}. The host states data-find-open, data-preview-open, data-start-open and data-members-open say the same.",
       "payload": {
         "type": "object",
         "required": [
@@ -1995,11 +2051,20 @@
           "kind": {
             "enum": [
               "find",
-              "preview"
+              "preview",
+              "start",
+              "members"
             ]
           },
           "open": {
             "type": "boolean"
+          },
+          "form": {
+            "enum": [
+              "private",
+              "group"
+            ],
+            "description": "Which form, when kind start opens."
           }
         },
         "additionalProperties": true
@@ -2216,6 +2281,19 @@
       "unread": [
         "none",
         "divider"
+      ],
+      "start": [
+        "closed",
+        "private",
+        "group",
+        "sending"
+      ],
+      "members": [
+        "closed",
+        "loading",
+        "ready",
+        "denied",
+        "error"
       ]
     },
     "visual_states": [
@@ -2366,6 +2444,15 @@
           "Between people the field says «Напишите сообщение». No new intent and no new port field.",
           "The source preview marks the passage named by preview_url's #fragment (the element of that id, e.g. <mark id=\"cite\">) when the locator has no {from, to}."
         ]
+      },
+      {
+        "from": "1.3.0",
+        "to": "1.4.0",
+        "changes": [
+          "x-conversation-start: the list head offers «Новый диалог» and «Новая группа» (sf-thread-list 1.5.0 create-commands) and the form stands in the conversation's place; intents recipients.search (query, kind recipients) and conversation.start (create, kind private or group), limits.group from the host. After applied the host supplies conversations by set-data, before or after; the window opens data.conversation itself, raising conversation.open when no messages came.",
+          "x-members: a read-only «Участники» view for an open group or channel; intent members.list (open, kind members), roles owner, manager, member, observer.",
+          "Actions open-start, close-start, open-members, close-members; toggle kinds start and members; host states data-start-open and data-members-open. Without the capabilities nothing changes; simai.chat-port 1.0 is unchanged."
+        ]
       }
     ]
   },
@@ -2375,11 +2462,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "e405167f00b7ecfe10f1f48a31fded9e74324aaf10656e6dc59623f553eda89c"
+        "sha256": "da5c266f688275a812f83237c48912daba6ca1ad18304542e09c49e05180ea2a"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
-        "sha256": "45bb2513230b62e2d929af53ec3ab3eaed4e319e2e300ea3053fde41e61659c3"
+        "sha256": "685231162ce4b0882bbd6554d156ee7573bcd40d2472a101f7e49a033a9a58f9"
       },
       {
         "path": "src/smart/chat-window/js/files-view.js",
@@ -2398,24 +2485,36 @@
         "sha256": "016fdef1ae15911c1d2d62cded9c50feabce31b9a2eb62798a3a49fab65d83de"
       },
       {
+        "path": "src/smart/chat-window/js/members-view.js",
+        "sha256": "5d6c8d20c4f3cf178bf0e8b3a41323e2f7a49867f1ad92be6478ab8c14dfc0d1"
+      },
+      {
+        "path": "src/smart/chat-window/js/start-view.js",
+        "sha256": "984be33723c311c9636b823028124d1722fdcebaebcf361487408f0c4b9f2b79"
+      },
+      {
+        "path": "src/smart/chat-window/js/start-model.js",
+        "sha256": "7ca6cd12e91a6e135ae8eef259b9b020bc8cd17f35a58e41744df21281b9e102"
+      },
+      {
         "path": "src/smart/chat-window/js/templates/default.js",
         "sha256": "e618ad146e539305dbe35b4a5259617fa2370bbd9fa38bcac4434610c4d18a2d"
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "a35ac1741bd490457a2e7d5c52e3c9c0057af75d8eb0671b38be35b14445289d"
+        "sha256": "ffe03e4fed4ff90068c5037c951495f128b9031c1a72f7217d5e703b05066aca"
       },
       {
         "path": "src/smart/chat-window/rule.js",
-        "sha256": "f029631d9f8b5f15afebbc84dc7bfc9616d3871c7b721dd5e32d2c97c398e5c0"
+        "sha256": "526cad0a04dbb7d7e6c6eeb7dbfef1951f1454876002c547f43670877b8c2493"
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "5adfe4dc320e487b3c4aab91f8ff34692d41964500cba8d75bb18c35a8d77142"
+        "sha256": "3a08d85ca2b0ab6ba47a772a8b9e9d00bb56f123064756ddc71bbb1cbdb1559a"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "cd78cedac22158d71303d2232dcee49a27d55acef8b54cf350e33284610545f4"
+        "sha256": "fee03094df9b317e213796c6c3a442b6e6ceae140837d6a0c58f06566ff24364"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2423,11 +2522,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "652f6b996e7ad59ecdb423fe45d231659c4bc17518b9929de0392d9eb44a9b54"
+        "sha256": "6b6b4c5c9789636b4a1bad10903d13a6ca06bc48b1bb20bb586a547a717dbc5a"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "1cc842a30260686e2b5f199636f9addba1b70dec2844e11b4fbfa8f1350d6a66"
+        "sha256": "fe76753391bf46aaf5c0f7e0913bb5ed3cd1501252963dd756a77c38fb4edbe9"
       }
     ],
     "generated_runtime": []

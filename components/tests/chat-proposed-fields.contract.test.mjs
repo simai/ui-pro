@@ -60,7 +60,7 @@ test('the message declares open {kind: preview} and the steps toggle; the window
   assert.ok(atLeast(window.version, '1.2.0'), window.version);
   assert.deepEqual(Object.keys(window.actions['open-preview'].with), ['source']);
   assert.deepEqual(Object.keys(window.actions['close-preview'].with), ['focus']);
-  assert.deepEqual(window.events.toggle.carries.kind.values, ['find', 'preview']);
+  assert.deepEqual(window.events.toggle.carries.kind.values, ['find', 'preview', 'start', 'members']);
   assert.equal(window['host-states']['data-preview-open'], 'boolean');
 });
 
