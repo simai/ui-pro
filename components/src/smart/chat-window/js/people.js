@@ -172,14 +172,21 @@ export function runsOf(messages = [], {type = null, breaks = null} = {}) {
 /**
  * The key of the first unread message, or null. The port 1.0 names no last
  * read message, only a conversation's unread_count: it is counted back from
- * the end over others' messages (the reader's own are never unread).
+ * the end over the messages a host counts, which are others' and not
+ * deleted (simai.chat counts m.ID over the reader's last read one, leaving
+ * out their own and the logically deleted; a tombstone in the way would
+ * otherwise put «Новые» one message too early).
+ *
+ * It stays an estimate while the port names no last read message: more
+ * unread than the page holds, or a host that counts differently, moves it.
  */
 export function unreadKeyOf(messages = [], count = 0) {
     let left = Math.max(0, Math.floor(Number(count) || 0));
     let key = null;
     for (let at = messages.length - 1; at >= 0 && left > 0; at--) {
-        if (messages[at].author?.own === true) continue;
-        key = keyOf(messages[at]);
+        const message = messages[at];
+        if (message.author?.own === true || message.is_deleted === true) continue;
+        key = keyOf(message);
         left--;
     }
     return key;

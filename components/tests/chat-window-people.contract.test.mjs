@@ -76,6 +76,9 @@ test('«Новые» is counted back from the end over others\' messages; a newe
   assert.equal(unreadKeyOf(messages, 1), '5');
   assert.equal(unreadKeyOf(messages, 2), '3');
   assert.equal(unreadKeyOf(messages, 9), '1', 'more than loaded: the first loaded of others');
+  // A host counts what the reader could read: not their own, not a tombstone.
+  const withTomb = [person(1, ivan), person(3, ivan), {...person(4, ivan), is_deleted: true}, person(5, ivan)];
+  assert.equal(unreadKeyOf(withTomb, 2), '3', 'a deleted message is none of the unread');
   assert.equal(compareRevisions(2, 3), -1);
   assert.equal(compareRevisions('10', 9), 1);
   assert.equal(compareRevisions(4, '4'), 0);
