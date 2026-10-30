@@ -58,6 +58,20 @@
     flex-direction: column;
   }
 
+  /* Only the side padding goes, so the fields line up with the heading. */
+  .sf-mail-inspector-sections .sf-accordion {
+    --sf-accordion--content-padding: var(--sf-space-1\/4) 0 var(--sf-space-1);
+    --sf-accordion--trigger-padding-inline: 0;
+  }
+
+  .sf-mail-inspector-sections .sf-accordion-title {
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-mail-inspector-tabs {
+    --sf-tabs-gap: var(--sf-space-1\/3);
+  }
+
   .sf-mail-inspector-fields,
   .sf-mail-inspector-group,
   .sf-mail-inspector-row,
