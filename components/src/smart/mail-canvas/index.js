@@ -445,9 +445,9 @@ class SfMailCanvas extends MailCanvasElement {
         } finally {
             this.quiet = false;
         }
+        // The element's own overlay takes it from the template.
         const accepts = String(this.accepts ?? "");
-        if (accepts) overlay.setAttribute("accepts", accepts);
-        else if (overlay.hasAttribute("accepts") && !this.overlayTarget) overlay.removeAttribute("accepts");
+        if (accepts && this.overlayTarget) overlay.setAttribute("accepts", accepts);
     }
 
     /** The items the letter really holds; a child of an item it does not hold goes with it. */
