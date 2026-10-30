@@ -584,4 +584,159 @@
       block-size: var(--sf-chat-window--touch);
     }
   }
+
+  /* --- the search in the conversation (1.1.0) --------------------------- */
+
+  /* Over the log, on the reading column: the field with «N из M» inside it,
+     then up, down and close. On a phone the column is the window's width. */
+  .chat-shell__find {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: calc(var(--sf-chat-window--column) + 2 * var(--sf-space-3));
+    margin-inline: auto;
+    padding-inline: var(--sf-space-3);
+    padding-block: 0 var(--sf-space-1\/3);
+  }
+
+  .chat-shell__find[hidden],
+  .chat-shell--files .chat-shell__find { display: none; }
+
+  .chat-shell__find-field { flex: 1; min-inline-size: 0; }
+
+  .chat-shell__find-input { flex: 1; min-inline-size: 0; }
+
+  .chat-shell__find-input::-webkit-search-cancel-button { display: none; }
+
+  .chat-shell__find-count {
+    flex: none;
+    padding-inline-end: var(--sf-space-1\/3);
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .chat-shell__find .sf-icon-button { flex: none; color: var(--sf-chat-window--ink-muted); }
+
+  /* What was found, painted over the text (CSS Custom Highlight API): every
+     match in the Framework's mark colour, the current one stronger and
+     underlined. A browser without it outlines the message instead. */
+  ::highlight(sf-chat-window-found) { background-color: var(--sf-warning-container); }
+
+  ::highlight(sf-chat-window-found-current) {
+    background-color: var(--sf-mark--color);
+    text-decoration: underline var(--sf-warning);
+  }
+
+  @supports not selector(::highlight(sf-chat-window-found)) {
+    .chat-shell .chat-shell__found {
+      outline: var(--sf-chat-window--line) solid var(--sf-warning);
+      outline-offset: var(--sf-space-1\/4);
+      border-radius: var(--sf-chat-window--card-radius);
+    }
+  }
+
+  @media (forced-colors: active) {
+    ::highlight(sf-chat-window-found) { background-color: Mark; color: MarkText; }
+    ::highlight(sf-chat-window-found-current) { background-color: Highlight; color: HighlightText; }
+  }
+
+  @media (max-width: 599px) {
+    .chat-shell__find { padding-inline: var(--sf-space-1\/3); gap: 0; }
+
+    /* iOS zooms into a field under 16px. */
+    .chat-shell__find-input { font-size: max(1rem, var(--sf-label-large--size)); }
+  }
+
+  /* --- the queue over the field (1.1.0) --------------------------------- */
+
+  /* A card per question asked while an answer was awaited: what it is, one
+     or two lines of the question, and its actions. Quiet, as the passing
+     line is: a note on the field, not a message. */
+  .chat-shell__queue {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .chat-shell__queue[hidden],
+  .chat-shell__queue-held[hidden] { display: none; }
+
+  .chat-shell__queue-held {
+    margin: 0;
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  .chat-shell__queue-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chat-shell__queued {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--sf-space-1\/2);
+    padding-block: var(--sf-space-1\/4);
+    padding-inline: var(--sf-space-1\/2);
+    border: var(--sf-chat-window--line) solid var(--sf-chat-window--edge);
+    border-radius: var(--sf-chat-window--card-radius);
+    color: var(--sf-chat-window--ink);
+    font-size: var(--sf-chat-window--ui-size);
+    line-height: var(--sf-chat-window--ui-height);
+  }
+
+  .chat-shell__queued-label {
+    grid-column: 1;
+    color: var(--sf-chat-window--ink-muted);
+    font-size: var(--sf-chat-window--meta-size);
+    line-height: var(--sf-chat-window--meta-height);
+  }
+
+  .chat-shell__queued-text {
+    grid-column: 1;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+  }
+
+  .chat-shell__queued-actions {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+  }
+
+  /* A phone: the actions go under the question. */
+  @media (max-width: 599px) {
+    .chat-shell__queued { grid-template-columns: minmax(0, 1fr); }
+
+    .chat-shell__queued-actions { grid-column: 1; grid-row: auto; flex-wrap: wrap; }
+  }
+
+  @media (pointer: coarse) {
+    .chat-shell__queued-actions .sf-button { min-block-size: var(--sf-chat-window--touch); }
+
+    .chat-shell__find .sf-icon-button {
+      min-inline-size: var(--sf-chat-window--touch);
+      min-block-size: var(--sf-chat-window--touch);
+    }
+  }
 }

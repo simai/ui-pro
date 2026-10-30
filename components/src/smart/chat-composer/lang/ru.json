@@ -3,6 +3,7 @@
   "runtime": {
     "attach-label": "Прикрепить файл",
     "bad-type-text": "этот тип файла не поддерживается",
+    "busy-files-text": "Сообщение с файлами можно отправить, когда придёт ответ",
     "busy-text": "Дождитесь ответа или остановите ожидание",
     "count-text": "{count} из {max}",
     "drop-text": "Отпустите, чтобы прикрепить",
@@ -10,6 +11,8 @@
     "file-label": "Файл {name}, {size}",
     "hint-text": "Enter — отправить, Shift+Enter — новая строка",
     "placeholder-text": "Спросите что-нибудь",
+    "queue-hint-text": "Enter — отправить после ответа, Shift+Enter — новая строка",
+    "queue-label": "Отправить после ответа",
     "remove-label": "Убрать файл {name}",
     "send-label": "Отправить",
     "size-b-text": "{n} Б",

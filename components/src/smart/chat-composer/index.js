@@ -7,9 +7,12 @@
 // fill and focus. Enter sends, Shift+Enter breaks the line, and an IME
 // composition is never cut short by its own Enter. While an answer is awaited
 // (busy) the send button becomes «Остановить ожидание» and Enter says why it
-// sent nothing. Files come from the button, a drop or a paste; the composer
-// only reports them (attach) -- the host uploads them and hands back their
-// chips as `files`, so whether a file is accepted is always the server's word.
+// sent nothing -- unless the host queues (`queue`, 1.1.0): then a message of
+// text still goes out as submit while busy, and the host keeps it until the
+// answer is over. A message with files is not queued. Files come from the
+// button, a drop or a paste; the composer only reports them (attach) -- the
+// host uploads them and hands back their chips as `files`, so whether a file
+// is accepted is always the server's word.
 //
 // From its component.json (standard simai.smart-component 1.3.9 §3, §4, §8,
 // §11): the settings and the value are attributes and properties made by
@@ -70,7 +73,7 @@ class SfChatComposer extends ChatComposerElement {
         this._observed = null;
         // A value set as a property before the element was defined is an own
         // property that would hide the accessor; it is taken through it.
-        for (const name of ["files", "value", "busy", "disabled"]) {
+        for (const name of ["files", "value", "busy", "queue", "disabled"]) {
             if (!Object.prototype.hasOwnProperty.call(this, name)) continue;
             const early = this[name];
             delete this[name];
@@ -161,9 +164,15 @@ class SfChatComposer extends ChatComposerElement {
         return this.sfWord("size-gb-text", {vars: {n: format(number / 1024 ** 3)}});
     }
 
+    /** Busy, and a message of text may still go out: the host queues it. */
+    get queueing() {
+        return this.busy && this.queue && this.chips.length === 0;
+    }
+
     templateContext() {
         const files = this.chips;
         const busy = this.busy;
+        const queueing = this.queueing;
         const disabled = this.disabled;
         const length = this.value.length;
         const limit = this.limit;
@@ -179,6 +188,9 @@ class SfChatComposer extends ChatComposerElement {
             this._said = level ? countText : "";
         }
         if (!busy) this._busyHint = false;
+        // Busy: what Enter does now -- go after the answer, or nothing and why
+        // (a message with files waits with the field).
+        const hint = this._busyHint ? (this.queue ? "busy-files-text" : "busy-text") : queueing ? "queue-hint-text" : "hint-text";
         const path = this.basePath;
         return {
             component: this,
@@ -195,13 +207,14 @@ class SfChatComposer extends ChatComposerElement {
             said: this._said,
             notice: this._notice,
             busyHint: this._busyHint,
-            hint: this.sfWord(this._busyHint ? "busy-text" : "hint-text"),
+            hint: this.sfWord(hint),
+            queueing,
             tall: files.length > 0 || this._tallText,
             dragging: this._dragging,
             placeholder: this.placeholder || this.sfWord("placeholder-text"),
             fieldLabel: this.sfWord("field-label"),
             attachLabel: this.sfWord("attach-label"),
-            sendLabel: this.sfWord("send-label"),
+            sendLabel: this.sfWord(queueing ? "queue-label" : "send-label"),
             stopLabel: this.sfWord("stop-label"),
             dropText: this.sfWord("drop-text"),
             inputId: partId(path, "input"),
@@ -271,7 +284,7 @@ class SfChatComposer extends ChatComposerElement {
     onKey(event) {
         if (event.key !== "Enter" || event.shiftKey || event.isComposing || event.keyCode === 229) return;
         event.preventDefault();
-        if (this.busy && this.value.trim()) {
+        if (this.busy && !this.queueing && this.value.trim()) {
             this._busyHint = true;
             this.requestComponentUpdate("busy-hint");
             return;
@@ -358,7 +371,7 @@ class SfChatComposer extends ChatComposerElement {
         const files = this.chips;
         const uploading = files.some((file) => file.progress !== undefined && file.progress !== null && file.progress < 1 && !file.error);
         const ready = files.some((file) => file.id && !file.error);
-        return !this.busy && !this.disabled && !uploading && (text.length > 0 || ready) && this.value.length <= this.limit;
+        return (!this.busy || this.queueing) && !this.disabled && !uploading && (text.length > 0 || ready) && this.value.length <= this.limit;
     }
 
     send() {

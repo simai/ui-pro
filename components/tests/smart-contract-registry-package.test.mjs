@@ -14,14 +14,14 @@ test("the package composites are generated into the searchable registry beside t
   run("build");
   const registry = JSON.parse(readFileSync(new URL("../contracts/generated/smart-component-contract-registry.json", import.meta.url), "utf8"));
   assert.equal(registry.schema, "simai.smart-component-contract-registry.v2");
-  // The free registry's Smart components (sf-progress-ring and sf-site-header
-  // the latest) and the package's own make 74: 61
+  // The free registry's Smart components (sf-rich-text the latest) and the
+  // package's own make 75: 62
   // free, the four admin composites, the three conversation components
   // promoted from simai/ui-chat (2026-10-25), and sf-chat-interlocutor,
   // sf-chat-composer, sf-chat-message and sf-chat-window, moved from it (D31,
   // 2026-10-28), and sf-mail-library and sf-mail-letters, moved from
   // simai/ui-mail (D31, 2026-10-29).
-  assert.equal(registry.entries.length, 74);
+  assert.equal(registry.entries.length, 75);
   for (const id of ["smart.admin-menu", "smart.data-view", "smart.data-view-composite", "smart.property-view",
     "smart.message-log", "smart.thread-list", "smart.change-confirm", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
     "smart.mail-library", "smart.mail-letters"]) {

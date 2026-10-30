@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "title": "Chat window",
-  "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
+  "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
   "reuse_mode": "whole",
   "lifecycle": "experimental",
@@ -54,6 +54,7 @@
         "landmark",
         "heading-level",
         "embedded",
+        "no-queue",
         "feed-state"
       ],
       "data": {},
@@ -78,7 +79,8 @@
         "sf-chat-window-pin",
         "sf-chat-window-attach",
         "sf-chat-window-detach",
-        "sf-chat-window-settled"
+        "sf-chat-window-settled",
+        "sf-chat-window-toggle"
       ],
       "persistence": {
         "settings_key_prop": null,
@@ -151,6 +153,11 @@
         "type": "boolean",
         "default": false,
         "description": "Embedded in a host page: the window takes the container's height and draws its own edge."
+      },
+      "no-queue": {
+        "type": "boolean",
+        "default": false,
+        "description": "Turns the queue off: while an answer is awaited the field sends nothing and says why, as before 1.1.0."
       },
       "feed-state": {
         "type": "string",
@@ -320,6 +327,34 @@
               "object",
               "null"
             ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "openFind": {
+      "summary": "Open the search in the conversation, focus in its field; query searches at once (action open-find; answers an outcome).",
+      "arguments": [
+        {
+          "name": "query",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "closeFind": {
+      "summary": "Close the search in the conversation; the focus returns to what opened it (action close-find; answers an outcome).",
+      "arguments": [
+        {
+          "name": "focus",
+          "schema": {
+            "type": "boolean"
           }
         }
       ],
@@ -1919,6 +1954,25 @@
         "additionalProperties": true
       }
     },
+    "sf-chat-window-toggle": {
+      "summary": "The search in the conversation opened or closed: {kind: find, open}. The host state data-find-open says the same.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "kind",
+          "open"
+        ],
+        "properties": {
+          "kind": {
+            "const": "find"
+          },
+          "open": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "chat-port:open": {
       "summary": "Dated alias of sf-chat-window-open until 2026-12-01 (split).",
       "payload": {
@@ -2104,6 +2158,15 @@
       "conversation": [
         "none",
         "open"
+      ],
+      "queue": [
+        "empty",
+        "waiting",
+        "held"
+      ],
+      "find": [
+        "closed",
+        "open"
       ]
     },
     "visual_states": [
@@ -2156,9 +2219,10 @@
       "Home",
       "End",
       "F2",
-      "Shift+F10"
+      "Shift+F10",
+      "Mod+F"
     ],
-    "focus": "The parts keep their own keyboard (the list's roving focus, the field's Enter). After a new conversation or another interlocutor the focus goes to the field; when the last awaited answer of the conversation ends it returns there without scrolling. When what held the focus is gone (an archived row), the way back above the field takes it, never the page. A passing line leaves only when no pointer or focus is on it and hands the focus back to the field."
+    "focus": "The parts keep their own keyboard (the list's roving focus, the field's Enter). After a new conversation or another interlocutor the focus goes to the field; when the last awaited answer of the conversation ends it returns there without scrolling. When what held the focus is gone (an archived row), the way back above the field takes it, never the page. A passing line leaves only when no pointer or focus is on it and hands the focus back to the field. The queue's «Изменить» puts the question back in the field and the focus there; «Убрать» moves the focus to the card in its place, else to the field. The search in the conversation takes the focus when opened and gives it back to what opened it when closed."
   },
   "presentation": {
     "themes": [
@@ -2225,16 +2289,24 @@
         "changes": [
           "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.0.4",
+        "to": "1.1.0",
+        "changes": [
+          "The queue: a question sent while an answer is awaited waits above the field as a card («Отправлю после ответа», «Изменить», «Убрать») and goes as an ordinary message.send after a successful answer, one at a time; an answer that ended otherwise holds the queue for «Отправить» by hand. Per conversation, on this page only. The setting no-queue turns it off. No new intent and no change for a host.",
+          "The search in the open conversation: the actions open-find {query} and close-find {focus}, Ctrl/Cmd+F inside the window, the event toggle {kind: find, open} and the host state data-find-open. It searches the loaded messages only and asks the host nothing."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "37135e59aebfb199b33760f40e29896d0c120edb",
+    "source_revision": "f04061a1d422f15f3bc500166c35d419762c604e",
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "14d8ebef6f04772dd15d7afb48fe653f3819ddcf9700a2151ab225daf5fd01e9"
+        "sha256": "4ee677989b376e34fe9ba5303962f35aaac2217bdc52c64cca7eb8d732b78fd9"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2254,7 +2326,7 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "e0e3659c51dc32dd808cf284bcf19868c67bde2411994059ffc9f87a63cd14fe"
+        "sha256": "9fe8528da872fc3c4f0f8d1e9428b3b8a076acb67fe4b2833643d51dd4d5132a"
       },
       {
         "path": "src/smart/chat-window/rule.js",
@@ -2262,11 +2334,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "3ddf65b5d1d1377d2cc629c6882c9d54719273340b57d8387a02c290fe5a0c2d"
+        "sha256": "85356d1bb43422a2db49a35a244543d3a29eb38ecf517c3b25f160a2eda0620a"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "ce22074a756d5937914f90ed9903266508fab9a5e4baecb24fe253f27d402862"
+        "sha256": "c7a8a4fc5153c4c4003551a19e05a4ae57e3e083b50f664766430064ad01e43a"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2274,11 +2346,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "afd3b499a93d5af47fc1a5c4c2131a9d3678ee8a031da62e50a8bee3eb324ff7"
+        "sha256": "d0dc57ba20e9d64dd4a2119a2a9b97adce9a1aa5d0947a2eda7bd551aa9a2e90"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "aaf53a1d7ac166c1174712ddabc08b4baa207891d37edaf89f79a240077a6791"
+        "sha256": "0736d9f8577bded078bad56d0ec6178ceba9c5039e3a3665a9454325788c3a5a"
       }
     ],
     "generated_runtime": []
@@ -2289,7 +2361,8 @@
       "Do not fetch from the element: hand it a port (connect-port) or answer its events with settle",
       "Do not answer an intent both through a port and through settle",
       "Do not decide what a person may do from who wrote a message; give can_edit and can_delete",
-      "Do not build a second list of conversations beside it; the window's sf-thread-list is the one"
+      "Do not build a second list of conversations beside it; the window's sf-thread-list is the one",
+      "Do not keep a queue of your own for messages sent while an answer is awaited; the window queues and sends them after the answer (no-queue turns it off)"
     ],
     "required_reads": [
       "settings",

@@ -30,8 +30,10 @@
 //
 // What stays here is what only the page sees: what was typed per
 // conversation (never stored: U-05), which failed answer was asked again,
-// where the focus goes, the passing line above the field and its undo. What
-// is allowed, what is stored and what an answer says stays the host's.
+// where the focus goes, the passing line above the field and its undo, the
+// questions asked while an answer was awaited (the queue, 1.1.0) and the
+// search within the open conversation (1.1.0). What is allowed, what is
+// stored and what an answer says stays the host's.
 //
 // A capability the host does not declare (the setting capabilities, or the
 // port's capabilities) is not offered, and its intent is answered
@@ -49,7 +51,7 @@ import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {pageLocale} from "../../core/js/page-language";
 import {renderChatWindowTemplate} from "./js/templates/default.js";
-import {stageKey, textButton} from "../chat-message/js/view/message.js";
+import {iconButton, stageKey, textButton} from "../chat-message/js/view/message.js";
 import {FilesView} from "./js/files-view.js";
 import {registerPartWords} from "./js/part-words.js";
 import {
@@ -78,6 +80,7 @@ const camel = (name) => name.replace(/[-_]([a-z])/gu, (match, letter) => letter.
 
 let requests = 0;
 let windows = 0;
+let queued = 0;
 
 /** A client_key per action (port: the same key retried is one message). */
 function clientKey() {
@@ -99,6 +102,25 @@ const viewKeyOf = (view) => JSON.stringify(view ?? null, (key, value) => (QUIET_
 
 // A search is asked for once typing pauses this long.
 const SEARCH_DELAY_MS = 300;
+
+// An answer that ended so lets the queue go on; any other end holds it.
+const ANSWERED = new Set(["completed", "partial"]);
+// Why a held queue was not sent (queue-held-<reason>): an answer's status,
+// a wait that is not over, a send that did not go, a conversation left.
+const HELD_REASON = {
+    failed: "failed", limit: "limit", refused: "refused", withheld: "refused",
+    stopped: "stopped", unfinished: "unfinished", unsent: "unsent", left: "left",
+};
+
+// The text a search in the conversation reads: a question's bubble, an
+// answer's body, a person's message; not its buttons, its hidden sources,
+// the stage of an answer still written or what only a screen reader hears.
+const FOUND_IN = ".sf-chat-message__bubble, .sf-chat-message__body, .sf-chat-person__bubble";
+const NOT_FOUND_IN = "button, sup, [hidden], [aria-hidden=\"true\"], [aria-busy=\"true\"], .sf-chat-offscreen, .sr-only, .sf-chat-sources, fieldset";
+const BLOCKS = "p, li, div, pre, td, th, h1, h2, h3, h4, h5, h6, blockquote";
+// The CSS Custom Highlight names the sheet paints (default.css).
+const HIGHLIGHT = "sf-chat-window-found";
+const HIGHLIGHT_CURRENT = "sf-chat-window-found-current";
 
 // The parts the window places and calls; the conversation waits for them.
 // sf-change-confirm is placed by the messages and needs nothing from the
@@ -213,6 +235,14 @@ const ChatWindowElement = elementFromManifest(manifest, {
             this.setListFooter(node);
             return applied();
         },
+        "open-find"({query} = {}) {
+            this.openFind({query});
+            return applied();
+        },
+        "close-find"({focus} = {}) {
+            this.closeFind({focus: focus !== false});
+            return applied();
+        },
     },
 });
 
@@ -247,6 +277,10 @@ class SfChatWindow extends ChatWindowElement {
         this._navigating = 0;        // opens and new conversations awaiting theirs
         this._started = false;
         this._afterMessages = 0;     // the frame that marks the drawn messages
+        this._queues = new Map();    // draft key -> {items: [{id, text, key}], held}, this page only
+        this._busy = false;          // the field waited at the last look
+        this._sendFailed = false;    // the last send was not taken
+        this._find = {open: false, ranges: [], at: -1, opener: null, timer: null, said: ""};
         // A value set as a property before the element was defined is an own
         // property that would hide the accessor; it is taken through it.
         for (const name of ["capabilities", ...Object.keys(SETTING_OF), ...Object.values(SETTING_OF).map(camel)]) {
@@ -282,6 +316,10 @@ class SfChatWindow extends ChatWindowElement {
 
     attributeChangedCallback(name, previous, next) {
         super.attributeChangedCallback?.(name, previous, next);
+        if (name === "no-queue" && previous !== next) {
+            if (this._partsReady) this.parts.composer.queue = !this.noQueue;
+            return;
+        }
         if (name !== "capabilities" || previous === next) return;
         if (this._started) this.sync(new Set(["capabilities"]));
         // The entry under the list does not wait for the conversation's data.
@@ -505,6 +543,7 @@ class SfChatWindow extends ChatWindowElement {
         const threadTitle = element("span", "chat-shell__thread-title");
         const spacer = element("div", "chat-shell__spacer");
         header.append(interlocutor, threadTitle, spacer);
+        const find = this.buildFind(element, words);
         const list = element("sf-message-log", "chat-shell__list");
         const files = this._files.build(this._headingTag);
         const composerBox = element("div", "chat-shell__composer", {id: "chat-composer", tabindex: "-1"});
@@ -516,12 +555,21 @@ class SfChatWindow extends ChatWindowElement {
         archivedNote.hidden = true;
         const suggestions = element("ul", "sf-chat-greeting__suggestions chat-shell__suggestions", {"aria-label": words("empty.suggestions")});
         suggestions.hidden = true;
-        composerBox.append(archivedNote, statusLine, composer, suggestions);
-        main.append(pageTitle, header, list, files.root, composerBox);
+        // What was asked while an answer was awaited, over the field.
+        const queue = element("div", "chat-shell__queue");
+        queue.hidden = true;
+        const queueHeld = element("p", "chat-shell__queue-held");
+        const queueList = element("ul", "chat-shell__queue-list", {"aria-label": words("queue.label")});
+        const queueSaid = element("span", "sf-chat-offscreen", {role: "status", "aria-live": "polite"});
+        queue.append(queueHeld, queueList, queueSaid);
+        composerBox.append(archivedNote, statusLine, queue, composer, suggestions);
+        main.append(pageTitle, header, find.box, list, files.root, composerBox);
         shell.append(side, main);
         this._parts = {
             shell, side, sideHead, main, header, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, statusLine, archivedNote, suggestions,
             search: search.box, searchInput: search.input, searchStatus: search.status,
+            find: find.box, findInput: find.input, findCount: find.count, findStatus: find.status, findPrevious: find.previous, findNext: find.next,
+            queue, queueHeld, queueList, queueSaid,
         };
         this.wire();
         Promise.all(PARTS.map((tag) => customElements.whenDefined(tag))).then(() => this.partsDefined());
@@ -587,12 +635,245 @@ class SfChatWindow extends ChatWindowElement {
             : count ? this.words("threads.found", {count}) : this.words("threads.searchEmpty", {query: value});
     }
 
+    // --- search in the conversation (1.1.0) -------------------------------
+
+    // Above the log, the search within the open conversation: the
+    // Framework's input markup, «N из M», up and down, and close. It reads
+    // only what is loaded and asks the host nothing.
+    buildFind(element, words) {
+        const box = element("div", "chat-shell__find", {role: "search", "aria-label": words("find.label")});
+        box.hidden = true;
+        const field = element("label", "sf-input sf-input--size-1 sf-input--filled flex flex-col chat-shell__find-field");
+        const label = element("span", "sf-chat-offscreen");
+        label.textContent = words("find.label");
+        const row = element("span", "sf-input-field items-cross-center transition flex");
+        const icon = element("span", "sf-input-left flex");
+        icon.append(this.ctx.icon("search", {size: "1"}));
+        const input = element("input", "chat-shell__find-input", {
+            type: "search", maxlength: "100", autocomplete: "off", enterkeyhint: "search", placeholder: words("find.placeholder"),
+        });
+        // «N из M» is seen; the status says it, a pause after typing.
+        const count = element("span", "chat-shell__find-count", {"aria-hidden": "true"});
+        row.append(icon, input, count);
+        field.append(label, row);
+        const previous = iconButton(this.ctx, {icon: "keyboard_arrow_up", label: words("find.previous"), size: "1", className: "chat-shell__find-previous"});
+        const next = iconButton(this.ctx, {icon: "keyboard_arrow_down", label: words("find.next"), size: "1", className: "chat-shell__find-next"});
+        const close = iconButton(this.ctx, {icon: "close", label: words("find.close"), size: "1", className: "chat-shell__find-close"});
+        const status = element("span", "sf-chat-offscreen", {role: "status", "aria-live": "polite"});
+        box.append(field, previous, next, close, status);
+        input.addEventListener("input", () => this.find({say: "later"}));
+        previous.addEventListener("click", () => this.moveFind(-1));
+        next.addEventListener("click", () => this.moveFind(1));
+        close.addEventListener("click", () => this.closeFind());
+        box.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && event.target === input) {
+                event.preventDefault();
+                // Enter goes up, to what was said earlier; Shift+Enter down.
+                this.moveFind(event.shiftKey ? 1 : -1);
+            }
+            // Escape clears the search first, then closes it (as the
+            // search above the list clears first).
+            if (event.key === "Escape") {
+                event.preventDefault();
+                event.stopPropagation();
+                if (input.value) {
+                    input.value = "";
+                    input.focus();
+                    this.find({say: "now"});
+                } else {
+                    this.closeFind();
+                }
+            }
+        });
+        return {box, input, count, status, previous, next};
+    }
+
+    /** Open the search in the conversation (the page's button, Ctrl/Cmd+F); `query` searches at once. */
+    openFind({query} = {}) {
+        const {find, findInput} = this.parts;
+        const state = this._find;
+        if (!state.open) {
+            this.closeFiles({focus: false});
+            const active = this.ownerDocument.activeElement;
+            state.open = true;
+            state.opener = active && active !== this.ownerDocument.body ? active : null;
+            find.hidden = false;
+            this.sfHostState("data-find-open", true);
+            this.sfEmit("toggle", {kind: "find", open: true});
+        }
+        if (query !== undefined && query !== null) findInput.value = String(query);
+        findInput.focus();
+        findInput.select();
+        this.find({say: "now"});
+    }
+
+    /** Close it: the marks go, and the focus returns to what opened it (else the field). */
+    closeFind({focus = true} = {}) {
+        const state = this._find;
+        if (!state.open) return;
+        const {find, findInput, composer} = this.parts;
+        const hadFocus = find.contains(this.ownerDocument.activeElement);
+        state.open = false;
+        clearTimeout(state.timer);
+        findInput.value = "";
+        this.find();
+        find.hidden = true;
+        this.sfHostState("data-find-open", false);
+        this.sfEmit("toggle", {kind: "find", open: false});
+        const opener = state.opener;
+        state.opener = null;
+        if (!focus && !hadFocus) return;
+        (opener?.isConnected && opener.offsetParent !== null && !find.contains(opener) ? opener : composer).focus({preventScroll: true});
+    }
+
+    /**
+     * Search the drawn messages for what is typed, case aside, and mark what
+     * was found. The current match starts at the last one, nearest the end of
+     * the conversation; `keep` keeps it where it was (the messages were drawn
+     * again), `say` says the count now or after a pause.
+     */
+    find({keep = false, say = ""} = {}) {
+        const state = this._find;
+        const {findInput, findCount, findStatus, findPrevious, findNext} = this.parts;
+        const query = state.open ? findInput.value.trim().toLowerCase() : "";
+        // A message drawn again has new nodes: the current match is found
+        // again by its message and its place in it.
+        const before = keep ? this.placeOf(state.ranges, state.at) : null;
+        state.ranges = query ? this.rangesOf(query) : [];
+        const count = state.ranges.length;
+        const again = before ? state.ranges.findIndex((range, index) => {
+            const place = this.placeOf(state.ranges, index);
+            return place?.id === before.id && place.nth === before.nth;
+        }) : -1;
+        state.at = again === -1 ? count - 1 : again;
+        findPrevious.disabled = count === 0;
+        findNext.disabled = count === 0;
+        findCount.textContent = !query ? "" : count ? this.words("find.count", {index: state.at + 1, count}) : this.words("find.none");
+        this.markFound({scroll: !keep});
+        clearTimeout(state.timer);
+        if (!query) {
+            findStatus.textContent = "";
+            state.said = "";
+            return;
+        }
+        if (say === "now") this.sayFound();
+        else if (say === "later") state.timer = setTimeout(() => this.sayFound(), SEARCH_DELAY_MS);
+    }
+
+    /** Which message a match is in ({id}) and which of its matches it is ({nth}). */
+    placeOf(ranges, index) {
+        const id = (range) => range?.startContainer.parentElement?.closest("[data-id]")?.dataset.id ?? null;
+        const own = id(ranges[index]);
+        if (own === null) return null;
+        let nth = 0;
+        for (let at = index - 1; at >= 0 && id(ranges[at]) === own; at--) nth++;
+        return {id: own, nth};
+    }
+
+    sayFound() {
+        const state = this._find;
+        const text = this.parts.findCount.textContent;
+        if (!state.open || text === state.said) return;
+        state.said = text;
+        this.parts.findStatus.textContent = text;
+    }
+
+    /** Up (-1, earlier) or down (+1, later), round at the ends. */
+    moveFind(step) {
+        const state = this._find;
+        const count = state.ranges.length;
+        if (!count) return;
+        state.at = (state.at + step + count) % count;
+        this.parts.findCount.textContent = this.words("find.count", {index: state.at + 1, count});
+        this.markFound({scroll: true});
+        this.sayFound();
+    }
+
+    // Every match of a message's readable text, in the order of the page. A
+    // message's text nodes are read as one line, so a match may cross an
+    // inline mark (<strong>); a block's edge stays a break.
+    rangesOf(query) {
+        const ranges = [];
+        const doc = this.ownerDocument;
+        for (const root of this.parts.list.querySelectorAll(FOUND_IN)) {
+            if (root.parentElement?.closest(FOUND_IN)) continue;
+            const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                acceptNode: (node) => (node.parentElement?.closest(NOT_FOUND_IN) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+            });
+            const pieces = [];
+            let text = "";
+            let block = null;
+            for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+                const own = node.parentElement?.closest(BLOCKS);
+                if (pieces.length && own !== block) text += "\n";
+                block = own;
+                pieces.push({node, at: text.length});
+                text += node.data;
+            }
+            const lower = text.toLowerCase();
+            // Lower case that changes a length would misplace the marks.
+            if (lower.length !== text.length) continue;
+            const place = (offset) => {
+                let piece = pieces[0];
+                for (const one of pieces) {
+                    if (one.at > offset) break;
+                    piece = one;
+                }
+                return [piece.node, Math.min(offset - piece.at, piece.node.data.length)];
+            };
+            for (let at = lower.indexOf(query); at !== -1; at = lower.indexOf(query, at + query.length)) {
+                const range = doc.createRange();
+                range.setStart(...place(at));
+                range.setEnd(...place(at + query.length));
+                ranges.push(range);
+            }
+        }
+        return ranges;
+    }
+
+    // The marks: the CSS Custom Highlight API where the browser has it (no
+    // node of a message is touched); without it, the message holding the
+    // current match is outlined. The current match is brought into view.
+    markFound({scroll = false} = {}) {
+        const state = this._find;
+        const current = state.ranges[state.at] ?? null;
+        const highlights = globalThis.CSS?.highlights;
+        if (highlights && typeof Highlight === "function") {
+            // One window searches at a time; another's marks are left alone.
+            if (state.ranges.length) {
+                state.all = new Highlight(...state.ranges);
+                state.current = new Highlight(...(current ? [current] : []));
+                highlights.set(HIGHLIGHT, state.all);
+                highlights.set(HIGHLIGHT_CURRENT, state.current);
+            } else {
+                if (state.all && highlights.get(HIGHLIGHT) === state.all) highlights.delete(HIGHLIGHT);
+                if (state.current && highlights.get(HIGHLIGHT_CURRENT) === state.current) highlights.delete(HIGHLIGHT_CURRENT);
+                state.all = null;
+                state.current = null;
+            }
+        }
+        const article = current?.startContainer.parentElement?.closest(".sf-chat-message, .sf-chat-person") ?? null;
+        for (const one of this.parts.list.querySelectorAll(".chat-shell__found")) if (one !== article) one.classList.remove("chat-shell__found");
+        article?.classList.add("chat-shell__found");
+        if (scroll && current) this.bringIntoView(current);
+    }
+
+    bringIntoView(range) {
+        const scroller = this.parts.list.scroller;
+        const box = range.getBoundingClientRect();
+        if (!scroller || !box.height) return;
+        const view = scroller.getBoundingClientRect();
+        if (box.top >= view.top && box.bottom <= view.bottom) return;
+        scroller.scrollTop += box.top - view.top - (view.height - box.height) / 2;
+    }
+
     // The parts are defined: upgrade ours (they may have been built before
     // the definition arrived), give the log the chat's drawing and words,
     // and hand over everything the host set meanwhile.
     partsDefined() {
         const {list, composer, interlocutor} = this._parts;
         for (const part of [list, composer, interlocutor]) customElements.upgrade(part);
+        composer.queue = !this.noQueue;
         list.renderMessage = (message, context) => this.drawMessage(message, context);
         list.announceMessage = (message, context) => this.sayOf(message, context);
         // Once per page; SF.language may have come after the shell was built.
@@ -615,7 +896,16 @@ class SfChatWindow extends ChatWindowElement {
     }
 
     wire() {
-        const {threads, list, composer, interlocutor} = this._parts;
+        const {shell, threads, list, composer, interlocutor} = this._parts;
+        // Ctrl/Cmd+F while the focus is in the window searches the conversation
+        // (as Mod+K opens the inline editor's link); outside it the page's find is untouched.
+        shell.addEventListener("keydown", (event) => {
+            if (!(event.ctrlKey || event.metaKey) || event.altKey || event.shiftKey) return;
+            if (event.code !== "KeyF" && event.key?.toLowerCase() !== "f") return;
+            if (!this._data.conversation || this._files.open) return;
+            event.preventDefault();
+            this.openFind();
+        });
         threads.addEventListener("sf-thread-list-create", () => this.startConversation());
         threads.addEventListener("sf-thread-list-open", (event) => this.openConversation(event.detail.id));
         threads.addEventListener("sf-thread-list-rename", async (event) => {
@@ -689,6 +979,11 @@ class SfChatWindow extends ChatWindowElement {
         });
         composer.addEventListener("sf-chat-composer-submit", (event) => {
             event.preventDefault();
+            // Asked while an answer is awaited: it waits its turn over the field.
+            if (composer.busy && !this.noQueue && !(this._data.composer_files || []).length) {
+                this.enqueue(event.detail.text);
+                return;
+            }
             // The composer's own message takes every chip with it: the ready
             // ones go as the message's files, a refused one is cleared with them.
             this.sendMessage(event.detail.text, (this._data.composer_files || []).slice(), {own: true});
@@ -712,12 +1007,12 @@ class SfChatWindow extends ChatWindowElement {
 
     // `own`: the composer's message, so its text goes with it; a suggestion,
     // a retry or a brief's answer leaves what is being typed alone.
-    async sendMessage(body, files = [], {own = false, repeat = false} = {}) {
+    // `key`: a queued question keeps the client_key of its first try.
+    async sendMessage(body, files = [], {own = false, repeat = false, queued = false, key = clientKey()} = {}) {
         const {composer} = this.parts;
         if (composer.busy) return undefined;
-        const key = clientKey();
         if (repeat) this._repeats.add(key);
-        return this.deliver(key, {own, typedFor: this.draftKey}, () => this.request("message.send", {
+        return this.deliver(key, {own, queued, typedFor: this.draftKey}, () => this.request("message.send", {
             conversation_id: this._data.conversation?.id ?? null,
             body,
             files,
@@ -732,21 +1027,176 @@ class SfChatWindow extends ChatWindowElement {
         return this.deliver(key, how, () => this.request("message.retry", {conversation_id: this._data.conversation?.id ?? null, client_key: key}));
     }
 
-    async deliver(key, {own, typedFor}, ask) {
+    async deliver(key, {own, queued = false, typedFor}, ask) {
         this._sending++;
         this.syncBusy();
         const result = await ask();
         this._sending--;
+        this._sendFailed = result.answer !== "applied";
         if (result.answer === "applied") {
             if (own) {
                 this.parts.composer.clear();
                 this._drafts.delete(typedFor);
             }
         } else {
-            this.showResult(result, () => this.resend(key, {own, typedFor}));
+            // A queued question goes back to its card, with «Отправить» there.
+            this.showResult(result, queued ? undefined : () => this.resend(key, {own, typedFor}));
         }
         this.syncBusy();
         return result;
+    }
+
+    // --- the queue (1.1.0) --------------------------------------------------
+
+    // A question asked while an answer is awaited waits over the field, in
+    // its conversation, and goes when the answer is over -- one at a time,
+    // each after its own answer. An answer that ended otherwise (an error, a
+    // limit, a refusal, a stopped wait) holds the queue: each card can then be
+    // sent or taken away by hand. Only this page knows of it.
+
+    queueOf(key = this.draftKey) {
+        if (!this._queues.has(key)) this._queues.set(key, {items: [], held: null});
+        return this._queues.get(key);
+    }
+
+    enqueue(text) {
+        const body = String(text ?? "").trim();
+        if (!body) return;
+        const queue = this.queueOf();
+        queue.items.push({id: `queued-${++queued}`, text: body, key: null});
+        this.parts.composer.clear();
+        this._drafts.delete(this.draftKey);
+        this.drawQueue();
+        this.sayQueue(this.words("queue.added"));
+    }
+
+    // The busy field let go: what the answer's end means for the queue.
+    answerEnded() {
+        const queue = this._queues.get(this.draftKey);
+        if (!queue?.items.length || queue.held || this.parts.composer.busy) return;
+        const end = this.lastEnd();
+        if (end === "waiting") return;
+        if (end !== "answered") {
+            this.holdQueue(queue, end);
+            return;
+        }
+        this.sendQueued(queue, queue.items[0]);
+    }
+
+    /**
+     * How the last turn ended: answered, still waiting for an answer to begin,
+     * or why not (unsent, the answer's status, a stopped or unfinished wait).
+     * Without an assistant a question taken is a turn over.
+     */
+    lastEnd() {
+        if (this._sendFailed) return "unsent";
+        const messages = this._data.messages || [];
+        let asked = -1;
+        messages.forEach((one, index) => { if (one.kind !== "assistant") asked = index; });
+        const answer = messages.slice(asked + 1).reverse().find((one) => one.kind === "assistant");
+        if (!answer) return this.has("assistant") ? "waiting" : "answered";
+        if (ANSWERED.has(answer.status)) return "answered";
+        if (PENDING.has(answer.status)) return answer.wait === "stopped" ? "stopped" : "unfinished";
+        return HELD_REASON[answer.status] ? answer.status : "failed";
+    }
+
+    holdQueue(queue, reason) {
+        queue.held = HELD_REASON[reason] || "failed";
+        this.drawQueue();
+        this.sayQueue(this.words(`queue.held.${queue.held}`));
+    }
+
+    async sendQueued(queue, item) {
+        const at = queue.items.indexOf(item);
+        if (at === -1 || this.parts.composer.busy) return;
+        queue.items.splice(at, 1);
+        queue.held = null;
+        const key = item.key;
+        item.key ??= clientKey();
+        this.drawQueue();
+        // A try that did not come back is tried again under its own key (port: one message).
+        const result = key
+            ? await this.resend(key, {own: false, queued: true, typedFor: this.draftKey})
+            : await this.sendMessage(item.text, [], {queued: true, key: item.key});
+        if (!result || result.answer === "applied") return;
+        queue.items.unshift(item);
+        this.holdQueue(queue, "unsent");
+    }
+
+    // «Изменить»: back into the field, before what is typed there.
+    editQueued(queue, item) {
+        this.dropQueued(queue, item);
+        const {composer} = this.parts;
+        composer.value = [item.text, composer.value].filter((one) => one.trim()).join("\n");
+        composer.focus();
+    }
+
+    // «Убрать»: the focus goes to the card in its place, else to the field.
+    removeQueued(queue, item) {
+        const at = this.dropQueued(queue, item);
+        const cards = this.parts.queueList.querySelectorAll(".chat-shell__queued-remove");
+        const next = cards[Math.min(at, cards.length - 1)];
+        (next || this.parts.composer).focus();
+    }
+
+    dropQueued(queue, item) {
+        const at = queue.items.indexOf(item);
+        if (at !== -1) queue.items.splice(at, 1);
+        if (!queue.items.length) queue.held = null;
+        this.drawQueue();
+        return Math.max(at, 0);
+    }
+
+    sayQueue(text) {
+        const {queueSaid} = this.parts;
+        // The same words twice are said twice.
+        queueSaid.textContent = "";
+        requestAnimationFrame(() => { queueSaid.textContent = text; });
+    }
+
+    /** The open conversation's queue over the field: a card per question. */
+    drawQueue() {
+        if (!this._partsReady) return;
+        const {queue: box, queueHeld, queueList, composer} = this.parts;
+        const queue = this._queues.get(this.draftKey);
+        const items = queue?.items || [];
+        box.hidden = !items.length;
+        queueHeld.textContent = items.length && queue.held ? this.words(`queue.held.${queue.held}`) : "";
+        queueHeld.hidden = !queueHeld.textContent;
+        const doc = this.ownerDocument;
+        const hadFocus = queueList.contains(doc.activeElement) ? doc.activeElement : null;
+        const focusClass = hadFocus ? [...hadFocus.classList].find((name) => name.startsWith("chat-shell__queued-")) : null;
+        const focusId = hadFocus?.closest("[data-queued]")?.dataset.queued;
+        queueList.replaceChildren(...items.map((item) => {
+            const card = doc.createElement("li");
+            card.className = "chat-shell__queued";
+            card.dataset.queued = item.id;
+            const textId = `chat-${item.id}`;
+            const label = doc.createElement("span");
+            label.className = "chat-shell__queued-label";
+            label.textContent = this.words(queue.held ? "queue.unsent" : "queue.label");
+            const text = doc.createElement("p");
+            text.className = "chat-shell__queued-text";
+            text.id = textId;
+            text.textContent = item.text;
+            text.title = item.text;
+            const actions = doc.createElement("span");
+            actions.className = "chat-shell__queued-actions";
+            const button = (word, className, run) => {
+                const one = textButton(this.ctx, {label: this.words(word), appearance: "link", scheme: "primary", className: `chat-shell__queued-${className}`});
+                one.setAttribute("aria-describedby", textId);
+                one.addEventListener("click", run);
+                actions.append(one);
+                return one;
+            };
+            if (queue.held) button("queue.send", "send", () => this.sendQueued(queue, item)).disabled = Boolean(composer.busy);
+            button("queue.edit", "edit", () => this.editQueued(queue, item));
+            button("queue.remove", "remove", () => this.removeQueued(queue, item));
+            card.append(label, text, actions);
+            return card;
+        }));
+        // A card drawn again keeps the focus where it was.
+        if (focusId && focusClass) queueList.querySelector(`[data-queued="${CSS.escape(focusId)}"] .${focusClass}`)?.focus({preventScroll: true});
     }
 
     // A rating is sent at once and shown pressed; «Не полезно» then asks
@@ -1120,16 +1570,28 @@ class SfChatWindow extends ChatWindowElement {
             const text = this._drafts.get(previous);
             this._drafts.delete(previous);
             if (text) this._drafts.set(next, text);
+            // So does what was asked in it meanwhile.
+            const queue = this._queues.get(previous);
+            this._queues.delete(previous);
+            if (queue) this._queues.set(next, queue);
+            this.drawQueue();
             return true;
         }
         const text = composer.value;
         if (text.trim()) this._drafts.set(previous, text); else this._drafts.delete(previous);
         composer.value = this._drafts.get(next) || "";
+        // A queue waits with its conversation; come back to it, it is held
+        // unless its answer is still awaited (syncBusy lets it go on then).
+        const queue = this._queues.get(next);
+        if (queue?.items.length && !queue.held) queue.held = "left";
+        this.drawQueue();
         return true;
     }
 
     revoke() {
         this._drafts.delete(this.draftKey);
+        this._queues.delete(this.draftKey);
+        this.drawQueue();
         this.parts.composer.clear();
     }
 
@@ -1287,6 +1749,8 @@ class SfChatWindow extends ChatWindowElement {
             this._afterMessages = 0;
             this.markLast();
             this.syncBusy();
+            // What is found follows the messages drawn again.
+            if (this._find.open && this.parts.findInput.value.trim()) this.find({keep: true});
         });
     }
 
@@ -1412,6 +1876,17 @@ class SfChatWindow extends ChatWindowElement {
         for (const brief of list.querySelectorAll("fieldset.sf-chat-brief[data-live]")) brief.disabled = busy;
         if (this._waiting && !waiting && this._sending === 0) composer.focus({preventScroll: true});
         this._waiting = waiting;
+        // The queue: back in a conversation whose answer is still awaited, it
+        // goes on; when the field lets go, the answer's end decides.
+        const queue = this._queues.get(this.draftKey);
+        if (busy && queue?.held === "left") {
+            queue.held = null;
+            this.drawQueue();
+        }
+        if (busy === this._busy) return;
+        this._busy = busy;
+        this.drawQueue();
+        if (!busy) queueMicrotask(() => this.answerEnded());
     }
 
     // --- «Мои файлы» (x-my-files) ------------------------------------------
@@ -1421,6 +1896,7 @@ class SfChatWindow extends ChatWindowElement {
         if (!this.has("x-my-files")) return Promise.resolve();
         const view = this._files;
         if (!view.open) {
+            this.closeFind({focus: false});
             view.open = true;
             view.asking = null;
             view.problem = null;
