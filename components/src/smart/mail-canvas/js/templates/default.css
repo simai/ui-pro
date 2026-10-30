@@ -33,6 +33,13 @@
     display: none;
   }
 
+  /* sf-composition-overlay unhides its toolbar before its next frame places it,
+     and under load a frame can paint it in the page's corner first (the gate
+     measured that shift). Unplaced, it is not shown. */
+  .sf-mail-canvas-layer .sf-composition-overlay-toolbar:not([style*="top"]) {
+    visibility: hidden;
+  }
+
   /* The well holds its size from the first paint, whatever the letter's height:
      in a pane it fills what is left, on a page of its own it has the basis. The
      gutter is kept, so a letter that scrolls does not move the paper sideways. */
