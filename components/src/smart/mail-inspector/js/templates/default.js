@@ -198,7 +198,8 @@ function renderHead(context) {
             ${context.levels.length > 1
                 ? html`<sf-breadcrumbs class="sf-mail-inspector-path" aria-label=${context.words.path}
                                        items=${JSON.stringify(context.levels.map((level, index) => (index === context.levels.length - 1 ? {text: level.text, current: true} : {text: level.text, href: `#level-${index}`})))}
-                                       @sf-breadcrumbs-press=${(event) => component.onLevelPress(event)}></sf-breadcrumbs>`
+                                       @sf-breadcrumbs-press=${(event) => component.onLevelPress(event)}
+                                       @click=${(event) => event.preventDefault()}></sf-breadcrumbs>`
                 : nothing}
             ${context.heading
                 ? html`<div class="sf-mail-inspector-title-row">
@@ -225,14 +226,17 @@ function renderNotice(context) {
 }
 
 // The panel: heading and path, what the host has to say, then the form -- in
-// tabs when there are tabs -- and one ⋯ menu for every list.
+// tabs when there are tabs -- and one ⋯ menu for every list. The fields' own
+// input and change stop at the root: the change the host hears is the element's,
+// sent on the host itself. A press on the path is a level, so its link goes nowhere.
 export function renderMailInspectorTemplate(context) {
     const {component} = context;
     return html`
-        <div class=${["sf-mail-inspector", context.rootClass].filter(Boolean).join(" ")} @keydown=${(event) => component.onKeydown(event)}>
+        <div class=${["sf-mail-inspector", context.rootClass].filter(Boolean).join(" ")} @keydown=${(event) => component.onKeydown(event)}
+             @input=${(event) => event.stopPropagation()} @change=${(event) => event.stopPropagation()}>
             ${renderHead(context)}
             ${renderNotice(context)}
-            ${keyed(`${context.scope}\n${context.tabsKey}`, context.tabs.length ? renderTabs(context) : renderForm(context))}
+            ${keyed(`${context.formKey}\n${context.tabsKey}`, context.tabs.length ? renderTabs(context) : renderForm(context))}
             <span class="sf-mail-inspector-said sr-only" role="status">${context.said}</span>
             <sf-context-menu class="sf-mail-inspector-menu" popup size="1/2"
                              @sf-context-menu-select=${(event) => {

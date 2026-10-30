@@ -179,7 +179,7 @@ class SfMailInspector extends MailInspectorElement {
         this.fields = new Map();
         this.generation = 0;
         this.seenSections = null;
-        this.seenScope = null;
+        this.seenKey = null;
         this.seenTab = null;
         this.focusAfter = null;
         this.menuFor = null;
@@ -246,14 +246,14 @@ class SfMailInspector extends MailInspectorElement {
     }
 
     /**
-     * New data from the host. What another form typed goes with its scope.
+     * New data from the host. What was typed for another form goes with its key.
      * Typed text stays while the host passes an error and while the person is
      * still in the field; otherwise the host's value is what the field shows.
      */
     takeData() {
-        const scope = text(this.scope);
-        if (scope !== this.seenScope) {
-            this.seenScope = scope;
+        const key = text(this.formKey);
+        if (key !== this.seenKey) {
+            this.seenKey = key;
             this.typed.clear();
             this.heldValues.clear();
             this.ownErrors.clear();
@@ -363,8 +363,6 @@ class SfMailInspector extends MailInspectorElement {
     }
 
     onLevelPress(event) {
-        // sf-breadcrumbs-press is cancelable: cancelling keeps the crumb's link from being followed.
-        event.preventDefault();
         event.stopPropagation();
         this.goToLevel({index: event.detail?.index});
     }
@@ -388,7 +386,11 @@ class SfMailInspector extends MailInspectorElement {
         if (event.target !== event.currentTarget) return;
         event.stopPropagation();
         const tab = this.tabList()[event.detail?.current];
-        if (tab) this.sfEmit("tab", {id: tab.id});
+        if (!tab) return;
+        // sf-tabs has shown it already; `tab` follows, so the host can name another.
+        this.seenTab = tab.id;
+        this.tab = tab.id;
+        this.sfEmit("tab", {id: tab.id});
     }
 
     // sf-sortable only asks; the list's own redraw comes with the data the host passes.
@@ -484,7 +486,7 @@ class SfMailInspector extends MailInspectorElement {
         return result;
     }
 
-    // The tab the host names. A press has already moved sf-tabs, without an event from here back to it.
+    // The tab the host names; a press has already moved sf-tabs.
     syncTab() {
         const wanted = text(this.tab);
         if (wanted === this.seenTab) return;
@@ -506,7 +508,7 @@ class SfMailInspector extends MailInspectorElement {
             levels: this.levelList(),
             actions: this.headActionList(),
             notice: this.notice && this.notice.text ? this.notice : null,
-            scope: text(this.scope),
+            formKey: text(this.formKey),
             tabs,
             tabIndex: Math.max(0, tabs.findIndex((tab) => tab.id === text(this.tab))),
             tabsKey: tabs.map((tab) => `${tab.id}:${tab.slot ?? ""}`).join("|"),

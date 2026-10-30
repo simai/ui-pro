@@ -16,7 +16,7 @@
       "default": "",
       "summary": "The icon before the heading."
     },
-    "scope": {
+    "form-key": {
       "type": "string",
       "default": "",
       "summary": "Whose form this is (a block's id, say). When it changes the form is drawn anew and text typed for the previous one is dropped."
@@ -668,7 +668,7 @@
         ]
       },
       "choice": {
-        "const": "A field dispatches sf-mail-inspector-change {path, value, typed}, an image sf-mail-inspector-attach {path, files} and -detach {path}; a section -toggle {key, open}; the path and Escape -level {index}; a tab -tab {id}; the notice -notice-action {}; the heading's buttons -duplicate {}, -delete {} and -replace {}; a list -item-toggle {path, index, open}, -item-add {path}, -item-move {path, from, to}, -item-duplicate {path, index} and -item-delete {path, index}. The element changes nothing but its sections' disclosure: the host passes the form back."
+        "const": "A field dispatches change {path, value, typed} on the host, under its native name (the fields' own stop inside); an image sf-mail-inspector-attach {path, files} and -detach {path}; a section -toggle {key, open}; the path and Escape -level {index}; a tab -tab {id}; the notice -notice-action {}; the heading's buttons -duplicate {}, -delete {} and -replace {}; a list -item-toggle {path, index, open}, -item-add {path}, -item-move {path, from, to}, -item-duplicate {path, index} and -item-delete {path, index}. The element changes nothing but its sections' disclosure: the host passes the form back."
       }
     },
     "state": {

@@ -8,7 +8,7 @@
   "props": {
     "heading": "Кнопка",
     "heading-icon": "smart_button",
-    "scope": "b7",
+    "form-key": "b7",
     "head-actions": [
       "duplicate",
       "delete"
