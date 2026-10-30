@@ -2045,6 +2045,43 @@
               "check": "window.w.querySelector('.chat-members').hidden"
             }
           ]
+        },
+        {
+          "id": "p30-conversation-away",
+          "title": "an existing group with messages, on a page with its own unlayered layout of the window's nodes: under the form and the members the log, the field, the search, the title and the interlocutor are hidden by the window itself and nothing in them takes focus; closed, they are back; the files view and a host without the capabilities are unchanged",
+          "covers": "capabilities.x-conversation-start, capabilities.x-members, compatibility.1.4.0",
+          "steps": [
+            {
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), document.head.append(Object.assign(document.createElement('style'), {textContent: '.chat-shell__composer, .sf-message-log, .chat-shell__find, .chat-shell__thread-title, .sf-chat-interlocutor { display: flex; }'})), window.w = document.querySelector('#w'), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent) => (intent === 'members.list' ? {answer: 'applied', data: {participants: [{id: 1, name: 'Анна', role: 'owner'}]}} : {answer: 'applied'})}), window.w.setAttribute('capabilities', 'people conversation-create x-conversation-start x-members x-my-files'), window.w.setData({me: {id: 7, name: 'Анна'}, conversations: [{id: 'c1', title: 'Отчёт', type: 'group'}], conversation: {id: 'c1', title: 'Отчёт', type: 'group'}, messages: [{id: 1, kind: 'person', author: {id: 102, name: 'Иван'}, body: 'Привет', revision: 1}]}), window.parts = ['.chat-shell__list > .sf-message-log', '.chat-shell__composer', '.chat-shell__find', '.chat-shell__header .sf-chat-interlocutor', '.chat-shell__thread-title'], window.shown = (selector) => getComputedStyle(window.w.querySelector(selector)).display !== 'none', window.away = () => window.parts.every((one) => !window.shown(one)) && ['sf-message-log', '.chat-shell__composer', '.chat-shell__find', 'sf-chat-interlocutor', '.chat-shell__thread-title'].every((one) => window.w.querySelector(one).inert), window.back = () => ['.chat-shell__list > .sf-message-log', '.chat-shell__composer'].every(window.shown) && !window.w.querySelector('[inert]'), window.typing = () => { const box = window.w.querySelector('.chat-shell__composer textarea, .chat-shell__composer [contenteditable]'); box?.focus(); return !box || document.activeElement !== box; }, true)",
+              "wait": 500,
+              "check": "window.back() && !window.typing()"
+            },
+            {
+              "script": "(window.w.querySelector('.chat-shell__composer textarea, .chat-shell__composer [contenteditable]')?.focus(), window.w.openStart({kind: 'group'}), true)",
+              "wait": 500,
+              "check": "window.away() && window.typing() && window.w.querySelector('.chat-start').contains(document.activeElement)"
+            },
+            {
+              "script": "(window.w.closeStart(), window.w.openMembers(), true)",
+              "wait": 300,
+              "check": "window.away() && window.typing() && window.w.querySelectorAll('.chat-members__row').length === 1 && window.w.querySelector('.chat-members').contains(document.activeElement)"
+            },
+            {
+              "user": "keyboard:Escape",
+              "wait": 200,
+              "check": "window.back() && !window.typing()"
+            },
+            {
+              "script": "(window.w.openFiles(), true)",
+              "wait": 300,
+              "check": "!window.w.querySelector('[inert]') && window.shown('.chat-shell__composer')"
+            },
+            {
+              "script": "(window.w.closeFiles(), window.w.setAttribute('capabilities', 'people conversation-create'), window.w.openStart({kind: 'group'}), window.w.openMembers(), true)",
+              "wait": 200,
+              "check": "window.back() && !window.typing()"
+            }
+          ]
         }
       ]
     }

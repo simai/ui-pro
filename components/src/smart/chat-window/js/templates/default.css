@@ -166,15 +166,22 @@
   .chat-shell--files .chat-shell__list > .sf-message-log,
   .chat-shell--files .chat-shell__composer,
   .chat-shell--files .chat-shell__header .sf-chat-interlocutor,
-  .chat-shell--files .chat-shell__thread-title,
+  .chat-shell--files .chat-shell__thread-title { display: none; }
+
+  /* The form of a new conversation and a group's members do the same without
+     the page's help. Important: this sheet is in a layer, and a page's own
+     unlayered layout of these nodes (staff.css: .chat-shell__composer {display:
+     flex}) would otherwise win. The window also makes them inert (syncViews). */
   .chat-shell--start .chat-shell__list > .sf-message-log,
   .chat-shell--start .chat-shell__composer,
+  .chat-shell--start .chat-shell__find,
   .chat-shell--start .chat-shell__header .sf-chat-interlocutor,
   .chat-shell--start .chat-shell__thread-title,
   .chat-shell--members .chat-shell__list > .sf-message-log,
   .chat-shell--members .chat-shell__composer,
+  .chat-shell--members .chat-shell__find,
   .chat-shell--members .chat-shell__header .sf-chat-interlocutor,
-  .chat-shell--members .chat-shell__thread-title { display: none; }
+  .chat-shell--members .chat-shell__thread-title { display: none !important; }
 
   .chat-shell__members-open[hidden] { display: none; }
 

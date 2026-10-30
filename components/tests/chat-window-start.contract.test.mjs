@@ -99,6 +99,17 @@ test('the intents are the window\'s own and the port does not change', () => {
   assert.ok(window.relations.some((one) => one.name === 'cl-lookup'), 'the picker is the Framework\'s');
 });
 
+test('the window itself hides the conversation under the form and the members, over a page\'s unlayered layout', () => {
+  const css = readFileSync(join(root, 'src', 'smart', 'chat-window', 'js', 'templates', 'default.css'), 'utf8');
+  for (const view of ['start', 'members']) {
+    for (const part of ['.chat-shell__list > .sf-message-log', '.chat-shell__composer', '.chat-shell__find', '.chat-shell__header .sf-chat-interlocutor', '.chat-shell__thread-title']) {
+      assert.ok(css.includes(`.chat-shell--${view} ${part}`), `${view}: ${part}`);
+    }
+  }
+  assert.match(css, /\.chat-shell--members \.chat-shell__thread-title \{ display: none !important; \}/u);
+  assert.match(css, /\.chat-shell--files \.chat-shell__thread-title \{ display: none; \}/u, 'the files view keeps its rule');
+});
+
 test('the list declares its commands additively', () => {
   const list = json('thread-list', 'component.json');
   assert.equal(list.version, '1.5.0');

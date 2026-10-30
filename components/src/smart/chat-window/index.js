@@ -2486,6 +2486,11 @@ class SfChatWindow extends ChatWindowElement {
         if (members.open && (!allowed || members.conversation !== String(this._data.conversation.id))) this.closeMembers({focus: false});
         if (this._start.open && !this.has("x-conversation-start")) this.closeStart({focus: false});
         members.command.hidden = !allowed || this.covered;
+        // Nothing of the conversation under the form or the members can be
+        // reached; «Мои файлы» stay as they were.
+        const away = this._start.open || members.open;
+        const {list, composerBox, find, interlocutor, threadTitle} = this.parts;
+        for (const node of [list, composerBox, find, interlocutor, threadTitle]) node.inert = away;
     }
 
     /** The open conversation is a group or a channel, and the host shows its members. */

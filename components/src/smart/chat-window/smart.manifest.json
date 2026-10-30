@@ -2462,7 +2462,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "da5c266f688275a812f83237c48912daba6ca1ad18304542e09c49e05180ea2a"
+        "sha256": "6bd9f080b49f4d6b3f4ef8a0ae23b1c6f16b5e9b7d74a2fbdfd47cbdd6c2cb9c"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2502,7 +2502,7 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "ffe03e4fed4ff90068c5037c951495f128b9031c1a72f7217d5e703b05066aca"
+        "sha256": "dccc81b725f45fc99285b26806c82fcf86becc1d7c4f92f7edc91ea5a60ead22"
       },
       {
         "path": "src/smart/chat-window/rule.js",
@@ -2510,11 +2510,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "3a08d85ca2b0ab6ba47a772a8b9e9d00bb56f123064756ddc71bbb1cbdb1559a"
+        "sha256": "f85a07882e67059a5d234d44891859f626f1cda43b2077cccdf4621b9e46e3fb"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "fee03094df9b317e213796c6c3a442b6e6ceae140837d6a0c58f06566ff24364"
+        "sha256": "db986d9557618e89d10c87754e56aa01276c69d847770efb438fb4a3e9760297"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
