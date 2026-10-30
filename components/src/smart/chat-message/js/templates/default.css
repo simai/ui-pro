@@ -1394,8 +1394,60 @@
     }
   }
 
+  /* The host's picture fills the initials' circle; the initials stay under
+     it until it loads, and come back if it does not. */
+  .sf-chat-person__avatar { position: relative; overflow: hidden; }
+
+  .sf-chat-person__picture {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  /* A conflict (1.2.0): the message as it is now, a quiet line over it, the
+     typed text kept in the editor below. */
+  .sf-chat-person__conflict {
+    margin: 0;
+    padding-inline: var(--sf-space-1\/2);
+    color: var(--sf-chat-message--ink);
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-chat-person__bubble--current,
+  .sf-chat-person--own .sf-chat-person__bubble--current {
+    border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    background: none;
+    color: var(--sf-chat-message--ink);
+  }
+
+  /* «Новые» (1.2.0): where the unread part of a conversation begins, a line
+     across the column with the word in it. */
+  .sf-chat-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-chat-message--gap);
+    margin-block: var(--sf-chat-message--gap-related) var(--sf-chat-message--gap-tight);
+    color: var(--sf-primary);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-chat-divider::before,
+  .sf-chat-divider::after {
+    content: '';
+    flex: 1;
+    border-block-start: var(--sf-chat-message--line) solid currentColor;
+  }
+
   @media (forced-colors: active) {
     .sf-chat-person__bubble,
     .sf-chat-person__avatar:not(:empty) { border: var(--sf-chat-message--line) solid CanvasText; }
+
+    .sf-chat-divider { color: CanvasText; }
   }
 }

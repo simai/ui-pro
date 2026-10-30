@@ -701,6 +701,81 @@
           "check": "(() => { const card = document.querySelectorAll('#a .sf-chat-deliverable')[1]; const meta = card.querySelector('.sf-chat-deliverable__meta'); return meta.textContent === 'Файл недоступен' && meta.getAttribute('role') === 'status' && !card.querySelector('.sf-chat-deliverable__download'); })()"
         }
       ]
+    },
+    {
+      "id": "p16-person-conflict-divider",
+      "title": "1.2.0: display.conflict draws the message as it is now with «Сообщение уже изменили» over the editor, which keeps the typed text and offers «Оставить их» (toggle {kind: edit, open: false}) and «Заменить своим» (save); a deleted one says «Сообщение уже удалили» and offers «Закрыть» only; Escape takes the delete question back; display.divider unread draws «Новые» before the message in either template; authorAvatar covers the initials",
+      "covers": "settings.display, templates.person, events.save, events.toggle, runtime.divider-unread, runtime.people-conflict",
+      "steps": [
+        {
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#p').message = {id: 42, body: 'Чужая правка', authorName: 'Вы', canEdit: true, canDelete: true}, document.querySelector('#p').display = {own: true, first: true, editing: {body: 'Моя правка'}, conflict: {deleted: false}}, true)",
+          "wait": 400,
+          "check": "(() => { const p = document.querySelector('#p'); return p.querySelector('.sf-chat-person__conflict')?.textContent === 'Сообщение уже изменили' && p.querySelector('.sf-chat-person__bubble--current')?.textContent === 'Чужая правка' && p.querySelector('.sf-chat-person__edit-field').value === 'Моя правка' && p.querySelector('.sf-chat-person__edit-cancel').textContent === 'Оставить их' && p.querySelector('.sf-chat-person__edit-save').textContent === 'Заменить своим' && !p.querySelector('[role=alert]'); })()"
+        },
+        {
+          "user": "click:#p .sf-chat-person__edit-save",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-save",
+                "count": 1,
+                "detail": {
+                  "id": 42,
+                  "values": {
+                    "body": "Моя правка"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "user": "click:#p .sf-chat-person__edit-cancel",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-toggle",
+                "count": 1,
+                "detail": {
+                  "id": 42,
+                  "kind": "edit",
+                  "open": false
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#p').message = {id: 42, body: '', isDeleted: true, authorName: 'Вы'}, document.querySelector('#p').display = {own: true, first: true, editing: {body: 'Моя правка'}, conflict: {deleted: true}}, true)",
+          "wait": 400,
+          "check": "(() => { const p = document.querySelector('#p'); return Boolean(p.querySelector('.sf-chat-person__bubble--tomb')) && p.querySelector('.sf-chat-person__conflict')?.textContent === 'Сообщение уже удалили' && p.querySelector('.sf-chat-person__edit-field').value === 'Моя правка' && p.querySelector('.sf-chat-person__edit-cancel').textContent === 'Закрыть' && !p.querySelector('.sf-chat-person__edit-save'); })()"
+        },
+        {
+          "script": "(document.querySelector('#p').message = {id: 43, body: 'Хорошо', authorName: 'Вы', canDelete: true}, document.querySelector('#p').display = {own: true, first: true, askDelete: true}, true)",
+          "wait": 400
+        },
+        {
+          "user": "keyboard:Escape",
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-message-toggle",
+                "count": 1,
+                "detail": {
+                  "id": 43,
+                  "kind": "delete",
+                  "open": false
+                }
+              }
+            ]
+          }
+        },
+        {
+          "script": "(document.querySelector('#p').message = {id: 44, body: 'Посмотрите', authorName: 'Анна Смирнова', authorAvatar: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}, document.querySelector('#p').display = {own: false, first: true, showName: true, divider: 'unread'}, document.querySelector('#a').display = {divider: 'unread'}, true)",
+          "wait": 400,
+          "check": "(() => { const p = document.querySelector('#p'); const a = document.querySelector('#a'); const line = p.querySelector('.sf-chat-divider'); return line?.textContent === 'Новые' && line.nextElementSibling?.matches('article.sf-chat-person') && Boolean(p.querySelector('.sf-chat-person__avatar .sf-chat-person__picture')) && a.querySelector('.sf-chat-divider')?.textContent === 'Новые' && !document.querySelector('#b .sf-chat-divider'); })()"
+        }
+      ]
     }
   ]
 }

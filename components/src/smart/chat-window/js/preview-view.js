@@ -16,9 +16,10 @@
 // page's cookies and drawn through SF.sanitizeHtml, never run: the cleaned
 // markup is the chat's own (paragraphs, lists, tables, links), and the
 // passage {from, to} -- characters of that text as drawn -- is marked and
-// brought into view. Plain text is drawn as text. A PDF is the browser's
-// viewer in a frame of the same origin (at its {page}); anything else is
-// offered in a new tab. sf-file-preview (the Framework's file row: an icon,
+// brought into view; without {from, to}, the element the address's
+// #fragment names is the passage (1.3.0, below). Plain text is drawn as
+// text. A PDF is the browser's viewer in a frame of the same origin (at its
+// {page}); anything else is offered in a new tab. sf-file-preview (the Framework's file row: an icon,
 // a name, download and remove) shows no content, so it is not used here.
 import {iconButton, iconNode, text, textButton} from '../../chat-message/js/view/message.js';
 import {previewTarget} from '../../chat-message/js/view/proposed.js';
@@ -161,7 +162,7 @@ export class PreviewView {
       frame.className = 'chat-preview__frame';
       frame.title = target.title || this.words('preview.untitled');
       // The browser's PDF viewer: the same origin only, never a page of scripts.
-      frame.src = target.locator?.page ? `${target.preview_url}#page=${target.locator.page}` : target.preview_url;
+      frame.src = target.locator?.page ? `${target.preview_url.split('#')[0]}#page=${target.locator.page}` : target.preview_url;
       frame.setAttribute('referrerpolicy', 'same-origin');
       this.body.replaceChildren(frame);
       this.say(this.words('preview.opened', { title: this.title.textContent }));
@@ -170,9 +171,12 @@ export class PreviewView {
     if (!type || type.includes('html')) {
       const markup = doc.createElement('div');
       markup.className = 'sf-chat-markup chat-preview__text';
-      markup.append(globalThis.SF.sanitizeHtml(content ?? '', { document: doc }));
+      // 1.3.0: without {from, to}, the element the address's #fragment names
+      // (Mirai24: <mark id="cite">) is the passage.
+      const located = target.locator?.from === undefined ? withSentinels(content ?? '', fragmentOf(target.preview_url, doc), doc) : null;
+      markup.append(globalThis.SF.sanitizeHtml(located ?? content ?? '', { document: doc }));
       this.body.replaceChildren(markup);
-      this.mark(markup, target.locator);
+      this.mark(markup, located ? takeSentinels(markup, doc) : target.locator);
       return;
     }
     if (type.startsWith('text/')) {
@@ -228,6 +232,11 @@ export class PreviewView {
       return;
     }
     marks[0].classList.add('chat-preview__mark--first');
+    // The page's own <mark> around the passage, if the cleaning kept it, gives
+    // way to the panel's marks: one look, not two.
+    for (const own of [...root.querySelectorAll('mark:not(.chat-preview__mark)')]) {
+      if (own.querySelector('.chat-preview__mark')) own.replaceWith(...own.childNodes);
+    }
     const reduce = doc.defaultView.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     requestAnimationFrame(() => marks[0].scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }));
     this.say(`${opened}. ${this.words('preview.marked')}`);
@@ -241,4 +250,60 @@ export class PreviewView {
     this.meta.textContent = '';
     this.tab.removeAttribute('href');
   }
+}
+
+// --- the passage named by the address's fragment (1.3.0) -------------------
+//
+// Mirai24 gives preview_url with a #fragment and wraps the passage in an
+// element of that id (<mark id="cite">); the message's locator then has no
+// character range. The element is found in the fetched page before it is
+// cleaned (an inert parse: nothing runs), two private-use characters are put
+// at its edges as text, which the cleaning keeps wherever it keeps the text,
+// and their places after it are the {from, to} the panel marks as usual.
+
+const START = '\uE000';
+const END = '\uE001';
+
+/** The #fragment of an address, decoded; '' without one. */
+export function fragmentOf(url, doc) {
+  if (typeof url !== 'string' || !url.includes('#')) return '';
+  try {
+    return decodeURIComponent(new URL(url, doc?.baseURI || 'http://localhost/').hash.slice(1));
+  } catch {
+    return '';
+  }
+}
+
+/** The page with the edges of the element `id` marked, or null when it has none with text. */
+export function withSentinels(html, id, doc) {
+  if (!id || !html || typeof doc?.defaultView?.DOMParser !== 'function') return null;
+  const parsed = new doc.defaultView.DOMParser().parseFromString(html, 'text/html');
+  const element = parsed.getElementById(id);
+  if (!element || !element.textContent.trim()) return null;
+  element.prepend(parsed.createTextNode(START));
+  element.append(parsed.createTextNode(END));
+  return `<!doctype html>${parsed.documentElement.outerHTML}`;
+}
+
+/** Take the edges out of the cleaned text and answer where they were ({from, to}), or null. */
+export function takeSentinels(root, doc) {
+  const walker = doc.createTreeWalker(root, 4);
+  let at = 0;
+  let from = null;
+  let to = null;
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (!node.data.includes(START) && !node.data.includes(END)) {
+      at += node.data.length;
+      continue;
+    }
+    let kept = '';
+    for (const char of node.data) {
+      if (char === START) { if (from === null) from = at + kept.length; continue; }
+      if (char === END) { to = at + kept.length; continue; }
+      kept += char;
+    }
+    node.data = kept;
+    at += kept.length;
+  }
+  return from !== null && to !== null && to > from ? { from, to } : null;
 }

@@ -33,8 +33,9 @@
 // where the focus goes, the passing line above the field and its undo, the
 // questions asked while an answer was awaited (the queue, 1.1.0), the
 // search within the open conversation (1.1.0) and the source preview beside
-// it (1.2.0). What is allowed, what is stored and what an answer says stays
-// the host's.
+// it (1.2.0), and, between people (1.3.0), which message is being edited or
+// asked about, where the unread part began and what was last reported read.
+// What is allowed, what is stored and what an answer says stays the host's.
 //
 // A capability the host does not declare (the setting capabilities, or the
 // port's capabilities) is not offered, and its intent is answered
@@ -57,6 +58,7 @@ import {PROPOSED_MESSAGE_FIELDS} from "../chat-message/js/view/proposed.js";
 import {FilesView} from "./js/files-view.js";
 import {PREVIEW_DOCK_MIN, PreviewView} from "./js/preview-view.js";
 import {registerPartWords} from "./js/part-words.js";
+import {compareRevisions, keyOf, runsOf, toPersonView, unreadKeyOf} from "./js/people.js";
 import {
     ANSWERS, DATA, EXTENSION_DATA, EXTENSION_INTENTS, INTENTS, SUPPORTED_PORT_VERSIONS, formerOf, verbOf,
 } from "./js/port.js";
@@ -95,13 +97,16 @@ function clientKey() {
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-const keyOf = (message) => String(message.id ?? message.local?.client_key ?? "");
 
 // The view as compared between redraws: what is being typed into «why not
 // helpful» and whether the sources are open are the reader's doing, already
 // on the page, not a change of the message to draw again.
-const QUIET_VIEW = new Set(["draft", "sources_open", "steps_open", "brief_draft"]);
+// An edit's typed text (editing.body) is the reader's too.
+const QUIET_VIEW = new Set(["draft", "sources_open", "steps_open", "brief_draft", "body"]);
 const viewKeyOf = (view) => JSON.stringify(view ?? null, (key, value) => (QUIET_VIEW.has(key) ? undefined : value));
+
+// Between people (1.3.0): the last message seen is reported at most this often.
+const READ_EVERY_MS = 2000;
 
 // A search is asked for once typing pauses this long.
 const SEARCH_DELAY_MS = 300;
@@ -119,7 +124,7 @@ const HELD_REASON = {
 // answer's body, a person's message; not its buttons, its hidden sources,
 // the stage of an answer still written or what only a screen reader hears.
 const FOUND_IN = ".sf-chat-message__bubble, .sf-chat-message__body, .sf-chat-person__bubble";
-const NOT_FOUND_IN = "button, sup, [hidden], [aria-hidden=\"true\"], [aria-busy=\"true\"], .sf-chat-offscreen, .sr-only, .sf-chat-sources, fieldset";
+const NOT_FOUND_IN = "button, sup, [hidden], [aria-hidden=\"true\"], [aria-busy=\"true\"], .sf-chat-offscreen, .sr-only, .sf-chat-sources, fieldset, .sf-chat-person__bubble--tomb";
 const BLOCKS = "p, li, div, pre, td, th, h1, h2, h3, h4, h5, h6, blockquote";
 // The CSS Custom Highlight names the sheet paints (default.css).
 const HIGHLIGHT = "sf-chat-window-found";
@@ -138,8 +143,9 @@ const PARTS = ["sf-message-log", "sf-chat-message", "sf-chat-composer", "sf-chat
  * Verification and notices are read both as the port's objects and as
  * Mirai24's plain values.
  */
-export function toView(message) {
+export function toView(message, {people = false, edit = false, remove = false, acting = null} = {}) {
     const assistant = message.kind === "assistant";
+    if (people && !assistant) return toPersonView(message, {edit, remove, acting});
     const view = {
         id: keyOf(message),
         role: assistant ? "assistant" : "user",
@@ -301,6 +307,18 @@ class SfChatWindow extends ChatWindowElement {
         this._busy = false;          // the field waited at the last look
         this._sendFailed = false;    // the last send was not taken
         this._find = {open: false, ranges: [], at: -1, opener: null, timer: null, said: ""};
+        // Between people (1.3.0), this page only, per message key: the
+        // editor ({draft: {body}, revision, conflict, clientKey}), the delete
+        // question ({revision, conflict, clientKey}), an edit or a delete on
+        // its way ({action, state, clientKey, body}).
+        this._editing = new Map();
+        this._asking = new Map();
+        this._acting = new Map();
+        this._runs = null;            // {of: messages, map: key -> {first, last, showName}}
+        this._unread = null;          // {listKey, key, revealing}: where «Новые» stands
+        this._read = {conversation: null, id: null, timer: 0};
+        this._readAt = 0;
+        this._mode = undefined;       // the people capabilities the messages were drawn with
         // A value set as a property before the element was defined is an own
         // property that would hide the accessor; it is taken through it.
         for (const name of ["capabilities", ...Object.keys(SETTING_OF), ...Object.values(SETTING_OF).map(camel)]) {
@@ -983,6 +1001,12 @@ class SfChatWindow extends ChatWindowElement {
         });
         list.addEventListener("sf-chat-message-retry", (event) => {
             const {id, key, kind} = event.detail;
+            // A person's message the host reports not done (local.state
+            // failed), by its client_key (template person).
+            if (kind === undefined && id === undefined && key != null) {
+                this.retryLocal(key);
+                return;
+            }
             if (kind === "file") {
                 this.request("file.retry", {conversation_id: this._data.conversation?.id ?? null, message_id: id, file_key: key})
                     .then((result) => this.showResult(result));
@@ -991,7 +1015,17 @@ class SfChatWindow extends ChatWindowElement {
             }
         });
         list.addEventListener("sf-chat-message-submit", (event) => this.answerBrief(event.detail.id, event.detail.text));
+        list.addEventListener("sf-chat-message-save", (event) => this.saveEdit(event.detail.id, event.detail.values?.body));
+        list.addEventListener("sf-chat-message-delete", (event) => this.deleteMessage(event.detail.ids?.[0]));
+        // The last message seen at the bottom is reported read (scroll does
+        // not bubble; it is caught on its way down).
+        list.addEventListener("scroll", () => this.maybeRead(), true);
         list.addEventListener("sf-chat-message-toggle", (event) => {
+            // Between people (1.3.0): the editor and the delete question.
+            if (event.detail.kind === "edit" || event.detail.kind === "delete") {
+                this.peopleToggle(event.detail.id, event.detail.kind, Boolean(event.detail.open));
+                return;
+            }
             // Remembered, not redrawn: the list is open on the page already.
             const key = String(event.detail.id);
             if (event.detail.kind === "steps") this._stepsOpen.set(key, Boolean(event.detail.open));
@@ -1645,6 +1679,14 @@ class SfChatWindow extends ChatWindowElement {
         // Files go up when picked (x-early-upload): the window has no other
         // way yet, so a host with `files` alone gets no attach button.
         composer.toggleAttribute("attachments", this.has("files") && this.has("x-early-upload") && Boolean(caps ? caps.attachments : true));
+        // Between people the field asks for a message, not a question (1.3.0).
+        if (this.has("people")) {
+            composer.setAttribute("placeholder", this.words("people.placeholder"));
+            this._placeholder = true;
+        } else if (this._placeholder) {
+            composer.removeAttribute("placeholder");
+            this._placeholder = false;
+        }
         const features = {
             feedback: this.has("feedback"),
             proposals: this.has("proposals") && Boolean(caps ? caps.proposals : true),
@@ -1691,6 +1733,14 @@ class SfChatWindow extends ChatWindowElement {
     }
 
     viewOf(message) {
+        const view = this.ownViewOf(message);
+        // «Новые» (1.3.0, capability read): before the first unread message.
+        if (this._unread?.key && this._unread.listKey === this._listKey && this._unread.key === keyOf(message)) return {...(view || {}), divider: "unread"};
+        return view;
+    }
+
+    ownViewOf(message) {
+        if (message.kind !== "assistant" && this.has("people")) return this.personViewOf(message);
         if (message.kind === "assistant") {
             // The rating given on this page; the stored one (message.feedback)
             // is the message's own and drawn from it.
@@ -1757,6 +1807,9 @@ class SfChatWindow extends ChatWindowElement {
             this._drawn.set(key, drawn);
         }
         drawn.features = this._features;
+        // Between people (1.3.0) a person's message is the template person.
+        if (message.template === "person") drawn.setAttribute("template", "person");
+        else if (drawn.hasAttribute("template")) drawn.removeAttribute("template");
         drawn.display = {...(view ?? {}), busy: Boolean(this.parts.composer.busy)};
         drawn.message = message;
         return drawn;
@@ -1772,6 +1825,12 @@ class SfChatWindow extends ChatWindowElement {
      * whoever asked it.
      */
     sayOf(message, {view} = {}) {
+        // Between people: another's new or changed message, with its author.
+        if (message.template === "person") {
+            const words = String(message.text || "").replace(/\s+/gu, " ").trim();
+            if (message.own || message.isDeleted || !words) return "";
+            return message.authorName ? `${message.authorName}: ${words}` : words;
+        }
         if (message.role !== "assistant") return "";
         if (PENDING.has(message.status)) {
             if (view?.wait) return this.words(`status.${view.wait}`);
@@ -1795,6 +1854,7 @@ class SfChatWindow extends ChatWindowElement {
             this.syncBusy();
             // What is found follows the messages drawn again.
             if (this._find.open && this.parts.findInput.value.trim()) this.find({keep: true});
+            this.maybeRead();
         });
     }
 
@@ -1813,11 +1873,16 @@ class SfChatWindow extends ChatWindowElement {
         const data = this._data;
         const listKey = data.conversation ? `c:${data.conversation.id}` : this.draftKey;
         const feed = data.feed_state;
-        const reload = listKey !== this._listKey || (feed === "loading") !== (this._feed === "loading") || feed === "revoked";
+        // The capabilities between people draw a message otherwise: all again.
+        const mode = ["people", "edit", "delete", "read"].map((one) => (this.has(one) ? one : "")).join(" ");
+        const reload = listKey !== this._listKey || (feed === "loading") !== (this._feed === "loading") || feed === "revoked" || mode !== this._mode;
         const hasMore = Boolean(data.history?.has_older);
+        if (listKey !== this._listKey) this.leavePeople();
         this._listKey = listKey;
         this._feed = feed;
+        this._mode = mode;
         const messages = feed === "revoked" ? [] : (data.messages || []);
+        const unread = this.findUnread(listKey, feed, messages);
         if (reload) {
             this._shown.clear();
             this._drawn.clear();
@@ -1825,9 +1890,12 @@ class SfChatWindow extends ChatWindowElement {
             for (const message of messages) this._shown.set(keyOf(message), {message, viewKey: viewKeyOf(this.viewOf(message))});
             list.setMessages(messages.map((message) => this.placed(message)), {hasMore});
             this.messagesDrawn();
+            if (unread) this.revealUnread();
             return;
         }
-        if (!changed.has("messages") && !changed.has("history") && changed.size) return;
+        // Between people the conversation's type decides whether names show.
+        const people = this.has("people") && (changed.has("conversation") || changed.has("conversations"));
+        if (!changed.has("messages") && !changed.has("history") && !people && changed.size) return;
         const keys = new Set(messages.map(keyOf));
         for (const key of [...this._shown.keys()]) {
             if (keys.has(key)) continue;
@@ -1851,16 +1919,17 @@ class SfChatWindow extends ChatWindowElement {
             const shown = this._shown.get(key);
             if (shown && shown.message === message && shown.viewKey === viewKey) continue;
             this._shown.set(key, {message, viewKey});
-            list.upsert(toView(message), view);
+            list.upsert(this.drawable(message), view);
         }
         this.messagesDrawn();
+        if (unread) this.revealUnread();
     }
 
     // setMessages and prependMessages take bare messages; the window's own
     // knowledge of one (a repeat, a stopped wait) is given to the list after.
     placed(message) {
         const view = this.viewOf(message);
-        const drawn = toView(message);
+        const drawn = this.drawable(message);
         if (view && Object.values(view).some(Boolean)) {
             queueMicrotask(() => {
                 this.parts.list.setView(drawn.id, view);
@@ -1931,6 +2000,363 @@ class SfChatWindow extends ChatWindowElement {
         this._busy = busy;
         this.drawQueue();
         if (!busy) queueMicrotask(() => this.answerEnded());
+    }
+
+    // --- between people (1.3.0) -------------------------------------------
+
+    // With the capability people a person's message is the template person:
+    // its author, the reader's own on the end side, runs of one author, and
+    // edit (edit) and delete (delete) where the host's can_edit and
+    // can_delete allow. Without it every message draws as before: Mirai24's
+    // questions are kind person with own true, drawn as questions.
+
+    /** The message as the log is given it: toView, between people with the window's state. */
+    drawable(message) {
+        if (message.kind === "assistant" || !this.has("people")) return toView(message);
+        return toView(message, {
+            people: true, edit: this.has("edit"), remove: this.has("delete"), acting: this._acting.get(keyOf(message)) ?? null,
+        });
+    }
+
+    // What the window knows of a person's message: its place in its run,
+    // whether it is the reader's, and the editor or the question open on it.
+    personViewOf(message) {
+        const key = keyOf(message);
+        const run = this.runsOf().get(key) ?? {first: true, last: true, showName: false};
+        const view = {own: message.author?.own === true, first: run.first, last: run.last, showName: run.showName};
+        const acting = this._acting.get(key);
+        // An edit or a delete on its way is in the view's key, so its line redraws.
+        if (acting) view.acting = `${acting.action}:${acting.state}`;
+        const editing = this._editing.get(key);
+        const asking = this._asking.get(key);
+        if (editing && !acting) {
+            view.editing = editing.draft;
+            if (editing.conflict) view.conflict = {deleted: Boolean(message.is_deleted)};
+        } else if (asking && !acting && !message.is_deleted) {
+            view.askDelete = true;
+            if (asking.conflict) view.conflict = {deleted: false};
+        }
+        return view;
+    }
+
+    // Runs of one author (js/people.js), counted again when the messages change.
+    runsOf() {
+        const messages = this._data.messages || [];
+        const conversation = this._data.conversation;
+        const listed = conversation ? this._data.conversations?.find((one) => String(one.id) === String(conversation.id)) : null;
+        const type = conversation?.type ?? listed?.type ?? null;
+        if (this._runs?.of !== messages || this._runs.type !== type) this._runs = {of: messages, type, map: runsOf(messages, {type})};
+        return this._runs.map;
+    }
+
+    // Another conversation: what was open on the last one's messages goes.
+    leavePeople() {
+        this._editing.clear();
+        this._asking.clear();
+        this._acting.clear();
+        this._unread = null;
+    }
+
+    /**
+     * Where «Новые» stands, decided once when a conversation's messages first
+     * come (capability read): the port names no last read message, so it is
+     * the listed conversation's unread_count counted back from the end over
+     * others' messages. It stays put until another conversation opens.
+     */
+    findUnread(listKey, feed, messages) {
+        if (!this.has("read") || this._unread?.listKey === listKey) return false;
+        const conversation = this._data.conversation;
+        if (!conversation || feed !== "ready" || !messages.length) return false;
+        const listed = this._data.conversations?.find((one) => String(one.id) === String(conversation.id));
+        const key = unreadKeyOf(messages, listed?.unread_count);
+        this._unread = {listKey, key, revealing: Boolean(key)};
+        return Boolean(key);
+    }
+
+    // The log opens at its end; when the unread part begins above what is
+    // in view, «Новые» is brought to the top instead, and the reading is
+    // reported only once the end is reached.
+    revealUnread() {
+        const state = this._unread;
+        const {list} = this.parts;
+        let last = null;
+        let still = 0;
+        const run = (frames) => {
+            if (this._unread !== state) return;
+            const divider = list.querySelector(".sf-chat-divider");
+            const scroller = list.scroller;
+            // The log is still finding its end (it follows each message drawn
+            // at the bottom): the move waits until it rests.
+            const top = scroller?.scrollTop ?? null;
+            still = top !== null && top === last ? still + 1 : 0;
+            last = top;
+            if ((!divider || still < 2) && frames > 0) {
+                requestAnimationFrame(() => run(frames - 1));
+                return;
+            }
+            if (divider && scroller) {
+                const above = divider.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+                if (above < 0) scroller.scrollTo({top: scroller.scrollTop + above, behavior: "instant"});
+            }
+            state.revealing = false;
+            this.maybeRead();
+        };
+        requestAnimationFrame(() => run(60));
+    }
+
+    /**
+     * Report the last message read (message.read, capability read) when it
+     * has been in view at the bottom of a visible page: at most once in
+     * READ_EVERY_MS, and only for a message later than the one reported.
+     */
+    maybeRead() {
+        if (!this._partsReady || !this.has("read")) return;
+        const data = this._data;
+        const conversation = data.conversation;
+        if (!conversation || data.feed_state !== "ready" || conversation.revoked === true || this._unread?.revealing) return;
+        const messages = data.messages || [];
+        let lastAt = messages.length - 1;
+        while (lastAt >= 0 && messages[lastAt].id == null) lastAt--;
+        if (lastAt < 0) return;
+        const last = messages[lastAt];
+        const state = this._read;
+        if (state.conversation !== String(conversation.id)) {
+            clearTimeout(state.timer);
+            this._read = {conversation: String(conversation.id), id: null, timer: 0};
+            return this.maybeRead();
+        }
+        if (state.id !== null) {
+            if (state.id === String(last.id)) return;
+            const sentAt = messages.findIndex((one) => String(one.id) === state.id);
+            if (sentAt >= lastAt) return;
+        }
+        if (!this.lastSeen()) return;
+        const wait = this._readAt + READ_EVERY_MS - Date.now();
+        if (wait > 0) {
+            if (!state.timer) state.timer = setTimeout(() => { state.timer = 0; this.maybeRead(); }, wait);
+            return;
+        }
+        const before = state.id;
+        state.id = String(last.id);
+        this._readAt = Date.now();
+        this.request("message.read", {conversation_id: conversation.id, message_id: last.id}).then((result) => {
+            // Not taken: the same message may be reported again later.
+            if (result.answer !== "applied" && this._read === state && state.id === String(last.id)) state.id = before;
+        });
+    }
+
+    // The end of the conversation is on the screen: the log at its bottom,
+    // shown (not under «Мои файлы» or a preview sheet), the page visible.
+    lastSeen() {
+        const {list, main} = this.parts;
+        const scroller = list.scroller;
+        if (!scroller || !scroller.clientHeight || this._files?.open || main.inert) return false;
+        if (this.ownerDocument.visibilityState === "hidden") return false;
+        return list.isAtLatest();
+    }
+
+    connectedCallback() {
+        super.connectedCallback?.();
+        this._onVisible ??= () => this.maybeRead();
+        this.ownerDocument.addEventListener("visibilitychange", this._onVisible);
+    }
+
+    disconnectedCallback() {
+        this.ownerDocument.removeEventListener("visibilitychange", this._onVisible);
+        clearTimeout(this._read.timer);
+        this._read.timer = 0;
+        super.disconnectedCallback?.();
+    }
+
+    messageOf(id) {
+        return (this._data.messages || []).find((one) => keyOf(one) === String(id)) ?? null;
+    }
+
+    // «Изменить» opens the editor in the message's place (one untouched
+    // editor at a time), «Удалить» the question; closing either gives the
+    // focus back to its button.
+    peopleToggle(id, kind, open) {
+        const key = String(id);
+        const message = this.messageOf(key);
+        if (!message || !this.has("people")) return;
+        if (!open) {
+            if (kind === "edit") this._editing.delete(key); else this._asking.delete(key);
+            this.redrawPerson(key, kind === "edit" ? ".sf-chat-person__edit" : ".sf-chat-person__delete");
+            return;
+        }
+        if (this._acting.has(key) || message.is_deleted) return;
+        const flag = kind === "edit" ? "can_edit" : "can_delete";
+        if (!this.has(kind) || message[flag] !== true) return;
+        for (const [other, entry] of this._editing) {
+            const shown = this.messageOf(other);
+            if (other !== key && !entry.conflict && entry.draft.body === (shown?.body ?? "")) this._editing.delete(other);
+        }
+        for (const other of [...this._asking.keys()]) if (other !== key) this._asking.delete(other);
+        if (kind === "edit") {
+            this._asking.delete(key);
+            if (!this._editing.has(key)) this._editing.set(key, {draft: {body: message.body ?? ""}, revision: message.revision ?? null, conflict: null, clientKey: null});
+        } else {
+            this._editing.delete(key);
+            this._asking.set(key, {revision: message.revision ?? null, conflict: false, clientKey: null});
+        }
+        this.redrawPerson(key);
+    }
+
+    /**
+     * Save an edit: message.edit {conversation_id, message_id, revision,
+     * body, client_key} against the revision the editor was opened on (or,
+     * after a conflict, «Заменить своим», the current one). Applied: the
+     * host's message (data.message) is merged, newer revision winning.
+     * Conflict: the current message (answer.current) is merged and shown, the
+     * typed text stays in the editor. Refused or unavailable: the editor
+     * stays with the text and the reason is shown; saving again is the same
+     * action under the same client_key.
+     */
+    async saveEdit(id, typed) {
+        const key = String(id);
+        const entry = this._editing.get(key);
+        const message = this.messageOf(key);
+        const body = String(typed ?? "").trim();
+        if (!entry || !message || !body || this._acting.has(key)) return;
+        entry.draft.body = body;
+        const revision = entry.revision;
+        if (!entry.clientKey || entry.sentRevision !== revision || entry.sentBody !== body) entry.clientKey = clientKey();
+        entry.sentRevision = revision;
+        entry.sentBody = body;
+        this._acting.set(key, {action: "edit", state: "pending", clientKey: entry.clientKey, body});
+        this.redrawPerson(key, null);
+        const result = await this.request("message.edit", {
+            conversation_id: this._data.conversation?.id ?? null, message_id: message.id, revision, body, client_key: entry.clientKey,
+        });
+        this._acting.delete(key);
+        if (this._editing.get(key) !== entry) return;
+        if (result.answer === "applied") {
+            this._editing.delete(key);
+            const given = result.data?.message;
+            if (given) this.mergeMessage(given);
+            else if (!result.data?.messages) this.mergeMessage({...(this.messageOf(key) ?? message), body, is_edited: true}, {same: true});
+            this.redrawPerson(key, ".sf-chat-person__edit");
+            return;
+        }
+        if (result.answer === "conflict") {
+            this.conflict(key, entry, result.current);
+            return;
+        }
+        this.redrawPerson(key, ".sf-chat-person__edit-field");
+        this.showResult(result);
+    }
+
+    // A conflict: the current message is merged and drawn with the line «Сообщение
+    // уже изменили»; the next save goes against its revision («Заменить своим»).
+    conflict(key, entry, current) {
+        if (current && typeof current === "object") this.mergeMessage(current);
+        const now = this.messageOf(key);
+        entry.conflict = true;
+        entry.revision = now?.revision ?? entry.revision;
+        const deleted = Boolean(now?.is_deleted);
+        this.parts.list.announce(this.words(deleted ? "people.conflictDeleted" : "people.conflict"));
+        this.redrawPerson(key, deleted ? ".sf-chat-person__edit-cancel" : ".sf-chat-person__edit-field", {reveal: true});
+    }
+
+    /**
+     * Delete after the question: message.delete {conversation_id,
+     * message_id, revision, client_key}. Applied: the tombstone keeps the
+     * message's place (data.message, else drawn here until the host's own
+     * comes). Conflict: the current message is shown, the question asks again
+     * against it. Refused: the question stays with the reason.
+     */
+    async deleteMessage(id) {
+        const key = String(id ?? "");
+        const asking = this._asking.get(key);
+        const message = this.messageOf(key);
+        if (!asking || !message || this._acting.has(key)) return;
+        const revision = asking.revision;
+        if (!asking.clientKey || asking.sentRevision !== revision) asking.clientKey = clientKey();
+        asking.sentRevision = revision;
+        this._acting.set(key, {action: "delete", state: "pending", clientKey: asking.clientKey, body: null});
+        this.redrawPerson(key, null);
+        const result = await this.request("message.delete", {
+            conversation_id: this._data.conversation?.id ?? null, message_id: message.id, revision, client_key: asking.clientKey,
+        });
+        this._acting.delete(key);
+        if (this._asking.get(key) !== asking) return;
+        if (result.answer === "applied") {
+            this._asking.delete(key);
+            const given = result.data?.message;
+            if (given) this.mergeMessage(given);
+            else if (!result.data?.messages) this.mergeMessage({...(this.messageOf(key) ?? message), body: "", files: [], is_deleted: true, can_edit: false, can_delete: false}, {same: true});
+            this.redrawPerson(key, "article");
+            return;
+        }
+        if (result.answer === "conflict") {
+            if (result.current && typeof result.current === "object") this.mergeMessage(result.current);
+            const now = this.messageOf(key);
+            if (!now || now.is_deleted) {
+                this._asking.delete(key);
+                this.redrawPerson(key, "article");
+                return;
+            }
+            asking.conflict = true;
+            asking.revision = now.revision ?? revision;
+            this.parts.list.announce(this.words("people.conflict"));
+            this.redrawPerson(key, ".sf-chat-person__ask .sf-button--error", {reveal: true});
+            return;
+        }
+        this.redrawPerson(key, ".sf-chat-person__ask button");
+        this.showResult(result);
+    }
+
+    // «Повторить» on a person's message the host reports failed (local):
+    // a send goes again as one (message.retry under its key), any other
+    // action through message.retry as well.
+    retryLocal(key) {
+        const message = (this._data.messages || []).find((one) => one.local?.client_key === key);
+        if (message?.local?.action === "send" || !message) {
+            this.resend(key, {own: false, typedFor: this.draftKey});
+            return;
+        }
+        this.request("message.retry", {conversation_id: this._data.conversation?.id ?? null, client_key: key}).then((result) => this.showResult(result));
+    }
+
+    /**
+     * One message from an answer into the feed, by id, the newer revision
+     * winning (port: messages are merged so); `same` lets one of the same
+     * revision replace it (the window's own drawing until the host's comes).
+     * A message the feed does not hold is the host's to add.
+     */
+    mergeMessage(next, {same = false} = {}) {
+        if (!next || next.id == null) return;
+        const messages = this._data.messages || [];
+        const at = messages.findIndex((one) => one.id != null && String(one.id) === String(next.id));
+        if (at === -1) return;
+        const order = compareRevisions(messages[at].revision, next.revision);
+        if (order > 0 || (order === 0 && !same && messages[at].revision != null)) return;
+        const list = messages.slice();
+        list[at] = next;
+        this.applyData({messages: list});
+    }
+
+    // The message drawn again; the focus, if it was in the conversation or
+    // nowhere, goes to `selector` inside it once it is drawn. `reveal` brings
+    // the whole message into view (a conflict's line stands above the field).
+    redrawPerson(key, selector = null, {reveal = false} = {}) {
+        const {list} = this.parts;
+        const doc = this.ownerDocument;
+        const item = () => list.querySelector(`.sf-message-log__item[data-id="${CSS.escape(String(key))}"]`);
+        const before = item()?.querySelector("article") ?? null;
+        const hadFocus = list.contains(doc.activeElement) || doc.activeElement === doc.body || !doc.activeElement;
+        this.syncMessages(new Set(["messages"]));
+        if (!selector || !hadFocus) return;
+        this.afterDraw(() => {
+            const article = item()?.querySelector("article");
+            return article && article !== before ? article : null;
+        }, (article) => {
+            const target = selector === "article" ? null : article?.querySelector(selector);
+            if (target) target.focus({preventScroll: true});
+            else if (item()) list.focusItem(item());
+            // After the editor placed its own focus (a frame at most).
+            if (reveal && article) requestAnimationFrame(() => requestAnimationFrame(() => article.scrollIntoView({block: "nearest"})));
+        });
     }
 
     // --- «Мои файлы» (x-my-files) ------------------------------------------

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -1467,7 +1467,7 @@
       "canonical": true
     },
     "sf-chat-window-save": {
-      "summary": "A message edited against its revision (port message.edit). Was chat-port:edit. The 0.3 chat-port:edit {request_id, ...payload} follows it until 2026-12-01.",
+      "summary": "A message edited against its revision (port message.edit); 1.3.0: raised from the editor of a person's message, again against the current revision after a conflict («Заменить своим»). Was chat-port:edit. The 0.3 chat-port:edit {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -1497,7 +1497,7 @@
       "canonical": true
     },
     "sf-chat-window-delete": {
-      "summary": "A message deleted against its revision (port message.delete, kind message) or a kept file deleted (x-my-files files.remove {file_id}, kind file). Was chat-port:delete, chat-window:file-remove. The 0.3 chat-port:delete, chat-window:file-remove {request_id, ...payload} follow it until 2026-12-01.",
+      "summary": "A message deleted against its revision (port message.delete, kind message; 1.3.0: after the question in the message's place) or a kept file deleted (x-my-files files.remove {file_id}, kind file). Was chat-port:delete, chat-window:file-remove. The 0.3 chat-port:delete, chat-window:file-remove {request_id, ...payload} follow it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -1527,7 +1527,7 @@
       "canonical": true
     },
     "sf-chat-window-read": {
-      "summary": "The last message actually seen (port message.read). Was chat-port:read. The 0.3 chat-port:read {request_id, ...payload} follows it until 2026-12-01.",
+      "summary": "The last message actually seen (port message.read); 1.3.0: when the end of the conversation is in view, at most once in 2 s, only for a later message. Was chat-port:read. The 0.3 chat-port:read {request_id, ...payload} follows it until 2026-12-01.",
       "payload": {
         "type": "object",
         "required": [
@@ -2204,6 +2204,18 @@
         "closed",
         "beside",
         "sheet"
+      ],
+      "message": [
+        "shown",
+        "editing",
+        "asking",
+        "saving",
+        "conflict",
+        "deleted"
+      ],
+      "unread": [
+        "none",
+        "divider"
       ]
     },
     "visual_states": [
@@ -2343,6 +2355,17 @@
           "The source preview (API.md v1.3, proposed): a footnote or a source title with a same-origin preview_url opens the source beside the conversation (a sheet over it on a narrow window), with the passage {from, to} marked; the actions open-preview {source} and close-preview {focus}, the event toggle {kind: preview, open}, the cancelable open {kind: preview} and the host state data-preview-open. Without preview_url nothing changes.",
           "An assistant message's steps and an answer's files (mime, preview_url) are passed to sf-chat-message 1.1.0, and while there are steps the announcer says the step at work. No new intent: the host answers nothing new."
         ]
+      },
+      {
+        "from": "1.2.0",
+        "to": "1.3.0",
+        "changes": [
+          "Between people: with the capability people a person's message draws as sf-chat-message's template person (author, avatar, own on the end side, runs of one author within 5 minutes on one day, time, «изменено», files, tombstone). Without it nothing changes.",
+          "edit and delete: «Изменить» and «Удалить» on a person's message the host allows (can_edit, can_delete) raise message.edit and message.delete with the revision and a client_key; a conflict shows the current message with «Сообщение уже изменили», «Оставить их» and «Заменить своим»; data.message of an applied answer is merged (a newer revision wins).",
+          "read: «Новые» before the first unread message (from the conversation's unread_count) when a conversation opens, and message.read for the last message seen at the bottom, at most once in 2 s.",
+          "Between people the field says «Напишите сообщение». No new intent and no new port field.",
+          "The source preview marks the passage named by preview_url's #fragment (the element of that id, e.g. <mark id=\"cite\">) when the locator has no {from, to}."
+        ]
       }
     ]
   },
@@ -2352,7 +2375,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "16c7cddcd307eb0c5a17a9e0948ae0bb4badaa000211a222beeb24fd5c23d5e2"
+        "sha256": "e405167f00b7ecfe10f1f48a31fded9e74324aaf10656e6dc59623f553eda89c"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2368,7 +2391,11 @@
       },
       {
         "path": "src/smart/chat-window/js/preview-view.js",
-        "sha256": "3aef0a7188cfeb6d2a0d637151af2f163fc7b245e5116ffda5ce01db66a53b8e"
+        "sha256": "7d60d7df5b01b86dc1d0642f3bbea0a5dc19ae6ac757f05de295fe3ede044999"
+      },
+      {
+        "path": "src/smart/chat-window/js/people.js",
+        "sha256": "016fdef1ae15911c1d2d62cded9c50feabce31b9a2eb62798a3a49fab65d83de"
       },
       {
         "path": "src/smart/chat-window/js/templates/default.js",
@@ -2384,11 +2411,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "f1d59442cc8a0fec09fdc45c67bc7a9261d240f1173c2876354440ede2b7cb2e"
+        "sha256": "5adfe4dc320e487b3c4aab91f8ff34692d41964500cba8d75bb18c35a8d77142"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "ac1dca4b142671a3c1892e24dffbc904d65dfefb6c8a6441001ec312219488bf"
+        "sha256": "cd78cedac22158d71303d2232dcee49a27d55acef8b54cf350e33284610545f4"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2396,11 +2423,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "3daa23428d925f49a0e9e03668f358da073a39b0e630f695f342aa5101cb002e"
+        "sha256": "652f6b996e7ad59ecdb423fe45d231659c4bc17518b9929de0392d9eb44a9b54"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "fac8b060a1cf03e651b8a4cb6e808f3e32af815e66d1fddcac453d35fbec1c40"
+        "sha256": "1cc842a30260686e2b5f199636f9addba1b70dec2844e11b4fbfa8f1350d6a66"
       }
     ],
     "generated_runtime": []

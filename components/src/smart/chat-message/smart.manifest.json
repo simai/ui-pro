@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -61,7 +61,7 @@
       "display": {
         "type": "object",
         "default": {},
-        "description": "What the host knows that the server does not (the 0.3 view): wait, busy, feedback, retried, note, code, sources_open, steps_open, brief, brief_draft; for person own, first, last, showName, editing, askDelete."
+        "description": "What the host knows that the server does not (the 0.3 view): wait, busy, feedback, retried, note, code, sources_open, steps_open, brief, brief_draft; for person own, first, last, showName, editing, askDelete, conflict (1.2.0); divider (1.2.0)."
       },
       "features": {
         "type": "object",
@@ -494,6 +494,14 @@
           "An answer's files (attachments on an assistant message): «Что готово» with a card per file, «Просмотр» and «Скачать».",
           "A downloaded file found gone says «Файл недоступен» instead of «Файл удалён» (attachment-deleted). A host that looked for the old words looks for the new ones."
         ]
+      },
+      {
+        "from": "1.1.0",
+        "to": "1.2.0",
+        "changes": [
+          "Template person: display.conflict {deleted} shows «Сообщение уже изменили» with the message as it is now over the kept typed text, «Оставить их» and «Заменить своим»; message.authorAvatar beside the first of a run; Escape cancels the delete question.",
+          "Both templates: display.divider unread draws «Новые» before the message. Without the new fields a message draws as before."
+        ]
       }
     ]
   },
@@ -503,15 +511,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
-        "sha256": "00a2c84cc7491315d8468693da24ccd475b81c5d3421ec88c5f8616cf8367242"
+        "sha256": "ed87e7c4e00eac52f9d2f1db4d231613b054827780b3ed3b59e301b6ea5524fd"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.js",
-        "sha256": "cbc09bb48ee95b8b0b196d19771ec0dadc00c6b9736f87399652167915d04bb1"
+        "sha256": "769057037192e0279b9f6e69ac4e35d8063cb69cef45f8b4eb393f450923a808"
       },
       {
         "path": "src/smart/chat-message/js/templates/person.js",
-        "sha256": "31c7192ad9c506243a959a64d1c28cc80d5d707dbdce61185f0f0167840e588c"
+        "sha256": "9ee1b98623c90d4716090be24e9969985f4c67a982f7c515be15e1dcdd3a61b5"
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
@@ -519,7 +527,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
-        "sha256": "3d87f7eebb8464e8dc66248a16783aceb7cc719e145c9436488b0e635643693f"
+        "sha256": "7b6458fde770c19120bfdef57f86bbb66a36258f150d2d94b240b93cc1c1f280"
       },
       {
         "path": "src/smart/chat-message/js/view/proposed.js",
@@ -527,7 +535,7 @@
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
-        "sha256": "b971d98bee02f523f0ef89a75154edf2c49bb477e7de2a8518e2dd88b6259397"
+        "sha256": "989d88ec73eceb0bb7cf0806e90e747634bb2f2b738f30cf2bbda578e2980f47"
       },
       {
         "path": "src/smart/chat-message/rule.js",
@@ -535,11 +543,11 @@
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "ecdc3f987f932408df6163c6c8db8b93be26e3ea2f29c63f0862edec2ad8a70c"
+        "sha256": "c35069178e2971abf2c9fe94fccd0be1bdd734344fe87db698470bbd6040330d"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "38cd6ed92bf24a5ec9ca571b5e3bc724ffbfd7cc289b8073fd918a69e56b4039"
+        "sha256": "34c749a1874e37d3288420ce11df65be9fcdec3df1673e46ddb73589e0dbb76d"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
@@ -547,11 +555,11 @@
       },
       {
         "path": "src/smart/chat-message/lang/en.json",
-        "sha256": "6ed4c2a0155c3ed455e5faea1e4bfe37cab19caf768cc2dd87e1d0fba6eb08b7"
+        "sha256": "c8f908729b5e2a55319dc672453a7314adea833a10df1a28b48637bb8a2a8cf5"
       },
       {
         "path": "src/smart/chat-message/lang/ru.json",
-        "sha256": "e3a82d432be3f0b5e1a876970136ccfca23bc4de5830ff55398d56448d821ac1"
+        "sha256": "fefa6b3451f2ef39496d42d91d61e0d9e51fc525f6c4679bcd49156a7eb732e6"
       }
     ],
     "generated_runtime": []

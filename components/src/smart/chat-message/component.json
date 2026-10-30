@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-message",
   "tag": "sf-chat-message",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -15,8 +15,8 @@
     "display": {
       "type": "object",
       "default": {},
-      "x-markup": "what the host knows that the server does not, the 0.3 property view: wait (delayed|stopped|network), busy, feedback ({value, reason, note, asking, draft}), retried, note (confirm|cancel|repeat) and code, sources_open, steps_open (the reader's choice for an answer's steps, v1.3), brief ({live, answer}) and brief_draft; for the template person own, first, last, showName, editing ({body}) and askDelete. Drafts in it (feedback.draft, brief_draft, editing.body) are written in place, so a host that keeps the object keeps them across redraws",
-      "summary": "What the host knows that the server does not (the 0.3 view): wait, busy, feedback, retried, note, code, sources_open, steps_open, brief, brief_draft; for person own, first, last, showName, editing, askDelete."
+      "x-markup": "what the host knows that the server does not, the 0.3 property view: wait (delayed|stopped|network), busy, feedback ({value, reason, note, asking, draft}), retried, note (confirm|cancel|repeat) and code, sources_open, steps_open (the reader's choice for an answer's steps, v1.3), brief ({live, answer}) and brief_draft; for the template person own, first, last, showName, editing ({body}), askDelete and conflict ({deleted}, 1.2.0: an edit or a delete met a newer revision); divider (1.2.0, both templates): unread draws «Новые» before the message. Drafts in it (feedback.draft, brief_draft, editing.body) are written in place, so a host that keeps the object keeps them across redraws",
+      "summary": "What the host knows that the server does not (the 0.3 view): wait, busy, feedback, retried, note, code, sources_open, steps_open, brief, brief_draft; for person own, first, last, showName, editing, askDelete, conflict (1.2.0); divider (1.2.0)."
     },
     "features": {
       "type": "object",
@@ -357,7 +357,8 @@
     "preview (1.1.0, API.md v1.3 proposed): a source with a same-origin preview_url (proposed.js sameOriginHref: root-relative or the page's origin, http(s)) asks for it from its footnote and from its title in the list (a site keeps its link) with the event open {id, kind: preview, source}, cancelable: the host that shows it cancels, and only then does the footnote not open the list. Without preview_url, or with one of another origin, a footnote opens the list as before.",
     "an answer's files (1.1.0, API.md v1.3 proposed): «Что готово» under an answered message, a card per attachment: icon by type, name, size and extension, «Просмотр» (the same open event; a new tab when nobody takes it) when it has a same-origin preview_url, «Скачать» (a download link, same-origin only) checked first with HEAD like a sent file's chip. Drawn as the chat's own markup, not sf-file-preview: that is a file row with download and remove, no preview action, and the widget has no runtime to place it.",
     "words (1.1.0): a file found gone by the HEAD check says «Файл недоступен» (en «File unavailable»), not «Файл удалён»: the neutral word a people messenger (the Bitrix module) asked for, since the server may also refuse it for other reasons. Plural step counts are four words (steps-count-one, -few, -many, -other) chosen by Intl.PluralRules in the view, which the widget's words function can give as well.",
-    "proposed fields (1.1.0): every field proposed to Mirai24 as API.md v1.3 is read only in js/view/proposed.js (stepsOf, previewOf, previewTarget, deliverablesOf, PROPOSED_MESSAGE_FIELDS), so a renamed field changes one module; all optional, and a message without them draws exactly as 1.0.3 did."
+    "proposed fields (1.1.0): every field proposed to Mirai24 as API.md v1.3 is read only in js/view/proposed.js (stepsOf, previewOf, previewTarget, deliverablesOf, PROPOSED_MESSAGE_FIELDS), so a renamed field changes one module; all optional, and a message without them draws exactly as 1.0.3 did.",
+    "people 1.2.0 (for sf-chat-window 1.3.0): display.conflict {deleted} draws the message as it is now with «Сообщение уже изменили» (or «уже удалили») above the editor, which keeps the typed text and offers «Оставить их» (edit-cancel) and «Заменить своим» (the same save); above the delete question the same line. The line is not a live region (the message is drawn again with it): the window says it once. display.divider unread draws «Новые» before the message in either template, as plain text in reading order, outside the article. message.authorAvatar (a host's picture) covers the initials beside the first of a run and falls back to them. Escape in the delete question takes it back, as «Отмена»; the edit and delete buttons carry classes sf-chat-person__edit and sf-chat-person__delete, the editor's sf-chat-person__edit-cancel and -save."
   ],
   "x-rule": {
     "$comment": [
@@ -557,6 +558,14 @@
             "A source with a same-origin preview_url asks for its preview from its footnote and its title: the new cancelable event open {id, kind: preview, source}; a host that shows it cancels it. Without preview_url nothing changes.",
             "An answer's files (attachments on an assistant message): «Что готово» with a card per file, «Просмотр» and «Скачать».",
             "A downloaded file found gone says «Файл недоступен» instead of «Файл удалён» (attachment-deleted). A host that looked for the old words looks for the new ones."
+          ]
+        },
+        {
+          "from": "1.1.0",
+          "to": "1.2.0",
+          "changes": [
+            "Template person: display.conflict {deleted} shows «Сообщение уже изменили» with the message as it is now over the kept typed text, «Оставить их» and «Заменить своим»; message.authorAvatar beside the first of a run; Escape cancels the delete question.",
+            "Both templates: display.divider unread draws «Новые» before the message. Without the new fields a message draws as before."
           ]
         }
       ]

@@ -264,7 +264,8 @@ class SfChatMessage extends ChatMessageElement {
             this._drawn = drawn;
             this._stale = false;
         }
-        return {component: this, node: this._node};
+        const display = this.display && typeof this.display === "object" ? this.display : {};
+        return {component: this, node: this._node, divider: display.divider === "unread" ? this.sfWord("divider-unread") : null};
     }
 
     template() {

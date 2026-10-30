@@ -50,12 +50,14 @@ test('the fields are read in proposed.js only', () => {
 
 test('the message declares open {kind: preview} and the steps toggle; the window the preview actions, event and state', () => {
   const message = json('chat-message', 'component.json');
-  assert.equal(message.version, '1.1.0');
+  // Since 1.1.0 (message) and 1.2.0 (window); later versions keep it.
+  const atLeast = (version, least) => version.split('.').map(Number).reduce((order, part, at) => order || Math.sign(part - least.split('.').map(Number)[at]), 0) >= 0;
+  assert.ok(atLeast(message.version, '1.1.0'), message.version);
   assert.ok(message.events.open.cancelable, 'a host that shows the preview cancels it');
   assert.deepEqual(message.events.open.carries.kind.values, ['preview']);
   assert.match(message.events.toggle.summary, /kind: steps/u);
   const window = json('chat-window', 'component.json');
-  assert.equal(window.version, '1.2.0');
+  assert.ok(atLeast(window.version, '1.2.0'), window.version);
   assert.deepEqual(Object.keys(window.actions['open-preview'].with), ['source']);
   assert.deepEqual(Object.keys(window.actions['close-preview'].with), ['focus']);
   assert.deepEqual(window.events.toggle.carries.kind.values, ['find', 'preview']);

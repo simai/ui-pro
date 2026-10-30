@@ -127,7 +127,7 @@ log.renderMessage = (message, {view}) => {
 | Имя | Тип | По умолчанию | Что делает |
 |:---|:---|:---|:---|
 | `message` | объект | — | Сообщение (см. выше); без него элемент пуст. |
-| `display` | объект | `{}` | Что знает хост, а сервер нет (в 0.3 — `view`): `wait`, `busy`, `feedback`, `retried`, `note` и `code`, `sources_open`, `steps_open`, `brief`, `brief_draft`; для `person` — `own`, `first`, `last`, `showName`, `editing`, `askDelete`. Черновики (`feedback.draft`, `brief_draft`, `editing.body`) пишутся в этот объект. |
+| `display` | объект | `{}` | Что знает хост, а сервер нет (в 0.3 — `view`): `wait`, `busy`, `feedback`, `retried`, `note` и `code`, `sources_open`, `steps_open`, `brief`, `brief_draft`; для `person` — `own`, `first`, `last`, `showName`, `editing`, `askDelete`, `conflict` (1.2.0); `divider` (1.2.0, оба шаблона). Черновики (`feedback.draft`, `brief_draft`, `editing.body`) пишутся в этот объект. |
 | `features` | объект | `{feedback: true, proposals: true, memory: true, brief: false}` | Что предлагает поверхность. |
 | `template` | атрибут | `default` | `person` — сообщение разговора людей. |
 
@@ -189,3 +189,5 @@ Escape — отмена; вопрос об удалении ставит фок�
 `studio.scenario.json` (`smoke`).
 
 1.1.0: шаги работы (`steps`), просмотр источника (`sources[].preview_url`, событие `open`), готовые файлы ответа (`attachments`) — поля, предложенные как API.md v1.3; «Файл удалён» → «Файл недоступен».
+
+1.2.0: `display.divider: 'unread'` рисует «Новые» перед сообщением (оба шаблона). У `person`: `display.conflict {deleted}` — строка «Сообщение уже изменили» (или «уже удалили») над текущим текстом, набранный текст остаётся в поле, кнопки «Оставить их» и «Заменить своим»; `message.authorAvatar` — картинка автора вместо букв; Escape закрывает вопрос об удалении. Без новых полей всё как раньше.
