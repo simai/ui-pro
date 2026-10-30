@@ -204,7 +204,7 @@
             {
               "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const one = document.querySelector('#structure'); globalThis.pinned = [one.move({id: 'b1', by: 1}).reason, one.duplicate({id: 'b1'}).reason, one.delete({id: 'b5'}).reason]; }, 300); return true; })()",
               "wait": 800,
-              "check": "globalThis.pinned.join(',') === 'pinned,pinned,pinned' && document.querySelector('#structure [role=\"status\"]').textContent.includes('закреплены') && globalThis.heard.length === 0"
+              "check": "globalThis.pinned.join(',') === 'pinned,pinned,pinned' && document.querySelector('#structure .sf-mail-structure-notice').textContent.includes('закреплены') && globalThis.heard.length === 0"
             }
           ]
         },

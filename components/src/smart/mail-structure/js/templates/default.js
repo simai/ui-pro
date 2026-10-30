@@ -67,7 +67,7 @@ export function renderMailStructureTemplate(context) {
                     <sf-icon class="sf-mail-structure-icon" icon="add" size="2" aria-hidden="true"></sf-icon>
                     <span class="sf-mail-structure-title">${context.addLabel}</span>
                 </button>`}
-            <span class="sr-only" role="status">${context.noticeText}</span>
+            <span class="sf-mail-structure-notice sr-only" role="status">${context.noticeText}</span>
             <sf-context-menu class="sf-mail-structure-menu" popup
                              @sf-context-menu-select=${(event) => {
                                  event.stopPropagation();

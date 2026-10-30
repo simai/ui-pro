@@ -426,7 +426,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "3c15949c8d90bda48c8613bcaaa552869ee7d1bd",
+    "source_revision": "4dde4616ff9776a1cc98739a752576956fc48bb8",
     "source_artifacts": [
       {
         "path": "src/smart/mail-structure/index.js",
@@ -434,7 +434,7 @@
       },
       {
         "path": "src/smart/mail-structure/js/templates/default.js",
-        "sha256": "651e3bf40438b67955c69069bfa47068da7bbbfbc886d54f2c4de7ff214e9764"
+        "sha256": "c26b2802fe4222f9d3da98125583aad7315a7ef727804665aad89ba5b1cea3cc"
       },
       {
         "path": "src/smart/mail-structure/js/templates/default.css",
@@ -442,7 +442,7 @@
       },
       {
         "path": "src/smart/mail-structure/rule.js",
-        "sha256": "8743d75bce6ea8ea713cb26b91f33246db5ce602b8277d59e2824be421bd0b17"
+        "sha256": "3e185326f50245327c5e6489c7e078c3204cce716fc73c203a72c9ad31b8c90c"
       },
       {
         "path": "src/smart/mail-structure/docs.md",
@@ -450,7 +450,7 @@
       },
       {
         "path": "src/smart/mail-structure/component.json",
-        "sha256": "ae4a93b2026c2217062d05b404abecff4155226b4d77db0923d64acd5c3712c0"
+        "sha256": "2c99a0c5909ee72786251b278e43e3fdef0b9a5a4d1f16d5c9991ea0dbbe6017"
       },
       {
         "path": "src/smart/mail-structure/lang/en.json",
