@@ -151,6 +151,47 @@
       "expect": {
         "name": "Разговоры"
       }
+    },
+    {
+      "name": "activity",
+      "title": "Состояние работы в строке",
+      "settings": {
+        "threads": [
+          {
+            "id": "a1",
+            "title": "Сводка по договорам",
+            "caption": "Собираю источники",
+            "updated-at": "2026-10-30T09:00:00Z",
+            "activity": "running"
+          },
+          {
+            "id": "a2",
+            "title": "Ответ клиенту",
+            "caption": "Какой тон выбрать?",
+            "updated-at": "2026-10-30T08:00:00Z",
+            "activity": "waiting"
+          },
+          {
+            "id": "a3",
+            "title": "Отчёт за квартал",
+            "caption": "Файл готов",
+            "updated-at": "2026-10-29T15:00:00Z",
+            "activity": "done"
+          },
+          {
+            "id": "a4",
+            "title": "Импорт контактов",
+            "caption": "Файл не прочитан",
+            "updated-at": "2026-10-29T12:00:00Z",
+            "activity": "failed"
+          }
+        ],
+        "group-by": "none",
+        "label": "Разговоры"
+      },
+      "expect": {
+        "name": "Разговоры"
+      }
     }
   ]
 }

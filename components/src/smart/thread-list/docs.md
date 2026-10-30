@@ -79,7 +79,9 @@ list.addEventListener('sf-thread-list-apply', (event) => {
 
 ## The thread
 
-`{id, title, updated-at, archived?, pinned?, caption?, unread?, avatar?: {image-url?, text?}}`.
+`{id, title, updated-at, archived?, pinned?, caption?, activity?, unread?, avatar?: {image-url?, text?}}`.
+`activity` (`running`, `waiting`, `done`, `stopped`, `failed`) is where the work in the
+conversation is: a compact `sf-badge` in the row, its word the accessible name.
 A pinned conversation (`pinned: true`, Mirai24 API v1.1) leads the list under its own
 heading «Закреплённые» (`pinned`) and carries a quiet «Закреплён» line
 (`pinned-text`); without groups (`group-by="none"`) the pinned ones simply lead.

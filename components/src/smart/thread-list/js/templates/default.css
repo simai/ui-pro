@@ -201,6 +201,7 @@
   }
 
   .sf-thread-list__unread { flex: none; }
+  .sf-thread-list__activity { flex: none; }
 
   /* The row's «⋯»: an icon button of the step below the row, centred in the
      row's end, shown on hover, on focus within and on the open row. */
