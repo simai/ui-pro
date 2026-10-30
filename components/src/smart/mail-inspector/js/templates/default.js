@@ -88,12 +88,13 @@ function renderItem(context, field, item, index) {
     const isOpen = field.open === index;
     const label = String(item.label ?? "");
     const actions = context.itemActionsLabel(label);
+    const bodyId = context.partOf(`${context.groupOf(field.path)}-item-${index}`);
     return html`
         <div slot="item" class=${["sf-mail-inspector-item", isOpen ? "is-open" : "", item.problem ? "has-problem" : ""].filter(Boolean).join(" ")}
              data-sf-sortable-item=${`item-${index}`} data-item=${index} tabindex="-1">
             <div class="sf-mail-inspector-item-head">
                 <span class="sf-mail-inspector-handle" data-sf-sortable-handle aria-hidden="true"><sf-icon icon="drag_indicator" size="1"></sf-icon></span>
-                <button type="button" class="sf-mail-inspector-toggle" aria-expanded=${isOpen ? "true" : "false"} data-toggle=${index}
+                <button type="button" class="sf-mail-inspector-toggle" aria-expanded=${isOpen ? "true" : "false"} aria-controls=${bodyId} data-toggle=${index}
                         @click=${() => component.itemToggle({path: field.path, index})}
                         @keydown=${(event) => component.onToggleKeydown(field.path, index, event)}>
                     <sf-icon icon=${isOpen ? "expand_more" : "chevron_right"} size="1" aria-hidden="true"></sf-icon>
@@ -103,7 +104,7 @@ function renderItem(context, field, item, index) {
                                 aria-label=${actions} title=${actions} data-item-menu=${index}
                                 @click=${(event) => component.openItemMenu(field.path, index, event.currentTarget)}></sf-icon-button>
             </div>
-            <div class="sf-mail-inspector-item-body" role="group" aria-label=${label} data-item-body=${index} data-item-list=${field.path} ?hidden=${!isOpen}>
+            <div id=${bodyId} class="sf-mail-inspector-item-body" role="group" aria-label=${label} data-item-body=${index} data-item-list=${field.path} ?hidden=${!isOpen}>
                 ${isOpen ? renderFields(context, item.fields) : nothing}
             </div>
         </div>
@@ -238,7 +239,7 @@ export function renderMailInspectorTemplate(context) {
             ${renderNotice(context)}
             ${keyed(`${context.formKey}\n${context.tabsKey}`, context.tabs.length ? renderTabs(context) : renderForm(context))}
             <span class="sf-mail-inspector-said sr-only" role="status">${context.said}</span>
-            <sf-context-menu class="sf-mail-inspector-menu" popup size="1/2"
+            <sf-context-menu class="sf-mail-inspector-menu" popup size="1/2" aria-label=${context.words.itemMenu}
                              @sf-context-menu-select=${(event) => {
                                  event.stopPropagation();
                                  component.onMenuSelect(event.detail);

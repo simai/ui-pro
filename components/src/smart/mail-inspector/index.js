@@ -525,9 +525,11 @@ class SfMailInspector extends MailInspectorElement {
                 replace: this.sfWord("replace-text"),
                 add: this.sfWord("item-add-text"),
                 imageEmpty: this.sfWord("image-empty-text"),
+                itemMenu: this.sfWord("item-menu-label"),
             },
             itemActionsLabel: (label) => this.sfWord("item-actions-label", {vars: {label}}),
             groupOf,
+            partOf: (name) => partId(path, name),
             said: this.said,
             rootClass: this.getRootClass?.() ?? "",
         };

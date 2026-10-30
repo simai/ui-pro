@@ -9,6 +9,7 @@
     "image-required-text": "Это изображение обязательно: его можно заменить, но не убрать",
     "item-actions-label": "Действия с элементом: {label}",
     "item-add-text": "Добавить элемент",
+    "item-menu-label": "Действия с элементом",
     "item-moved-text": "Элемент: позиция {n} из {total}",
     "path-label": "Путь",
     "replace-text": "Сменить вариант…",

@@ -9,6 +9,7 @@
     "image-required-text": "This image is required: it can be replaced, not removed",
     "item-actions-label": "Item actions: {label}",
     "item-add-text": "Add an item",
+    "item-menu-label": "Item actions",
     "item-moved-text": "Item: position {n} of {total}",
     "path-label": "Path",
     "replace-text": "Change the variant…",
