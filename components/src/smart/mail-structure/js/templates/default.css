@@ -1,0 +1,99 @@
+@layer sf.components {
+  /* sf-mail-structure, the structure of a letter in SIMAI Email Editor: the
+     letter's settings, the rows, «Добавить блок». A row is a handle, an icon,
+     the name and what it holds, with ⋯ at its end, its space kept. The host is
+     display: contents; .sf-mail-structure is what a page places. Every value
+     is a Framework token. */
+  .sf-mail-structure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .sf-mail-structure-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .sf-mail-structure-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    inline-size: 100%;
+    padding: var(--sf-space-1\/4) var(--sf-space-1\/2);
+    border: 0;
+    border-radius: var(--sf-radius-1\/2);
+    background: transparent;
+    color: var(--sf-on-surface);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .sf-mail-structure-row:hover {
+    background: var(--sf-surface-transparent-hover);
+  }
+
+  .sf-mail-structure-row:focus-visible {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: calc(var(--sf-focus--width) * -1);
+  }
+
+  .sf-mail-structure-row.is-selected {
+    background: var(--sf-primary-transparent-select);
+  }
+
+  .sf-mail-structure-handle {
+    display: inline-flex;
+    flex-shrink: 0;
+    inline-size: var(--sf-space-1);
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-mail-structure-handle[data-sf-sortable-handle] {
+    cursor: grab;
+  }
+
+  .sf-mail-structure-icon {
+    flex-shrink: 0;
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-mail-structure-words {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-inline-size: 0;
+  }
+
+  .sf-mail-structure-title,
+  .sf-mail-structure-summary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-mail-structure-summary {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text--size-1\/3);
+  }
+
+  /* ⋯ on hover, selection and focus; its space is kept, so a name never jumps. */
+  .sf-mail-structure-more {
+    flex-shrink: 0;
+    opacity: 0;
+  }
+
+  .sf-mail-structure-row:hover .sf-mail-structure-more,
+  .sf-mail-structure-row:focus-within .sf-mail-structure-more,
+  .sf-mail-structure-row.is-selected .sf-mail-structure-more {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    .sf-mail-structure-more {
+      opacity: 1;
+    }
+  }
+}
