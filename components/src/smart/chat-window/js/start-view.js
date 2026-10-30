@@ -190,17 +190,9 @@ export class StartView {
       form.denied = false;
       this.showLine(form, '');
     }
-    this.noteTruncated(form, answer.truncated);
-    return {items: answer.items};
-  }
-
-  // «Показаны первые 20. Уточните запрос.»: sf-lookup's own line under the field.
-  noteTruncated(form, truncated) {
-    const {lookup, limits} = form;
-    const text = truncated ? this.win.sfWord('start-truncated', {count: limits.search_max}) : '';
-    if ((lookup.getAttribute('hint') || '') === text) return;
-    if (text) lookup.setAttribute('hint', text); else lookup.removeAttribute('hint');
-    if (text) this.say(text);
+    // «Показаны первые 20. Уточните запрос.»: sf-lookup's line under the rows.
+    if (!answer.truncated) return {items: answer.items};
+    return {items: answer.items, notice: this.win.sfWord('start-truncated', {count: form.limits.search_max})};
   }
 
   // A choice in the field: a person chosen starts at once.

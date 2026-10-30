@@ -1066,7 +1066,7 @@
         {
           "script": "(window.answers['recipients.search'] = () => ({answer: 'applied', data: {items: [{id: 1, name: 'А Б'}, {id: 2, name: 'В Г'}, {id: 3, name: 'Д Е'}]}}), window.lookup().search('ия'), true)",
           "wait": 200,
-          "check": "!window.w.querySelector('.chat-start__line').textContent && window.lookup().getAttribute('hint') === 'Показаны первые 3. Уточните запрос.'"
+          "check": "!window.w.querySelector('.chat-start__line').textContent && window.lookup().querySelector('.sf-lookup-state-text')?.textContent.includes('Показаны первые 3. Уточните запрос.') && !window.lookup().getAttribute('hint')"
         },
         {
           "script": "(window.answers['recipients.search'] = () => ({answer: 'unavailable', reason: 'port-failed'}), window.lookup().search('иэ'), true)",
