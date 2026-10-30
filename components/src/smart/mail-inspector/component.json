@@ -681,7 +681,7 @@
       },
       "visual_states": [
         "default",
-        "invalid",
+        "error",
         "open",
         "closed"
       ]
