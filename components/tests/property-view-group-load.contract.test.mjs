@@ -19,15 +19,15 @@ const body = (start) => {
   return view.slice(at, view.indexOf('\n    }\n', at));
 };
 
-// 1.16.0 (mask, buttons) is declared since; 1.15.0 and 1.14.0 stay accepted.
+// 1.16.0 (mask, buttons) and 1.17.0 (html) are declared since; 1.15.0 and 1.14.0 stay accepted.
 test('the view takes port 1.15.0 and 1.14.0', () => {
   const manifest = JSON.parse(read('src/smart/property-view/smart.manifest.json')).composition.declarative.host_port;
-  assert.equal(manifest.version, '1.16.0');
+  assert.equal(manifest.version, '1.17.0');
   assert.ok(manifest.supported_versions.includes('1.14.0'));
   assert.ok(manifest.supported_versions.includes('1.15.0'));
   const component = JSON.parse(read('src/smart/property-view/component.json')).port;
-  assert.equal(component.version, '1.16.0');
-  assert.equal(component.contract, 'src/core/contracts/ports/simai.property-view-port/1.16.0/port.json');
+  assert.equal(component.version, '1.17.0');
+  assert.equal(component.contract, 'src/core/contracts/ports/simai.property-view-port/1.17.0/port.json');
 });
 
 test('group.load is asked only of a host that announces group-load', () => {

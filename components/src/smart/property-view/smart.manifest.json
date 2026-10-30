@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.7.9",
+  "version": "1.8.0",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -123,9 +123,9 @@
       },
       "host_port": {
         "port": "simai.property-view-port",
-        "version": "1.16.0",
-        "path": "src/core/contracts/ports/simai.property-view-port/1.16.0/port.json",
-        "sha256": "5e4a47b0ce0d7226a388d3f7b146f725d0db72aa1d1022fb59368ae4526f2d6a",
+        "version": "1.17.0",
+        "path": "src/core/contracts/ports/simai.property-view-port/1.17.0/port.json",
+        "sha256": "123295c1e8fda146ebd25a814fc4695c6fdb6cb1f84911a66d4568e0c7504120",
         "supported_versions": [
           "1.0.0",
           "1.1.0",
@@ -142,7 +142,8 @@
           "1.13.0",
           "1.14.0",
           "1.15.0",
-          "1.16.0"
+          "1.16.0",
+          "1.17.0"
         ]
       }
     }
@@ -1288,6 +1289,13 @@
         "to": "1.7.8",
         "changes": [
           "Entering the arrangement on a cold page waits for the view chooser to be defined and drawn before placing the focus, so it lands on the chooser rather than Reset. Nothing to change for a host."
+        ]
+      },
+      {
+        "from": "1.7.9",
+        "to": "1.8.0",
+        "changes": [
+          "Port 1.17.0 (1.16.0 and earlier keep working; consumer Larena, msg-4208ef91ae5442ceb44b): a field of propertyType html is formatted text, an HTML string of the sf-rich-text subset; the Framework's field renderers edit it with sf-rich-text and show it cleaned when viewed. Nothing to change for a host that sends no html field."
         ]
       }
     ]

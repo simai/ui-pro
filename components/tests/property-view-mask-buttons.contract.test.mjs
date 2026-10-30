@@ -21,15 +21,15 @@ const body = (source, start, end = '\n    }\n') => {
   return source.slice(at, source.indexOf(end, at));
 };
 
-test('the view declares port 1.16.0 and keeps every earlier version', () => {
+test('the view declares port 1.17.0 and keeps every earlier version', () => {
   const manifest = JSON.parse(read('src/smart/property-view/smart.manifest.json'));
   const port = manifest.composition.declarative.host_port;
-  assert.equal(port.version, '1.16.0');
-  assert.equal(port.path, 'src/core/contracts/ports/simai.property-view-port/1.16.0/port.json');
-  assert.deepEqual(port.supported_versions.slice(-3), ['1.14.0', '1.15.0', '1.16.0']);
-  assert.match(view, /const SUPPORTED_PORT_VERSIONS = \[[^\]]*"1\.15\.0", "1\.16\.0"\];/u);
+  assert.equal(port.version, '1.17.0');
+  assert.equal(port.path, 'src/core/contracts/ports/simai.property-view-port/1.17.0/port.json');
+  assert.deepEqual(port.supported_versions.slice(-3), ['1.15.0', '1.16.0', '1.17.0']);
+  assert.match(view, /const SUPPORTED_PORT_VERSIONS = \[[^\]]*"1\.16\.0", "1\.17\.0"\];/u);
   const component = JSON.parse(read('src/smart/property-view/component.json'));
-  assert.equal(component.port.version, '1.16.0');
+  assert.equal(component.port.version, '1.17.0');
   assert.equal(manifest.version, component.version);
   assert.ok(manifest.compatibility.migrations.some((step) => step.from === '1.6.0' && step.to === '1.7.0'));
 });
