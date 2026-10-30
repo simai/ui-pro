@@ -389,6 +389,18 @@
           "check": "document.querySelector('#list .sf-thread-list__head').hidden"
         }
       ]
+    },
+    {
+      "id": "p-avatar-shape-icon",
+      "title": "1.6.0: avatar.shape and avatar.icon; a row without an avatar keeps no column and no node",
+      "covers": "settings.threads, compatibility.1.6.0",
+      "steps": [
+        {
+          "script": "(document.querySelector('#list').threads = [{id: 'a', title: 'Анна', 'updated-at': '2026-10-27T09:00:00Z', avatar: {text: 'АН'}}, {id: 'g', title: 'Группа', 'updated-at': '2026-10-26T09:00:00Z', avatar: {text: 'ГР', shape: 'square'}}, {id: 'c', title: 'Канал', 'updated-at': '2026-10-25T09:00:00Z', avatar: {icon: 'campaign', shape: 'square'}}, {id: 'b', title: 'Бот', 'updated-at': '2026-10-24T09:00:00Z', avatar: {icon: 'bolt'}}, {id: 'n', title: 'ИИ-разговор', 'updated-at': '2026-10-23T09:00:00Z'}], true)",
+          "wait": 300,
+          "check": "(() => { const row = (id) => document.querySelector('#list .sf-thread-list__item[data-id=\"' + id + '\"]'); const icon = (id) => row(id).querySelector('.sf-thread-list__avatar sf-icon'); const left = (id) => row(id).querySelector('.sf-thread-list__title').getBoundingClientRect().left - row(id).querySelector('.sf-thread-list__link').getBoundingClientRect().left; return row('g').querySelector('sf-avatar').getAttribute('shape') === 'square' && !row('a').querySelector('sf-avatar').hasAttribute('shape') && icon('c')?.getAttribute('icon') === 'campaign' && row('c').querySelector('.sf-thread-list__avatar').classList.contains('sf-avatar--square') && icon('b')?.getAttribute('icon') === 'bolt' && !row('b').querySelector('.sf-thread-list__avatar').classList.contains('sf-avatar--square') && !row('n').querySelector('.sf-thread-list__avatar') && left('n') < left('a'); })()"
+        }
+      ]
     }
   ]
 }

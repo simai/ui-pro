@@ -1460,6 +1460,248 @@
     border-block-start: var(--sf-chat-message--line) solid currentColor;
   }
 
+  /* === among people (1.4.0): who speaks, the quote, reactions, tools ====== */
+
+  /* An assistant, an agent or a bot among people: a document without a bubble,
+     on the full column, its text where a person's text begins (the avatar's
+     column, the gap and the bubble's own padding). */
+  .sf-chat-message--document {
+    --sf-chat-message--avatar: var(--sf-ui-1\/2--control-height);
+    position: relative;
+    max-inline-size: none;
+    margin-block-start: var(--sf-chat-message--gap-related);
+  }
+
+  .sf-chat-message--named > .sf-chat-message__body {
+    padding-inline-start: calc(var(--sf-chat-message--avatar) + var(--sf-space-1\/3) + var(--sf-space-1\/2));
+  }
+
+  .sf-chat-message__head {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    min-inline-size: 0;
+  }
+
+  .sf-chat-message__head .sf-chat-person__avatar:not(:empty) { background: none; }
+
+  .sf-chat-message__who {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--sf-space-1\/3);
+    margin: 0;
+    padding-inline: var(--sf-space-1\/2);
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  .sf-chat-message__name { font-weight: var(--sf-font-weight-medium); }
+
+  /* Copy and the rating stay in sight; the tools a person's message has too
+     come on hover or focus. */
+  .sf-chat-message--assistant.sf-chat-message--document:not(.sf-chat-message--last) .sf-chat-message__tool { opacity: 1; }
+
+  .sf-chat-message__time {
+    color: var(--sf-chat-message--ink-muted);
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+  }
+
+  .sf-chat-message__stop { align-self: flex-start; }
+
+  /* A long text folds past about 14 lines; a table and a proposal never do. */
+  .sf-chat-fold {
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--sf-primary);
+    font: inherit;
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+    cursor: pointer;
+  }
+
+  .sf-chat-fold:hover { text-decoration: underline; }
+
+  .sf-chat-fold[hidden],
+  .sf-chat-markup > [hidden] { display: none; }
+
+  .sf-chat-fold__cut {
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, black calc(100% - var(--sf-text--height)), transparent);
+  }
+
+  /* What a message answers: the author and one line, a side rule. */
+  .sf-chat-quote {
+    display: block;
+    box-sizing: border-box;
+    inline-size: 100%;
+    margin: 0 0 var(--sf-space-1\/4);
+    padding-block: 0;
+    padding-inline: var(--sf-space-1\/3) 0;
+    border: 0;
+    border-inline-start: calc(2 * var(--sf-chat-message--line)) solid var(--sf-outline-variant);
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    text-align: start;
+    white-space: normal;
+    cursor: pointer;
+  }
+
+  .sf-chat-quote[aria-disabled="true"] { cursor: default; }
+
+  /* The quote's one line never widens its bubble past the column. */
+  .sf-chat-person__bubble:has(.sf-chat-quote) {
+    box-sizing: border-box;
+    max-inline-size: 100%;
+  }
+
+  .sf-chat-quote__name,
+  .sf-chat-quote__text {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-chat-quote__name { font-weight: var(--sf-font-weight-medium); }
+
+  /* Reactions: pills under the message. Pressed is a fill and a line, and the
+     accessible name says it too. */
+  .sf-chat-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sf-chat-message--gap-tight);
+  }
+
+  .sf-chat-reaction {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    padding-block: 0;
+    padding-inline: var(--sf-space-1\/3);
+    min-block-size: var(--sf-ui-1\/3--control-height);
+    border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    border-radius: var(--sf-radius-circle);
+    background: var(--sf-surface-0);
+    color: var(--sf-chat-message--ink);
+    font: inherit;
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    cursor: pointer;
+  }
+
+  .sf-chat-reaction:hover { background: var(--sf-surface-transparent-hover); }
+
+  .sf-chat-reaction--mine {
+    border-color: var(--sf-primary);
+    background: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
+  }
+
+  .sf-chat-reaction[aria-disabled="true"] { cursor: default; }
+
+  .sf-chat-reaction--pending { opacity: 0.6; cursor: progress; }
+
+  /* The tools, shown the one way person.js shows its own: on hover or focus
+     where a pointer hovers, always on touch. */
+  .sf-chat-tools {
+    display: flex;
+    align-self: center;
+    flex: none;
+    gap: var(--sf-chat-message--gap-tight);
+    color: var(--sf-chat-message--ink-muted);
+  }
+
+  @media (hover: hover) {
+    .sf-chat-tools { opacity: 0; transition: opacity var(--sf-duration-fast); }
+
+    .sf-chat-person:hover .sf-chat-tools,
+    .sf-chat-person:focus-within .sf-chat-tools,
+    .sf-chat-message--document:hover .sf-chat-tools,
+    .sf-chat-message--document:focus-within .sf-chat-tools { opacity: 1; }
+  }
+
+  /* On touch they stand under the bubble: beside it they would squeeze it. */
+  @media (hover: none) {
+    .sf-chat-person:has(.sf-chat-tools) { flex-wrap: wrap; }
+
+    .sf-chat-person .sf-chat-tools {
+      order: 1;
+      flex-basis: 100%;
+      padding-inline-start: calc(var(--sf-chat-message--avatar) + var(--sf-space-1\/3));
+    }
+
+    .sf-chat-person--own .sf-chat-tools {
+      justify-content: flex-end;
+      padding-inline-start: 0;
+    }
+  }
+
+  /* Six to choose from, over the tools; under them at the top of the feed. */
+  .sf-chat-picker {
+    position: absolute;
+    z-index: 2;
+    inset-block-end: 100%;
+    inset-inline-start: calc(var(--sf-chat-message--avatar) + var(--sf-space-1\/3));
+    display: flex;
+    gap: var(--sf-chat-message--gap-tight);
+    padding: var(--sf-space-1\/4);
+    border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
+    border-radius: var(--sf-chat-message--bubble-radius);
+    background: var(--sf-elevation-4--surface);
+    box-shadow: var(--sf-elevation-4--shadow);
+  }
+
+  .sf-chat-person--own .sf-chat-picker {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+  }
+
+  .sf-chat-picker--below {
+    inset-block-end: auto;
+    inset-block-start: 100%;
+  }
+
+  .sf-chat-picker__emoji {
+    display: inline-grid;
+    place-items: center;
+    inline-size: var(--sf-ui-1\/2--control-height);
+    block-size: var(--sf-ui-1\/2--control-height);
+    padding: 0;
+    border: 0;
+    border-radius: var(--sf-chat-message--bubble-radius);
+    background: none;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .sf-chat-picker__emoji:hover,
+  .sf-chat-picker__emoji[aria-pressed="true"] { background: var(--sf-surface-transparent-hover); }
+
+  @media (pointer: coarse) {
+    .sf-chat-tools .sf-icon-button,
+    .sf-chat-reaction,
+    .sf-chat-picker__emoji,
+    .sf-chat-quote,
+    .sf-chat-fold {
+      min-inline-size: var(--sf-chat-message--touch);
+      min-block-size: var(--sf-chat-message--touch);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .sf-chat-reaction--mine { border-width: calc(2 * var(--sf-chat-message--line)); }
+
+    .sf-chat-quote { border-inline-start-color: CanvasText; }
+  }
+
   @media (forced-colors: active) {
     .sf-chat-person__bubble,
     .sf-chat-person__avatar:not(:empty) { border: var(--sf-chat-message--line) solid CanvasText; }

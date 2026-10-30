@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-composer's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-composer (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 4 (owner yes 2026-10-27), with the pieces of chat-core and component/chat it drew on; written by hand on the shape of sf-chat-interlocutor (step 3), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-composer",
   "tag": "sf-chat-composer",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -89,6 +89,12 @@
       },
       "x-markup": "the chips as the host knows them: progress 0..1 while uploading, error the server's refusal; a property, the action set-files (0.3 setFiles(files)) or the JSON island; names are text, never markup",
       "summary": "The chips as the host knows them, a property, the action set-files or the JSON island."
+    },
+    "no-stop": {
+      "type": "boolean",
+      "default": false,
+      "x-markup": "busy without the stop button: a host whose stop belongs elsewhere (sf-chat-window between people: to the message, where can_stop allows it)",
+      "summary": "While busy, no stop button: a host whose stop belongs elsewhere."
     }
   },
   "values": {
@@ -362,7 +368,8 @@
     "css-variables: four public variables in the Framework's form (single dash, read with the token as fallback, never set): the box's ground and edge, the hint and count, and the control height (a finger's on a coarse pointer). Their fallbacks are the tokens ui-chat's sheets gave the same places, so the look in ui-chat does not change.",
     "page attribute: [data-chat-input=pointer] (the chat page marks a pointer's input) still takes the keyboard ring off the box after a click, as in 0.3; without it the ring shows.",
     "standard 1.4 (2026-10-29): component.json and examples.json in the 1.4 form, the other files generated. submit carries attachmentIds (camelCase, as the registry says); \"attachment-ids\" stays beside it until 2026-12-01 with the dated event names.",
-    "queue (1.1.0): the composer only lets a message of text out while busy and says so; the queue itself is the host's (sf-chat-window keeps it per conversation, draws its cards above the field and sends them after the answer), since what an answer's end means and what a conversation is are the host's. A message with files is not queued: its chips are the host's upload state, which a queued message would have to hold apart from the field; while busy it waits as before, and the hint says so. Without queue nothing changes."
+    "queue (1.1.0): the composer only lets a message of text out while busy and says so; the queue itself is the host's (sf-chat-window keeps it per conversation, draws its cards above the field and sends them after the answer), since what an answer's end means and what a conversation is are the host's. A message with files is not queued: its chips are the host's upload state, which a queued message would have to hold apart from the field; while busy it waits as before, and the hint says so. Without queue nothing changes.",
+    "no-stop 1.2.0: a minor (§4.10). Between people sf-chat-window keeps the field busy only while a send is out, and Stop is a message's own; without this the stop button would flash for each send. Default false: nothing changes for a host that does not set it."
   ],
   "x-rule": {
     "$comment": [
@@ -573,6 +580,13 @@
           "to": "1.1.0",
           "changes": [
             "The setting queue (default off): while busy, Enter and send still submit a message of text, beside «Остановить ожидание», for the host to queue; the hint under the field says so. A message with files waits as before. Without queue nothing changes for a host."
+          ]
+        },
+        {
+          "from": "1.1.0",
+          "to": "1.2.0",
+          "changes": [
+            "The setting no-stop: while busy, no stop button. Without it nothing changes."
           ]
         }
       ]

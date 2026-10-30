@@ -493,6 +493,81 @@
           ".sf-chat-deliverable__name": "Отчёт по отпускам.pdf"
         }
       }
+    },
+    {
+      "name": "document",
+      "title": "Ответ ИИ среди людей: документ с подписью",
+      "settings": {
+        "message": {
+          "id": "m7",
+          "role": "assistant",
+          "status": "completed",
+          "text": "Срок возврата: регламент 30 дней, шаблон 14.",
+          "speaker": {
+            "kind": "assistant",
+            "name": "Mirai"
+          },
+          "asked_by": {
+            "name": "Анны"
+          },
+          "reactions": [
+            {
+              "emoji": "👀",
+              "count": 1,
+              "mine": false
+            }
+          ]
+        },
+        "display": {
+          "document": true,
+          "showAuthor": true,
+          "canReact": true,
+          "canReply": true
+        }
+      },
+      "expect": {
+        "name": "Mirai, ИИ"
+      }
+    },
+    {
+      "name": "person-reply",
+      "title": "Ответ человека с цитатой и реакцией",
+      "template": "person",
+      "attributes": {
+        "template": "person"
+      },
+      "settings": {
+        "message": {
+          "id": 42,
+          "body": "Подтверждаю, срок устарел.",
+          "authorName": "Ольга Ким",
+          "reply_to": {
+            "id": 7,
+            "author": {
+              "name": "Mirai"
+            },
+            "text": "Срок возврата: регламент 30 дней, шаблон 14."
+          },
+          "reactions": [
+            {
+              "emoji": "👍",
+              "count": 3,
+              "mine": true
+            }
+          ]
+        },
+        "display": {
+          "own": false,
+          "first": true,
+          "last": true,
+          "showName": true,
+          "canReact": true,
+          "canReply": true
+        }
+      },
+      "expect": {
+        "name": "Ольга Ким"
+      }
     }
   ],
   "pages": [
@@ -504,6 +579,8 @@
         "lang": "ru",
         "body": [
           "<main>",
+          "  <sf-chat-message id=\"d\"></sf-chat-message>",
+          "  <sf-chat-message id=\"q\" template=\"person\"></sf-chat-message>",
           "  <sf-chat-message id=\"a\"></sf-chat-message>",
           "  <sf-chat-message id=\"b\"></sf-chat-message>",
           "  <sf-chat-message id=\"p\" template=\"person\"></sf-chat-message>",
@@ -937,7 +1014,7 @@
             {
               "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#p').display = {own: false, first: true, showName: true}, document.querySelector('#p').message = {id: 41, body: 'Посмотрите график', authorName: 'Анна Смирнова'}, true)",
               "wait": 300,
-              "check": "(() => { const p = document.querySelector('#p'); return p.querySelector('article.sf-chat-person').getAttribute('aria-label') === 'Анна Смирнова' && p.querySelector('.sf-chat-person__avatar').textContent === 'АС' && p.querySelector('.sf-chat-person__name').textContent === 'Анна Смирнова'; })()"
+              "check": "(() => { const p = document.querySelector('#p'); return p.querySelector('article.sf-chat-person').getAttribute('aria-label') === 'Анна Смирнова' && p.querySelector('.sf-chat-person__avatar sf-avatar').getAttribute('text') === 'АС' && p.querySelector('.sf-chat-person__name').textContent === 'Анна Смирнова'; })()"
             },
             {
               "script": "(document.querySelector('#p').display = {own: true, first: true}, document.querySelector('#p').message = {id: 42, body: 'Хорошо', authorName: 'Я', canEdit: true, canDelete: true}, true)",
@@ -1271,7 +1348,7 @@
             {
               "script": "(document.querySelector('#p').message = {id: 44, body: 'Посмотрите', authorName: 'Анна Смирнова', authorAvatar: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}, document.querySelector('#p').display = {own: false, first: true, showName: true, divider: 'unread'}, document.querySelector('#a').display = {divider: 'unread'}, true)",
               "wait": 400,
-              "check": "(() => { const p = document.querySelector('#p'); const a = document.querySelector('#a'); const line = p.querySelector('.sf-chat-divider'); return line?.textContent === 'Новые' && line.nextElementSibling?.matches('article.sf-chat-person') && Boolean(p.querySelector('.sf-chat-person__avatar .sf-chat-person__picture')) && a.querySelector('.sf-chat-divider')?.textContent === 'Новые' && !document.querySelector('#b .sf-chat-divider'); })()"
+              "check": "(() => { const p = document.querySelector('#p'); const a = document.querySelector('#a'); const line = p.querySelector('.sf-chat-divider'); return line?.textContent === 'Новые' && line.nextElementSibling?.matches('article.sf-chat-person') && p.querySelector('.sf-chat-person__avatar sf-avatar')?.hasAttribute('image-url') && a.querySelector('.sf-chat-divider')?.textContent === 'Новые' && !document.querySelector('#b .sf-chat-divider'); })()"
             }
           ]
         },
@@ -1319,6 +1396,205 @@
               "user": "click:#p .sf-chat-person__edit-save",
               "wait": 100,
               "check": "window.saves === 2 && !document.querySelector('#p .sf-chat-person__edit-refused')"
+            }
+          ]
+        },
+        {
+          "id": "p-doc-who",
+          "title": "1.4.0: a document says who speaks by sign, name and word, never colour alone, with «по просьбе»; no bubble; copy and rating in sight; without display.document the same message is as before",
+          "covers": "settings.display, runtime.speaker-assistant, runtime.speaker-agent, runtime.speaker-bot",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.d = document.querySelector('#d'), window.q = document.querySelector('#q'), d.message = {id: 'm1', role: 'assistant', status: 'completed', text: 'Готово.', speaker: {kind: 'agent', name: 'Сборщик'}, asked_by: {name: 'Анны'}}, d.display = {document: true, showAuthor: true, canReact: true, canReply: true}, true)",
+              "wait": 300,
+              "check": "(() => { const a = d.querySelector('article'); const who = a.querySelector('.sf-chat-message__who'); return a.getAttribute('aria-label') === 'Сборщик, Агент' && who.querySelector('.sf-chat-message__name').textContent === 'Сборщик' && who.querySelector('sf-badge').getAttribute('text') === 'Агент' && who.querySelector('.sf-chat-message__asked').textContent === 'по просьбе Анны' && a.querySelector('.sf-chat-message__head sf-icon').getAttribute('icon') === 'hub' && !a.querySelector('sf-avatar') && !a.querySelector('.sf-chat-message__bubble') && getComputedStyle(a.querySelector('[data-rating=up]')).opacity === '1' && getComputedStyle(a.querySelector('.sf-chat-message__tool')).opacity === '1' && a.querySelector('.sf-chat-tools__reply') && a.querySelector('.sf-chat-tools__react') && !a.querySelector('.sf-chat-tools__more'); })()"
+            },
+            {
+              "script": "(d.display = {document: true, showAuthor: false}, true)",
+              "wait": 200,
+              "check": "(() => { const a = d.querySelector('article'); return !a.querySelector('.sf-chat-message__head') && !a.querySelector('.sf-chat-message__name') && a.getAttribute('aria-label') === 'Помощник'; })()"
+            },
+            {
+              "script": "(d.display = {}, true)",
+              "wait": 200,
+              "check": "(() => { const a = d.querySelector('article'); return !a.classList.contains('sf-chat-message--document') && !a.querySelector('.sf-chat-message__head, .sf-chat-tools, .sf-chat-message__time, .sf-chat-fold'); })()"
+            }
+          ]
+        },
+        {
+          "id": "p-doc-wait-stop",
+          "title": "1.4.0: a document's wait keeps its stage line and has Stop only with canStop, which says stop {id}",
+          "covers": "events.stop, settings.display",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.d = document.querySelector('#d'), window.q = document.querySelector('#q'), window.stopped = [], d.addEventListener('sf-chat-message-stop', (event) => window.stopped.push(event.detail.id)), d.message = {id: 'm2', role: 'assistant', status: 'running', stage: 'writing', speaker: {kind: 'assistant', name: 'Mirai'}}, d.display = {document: true, showAuthor: true}, true)",
+              "wait": 200,
+              "check": "d.querySelector('.sf-chat-stages') && d.querySelector('article').getAttribute('aria-busy') === 'true' && !d.querySelector('.sf-chat-message__stop') && d.querySelector('.sf-chat-message__name').textContent === 'Mirai'"
+            },
+            {
+              "script": "(d.display = {document: true, showAuthor: true, canStop: true}, true)",
+              "wait": 200,
+              "check": "!!d.querySelector('.sf-chat-message__stop')"
+            },
+            {
+              "user": "click:#d .sf-chat-message__stop",
+              "wait": 100,
+              "check": "window.stopped.length === 1 && window.stopped[0] === 'm2'"
+            }
+          ]
+        },
+        {
+          "id": "p-doc-fold",
+          "title": "1.4.0: past about 14 lines a document folds, a table stays in sight, «Показать полностью» opens it and says toggle {kind: fold}; a short text has no fold",
+          "covers": "runtime.fold-more, runtime.fold-less, events.toggle",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.d = document.querySelector('#d'), window.q = document.querySelector('#q'), window.folds = [], d.addEventListener('sf-chat-message-toggle', (event) => { if (event.detail.kind === 'fold') window.folds.push(event.detail.open); }), d.message = {id: 'm3', role: 'assistant', status: 'completed', html: \"<p>\\u041a\\u043e\\u0440\\u043e\\u0442\\u043a\\u043e.</p>\", text: 'Коротко.'}, d.display = {document: true}, true)",
+              "wait": 300,
+              "check": "d.querySelector('.sf-chat-fold').hidden === true"
+            },
+            {
+              "script": "(d.message = {id: 'm4', role: 'assistant', status: 'completed', html: \"<p>\\u0410\\u0431\\u0437\\u0430\\u0446 1. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 2. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 3. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 4. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 5. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 6. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 7. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 8. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 9. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 10. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 11. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 12. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 13. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 14. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 15. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 16. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 17. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 18. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 19. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 20. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 21. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 22. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 23. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 24. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 25. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 26. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 27. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 28. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 29. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 30. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><table><thead><tr><th>\\u0421\\u0442\\u0430\\u0436</th></tr></thead><tbody><tr><td>14</td></tr></tbody></table><p>\\u0410\\u0431\\u0437\\u0430\\u0446 1. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 2. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 3. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 4. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 5. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 6. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 7. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 8. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 9. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 10. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 11. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 12. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 13. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 14. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 15. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 16. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 17. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 18. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 19. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 20. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 21. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 22. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 23. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 24. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 25. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 26. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 27. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 28. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 29. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p><p>\\u0410\\u0431\\u0437\\u0430\\u0446 30. \\u0422\\u0435\\u043a\\u0441\\u0442 \\u043e\\u0442\\u0432\\u0435\\u0442\\u0430, \\u043a\\u043e\\u0442\\u043e\\u0440\\u044b\\u0439 \\u0437\\u0430\\u043d\\u0438\\u043c\\u0430\\u0435\\u0442 \\u0441\\u0442\\u0440\\u043e\\u043a\\u0443.</p>\", text: 'Длинно.'}, true)",
+              "wait": 300,
+              "check": "(() => { const m = d.querySelector('.sf-chat-markup'); const fold = d.querySelector('.sf-chat-fold'); const line = parseFloat(getComputedStyle(m).lineHeight); const shown = [...m.children].filter((one) => !one.hidden && !one.matches('.sf-chat-markup__table')).reduce((sum, one) => sum + one.getBoundingClientRect().height, 0); const table = m.querySelector('.sf-chat-markup__table'); return !fold.hidden && fold.textContent === 'Показать полностью' && fold.getAttribute('aria-expanded') === 'false' && shown <= 15 * line && !table.hidden && table.getBoundingClientRect().height > 0; })()"
+            },
+            {
+              "user": "click:#d .sf-chat-fold",
+              "wait": 150,
+              "check": "(() => { const fold = d.querySelector('.sf-chat-fold'); return fold.textContent === 'Свернуть' && fold.getAttribute('aria-expanded') === 'true' && ![...d.querySelectorAll('.sf-chat-markup > *')].some((one) => one.hidden) && window.folds.join() === 'true'; })()"
+            },
+            {
+              "user": "click:#d .sf-chat-fold",
+              "wait": 150,
+              "check": "d.querySelector('.sf-chat-fold').getAttribute('aria-expanded') === 'false' && [...d.querySelectorAll('.sf-chat-markup > *')].some((one) => one.hidden) && !d.querySelector('.sf-chat-markup__table').hidden && window.folds.join() === 'true,false'"
+            },
+            {
+              "script": "(d.display = {document: true, fold_open: true}, true)",
+              "wait": 300,
+              "check": "d.querySelector('.sf-chat-fold').getAttribute('aria-expanded') === 'true' && ![...d.querySelectorAll('.sf-chat-markup > *')].some((one) => one.hidden)"
+            }
+          ]
+        },
+        {
+          "id": "p-person-avatar",
+          "title": "1.4.0: a person's avatar is sf-avatar with initials, or its picture, not a Tab stop; a picture that fails gives the initials back; the rest of a run keeps the place",
+          "covers": "settings.message, relations",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.d = document.querySelector('#d'), window.q = document.querySelector('#q'), q.message = {id: 1, body: 'Привет', authorName: 'Анна Смирнова', canEdit: false, canDelete: false}, q.display = {first: true, last: true, showName: true}, await customElements.whenDefined('sf-avatar'), true)",
+              "wait": 400,
+              "check": "(() => { const avatar = q.querySelector('.sf-chat-person__avatar sf-avatar'); return avatar && avatar.getAttribute('text') === 'АС' && avatar.getAttribute('size') === '1/2' && avatar.hasAttribute('inert') && avatar.getAttribute('aria-hidden') === 'true' && avatar.textContent.trim() === 'АС'; })()"
+            },
+            {
+              "script": "(q.message = {id: 1, body: 'Привет', authorName: 'Анна Смирнова', authorAvatar: '/no-such-picture.png'}, true)",
+              "wait": 500,
+              "check": "(() => { const avatar = q.querySelector('.sf-chat-person__avatar sf-avatar'); return !avatar.hasAttribute('image-url') && avatar.textContent.trim() === 'АС'; })()"
+            },
+            {
+              "script": "(q.display = {first: false, last: true}, true)",
+              "wait": 200,
+              "check": "(() => { const place = q.querySelector('.sf-chat-person__avatar'); return place.childElementCount === 0 && place.getBoundingClientRect().width > 0; })()"
+            }
+          ]
+        },
+        {
+          "id": "p-reactions",
+          "title": "1.4.0: pills with their names; a press says react and changes nothing by itself; a pill waiting takes no second press; a pressed pill reads as such; the picker of six, Escape closes it through the host",
+          "covers": "events.react, events.toggle, runtime.reactions-pill, runtime.reactions-pill-mine",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.d = document.querySelector('#d'), window.q = document.querySelector('#q'), window.reacts = [], window.toggles = [], q.addEventListener('sf-chat-message-react', (event) => window.reacts.push(event.detail)), q.addEventListener('sf-chat-message-toggle', (event) => window.toggles.push(event.detail)), q.message = {id: 5, body: 'Да', authorName: 'Иван', reactions: [{emoji: '👍', count: 3, mine: true}, {emoji: '🎉', count: 1, mine: false}]}, q.display = {first: true, last: true, canReact: true, canReply: true}, true)",
+              "wait": 200,
+              "check": "(() => { const pills = [...q.querySelectorAll('.sf-chat-reaction')]; return pills.length === 2 && pills[0].getAttribute('aria-label') === 'Реакция 👍, 3, ваша' && pills[0].getAttribute('aria-pressed') === 'true' && pills[0].classList.contains('sf-chat-reaction--mine') && pills[1].getAttribute('aria-label') === 'Реакция 🎉, 1' && pills[1].getAttribute('aria-pressed') === 'false' && q.querySelectorAll('.sf-chat-tools button').length === 2; })()"
+            },
+            {
+              "user": "click:#q .sf-chat-reaction[data-emoji='🎉']",
+              "wait": 100,
+              "check": "window.reacts.length === 1 && window.reacts[0].emoji === '🎉' && window.reacts[0].on === true && window.reacts[0].id === 5 && q.querySelector('.sf-chat-reaction[data-emoji=\"🎉\"] .sf-chat-reaction__count').textContent === '1'"
+            },
+            {
+              "script": "(q.display = {first: true, last: true, canReact: true, reacting: '🎉'}, true)",
+              "wait": 200,
+              "check": "(() => { const pill = q.querySelector('.sf-chat-reaction[data-emoji=\"🎉\"]'); pill.click(); return pill.getAttribute('aria-busy') === 'true' && pill.getAttribute('aria-disabled') === 'true' && window.reacts.length === 1; })()"
+            },
+            {
+              "script": "(q.message = {id: 5, body: 'Да', authorName: 'Иван'}, q.display = {first: true, last: true, canReact: true, reacting: '🙂'}, true)",
+              "wait": 200,
+              "check": "(() => { const pill = q.querySelector('.sf-chat-reaction'); return pill.dataset.emoji === '🙂' && !pill.querySelector('.sf-chat-reaction__count') && pill.getAttribute('aria-busy') === 'true'; })()"
+            },
+            {
+              "script": "(q.message = {id: 5, body: 'Да', authorName: 'Иван'}, q.display = {first: true, last: true, canReact: true}, true)",
+              "wait": 200,
+              "check": "!q.querySelector('.sf-chat-reactions')"
+            },
+            {
+              "user": "click:#q .sf-chat-tools__react",
+              "wait": 100,
+              "check": "window.toggles.at(-1).kind === 'react' && window.toggles.at(-1).open === true"
+            },
+            {
+              "script": "(q.display = {first: true, last: true, canReact: true, picker: true}, true)",
+              "wait": 200,
+              "check": "(() => { const six = q.querySelectorAll('.sf-chat-picker button'); return six.length === 6 && document.activeElement === six[0] && six[0].getAttribute('aria-label') === 'Реакция 👍'; })()"
+            },
+            {
+              "user": "keyboard:Escape",
+              "wait": 100,
+              "check": "window.toggles.at(-1).kind === 'react' && window.toggles.at(-1).open === false && window.toggles.at(-1).quiet === false"
+            }
+          ]
+        },
+        {
+          "id": "p-quote",
+          "title": "1.4.0: a quote stands at the top of the bubble: a name and one line; a press says open {kind: quote}; not loaded it says so and asks nothing; deleted it says «Сообщение удалено»; no reply_to, no quote",
+          "covers": "events.open, runtime.reply-not-loaded",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.d = document.querySelector('#d'), window.q = document.querySelector('#q'), window.opens = [], q.addEventListener('sf-chat-message-open', (event) => window.opens.push(event.detail)), q.message = {id: 6, body: 'Согласна', authorName: 'Ольга', reply_to: {id: 2, author: {name: 'Иван'}, text: 'Посмотрите регламент'}}, q.display = {first: true, last: true}, true)",
+              "wait": 200,
+              "check": "(() => { const bubble = q.querySelector('.sf-chat-person__bubble'); const quote = bubble.firstElementChild; return quote.matches('button.sf-chat-quote') && quote.querySelector('.sf-chat-quote__name').textContent === 'Иван' && quote.querySelector('.sf-chat-quote__text').textContent === 'Посмотрите регламент' && getComputedStyle(quote.querySelector('.sf-chat-quote__text')).whiteSpace === 'nowrap' && bubble.textContent.endsWith('Согласна'); })()"
+            },
+            {
+              "user": "click:#q .sf-chat-quote",
+              "wait": 100,
+              "check": "window.opens.length === 1 && window.opens[0].kind === 'quote' && window.opens[0].target === 2 && window.opens[0].id === 6"
+            },
+            {
+              "script": "(q.display = {first: true, last: true, replyLoaded: false}, true)",
+              "wait": 200,
+              "check": "(() => { const quote = q.querySelector('.sf-chat-quote'); quote.click(); return quote.getAttribute('aria-disabled') === 'true' && quote.title === 'Сообщение не загружено' && window.opens.length === 1; })()"
+            },
+            {
+              "script": "(q.display = {first: true, last: true, replyDeleted: true}, true)",
+              "wait": 200,
+              "check": "q.querySelector('.sf-chat-quote__text').textContent === 'Сообщение удалено'"
+            },
+            {
+              "script": "(q.message = {id: 6, body: 'Согласна', authorName: 'Ольга'}, q.display = {first: true, last: true}, true)",
+              "wait": 200,
+              "check": "!q.querySelector('.sf-chat-quote') && q.querySelector('.sf-chat-person__bubble').childElementCount === 0"
+            }
+          ]
+        },
+        {
+          "id": "p-tools-more",
+          "title": "1.4.0: with reply or reaction offered, edit and delete go under «⋯» and the row is at most three; with neither, the two buttons stay as they were",
+          "covers": "settings.display, relations",
+          "steps": [
+            {
+              "script": "(await customElements.whenDefined('sf-chat-message'), window.d = document.querySelector('#d'), window.q = document.querySelector('#q'), q.message = {id: 8, body: 'Моё', authorName: 'Анна', canEdit: true, canDelete: true}, q.display = {own: true, first: true, last: true}, true)",
+              "wait": 300,
+              "check": "!!q.querySelector('.sf-chat-person__edit') && !!q.querySelector('.sf-chat-person__delete') && !q.querySelector('.sf-chat-tools')"
+            },
+            {
+              "script": "(q.display = {own: true, first: true, last: true, canReact: true, canReply: true}, window.toggles2 = [], q.addEventListener('sf-chat-message-toggle', (event) => window.toggles2.push(event.detail)), true)",
+              "wait": 200,
+              "check": "q.querySelectorAll('.sf-chat-tools > button').length === 3 && !q.querySelector('.sf-chat-person__edit')"
+            },
+            {
+              "user": "click:#q .sf-chat-tools__more",
+              "wait": 300,
+              "check": "q.querySelector('sf-context-menu')?.entries?.map((one) => one.id).join() === 'edit,delete'"
             }
           ]
         }

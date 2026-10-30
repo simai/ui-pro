@@ -136,6 +136,44 @@ class SfChatMessage extends ChatMessageElement {
                 pre.setAttribute("data-copy-label", words("code.copy"));
                 highlight.highlight(pre.querySelector("code") || pre);
             },
+            // Among people (1.4.0): sf-avatar, not a Tab stop of its own in a
+            // feed (inert, as its default template is a button), the initials
+            // back when a picture does not load; a sign is the avatars' class
+            // markup, since sf-avatar has no setting for a glyph.
+            avatar({text = "", image = "", icon = ""} = {}) {
+                if (icon) {
+                    const sign = documentRef.createElement("span");
+                    sign.className = "sf-avatar sf-avatar--size-1/2 sf-avatar--placeholder inline-flex flex-none items-cross-center content-main-center overflow-hidden";
+                    sign.setAttribute("aria-hidden", "true");
+                    const glyph = documentRef.createElement("sf-icon");
+                    glyph.setAttribute("icon", icon);
+                    glyph.setAttribute("size", "1");
+                    glyph.setAttribute("aria-hidden", "true");
+                    sign.append(glyph);
+                    return sign;
+                }
+                const avatar = documentRef.createElement("sf-avatar");
+                avatar.setAttribute("size", "1/2");
+                avatar.setAttribute("text", text);
+                avatar.setAttribute("aria-hidden", "true");
+                avatar.toggleAttribute("inert", true);
+                if (image) {
+                    avatar.setAttribute("image-url", image);
+                    avatar.addEventListener("error", () => avatar.removeAttribute("image-url"), true);
+                }
+                return avatar;
+            },
+            // The word beside a name: a non-interactive label, so a word and
+            // not only a colour says who is not a person.
+            badge(word) {
+                const badge = documentRef.createElement("sf-badge");
+                badge.setAttribute("text", word);
+                badge.setAttribute("size", "1/3");
+                badge.setAttribute("appearance", "outline");
+                badge.setAttribute("scheme", "on-surface");
+                badge.className = "sf-chat-message__word";
+                return badge;
+            },
             onAction: (action, detail) => this.onViewAction(action, detail ?? {}),
             features: {...DEFAULT_FEATURES, ...features},
             renderProposal: (proposal, options) => this.placeProposal(proposal, options),
@@ -225,6 +263,25 @@ class SfChatMessage extends ChatMessageElement {
                 return;
             case "brief-answer":
                 this.sfEmit("submit", {id, text: detail.text}, {cancelable: true});
+                return;
+            // Among people (1.4.0).
+            case "react":
+                this.sfEmit("react", {id, emoji: detail.emoji, on: Boolean(detail.on)}, {cancelable: true});
+                return;
+            case "reply":
+                this.sfEmit("reply", {id});
+                return;
+            case "quote":
+                this.sfEmit("open", {id, kind: "quote", target: detail.target}, {cancelable: true});
+                return;
+            case "picker":
+                this.sfEmit("toggle", {id, kind: "react", open: Boolean(detail.open), quiet: Boolean(detail.quiet)});
+                return;
+            case "fold":
+                this.sfEmit("toggle", {id, kind: "fold", open: Boolean(detail.open)});
+                return;
+            case "stop":
+                this.sfEmit("stop", {id}, {cancelable: true});
                 return;
             case "edit-start":
             case "edit-cancel":

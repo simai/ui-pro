@@ -197,6 +197,7 @@ class SfChatComposer extends ChatComposerElement {
             files,
             busy,
             disabled,
+            noStop: this.noStop,
             attachments: this.attachments,
             accept: this.accept,
             attachDisabled: disabled || files.length >= this.fileLimit,

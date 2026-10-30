@@ -75,12 +75,19 @@ export const EXTENSION_INTENTS = {
   'recipients.search': {verb: 'query', kind: 'recipients', capability: 'x-conversation-start', former: null},
   'conversation.start': {verb: 'create', kind: 'payload', capability: 'x-conversation-start', former: null},
   'members.list': {verb: 'open', kind: 'members', capability: 'x-members', former: null},
+  // Between people (1.6.0, owner decision q-0c04e83775: the port does not
+  // change). The port's message.send has additionalProperties false, so a reply
+  // cannot be a field of it: a send that answers a message goes out under its own
+  // intent, the same verb, kind reply, the port's payload plus reply_to_id. Without
+  // a reply on the field the send is the port's message.send, as before.
+  'message.reply': {verb: 'submit', kind: 'reply', capability: 'x-reply', former: null},
+  'message.react': {verb: 'react', kind: null, capability: 'x-reactions', former: null},
 };
 
 // x-brief (API.md v1.2) has no intent of its own: a host that declares it
 // gives an assistant message its `brief`, and the window draws it; the answer
 // goes out as an ordinary message.send.
-export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief', 'x-conversation-start', 'x-members'];
+export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief', 'x-conversation-start', 'x-members', 'x-reactions', 'x-reply'];
 
 /** Data a host with the window's capabilities sets beside the port's. */
 export const EXTENSION_DATA = ['conversation_list', 'composer_files', 'my_files'];

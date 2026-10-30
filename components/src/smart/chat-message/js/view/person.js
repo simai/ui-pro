@@ -23,7 +23,14 @@
 // limit for a message): past 80 % the count shows as in sf-chat-composer, past
 // the limit saving is refused with a line and the typed text stays as it is,
 // never cut. Without it the editor is as it was.
+//
+// 1.4.0: the avatar is the Framework's sf-avatar (ctx.avatar; the widget and the
+// pilot, which have no runtime, keep the plain initials); message.reply_to is a
+// quote at the top of the bubble, message.reactions pills under it, and where
+// the display offers them (canReact, canReply) the tools are reply, reaction and
+// «⋯» with edit and delete: js/view/social.js. Without those the two buttons stay.
 import { element, text, iconButton, iconNode, renderAttachment } from './message.js';
+import { renderConflict, renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderTools, whenPlaced } from './social.js';
 
 let editCounts = 0;
 
@@ -75,12 +82,16 @@ export function renderPersonMessage(ctx, message, view = {}) {
   // run, the name above it where more than two people talk.
   if (!view.own) {
     const avatar = element(ctx, 'span', 'sf-chat-person__avatar', { 'aria-hidden': 'true' });
-    if (view.first) avatar.textContent = initials(message.authorName);
-    // The host's picture over the initials, which stay if it does not load.
-    if (view.first && message.authorAvatar) {
-      const picture = element(ctx, 'img', 'sf-chat-person__picture', { src: message.authorAvatar, alt: '', loading: 'lazy', decoding: 'async' });
-      picture.addEventListener('error', () => picture.remove());
-      avatar.append(picture);
+    if (view.first && ctx.avatar) {
+      avatar.append(ctx.avatar({ text: initials(message.authorName), image: message.authorAvatar }));
+    } else if (view.first) {
+      avatar.textContent = initials(message.authorName);
+      // The host's picture over the initials, which stay if it does not load.
+      if (message.authorAvatar) {
+        const picture = element(ctx, 'img', 'sf-chat-person__picture', { src: message.authorAvatar, alt: '', loading: 'lazy', decoding: 'async' });
+        picture.addEventListener('error', () => picture.remove());
+        avatar.append(picture);
+      }
     }
     root.append(avatar);
   }
@@ -108,7 +119,12 @@ export function renderPersonMessage(ctx, message, view = {}) {
   } else {
     // An edit on its way (or refused) shows the words the person wrote.
     const shown = local?.action === 'edit' && local.state !== 'sent' && local.body != null ? local.body : message.body;
-    if (shown) body.append(text(ctx, 'p', 'sf-chat-person__bubble', shown));
+    const quote = renderQuote(ctx, message, view);
+    if (shown || quote) {
+      const bubble = text(ctx, 'p', 'sf-chat-person__bubble', shown);
+      if (quote) bubble.prepend(quote);
+      body.append(bubble);
+    }
   }
 
   if (message.files?.length) {
@@ -116,6 +132,9 @@ export function renderPersonMessage(ctx, message, view = {}) {
     for (const file of message.files) files.append(renderPersonFile(ctx, message, file));
     body.append(files);
   }
+
+  const reactions = renderReactions(ctx, message, view);
+  if (reactions) body.append(reactions);
 
   // The line under a message: when, «изменено», and what is happening to it.
   const meta = element(ctx, 'p', 'sf-chat-person__meta');
@@ -135,6 +154,10 @@ export function renderPersonMessage(ctx, message, view = {}) {
 
   if (view.askDelete) {
     body.append(renderDeleteAsk(ctx, message, view.conflict));
+  } else if (!view.editing && !pending && message.id != null && (view.canReact || view.canReply)) {
+    const tools = renderTools(ctx, message, view, { edit: Boolean(message.canEdit), remove: Boolean(message.canDelete) });
+    if (tools) root.append(tools);
+    if (view.picker && view.canReact) root.append(renderPicker(ctx, message, view));
   } else if (!view.editing && !pending && message.id != null && (message.canEdit || message.canDelete)) {
     const tools = element(ctx, 'div', 'sf-chat-person__tools', { role: 'group', 'aria-label': words('people.actions') });
     if (message.canEdit) {
@@ -150,27 +173,6 @@ export function renderPersonMessage(ctx, message, view = {}) {
     root.append(tools);
   }
   return root;
-}
-
-// Runs once the node is in the page. A host that appends the node at once
-// (ui-chat's pilot) has it placed by the next microtask; sf-chat-message hands
-// it to Lit, which places it a frame later at most, so a few frames are
-// waited for; a node dropped meanwhile is left alone.
-function whenPlaced(node, run, frames = 3) {
-  queueMicrotask(() => {
-    if (node.isConnected) { run(); return; }
-    if (frames <= 0) return;
-    const view = node.ownerDocument.defaultView;
-    const later = view?.requestAnimationFrame ? view.requestAnimationFrame.bind(view) : (next) => setTimeout(next, 16);
-    later(() => whenPlaced(node, run, frames - 1));
-  });
-}
-
-// The line a conflict puts over the editor or the question. It is drawn
-// again with the message, so it is not a live region: the host says it
-// once (sf-chat-window announces it through its log).
-function renderConflict(ctx, conflict) {
-  return text(ctx, 'p', 'sf-chat-person__conflict', ctx.words(conflict.deleted ? 'people.conflictDeleted' : 'people.conflict'));
 }
 
 // The field's count, as sf-chat-composer shows its own: nothing up to 80 % of
@@ -258,27 +260,6 @@ function renderEditor(ctx, message, editing, conflict = null, editLimit = 0) {
     field.setSelectionRange(field.value.length, field.value.length);
   });
   return form;
-}
-
-function renderDeleteAsk(ctx, message, conflict = null) {
-  const words = ctx.words;
-  const row = element(ctx, 'div', 'sf-chat-person__ask', { role: 'group', 'aria-label': words('people.deleteAsk') });
-  if (conflict) row.append(renderConflict(ctx, conflict));
-  row.append(text(ctx, 'span', '', words('people.deleteAsk')));
-  const cancel = text(ctx, 'button', 'sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface', words('people.cancel'), { type: 'button' });
-  cancel.addEventListener('click', () => ctx.onAction?.('delete-cancel', { message }));
-  const confirm = text(ctx, 'button', 'sf-button sf-button--size-1/2 sf-button--outline sf-button--error', words('people.delete'), { type: 'button' });
-  confirm.addEventListener('click', () => ctx.onAction?.('delete', { message }));
-  row.append(cancel, confirm);
-  // Escape takes the question back, as «Отмена» does (1.2.0).
-  row.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape') return;
-    event.preventDefault();
-    event.stopPropagation();
-    ctx.onAction?.('delete-cancel', { message });
-  });
-  whenPlaced(cancel, () => cancel.focus());
-  return row;
 }
 
 function renderPersonFile(ctx, message, file) {

@@ -2,15 +2,15 @@
   "$comment": "The source of sf-chat-window's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-window (smart.manifest.json 0.3.1, ui-chat 07bc988) by the D31 move, step 6 (owner yes 2026-10-27), with files-view.js, port.js, chat-core's larena.js words and smart.css, and the staff page's layout of the window's nodes; written by hand on the shape of sf-chat-interlocutor, sf-chat-composer and sf-chat-message (steps 3-5), since migration/convert-1.3.8.mjs takes only the pinned 66. x-decisions says how each point was decided.",
   "id": "smart.chat-window",
   "tag": "sf-chat-window",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
     "capabilities": {
       "type": "string",
       "default": "",
-      "x-markup": "the port's capabilities the host offers (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read) and the window's own (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members), space-separated; a connected port's capabilities count as well. What is not offered is not shown. The property also takes a list (0.3).",
-      "summary": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+      "x-markup": "the port's capabilities the host offers (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read) and the window's own (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-reactions, x-reply), space-separated; a connected port's capabilities count as well. What is not offered is not shown. The property also takes a list (0.3).",
+      "summary": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
     },
     "landmark": {
       "type": "enum",
@@ -193,8 +193,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send.",
-      "summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. The 0.3 chat-port:send {request_id, ...payload} follows it until 2026-12-01."
+      "x-summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. A send that answers a message (1.6.0, x-reply) is message.reply, kind reply: the same payload plus reply_to_id (the port's message.send takes no extra field); no former name.",
+      "summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. The 0.3 chat-port:send {request_id, ...payload} follows it until 2026-12-01. A send that answers a message (x-reply) is message.reply, kind reply, the same payload plus reply_to_id."
     },
     "retry": {
       "carries": {
@@ -601,6 +601,28 @@
       },
       "x-summary": "The search in the open conversation was opened or closed (open-find, close-find, Ctrl/Cmd+F, Escape, its close button): kind find; the source preview beside the conversation (1.2.0: open-preview, close-preview, a footnote, «Назад», Escape): kind preview; open true or false. The form of a new conversation (1.4.0: open-start, close-start, a command of the list, «Назад», Escape): kind start, form private or group when it opens; a group's members (1.4.0: open-members, close-members, the header's «Участники», «Назад», Escape): kind members. A page that draws a button for either marks it pressed by this, or by the host states data-find-open, data-preview-open, data-start-open and data-members-open. Not cancelable: it says what happened.",
       "summary": "The search in the conversation, the source preview, the form of a new conversation or a group's members opened or closed: {kind: find|preview|start|members, open, form?}. The host states data-find-open, data-preview-open, data-start-open and data-members-open say the same."
+    },
+    "react": {
+      "carries": {
+        "request-id": "string",
+        "intent": {
+          "type": "string",
+          "summary": "The port's intent (or the window's own, x-…) this event raises."
+        },
+        "kind": {
+          "type": "string",
+          "optional": true,
+          "summary": "Which of the verb's intents, where a verb carries more than one."
+        },
+        "payload": {
+          "type": "object",
+          "summary": "The intent's payload, in the port's own field names; see the port contract."
+        }
+      },
+      "cancelable": true,
+      "own-verb": true,
+      "x-summary": "A reaction (1.6.0, x-reactions): message.react {conversation_id, message_id, emoji, on}; applied: data {message}, merged by revision. No former name.",
+      "summary": "A reaction (x-reactions): message.react {conversation_id, message_id, emoji, on}. Answered applied with data {message}, merged by revision."
     }
   },
   "actions": {
@@ -1281,7 +1303,9 @@
       "x-my-files",
       "x-brief",
       "x-conversation-start",
-      "x-members"
+      "x-members",
+      "x-reactions",
+      "x-reply"
     ],
     "own-data": [
       "conversation_list",
@@ -1334,7 +1358,12 @@
     "the editor's limit (1.5.0): view.editLimit is what the field has (messageCharsOf: between people limits.message_chars, then the port's limits.body_chars, then 4000, sf-chat-composer's own default). message_chars is not added to the port schema, whose limits has no such field: it is read beside it as limits.group is, and only between people, so a window without people keeps the limit it had. The over-limit refusal is the message's (the form does not raise save); saveEdit refuses as well for a save raised some other way. Unchanged text over the limit closes the editor as any unchanged text does, so a message that is already too long can always be left.",
     "day dividers (1.5.0, people): dayDividersOf over the feed from each message's own created_at, in the reader's time zone (Date's local day, the same reading runsOf uses); a message without a time neither has one nor ends a day, so a feed without times (the module today) draws none. The words go in the view (display.day), so they are part of the view's key and a changed day redraws only what changed. They are said again at the local midnight and when the page comes back to a later day. A divider restarts a run (runsOf breaks), which matters only beside a message with no time: two dated messages on two days were never one run. «Новые» does not restart a run; that is as it was.",
     "holding the place under a moving divider (1.5.0): sf-message-log's prependMessages measures from the bottom at once, but sf-chat-message draws a frame later, and the former first message of a day loses its divider after the prepend. Only with dividers in the feed, holdReading measures one message in view before the prepend and puts it back for eight frames; a feed without dividers takes the path it took. The log is unchanged, and it has no virtual history: every message loaded is in the column.",
-    "«Новые» as a separator (1.5.0): it was plain text with no role; it and a day's divider now share one markup, role=separator named by aria-label. revealUnread looks for sf-chat-divider--unread and moves to the top of the place, a day's divider included."
+    "«Новые» as a separator (1.5.0): it was plain text with no role; it and a day's divider now share one markup, role=separator named by aria-label. revealUnread looks for sf-chat-divider--unread and moves to the top of the place, a day's divider included.",
+    "one window, no modes (1.6.0, owner decision q-0c04e83775; ui-chat docs/design/UNIVERSAL-CHAT.md): rule 1, a message's look and actions follow its author; rule 2, the field follows participants and rights. simai.chat-port 1.0 does not change: reactions and reply are the window's own capabilities, message.reactions, reply_to, asked_by, can_stop and author.kind are fields beyond the port's schema as steps and brief are, read only between people or under their capability, so a window without people draws, sends and paints as it did.",
+    "author.kind (1.6.0): the port's author has additionalProperties false, so the kind is the window's own reading (speakerOf, js/people.js), between people only: assistant, agent or bot wins over the port's kind, and a port message without it is what its kind says. A message of kind person from a bot has no status, so it counts as completed.",
+    "message.send and a reply (1.6.0): the port's message.send payload has additionalProperties false, so reply_to_id may not be a field of it without breaking conformance. Smallest way: an own intent message.reply, the same verb submit (kind reply), the same payload plus reply_to_id, capability x-reply, raised only when the field answers something. A host adds one case; message.retry stays by client_key.",
+    "the field stays free (1.6.0, people): an assistant's wait no longer counts towards composer.busy between people, so nothing blocks or queues on it and its end takes nobody's focus; a send out still holds the field, as a double press must not send twice. Stop leaves the field for the message (can_stop, capability assistant): wait.stop keeps the port's payload {conversation_id}, which has no word for one message. sf-chat-composer 1.2.0's no-stop hides the field's button.",
+    "reactions and replies keep the page's state (1.6.0): the picker, a reaction on its way, an opened fold and what the field answers, by message key or draft key, as an editor or typed text; the strip over the field is made on first use, so a window without x-reply has no node more and its first paint is the same. An applied reaction merges data.message with same: a reaction need not make a new revision, an older one still loses."
   ],
   "x-rule": {
     "$comment": [
@@ -1459,7 +1488,7 @@
     },
     "contracts": {
       "port": {
-        "const": "simai.chat-port 1.0 (ui-source's src/core/contracts/ports/simai.chat-port/1.0.0/port.json); the window's own capabilities x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief and data conversation_list, composer_files, my_files beside it, not in it"
+        "const": "simai.chat-port 1.0 (ui-source's src/core/contracts/ports/simai.chat-port/1.0.0/port.json); the window's own capabilities x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-reactions, x-reply and data conversation_list, composer_files, my_files beside it, not in it"
       }
     },
     "state": {
@@ -1676,6 +1705,16 @@
           "to": "1.5.1",
           "changes": [
             "The source of the narrow-your-search probe says what the generated file says; no behaviour changed. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.5.1",
+          "to": "1.6.0",
+          "changes": [
+            "Between people: a message by its author (author.kind or kind assistant): a person a bubble with sf-avatar, an assistant, agent or bot a document with its sign, name and word; one to one no sign or name in the feed.",
+            "Between people an assistant's wait neither blocks nor queues the field; Stop is on the message where can_stop allows it.",
+            "x-reactions: pills and the picker, message.react. x-reply: quotes, the strip over the field, message.reply {…message.send's payload, reply_to_id}.",
+            "Needs sf-chat-message 1.4.0 and sf-chat-composer 1.2.0. Without people, x-reactions and x-reply nothing changes; simai.chat-port 1.0 is unchanged."
           ]
         }
       ]

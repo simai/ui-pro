@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -84,7 +84,8 @@
         "sf-chat-window-attach",
         "sf-chat-window-detach",
         "sf-chat-window-settled",
-        "sf-chat-window-toggle"
+        "sf-chat-window-toggle",
+        "sf-chat-window-react"
       ],
       "persistence": {
         "settings_key_prop": null,
@@ -135,7 +136,7 @@
       "capabilities": {
         "type": "string",
         "default": "",
-        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
       },
       "landmark": {
         "type": "string",
@@ -236,7 +237,7 @@
   "item_contract": {},
   "contracts": {
     "port": {
-      "const": "simai.chat-port 1.0 (ui-source's src/core/contracts/ports/simai.chat-port/1.0.0/port.json); the window's own capabilities x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief and data conversation_list, composer_files, my_files beside it, not in it"
+      "const": "simai.chat-port 1.0 (ui-source's src/core/contracts/ports/simai.chat-port/1.0.0/port.json); the window's own capabilities x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-reactions, x-reply and data conversation_list, composer_files, my_files beside it, not in it"
     }
   },
   "methods": {
@@ -1463,7 +1464,7 @@
       "canonical": true
     },
     "sf-chat-window-submit": {
-      "summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. The 0.3 chat-port:send {request_id, ...payload} follows it until 2026-12-01.",
+      "summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. The 0.3 chat-port:send {request_id, ...payload} follows it until 2026-12-01. A send that answers a message (x-reply) is message.reply, kind reply, the same payload plus reply_to_id.",
       "payload": {
         "type": "object",
         "required": [
@@ -2070,6 +2071,35 @@
         "additionalProperties": true
       }
     },
+    "sf-chat-window-react": {
+      "summary": "A reaction (x-reactions): message.react {conversation_id, message_id, emoji, on}. Answered applied with data {message}, merged by revision.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "intent",
+          "payload"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string",
+            "description": "The port's intent (or the window's own, x-…) this event raises."
+          },
+          "kind": {
+            "type": "string",
+            "description": "Which of the verb's intents, where a verb carries more than one."
+          },
+          "payload": {
+            "type": "object",
+            "description": "The intent's payload, in the port's own field names; see the port contract."
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "chat-port:open": {
       "summary": "Dated alias of sf-chat-window-open until 2026-12-01 (split).",
       "payload": {
@@ -2470,6 +2500,16 @@
         "changes": [
           "The source of the narrow-your-search probe says what the generated file says; no behaviour changed. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.5.1",
+        "to": "1.6.0",
+        "changes": [
+          "Between people: a message by its author (author.kind or kind assistant): a person a bubble with sf-avatar, an assistant, agent or bot a document with its sign, name and word; one to one no sign or name in the feed.",
+          "Between people an assistant's wait neither blocks nor queues the field; Stop is on the message where can_stop allows it.",
+          "x-reactions: pills and the picker, message.react. x-reply: quotes, the strip over the field, message.reply {…message.send's payload, reply_to_id}.",
+          "Needs sf-chat-message 1.4.0 and sf-chat-composer 1.2.0. Without people, x-reactions and x-reply nothing changes; simai.chat-port 1.0 is unchanged."
+        ]
       }
     ]
   },
@@ -2479,11 +2519,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "91bad3948039eababa324d33781d245a53a2f06b891a9c5d615704d6c358c363"
+        "sha256": "1512ff6515e2acb35f62a2a9725f9ff7aa8351118dcced0451fa1544074273c3"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
-        "sha256": "685231162ce4b0882bbd6554d156ee7573bcd40d2472a101f7e49a033a9a58f9"
+        "sha256": "f1175f10f612b81139574b610dd4f251305c46412a08340c7967f46e890c6a0a"
       },
       {
         "path": "src/smart/chat-window/js/files-view.js",
@@ -2499,7 +2539,7 @@
       },
       {
         "path": "src/smart/chat-window/js/people.js",
-        "sha256": "814106420efe935dae5e8c9ea4e8a1aae862736ddcea1aea091eba66359adc83"
+        "sha256": "ea09e8bba5eed79a6a748d001c1b717cdb3a47bddc888e2199ef96bcd3f43905"
       },
       {
         "path": "src/smart/chat-window/js/members-view.js",
@@ -2519,7 +2559,7 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "dccc81b725f45fc99285b26806c82fcf86becc1d7c4f92f7edc91ea5a60ead22"
+        "sha256": "fb7e712393856ca66ff47929b91820b78485cab4ac97bb0b12d445c6c0a3df37"
       },
       {
         "path": "src/smart/chat-window/rule.js",
@@ -2527,11 +2567,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "fc84504d1449e989d429414befba49277ed60c598ca22ab606190134375235ff"
+        "sha256": "88bb2ec965c66425fa2681c662713ef36a52ad33e81978b6578a7f998b88593f"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "6875b50dfbd22dcf563f8f7ae1eb483749e45904945c75840a878467df6ec8d5"
+        "sha256": "2bb6623afb620f5b086e8c4f6ae02633da7e7a3dcd204553623b2824c5bbf6b6"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2539,11 +2579,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "b634b973875efb01b26ee08fce68d3708ead4710878c4ac58d04dd5dd3d14ddf"
+        "sha256": "3a1ac5deab8cbd40c0025af5942b746d3f293d6f657f028dcb9c30cdd8e9ba3e"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "a7cd04146e85086c6cb7e668fa5fcd731d7a656890df338d982e0c9088dc3ff8"
+        "sha256": "91e328bde655a8367c8f2528e63e2cc9d179fcb65d6aa1bb065a47e966885110"
       }
     ],
     "generated_runtime": []

@@ -765,7 +765,7 @@
         }
       },
       "first-paint": {
-        "max-bytes": 20000,
+        "max-bytes": 22000,
         "why": "A whole window between people: the list, the conversation with its authors and runs, a tombstone and the field, printed with the host's data; no times, so the print does not depend on the reader's time zone."
       }
     }
@@ -1493,12 +1493,12 @@
             {
               "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.msgs = [{\"id\": 20, \"kind\": \"person\", \"author\": {\"id\": 102, \"name\": \"Иван Петров\"}, \"body\": \"Коллеги, в регламент возвратов добавили пункт про подарочные карты.\", \"created_at\": \"2026-10-30T09:02:00Z\", \"revision\": 3, \"can_edit\": false, \"can_delete\": false}, {\"id\": 21, \"kind\": \"person\", \"author\": {\"id\": 102, \"name\": \"Иван Петров\"}, \"body\": \"Посмотрите, пожалуйста, до обеда.\", \"created_at\": \"2026-10-30T09:03:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false}, {\"id\": 22, \"kind\": \"person\", \"author\": {\"id\": 101, \"name\": \"Анна Соколова\", \"own\": true}, \"body\": \"Посмотрю. А срок возврата для карт тот же — 14 дней?\", \"created_at\": \"2026-10-30T09:06:00Z\", \"revision\": 2, \"can_edit\": true, \"can_delete\": true, \"is_edited\": true}, {\"id\": 23, \"kind\": \"person\", \"author\": {\"id\": 103, \"name\": \"Ольга Смирнова\"}, \"body\": \"Нет, для карт — 30 дней, это в пункте 4.2.\", \"created_at\": \"2026-10-30T09:09:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false}, {\"id\": 24, \"kind\": \"person\", \"author\": {\"id\": 103, \"name\": \"Ольга Смирнова\"}, \"body\": \"И заявление можно подать в личном кабинете.\", \"created_at\": \"2026-10-30T09:20:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false}, {\"id\": 50, \"kind\": \"assistant\", \"author\": {\"id\": \"helper\", \"name\": \"Помощник\"}, \"status\": \"completed\", \"body\": \"Пункт 4.2: срок возврата подарочной карты — 30 дней.\", \"created_at\": \"2026-10-30T09:21:00Z\"}, {\"id\": 25, \"kind\": \"person\", \"author\": {\"id\": 102, \"name\": \"Иван Петров\"}, \"body\": \"Верно.\", \"created_at\": \"2026-10-30T09:22:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false}, {\"id\": 26, \"kind\": \"person\", \"author\": {\"id\": 102, \"name\": \"Иван Петров\"}, \"body\": \"Обновил шаблон ответа клиенту.\", \"created_at\": \"2026-10-30T09:23:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false, \"files\": [{\"id\": 9, \"name\": \"Шаблон ответа.docx\", \"size\": 21504, \"state\": \"ready\", \"download_url\": \"/files/9\"}]}, {\"id\": 27, \"kind\": \"person\", \"author\": {\"id\": 103, \"name\": \"Ольга Смирнова\"}, \"body\": \"Шаблон смотрю.\", \"created_at\": \"2026-10-30T09:24:00Z\", \"revision\": 3, \"can_edit\": false, \"can_delete\": true}], window.item = (id) => window.w.querySelector('.sf-message-log__item[data-id=\"' + id + '\"]'), window.payloads = (intent) => window.calls.filter((one) => one[0] === intent).map((one) => one[1]), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', capabilities: [\"people\", \"edit\", \"delete\"], raise: async (intent, payload) => { window.calls.push([intent, payload]); const answer = window.answers[intent]; return answer ? answer(payload) : {answer: 'applied'}; }}), window.w.setData({\"me\": {\"id\": 101, \"name\": \"Анна Соколова\"}, \"conversations\": [{\"id\": 7, \"title\": \"Команда поддержки\", \"type\": \"group\", \"unread_count\": 0, \"updated_at\": \"2026-10-30T09:24:00Z\"}, {\"id\": 8, \"title\": \"Иван Петров\", \"type\": \"private\", \"unread_count\": 0, \"updated_at\": \"2026-10-30T09:05:00Z\"}], \"conversation\": {\"id\": 7, \"title\": \"Команда поддержки\", \"type\": \"group\", \"can_send\": true}, \"messages\": [{\"id\": 20, \"kind\": \"person\", \"author\": {\"id\": 102, \"name\": \"Иван Петров\"}, \"body\": \"Коллеги, в регламент возвратов добавили пункт про подарочные карты.\", \"created_at\": \"2026-10-30T09:02:00Z\", \"revision\": 3, \"can_edit\": false, \"can_delete\": false}, {\"id\": 21, \"kind\": \"person\", \"author\": {\"id\": 102, \"name\": \"Иван Петров\"}, \"body\": \"Посмотрите, пожалуйста, до обеда.\", \"created_at\": \"2026-10-30T09:03:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false}, {\"id\": 22, \"kind\": \"person\", \"author\": {\"id\": 101, \"name\": \"Анна Соколова\", \"own\": true}, \"body\": \"Посмотрю. А срок возврата для карт тот же — 14 дней?\", \"created_at\": \"2026-10-30T09:06:00Z\", \"revision\": 2, \"can_edit\": true, \"can_delete\": true, \"is_edited\": true}, {\"id\": 23, \"kind\": \"person\", \"author\": {\"id\": 103, \"name\": \"Ольга Смирнова\"}, \"body\": \"Нет, для карт — 30 дней, это в пункте 4.2.\", \"created_at\": \"2026-10-30T09:09:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false}, {\"id\": 24, \"kind\": \"person\", \"author\": {\"id\": 103, \"name\": \"Ольга Смирнова\"}, \"body\": \"И заявление можно подать в личном кабинете.\", \"created_at\": \"2026-10-30T09:20:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false}, {\"id\": 50, \"kind\": \"assistant\", \"author\": {\"id\": \"helper\", \"name\": \"Помощник\"}, \"status\": \"completed\", \"body\": \"Пункт 4.2: срок возврата подарочной карты — 30 дней.\", \"created_at\": \"2026-10-30T09:21:00Z\"}, {\"id\": 25, \"kind\": \"person\", \"author\": {\"id\": 102, \"name\": \"Иван Петров\"}, \"body\": \"Верно.\", \"created_at\": \"2026-10-30T09:22:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false}, {\"id\": 26, \"kind\": \"person\", \"author\": {\"id\": 102, \"name\": \"Иван Петров\"}, \"body\": \"Обновил шаблон ответа клиенту.\", \"created_at\": \"2026-10-30T09:23:00Z\", \"revision\": 1, \"can_edit\": false, \"can_delete\": false, \"files\": [{\"id\": 9, \"name\": \"Шаблон ответа.docx\", \"size\": 21504, \"state\": \"ready\", \"download_url\": \"/files/9\"}]}, {\"id\": 27, \"kind\": \"person\", \"author\": {\"id\": 103, \"name\": \"Ольга Смирнова\"}, \"body\": \"Шаблон смотрю.\", \"created_at\": \"2026-10-30T09:24:00Z\", \"revision\": 3, \"can_edit\": false, \"can_delete\": true}], \"history\": {\"has_older\": false}, \"feed_state\": \"ready\", \"limits\": {\"body_chars\": 10000}}), true)",
               "wait": 900,
-              "check": "(() => { const w = window.w; const has = (id, c) => window.item(id).querySelector('article').classList.contains('sf-chat-person--' + c); const name = (id) => window.item(id).querySelector('.sf-chat-person__name')?.textContent ?? null; const tools = (id) => [...window.item(id).querySelectorAll('.sf-chat-person__tools button')].map((b) => b.classList.contains('sf-chat-person__edit') ? 'edit' : 'delete').join(','); return w.querySelectorAll('sf-message-log sf-chat-message[template=person]').length === 8 && !window.item(50).querySelector('sf-chat-message').hasAttribute('template') && Boolean(window.item(50).querySelector('.sf-chat-message--assistant')) && has(20, 'first') && !has(20, 'last') && !has(21, 'first') && has(21, 'last') && name(20) === 'Иван Петров' && name(21) === null && has(22, 'own') && window.item(22).querySelector('article').getAttribute('aria-label') === 'Вы' && name(22) === null && has(23, 'first') && has(23, 'last') && has(24, 'first') && name(24) === 'Ольга Смирнова' && has(25, 'first') && !has(25, 'last') && has(26, 'last') && window.item(20).querySelector('.sf-chat-person__avatar').textContent === 'ИП' && window.item(26).querySelector('.sf-chat-attachment__name')?.textContent === 'Шаблон ответа.docx' && tools(22) === 'edit,delete' && tools(27) === 'delete' && tools(20) === '' && !w.querySelector('.sf-chat-divider--unread') && w.querySelector('sf-chat-composer').getAttribute('placeholder') === 'Напишите сообщение'; })()"
+              "check": "(() => { const w = window.w; const has = (id, c) => window.item(id).querySelector('article').classList.contains('sf-chat-person--' + c); const name = (id) => window.item(id).querySelector('.sf-chat-person__name')?.textContent ?? null; const tools = (id) => [...window.item(id).querySelectorAll('.sf-chat-person__tools button')].map((b) => b.classList.contains('sf-chat-person__edit') ? 'edit' : 'delete').join(','); return w.querySelectorAll('sf-message-log sf-chat-message[template=person]').length === 8 && !window.item(50).querySelector('sf-chat-message').hasAttribute('template') && Boolean(window.item(50).querySelector('.sf-chat-message--assistant')) && has(20, 'first') && !has(20, 'last') && !has(21, 'first') && has(21, 'last') && name(20) === 'Иван Петров' && name(21) === null && has(22, 'own') && window.item(22).querySelector('article').getAttribute('aria-label') === 'Вы' && name(22) === null && has(23, 'first') && has(23, 'last') && has(24, 'first') && name(24) === 'Ольга Смирнова' && has(25, 'first') && !has(25, 'last') && has(26, 'last') && window.item(20).querySelector('.sf-chat-person__avatar sf-avatar').getAttribute('text') === 'ИП' && window.item(26).querySelector('.sf-chat-attachment__name')?.textContent === 'Шаблон ответа.docx' && tools(22) === 'edit,delete' && tools(27) === 'delete' && tools(20) === '' && !w.querySelector('.sf-chat-divider--unread') && w.querySelector('sf-chat-composer').getAttribute('placeholder') === 'Напишите сообщение'; })()"
             },
             {
               "script": "(window.w.setData({conversation: {id: 7, title: 'Команда поддержки', type: 'private', can_send: true}}), true)",
               "wait": 500,
-              "check": "!window.w.querySelector('.sf-chat-person__name') && window.item(20).querySelector('.sf-chat-person__avatar').textContent === 'ИП'"
+              "check": "!window.w.querySelector('.sf-chat-person__name') && window.item(20).querySelector('.sf-chat-person__avatar sf-avatar').getAttribute('text') === 'ИП'"
             }
           ]
         },
@@ -2052,7 +2052,7 @@
           "covers": "capabilities.x-conversation-start, capabilities.x-members, compatibility.1.4.0",
           "steps": [
             {
-              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), document.head.append(Object.assign(document.createElement('style'), {textContent: '.chat-shell__composer, .sf-message-log, .chat-shell__find, .chat-shell__thread-title, .sf-chat-interlocutor { display: flex; }'})), window.w = document.querySelector('#w'), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent) => (intent === 'members.list' ? {answer: 'applied', data: {participants: [{id: 1, name: 'Анна', role: 'owner'}]}} : {answer: 'applied'})}), window.w.setAttribute('capabilities', 'people conversation-create x-conversation-start x-members x-my-files'), window.w.setData({me: {id: 7, name: 'Анна'}, conversations: [{id: 'c1', title: 'Отчёт', type: 'group'}], conversation: {id: 'c1', title: 'Отчёт', type: 'group'}, messages: [{id: 1, kind: 'person', author: {id: 102, name: 'Иван'}, body: 'Привет', revision: 1}]}), window.parts = ['.chat-shell__list > .sf-message-log', '.chat-shell__composer', '.chat-shell__find', '.chat-shell__header .sf-chat-interlocutor', '.chat-shell__thread-title'], window.shown = (selector) => getComputedStyle(window.w.querySelector(selector)).display !== 'none', window.away = () => window.parts.every((one) => !window.shown(one)) && ['sf-message-log', '.chat-shell__composer', '.chat-shell__find', 'sf-chat-interlocutor', '.chat-shell__thread-title'].every((one) => window.w.querySelector(one).inert), window.back = () => ['.chat-shell__list > .sf-message-log', '.chat-shell__composer'].every(window.shown) && !window.w.querySelector('[inert]'), window.typing = () => { const box = window.w.querySelector('.chat-shell__composer textarea, .chat-shell__composer [contenteditable]'); box?.focus(); return !box || document.activeElement !== box; }, true)",
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), document.head.append(Object.assign(document.createElement('style'), {textContent: '.chat-shell__composer, .sf-message-log, .chat-shell__find, .chat-shell__thread-title, .sf-chat-interlocutor { display: flex; }'})), window.w = document.querySelector('#w'), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent) => (intent === 'members.list' ? {answer: 'applied', data: {participants: [{id: 1, name: 'Анна', role: 'owner'}]}} : {answer: 'applied'})}), window.w.setAttribute('capabilities', 'people conversation-create x-conversation-start x-members x-my-files'), window.w.setData({me: {id: 7, name: 'Анна'}, conversations: [{id: 'c1', title: 'Отчёт', type: 'group'}], conversation: {id: 'c1', title: 'Отчёт', type: 'group'}, messages: [{id: 1, kind: 'person', author: {id: 102, name: 'Иван'}, body: 'Привет', revision: 1}]}), window.parts = ['.chat-shell__list > .sf-message-log', '.chat-shell__composer', '.chat-shell__find', '.chat-shell__header .sf-chat-interlocutor', '.chat-shell__thread-title'], window.shown = (selector) => getComputedStyle(window.w.querySelector(selector)).display !== 'none', window.away = () => window.parts.every((one) => !window.shown(one)) && ['sf-message-log', '.chat-shell__composer', '.chat-shell__find', 'sf-chat-interlocutor', '.chat-shell__thread-title'].every((one) => window.w.querySelector(one).inert), window.back = () => ['.chat-shell__list > .sf-message-log', '.chat-shell__composer'].every(window.shown) && !window.w.querySelector('[inert]:not(sf-avatar)'), window.typing = () => { const box = window.w.querySelector('.chat-shell__composer textarea, .chat-shell__composer [contenteditable]'); box?.focus(); return !box || document.activeElement !== box; }, true)",
               "wait": 500,
               "check": "window.back() && !window.typing()"
             },
@@ -2074,7 +2074,7 @@
             {
               "script": "(window.w.openFiles(), true)",
               "wait": 300,
-              "check": "!window.w.querySelector('[inert]') && window.shown('.chat-shell__composer')"
+              "check": "!window.w.querySelector('[inert]:not(sf-avatar)') && window.shown('.chat-shell__composer')"
             },
             {
               "script": "(window.w.closeFiles(), window.w.setAttribute('capabilities', 'people conversation-create'), window.w.openStart({kind: 'group'}), window.w.openMembers(), true)",
@@ -2408,6 +2408,217 @@
               "script": "(window.scroller().scrollTop = 0, window.watch = 42, window.before = window.topOf(window.watch), window.w.setData({messages: [...window.page(10, 30, 1), ...window.msgs], history: {has_older: false}}), true)",
               "wait": 700,
               "check": "(() => { const moved = Math.abs(window.topOf(window.watch) - window.before); if (moved > 1) throw new Error('moved ' + moved); return window.days() === '10,70'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p39-who-speaks",
+          "title": "1.6.0: a message by its author: a person a bubble with sf-avatar; an assistant, a bot, an agent a document with its sign, name and word, so colour is not alone; a run breaks on them",
+          "covers": "capabilities.people, compatibility.1.6.0",
+          "steps": [
+            {
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.item = (id) => window.w.querySelector('.sf-message-log__item[data-id=\"' + id + '\"]'), window.payloads = (intent) => window.calls.filter((one) => one[0] === intent).map((one) => one[1]), window.field = () => window.w.querySelector('textarea.sf-chat-composer__input'), window.setText = (node, value) => { node.value = value; node.dispatchEvent(new Event('input', {bubbles: true})); }, window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; if (given === 'hold') return new Promise((done) => { window.release = done; }); return given ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'people'), window.w.setData({me: {id: 101, name: 'Анна'}, conversations: [{id: 7, title: 'Планёрка', type: 'group'}, {id: 8, title: 'Другой', type: 'group'}], conversation: {id: 7, title: 'Планёрка', type: 'group', can_send: true}, messages: [{id: 1, kind: 'person', author: {id: 102, name: \"Иван Петров\"}, body: 'Посмотрите регламент', revision: 1}, {id: 2, kind: 'assistant', author: {id: 'mirai', name: 'Mirai'}, status: 'completed', body: 'Сроки расходятся.', html: '<p>Сроки расходятся.</p>', asked_by: {name: 'Анны'}, revision: 1, can_stop: true}, {id: 3, kind: 'person', author: {id: 'b1', name: 'Сборщик', kind: 'bot'}, body: 'Отчёт готов.', revision: 1}, {id: 4, kind: 'person', author: {id: 'a1', name: 'Планировщик', kind: 'agent'}, kind: 'assistant', status: 'completed', body: 'План готов.', revision: 1}, {id: 5, kind: 'person', author: {id: 101, name: \"Анна\", own: true}, body: 'Спасибо', revision: 1, can_edit: true, can_delete: true}], history: {has_older: false}, feed_state: 'ready', limits: {}}), true)",
+              "wait": 900,
+              "check": "(() => { const doc = (id) => window.item(id).querySelector('article.sf-chat-message--document'); const word = (id) => window.item(id).querySelector('.sf-chat-message__who sf-badge')?.getAttribute('text'); return window.item(1).querySelector('article.sf-chat-person sf-avatar')?.getAttribute('text') === 'ИП' && doc(2) && word(2) === 'ИИ' && doc(2).getAttribute('aria-label') === 'Mirai, ИИ' && doc(2).querySelector('.sf-chat-message__asked').textContent === 'по просьбе Анны' && doc(3) && word(3) === 'Бот' && doc(3).querySelector('.sf-chat-message__plain').textContent === 'Отчёт готов.' && doc(4) && word(4) === 'Агент' && !doc(2).querySelector('.sf-chat-message__bubble') && !window.item(2).querySelector('sf-avatar') && !window.item(5).querySelector('sf-avatar') && !!doc(2).querySelector('[data-rating]') === false && doc(2).querySelector('.sf-chat-message__actions'); })()"
+            }
+          ]
+        },
+        {
+          "id": "p40-one-to-one-agent",
+          "title": "1.6.0: one to one with an agent or a bot: no sign and no name in the feed, the header has said it",
+          "covers": "capabilities.people",
+          "steps": [
+            {
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.item = (id) => window.w.querySelector('.sf-message-log__item[data-id=\"' + id + '\"]'), window.payloads = (intent) => window.calls.filter((one) => one[0] === intent).map((one) => one[1]), window.field = () => window.w.querySelector('textarea.sf-chat-composer__input'), window.setText = (node, value) => { node.value = value; node.dispatchEvent(new Event('input', {bubbles: true})); }, window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; if (given === 'hold') return new Promise((done) => { window.release = done; }); return given ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'people feedback'), window.w.setData({me: {id: 101, name: 'Анна'}, conversations: [{id: 7, title: 'Планёрка', type: 'private'}, {id: 8, title: 'Другой', type: 'group'}], conversation: {id: 7, title: 'Планёрка', type: 'private', can_send: true}, messages: [{id: 1, kind: 'person', author: {id: 101, name: \"Анна\", own: true}, body: 'Собери', revision: 1}, {id: 2, kind: 'person', author: {id: 'b1', name: 'Сборщик', kind: 'bot'}, body: 'Готово.', revision: 1}, {id: 3, kind: 'assistant', author: {id: 'a1', name: 'Агент Смит', kind: 'agent'}, status: 'completed', body: 'Сделано.', revision: 1}], history: {has_older: false}, feed_state: 'ready', limits: {}}), true)",
+              "wait": 800,
+              "check": "(() => { const doc = (id) => window.item(id).querySelector('article.sf-chat-message--document'); const names = window.w.querySelector('sf-message-log').textContent; return doc(2) && doc(3) && !window.w.querySelector('.sf-chat-message__head') && !window.w.querySelector('.sf-chat-message__name') && !names.includes('Сборщик') && !names.includes('Агент Смит') && doc(2).querySelector('[data-rating=up]'); })()"
+            }
+          ]
+        },
+        {
+          "id": "p41-nothing-without-capabilities",
+          "title": "1.6.0: without people the new fields are read by nobody: author.kind, reactions, reply_to, asked_by draw as before, the field waits or queues on an answer as it did, the send is the port's and there is no strip; without x-reactions and x-reply a person keeps the two buttons and has no pills or quote",
+          "covers": "compatibility.1.6.0",
+          "steps": [
+            {
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.item = (id) => window.w.querySelector('.sf-message-log__item[data-id=\"' + id + '\"]'), window.payloads = (intent) => window.calls.filter((one) => one[0] === intent).map((one) => one[1]), window.field = () => window.w.querySelector('textarea.sf-chat-composer__input'), window.setText = (node, value) => { node.value = value; node.dispatchEvent(new Event('input', {bubbles: true})); }, window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; if (given === 'hold') return new Promise((done) => { window.release = done; }); return given ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'assistant feedback'), window.w.setData({me: {id: 101, name: 'Анна'}, conversations: [{id: 7, title: 'Планёрка', type: 'assistant'}, {id: 8, title: 'Другой', type: 'group'}], conversation: {id: 7, title: 'Планёрка', type: 'assistant', can_send: true}, messages: [{id: 1, kind: 'person', author: {id: 7, own: true, kind: 'bot'}, body: 'Вопрос', revision: 1, reactions: [{emoji: '👍', count: 2}], reply_to: {id: 9, author: {name: 'Х'}, text: 'y'}}, {id: 2, kind: 'assistant', author: {id: 'p', name: 'Mirai', kind: 'agent'}, status: 'running', stage: 'writing', asked_by: {name: 'Анны'}, can_stop: true, reactions: [{emoji: '👍', count: 2}]}], history: {has_older: false}, feed_state: 'ready', limits: {}}), true)",
+              "wait": 900,
+              "check": "(() => { const w = window.w; const c = w.querySelector('sf-chat-composer'); return !w.querySelector('.sf-chat-message--document, .sf-chat-person, .sf-chat-reactions, .sf-chat-quote, .sf-chat-tools, .sf-chat-message__head, .sf-chat-message__stop, .chat-shell__reply, sf-avatar') && w.querySelector('article.sf-chat-message--user .sf-chat-message__bubble').textContent === 'Вопрос' && c.busy === true && !c.hasAttribute('no-stop') && !c.querySelector('.sf-chat-composer__stop').hidden; })()"
+            },
+            {
+              "script": "(window.setText(window.field(), 'Ещё вопрос'), window.field().focus(), true)",
+              "wait": 100
+            },
+            {
+              "user": "keyboard:Enter",
+              "wait": 200,
+              "check": "window.w.querySelector('.chat-shell__queued') && window.payloads('message.send').length === 0"
+            },
+            {
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.item = (id) => window.w.querySelector('.sf-message-log__item[data-id=\"' + id + '\"]'), window.payloads = (intent) => window.calls.filter((one) => one[0] === intent).map((one) => one[1]), window.field = () => window.w.querySelector('textarea.sf-chat-composer__input'), window.setText = (node, value) => { node.value = value; node.dispatchEvent(new Event('input', {bubbles: true})); }, window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; if (given === 'hold') return new Promise((done) => { window.release = done; }); return given ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'people edit delete'), window.w.setData({me: {id: 101, name: 'Анна'}, conversations: [{id: 7, title: 'Планёрка', type: 'group'}, {id: 8, title: 'Другой', type: 'group'}], conversation: {id: 7, title: 'Планёрка', type: 'group', can_send: true}, messages: [{id: 1, kind: 'person', author: {id: 102, name: \"Иван Петров\"}, body: 'Да', revision: 1, reactions: [{emoji: '👍', count: 2}], reply_to: {id: 9, author: {name: 'Х'}, text: 'y'}}, {id: 2, kind: 'person', author: {id: 101, name: \"Анна\", own: true}, body: 'Моё', revision: 1, can_edit: true, can_delete: true}], history: {has_older: false}, feed_state: 'ready', limits: {}}), true)",
+              "wait": 800,
+              "check": "(() => { const w = window.w; return !w.querySelector('.sf-chat-reactions, .sf-chat-quote, .sf-chat-tools') && window.item(2).querySelector('.sf-chat-person__edit') && window.item(2).querySelector('.sf-chat-person__delete'); })()"
+            }
+          ]
+        },
+        {
+          "id": "p42-field-free",
+          "title": "1.6.0: between people an answer on its way holds nobody: the field is free, a message goes at once, no queue, the field has no Stop; Stop is on the message with can_stop and says wait.stop; the answer's end takes no focus",
+          "covers": "capabilities.people, intents.wait.stop",
+          "steps": [
+            {
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.item = (id) => window.w.querySelector('.sf-message-log__item[data-id=\"' + id + '\"]'), window.payloads = (intent) => window.calls.filter((one) => one[0] === intent).map((one) => one[1]), window.field = () => window.w.querySelector('textarea.sf-chat-composer__input'), window.setText = (node, value) => { node.value = value; node.dispatchEvent(new Event('input', {bubbles: true})); }, window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; if (given === 'hold') return new Promise((done) => { window.release = done; }); return given ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'people assistant'), window.w.setData({me: {id: 101, name: 'Анна'}, conversations: [{id: 7, title: 'Планёрка', type: 'group'}, {id: 8, title: 'Другой', type: 'group'}], conversation: {id: 7, title: 'Планёрка', type: 'group', can_send: true}, messages: [{id: 1, kind: 'person', author: {id: 101, name: \"Анна\", own: true}, body: '@Mirai, итоги', revision: 1}, {id: 2, kind: 'assistant', author: {id: 'mirai', name: 'Mirai'}, status: 'running', stage: 'writing', can_stop: true, asked_by: {name: 'Анны'}}, {id: 3, kind: 'assistant', author: {id: 'mirai', name: 'Mirai'}, status: 'running', stage: 'writing'}], history: {has_older: false}, feed_state: 'ready', limits: {}}), true)",
+              "wait": 900,
+              "check": "(() => { const c = window.w.querySelector('sf-chat-composer'); return c.busy === false && c.hasAttribute('no-stop') && c.querySelector('.sf-chat-composer__stop').hidden && window.item(2).querySelector('.sf-chat-message__stop') && !window.item(3).querySelector('.sf-chat-message__stop') && window.item(2).querySelector('.sf-chat-stages'); })()"
+            },
+            {
+              "script": "(window.setText(window.field(), 'Я пока сведу цифры'), window.field().focus(), true)",
+              "wait": 100
+            },
+            {
+              "user": "keyboard:Enter",
+              "wait": 250,
+              "check": "window.payloads('message.send').length === 1 && window.payloads('message.send')[0].body === 'Я пока сведу цифры' && !window.w.querySelector('.chat-shell__queued') && window.field().value === ''"
+            },
+            {
+              "user": "click:#w .sf-message-log__item[data-id=\"2\"] .sf-chat-message__stop",
+              "wait": 200,
+              "check": "window.payloads('wait.stop').length === 1 && window.payloads('wait.stop')[0].conversation_id === 7 && Object.keys(window.payloads('wait.stop')[0]).length === 1"
+            },
+            {
+              "script": "(document.activeElement.blur(), window.w.setData({messages: window.w.messages.map((one) => (one.id === 2 ? {...one, status: 'completed', body: 'Итоги.', html: '<p>Итоги.</p>'} : one))}), true)",
+              "wait": 300,
+              "check": "document.activeElement !== window.field() && window.item(2).querySelector('.sf-chat-markup')"
+            }
+          ]
+        },
+        {
+          "id": "p43-reactions",
+          "title": "1.6.0: a pill's press raises message.react and shows nothing early; it waits and takes no second press; applied merges data.message; refused leaves the counts with a quiet line; none on a deleted message or an unsent one; on an AI message too; at most three tools",
+          "covers": "intents.message.react, capabilities.x-reactions",
+          "steps": [
+            {
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.item = (id) => window.w.querySelector('.sf-message-log__item[data-id=\"' + id + '\"]'), window.payloads = (intent) => window.calls.filter((one) => one[0] === intent).map((one) => one[1]), window.field = () => window.w.querySelector('textarea.sf-chat-composer__input'), window.setText = (node, value) => { node.value = value; node.dispatchEvent(new Event('input', {bubbles: true})); }, window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; if (given === 'hold') return new Promise((done) => { window.release = done; }); return given ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'people edit delete x-reactions'), window.w.setData({me: {id: 101, name: 'Анна'}, conversations: [{id: 7, title: 'Планёрка', type: 'group'}, {id: 8, title: 'Другой', type: 'group'}], conversation: {id: 7, title: 'Планёрка', type: 'group', can_send: true}, messages: [{id: 1, kind: 'person', author: {id: 102, name: \"Иван Петров\"}, body: 'Да', revision: 4, reactions: [{emoji: '👍', count: 3, mine: false}]}, {id: 2, kind: 'assistant', author: {id: 'm', name: 'Mirai'}, status: 'completed', body: 'Ответ', revision: 1, reactions: [{emoji: '👀', count: 1}]}, {id: 3, kind: 'person', author: {id: 102, name: \"Иван Петров\"}, body: '', is_deleted: true, revision: 2, reactions: [{emoji: '👍', count: 9}]}, {id: null, kind: 'person', author: {id: 101, name: \"Анна\", own: true}, body: 'Ждёт', local: {client_key: 'k1', action: 'send', state: 'pending'}}, {id: 5, kind: 'person', author: {id: 101, name: \"Анна\", own: true}, body: 'Моё', revision: 1, can_edit: true, can_delete: true}], history: {has_older: false}, feed_state: 'ready', limits: {}}), window.pill = (id, e) => window.item(id).querySelector('.sf-chat-reaction[data-emoji=\"' + e + '\"]'), true)",
+              "wait": 900,
+              "check": "(() => { const pill = window.pill(1, '👍'); return pill.getAttribute('aria-label') === 'Реакция 👍, 3' && window.pill(2, '👀') && !window.item(3).querySelector('.sf-chat-reactions, .sf-chat-tools') && !window.item('k1').querySelector('.sf-chat-tools') && window.item(5).querySelectorAll('.sf-chat-tools > button').length === 2 && window.item(5).querySelector('.sf-chat-tools__more') && !window.item(5).querySelector('.sf-chat-person__edit') && window.item(1).querySelector('.sf-chat-tools__react') && !window.item(1).querySelector('.sf-chat-tools__reply') && window.item(2).querySelector('.sf-chat-message__actions .sf-chat-tools__react'); })()"
+            },
+            {
+              "script": "(window.answers['message.react'] = 'hold', window.pill(1, '👍').click(), true)",
+              "wait": 250,
+              "check": "(() => { const pill = window.pill(1, '👍'); return window.payloads('message.react').length === 1 && JSON.stringify(window.payloads('message.react')[0]) === JSON.stringify({conversation_id: 7, message_id: 1, emoji: '👍', on: true}) && pill.getAttribute('aria-busy') === 'true' && pill.querySelector('.sf-chat-reaction__count').textContent === '3' && pill.getAttribute('aria-pressed') === 'false'; })()"
+            },
+            {
+              "script": "(window.pill(1, '👍').click(), true)",
+              "wait": 100,
+              "check": "window.payloads('message.react').length === 1"
+            },
+            {
+              "script": "(window.release({answer: 'applied', data: {message: {...window.w.messages[0], revision: 5, reactions: [{emoji: '👍', count: 4, mine: true}]}}}), true)",
+              "wait": 300,
+              "check": "(() => { const pill = window.pill(1, '👍'); return pill.getAttribute('aria-label') === 'Реакция 👍, 4, ваша' && pill.getAttribute('aria-pressed') === 'true' && !pill.hasAttribute('aria-busy'); })()"
+            },
+            {
+              "script": "(window.answers['message.react'] = {answer: 'applied', data: {message: {...window.w.messages[0], revision: 3, reactions: []}}}, window.pill(1, '👍').click(), true)",
+              "wait": 300,
+              "check": "window.pill(1, '👍').getAttribute('aria-label') === 'Реакция 👍, 4, ваша'"
+            },
+            {
+              "script": "(window.answers['message.react'] = {answer: 'refused', reason: 'not-allowed'}, window.pill(1, '👍').click(), true)",
+              "wait": 300,
+              "check": "window.pill(1, '👍').getAttribute('aria-label') === 'Реакция 👍, 4, ваша' && window.w.querySelector('.chat-shell__status[role=status]').textContent === 'Реакцию не удалось сохранить' && !window.w.querySelector('.chat-shell__error')"
+            },
+            {
+              "user": "click:#w .sf-message-log__item[data-id=\"1\"] .sf-chat-tools__react",
+              "wait": 300,
+              "check": "(() => { const six = window.item(1).querySelectorAll('.sf-chat-picker button'); return six.length === 6 && document.activeElement === six[0]; })()"
+            },
+            {
+              "user": "keyboard:Escape",
+              "wait": 300,
+              "check": "!window.w.querySelector('.sf-chat-picker') && document.activeElement === window.item(1).querySelector('.sf-chat-tools__react')"
+            },
+            {
+              "script": "(window.answers['message.react'] = 'hold', window.calls.length = 0, window.item(1).querySelector('.sf-chat-tools__react').click(), true)",
+              "wait": 300
+            },
+            {
+              "user": "click:#w .sf-chat-picker button[data-emoji=\"🎉\"]",
+              "wait": 300,
+              "check": "(() => { const pill = window.pill(1, '🎉'); return window.payloads('message.react')[0].emoji === '🎉' && !window.w.querySelector('.sf-chat-picker') && pill.getAttribute('aria-busy') === 'true' && !pill.querySelector('.sf-chat-reaction__count'); })()"
+            },
+            {
+              "script": "(window.release({answer: 'unavailable'}), true)",
+              "wait": 300,
+              "check": "!window.pill(1, '🎉')"
+            }
+          ]
+        },
+        {
+          "id": "p44-reply",
+          "title": "1.6.0: «Ответить» shows the strip, the field takes the focus, Escape clears it first; the send is message.reply with reply_to_id and the port's message.send is untouched; the strip goes on send and stays on a refused one; it keeps per conversation; a quote leads to its original, marks it, says when it is not loaded and when it is deleted",
+          "covers": "intents.message.reply, capabilities.x-reply",
+          "steps": [
+            {
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.item = (id) => window.w.querySelector('.sf-message-log__item[data-id=\"' + id + '\"]'), window.payloads = (intent) => window.calls.filter((one) => one[0] === intent).map((one) => one[1]), window.field = () => window.w.querySelector('textarea.sf-chat-composer__input'), window.setText = (node, value) => { node.value = value; node.dispatchEvent(new Event('input', {bubbles: true})); }, window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; if (given === 'hold') return new Promise((done) => { window.release = done; }); return given ?? {answer: 'applied'}; }}), window.w.setAttribute('capabilities', 'people delete x-reply'), window.w.setData({me: {id: 101, name: 'Анна'}, conversations: [{id: 7, title: 'Планёрка', type: 'group'}, {id: 8, title: 'Другой', type: 'group'}], conversation: {id: 7, title: 'Планёрка', type: 'group', can_send: true}, messages: [{id: 1, kind: 'person', author: {id: 102, name: \"Иван Петров\"}, body: 'Посмотрите регламент', revision: 1, can_delete: true}, {id: 2, kind: 'assistant', author: {id: 'm', name: 'Mirai'}, status: 'completed', body: 'Сроки расходятся.', revision: 1, reply_to: {id: 1, author: {name: 'Иван Петров'}, text: 'Посмотрите регламент'}}, {id: 3, kind: 'person', author: {id: 101, name: \"Анна\", own: true}, body: 'Подтверждаю', revision: 1, reply_to: {id: 99, author: {name: 'Ольга'}, text: 'Давнее'}}, {id: 4, kind: 'person', author: {id: 101, name: \"Анна\", own: true}, body: 'Ещё', revision: 1, reply_to: {id: 1, author: {name: 'Иван Петров'}, text: 'Посмотрите регламент'}}], history: {has_older: false}, feed_state: 'ready', limits: {}}), true)",
+              "wait": 900,
+              "check": "(() => { const w = window.w; return !w.querySelector('.chat-shell__reply') && !window.item(1).querySelector('.sf-chat-tools__react') && window.item(1).querySelector('.sf-chat-tools__reply') && window.item(2).querySelector('.sf-chat-message__body').firstElementChild.matches('.sf-chat-quote') && window.item(4).querySelector('.sf-chat-person__bubble').firstElementChild.matches('.sf-chat-quote') && window.item(3).querySelector('.sf-chat-quote').getAttribute('aria-disabled') === 'true' && window.item(3).querySelector('.sf-chat-quote').title === 'Сообщение не загружено'; })()"
+            },
+            {
+              "user": "click:#w .sf-message-log__item[data-id=\"1\"] .sf-chat-tools__reply",
+              "wait": 200,
+              "check": "(() => { const strip = window.w.querySelector('.chat-shell__reply'); return !strip.hidden && strip.textContent.includes('Иван Петров') && strip.textContent.includes('Посмотрите регламент') && document.activeElement === window.field() && strip.nextElementSibling === window.w.querySelector('sf-chat-composer'); })()"
+            },
+            {
+              "user": "keyboard:Escape",
+              "wait": 100,
+              "check": "window.w.querySelector('.chat-shell__reply').hidden === true && document.activeElement === window.field()"
+            },
+            {
+              "script": "(window.w.querySelector('.sf-message-log__item[data-id=\"1\"] .sf-chat-tools__reply').click(), window.setText(window.field(), 'Хорошо'), window.answers['message.reply'] = {answer: 'refused', reason: 'not-allowed'}, true)",
+              "wait": 200
+            },
+            {
+              "user": "keyboard:Enter",
+              "wait": 300,
+              "check": "!window.w.querySelector('.chat-shell__reply').hidden && window.field().value === 'Хорошо' && window.payloads('message.send').length === 0 && window.payloads('message.reply').length === 1"
+            },
+            {
+              "script": "(delete window.answers['message.reply'], true)",
+              "wait": 50
+            },
+            {
+              "user": "keyboard:Enter",
+              "wait": 300,
+              "check": "(() => { const sent = window.payloads('message.reply')[1]; return window.w.querySelector('.chat-shell__reply').hidden === true && window.field().value === '' && sent.reply_to_id === 1 && sent.conversation_id === 7 && sent.body === 'Хорошо' && typeof sent.client_key === 'string' && JSON.stringify(Object.keys(sent).sort()) === JSON.stringify(['body', 'client_key', 'conversation_id', 'files', 'interlocutor', 'reply_to_id']) && window.payloads('message.send').length === 0; })()"
+            },
+            {
+              "script": "(window.setText(window.field(), 'Без цитаты'), true)",
+              "wait": 50
+            },
+            {
+              "user": "keyboard:Enter",
+              "wait": 300,
+              "check": "window.payloads('message.send').length === 1 && !('reply_to_id' in window.payloads('message.send')[0])"
+            },
+            {
+              "script": "(window.w.querySelector('.sf-message-log__item[data-id=\"1\"] .sf-chat-tools__reply').click(), window.w.setData({conversation: {id: 8, title: 'Другой', type: 'group', can_send: true}, messages: []}), true)",
+              "wait": 300,
+              "check": "window.w.querySelector('.chat-shell__reply').hidden === true"
+            },
+            {
+              "script": "(window.w.setData({conversation: {id: 7, title: 'Планёрка', type: 'group', can_send: true}, messages: [{id: 1, kind: 'person', author: {id: 102, name: \"Иван Петров\"}, body: 'Посмотрите регламент', revision: 1, can_delete: true}, {id: 4, kind: 'person', author: {id: 101, name: \"Анна\", own: true}, body: 'Ещё', revision: 1, reply_to: {id: 1, author: {name: 'Иван Петров'}, text: 'Посмотрите регламент'}}]}), true)",
+              "wait": 500,
+              "check": "!window.w.querySelector('.chat-shell__reply').hidden"
+            },
+            {
+              "user": "click:#w .sf-message-log__item[data-id=\"4\"] .sf-chat-quote",
+              "wait": 200,
+              "check": "window.item(1).querySelector('article').classList.contains('chat-shell__quoted')"
+            },
+            {
+              "script": "(window.w.setData({messages: window.w.messages.map((one) => (one.id === 1 ? {...one, body: '', is_deleted: true, revision: 2} : one))}), true)",
+              "wait": 300,
+              "check": "window.item(4).querySelector('.sf-chat-quote__text').textContent === 'Сообщение удалено'"
             }
           ]
         }

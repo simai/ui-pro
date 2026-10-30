@@ -54,7 +54,7 @@ test('the message declares open {kind: preview} and the steps toggle; the window
   const atLeast = (version, least) => version.split('.').map(Number).reduce((order, part, at) => order || Math.sign(part - least.split('.').map(Number)[at]), 0) >= 0;
   assert.ok(atLeast(message.version, '1.1.0'), message.version);
   assert.ok(message.events.open.cancelable, 'a host that shows the preview cancels it');
-  assert.deepEqual(message.events.open.carries.kind.values, ['preview']);
+  assert.ok(message.events.open.carries.kind.values.includes('preview'));
   assert.match(message.events.toggle.summary, /kind: steps/u);
   const window = json('chat-window', 'component.json');
   assert.ok(atLeast(window.version, '1.2.0'), window.version);

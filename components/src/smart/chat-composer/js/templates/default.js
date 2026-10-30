@@ -83,7 +83,7 @@ export function renderChatComposerTemplate(context) {
                         scheme: "on-surface",
                         size: "1",
                         className: "sf-chat-composer__stop",
-                        hidden: !context.busy,
+                        hidden: !context.busy || context.noStop,
                         onClick: () => component.stop(),
                     })}
                 </div>

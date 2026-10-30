@@ -4,6 +4,18 @@
 // functions of the port's data (simai.chat-port 1.0 message fields only), so
 // the window and its tests read them alike.
 
+// Who speaks (1.6.0). author.kind is not the port's (its author takes id, name,
+// avatar_url and own): it is the window's own reading, between people only, and
+// a port message without it is what its kind says.
+const MACHINES = new Set(["assistant", "agent", "bot"]);
+
+/** person, assistant, agent or bot. */
+export function speakerOf(message) {
+    const kind = message?.author?.kind;
+    if (MACHINES.has(kind)) return kind;
+    return message?.kind === "assistant" ? "assistant" : "person";
+}
+
 /** A message's key in the log: its id, or a send's client_key before it has one. */
 export const keyOf = (message) => String(message.id ?? message.local?.client_key ?? "");
 
@@ -30,7 +42,7 @@ export function messageCharsOf(limits, {people = false} = {}) {
  * read when there is none. `author`, `own` and `text` are what sf-message-log
  * and the window's announcer read.
  */
-export function toPersonView(message, {edit = false, remove = false, acting = null} = {}) {
+export function toPersonView(message, {edit = false, remove = false, acting = null, reactions = false, reply = false} = {}) {
     const author = message.author || {};
     const local = acting ?? (message.local ? {
         clientKey: message.local.client_key, action: message.local.action, state: message.local.state, body: message.local.body ?? null,
@@ -56,7 +68,11 @@ export function toPersonView(message, {edit = false, remove = false, acting = nu
             ...(file.download_url ? {downloadUrl: file.download_url} : {}),
         })),
     };
-    if (author.avatar_url) view.authorAvatar = author.avatar_url;
+    const avatar = author.avatar_url ?? author.avatar;
+    if (avatar) view.authorAvatar = avatar;
+    // Each only with its capability (1.6.0), so without them a message is what it was.
+    if (reactions && !deleted && Array.isArray(message.reactions)) view.reactions = message.reactions;
+    if (reply && !deleted && message.reply_to) view.reply_to = message.reply_to;
     if (message.created_at) {
         view.createdAt = message.created_at;
         view.created_at = message.created_at;
@@ -117,7 +133,7 @@ export function dayDividersOf(messages = [], options = {}) {
 export function lastOwnEditableKey(messages = []) {
     for (let at = messages.length - 1; at >= 0; at--) {
         const one = messages[at];
-        if (one.kind === "assistant" || one.author?.own !== true || one.can_edit !== true) continue;
+        if (speakerOf(one) !== "person" || one.author?.own !== true || one.can_edit !== true) continue;
         if (one.is_deleted === true || one.id == null || one.local?.state === "pending") continue;
         return keyOf(one);
     }
@@ -125,7 +141,7 @@ export function lastOwnEditableKey(messages = []) {
 }
 
 function sameRun(a, b) {
-    return Boolean(a && b) && a.kind !== "assistant" && b.kind !== "assistant"
+    return Boolean(a && b) && speakerOf(a) === "person" && speakerOf(b) === "person"
         && String(a.author?.id ?? "") === String(b.author?.id ?? "") && (a.author?.own === true) === (b.author?.own === true)
         && near(a.created_at, b.created_at);
 }
@@ -142,7 +158,7 @@ function sameRun(a, b) {
 export function runsOf(messages = [], {type = null, breaks = null} = {}) {
     const map = new Map();
     messages.forEach((message, index) => {
-        if (message.kind === "assistant") return;
+        if (speakerOf(message) !== "person") return;
         const next = messages[index + 1];
         map.set(keyOf(message), {
             first: !sameRun(messages[index - 1], message) || Boolean(breaks?.has(keyOf(message))),

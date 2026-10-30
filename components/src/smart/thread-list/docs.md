@@ -81,7 +81,12 @@ list.addEventListener('sf-thread-list-apply', (event) => {
 
 ## The thread
 
-`{id, title, updated-at, archived?, pinned?, caption?, activity?, unread?, avatar?: {image-url?, text?}}`.
+`{id, title, updated-at, archived?, pinned?, caption?, activity?, unread?, avatar?: {image-url?, text?, shape?, icon?}}`.
+`avatar` (1.6.0): `shape` — `circle` (по умолчанию, один человек) или `square` (группа,
+канал); `icon` — знак вместо инициалов (канал, агент, бот; имя значка Framework),
+картинка `image-url` важнее знака. Нет `avatar` — нет и колонки под него: в списке
+только с ИИ-разговорами пустого места слева не остаётся. Тона инициалов компонент
+не задаёт: у Framework для них пока нет средства (инициалы все одного цвета).
 `activity` (`running`, `waiting`, `done`, `stopped`, `failed`) is where the work in the
 conversation is: a compact `sf-badge` in the row, its word the accessible name.
 A pinned conversation (`pinned: true`, Mirai24 API v1.1) leads the list under its own

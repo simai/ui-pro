@@ -17,6 +17,23 @@ import "./default.css";
 
 const ACTIVITIES = new Set(["running", "waiting", "done", "stopped", "failed"]);
 
+// A conversation's sign (1.6.0): shape square is a group or a channel, a
+// collective; icon is a sign instead of initials (a channel, an agent, a bot).
+// sf-avatar has no setting for a glyph of the host's choosing, so a sign is its
+// class markup, as sf-chat-window's members draw theirs, with the same size and
+// shape. No avatar given draws nothing: an AI-only list keeps no empty column.
+const SHAPES = new Set(["circle", "square"]);
+
+const avatarOf = (avatar) => {
+    const shape = SHAPES.has(avatar.shape) ? avatar.shape : "circle";
+    const icon = typeof avatar.icon === "string" ? avatar.icon.trim() : "";
+    if (icon && !avatar["image-url"]) {
+        return html`<span class="sf-thread-list__avatar sf-avatar sf-avatar--size-1/2 sf-avatar--placeholder ${shape === "square" ? "sf-avatar--square" : ""} inline-flex flex-none items-cross-center content-main-center overflow-hidden" aria-hidden="true"><sf-icon icon=${icon} size="1" aria-hidden="true"></sf-icon></span>`;
+    }
+    return html`<sf-avatar class="sf-thread-list__avatar" size="1/2" aria-hidden="true" shape=${shape === "square" ? "square" : nothing}
+                           image-url=${avatar["image-url"] ?? ""} text=${avatar.text ?? ""}></sf-avatar>`;
+};
+
 const row = (context, thread) => {
     const {component} = context;
     const title = String(thread.title ?? "") || context.untitledText;
@@ -69,10 +86,7 @@ const row = (context, thread) => {
                     title=${caption ? `${title} · ${caption}` : title}
                     @click=${() => component.open(thread.id)}
             >
-                ${avatar
-                    ? html`<sf-avatar class="sf-thread-list__avatar" size="1/2" aria-hidden="true"
-                                      image-url=${avatar["image-url"] ?? ""} text=${avatar.text ?? ""}></sf-avatar>`
-                    : nothing}
+                ${avatar ? avatarOf(avatar) : nothing}
                 <span class="sf-thread-list__text">
                     <span class="sf-thread-list__title">${title}</span>
                     ${caption ? html`<span class="sf-thread-list__caption">${caption}</span>` : nothing}

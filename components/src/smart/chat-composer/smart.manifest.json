@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-composer",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Chat composer",
   "summary": "Where a question is written and files are added: Enter sends, Shift+Enter breaks the line, an IME composition is never cut short, the send button becomes «stop waiting» while an answer is awaited, and files are only reported for the host to upload; their chips come back as files.",
   "kind": "smart",
@@ -95,6 +95,11 @@
         "type": "boolean",
         "default": false,
         "description": "Writing is off, e.g. no consent."
+      },
+      "no-stop": {
+        "type": "boolean",
+        "default": false,
+        "description": "While busy, no stop button: a host whose stop belongs elsewhere."
       },
       "value": {
         "type": "string",
@@ -529,6 +534,13 @@
         "changes": [
           "The setting queue (default off): while busy, Enter and send still submit a message of text, beside «Остановить ожидание», for the host to queue; the hint under the field says so. A message with files waits as before. Without queue nothing changes for a host."
         ]
+      },
+      {
+        "from": "1.1.0",
+        "to": "1.2.0",
+        "changes": [
+          "The setting no-stop: while busy, no stop button. Without it nothing changes."
+        ]
       }
     ]
   },
@@ -538,11 +550,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-composer/index.js",
-        "sha256": "51c4da09ea04cf600482ddbe70c78ebcb5b92338ab426df060d5abb7491db031"
+        "sha256": "e9268400d0eb87ea94e1f27e51a1a8e3bead5fbd1aa6d398175e85b798d12a18"
       },
       {
         "path": "src/smart/chat-composer/js/templates/default.js",
-        "sha256": "c3f960776ebd9febf48cff5979d13c4aac6d0acbcfc84787bdbfdc6348e12275"
+        "sha256": "5379f6ef99d371195cafcbf6fc462e3aff596b77ad2109001aa9cdc2b3915df4"
       },
       {
         "path": "src/smart/chat-composer/js/templates/parts.js",
@@ -558,11 +570,11 @@
       },
       {
         "path": "src/smart/chat-composer/docs.md",
-        "sha256": "02068a546bb372ba9fdfc9bdf96a25b2cace1414d78256280f6e143b3e6f9998"
+        "sha256": "91709e34d263c8228f068ba9f183ff4f0a5b1a229ba3067d60df824412816bc9"
       },
       {
         "path": "src/smart/chat-composer/component.json",
-        "sha256": "b577478a86586d638eb6d34b3e01fd1735d8afdf0edf9c028f2ca51115c0e202"
+        "sha256": "b93ed7fe8d0b387c47ee7c254eb2a3f2b075c803d9505b5d1ffd4f6774d426b1"
       },
       {
         "path": "src/smart/chat-composer/aliases.json",

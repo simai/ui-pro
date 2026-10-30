@@ -64,7 +64,7 @@ import {StartView} from "./js/start-view.js";
 import {hasMembers} from "./js/start-model.js";
 import {PREVIEW_DOCK_MIN, PreviewView} from "./js/preview-view.js";
 import {registerPartWords} from "./js/part-words.js";
-import {compareRevisions, dayDividersOf, keyOf, lastOwnEditableKey, messageCharsOf, runsOf, toPersonView, unreadKeyOf} from "./js/people.js";
+import {compareRevisions, dayDividersOf, keyOf, lastOwnEditableKey, messageCharsOf, runsOf, speakerOf, toPersonView, unreadKeyOf} from "./js/people.js";
 import {
     ANSWERS, DATA, EXTENSION_DATA, EXTENSION_INTENTS, INTENTS, SUPPORTED_PORT_VERSIONS, formerOf, kindOf, verbOf,
 } from "./js/port.js";
@@ -108,8 +108,13 @@ function clientKey() {
 // helpful» and whether the sources are open are the reader's doing, already
 // on the page, not a change of the message to draw again.
 // An edit's typed text (editing.body) is the reader's too.
-const QUIET_VIEW = new Set(["draft", "sources_open", "steps_open", "brief_draft", "body"]);
+const QUIET_VIEW = new Set(["draft", "sources_open", "steps_open", "fold_open", "brief_draft", "body"]);
 const viewKeyOf = (view) => JSON.stringify(view ?? null, (key, value) => (QUIET_VIEW.has(key) ? undefined : value));
+
+// Where the focus goes back from an editor or a delete question: the message's
+// own button, or «⋯» where the tools hold them (1.6.0).
+const MENU_OR_EDIT = ".sf-chat-person__edit, .sf-chat-tools__more";
+const MENU_OR_DELETE = ".sf-chat-person__delete, .sf-chat-tools__more";
 
 // Between people (1.3.0): the last message seen is reported at most this often.
 const READ_EVERY_MS = 2000;
@@ -130,7 +135,7 @@ const HELD_REASON = {
 // answer's body, a person's message; not its buttons, its hidden sources,
 // the stage of an answer still written or what only a screen reader hears.
 const FOUND_IN = ".sf-chat-message__bubble, .sf-chat-message__body, .sf-chat-person__bubble";
-const NOT_FOUND_IN = "button, sup, [hidden], [aria-hidden=\"true\"], [aria-busy=\"true\"], .sf-chat-offscreen, .sr-only, .sf-chat-sources, fieldset, .sf-chat-person__bubble--tomb";
+const NOT_FOUND_IN = "button, sup, time, [hidden], [aria-hidden=\"true\"], [aria-busy=\"true\"], .sf-chat-offscreen, .sr-only, .sf-chat-sources, fieldset, .sf-chat-person__bubble--tomb";
 const BLOCKS = "p, li, div, pre, td, th, h1, h2, h3, h4, h5, h6, blockquote";
 // The CSS Custom Highlight names the sheet paints (default.css).
 const HIGHLIGHT = "sf-chat-window-found";
@@ -149,9 +154,12 @@ const PARTS = ["sf-message-log", "sf-chat-message", "sf-chat-composer", "sf-chat
  * Verification and notices are read both as the port's objects and as
  * Mirai24's plain values.
  */
-export function toView(message, {people = false, edit = false, remove = false, acting = null} = {}) {
-    const assistant = message.kind === "assistant";
-    if (people && !assistant) return toPersonView(message, {edit, remove, acting});
+export function toView(message, {people = false, edit = false, remove = false, acting = null, reactions = false, reply = false} = {}) {
+    // Between people (1.6.0) the author decides: an assistant, an agent or a bot
+    // is a document, whatever kind the port calls its message.
+    const machine = people && speakerOf(message) !== "person";
+    const assistant = message.kind === "assistant" || machine;
+    if (people && !assistant) return toPersonView(message, {edit, remove, acting, reactions, reply});
     const view = {
         id: keyOf(message),
         role: assistant ? "assistant" : "user",
@@ -175,8 +183,20 @@ export function toView(message, {people = false, edit = false, remove = false, a
     if (message.created_at) view.created_at = message.created_at;
     if (!assistant) return view;
     const verification = message.verification;
+    if (machine) {
+        const deleted = message.is_deleted === true;
+        Object.assign(view, {
+            speaker: {kind: speakerOf(message), name: message.author?.name ?? ""},
+            canDelete: remove && message.id != null && !deleted && message.can_delete === true,
+            is_deleted: deleted,
+            ...(message.asked_by ? {asked_by: message.asked_by} : {}),
+            ...(reactions && !deleted && Array.isArray(message.reactions) ? {reactions: message.reactions} : {}),
+            ...(reply && !deleted && message.reply_to ? {reply_to: message.reply_to} : {}),
+        });
+    }
     return Object.assign(view, {
-        status: message.status,
+        // A person-kind message of a bot has no status of its own: it is finished.
+        status: message.status ?? (machine ? "completed" : message.status),
         stage: message.stage ?? null,
         html: message.html ?? null,
         sources: message.sources || [],
@@ -345,6 +365,15 @@ class SfChatWindow extends ChatWindowElement {
         this._read = {conversation: null, id: null, timer: 0};
         this._readAt = 0;
         this._mode = undefined;       // the people capabilities the messages were drawn with
+        // Reactions and replies (1.6.0), this page only: a reaction on its way
+        // per message key ({emoji}), the message whose picker is open, whose long
+        // text the reader opened, what the field answers per draft key ({id, name,
+        // text}, as the typed text), and the strip that says so, made on first use.
+        this._reacting = new Map();
+        this._picking = null;
+        this._foldOpen = new Map();
+        this._replies = new Map();
+        this._replyStrip = null;
         // A value set as a property before the element was defined is an own
         // property that would hide the accessor; it is taken through it.
         for (const name of ["capabilities", ...Object.keys(SETTING_OF), ...Object.values(SETTING_OF).map(camel)]) {
@@ -1060,7 +1089,22 @@ class SfChatWindow extends ChatWindowElement {
         // The last message seen at the bottom is reported read (scroll does
         // not bubble; it is caught on its way down).
         list.addEventListener("scroll", () => this.maybeRead(), true);
+        // Reactions and replies (1.6.0).
+        list.addEventListener("sf-chat-message-react", (event) => this.react(event.detail.id, event.detail.emoji, event.detail.on));
+        list.addEventListener("sf-chat-message-reply", (event) => this.startReply(event.detail.id));
+        list.addEventListener("sf-chat-message-stop", () => {
+            // The port stops a conversation's wait; it has no word for one message.
+            this.request("wait.stop", {conversation_id: this._data.conversation?.id ?? null}).then((result) => this.showResult(result));
+        });
         list.addEventListener("sf-chat-message-toggle", (event) => {
+            if (event.detail.kind === "react") {
+                this.togglePicker(event.detail.id, Boolean(event.detail.open), {quiet: Boolean(event.detail.quiet)});
+                return;
+            }
+            if (event.detail.kind === "fold") {
+                this._foldOpen.set(String(event.detail.id), Boolean(event.detail.open));
+                return;
+            }
             // Between people (1.3.0): the editor and the delete question.
             if (event.detail.kind === "edit" || event.detail.kind === "delete") {
                 this.peopleToggle(event.detail.id, event.detail.kind, Boolean(event.detail.open));
@@ -1079,6 +1123,11 @@ class SfChatWindow extends ChatWindowElement {
             this._pressed = event.target.closest?.("button, a") ?? null;
         }, true);
         list.addEventListener("sf-chat-message-open", (event) => {
+            if (event.detail?.kind === "quote") {
+                event.preventDefault();
+                this.showQuoted(event.detail.target);
+                return;
+            }
             if (event.detail?.kind !== "preview") return;
             const pressed = this._pressed && event.target.contains(this._pressed) ? this._pressed : null;
             if (this.openPreview(event.detail.source, {opener: pressed ?? this.ownerDocument.activeElement})) event.preventDefault();
@@ -1089,6 +1138,7 @@ class SfChatWindow extends ChatWindowElement {
             if (event.target?.localName === "sf-chat-message") this.messagesDrawn();
         });
         composer.addEventListener("keydown", (event) => this.editLast(event));
+        composer.addEventListener("keydown", (event) => this.escapeReply(event));
         composer.addEventListener("sf-chat-composer-submit", (event) => {
             event.preventDefault();
             // Asked while an answer is awaited: it waits its turn over the field.
@@ -1098,7 +1148,7 @@ class SfChatWindow extends ChatWindowElement {
             }
             // The composer's own message takes every chip with it: the ready
             // ones go as the message's files, a refused one is cleared with them.
-            this.sendMessage(event.detail.text, (this._data.composer_files || []).slice(), {own: true});
+            this.sendMessage(event.detail.text, (this._data.composer_files || []).slice(), {own: true, replyTo: this.replyOf()});
         });
         composer.addEventListener("sf-chat-composer-stop", () => {
             this.request("wait.stop", {conversation_id: this._data.conversation?.id ?? null}).then((result) => this.showResult(result));
@@ -1120,17 +1170,23 @@ class SfChatWindow extends ChatWindowElement {
     // `own`: the composer's message, so its text goes with it; a suggestion,
     // a retry or a brief's answer leaves what is being typed alone.
     // `key`: a queued question keeps the client_key of its first try.
-    async sendMessage(body, files = [], {own = false, repeat = false, queued = false, key = clientKey()} = {}) {
+    // `replyTo`: what the field answers (x-reply): the send is message.reply,
+    // the port's payload plus reply_to_id, the port's message.send having no room
+    // for it (js/port.js). A retry goes under the same client_key.
+    async sendMessage(body, files = [], {own = false, repeat = false, queued = false, key = clientKey(), replyTo = null} = {}) {
         const {composer} = this.parts;
         if (composer.busy) return undefined;
         if (repeat) this._repeats.add(key);
-        return this.deliver(key, {own, queued, typedFor: this.draftKey}, () => this.request("message.send", {
+        const payload = {
             conversation_id: this._data.conversation?.id ?? null,
             body,
             files,
             client_key: key,
             interlocutor: this.interlocutorId,
-        }));
+        };
+        return this.deliver(key, {own, queued, typedFor: this.draftKey, replyTo}, () => (replyTo
+            ? this.request("message.reply", {...payload, reply_to_id: replyTo.id})
+            : this.request("message.send", payload)));
     }
 
     // The same action again under its first client_key (port: one message).
@@ -1139,7 +1195,7 @@ class SfChatWindow extends ChatWindowElement {
         return this.deliver(key, how, () => this.request("message.retry", {conversation_id: this._data.conversation?.id ?? null, client_key: key}));
     }
 
-    async deliver(key, {own, queued = false, typedFor}, ask) {
+    async deliver(key, {own, queued = false, typedFor, replyTo = null}, ask) {
         this._sending++;
         this.syncBusy();
         const result = await ask();
@@ -1149,10 +1205,14 @@ class SfChatWindow extends ChatWindowElement {
             if (own) {
                 this.parts.composer.clear();
                 this._drafts.delete(typedFor);
+                if (replyTo && this._replies.get(typedFor) === replyTo) {
+                    this._replies.delete(typedFor);
+                    this.drawReply();
+                }
             }
         } else {
             // A queued question goes back to its card, with «Отправить» there.
-            this.showResult(result, queued ? undefined : () => this.resend(key, {own, typedFor}));
+            this.showResult(result, queued ? undefined : () => this.resend(key, {own, typedFor, replyTo}));
         }
         this.syncBusy();
         return result;
@@ -1175,9 +1235,15 @@ class SfChatWindow extends ChatWindowElement {
         const body = String(text ?? "").trim();
         if (!body) return;
         const queue = this.queueOf();
-        queue.items.push({id: `queued-${++queued}`, text: body, key: null});
+        // What the field answers goes with the card and leaves the field.
+        const replyTo = this.replyOf();
+        queue.items.push({id: `queued-${++queued}`, text: body, key: null, replyTo});
         this.parts.composer.clear();
         this._drafts.delete(this.draftKey);
+        if (replyTo) {
+            this._replies.delete(this.draftKey);
+            this.drawReply();
+        }
         this.drawQueue();
         this.sayQueue(this.words("queue.added"));
     }
@@ -1202,6 +1268,8 @@ class SfChatWindow extends ChatWindowElement {
      */
     lastEnd() {
         if (this._sendFailed) return "unsent";
+        // Between people nobody waits for an assistant (1.6.0): a message taken is a turn over.
+        if (this.has("people")) return "answered";
         const messages = this._data.messages || [];
         let asked = -1;
         messages.forEach((one, index) => { if (one.kind !== "assistant") asked = index; });
@@ -1229,7 +1297,7 @@ class SfChatWindow extends ChatWindowElement {
         // A try that did not come back is tried again under its own key (port: one message).
         const result = key
             ? await this.resend(key, {own: false, queued: true, typedFor: this.draftKey})
-            : await this.sendMessage(item.text, [], {queued: true, key: item.key});
+            : await this.sendMessage(item.text, [], {queued: true, key: item.key, replyTo: item.replyTo ?? null});
         if (!result || result.answer === "applied") return;
         queue.items.unshift(item);
         this.holdQueue(queue, "unsent");
@@ -1240,6 +1308,10 @@ class SfChatWindow extends ChatWindowElement {
         this.dropQueued(queue, item);
         const {composer} = this.parts;
         composer.value = [item.text, composer.value].filter((one) => one.trim()).join("\n");
+        if (item.replyTo && !this.replyOf()) {
+            this._replies.set(this.draftKey, item.replyTo);
+            this.drawReply();
+        }
         composer.focus();
     }
 
@@ -1581,6 +1653,8 @@ class SfChatWindow extends ChatWindowElement {
         const revoked = data.feed_state === "revoked" || data.conversation?.revoked === true;
         if (revoked) this.revoke();
         const keyChanged = this.syncDraft();
+        // What the field answers belongs to its conversation, as the typed text does.
+        if (keyChanged || changed.has("capabilities")) this.drawReply();
         if (keyChanged || changed.has("interlocutors") || changed.has("interlocutor") || changed.has("capabilities")) this.syncInterlocutor();
         this.syncSelected();
         parts.composer.disabled = Boolean(data.conversation && data.conversation.can_send === false) || revoked;
@@ -1701,6 +1775,9 @@ class SfChatWindow extends ChatWindowElement {
             this._queues.delete(previous);
             if (queue) this._queues.set(next, queue);
             this.drawQueue();
+            const reply = this._replies.get(previous);
+            this._replies.delete(previous);
+            if (reply) this._replies.set(next, reply);
             return true;
         }
         const text = composer.value;
@@ -1720,6 +1797,8 @@ class SfChatWindow extends ChatWindowElement {
         this._drafts.delete(this.draftKey);
         this._queues.delete(this.draftKey);
         this.drawQueue();
+        this._replies.delete(this.draftKey);
+        this.drawReply();
         this.parts.composer.clear();
     }
 
@@ -1734,6 +1813,8 @@ class SfChatWindow extends ChatWindowElement {
         // Files go up when picked (x-early-upload): the window has no other
         // way yet, so a host with `files` alone gets no attach button.
         composer.toggleAttribute("attachments", this.has("files") && this.has("x-early-upload") && Boolean(caps ? caps.attachments : true));
+        // Between people Stop is a message's own (1.6.0): the field never offers it.
+        composer.toggleAttribute("no-stop", this.has("people"));
         // Between people the field asks for a message, not a question (1.3.0).
         if (this.has("people")) {
             composer.setAttribute("placeholder", this.words("people.placeholder"));
@@ -1798,8 +1879,10 @@ class SfChatWindow extends ChatWindowElement {
     }
 
     ownViewOf(message) {
-        if (message.kind !== "assistant" && this.has("people")) return this.personViewOf(message);
-        if (message.kind === "assistant") {
+        const people = this.has("people");
+        const machine = people && speakerOf(message) !== "person";
+        if (!machine && message.kind !== "assistant" && people) return this.personViewOf(message);
+        if (machine || message.kind === "assistant") {
             // The rating given on this page; the stored one (message.feedback)
             // is the message's own and drawn from it.
             const rating = this._ratings.get(keyOf(message));
@@ -1810,11 +1893,55 @@ class SfChatWindow extends ChatWindowElement {
                 ...(this._sourcesOpen.has(keyOf(message)) ? {sources_open: true} : {}),
                 ...(this._stepsOpen.has(keyOf(message)) ? {steps_open: this._stepsOpen.get(keyOf(message))} : {}),
                 ...this.briefView(message),
+                ...(machine ? this.documentView(message) : {}),
             };
         }
         if (message.local?.client_key && this._repeats.has(message.local.client_key)) return {note: "repeat"};
         if (message.command?.kind) return {note: message.command.kind, code: message.command.code || ""};
         return this.noteOf(message);
+    }
+
+    // An assistant, an agent or a bot among people (1.6.0): a document, which
+    // says who speaks unless the conversation is one to one. Its long text folds
+    // and stays open once the reader opened it; Stop is its own where the host
+    // allows it; the delete question stands as a person's does.
+    documentView(message) {
+        const key = keyOf(message);
+        const conversation = this._data.conversation;
+        const listed = conversation ? this._data.conversations?.find((one) => String(one.id) === String(conversation.id)) : null;
+        const type = conversation?.type ?? listed?.type ?? null;
+        const asking = this._asking.get(key);
+        return {
+            document: true,
+            showAuthor: type !== "private",
+            canStop: this.has("assistant") && message.can_stop === true,
+            ...(this._foldOpen.has(key) ? {fold_open: this._foldOpen.get(key)} : {}),
+            ...(asking && !this._acting.has(key) && !message.is_deleted ? {askDelete: true, ...(asking.conflict ? {conflict: {deleted: false}} : {})} : {}),
+            ...this.socialView(message),
+        };
+    }
+
+    // What the capabilities x-reactions and x-reply offer on a message: nothing
+    // on a deleted one or the reader's unsent one. Without them, nothing is added.
+    socialView(message) {
+        const reactions = this.has("x-reactions");
+        const reply = this.has("x-reply");
+        if (!reactions && !reply) return {};
+        const key = keyOf(message);
+        const stored = message.id != null && message.is_deleted !== true && (!message.local || message.local.state === "sent");
+        const view = {};
+        if (reply && stored) view.canReply = true;
+        if (reactions && stored) view.canReact = true;
+        const reacting = this._reacting.get(key);
+        if (reacting) view.reacting = reacting.emoji;
+        if (reactions && stored && this._picking === key) view.picker = true;
+        const quoted = reply ? message.reply_to : null;
+        if (quoted) {
+            const original = (this._data.messages || []).find((one) => one.id != null && String(one.id) === String(quoted.id));
+            if (!original) view.replyLoaded = false;
+            if (original?.is_deleted === true) view.replyDeleted = true;
+        }
+        return view;
     }
 
     // A brief (API.md v1.2) asks only from the conversation's last message,
@@ -1890,6 +2017,14 @@ class SfChatWindow extends ChatWindowElement {
             return message.authorName ? `${message.authorName}: ${words}` : words;
         }
         if (message.role !== "assistant") return "";
+        // A document among people (1.6.0): what it says with who says it; its
+        // stages are not news to a room that is talking.
+        if (view?.document && view.showAuthor !== false) {
+            if (PENDING.has(message.status) || message.is_deleted) return "";
+            const said = (message.text || "").replace(/\s*\[\d+\]/gu, "").replace(/\s+/gu, " ").trim();
+            const name = message.speaker?.name;
+            return name && said ? `${name}: ${said}` : said;
+        }
         if (PENDING.has(message.status)) {
             if (view?.wait) return this.words(`status.${view.wait}`);
             // With steps (API.md v1.3): the step at work, never the ticking time.
@@ -2047,7 +2182,9 @@ class SfChatWindow extends ChatWindowElement {
     // last wait of this conversation ends, the focus goes back to the field.
     syncBusy() {
         const {composer, list} = this.parts;
-        const waiting = (this._data.messages || []).some((one) => one.kind === "assistant" && PENDING.has(one.status) && one.wait == null);
+        // Between people an answer on its way holds nobody's field (1.6.0): no
+        // block, no queue, and its end takes nobody's focus. A send still waits.
+        const waiting = !this.has("people") && (this._data.messages || []).some((one) => one.kind === "assistant" && PENDING.has(one.status) && one.wait == null);
         const busy = this._sending > 0 || waiting;
         composer.busy = busy;
         // While a send is out or an answer awaited, no proposal can be
@@ -2080,9 +2217,10 @@ class SfChatWindow extends ChatWindowElement {
 
     /** The message as the log is given it: toView, between people with the window's state. */
     drawable(message) {
-        if (message.kind === "assistant" || !this.has("people")) return toView(message);
+        if (!this.has("people")) return toView(message);
         return toView(message, {
             people: true, edit: this.has("edit"), remove: this.has("delete"), acting: this._acting.get(keyOf(message)) ?? null,
+            reactions: this.has("x-reactions"), reply: this.has("x-reply"),
         });
     }
 
@@ -2105,7 +2243,143 @@ class SfChatWindow extends ChatWindowElement {
             view.askDelete = true;
             if (asking.conflict) view.conflict = {deleted: false};
         }
-        return view;
+        return Object.assign(view, this.socialView(message));
+    }
+
+    // --- reactions (1.6.0, x-reactions) -------------------------------------
+
+    // The picker of six on one message at a time. Closed by Escape or by its
+    // tool the focus goes back to the tool; closed by a press elsewhere (quiet) it
+    // stays where the press put it.
+    togglePicker(id, open, {quiet = false} = {}) {
+        const key = String(id);
+        const message = this.messageOf(key);
+        if (!this.has("x-reactions") || !message) return;
+        if (open && (message.is_deleted === true || message.id == null)) return;
+        const next = open ? key : (this._picking === key ? null : this._picking);
+        if (next === this._picking) return;
+        this._picking = next;
+        this.redrawPerson(key, open || quiet ? null : ".sf-chat-tools__react");
+    }
+
+    /**
+     * message.react {conversation_id, message_id, emoji, on}. Not optimistic:
+     * the counts are the host's, and until it answers the pill says it waits and
+     * takes no second press. Applied: data.message is merged by revision, the one
+     * of the same revision as well (a reaction need not make a new one). Refused
+     * or unavailable: a quiet line, nothing changes.
+     */
+    async react(id, emoji, on) {
+        const key = String(id);
+        const message = this.messageOf(key);
+        const pressed = typeof emoji === "string" ? emoji : "";
+        if (!pressed || !this.has("x-reactions") || !message || message.id == null || message.is_deleted === true) return;
+        if (this._reacting.has(key)) return;
+        const pill = `.sf-chat-reaction[data-emoji="${CSS.escape(pressed)}"], .sf-chat-tools__react`;
+        this._reacting.set(key, {emoji: pressed});
+        this._picking = null;
+        this.redrawPerson(key, pill);
+        const result = await this.request("message.react", {
+            conversation_id: this._data.conversation?.id ?? null, message_id: message.id, emoji: pressed, on: Boolean(on),
+        });
+        this._reacting.delete(key);
+        if (result.answer === "applied") {
+            if (result.data?.message) this.mergeMessage(result.data.message, {same: true});
+        } else if (!SILENT_REASONS.has(result.reason)) {
+            this.notify(result.text || this.words("reactions.refused"));
+        }
+        this.redrawPerson(key, pill);
+    }
+
+    // --- a reply (1.6.0, x-reply) --------------------------------------------
+
+    /** What the field answers now, or null. */
+    replyOf() {
+        return this.has("x-reply") ? (this._replies.get(this.draftKey) ?? null) : null;
+    }
+
+    // «Ответить»: the strip over the field says to what, and the field takes the focus.
+    startReply(id) {
+        const message = this.messageOf(String(id));
+        if (!this.has("x-reply") || !message || message.id == null || message.is_deleted === true) return;
+        const name = message.author?.own === true ? this.words("reply.you") : (message.author?.name ?? "");
+        const line = String(message.body ?? "").replace(/\s+/gu, " ").trim() || (message.files || [])[0]?.name || "";
+        this._replies.set(this.draftKey, {id: message.id, name, text: line.slice(0, 200)});
+        this.drawReply();
+        this.parts.list.announce(this.words("reply.say", {name}));
+        this.parts.composer.focus();
+    }
+
+    cancelReply() {
+        this._replies.delete(this.draftKey);
+        this.drawReply();
+    }
+
+    // Escape in the field clears the reply first: a side panel around the
+    // window must not close on it as well. An IME's Escape is the IME's.
+    escapeReply(event) {
+        if (event.key !== "Escape" || event.isComposing || event.keyCode === 229 || !this.replyOf()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.cancelReply();
+        this.parts.composer.focus({preventScroll: true});
+    }
+
+    // The strip is made on first use: a window that never answers has no such node.
+    drawReply() {
+        const reply = this.replyOf();
+        let strip = this._replyStrip;
+        if (!strip) {
+            if (!reply) return;
+            const doc = this.ownerDocument;
+            strip = this._replyStrip = doc.createElement("div");
+            strip.className = "chat-shell__reply";
+            strip.setAttribute("role", "group");
+            strip.setAttribute("aria-label", this.words("reply.label"));
+            const line = doc.createElement("span");
+            line.className = "chat-shell__reply-text";
+            const name = doc.createElement("span");
+            name.className = "chat-shell__reply-name";
+            const said = doc.createElement("span");
+            line.append(name, said);
+            const close = iconButton(this.ctx, {icon: "close", label: this.words("reply.cancel"), size: "1/2", className: "chat-shell__reply-close"});
+            close.addEventListener("click", () => {
+                this.cancelReply();
+                this.parts.composer.focus({preventScroll: true});
+            });
+            strip.addEventListener("keydown", (event) => {
+                if (event.key !== "Escape") return;
+                event.preventDefault();
+                event.stopPropagation();
+                this.cancelReply();
+                this.parts.composer.focus({preventScroll: true});
+            });
+            strip.append(line, close);
+            strip._name = name;
+            strip._said = said;
+            this.parts.composerBox.insertBefore(strip, this.parts.composer);
+        }
+        strip.hidden = !reply;
+        strip._name.textContent = reply?.name ?? "";
+        strip._said.textContent = reply?.text ? ` ${reply.text}` : "";
+        strip.title = reply ? `${reply.name} ${reply.text}`.trim() : "";
+    }
+
+    // A press on a quote: the original, when it is in the feed, comes into view
+    // and is marked for a moment; reduced motion, without the scroll's movement.
+    showQuoted(target) {
+        const {list} = this.parts;
+        const item = list.querySelector(`.sf-message-log__item[data-id="${CSS.escape(String(target))}"]`);
+        const article = item?.querySelector("article");
+        if (!article) return;
+        const still = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        article.scrollIntoView({block: "center", behavior: still ? "auto" : "smooth"});
+        article.classList.remove("chat-shell__quoted");
+        void article.offsetWidth;
+        article.classList.add("chat-shell__quoted");
+        setTimeout(() => article.classList.remove("chat-shell__quoted"), 1600);
+        const focus = list.focusTarget(item);
+        focus?.focus({preventScroll: true});
     }
 
     // Day dividers (js/people.js), counted again when the messages, the day or
@@ -2183,6 +2457,8 @@ class SfChatWindow extends ChatWindowElement {
         this._asking.clear();
         this._acting.clear();
         this._unread = null;
+        this._reacting.clear();
+        this._picking = null;
     }
 
     /**
@@ -2317,7 +2593,7 @@ class SfChatWindow extends ChatWindowElement {
         if (!open) {
             const back = kind === "edit" && this._editing.get(key)?.fromField;
             if (kind === "edit") this._editing.delete(key); else this._asking.delete(key);
-            this.redrawPerson(key, back ? null : kind === "edit" ? ".sf-chat-person__edit" : ".sf-chat-person__delete");
+            this.redrawPerson(key, back ? null : kind === "edit" ? MENU_OR_EDIT : MENU_OR_DELETE);
             if (back) this.parts.composer.focus({preventScroll: true});
             return;
         }
@@ -2404,7 +2680,7 @@ class SfChatWindow extends ChatWindowElement {
             const given = result.data?.message;
             if (given) this.mergeMessage(given);
             else if (!result.data?.messages) this.mergeMessage({...(this.messageOf(key) ?? message), body, is_edited: true}, {same: true});
-            this.redrawPerson(key, entry.fromField ? null : ".sf-chat-person__edit");
+            this.redrawPerson(key, entry.fromField ? null : MENU_OR_EDIT);
             if (entry.fromField) this.parts.composer.focus({preventScroll: true});
             return;
         }

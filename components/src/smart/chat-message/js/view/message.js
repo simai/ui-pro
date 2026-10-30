@@ -28,7 +28,10 @@
 //                                        feedback-send | feedback-skip | sources | copy |
 //                                        remove-attachment | brief-answer | steps | preview;
 //                                        for preview, false means the host took it (the
-//                                        element's open event was cancelled)
+//                                        element's open event was cancelled); among people
+//                                        (1.4.0) also react | reply | quote | picker | fold |
+//                                        stop | delete-ask | delete-cancel | delete
+//   avatar?: ({text, image, icon}) => Node, among people: sf-avatar, or its markup with a sign
 //   enhanceCode?: (pre) => void,         SF.Highlight on a Framework page
 //   renderProposal?: (proposal, {disabled}) => Node,
 //                                        sf-change-confirm (index.js)
@@ -42,6 +45,7 @@ import {render} from 'lit';
 import '../../../../core/js/sanitize.js';
 import {attachmentState, renderAttachment as attachmentChip} from '../../../chat-composer/js/templates/parts.js';
 import {deliverablesOf, previewTarget, stepsOf, timeOf} from './proposed.js';
+import {renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderTools, whenPlaced} from './social.js';
 
 export const safeHref = (value) => globalThis.SF.safeHref(value);
 const sanitizeHtml = (html, policy) => globalThis.SF.sanitizeHtml(html, policy);
@@ -700,6 +704,116 @@ function renderNotice(ctx, kind, value, action, more = '') {
   return notice;
 }
 
+// --- a document among people (1.4.0) -----------------------------------------
+
+// Who speaks when it is not a person: a neutral sign, never a face, and a word,
+// so colour is never the only difference.
+const SPEAKER_ICON = {assistant: 'auto_awesome', agent: 'hub', bot: 'bolt'};
+const SPEAKER_WORD = {assistant: 'speaker.assistant', agent: 'speaker.agent', bot: 'speaker.bot'};
+
+const speakerKind = (message) => (SPEAKER_WORD[message.speaker?.kind] ? message.speaker.kind : 'assistant');
+
+/** The sign, the name, the word beside it and «по просьбе Анны». */
+function renderSpeaker(ctx, message) {
+  const kind = speakerKind(message);
+  const head = element(ctx, 'div', 'sf-chat-message__head');
+  const sign = element(ctx, 'span', 'sf-chat-person__avatar', {'aria-hidden': 'true'});
+  if (ctx.avatar) sign.append(ctx.avatar({icon: SPEAKER_ICON[kind]}));
+  else sign.append(iconNode(ctx, SPEAKER_ICON[kind], '', '1'));
+  head.append(sign);
+  const line = element(ctx, 'p', 'sf-chat-message__who');
+  const name = String(message.speaker?.name ?? '');
+  if (name) line.append(text(ctx, 'span', 'sf-chat-message__name', name));
+  const word = ctx.words(SPEAKER_WORD[kind]);
+  if (ctx.badge) line.append(ctx.badge(word));
+  else line.append(text(ctx, 'span', 'sf-chat-message__word', word));
+  const asked = String(message.asked_by?.name ?? '');
+  if (asked) line.append(text(ctx, 'span', 'sf-chat-message__asked', ctx.words('speaker.askedBy', {name: asked})));
+  head.append(line);
+  return head;
+}
+
+// Past about this many lines of plain text an answer among people folds, so it
+// does not push the conversation away. Two lines of grace: nobody opens a fold
+// for a line or two.
+const FOLD_LINES = 14;
+const FOLD_GRACE = 2;
+
+/**
+ * Fold what the text holds past FOLD_LINES: blocks past it are hidden, the one
+ * across the line is cut to whole lines. A table is never folded away, and a
+ * proposal's card stands outside the text; neither counts. It needs a layout,
+ * so it runs once placed, and with no width to measure it leaves the text open.
+ * «Показать полностью» opens it; the host remembers that in display.fold_open.
+ */
+function foldLong(ctx, message, target, startOpen, idPrefix) {
+  const id = `${idPrefix}-fold`;
+  target.id = id;
+  const toggle = text(ctx, 'button', 'sf-chat-fold', ctx.words('fold.more'), {type: 'button', 'aria-expanded': String(Boolean(startOpen)), 'aria-controls': id});
+  toggle.hidden = true;
+  let closed = [];
+  const open = () => {
+    for (const {node, cut} of closed) {
+      node.hidden = false;
+      if (cut) {
+        node.classList.remove('sf-chat-fold__cut');
+        node.style.removeProperty('max-block-size');
+      }
+    }
+    closed = [];
+  };
+  const fold = () => {
+    const style = ctx.document.defaultView.getComputedStyle(target);
+    const line = parseFloat(style.lineHeight) || 24;
+    const blocks = target.children.length && !target.matches('.sf-chat-message__plain') ? [...target.children] : [target];
+    const counted = blocks.filter((one) => !one.matches('.sf-chat-markup__table'));
+    const whole = counted.reduce((sum, one) => sum + one.getBoundingClientRect().height, 0);
+    if (!target.clientWidth || whole <= (FOLD_LINES + FOLD_GRACE) * line) return false;
+    let room = FOLD_LINES * line;
+    for (const node of counted) {
+      const height = node.getBoundingClientRect().height;
+      if (room <= 0) {
+        node.hidden = true;
+        closed.push({node});
+      } else if (height > room) {
+        // A list or a code block cut across a line reads as cut; the fade is the sign.
+        const lines = Math.floor(room / line);
+        if (lines >= 2) {
+          node.classList.add('sf-chat-fold__cut');
+          node.style.maxBlockSize = `${lines * line}px`;
+          closed.push({node, cut: true});
+        } else {
+          node.hidden = true;
+          closed.push({node});
+        }
+        room = 0;
+      } else {
+        room -= height;
+      }
+    }
+    return true;
+  };
+  const say = (isOpen) => {
+    toggle.textContent = ctx.words(isOpen ? 'fold.less' : 'fold.more');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  };
+  whenPlaced(target, () => {
+    const folds = fold();
+    if (!folds) return;
+    toggle.hidden = false;
+    if (startOpen) open();
+    say(Boolean(startOpen));
+  });
+  toggle.addEventListener('click', () => {
+    const next = toggle.getAttribute('aria-expanded') !== 'true';
+    if (next) open(); else fold();
+    say(next);
+    if (!next) toggle.closest('article')?.scrollIntoView({block: 'nearest'});
+    ctx.onAction?.('fold', {id: message.id, open: next});
+  });
+  return toggle;
+}
+
 /**
  * One message of the conversation.
  * @param {object} ctx
@@ -715,11 +829,36 @@ export function renderMessage(ctx, message, view = {}) {
   // x-brief): the widget and the embed draw an answer without it.
   const features = { feedback: true, proposals: true, memory: true, brief: false, ...(ctx.features || {}) };
   const idPrefix = `m-${String(message.id).replace(/[^\w-]/g, '')}`;
+  // Among people (display.document, 1.4.0): a document without a bubble, on the
+  // full column, with all this template's parts; it says who speaks unless the
+  // conversation is one to one (display.showAuthor), where the header has.
+  const documentOf = Boolean(view.document);
+  const named = documentOf && view.showAuthor !== false;
+  const label = named
+    ? [message.speaker?.name, ctx.words(SPEAKER_WORD[speakerKind(message)])].filter(Boolean).join(', ')
+    : ctx.words('assistant');
   const root = element(ctx, 'article', `sf-chat-message sf-chat-message--assistant sf-chat-message--${message.status}`, {
-    'data-id': message.id, 'aria-label': ctx.words('assistant'), 'aria-busy': PENDING_STATUSES.has(message.status) ? 'true' : null,
+    'data-id': message.id, 'aria-label': label, 'aria-busy': PENDING_STATUSES.has(message.status) ? 'true' : null,
   });
+  if (documentOf) root.classList.add('sf-chat-message--document');
+  if (named) {
+    root.classList.add('sf-chat-message--named');
+    root.append(renderSpeaker(ctx, message));
+  }
   const body = element(ctx, 'div', 'sf-chat-message__body');
   root.append(body);
+
+  // A document deleted keeps its place, as a person's message does.
+  if (documentOf && message.is_deleted === true) {
+    const tomb = element(ctx, 'p', 'sf-chat-person__bubble sf-chat-person__bubble--tomb');
+    tomb.append(iconNode(ctx, 'block', 'sf-chat-person__tomb-icon', '1'), text(ctx, 'span', '', ctx.words('people.deleted')));
+    body.append(tomb);
+    return root;
+  }
+  if (documentOf && !PENDING_STATUSES.has(message.status)) {
+    const quote = renderQuote(ctx, message, view);
+    if (quote) body.append(quote);
+  }
 
   // The steps (v1.3): while the answer is written they stand for the stage
   // line; after it, a folded line above the answer.
@@ -729,6 +868,12 @@ export function renderMessage(ctx, message, view = {}) {
       body.append(renderNotice(ctx, view.wait, ctx.words(`status.${view.wait}`), { label: 'action.check', run: () => ctx.onAction?.('check', { id: message.id }) }));
     } else {
       body.append(steps || renderStages(ctx, message));
+    }
+    // Stop belongs to the message, where the host allows it (can_stop).
+    if (documentOf && view.canStop) {
+      const stop = textButton(ctx, {label: ctx.words('action.stop'), appearance: 'link', scheme: 'primary', size: '1/2', icon: 'stop', className: 'sf-chat-message__stop'});
+      stop.addEventListener('click', () => ctx.onAction?.('stop', {id: message.id}));
+      body.append(stop);
     }
     return root;
   }
@@ -762,9 +907,15 @@ export function renderMessage(ctx, message, view = {}) {
       if (target) openPreview(ctx, message, target, null, () => sources?.reveal(n));
       else sources?.reveal(n);
     };
-    body.append(renderMarkup(ctx, message.html, { sources: message.sources || [], idPrefix, onFootnote }));
+    const markup = renderMarkup(ctx, message.html, { sources: message.sources || [], idPrefix, onFootnote });
+    body.append(markup);
+    if (documentOf) body.append(foldLong(ctx, message, markup, view.fold_open, idPrefix));
   } else if (answered) {
-    if (message.text) body.append(text(ctx, 'p', 'sf-chat-message__plain', message.text));
+    if (message.text) {
+      const plain = text(ctx, 'p', 'sf-chat-message__plain', message.text);
+      body.append(plain);
+      if (documentOf) body.append(foldLong(ctx, message, plain, view.fold_open, idPrefix));
+    }
   } else {
     // Once retried, the failed answer stays as a record without its button.
     const retry = message.status === 'failed' && !view.retried ? { label: 'action.retry', run: () => ctx.onAction?.('retry', { id: message.id }) } : null;
@@ -797,7 +948,13 @@ export function renderMessage(ctx, message, view = {}) {
   const made = answered ? renderDeliverables(ctx, message, idPrefix) : null;
   if (made) body.append(made);
 
+  if (documentOf && answered) {
+    const reactions = renderReactions(ctx, message, view);
+    if (reactions) body.append(reactions);
+  }
   if (answered) body.append(renderActions(ctx, message, view, features, sources));
+  if (documentOf && answered && view.picker && view.canReact) root.append(renderPicker(ctx, message, view));
+  if (documentOf && view.askDelete) body.append(renderDeleteAsk(ctx, message, view.conflict));
   // «Не полезно» asks why, once, in place; the window says when (view).
   const rating = view.feedback && typeof view.feedback === 'object' ? view.feedback : null;
   if (answered && features.feedback && rating?.asking) body.append(renderFeedbackReason(ctx, message, rating, idPrefix));
@@ -1178,6 +1335,15 @@ function renderActions(ctx, message, view, features, sources) {
   }
   // How the answer was made, folded (API.md v1.1): a quiet line at the end of
   // the row, no louder than the time in the copy button's tooltip.
+  // Among people (1.4.0): who answers it and what else, shown as a person's are;
+  // copy and the rating stay in sight, and the rating is the reader's alone.
+  if (view.document) {
+    const at = message.finished_at || message.created_at;
+    const when = at ? formatTime(ctx, at) : '';
+    if (when) actions.append(text(ctx, 'time', 'sf-chat-message__time', when, {datetime: at}));
+    const tools = view.askDelete ? null : renderTools(ctx, message, view, {remove: message.canDelete === true});
+    if (tools) actions.append(tools);
+  }
   const summary = typeof message.summary?.text === 'string' ? message.summary.text.trim() : '';
   if (summary) actions.append(text(ctx, 'span', 'sf-chat-message__summary', summary, { title: summary }));
   actions.append(live);
