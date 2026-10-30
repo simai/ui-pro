@@ -1,0 +1,172 @@
+@layer sf.components {
+  /* sf-mail-inspector, the right panel of SIMAI Email Editor: the heading and
+     the path, tabs, flush sections with no side inset (the fields line up with
+     the heading), the lists of items and the groups in pairs. The host is
+     display: contents; .sf-mail-inspector is what a page places. Every value is
+     a Framework token. */
+  .sf-mail-inspector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/2);
+    min-inline-size: 0;
+  }
+
+  .sf-mail-inspector-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+    min-inline-size: 0;
+  }
+
+  .sf-mail-inspector-title-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    min-inline-size: 0;
+  }
+
+  .sf-mail-inspector-title {
+    flex-grow: 1;
+    min-inline-size: 0;
+    margin: 0;
+    overflow: hidden;
+    color: var(--sf-on-surface);
+    font-size: var(--sf-text--size-1);
+    font-weight: var(--sf-font-weight-bold);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-mail-inspector-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .sf-mail-inspector-notice-text {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text--size-1\/2);
+  }
+
+  .sf-mail-inspector-panel {
+    padding-block-start: var(--sf-space-1\/2);
+  }
+
+  .sf-mail-inspector-sections {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sf-mail-inspector-fields,
+  .sf-mail-inspector-group,
+  .sf-mail-inspector-row,
+  .sf-mail-inspector-image,
+  .sf-mail-inspector-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/2);
+    min-inline-size: 0;
+  }
+
+  .sf-mail-inspector-image {
+    gap: var(--sf-space-1\/4);
+  }
+
+  .sf-mail-inspector-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sf-space-1\/2);
+  }
+
+  .sf-mail-inspector-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .sf-mail-inspector-item {
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius--ui);
+  }
+
+  .sf-mail-inspector-item.is-open {
+    border-color: var(--sf-primary);
+  }
+
+  .sf-mail-inspector-item-head {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    padding: var(--sf-space-1\/4);
+  }
+
+  .sf-mail-inspector-handle {
+    display: inline-flex;
+    flex-shrink: 0;
+    inline-size: var(--sf-icon-size-1);
+    color: var(--sf-on-surface-variant);
+    cursor: grab;
+    opacity: 0;
+  }
+
+  .sf-mail-inspector-item:hover .sf-mail-inspector-handle,
+  .sf-mail-inspector-item:focus-within .sf-mail-inspector-handle {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    .sf-mail-inspector-handle {
+      opacity: 1;
+    }
+  }
+
+  .sf-mail-inspector-toggle {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    min-inline-size: 0;
+    min-block-size: var(--sf-ui-1\/2--control-height);
+    padding-inline: var(--sf-space-1\/4);
+    border: 0;
+    border-radius: var(--sf-radius--ui);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--sf-text--size-1\/2);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .sf-mail-inspector-toggle:focus-visible {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: calc(var(--sf-focus--width) * -1);
+  }
+
+  .sf-mail-inspector-item-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-mail-inspector-item.has-problem .sf-mail-inspector-item-label {
+    color: var(--sf-error);
+  }
+
+  .sf-mail-inspector-item-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/2);
+    border-block-start: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-mail-inspector-item-body[hidden] {
+    display: none;
+  }
+
+  .sf-mail-inspector-add {
+    align-self: flex-start;
+  }
+}

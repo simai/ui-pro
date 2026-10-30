@@ -1,0 +1,795 @@
+{
+  "schema_version": 2,
+  "id": "smart.mail-inspector",
+  "version": "1.0.0",
+  "title": "Letter inspector",
+  "summary": "The right panel of SIMAI Email Editor as a form drawn from data: a heading with its actions, the path of levels, tabs, accordion sections and every field the editor has. The host passes the form in the person's language, including each field's value, error, hint and placeholder; the element says what the person did and changes nothing. Typed text the host did not take survives a redraw, and a redraw never moves the focus or the caret out of the field being typed in.",
+  "kind": "smart",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "mail",
+    "inspector",
+    "form",
+    "fields"
+  ],
+  "capabilities": [
+    "interaction",
+    "keyboard",
+    "responsive"
+  ],
+  "custom_element": "sf-mail-inspector",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "component.accordion",
+      "smart.breadcrumbs",
+      "smart.button",
+      "smart.context-menu",
+      "smart.dropdown",
+      "smart.icon",
+      "smart.icon-button",
+      "smart.image-field",
+      "smart.input",
+      "smart.sortable",
+      "smart.switch",
+      "smart.tabs",
+      "smart.textarea"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "properties": {
+      "template": {
+        "type": "string",
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates."
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
+      },
+      "heading": {
+        "type": "string",
+        "default": "",
+        "description": "What is being edited, in the person's language: the panel's title."
+      },
+      "heading-icon": {
+        "type": "string",
+        "default": "",
+        "description": "The icon before the heading."
+      },
+      "scope": {
+        "type": "string",
+        "default": "",
+        "description": "Whose form this is (a block's id, say). When it changes the form is drawn anew and text typed for the previous one is dropped."
+      },
+      "tab": {
+        "type": "string",
+        "default": "",
+        "description": "The tab shown, by id; empty is the first."
+      },
+      "levels": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        },
+        "description": "The path, top first: [{text}], the last is where the person is. Two or more are drawn as the path. One is not drawn, but Escape still asks for what is above it."
+      },
+      "head-actions": {
+        "type": "array",
+        "default": [],
+        "description": "The actions beside the heading, in order: any of duplicate, delete, replace."
+      },
+      "notice": {
+        "type": "object",
+        "default": {},
+        "description": "A line under the heading: {text, action}. With action it has a button of that name, which sends notice-action."
+      },
+      "tabs": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        },
+        "description": "The tabs: {id, label, slot}. A tab with slot shows the host's own panel from that slot; a tab without one shows the form (sections). Empty draws the form with no tabs."
+      },
+      "sections": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        },
+        "description": "The form: {key, title, fields}. One section needs no disclosure, its fields stand on their own. A field is {kind, path, label, value, error, hint, placeholder, required, disabled, ...}; x-registry.contracts.field says each kind."
+      },
+      "closed-sections": {
+        "type": "array",
+        "default": [],
+        "description": "The keys of the sections the person closed. The element keeps it up to date as the person toggles; a host that remembers it longer passes it back. A key shared by two forms is remembered across them."
+      }
+    },
+    "additionalProperties": false
+  },
+  "item_contract": {},
+  "contracts": {
+    "field": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "text, multiline, link, number, select, switch, group, image or items."
+        },
+        "path": {
+          "type": "string",
+          "description": "The field's address: what the events carry. Unique in the form."
+        },
+        "label": {
+          "type": "string",
+          "description": "Its name, drawn as text."
+        },
+        "value": {
+          "description": "text kinds and select: a string; switch: a boolean; image: {value, label, mime, size, href} or null."
+        },
+        "error": {
+          "type": "string",
+          "description": "What is wrong, drawn under the field. While it is passed the typed text stays."
+        },
+        "hint": {
+          "type": "string",
+          "description": "Real text under the field."
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Shown in an empty field."
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Marked as required; an image then cannot be removed."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Shown, not editable."
+        },
+        "inputmode": {
+          "type": "string",
+          "description": "text kinds: the keyboard to offer; number defaults to numeric."
+        },
+        "inheritedValue": {
+          "type": "string",
+          "description": "text kinds: what an empty field falls back to (the Framework's inherited value)."
+        },
+        "ariaLabel": {
+          "type": "string",
+          "description": "The name when no label is drawn."
+        },
+        "options": {
+          "type": "array",
+          "description": "select: [{value, text}]. A value of '' is the choice of nothing."
+        },
+        "rows": {
+          "type": "array",
+          "description": "group: rows of fields; a row of two stands in a pair."
+        },
+        "accept": {
+          "type": "string",
+          "description": "image: what the file dialog offers."
+        },
+        "emptyText": {
+          "type": "string",
+          "description": "image: the empty field's text."
+        },
+        "choices": {
+          "type": "array",
+          "description": "image: [{value, text}], images to choose again; the choice is a change."
+        },
+        "chooseLabel": {
+          "type": "string",
+          "description": "image: the name of that list."
+        },
+        "choosePlaceholder": {
+          "type": "string",
+          "description": "image: what that list reads before a choice."
+        },
+        "items": {
+          "type": "array",
+          "description": "items: [{label, problem, fields}]; problem marks a closed item that has one."
+        },
+        "open": {
+          "type": "number",
+          "description": "items: the open item's index, or null."
+        },
+        "min": {
+          "type": "number",
+          "description": "items: below this no item can be removed."
+        },
+        "max": {
+          "type": "number",
+          "description": "items: at this none can be added or copied."
+        }
+      },
+      "required": [
+        "kind",
+        "path"
+      ]
+    },
+    "choice": {
+      "const": "A field dispatches sf-mail-inspector-change {path, value, typed}, an image sf-mail-inspector-attach {path, files} and -detach {path}; a section -toggle {key, open}; the path and Escape -level {index}; a tab -tab {id}; the notice -notice-action {}; the heading's buttons -duplicate {}, -delete {} and -replace {}; a list -item-toggle {path, index, open}, -item-add {path}, -item-move {path, from, to}, -item-duplicate {path, index} and -item-delete {path, index}. The element changes nothing but its sections' disclosure: the host passes the form back."
+    }
+  },
+  "methods": {
+    "duplicate": {
+      "summary": "what «Дублировать» does; refused unknown when head-actions does not offer it",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "delete": {
+      "summary": "what «Удалить» does; refused unknown when head-actions does not offer it",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "replace": {
+      "summary": "what «Сменить вариант…» does; refused unknown when head-actions does not offer it",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "levelUp": {
+      "summary": "what Escape does; refused top with no levels",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: top}"
+      }
+    },
+    "goToLevel": {
+      "summary": "what a press on the path does; refused unknown",
+      "arguments": [
+        {
+          "name": "index",
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "openTab": {
+      "summary": "asks for a tab as a press does: sends tab, the host passes it back; refused unknown",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "toggleSection": {
+      "summary": "opens or closes a section as its heading does; refused unknown",
+      "arguments": [
+        {
+          "name": "key",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "itemToggle": {
+      "summary": "what an item's disclosure does; refused unknown",
+      "arguments": [
+        {
+          "name": "path",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "index",
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "itemAdd": {
+      "summary": "what «Добавить элемент» does; refused unknown, full",
+      "arguments": [
+        {
+          "name": "path",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | full}"
+      }
+    },
+    "itemMove": {
+      "summary": "asks to move an item to a place or by steps; refused unknown, unchanged",
+      "arguments": [
+        {
+          "name": "path",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "index",
+          "schema": {
+            "type": "number"
+          }
+        },
+        {
+          "name": "to",
+          "schema": {
+            "type": "number"
+          }
+        },
+        {
+          "name": "by",
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | unchanged}"
+      }
+    },
+    "itemDuplicate": {
+      "summary": "what «Дублировать» under ⋯ does; refused unknown, full",
+      "arguments": [
+        {
+          "name": "path",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "index",
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | full}"
+      }
+    },
+    "itemDelete": {
+      "summary": "what «Удалить» under ⋯ does; refused unknown, least",
+      "arguments": [
+        {
+          "name": "path",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "index",
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | least}"
+      }
+    },
+    "focusItem": {
+      "summary": "puts the focus on an item's disclosure, after the draw; refused unknown with no path",
+      "arguments": [
+        {
+          "name": "path",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "index",
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    }
+  },
+  "events": {
+    "change": {
+      "summary": "This field now reads this: {path, value, typed}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "path",
+          "value",
+          "typed"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string",
+            "description": "The raw text as typed, the chosen value, or a boolean from a switch."
+          },
+          "typed": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-attach": {
+      "summary": "Store these files for this field: {path, files}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "path",
+          "files"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-detach": {
+      "summary": "Remove this field's image: {path}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-toggle": {
+      "summary": "This section is now open or closed: {key, open}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "key",
+          "open"
+        ],
+        "properties": {
+          "key": {},
+          "open": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-level": {
+      "summary": "Go to this level of the path: {index}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "index"
+        ],
+        "properties": {
+          "index": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-tab": {
+      "summary": "This tab was chosen: {id}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {}
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-notice-action": {
+      "summary": "The notice's button was pressed.",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-duplicate": {
+      "summary": "Make a copy of what is being edited.",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-delete": {
+      "summary": "Remove what is being edited.",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-replace": {
+      "summary": "Another variant of what is being edited was asked for.",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-item-toggle": {
+      "summary": "Open or close this item: {path, index, open}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "path",
+          "index",
+          "open"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "index": {
+            "type": "number"
+          },
+          "open": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-item-add": {
+      "summary": "Add an item to this list: {path}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-item-move": {
+      "summary": "Move an item within its list: {path, from, to}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "path",
+          "from",
+          "to"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "from": {
+            "type": "number"
+          },
+          "to": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-item-duplicate": {
+      "summary": "Make a copy of this item: {path, index}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "path",
+          "index"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "index": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-mail-inspector-item-delete": {
+      "summary": "Remove this item: {path, index}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "path",
+          "index"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "index": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "typed": [
+        "host-value",
+        "typing",
+        "draft"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "invalid",
+      "open",
+      "closed"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "validating a value or a link",
+      "changing the letter or its blocks",
+      "storing a file",
+      "reading or writing the letter store"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "every text in the form (drawn as text)",
+      "an image's href (the host's stored address)"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "form",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Tab",
+      "Escape",
+      "Enter",
+      "Space",
+      "Alt+ArrowUp",
+      "Alt+ArrowDown",
+      "Shift+F10"
+    ],
+    "focus": "A redraw keeps the focus and the caret in the field being typed in. An item's disclosure is the item's one tab stop; ⋯ is named «Действия с элементом: <name>», so two items never sound alike. After a list verb the focus goes to the item that changed, once the host has passed the list back."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "mail-inspector-probe"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": null,
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": []
+  },
+  "provenance": null,
+  "ai_guidance": {
+    "use_when": "Use sf-mail-inspector for the panel where a person edits the letter's settings or a selected block in SIMAI Email Editor.",
+    "do_not": [
+      "Do not validate in the element; pass error back",
+      "Do not change value while the person types to echo them; the element keeps what they typed",
+      "Do not draw the brand editor in fields here; put it in a tab's slot"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-mail-inspector id=\"panel\" heading=\"Кнопка\"></sf-mail-inspector> <script>panel.sections = [{key: 'content', title: 'Содержимое', fields: [{kind: 'text', path: '/text', label: 'Текст', value: 'Подробнее'}]}];</script>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-manifest-probes.mjs <free output> <package output> mail-inspector"
+    ]
+  }
+}

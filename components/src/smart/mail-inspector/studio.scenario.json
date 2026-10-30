@@ -1,0 +1,43 @@
+{
+  "schema": "simai.smart-component-scenario.v1",
+  "id": "smoke",
+  "component": "smart.mail-inspector",
+  "fixture": "inspector-reference",
+  "viewport": "desktop",
+  "actions": [
+    {
+      "type": "invoke",
+      "method": "toggle-section",
+      "arguments": [
+        {
+          "key": "button:look"
+        }
+      ]
+    },
+    {
+      "type": "invoke",
+      "method": "item-move",
+      "arguments": [
+        {
+          "path": "/items",
+          "index": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "assertions": [
+    {
+      "type": "upgraded"
+    },
+    {
+      "type": "visible"
+    },
+    {
+      "type": "no-console-error"
+    },
+    {
+      "type": "no-network"
+    }
+  ]
+}

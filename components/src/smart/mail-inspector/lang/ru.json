@@ -1,0 +1,28 @@
+{
+  "title": "Инспектор письма",
+  "runtime": {
+    "delete-text": "Удалить",
+    "down-text": "Ниже",
+    "duplicate-text": "Дублировать",
+    "image-empty-text": "Добавить изображение…",
+    "image-formats-text": "Подходят только PNG и JPEG",
+    "image-required-text": "Это изображение обязательно: его можно заменить, но не убрать",
+    "item-actions-label": "Действия с элементом: {label}",
+    "item-add-text": "Добавить элемент",
+    "item-moved-text": "Элемент: позиция {n} из {total}",
+    "path-label": "Путь",
+    "replace-text": "Сменить вариант…",
+    "up-text": "Выше"
+  },
+  "events": {
+    "duplicate": {"label": "Дублировать то, что редактируется"},
+    "level": {"label": "Перейти на уровень пути"},
+    "tab": {"label": "Перейти на вкладку"},
+    "notice-action": {"label": "Нажать кнопку сообщения"},
+    "item-toggle": {"label": "Открыть или закрыть элемент"},
+    "item-add": {"label": "Добавить элемент"},
+    "item-move": {"label": "Переместить элемент"},
+    "item-duplicate": {"label": "Дублировать элемент"},
+    "item-delete": {"label": "Удалить элемент"}
+  }
+}
