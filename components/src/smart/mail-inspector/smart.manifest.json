@@ -766,13 +766,54 @@
       "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
       "version": 2
     },
-    "runtime_pair": null,
+    "runtime_pair": {
+      "ui_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2",
+      "ui_smart_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2"
+    },
     "aliases": [],
     "deprecations": [],
     "replacement": null,
     "migrations": []
   },
-  "provenance": null,
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "e136eb0f7e31cdd7d1086a40c1cfe8e5ffea16ae",
+    "source_artifacts": [
+      {
+        "path": "src/smart/mail-inspector/index.js",
+        "sha256": "720496730856677ae7a3826654bad3416937175fb471c7cd126e98e5a96d1ec6"
+      },
+      {
+        "path": "src/smart/mail-inspector/js/templates/default.js",
+        "sha256": "af28f28303de14497473d9ff2bf8ee597b2c79090ed30005512e8ac015daafd3"
+      },
+      {
+        "path": "src/smart/mail-inspector/js/templates/default.css",
+        "sha256": "510e1ecc013d49cf6f4c7b56d815dfd6aa53865c109ca63fc7ffd61fefe7dbce"
+      },
+      {
+        "path": "src/smart/mail-inspector/rule.js",
+        "sha256": "ffa5ae8096949861677d3a7e725916eed69ed9c9952fd682f814bb258bb57d77"
+      },
+      {
+        "path": "src/smart/mail-inspector/docs.md",
+        "sha256": "0805a6fbbaa62ff25d3da231095db6e02218151cd7e2f7a90e6155a554948d3c"
+      },
+      {
+        "path": "src/smart/mail-inspector/component.json",
+        "sha256": "45ee0778abb415bd388f2ecc51ce76ebe92eae5a4b8b989b5f06e6e96ad4e596"
+      },
+      {
+        "path": "src/smart/mail-inspector/lang/en.json",
+        "sha256": "3285ba05734b0b7f4607e81b6dd538c2bad57c227cc017e029f294773b9f82b3"
+      },
+      {
+        "path": "src/smart/mail-inspector/lang/ru.json",
+        "sha256": "4e8e03d830ab13eead849e63946e494f5df02297b62927c63b6cacb718ea3f76"
+      }
+    ],
+    "generated_runtime": []
+  },
   "ai_guidance": {
     "use_when": "Use sf-mail-inspector for the panel where a person edits the letter's settings or a selected block in SIMAI Email Editor.",
     "do_not": [
