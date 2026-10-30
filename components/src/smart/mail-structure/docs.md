@@ -53,7 +53,7 @@ structure.inserterItems = [{type: 'heading', label: 'Основа'}, {value: 'te
 | `insert {type, index}` | просит новый блок | `applied`; `refused unknown` |
 | `add` | как «Добавить блок» | `applied` |
 | `duplicate {id}` | просит копию | `applied`; `refused unknown`, `pinned` |
-| `remove {id}` | отправляет `delete` | `applied`; `refused unknown`, `pinned` |
+| `delete {id}` | просит удалить | `applied`; `refused unknown`, `pinned` |
 | `replace {id}` | просит другой вариант места | `applied`; `refused unknown`, `not-pinned` |
 
 ## Клавиатура и доступность

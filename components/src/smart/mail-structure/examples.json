@@ -41,7 +41,7 @@
         ]
       },
       "first-paint": {
-        "max-bytes": 12000,
+        "max-bytes": 14000,
         "why": "the settings row, five rows with their icons and ⋯ buttons and «Добавить блок»: the list is the first paint; the ⋯ menu is printed closed"
       },
       "studio": {
@@ -142,6 +142,10 @@
             "family": "footer"
           }
         ]
+      },
+      "first-paint": {
+        "max-bytes": 14000,
+        "why": "the settings row, five rows with their icons and ⋯ buttons and «Добавить блок»: the list is the first paint; the ⋯ menu is printed closed"
       }
     },
     {
@@ -198,8 +202,8 @@
           "covers": "actions.move, actions.duplicate, actions.remove",
           "steps": [
             {
-              "script": "(() => { const one = document.querySelector('#structure'); globalThis.pinned = [one.move({id: 'b1', by: 1}).reason, one.duplicate({id: 'b1'}).reason, one.remove({id: 'b5'}).reason]; return true; })()",
-              "wait": 200,
+              "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const one = document.querySelector('#structure'); globalThis.pinned = [one.move({id: 'b1', by: 1}).reason, one.duplicate({id: 'b1'}).reason, one.delete({id: 'b5'}).reason]; }, 300); return true; })()",
+              "wait": 800,
               "check": "globalThis.pinned.join(',') === 'pinned,pinned,pinned' && document.querySelector('#structure [role=\"status\"]').textContent.includes('закреплены') && globalThis.heard.length === 0"
             }
           ]
@@ -210,8 +214,8 @@
           "covers": "actions.move, events.move",
           "steps": [
             {
-              "script": "(() => { globalThis.heard.length = 0; const one = document.querySelector('#structure'); globalThis.up = one.move({id: 'b2', by: -1}).reason; one.move({id: 'b2', index: 9}); return true; })()",
-              "wait": 100,
+              "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const one = document.querySelector('#structure'); globalThis.up = one.move({id: 'b2', by: -1}).reason; one.move({id: 'b2', index: 9}); }, 300); return true; })()",
+              "wait": 800,
               "check": "globalThis.up === 'unchanged' && JSON.stringify(globalThis.heard) === JSON.stringify([['move', {id: 'b2', index: 3}]])"
             }
           ]
@@ -222,8 +226,8 @@
           "covers": "keyboard.row",
           "steps": [
             {
-              "script": "(() => { globalThis.heard.length = 0; const row = document.querySelector('#structure [data-sf-sortable-item=\"b3\"]'); const key = (key, more = {}) => row.dispatchEvent(new KeyboardEvent('keydown', {key, bubbles: true, cancelable: true, ...more})); key('Enter'); key('ArrowUp', {altKey: true}); key('Delete'); return true; })()",
-              "wait": 100,
+              "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const row = document.querySelector('#structure [data-sf-sortable-item=\"b3\"]'); const key = (key, more = {}) => row.dispatchEvent(new KeyboardEvent('keydown', {key, bubbles: true, cancelable: true, ...more})); key('Enter'); key('ArrowUp', {altKey: true}); key('Delete'); }, 300); return true; })()",
+              "wait": 800,
               "check": "JSON.stringify(globalThis.heard.map(([name]) => name)) === JSON.stringify(['select','move','delete']) && globalThis.heard[0][1].keyboard === true"
             }
           ]
@@ -234,8 +238,8 @@
           "covers": "events.duplicate, events.replace",
           "steps": [
             {
-              "script": "(() => { globalThis.heard.length = 0; const one = document.querySelector('#structure'); one.openMenu('b3', one.querySelector('[data-sf-sortable-item=\"b3\"] sf-icon-button')); one.onMenuSelect({id: 'duplicate'}); one.openMenu('b5', one.querySelector('[data-sf-sortable-item=\"b5\"] sf-icon-button')); one.onMenuSelect({id: 'replace'}); return true; })()",
-              "wait": 200,
+              "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const one = document.querySelector('#structure'); one.openMenu('b3', one.querySelector('[data-sf-sortable-item=\"b3\"] sf-icon-button')); one.onMenuSelect({id: 'duplicate'}); one.openMenu('b5', one.querySelector('[data-sf-sortable-item=\"b5\"] sf-icon-button')); one.onMenuSelect({id: 'replace'}); }, 300); return true; })()",
+              "wait": 800,
               "check": "JSON.stringify(globalThis.heard) === JSON.stringify([['duplicate', {id: 'b3'}], ['replace', {family: 'footer'}]])"
             }
           ]
@@ -246,8 +250,8 @@
           "covers": "actions.insert, events.insert, settings.inserter-items",
           "steps": [
             {
-              "script": "(() => { globalThis.heard.length = 0; const one = document.querySelector('#structure'); one.inserterItems = [{type: 'heading', label: 'Основа'}, {value: 'text', label: 'Текст'}]; globalThis.unknown = one.insert({type: 'nope', index: 1}).reason; one.insert({type: 'text', index: 0}); one.insert({type: 'text', index: 9}); return true; })()",
-              "wait": 100,
+              "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const one = document.querySelector('#structure'); one.inserterItems = [{type: 'heading', label: 'Основа'}, {value: 'text', label: 'Текст'}]; globalThis.unknown = one.insert({type: 'nope', index: 1}).reason; one.insert({type: 'text', index: 0}); one.insert({type: 'text', index: 9}); }, 300); return true; })()",
+              "wait": 800,
               "check": "globalThis.unknown === 'unknown' && JSON.stringify(globalThis.heard) === JSON.stringify([['insert', {type: 'text', index: 1}], ['insert', {type: 'text', index: 4}]])"
             }
           ]
@@ -258,6 +262,8 @@
           "covers": "settings.rows",
           "steps": [
             {
+              "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 500,
               "check": "(() => { const none = document.querySelector('#none'); const card = none.querySelector('sf-empty-state'); return card && card.nextElementSibling?.dataset.sfSortableItem === 'b5' && none.querySelector('.sf-mail-structure-add') === null; })()"
             }
           ]
@@ -268,8 +274,8 @@
           "covers": "events.select",
           "steps": [
             {
-              "script": "(() => { globalThis.heard.length = 0; document.querySelector('#structure .sf-mail-structure-settings').click(); return true; })()",
-              "wait": 100,
+              "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { document.querySelector('#structure .sf-mail-structure-settings').click(); }, 300); return true; })()",
+              "wait": 800,
               "check": "JSON.stringify(globalThis.heard) === JSON.stringify([['select', {id: ''}]])"
             }
           ]

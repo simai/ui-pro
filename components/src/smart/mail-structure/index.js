@@ -64,7 +64,8 @@ const MailStructureElement = elementFromManifest(manifest, {
             this.sfEmit("duplicate", {id: row.id});
             return applied();
         },
-        remove({id} = {}) {
+        // Not `remove`: that is the DOM's own method, and the element would take itself off the page.
+        delete({id} = {}) {
             const row = this.rowOf(id);
             if (!row) return refused("unknown");
             if (row.family) return this.pinnedRefusal();
@@ -175,7 +176,7 @@ class SfMailStructure extends MailStructureElement {
         if (choice === "up") this.move({id, by: -1});
         else if (choice === "down") this.move({id, by: 1});
         else if (choice === "duplicate") this.duplicate({id});
-        else if (choice === "remove") this.remove({id});
+        else if (choice === "remove") this.delete({id});
         else if (choice === "replace") this.replace({id});
     }
 
@@ -220,7 +221,7 @@ class SfMailStructure extends MailStructureElement {
             this.openMenu(id, event.currentTarget.querySelector("sf-icon-button"));
         } else if (event.key === "Delete" || event.key === "Backspace") {
             stopped();
-            this.remove({id});
+            this.delete({id});
         }
     }
 

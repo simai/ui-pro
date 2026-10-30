@@ -217,7 +217,7 @@
         "description": "{outcome: applied} or {outcome: refused, reason: unknown | pinned}"
       }
     },
-    "remove": {
+    "delete": {
       "with": {
         "id": "id"
       },

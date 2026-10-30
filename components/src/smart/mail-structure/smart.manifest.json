@@ -188,7 +188,7 @@
         "description": "{outcome: applied} or {outcome: refused, reason: unknown | pinned}"
       }
     },
-    "remove": {
+    "delete": {
       "summary": "Ask to remove a block: sends delete; refused pinned for a place.",
       "arguments": [
         {
@@ -426,11 +426,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "714eff7db69481def4238bf944801c35adda9eec",
+    "source_revision": "3c15949c8d90bda48c8613bcaaa552869ee7d1bd",
     "source_artifacts": [
       {
         "path": "src/smart/mail-structure/index.js",
-        "sha256": "85310f9121908fb5e658d514b89e97197fec753e419f160f785dda12769392ec"
+        "sha256": "8baf4fe39eb8e2ab54007e0bfaad078d56770b3bbbc85f4f78b3402a9e9c8f3a"
       },
       {
         "path": "src/smart/mail-structure/js/templates/default.js",
@@ -446,11 +446,11 @@
       },
       {
         "path": "src/smart/mail-structure/docs.md",
-        "sha256": "a290e3193aa5678eafe01c243845f91fd3550888dc34c555708ff89083b8336b"
+        "sha256": "df9d28220dc2cd14254ad3a7e09dc9a1b0f9e6880220d8cb3c06554d25bd7c7e"
       },
       {
         "path": "src/smart/mail-structure/component.json",
-        "sha256": "7a403cf094708eed0120dacb4d09744e2cd391db9cd1cb916e1c2212d62c5a5e"
+        "sha256": "ae4a93b2026c2217062d05b404abecff4155226b4d77db0923d64acd5c3712c0"
       },
       {
         "path": "src/smart/mail-structure/lang/en.json",
