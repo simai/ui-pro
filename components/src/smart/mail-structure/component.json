@@ -1,0 +1,482 @@
+{
+  "$comment": "The source of sf-mail-structure's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-mail by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. Written by hand in the 1.4 form on the shape of sf-mail-letters; x-decisions says how each point was decided.",
+  "id": "smart.mail-structure",
+  "tag": "sf-mail-structure",
+  "version": "1.0.0",
+  "kind": "leaf",
+  "family": "list",
+  "settings": {
+    "rows": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "id": "id",
+        "title": "string",
+        "summary": {
+          "type": "string",
+          "optional": true
+        },
+        "icon": {
+          "type": "icon",
+          "optional": true
+        },
+        "family": {
+          "type": "id",
+          "optional": true
+        }
+      },
+      "entries": {
+        "key": "id",
+        "changes": "content"
+      },
+      "x-markup": "a property (a host has objects), or the JSON island a server prints; title and summary are text, never markup.",
+      "summary": "The blocks in the letter's order, one row each: {id, title, summary, icon, family}. family marks a place every letter has (header, footer): it does not move and nothing lands outside it."
+    },
+    "selected": {
+      "type": "id",
+      "default": "",
+      "summary": "The chosen block; empty means the letter's own settings are chosen."
+    },
+    "inserter-items": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "type": {
+          "type": "string",
+          "optional": true
+        },
+        "value": {
+          "type": "id",
+          "optional": true
+        },
+        "label": "string",
+        "icon": {
+          "type": "icon",
+          "optional": true
+        },
+        "caption": {
+          "type": "string",
+          "optional": true
+        },
+        "keywords": {
+          "type": "string",
+          "optional": true
+        }
+      },
+      "entries": {
+        "key": "value",
+        "changes": "content"
+      },
+      "summary": "The kinds an insertion point between rows offers, as sf-sortable takes them: {value, label, icon, caption, keywords} and {type: 'heading', label}. Empty shows no insertion points."
+    }
+  },
+  "values": {},
+  "events": {
+    "select": {
+      "carries": {
+        "id": "id",
+        "keyboard": {
+          "type": "boolean",
+          "optional": true
+        }
+      },
+      "x-summary": "a row or the settings row was chosen (vocabulary §5 select); id is empty for the letter's settings, keyboard says it came from Enter or Space, so a host can move focus to the panel.",
+      "summary": "This block was chosen: {id, keyboard}. An empty id is the letter's own settings."
+    },
+    "move": {
+      "carries": {
+        "id": "id",
+        "index": "number"
+      },
+      "x-summary": "a drag, Alt+arrows or the ⋯ menu asked to move a block (vocabulary §5 move). index is the final place, already kept between the pinned places. A pinned row never sends it.",
+      "summary": "Move this block to this place: {id, index}."
+    },
+    "insert": {
+      "carries": {
+        "type": "id",
+        "index": "number"
+      },
+      "own-verb": true,
+      "x-summary": "an insertion point asked for a new block of a kind at a place, already kept between the pinned places (a verb of this element, as sf-sortable-insert).",
+      "summary": "Add a new block of this kind at this place: {type, index}."
+    },
+    "add": {
+      "carries": {},
+      "x-summary": "«Добавить блок» or the empty card's button: a block was asked for, the place is the host's (vocabulary §5 add).",
+      "summary": "A block was asked for; the host decides where."
+    },
+    "duplicate": {
+      "carries": {
+        "id": "id"
+      },
+      "own-verb": true,
+      "x-summary": "«Дублировать» under ⋯ (a verb of this element).",
+      "summary": "Make a copy of this block: {id}."
+    },
+    "delete": {
+      "carries": {
+        "ids": "list",
+        "id": "id"
+      },
+      "x-summary": "«Удалить» under ⋯ or the Delete key (vocabulary §5 delete {ids}); one row is one block, so ids holds it and id names it. A pinned row never sends it.",
+      "summary": "Remove this block: {ids: [id], id}."
+    },
+    "replace": {
+      "carries": {
+        "family": "id"
+      },
+      "x-summary": "«Сменить вариант…» under the ⋯ of a pinned place (vocabulary §5 replace, as sf-mail-library's): the host shows the variants.",
+      "summary": "Another variant of this place was asked for: {family}."
+    }
+  },
+  "actions": {
+    "select": {
+      "with": {
+        "id": {
+          "type": "id",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "choose as a row does; refused unknown",
+      "summary": "Choose a block as its row does; no id chooses the letter's settings; refused unknown for a block not given.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "move": {
+      "with": {
+        "id": "id",
+        "index": {
+          "type": "number",
+          "optional": true
+        },
+        "by": {
+          "type": "number",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "move to a place or by steps, kept between the pinned places; refused unknown, pinned, unchanged",
+      "summary": "Move a block to index or by steps, kept between the pinned places; refused pinned for a place, unchanged when it would stay.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | pinned | unchanged}"
+      }
+    },
+    "insert": {
+      "with": {
+        "type": "id",
+        "index": {
+          "type": "number",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what an insertion point does; refused unknown for a kind not offered",
+      "summary": "Ask for a new block as an insertion point does; refused unknown for a kind not offered.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "add": {
+      "with": {},
+      "x-outcomes": [
+        "applied"
+      ],
+      "x-summary": "what «Добавить блок» does",
+      "summary": "Ask for a block as «Добавить блок» does.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied}"
+      }
+    },
+    "duplicate": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what «Дублировать» does; refused unknown, pinned",
+      "summary": "Ask for a copy of a block; refused pinned for a place.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | pinned}"
+      }
+    },
+    "delete": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what «Удалить» does: sends delete; refused unknown, pinned",
+      "summary": "Ask to remove a block: sends delete; refused pinned for a place.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | pinned}"
+      }
+    },
+    "replace": {
+      "with": {
+        "id": "id"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "what «Сменить вариант…» does; refused unknown, not-pinned",
+      "summary": "Ask for another variant of a pinned place; refused not-pinned for a block.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | not-pinned}"
+      }
+    }
+  },
+  "slots": {},
+  "keyboard": {
+    "host": {
+      "Tab": "reach"
+    },
+    "row": {
+      "Enter": "select",
+      "Space": "select",
+      "ArrowUp": "previous",
+      "ArrowDown": "next",
+      "Home": "first",
+      "End": "last",
+      "Alt+ArrowUp": "move",
+      "Alt+ArrowDown": "move",
+      "Delete": "delete",
+      "Backspace": "delete",
+      "Shift+F10": "menu",
+      "ContextMenu": "menu"
+    }
+  },
+  "relations": [
+    {
+      "name": "cl-icon"
+    },
+    {
+      "name": "cl-sortable"
+    },
+    {
+      "name": "cl-button"
+    },
+    {
+      "name": "cl-icon-button"
+    },
+    {
+      "name": "cl-empty-state"
+    },
+    {
+      "name": "cl-context-menu",
+      "lazy": true
+    }
+  ],
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "list",
+    "name": {
+      "from": [
+        "runtime.list-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Enter": "select",
+      "Space": "select",
+      "ArrowUp": "previous",
+      "ArrowDown": "next",
+      "Home": "first",
+      "End": "last",
+      "Alt+ArrowUp": "move",
+      "Alt+ArrowDown": "move",
+      "Delete": "delete",
+      "Shift+F10": "menu"
+    },
+    "x-keys": "the settings row, then the list as one tab stop on the chosen row; arrows go between rows, Enter and Space choose, Alt+arrows move, Delete removes, Shift+F10 opens ⋯; a held row is sf-sortable's own keyboard; a refusal of a pinned place is said in a status line"
+  },
+  "host-states": {},
+  "css-variables": {},
+  "x-summary": "The structure of a letter in SIMAI Email Editor: the letter's settings, one row per block, and a way to add a block. A row chooses, moves, copies and removes its block; a point between rows asks for a new block there; the header and the footer stay pinned. The element holds no letter and changes none; it says what the person asked for.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "mail-structure",
+    "manifest": "simai/ui-mail src/ui/app.ts drawLetter (0.12.0)",
+    "converted": "written by hand (D31, 2026-10-30) from the editor's own list, so the words, the keys and the pinned rules are the ones the editor proved"
+  },
+  "x-words": [],
+  "x-renamed": [],
+  "x-decisions": [
+    "names: sf-mail-structure, as the dispatcher's plan names it (PACKAGE-2-REALIGNED).",
+    "shape: a leaf that places sf-sortable, sf-button, sf-icon-button, sf-empty-state and one sf-context-menu as its own markup.",
+    "pinned places: the element keeps them, not the host: a drop or an insertion beyond one is reported as the nearest place, which is what the editor did by hand.",
+    "events: select, move, add, delete and replace are vocabulary §5 verbs; insert and duplicate are verbs of this element. None is cancelable: the element changes no letter."
+  ],
+  "x-rule": {
+    "$comment": [
+      "The structure draws its list as sf-sortable, its marks as sf-icon, its ⋯ as sf-icon-button and the",
+      "empty card as sf-empty-state with an sf-button; a tag it renders is a tag it",
+      "fetches. The ⋯ menu opens in sf-context-menu on a press, so the menu is fetched",
+      "after the page is ready, and the element waits for it before opening it."
+    ]
+  },
+  "x-registry": {
+    "capabilities": [
+      "interaction",
+      "keyboard",
+      "responsive"
+    ],
+    "persistence": {
+      "mode": "none",
+      "source_of_truth": "host",
+      "network_owner": "host",
+      "revision_field": null
+    },
+    "readiness": {
+      "level": "host-required",
+      "required_checks": [
+        "manifest",
+        "loader-rule",
+        "mail-structure-probe"
+      ]
+    },
+    "tags": [
+      "mail",
+      "structure",
+      "blocks",
+      "list"
+    ],
+    "contracts": {
+      "row": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The block's id: what the events carry."
+          },
+          "title": {
+            "type": "string",
+            "description": "Its name, drawn as text."
+          },
+          "summary": {
+            "type": "string",
+            "description": "What it holds, a second line drawn as text."
+          },
+          "icon": {
+            "type": "string",
+            "description": "Its icon."
+          },
+          "family": {
+            "type": "string",
+            "description": "The place it stands in, when it is one: header or footer."
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ]
+      },
+      "choice": {
+        "const": "A row dispatches sf-mail-structure-select {id, keyboard}; a drag or Alt+arrows sf-mail-structure-move {id, index}; an insertion point sf-mail-structure-insert {type, index}; «Добавить блок» sf-mail-structure-add {}; ⋯ sf-mail-structure-duplicate {id}, sf-mail-structure-delete {ids, id} and, on a pinned place, sf-mail-structure-replace {family}. The element changes nothing: the host does, and passes rows back."
+      }
+    },
+    "state": {
+      "machines": {
+        "selection": [
+          "settings",
+          "block"
+        ]
+      },
+      "visual_states": [
+        "default",
+        "selected",
+        "empty",
+        "open",
+        "closed"
+      ]
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "changing the letter or its blocks",
+        "reading or writing the letter store",
+        "creating a block's content"
+      ]
+    },
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "block titles and summaries (drawn as text)"
+      ],
+      "network_policy": "deny"
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-mail-structure wherever a person sees and rearranges the blocks of a letter in SIMAI Email Editor.",
+      "do_not": [
+        "Do not change the letter in the element; listen for its events and do it in the host",
+        "Do not keep a block before the pinned header or after the pinned footer; the element already reports the nearest place",
+        "Do not draw a second «Добавить блок» beside it"
+      ],
+      "required_reads": [
+        "inputs",
+        "contracts",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-mail-structure id=\"structure\"></sf-mail-structure> <script>structure.rows = [{id: 'b1', title: 'Заголовок', icon: 'title'}];</script>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-manifest-probes.mjs <free output> <package output> mail-structure"
+      ]
+    },
+    "accessibility": {
+      "accessible_name": "internal",
+      "focus": "The settings row comes first, then the list as one tab stop on the chosen row. ⋯ is named «Действия с блоком: <name>», so two rows never sound alike. The chosen row is aria-current, not by colour alone."
+    },
+    "compatibility": {
+      "migrations": []
+    }
+  }
+}

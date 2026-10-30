@@ -1,0 +1,112 @@
+{
+  "component": "sf-mail-structure",
+  "probe": "sf-mail-structure against component.json (standard simai.smart-component 1.4 §12, gate 20): the rows in order, the chosen row, the pinned places, the keys, the ⋯ menu and the empty card",
+  "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+  "page": {
+    "lang": "ru",
+    "body": [
+      "<main>",
+      "  <sf-mail-structure id=\"structure\" selected=\"b2\"></sf-mail-structure>",
+      "  <sf-mail-structure id=\"none\"></sf-mail-structure>",
+      "</main>"
+    ]
+  },
+  "probes": [
+    {
+      "id": "p1-rows-in-order",
+      "title": "the rows are the letter's, in its order, the chosen one marked",
+      "covers": "settings.rows, settings.selected",
+      "steps": [
+        {
+          "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+          "wait": 500,
+          "check": "[...document.querySelectorAll('#structure [data-sf-sortable-item]')].map((row) => row.dataset.sfSortableItem).join(',') === 'b1,b2,b3,b4,b5' && document.querySelector('#structure [data-sf-sortable-item=\"b2\"]').getAttribute('aria-current') === 'true'"
+        }
+      ]
+    },
+    {
+      "id": "p2-pinned-refused",
+      "title": "a pinned place refuses to move, be copied or removed, and says so",
+      "covers": "actions.move, actions.duplicate, actions.remove",
+      "steps": [
+        {
+          "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const one = document.querySelector('#structure'); globalThis.pinned = [one.move({id: 'b1', by: 1}).reason, one.duplicate({id: 'b1'}).reason, one.delete({id: 'b5'}).reason]; }, 300); return true; })()",
+          "wait": 800,
+          "check": "globalThis.pinned.join(',') === 'pinned,pinned,pinned' && document.querySelector('#structure .sf-mail-structure-notice').textContent.includes('закреплены') && globalThis.heard.length === 0"
+        }
+      ]
+    },
+    {
+      "id": "p3-move-kept-between",
+      "title": "a move beyond a pinned place lands next to it",
+      "covers": "actions.move, events.move",
+      "steps": [
+        {
+          "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const one = document.querySelector('#structure'); globalThis.up = one.move({id: 'b2', by: -1}).reason; one.move({id: 'b2', index: 9}); }, 300); return true; })()",
+          "wait": 800,
+          "check": "globalThis.up === 'unchanged' && JSON.stringify(globalThis.heard) === JSON.stringify([['move', {id: 'b2', index: 3}]])"
+        }
+      ]
+    },
+    {
+      "id": "p4-keys",
+      "title": "the keys do what the row says",
+      "covers": "keyboard.row",
+      "steps": [
+        {
+          "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const row = document.querySelector('#structure [data-sf-sortable-item=\"b3\"]'); const key = (key, more = {}) => row.dispatchEvent(new KeyboardEvent('keydown', {key, bubbles: true, cancelable: true, ...more})); key('Enter'); key('ArrowUp', {altKey: true}); key('Delete'); }, 300); return true; })()",
+          "wait": 800,
+          "check": "JSON.stringify(globalThis.heard.map(([name]) => name)) === JSON.stringify(['select','move','delete']) && globalThis.heard[0][1].keyboard === true"
+        }
+      ]
+    },
+    {
+      "id": "p5-menu-answers-for-its-row",
+      "title": "⋯ answers for its own row, and a pinned place offers its variant",
+      "covers": "events.duplicate, events.replace",
+      "steps": [
+        {
+          "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const one = document.querySelector('#structure'); one.openMenu('b3', one.querySelector('[data-sf-sortable-item=\"b3\"] sf-icon-button')); one.onMenuSelect({id: 'duplicate'}); one.openMenu('b5', one.querySelector('[data-sf-sortable-item=\"b5\"] sf-icon-button')); one.onMenuSelect({id: 'replace'}); }, 300); return true; })()",
+          "wait": 800,
+          "check": "JSON.stringify(globalThis.heard) === JSON.stringify([['duplicate', {id: 'b3'}], ['replace', {family: 'footer'}]])"
+        }
+      ]
+    },
+    {
+      "id": "p6-insert",
+      "title": "an insertion point asks for a kind, kept between the pinned places",
+      "covers": "actions.insert, events.insert, settings.inserter-items",
+      "steps": [
+        {
+          "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { const one = document.querySelector('#structure'); one.inserterItems = [{type: 'heading', label: 'Основа'}, {value: 'text', label: 'Текст'}]; globalThis.unknown = one.insert({type: 'nope', index: 1}).reason; one.insert({type: 'text', index: 0}); one.insert({type: 'text', index: 9}); }, 300); return true; })()",
+          "wait": 800,
+          "check": "globalThis.unknown === 'unknown' && JSON.stringify(globalThis.heard) === JSON.stringify([['insert', {type: 'text', index: 1}], ['insert', {type: 'text', index: 4}]])"
+        }
+      ]
+    },
+    {
+      "id": "p7-empty-card",
+      "title": "a letter of its two places shows the card before the footer, and no second «Добавить блок»",
+      "covers": "settings.rows",
+      "steps": [
+        {
+          "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+          "wait": 500,
+          "check": "(() => { const none = document.querySelector('#none'); const card = none.querySelector('sf-empty-state'); return card && card.nextElementSibling?.dataset.sfSortableItem === 'b5' && none.querySelector('.sf-mail-structure-add') === null; })()"
+        }
+      ]
+    },
+    {
+      "id": "p8-settings",
+      "title": "the settings row chooses the letter itself",
+      "covers": "events.select",
+      "steps": [
+        {
+          "script": "(() => { const rows = [{\"id\": \"b1\", \"title\": \"Шапка · Логотип\", \"icon\": \"image\", \"family\": \"header\"}, {\"id\": \"b2\", \"title\": \"Заголовок\", \"summary\": \"Осенняя рассылка\", \"icon\": \"title\"}, {\"id\": \"b3\", \"title\": \"Текст\", \"summary\": \"Здравствуйте! Рассказываем…\", \"icon\": \"notes\"}, {\"id\": \"b4\", \"title\": \"Кнопка\", \"summary\": \"Подробнее\", \"icon\": \"smart_button\"}, {\"id\": \"b5\", \"title\": \"Подвал · Простой\", \"icon\": \"view_agenda\", \"family\": \"footer\"}]; const one = document.querySelector('#structure'); one.rows = rows; document.querySelector('#none').rows = [rows[0], rows[4]]; globalThis.heard = []; for (const name of ['select','move','insert','add','duplicate','delete','replace']) one.addEventListener('sf-mail-structure-' + name, (event) => globalThis.heard.push([name, event.detail])); setTimeout(() => { document.querySelector('#structure .sf-mail-structure-settings').click(); }, 300); return true; })()",
+          "wait": 800,
+          "check": "JSON.stringify(globalThis.heard) === JSON.stringify([['select', {id: ''}]])"
+        }
+      ]
+    }
+  ]
+}

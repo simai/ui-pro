@@ -1,0 +1,22 @@
+{
+  "title": "Letter structure",
+  "runtime": {
+    "actions-label": "Block actions: {title}",
+    "add-text": "Add a block",
+    "delete-text": "Remove",
+    "down-text": "Move down",
+    "duplicate-text": "Duplicate",
+    "empty-heading": "Add the first block",
+    "empty-text": "Headings, text, buttons, products and more are in the Library.",
+    "list-label": "Email",
+    "pinned-text": "The header and the footer are pinned: they cannot be moved, deleted or duplicated — only swapped.",
+    "replace-text": "Change the variant…",
+    "settings-text": "Email settings",
+    "up-text": "Move up"
+  },
+  "events": {
+    "duplicate": {
+      "label": "Duplicate the block"
+    }
+  }
+}
