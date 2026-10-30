@@ -777,7 +777,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "e136eb0f7e31cdd7d1086a40c1cfe8e5ffea16ae",
+    "source_revision": "6cd3f3799687c4a31982b8168a1b433da284bae5",
     "source_artifacts": [
       {
         "path": "src/smart/mail-inspector/index.js",
@@ -801,7 +801,7 @@
       },
       {
         "path": "src/smart/mail-inspector/component.json",
-        "sha256": "45ee0778abb415bd388f2ecc51ce76ebe92eae5a4b8b989b5f06e6e96ad4e596"
+        "sha256": "3b7c0fc4546d1ad3a2983819febd210a809b22a5367cff98ea09762f80c31266"
       },
       {
         "path": "src/smart/mail-inspector/lang/en.json",
