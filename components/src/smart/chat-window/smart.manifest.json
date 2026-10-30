@@ -2559,7 +2559,7 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "707c036cdaca7eda4997b92edf406d1234fd7a008e8e78b12c0fd25eff811231"
+        "sha256": "ed7fa7b82cbf7cbc218d60b32d2667f09a5820ba976a840abc0d53b6a47d8f6b"
       },
       {
         "path": "src/smart/chat-window/rule.js",
