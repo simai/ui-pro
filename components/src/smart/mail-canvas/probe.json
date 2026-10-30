@@ -1,0 +1,380 @@
+{
+  "component": "sf-mail-canvas",
+  "probe": "sf-mail-canvas against component.json (standard simai.smart-component 1.4 §12, gate 20): the letter runs nothing, the widths and the frame, the scroll kept, a press in the frame, the tints, the notes that keep the last picture, each event and the overlay, in the element and placed by the host",
+  "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+  "page": {
+    "lang": "ru",
+    "body": [
+      "<main>",
+      "  <sf-mail-canvas id=\"canvas\"></sf-mail-canvas>",
+      "  <div lang=\"en\"><sf-mail-canvas id=\"english\" overlay-target=\"english-overlay\"></sf-mail-canvas></div>",
+      "  <sf-mail-canvas id=\"placed\" overlay-target=\"outside\"></sf-mail-canvas>",
+      "</main>",
+      "<section><sf-composition-overlay id=\"outside\" label=\"Предпросмотр\"></sf-composition-overlay></section>",
+      "<section><sf-composition-overlay id=\"english-overlay\" label=\"Preview\"></sf-composition-overlay></section>"
+    ]
+  },
+  "probes": [
+    {
+      "id": "p1-script-does-not-run",
+      "title": "a script, an inline handler and an image's onerror in html do not run and do not reach the page; the frame's sandbox is allow-same-origin and nothing else",
+      "covers": "settings.html",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = \"<!doctype html><html><body><p id=\\\"shown\\\">Письмо</p><script>document.documentElement.setAttribute('data-ran','1');try{parent.pwned=1}catch(e){}try{top.document.title='pwned'}catch(e){}</script><img src=\\\"data:,\\\" onerror=\\\"document.documentElement.setAttribute('data-ran','2');parent.pwned=2\\\"><svg onload=\\\"parent.pwned=3\\\"></svg><body onload=\\\"parent.pwned=4\\\"></body></html>\";  return true; })()",
+          "wait": 700,
+          "check": "(() => { const frame = document.querySelector('#canvas iframe'); const doc = frame.contentDocument; return frame.getAttribute('sandbox') === 'allow-same-origin' && doc.querySelector('#shown').textContent === 'Письмо' && doc.querySelector('script') !== null && !doc.documentElement.hasAttribute('data-ran') && window.pwned === undefined && document.title !== 'pwned'; })()"
+        }
+      ]
+    },
+    {
+      "id": "p2-width-and-frame",
+      "title": "a width is the frame's width: 600 shows a 680 px frame whose paper casts the shadow, 375 a 375 px frame that casts it itself; a press switches and says so, once",
+      "covers": "settings.widths, settings.width, settings.paper, events.change, actions.set-width",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = LETTER; one.setAttribute('width', '600'); return true; })()",
+          "wait": 700,
+          "check": "(() => { const frame = document.querySelector('#canvas iframe'); const paper = frameDoc().querySelector('.email'); return frame.getBoundingClientRect().width === 680 && !frame.classList.contains('shadow-1') && getComputedStyle(paper).boxShadow !== 'none' && document.querySelector('#canvas sf-button-group').getAttribute('value') === '600'; })()"
+        },
+        {
+          "script": "(() => { document.querySelector('#canvas sf-button-group').select('375'); return true; })()",
+          "wait": 400,
+          "check": "(() => { const frame = document.querySelector('#canvas iframe'); return frame.getBoundingClientRect().width === 375 && frame.classList.contains('shadow-1') && getComputedStyle(frameDoc().querySelector('.email')).boxShadow === 'none' && one.getAttribute('width') === '375' && JSON.stringify(heard.filter(([name]) => name === 'change')) === JSON.stringify([['change', {value: '375', previous: '600'}]]); })()"
+        },
+        {
+          "action": {
+            "name": "set-width",
+            "with": {
+              "value": "320"
+            }
+          },
+          "target": "#canvas",
+          "wait": 300,
+          "expect": {
+            "returns": {
+              "outcome": "applied"
+            }
+          },
+          "check": "document.querySelector('#canvas iframe').getBoundingClientRect().width === 320"
+        },
+        {
+          "action": {
+            "name": "set-width",
+            "with": {
+              "value": "320"
+            }
+          },
+          "target": "#canvas",
+          "wait": 60,
+          "expect": {
+            "returns": {
+              "outcome": "refused",
+              "reason": "unchanged"
+            }
+          }
+        },
+        {
+          "action": {
+            "name": "set-width",
+            "with": {
+              "value": "999"
+            }
+          },
+          "target": "#canvas",
+          "wait": 60,
+          "expect": {
+            "returns": {
+              "outcome": "refused",
+              "reason": "unknown"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "p3-scroll-kept",
+      "title": "the scroll position stays across a redraw and across a width change, and the frame is as tall as the letter",
+      "covers": "settings.html",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = LETTER.replace('</div></body>', '<div style=\"height:2400px\" data-block=\"b4\"><div data-block-box>Длинный</div></div></div></body>');  return true; })()",
+          "wait": 800,
+          "check": "document.querySelector('#canvas iframe').getBoundingClientRect().height > 2400"
+        },
+        {
+          "script": "(() => { document.querySelector('#canvas .sf-mail-canvas-scroll').scrollTop = 300; one.html = LETTER.replace('</div></body>', '<div style=\"height:2400px\" data-block=\"b4\"><div data-block-box>Длинный</div></div></div></body>').replace('Осенняя рассылка', 'Новый заголовок'); return true; })()",
+          "wait": 800,
+          "check": "document.querySelector('#canvas .sf-mail-canvas-scroll').scrollTop === 300 && frameDoc().querySelector('h1').textContent === 'Новый заголовок' && document.querySelector('#canvas iframe').getBoundingClientRect().height > 2400"
+        },
+        {
+          "script": "(() => { one.setWidth('375'); return true; })()",
+          "wait": 500,
+          "check": "document.querySelector('#canvas .sf-mail-canvas-scroll').scrollTop === 300"
+        }
+      ]
+    },
+    {
+      "id": "p4-click-chooses",
+      "title": "a press on a block chooses it, once; a press beside every block chooses none; a link never navigates the frame and takes no tab stop; a mark the host did not give is not a block",
+      "covers": "settings.items, settings.mark-attribute, events.select, actions.select",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = LETTER.replace('</div></body>', '<div data-block=\"forged\"><p id=\"forged\">Чужая метка</p></div></div></body><!-- -->');  return true; })()",
+          "wait": 800,
+          "check": "frameDoc().querySelector('a').tabIndex === -1"
+        },
+        {
+          "script": "(() => { frameDoc().querySelector('[data-block=\"b2\"] p').click(); return true; })()",
+          "wait": 200,
+          "check": "JSON.stringify(heard.filter(([name]) => name === 'select')) === JSON.stringify([['select', {ids: ['b2'], id: 'b2'}]])"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.setAttribute('selected', 'b2'); setTimeout(() => frameDoc().querySelector('a').click(), 100); return true; })()",
+          "wait": 500,
+          "check": "JSON.stringify(heard) === JSON.stringify([['select', {ids: ['b3'], id: 'b3'}]]) && frameDoc().querySelector('[data-block=\"b1\"]') !== null && document.querySelector('#canvas iframe').contentWindow.location.href === 'about:srcdoc'"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.setAttribute('selected', 'b3'); setTimeout(() => frameDoc().querySelector('#forged').click(), 100); return true; })()",
+          "wait": 500,
+          "check": "JSON.stringify(heard) === JSON.stringify([['select', {ids: [], id: ''}]])"
+        },
+        {
+          "action": {
+            "name": "select",
+            "with": {
+              "id": "nope"
+            }
+          },
+          "target": "#canvas",
+          "wait": 60,
+          "expect": {
+            "returns": {
+              "outcome": "refused",
+              "reason": "unknown"
+            }
+          }
+        },
+        {
+          "action": {
+            "name": "select",
+            "with": {
+              "id": "b1"
+            }
+          },
+          "target": "#canvas",
+          "wait": 60,
+          "expect": {
+            "returns": {
+              "outcome": "applied"
+            },
+            "events": [
+              {
+                "name": "sf-mail-canvas-select",
+                "count": 1,
+                "detail": {
+                  "id": "b1"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "p5-tints",
+      "title": "the chosen block takes the paper's selected tint and the hovered one the paper's hover tint, with the light theme's values in both themes; choosing does not reload the letter",
+      "covers": "settings.selected, settings.box-attribute",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}]; one.setAttribute('selected', \"b2\"); one.html = LETTER;  return true; })()",
+          "wait": 800,
+          "check": "(() => { const probe = document.createElement('span'); probe.style.color = 'var(--sf-paper-select)'; document.body.append(probe); const wanted = getComputedStyle(probe).color; probe.remove(); globalThis.letterDoc = frameDoc(); globalThis.tint = getComputedStyle(frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]')).backgroundColor; return wanted !== '' && globalThis.tint === wanted && getComputedStyle(frameDoc().querySelector('[data-block=\"b1\"] [data-block-box]')).backgroundColor === 'rgba(0, 0, 0, 0)'; })()"
+        },
+        {
+          "script": "(() => { one.setAttribute('selected', 'b1'); return true; })()",
+          "wait": 500,
+          "check": "frameDoc() === letterDoc && getComputedStyle(frameDoc().querySelector('[data-block=\"b1\"] [data-block-box]')).backgroundColor === tint && getComputedStyle(frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]')).backgroundColor === 'rgba(0, 0, 0, 0)'"
+        },
+        {
+          "script": "(() => { const probe = document.createElement('span'); probe.style.color = 'var(--sf-paper-hover)'; document.body.append(probe); globalThis.hoverTint = getComputedStyle(probe).color; probe.remove(); globalThis.sheetText = [...frameDoc().querySelectorAll('style')].map((sheet) => sheet.textContent).join(''); document.documentElement.classList.remove('theme-light'); document.documentElement.classList.add('theme-dark'); one.refresh(); return true; })()",
+          "wait": 500,
+          "check": "(() => { const probe = document.createElement('span'); probe.style.color = 'var(--sf-paper-select)'; document.body.append(probe); const dark = getComputedStyle(probe).color; probe.remove(); const text = [...frameDoc().querySelectorAll('style')].map((sheet) => sheet.textContent).join(''); return sheetText.includes('[data-block]:hover [data-block-box]{background:' + hoverTint + '}') && dark === tint && text.includes('[data-block]:hover [data-block-box]{background:' + hoverTint + '}') && getComputedStyle(frameDoc().querySelector('[data-block=\"b1\"] [data-block-box]')).backgroundColor === tint && getComputedStyle(document.querySelector('#canvas iframe')).colorScheme === 'light'; })()"
+        }
+      ]
+    },
+    {
+      "id": "p6-stale-keeps-the-picture",
+      "title": "stale says so and the last picture stays; an empty html keeps it too; a new html replaces the picture only when it has loaded",
+      "covers": "settings.stale, settings.html, runtime.stale-text",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = LETTER;  return true; })()",
+          "wait": 800,
+          "check": "document.querySelector('#canvas .sf-mail-canvas-stale').hidden === true && frameDoc().querySelector('h1').textContent === 'Осенняя рассылка'"
+        },
+        {
+          "script": "(() => { one.setAttribute('stale', ''); one.html = ''; return true; })()",
+          "wait": 500,
+          "check": "(() => { const note = document.querySelector('#canvas .sf-mail-canvas-stale'); return note.hidden === false && note.textContent.includes('Предпросмотр устарел') && frameDoc().querySelector('h1').textContent === 'Осенняя рассылка' && heard.filter(([name]) => name === 'draw').length === 1; })()"
+        },
+        {
+          "script": "(() => { one.removeAttribute('stale'); one.html = LETTER.replace('Осенняя рассылка', 'Следующая'); return new Promise((done) => queueMicrotask(() => queueMicrotask(() => { globalThis.during = frameDoc().querySelector('h1')?.textContent; globalThis.busy = one.hasAttribute('data-sf-drawing'); done(true); }))); })()",
+          "wait": 500,
+          "check": "during === 'Осенняя рассылка' && frameDoc().querySelector('h1').textContent === 'Следующая' && document.querySelector('#canvas .sf-mail-canvas-stale').hidden === true && !one.hasAttribute('data-sf-drawing')"
+        }
+      ]
+    },
+    {
+      "id": "p7-weight",
+      "title": "the weight note says the letter's size and the limit in the page's language; without weight there is none; an English part of the page says it in English",
+      "covers": "settings.weight, runtime.weight-text",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = LETTER; document.querySelector('#english').weight = {bytes: 98, max: 90}; return true; })()",
+          "wait": 500,
+          "check": "document.querySelector('#canvas .sf-mail-canvas-weight').hidden === true && document.querySelector('#english .sf-mail-canvas-weight').textContent.includes('98 KB') && document.querySelector('#english .sf-mail-canvas-weight').getAttribute('role') === 'status'"
+        },
+        {
+          "script": "(() => { one.weight = {bytes: 98, max: 90}; return true; })()",
+          "wait": 300,
+          "check": "(() => { const note = document.querySelector('#canvas .sf-mail-canvas-weight'); return note.hidden === false && note.textContent.includes('98 КБ') && note.textContent.includes('90 КБ'); })()"
+        },
+        {
+          "script": "(() => { one.weight = {}; return true; })()",
+          "wait": 300,
+          "check": "document.querySelector('#canvas .sf-mail-canvas-weight').hidden === true"
+        }
+      ]
+    },
+    {
+      "id": "p8-hover-and-draw",
+      "title": "the pointer over another block says hover once per block and none on leaving; a new letter says draw before it is measured, so what the host adds counts in the frame's height",
+      "covers": "events.hover, events.draw",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = LETTER; one.addEventListener('sf-mail-canvas-draw', () => { const grown = one.frameDocument.createElement('div'); grown.style.height = '900px'; one.frameDocument.body.append(grown); }); return true; })()",
+          "wait": 800,
+          "check": "heard.filter(([name]) => name === 'draw').length === 1 && document.querySelector('#canvas iframe').getBoundingClientRect().height > 900"
+        },
+        {
+          "script": "(() => { const doc = frameDoc(); const over = (node) => node.dispatchEvent(new doc.defaultView.MouseEvent('mouseover', {bubbles: true})); over(doc.querySelector('[data-block=\"b2\"] p')); over(doc.querySelector('[data-block=\"b2\"] [data-block-box]')); over(doc.querySelector('[data-block=\"b3\"] a')); doc.documentElement.dispatchEvent(new doc.defaultView.MouseEvent('mouseout', {bubbles: true, relatedTarget: null})); return true; })()",
+          "wait": 100,
+          "check": "JSON.stringify(heard.filter(([name]) => name === 'hover')) === JSON.stringify([['hover', {id: 'b2'}], ['hover', {id: 'b3'}], ['hover', {id: ''}]])"
+        }
+      ]
+    },
+    {
+      "id": "p9-overlay-present",
+      "title": "the overlay is over the frame: bound to it, its tree holds the items with their names, its selection line is the box the tint fills, its keys choose",
+      "covers": "settings.items, settings.actions, relations.cl-composition-overlay, keyboard.tree",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}]; one.setAttribute('selected', \"b2\"); one.html = LETTER;  return true; })()",
+          "wait": 1000,
+          "check": "(() => { const overlay = document.querySelector('#canvas sf-composition-overlay'); const names = [...overlay.querySelectorAll('[role=\"treeitem\"]')].map((row) => row.textContent.trim()); return overlay === one.overlay && overlay.getAttribute('data-sf-overlay-mode') === 'frame' && overlay.iframe === one.frame && names.length === 3 && names[1].includes('Текст') && overlay.selectedId === 'b2' && heard.filter(([name]) => name === 'select').length === 0; })()"
+        },
+        {
+          "script": "(() => { const frame = one.frame; const box = frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]').getBoundingClientRect(); const outer = frame.getBoundingClientRect(); const line = document.querySelector('#canvas sf-composition-overlay .sf-composition-overlay-layer').children[1].getBoundingClientRect(); globalThis.fit = [Math.abs(line.top - (outer.top + box.top)), Math.abs(line.left - (outer.left + box.left)), Math.abs(line.width - box.width)]; return true; })()",
+          "wait": 100,
+          "check": "fit.every((gap) => gap < 8)"
+        },
+        {
+          "script": "(() => { heard.length = 0; document.querySelector('#canvas sf-composition-overlay [role=\"tree\"]').focus(); return true; })()",
+          "wait": 100
+        },
+        {
+          "user": "keyboard:ArrowDown",
+          "wait": 200,
+          "check": "JSON.stringify(heard) === JSON.stringify([['select', {ids: ['b3'], id: 'b3'}]])"
+        }
+      ]
+    },
+    {
+      "id": "p10-overlay-events",
+      "title": "what the overlay reports comes out as the element's own: a toolbar action, an insertion point, a move and a plain-string edit, which a host can cancel",
+      "covers": "events.apply, events.insert, events.move, events.edit",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}]; one.setAttribute('selected', \"b2\"); one.html = LETTER; one.items = [{id: 'b1', label: 'Заголовок'}, {id: 'b2', label: 'Текст', editable: true}, {id: 'b3', label: 'Кнопка'}]; return true; })()",
+          "wait": 1000,
+          "check": "document.querySelector('#canvas sf-composition-overlay button[data-action=\"remove\"]') !== null && document.querySelector('#canvas sf-composition-overlay button[data-parent]') !== null"
+        },
+        {
+          "script": "(() => { const overlay = one.overlay; overlay.querySelector('button[data-action=\"remove\"]').click(); overlay.querySelector('button[data-parent]').click(); overlay.dispatchEvent(new CustomEvent('sf-composition-overlay-move', {bubbles: true, detail: {ids: ['b2'], id: 'b2', parent: '', position: 2, slot: 'default', node_id: 'b2', parent_id: '', index: 2}})); return true; })()",
+          "wait": 200,
+          "check": "(() => { const said = Object.fromEntries(heard.map(([name, detail]) => [name, detail])); return JSON.stringify(said.apply) === JSON.stringify({action: 'remove', scope: 'entry', ids: ['b2']}) && said.insert.slot === 'default' && said.insert.parent === '' && Number.isInteger(said.insert.index) && JSON.stringify(said.move) === JSON.stringify({ids: ['b2'], id: 'b2', parent: '', position: 2, slot: 'default'}); })()"
+        },
+        {
+          "script": "(() => { heard.length = 0; const overlay = one.overlay; overlay.edit('b2'); const text = frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]'); text.textContent = 'Новый текст'; overlay.finishEdit(true); return true; })()",
+          "wait": 200,
+          "check": "JSON.stringify(heard) === JSON.stringify([['edit', {id: 'b2', value: 'Новый текст', previous: 'Здравствуйте! Рассказываем, что нового.'}]])"
+        },
+        {
+          "script": "(() => { heard.length = 0; one.addEventListener('sf-mail-canvas-edit', (event) => event.preventDefault()); const overlay = one.overlay; overlay.edit('b2'); const text = frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]'); text.textContent = 'Отменят'; overlay.finishEdit(true); return true; })()",
+          "wait": 200,
+          "check": "heard.length === 1 && frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]').textContent === 'Новый текст'"
+        }
+      ]
+    },
+    {
+      "id": "p11-overlay-target",
+      "title": "with overlay-target the element places no overlay of its own: it binds the one the host placed, feeds it and says what it reports",
+      "covers": "settings.overlay-target, settings.accepts",
+      "steps": [
+        {
+          "script": "(() => { const placed = document.querySelector('#placed'); globalThis.placed = placed; globalThis.placedHeard = []; for (const name of ['sf-mail-canvas-select', 'sf-mail-canvas-apply']) placed.addEventListener(name, (event) => placedHeard.push([name.replace('sf-mail-canvas-', ''), event.detail])); placed.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; placed.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}]; placed.setAttribute('selected', 'b2'); placed.setAttribute('box-attribute', 'data-block-box'); placed.setAttribute('accepts', 'library'); placed.html = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; return true; })()",
+          "wait": 1000,
+          "check": "(() => { const outside = document.querySelector('#outside'); return placed.querySelector('sf-composition-overlay') === null && placed.overlay === outside && outside.iframe === placed.frame && outside.selectedId === 'b2' && outside.getAttribute('accepts') === 'library' && outside.querySelectorAll('[role=\"treeitem\"]').length === 3; })()"
+        },
+        {
+          "script": "(() => { document.querySelector('#outside button[data-action=\"up\"]').click(); placed.frame.contentDocument.querySelector('[data-block=\"b1\"] h1').click(); return true; })()",
+          "wait": 200,
+          "check": "JSON.stringify(placedHeard) === JSON.stringify([['apply', {action: 'up', scope: 'entry', ids: ['b2']}], ['select', {ids: ['b1'], id: 'b1'}]])"
+        }
+      ]
+    },
+    {
+      "id": "p12-reveal",
+      "title": "reveal brings a block into view on the canvas, and says so when it already is",
+      "covers": "actions.reveal, actions.refresh",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = LETTER.replace('</div></body>', '<div style=\"height:2400px\" data-block=\"b4\"><div data-block-box>Длинный</div></div></div></body>');  return true; })()",
+          "wait": 800,
+          "check": "one.reveal({id: 'b1'}).reason === 'unchanged' && one.reveal({id: 'nope'}).reason === 'unknown'"
+        },
+        {
+          "script": "(() => { globalThis.answer = one.reveal({id: 'b4'}).outcome; return true; })()",
+          "wait": 1200,
+          "check": "answer === 'applied' && document.querySelector('#canvas .sf-mail-canvas-scroll').scrollTop > 0"
+        },
+        {
+          "action": {
+            "name": "refresh",
+            "with": {}
+          },
+          "target": "#canvas",
+          "wait": 100,
+          "expect": {
+            "returns": {
+              "outcome": "applied"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "p13-names",
+      "title": "the frame, the layer and the switch are named in the page's language, and the frame and links take no tab stop",
+      "covers": "runtime.frame-label, runtime.layer-label, runtime.preview-label, runtime.widths-label",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = LETTER; document.querySelector('#english').widths = one.widths; return true; })()",
+          "wait": 500,
+          "check": "(() => { const frame = document.querySelector('#canvas iframe'); return frame.title === 'Письмо в предпросмотре' && frame.tabIndex === -1 && document.querySelector('#canvas .sf-mail-canvas-layer').getAttribute('aria-label') === 'Слой редактора над письмом' && document.querySelector('#canvas .sf-mail-canvas').getAttribute('aria-label') === 'Предпросмотр' && document.querySelector('#canvas sf-button-group').getAttribute('aria-label') === 'Ширина письма' && document.querySelector('#english iframe').title === 'The email in preview' && document.querySelector('#english .sf-mail-canvas').getAttribute('aria-label') === 'Preview'; })()"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "title": "Letter canvas",
+  "runtime": {
+    "frame-label": "The email in preview",
+    "layer-label": "The editor’s layer over the letter",
+    "preview-label": "Preview",
+    "stale-text": "The preview is out of date: fix the error in the fields.",
+    "weight-text": "The letter HTML is {bytes} KB (the warning starts at {max} KB). Gmail clips a letter at about 102 KB, and the footer is lost first.",
+    "widths-label": "Email width"
+  },
+  "events": {
+    "hover": {
+      "label": "A block is under the pointer"
+    },
+    "insert": {
+      "label": "A block was asked for at this place"
+    },
+    "edit": {
+      "label": "The text on the letter was changed"
+    },
+    "draw": {
+      "label": "The letter was drawn"
+    }
+  }
+}

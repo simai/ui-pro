@@ -14,7 +14,7 @@ import {fillSkeleton} from '../scripts/first-paint-skeleton.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const smart = join(root, 'src', 'smart');
-const PACKAGE = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view', 'mail-letters', 'mail-library', 'message-log', 'property-view', 'table', 'thread-list'];
+const PACKAGE = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view', 'mail-canvas', 'mail-letters', 'mail-library', 'message-log', 'property-view', 'table', 'thread-list'];
 const inner = (html, tag) => html.replace(/<!--[\s\S]*?-->\n?/gu, '').trim()
   .replace(new RegExp(`^<${tag}[^>]*>`, 'u'), '').replace(new RegExp(`</${tag}>$`, 'u'), '')
   .replace(/>\s+</gu, '><').trim();

@@ -1,0 +1,63 @@
+@layer sf.components {
+  /* sf-mail-canvas, the middle pane of SIMAI Email Editor: the recessed well a
+     letter sits in, the width switch, the two notes and the frame. The host is
+     display: contents; .sf-mail-canvas is what a page places. Every value is a
+     Framework token. */
+  .sf-mail-canvas {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-inline-size: 0;
+    block-size: 100%;
+    background: var(--sf-surface-well);
+  }
+
+  .sf-mail-canvas-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/2) var(--sf-space-1);
+  }
+
+  .sf-mail-canvas-note {
+    margin: 0;
+    padding-inline: var(--sf-space-1);
+    color: var(--sf-on-surface-variant);
+  }
+
+  /* The well holds its size from the first paint, whatever the letter's height:
+     in a pane it fills what is left, on a page of its own it has the basis. The
+     gutter is kept, so a letter that scrolls does not move the paper sideways. */
+  .sf-mail-canvas-scroll {
+    flex: 1 1 var(--sf-g4);
+    min-block-size: 0;
+    overflow: auto;
+    scrollbar-gutter: stable;
+    scroll-padding-block-start: var(--sf-space-3);
+    padding-inline: var(--sf-space-1);
+    padding-block-end: var(--sf-space-4);
+  }
+
+  /* A letter is always light: the frame keeps the paper's scheme in both themes,
+     and its background is the letter's own. Its width attribute is the width
+     in use; without one it fills the well. */
+  .sf-mail-canvas-frame {
+    display: block;
+    max-inline-size: none;
+    margin-inline: auto;
+    border: 0;
+    background: transparent;
+    color-scheme: light;
+  }
+
+  .sf-mail-canvas-frame:not([width]) {
+    inline-size: 100%;
+  }
+
+  .sf-mail-canvas-frame:focus-visible {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: calc(var(--sf-focus--width) * -1);
+  }
+}

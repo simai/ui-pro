@@ -1,0 +1,39 @@
+{
+  "schema": "simai.smart-component-scenario.v1",
+  "id": "smoke",
+  "component": "smart.mail-canvas",
+  "fixture": "canvas-reference",
+  "viewport": "desktop",
+  "actions": [
+    {
+      "type": "invoke",
+      "method": "set-width",
+      "arguments": [
+        {
+          "value": "375"
+        }
+      ]
+    },
+    {
+      "type": "invoke",
+      "method": "refresh",
+      "arguments": [
+        {}
+      ]
+    }
+  ],
+  "assertions": [
+    {
+      "type": "upgraded"
+    },
+    {
+      "type": "visible"
+    },
+    {
+      "type": "no-console-error"
+    },
+    {
+      "type": "no-network"
+    }
+  ]
+}
