@@ -2511,16 +2511,18 @@
           "Needs sf-chat-message 1.4.0 and sf-chat-composer 1.2.0. Without people, x-reactions and x-reply nothing changes; simai.chat-port 1.0 is unchanged."
         ]
       },
-{
+      {
         "from": "1.6.0",
         "to": "1.6.1",
-        "changes": ["Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."]
+        "changes": [
+          "Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "a4c36cc7cc6de050945a0836b74446e256554e5b",
+    "source_revision": "ab496f48676dc08f9a13e6c1e124499ec8f8e33b",
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
@@ -2576,7 +2578,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "dcd44a00b2f700026a74101c56e2708b497833de306adf878e128f1edffdb8e0"
+        "sha256": "b82fa2a502591c43e9a14808c67a3c21d59d8f619693ece116a11981004b38b6"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

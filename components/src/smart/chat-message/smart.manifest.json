@@ -579,16 +579,18 @@
           "Template default with display.document: a document without a bubble, who speaks (speaker, asked_by), a long text folded, stop on the message (canStop). Without these a message draws as before."
         ]
       },
-{
+      {
         "from": "1.4.0",
         "to": "1.4.1",
-        "changes": ["Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."]
+        "changes": [
+          "Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "a4c36cc7cc6de050945a0836b74446e256554e5b",
+    "source_revision": "ab496f48676dc08f9a13e6c1e124499ec8f8e33b",
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
@@ -632,7 +634,7 @@
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "33760c16de6cdad899847b62b11eb3c53df981e8851ce3cfb5b8b2f38c340253"
+        "sha256": "6c3c78a84beccd39225321a7a3f053efca2ace8f6ec9f715bc8f2b74545ef53c"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
