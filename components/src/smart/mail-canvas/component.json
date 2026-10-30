@@ -460,8 +460,7 @@
       "visual_states": [
         "default",
         "selected",
-        "stale",
-        "heavy"
+        "loading"
       ]
     },
     "ownership": {
