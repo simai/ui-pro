@@ -2,7 +2,7 @@
   "$comment": "The source of sf-mail-library's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Moved from simai/ui-mail package/src/smart/mail-library (smart.manifest.json 0.2.0, ui-mail 330720b) by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. The name stays sf-mail-library (owner decision q-08d1979fc9). Written by hand in the 1.4 form on the shape of sf-chat-interlocutor; x-decisions says how each point was decided.",
   "id": "smart.mail-library",
   "tag": "sf-mail-library",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "kind": "leaf",
   "family": "list",
   "settings": {

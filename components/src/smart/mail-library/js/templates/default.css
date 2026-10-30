@@ -11,10 +11,19 @@
     gap: var(--sf-space-1\/2);
   }
 
+  /* One row on any panel: three rows of buttons outweigh the list they filter.
+     Tab brings a chip that is out of view into it. */
   .sf-mail-library-chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: var(--sf-space-1\/4);
+    padding-block: var(--sf-space-1\/4);
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .sf-mail-library-chips > * {
+    flex-shrink: 0;
   }
 
   .sf-mail-library-groups {

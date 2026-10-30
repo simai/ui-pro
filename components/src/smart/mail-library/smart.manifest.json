@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-library",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Email block library",
   "summary": "The blocks a letter of SIMAI Email Editor can take, grouped by what they are for, with category chips, a search over their names and purposes, and the variants of the letter's header and footer. A row adds its block or replaces its variant; the element raises an event and never touches a letter.",
   "kind": "smart",
@@ -392,8 +392,8 @@
       "version": 2
     },
     "runtime_pair": {
-      "ui_revision": "e2cff39223f1a4b004dafe332f081e5178fad2f3",
-      "ui_smart_revision": "e2cff39223f1a4b004dafe332f081e5178fad2f3"
+      "ui_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2",
+      "ui_smart_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2"
     },
     "aliases": [],
     "deprecations": [],
@@ -412,7 +412,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "c0f42259c7bfdb44a5d775a44cea3d652027fd3f",
+    "source_revision": "38785a0ab8507f5715deec32a6dbdd5769982785",
     "source_artifacts": [
       {
         "path": "src/smart/mail-library/index.js",
@@ -424,7 +424,7 @@
       },
       {
         "path": "src/smart/mail-library/js/templates/default.css",
-        "sha256": "a46d022ded0f644d3fc9dcf73cf9585d0e3c800c9f45956119e4062f9c7a5d21"
+        "sha256": "2e3a294cab8bd17fadd26abc46f6ffc78df9961611cd42c8850d08f6961a2323"
       },
       {
         "path": "src/smart/mail-library/rule.js",
@@ -432,11 +432,11 @@
       },
       {
         "path": "src/smart/mail-library/docs.md",
-        "sha256": "bb7f44a941d83addb225905de1fbfe5b4457d4f6cd7d7bd38d857551b9f3cbaf"
+        "sha256": "e6f4bf1c0fa3c54b6d5415c94be8940de5a15fc3fd075378f4df1b4b61be6dc1"
       },
       {
         "path": "src/smart/mail-library/component.json",
-        "sha256": "15c8eaa7a0aea8fdb3b9a1c6a40f9c60509a146f4e76c0a4324c276996ac25a6"
+        "sha256": "4d70a06807f3c3bea694917eaca66a4fe4f7b2fb5c191f0500c18b6cf8084a0c"
       },
       {
         "path": "src/smart/mail-library/lang/en.json",
