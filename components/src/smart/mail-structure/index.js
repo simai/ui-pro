@@ -131,7 +131,7 @@ class SfMailStructure extends MailStructureElement {
 
     pinnedRefusal() {
         this.notice = this.sfWord("pinned-text");
-        this.requestUpdate();
+        this.requestComponentUpdate("notice");
         return refused("pinned");
     }
 
@@ -228,8 +228,8 @@ class SfMailStructure extends MailStructureElement {
     focusRow(id) {
         if (!id) return;
         this.stop = id;
-        this.requestUpdate();
-        this.updateComplete.then(() => this.querySelector(`[data-sf-sortable-item="${CSS.escape(id)}"]`)?.focus());
+        this.requestComponentUpdate("stop");
+        requestAnimationFrame(() => this.querySelector(`[data-sf-sortable-item="${CSS.escape(id)}"]`)?.focus());
     }
 
     // sf-sortable only asks; a pinned row refuses, a drop beyond a pinned place

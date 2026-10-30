@@ -4,11 +4,13 @@ import "./default.css";
 
 // A row: its handle (a pin for a place that does not move), its icon, the name
 // and what it holds, and ⋯, whose space is kept. One row of the list is the tab
-// stop; arrows go between rows.
+// stop; arrows go between rows. `slot` marks it as the list's content, not as
+// sf-sortable's own first paint: sf-sortable may arrive before this element
+// draws, and would drop the printed rows.
 function renderRow(context, row) {
     const {component} = context;
     return html`
-        <div class=${["sf-mail-structure-row", row.isSelected ? "is-selected" : "", row.family ? "is-pinned" : ""].filter(Boolean).join(" ")}
+        <div slot="item" class=${["sf-mail-structure-row", row.isSelected ? "is-selected" : "", row.family ? "is-pinned" : ""].filter(Boolean).join(" ")}
              data-sf-sortable-item=${row.id} data-family=${row.family || nothing} tabindex=${row.isStop ? "0" : "-1"}
              aria-current=${row.isSelected ? "true" : "false"}
              @focus=${() => { component.stop = row.id; }}
@@ -32,7 +34,7 @@ function renderRow(context, row) {
 function renderEmpty(context) {
     const {component} = context;
     return html`
-        <sf-empty-state class="sf-mail-structure-empty" kind="no-data" size="1/2" heading-level="3"
+        <sf-empty-state slot="item" class="sf-mail-structure-empty" kind="no-data" size="1/2" heading-level="3"
                         heading=${context.emptyTitle} text=${context.emptyText}>
             <sf-button slot="actions" size="1/2" appearance="outline" icon-start="add" text=${context.addLabel}
                        data-action="add" @click=${() => component.add()}></sf-button>
