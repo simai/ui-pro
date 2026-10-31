@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-library",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "title": "Email block library",
   "summary": "The blocks a letter of SIMAI Email Editor can take, grouped by what they are for, with category chips, a search over their names and purposes, and the variants of the letter's header and footer. A row adds its block or replaces its variant; the element raises an event and never touches a letter.",
   "kind": "smart",
@@ -392,8 +392,8 @@
       "version": 2
     },
     "runtime_pair": {
-      "ui_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2",
-      "ui_smart_revision": "d6292bd6fc34b6bab3cc2c21ee04ee321a7b5ee2"
+      "ui_revision": "7153f7a9c0929a28d67f458e9d9a9f9351f7cf8f",
+      "ui_smart_revision": "7153f7a9c0929a28d67f458e9d9a9f9351f7cf8f"
     },
     "aliases": [],
     "deprecations": [],
@@ -412,7 +412,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "d632e2e8473b471b9af5d857c2bde113a8ac698e",
+    "source_revision": "9c1c945b81f53c11e6160cc6abcfbff5bc7cc2d3",
     "source_artifacts": [
       {
         "path": "src/smart/mail-library/index.js",
@@ -420,7 +420,7 @@
       },
       {
         "path": "src/smart/mail-library/js/templates/default.js",
-        "sha256": "9e25f804a1a5beae6dd623cfca2da49ea87807930a9939214fa20b22964f3b62"
+        "sha256": "c650ad885433931db0ad66bae077fdec16746a91f8e85315f0b6585b0fc10d32"
       },
       {
         "path": "src/smart/mail-library/js/templates/default.css",
@@ -436,7 +436,7 @@
       },
       {
         "path": "src/smart/mail-library/component.json",
-        "sha256": "4d70a06807f3c3bea694917eaca66a4fe4f7b2fb5c191f0500c18b6cf8084a0c"
+        "sha256": "38fa91d39925af5a99ac5426ce6b11376d64ea2a0a782cf0dbcd7be38e8036ab"
       },
       {
         "path": "src/smart/mail-library/lang/en.json",
