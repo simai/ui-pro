@@ -2539,11 +2539,11 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "11a026f2db5b31341f16e6c6419b25d881652386",
+    "source_revision": "d82529038301695d3fb54e028715fdb0c3dcabcc",
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "eb65a73b860e0ccd78b73b690d4b60e8383b51cc93f41cda2592d31a5e8f9a40"
+        "sha256": "1878b0e387b8f0740e82a355870c32c8d2a4e7c5b23c5c61f33e697096398d40"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2583,7 +2583,7 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "c1ff1a0bda622e6e1904463a1264d83c326bc8844b8fb05069395fa1df83a097"
+        "sha256": "b74bade5eaea39f8183e97031f210a488f0c98d60ad7cf19b7178545e75a7696"
       },
       {
         "path": "src/smart/chat-window/rule.js",
@@ -2591,11 +2591,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "6d9c7430c9d9a54ce3e7e28fb48bc59e3c8f08a466f2d2f173741a022b09254d"
+        "sha256": "1b3a5a347fbf0c8495168d21964a00544866f88a814b452fef6a97c713c1220f"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "f1e975507135bcb373b448b0fc19dc7f10c8e9e6ea6d08b125bba9e95aa90962"
+        "sha256": "d30239b9b3c8ee24e02d3646f6239f1123a7ae495cd519101f786a7f17fa00c6"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2603,11 +2603,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "3a1ac5deab8cbd40c0025af5942b746d3f293d6f657f028dcb9c30cdd8e9ba3e"
+        "sha256": "a1c52134863dee34bfeab33246f2572653f6f527c2ef19dbd1818487938cccdf"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "91e328bde655a8367c8f2528e63e2cc9d179fcb65d6aa1bb065a47e966885110"
+        "sha256": "623e4c3f25d99f7cb75a14db85e11f01f6fbbee4e28b131ade73da3bed367b51"
       }
     ],
     "generated_runtime": []
