@@ -4857,9 +4857,18 @@ class SfTable extends TableElement {
     }
 
     renderContextMenu(data) {
-        // The windows' lists are reordered with sf-sortable, fetched when a
-        // window first opens rather than with every page.
-        if (data?.open) globalThis.SF?.Loader?.ensureSmartElementLoaded?.("sf-sortable");
+        // A window is drawn into this element's own portal, and the Loader does
+        // not scan a Smart element's own subtree for lazy relations: each lazy
+        // element a window draws is asked for by name when the window opens.
+        // Only sf-sortable was, so the filter window's template rows showed
+        // their handle and their menu with no name -- sf-radio never upgraded
+        // and its host is boxless (Larena storage list, simai/ui-pro, 2026-10-31).
+        if (data?.open) {
+            const needs = data.menu === 'tag-settings'
+                ? ["sf-datepicker", "sf-range-slider"]
+                : ["sf-sortable", "sf-radio", "sf-tabs"];
+            for (const tag of needs) globalThis.SF?.Loader?.ensureSmartElementLoaded?.(tag);
+        }
         if (!data?.open) {
             render(null, this.getPortalContainer());
             this.hidePortal();
