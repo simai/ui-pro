@@ -82,12 +82,20 @@ export const EXTENSION_INTENTS = {
   // a reply on the field the send is the port's message.send, as before.
   'message.reply': {verb: 'submit', kind: 'reply', capability: 'x-reply', former: null},
   'message.react': {verb: 'react', kind: null, capability: 'x-reactions', former: null},
+  // Managing a group's members (1.9.0, js/members-view.js): one verb, apply, kind
+  // member; the intent says which of the five it is. What the host allows is in
+  // its flags (canRemove, canChangeRole, canTransfer; can_manage, can_leave).
+  'member.add': {verb: 'apply', kind: 'member', capability: 'x-members-manage', former: null},
+  'member.remove': {verb: 'apply', kind: 'member', capability: 'x-members-manage', former: null},
+  'member.role': {verb: 'apply', kind: 'member', capability: 'x-members-manage', former: null},
+  'member.transfer': {verb: 'apply', kind: 'member', capability: 'x-members-manage', former: null},
+  'member.leave': {verb: 'apply', kind: 'member', capability: 'x-members-manage', former: null},
 };
 
 // x-brief (API.md v1.2) has no intent of its own: a host that declares it
 // gives an assistant message its `brief`, and the window draws it; the answer
 // goes out as an ordinary message.send.
-export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief', 'x-conversation-start', 'x-members', 'x-reactions', 'x-reply'];
+export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief', 'x-conversation-start', 'x-members', 'x-members-manage', 'x-reactions', 'x-reply'];
 
 /** Data a host with the window's capabilities sets beside the port's. */
 export const EXTENSION_DATA = ['conversation_list', 'composer_files', 'my_files'];

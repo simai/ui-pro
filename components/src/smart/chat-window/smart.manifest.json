@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -85,7 +85,8 @@
         "sf-chat-window-detach",
         "sf-chat-window-settled",
         "sf-chat-window-toggle",
-        "sf-chat-window-react"
+        "sf-chat-window-react",
+        "sf-chat-window-apply"
       ],
       "persistence": {
         "settings_key_prop": null,
@@ -136,7 +137,7 @@
       "capabilities": {
         "type": "string",
         "default": "",
-        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
       },
       "landmark": {
         "type": "string",
@@ -2100,6 +2101,35 @@
         "additionalProperties": true
       }
     },
+    "sf-chat-window-apply": {
+      "summary": "A group's members managed (x-members-manage): member.add, member.remove, member.role, member.transfer, member.leave, kind member; the buttons follow the host's flags (canRemove, canChangeRole, canTransfer; can_manage, can_leave).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "intent",
+          "payload"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string",
+            "description": "The port's intent (or the window's own, x-…) this event raises."
+          },
+          "kind": {
+            "type": "string",
+            "description": "Which of the verb's intents, where a verb carries more than one."
+          },
+          "payload": {
+            "type": "object",
+            "description": "The intent's payload, in the port's own field names; see the port contract."
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "chat-port:open": {
       "summary": "Dated alias of sf-chat-window-open until 2026-12-01 (split).",
       "payload": {
@@ -2534,20 +2564,27 @@
         "changes": [
           "Nothing open (no conversation, no interlocutor to greet): the field steps aside and the place says «Выберите разговор слева или начните новый». Additive: a host with a greeting is unchanged."
         ]
+      },
+      {
+        "from": "1.8.0",
+        "to": "1.9.0",
+        "changes": [
+          "Managing a group's members (x-members-manage): «Добавить» and «Выйти» in the members view, and per row a «⋯» with role, remove and hand over, each only with the host's flag; remove, hand over and leave are asked in place first. Additive: without the capability the view stays read only."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "063d46ebe8760ed228e3cd6ef2b7677618eff036",
+    "source_revision": "bb7ab4e816e956e3a04907d6541fcd5b0109debf",
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "1878b0e387b8f0740e82a355870c32c8d2a4e7c5b23c5c61f33e697096398d40"
+        "sha256": "b9cf0c57f73c193f59c085c183c008a7523dc88c70a01ae70276c9d67a8a58e6"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
-        "sha256": "f1175f10f612b81139574b610dd4f251305c46412a08340c7967f46e890c6a0a"
+        "sha256": "7d7455507b5c684cd7dd5864c0b69f8b6247ffaf623816bb2ff1cea0f8bc668b"
       },
       {
         "path": "src/smart/chat-window/js/files-view.js",
@@ -2567,7 +2604,11 @@
       },
       {
         "path": "src/smart/chat-window/js/members-view.js",
-        "sha256": "5d6c8d20c4f3cf178bf0e8b3a41323e2f7a49867f1ad92be6478ab8c14dfc0d1"
+        "sha256": "63d4ef8ab4a5f014a978285d4fe1cb5d95455581ec49b3bce221b59e3c71bf18"
+      },
+      {
+        "path": "src/smart/chat-window/js/members-model.js",
+        "sha256": "24888a8a601c0a930f867a0978fd603066ec8bf47829bf764796f26aaefacb16"
       },
       {
         "path": "src/smart/chat-window/js/start-view.js",
@@ -2583,7 +2624,7 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "b74bade5eaea39f8183e97031f210a488f0c98d60ad7cf19b7178545e75a7696"
+        "sha256": "642213d5014d389aae5d521e221228f2c119459be7499405e72ba2a49cfad700"
       },
       {
         "path": "src/smart/chat-window/rule.js",
@@ -2591,11 +2632,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "1b3a5a347fbf0c8495168d21964a00544866f88a814b452fef6a97c713c1220f"
+        "sha256": "466c021d113553d045333f72b8bce26e969ccf146d74002f56ce365a0c6d90c8"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "d30239b9b3c8ee24e02d3646f6239f1123a7ae495cd519101f786a7f17fa00c6"
+        "sha256": "b71057aabdb463113b057b249349934e48585176dd1f7489af8abe57a07a1c25"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2603,11 +2644,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "a1c52134863dee34bfeab33246f2572653f6f527c2ef19dbd1818487938cccdf"
+        "sha256": "031f11b239b3f42cb03cc85a463172015dfa0a6ff216b1058e91f45c587e93af"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "623e4c3f25d99f7cb75a14db85e11f01f6fbbee4e28b131ade73da3bed367b51"
+        "sha256": "ad7c25d58d98f7de008629a128c5a876a372e44c78261b456fe7c02683af3352"
       }
     ],
     "generated_runtime": []
