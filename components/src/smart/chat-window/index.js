@@ -50,8 +50,17 @@
 //
 // Light DOM: the window's nodes keep the 0.3 classes (chat-shell__*,
 // chat-files__*) that pages style and test, and the page adds its own
-// furniture (the skip link, the side panel's buttons) into `parts` before
-// it is connected.
+// furniture (the skip link, its buttons, a rail) into `parts` before it is
+// connected.
+//
+// The layout is the Framework's (1.7.0, core.css .sf-workspace and
+// core/js/workspace.js, docs/developer/workspace-layout.md): the shell is the
+// workspace, the list its `list` region, the conversation its `main`, the
+// source preview its `panel`, and the page's rail -- the page's own node, put
+// into parts.shell before main -- its `rail`. The window says the state in
+// attributes (data-sf-workspace-view, data-sf-workspace-panel) and measures
+// nothing; the panel as a drawer, its Escape, its scrim, the inert regions
+// behind it and the focus coming back are the Framework's.
 import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {pageLocale} from "../../core/js/page-language";
@@ -62,7 +71,7 @@ import {FilesView} from "./js/files-view.js";
 import {MembersView} from "./js/members-view.js";
 import {StartView} from "./js/start-view.js";
 import {hasMembers} from "./js/start-model.js";
-import {PREVIEW_DOCK_MIN, PreviewView} from "./js/preview-view.js";
+import {PreviewView} from "./js/preview-view.js";
 import {registerPartWords} from "./js/part-words.js";
 import {compareRevisions, dayDividersOf, keyOf, lastOwnEditableKey, messageCharsOf, runsOf, speakerOf, toPersonView, unreadKeyOf} from "./js/people.js";
 import {
@@ -627,16 +636,21 @@ class SfChatWindow extends ChatWindowElement {
 
         // sf-chat-surface: the message's sheet sets its tokens there, so the
         // window's notices (an error's «Повторить») read as a message's do.
-        const shell = element("div", "chat-shell sf-chat-surface");
+        // sf-workspace: the Framework's layout of up to four regions. The wide
+        // step is h8 (72rem): from there the preview stands beside the
+        // conversation, which is the room the conversation kept before (the
+        // window less its list, 900px). The narrow layout starts on the
+        // conversation, as the phone's closed side panel did.
+        const shell = element("div", "chat-shell sf-chat-surface sf-workspace sf-workspace--wide-h8", {"data-sf-workspace-view": "main"});
         if (this.hasAttribute("embedded") && this.getAttribute("embedded") !== "false") shell.classList.add("chat-shell--embedded");
         // The list inside names itself («Разговоры»); the aside adds no second name (Q-11).
-        const side = element("aside", "chat-shell__side", {id: "chat-side"});
+        const side = element("aside", "chat-shell__side sf-workspace-list", {id: "chat-side"});
         const sideHead = element("div", "chat-shell__side-head");
         const threads = element("sf-thread-list");
         const search = this.buildSearch(element, words);
         side.append(sideHead, search.box, threads);
         // Embedded in a page that has its own <main>, the window is a labelled region.
-        const main = element(this.getAttribute("landmark") === "section" ? "section" : "main", "chat-shell__main");
+        const main = element(this.getAttribute("landmark") === "section" ? "section" : "main", "chat-shell__main sf-workspace-main");
         const pageTitle = element(this._headingTag, "sf-chat-offscreen chat-shell__page-title");
         const header = element("header", "chat-shell__header");
         const interlocutor = element("sf-chat-interlocutor");
@@ -652,7 +666,11 @@ class SfChatWindow extends ChatWindowElement {
         threadSub.hidden = true;
         const headWho = element("span", "chat-shell__head-who");
         headWho.append(threadTitle, threadSub);
-        header.append(interlocutor, headMark, headWho, spacer, members.command);
+        // The way back to the list on a narrow container: the Framework shows
+        // it, hides it and answers the press (.sf-workspace-back), so the
+        // window only puts it in main.
+        const back = iconButton(this.ctx, {icon: "arrow_back", label: words("threads.back"), size: "1", className: "sf-workspace-back chat-shell__back"});
+        header.append(back, interlocutor, headMark, headWho, spacer, members.command);
         const find = this.buildFind(element, words);
         const list = element("sf-message-log", "chat-shell__list");
         const files = this._files.build(this._headingTag);
@@ -677,7 +695,7 @@ class SfChatWindow extends ChatWindowElement {
         main.append(pageTitle, header, find.box, list, files.root, start.root, members.root, composerBox);
         shell.append(side, main, preview.root);
         this._parts = {
-            shell, side, sideHead, main, header, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, headMark, threadSub, statusLine, archivedNote, suggestions,
+            shell, side, sideHead, main, header, back, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, headMark, threadSub, statusLine, archivedNote, suggestions,
             search: search.box, searchInput: search.input, searchStatus: search.status,
             find: find.box, findInput: find.input, findCount: find.count, findStatus: find.status, findPrevious: find.previous, findNext: find.next,
             queue, queueHeld, queueList, queueSaid,
@@ -1017,6 +1035,14 @@ class SfChatWindow extends ChatWindowElement {
             if (!this._data.conversation || this.covered) return;
             event.preventDefault();
             this.openFind();
+        });
+        // The panel closed by the Framework (Escape on the drawer, a press on
+        // its scrim, or a page setting the attribute): the window clears the
+        // preview behind it. It closes the panel again on its own way out,
+        // which says nothing new, so there is no loop.
+        shell.addEventListener("sf-workspace-panel", (event) => {
+            if (event.target !== shell || event.detail?.open) return;
+            if (this._preview?.open) this.closePreview();
         });
         // A command of the list's (kind) is a form of ours; else the one create button.
         threads.addEventListener("sf-thread-list-create", (event) => {
@@ -1567,6 +1593,8 @@ class SfChatWindow extends ChatWindowElement {
     async showList(archived) {
         const result = await this.request("conversations.view", {archived});
         if (result.answer === "applied") {
+            // The list is what changed: a narrow container shows it.
+            this.showRegion("list");
             this.focusListHead();
             return;
         }
@@ -1661,6 +1689,9 @@ class SfChatWindow extends ChatWindowElement {
         const revoked = data.feed_state === "revoked" || data.conversation?.revoked === true;
         if (revoked) this.revoke();
         const keyChanged = this.syncDraft();
+        // Another conversation (or a new one): a narrow container shows it.
+        // The reader's own way back to the list is .sf-workspace-back.
+        if (keyChanged) this.showRegion("main");
         // What the field answers belongs to its conversation, as the typed text does.
         if (keyChanged || changed.has("capabilities")) this.drawReply();
         if (keyChanged || changed.has("interlocutors") || changed.has("interlocutor") || changed.has("capabilities")) this.syncInterlocutor();
@@ -2146,6 +2177,50 @@ class SfChatWindow extends ChatWindowElement {
             });
         }
         return drawn;
+    }
+
+    // --- the Framework's layout (1.7.0) ------------------------------------
+
+    /**
+     * The workspace controller of the shell (SF.workspace, core.js). It is
+     * there whenever core is: a window without it still says the state in the
+     * attributes, which the sheet reads on its own.
+     */
+    get workspace() {
+        const shell = this._parts?.shell;
+        if (!shell) return null;
+        const make = globalThis.SF?.workspace;
+        // SF.workspace keeps one controller per element itself.
+        return typeof make === "function" ? make(shell) : null;
+    }
+
+    /**
+     * Which region a narrow container shows: "main" (the conversation and the
+     * views that take its place) or "list". From the split width up both show
+     * and this only records where the reader is.
+     */
+    showRegion(view) {
+        const shell = this._parts?.shell;
+        if (!shell) return;
+        const workspace = this.workspace;
+        if (workspace) workspace.show(view);
+        else shell.setAttribute("data-sf-workspace-view", view);
+    }
+
+    /** Open or close the panel region; the Framework decides drawer or column. */
+    showPanel(open) {
+        const shell = this._parts?.shell;
+        if (!shell) return;
+        const workspace = this.workspace;
+        if (workspace) workspace.panel(open);
+        else if (open) shell.setAttribute("data-sf-workspace-panel", "open");
+        else shell.removeAttribute("data-sf-workspace-panel");
+    }
+
+    /** Whether the open panel is the Framework's drawer rather than a column. */
+    get panelDrawer() {
+        if (!this._preview?.open) return false;
+        return (this.workspace?.layout ?? "wide") !== "wide";
     }
 
     // An empty conversation puts the greeting and the field in the middle of
@@ -2874,6 +2949,9 @@ class SfChatWindow extends ChatWindowElement {
             view.root.hidden = false;
             view.entry.setAttribute("aria-current", "page");
             this.parts.shell.classList.add("chat-shell--files");
+            // It stands where the conversation stands, so a narrow container
+            // shows main, as it does for a conversation.
+            this.showRegion("main");
             this.syncSelected();
             this.syncLayout();
         }
@@ -2967,6 +3045,7 @@ class SfChatWindow extends ChatWindowElement {
             view.open = true;
             view.root.hidden = false;
             this.parts.shell.classList.add("chat-shell--start");
+            this.showRegion("main");
             this.sfHostState("data-start-open", true);
         }
         // Said first: a page whose side panel covers the window closes it on
@@ -3046,6 +3125,7 @@ class SfChatWindow extends ChatWindowElement {
             view.members = [];
             view.root.hidden = false;
             this.parts.shell.classList.add("chat-shell--members");
+            this.showRegion("main");
             this.sfHostState("data-members-open", true);
             this.sfEmit("toggle", {kind: "members", open: true});
             this.syncLayout();
@@ -3119,16 +3199,17 @@ class SfChatWindow extends ChatWindowElement {
             this.closeViews();
             view.open = true;
             view.root.hidden = false;
-            this.parts.shell.classList.add("chat-shell--preview");
+            // The layout opens the panel: a column from the wide width, the
+            // Framework's drawer below it. Said before the focus moves into
+            // the panel, so the drawer records what opened it.
+            this.showPanel(true);
             this.sfHostState("data-preview-open", true);
             this.sfEmit("toggle", {kind: "preview", open: true});
-            this.watchPreviewRoom();
         }
         // The way back: the node pressed, or, when its message was drawn
         // again meanwhile, the same footnote or title in the new drawing.
         view.opener = from && !view.root.contains(from) ? from : view.opener;
         view.openerFinder = this.findAgain(from);
-        this.placePreview();
         view.show(target);
         view.title.focus({preventScroll: true});
         return true;
@@ -3142,12 +3223,9 @@ class SfChatWindow extends ChatWindowElement {
         view.open = false;
         view.root.hidden = true;
         view.clear();
-        this.parts.shell.classList.remove("chat-shell--preview", "chat-shell--preview-sheet");
-        this.parts.main.inert = false;
+        this.showPanel(false);
         this.sfHostState("data-preview-open", false);
         this.sfEmit("toggle", {kind: "preview", open: false});
-        this._previewRoom?.disconnect();
-        this._previewRoom = null;
         const opener = view.opener?.isConnected ? view.opener : view.openerFinder?.();
         view.opener = null;
         view.openerFinder = null;
@@ -3169,26 +3247,6 @@ class SfChatWindow extends ChatWindowElement {
             if (controls && cls === "sf-chat-footnote") return again.querySelector(`.sf-chat-footnote[aria-controls="${CSS.escape(controls)}"]`);
             return cls && index >= 0 ? again.querySelectorAll(`.${cls}`)[index] ?? null : null;
         };
-    }
-
-    // Beside the conversation while it keeps PREVIEW_DOCK_MIN of room (the
-    // window less its docked side panel); a sheet over it otherwise, with
-    // the conversation inert behind it.
-    placePreview() {
-        const {shell, side, main} = this.parts;
-        if (!this._preview?.open) return;
-        const width = shell.getBoundingClientRect().width;
-        const docked = side && getComputedStyle(side).position !== "fixed" && !shell.classList.contains("chat-shell--side-hidden");
-        const room = width - (docked ? side.getBoundingClientRect().width : 0);
-        const sheet = room < PREVIEW_DOCK_MIN;
-        shell.classList.toggle("chat-shell--preview-sheet", sheet);
-        main.inert = sheet;
-    }
-
-    watchPreviewRoom() {
-        if (this._previewRoom || typeof ResizeObserver !== "function") return;
-        this._previewRoom = new ResizeObserver(() => this.placePreview());
-        this._previewRoom.observe(this.parts.shell);
     }
 
     async loadFiles() {

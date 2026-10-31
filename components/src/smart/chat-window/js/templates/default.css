@@ -11,9 +11,18 @@
      visual grammar is ui-chat docs/design/SPEC.md §3 («Тихий документ»).
 
      The nodes keep the 0.3 classes chat-shell__* and chat-files__*, which
-     pages style and test (component.json x-decisions classes). The page
-     toggles chat-shell--side-hidden and chat-shell--side-open on
-     parts.shell; the window toggles chat-shell--empty, chat-shell--files, chat-shell--start and chat-shell--members.
+     pages style and test (component.json x-decisions classes). Since 1.7.0
+     the placement is the Framework's workspace layout (core.css
+     .sf-workspace, docs/developer/workspace-layout.md): the shell is the
+     workspace at the wide step h8, the side its list region, the conversation
+     its main, the preview its panel, and the page's rail -- its own node,
+     first in parts.shell -- its rail. This sheet only sizes and dresses the
+     regions; it places none of them, and the classes chat-shell--side-hidden,
+     chat-shell--side-open, chat-shell--preview and chat-shell--preview-sheet
+     are gone with the grid they placed (data-sf-workspace-list="hidden",
+     data-sf-workspace-view and data-sf-workspace-panel="open" say it now).
+     The window still toggles chat-shell--empty, chat-shell--files,
+     chat-shell--start and chat-shell--members.
 
      The public variables (component.json css-variables) are read here and
      never set, on the element or any ancestor:
@@ -51,6 +60,14 @@
     /* The source preview beside the conversation (1.2.0): two fifths of the
        window between a column step and a reading measure. */
     --sf-chat-window--preview: clamp(var(--sf-f6), 40%, var(--sf-g5));
+    /* The workspace's own public variables, from the window's: a page that
+       sets --sf-chat-window-side-width or --sf-chat-window-border-color moves
+       the region and its divider with it, and a page may still set
+       --sf-workspace-list, --sf-workspace-panel or --sf-workspace-rail on the
+       shell itself (its own rule is unlayered and outranks this one). */
+    --sf-workspace-list: var(--sf-chat-window--side);
+    --sf-workspace-panel: var(--sf-chat-window--preview);
+    --sf-workspace-divider-color: var(--sf-chat-window--edge);
   }
 
   /* sf-focus-ring: none -- the field's box, the «Мои файлы» heading and a
@@ -69,15 +86,19 @@
 
   /* --- the shell ------------------------------------------------------- */
 
-  .chat-shell {
-    display: grid;
-    grid-template-columns: var(--sf-chat-window--side) minmax(0, 1fr);
+  /* The window owns the page's height; embedded, the host decides it (below).
+     Said on both classes: core's .sf-workspace gives every workspace its
+     parent's height and these two sheets are in one layer. */
+  .chat-shell.sf-workspace {
     block-size: 100dvh;
-    transition: grid-template-columns var(--sf-duration-normal) var(--sf-ease-move, ease);
   }
 
-  .chat-shell--side-hidden {
-    grid-template-columns: 0 minmax(0, 1fr);
+  /* Each region scrolls inside itself (the log, the list, the panel's body),
+     so the region itself never does: said over core's .sf-workspace > *. */
+  .sf-workspace > .chat-shell__side,
+  .sf-workspace > .chat-shell__main,
+  .sf-workspace > .chat-preview {
+    overflow: hidden;
   }
 
   .chat-shell__side {
@@ -85,21 +106,23 @@
     flex-direction: column;
     min-block-size: 0;
     min-inline-size: 0;
-    overflow: hidden;
     background: var(--sf-chat-window--side-surface);
   }
 
-  .chat-shell--side-hidden .chat-shell__side { visibility: hidden; }
+  /* The region keeps the width (--sf-workspace-list), and takes the whole of
+     a narrow container; what is in it follows. */
+  .chat-shell__side .sf-thread-list { flex: 1; inline-size: 100%; }
 
-  .chat-shell__side .sf-thread-list { flex: 1; inline-size: var(--sf-chat-window--side); }
-
+  /* A page put its close button here while the list slid over the
+     conversation; the narrow view goes back with .sf-workspace-back in main,
+     so there is nothing to close (1.7.0). */
   .chat-shell__side-head { display: none; }
 
   /* The search by title above the list (v1.1), on the list's width and inset. */
   .chat-shell__search {
     flex: none;
     box-sizing: border-box;
-    inline-size: var(--sf-chat-window--side);
+    inline-size: 100%;
     padding: var(--sf-space-1\/3) var(--sf-space-1\/3) 0;
   }
 
@@ -134,6 +157,11 @@
 
   .chat-shell__header .sf-chat-interlocutor { min-inline-size: 0; }
   .chat-shell__spacer { flex: 1; }
+
+  /* The way back to the list, first in main: the Framework shows it only in a
+     narrow container with main shown and a list to go back to, and answers
+     the press itself (.sf-workspace-back). */
+  .chat-shell__back { flex: none; color: var(--sf-chat-window--ink-muted); }
 
   .chat-shell__header .sf-icon-button,
   .chat-shell__side-head .sf-icon-button {
@@ -212,42 +240,9 @@
   /* Inside a framed host the field is not lifted again: an edge, no shadow (D-18). */
   .chat-shell--embedded .sf-chat-composer__box { box-shadow: none; }
 
+  /* iOS zooms into a field under 16px; the list's field is no exception. */
   @media (max-width: 1023px) {
-    .chat-shell,
-    .chat-shell--side-hidden { grid-template-columns: minmax(0, 1fr); }
-
-    .chat-shell__side {
-      position: fixed;
-      inset-block: 0;
-      inset-inline-start: 0;
-      inline-size: min(18rem, 85vw);
-      z-index: 5;
-      translate: -100% 0;
-      visibility: hidden;
-      transition: translate var(--sf-duration-normal) var(--sf-ease-exit, ease), visibility 0s var(--sf-duration-normal);
-      /* Over the page it stands on its step: the surface and the shadow of
-         elevation 4 together (the docked panel is surface 1). */
-      background: var(--sf-chat-window-side-color, var(--sf-elevation-4--surface));
-      box-shadow: var(--sf-elevation-4--shadow);
-    }
-
-    .chat-shell__side .sf-thread-list,
-    .chat-shell__search { inline-size: auto; }
-
-    /* iOS zooms into a field under 16px; the panel's field is no exception. */
     .chat-shell__search-input { font-size: max(1rem, var(--sf-label-large--size)); }
-
-    .chat-shell--side-open .chat-shell__side {
-      translate: 0 0;
-      visibility: visible;
-      transition: translate var(--sf-duration-normal) var(--sf-ease-enter, ease);
-    }
-
-    .chat-shell__side-head {
-      display: flex;
-      justify-content: flex-end;
-      padding: var(--sf-space-1\/3) var(--sf-space-1\/3) 0;
-    }
   }
 
   @media (max-width: 599px) {
@@ -257,11 +252,6 @@
     }
 
     .chat-shell--empty .chat-shell__composer { padding-block-end: 6vh; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .chat-shell,
-    .chat-shell__side { transition: none; }
   }
 
   .chat-shell__thread-title {
@@ -275,7 +265,9 @@
     white-space: nowrap;
   }
 
-  .chat-shell--side-hidden .chat-shell__thread-title { display: block; }
+  /* No list beside the conversation (a side panel, one conversation alone, or
+     a narrow container showing main): the header says its name. */
+  .chat-shell[data-sf-workspace-list='hidden'] .chat-shell__thread-title { display: block; }
   .chat-shell--empty .chat-shell__thread-title { display: none; }
 
   .chat-shell__status {
@@ -301,14 +293,16 @@
 
   .chat-shell__suggestions { margin-block-start: var(--sf-space-1\/2); }
 
-  @media (max-width: 1023px) {
+  /* A narrow container shows one region at a time, so the name belongs to the
+     header there; the split width is the workspace's default (40rem). */
+  @container sf-workspace (width < 40rem) {
     .chat-shell__thread-title { display: block; }
   }
 
   /* A phone has room for the assistant's name only. */
   @media (max-width: 599px) {
     .chat-shell__thread-title,
-    .chat-shell--side-hidden .chat-shell__thread-title { display: none; }
+    .chat-shell[data-sf-workspace-list='hidden'] .chat-shell__thread-title { display: none; }
   }
 
   /* --- the package's parts in the window ------------------------------ */
@@ -403,51 +397,26 @@
 
   /* --- the source preview (1.2.0) ---------------------------------------- */
 
-  /* Beside the conversation at its inline end (chat-shell--preview), or,
-     where the conversation would keep less than 900px, a full-height sheet
-     over it (chat-shell--preview-sheet, decided by the window from the room
-     it has, as the conversation's own width would change with the panel). */
-  .chat-shell--preview:not(.chat-shell--preview-sheet) {
-    grid-template-columns: var(--sf-chat-window--side) minmax(0, 1fr) var(--sf-chat-window--preview);
-  }
-
-  .chat-shell--preview.chat-shell--side-hidden:not(.chat-shell--preview-sheet) {
-    grid-template-columns: 0 minmax(0, 1fr) var(--sf-chat-window--preview);
-  }
-
-  /* The last column: the panel's own beside the conversation, or the
-     conversation's when it is a sheet. */
+  /* The workspace's panel region (1.7.0): beside the conversation from the
+     wide step h8 (72rem -- the room the conversation kept before, the window
+     less its list), the Framework's drawer below it, over main at the inline
+     end, on the drawer's surface with its scrim, the other regions inert. The
+     window says only data-sf-workspace-panel="open" and measures nothing. */
   .chat-preview {
     display: flex;
     flex-direction: column;
-    grid-row: 1;
-    grid-column: -2 / -1;
     min-block-size: 0;
     min-inline-size: 0;
-    border-inline-start: var(--sf-chat-window--line) solid var(--sf-chat-window--edge);
     background: var(--sf-surface-0);
     color: var(--sf-chat-window--ink);
   }
 
   .chat-preview[hidden] { display: none; }
 
-  /* The conversation keeps its own column, placed before the panel is. */
-  .chat-shell--preview:not(.chat-shell--preview-sheet) .chat-shell__main { grid-row: 1; grid-column: -3 / -2; }
-  .chat-shell--preview-sheet .chat-shell__main { grid-row: 1; grid-column: -2 / -1; }
-
-  /* Where the side panel slides over the page, the conversation and the
-     panel are the only columns. */
-  @media (max-width: 1023px) {
-    .chat-shell--preview:not(.chat-shell--preview-sheet),
-    .chat-shell--preview.chat-shell--side-hidden:not(.chat-shell--preview-sheet) {
-      grid-template-columns: minmax(0, 1fr) var(--sf-chat-window--preview);
-    }
-  }
-
-  /* The sheet takes the conversation's own cell, over it. */
-  .chat-shell--preview-sheet .chat-preview {
-    z-index: 2;
-    border-inline-start: 0;
+  /* A drawer over a narrow container covers the conversation whole, as the
+     sheet did: a source is read in a column, not a strip. */
+  @container sf-workspace (width < 40rem) {
+    .chat-preview { --sf-workspace-panel: 100%; }
   }
 
   .chat-preview__head {
@@ -460,8 +429,16 @@
   }
 
   .chat-preview__back { display: none; flex: none; color: var(--sf-chat-window--ink-muted); }
-  .chat-shell--preview-sheet .chat-preview__back { display: inline-flex; }
-  .chat-shell--preview-sheet .chat-preview__close { display: none; }
+
+  /* While it is a drawer the way out is «Назад», as the sheet's was; beside
+     the conversation it is the close button. The width is the shell's wide
+     step (h8): a page that moves the step with sf-workspace--wide-* must say
+     these two rules again at its own width. */
+  @container sf-workspace (width < 72rem) {
+    .chat-preview__back { display: inline-flex; }
+    .chat-preview__close { display: none; }
+  }
+
   .chat-preview__tab,
   .chat-preview__close { flex: none; color: var(--sf-chat-window--ink-muted); }
 

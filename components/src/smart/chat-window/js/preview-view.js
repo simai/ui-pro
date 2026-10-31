@@ -7,7 +7,10 @@
 // The message asks (sf-chat-message-open {kind: preview, source}); the window
 // opens the panel, says so (sf-chat-window-open {kind: preview}, which a page
 // may cancel) and cancels the message's event, so the footnote does not open
-// the list as well. Only the page's own origin is ever loaded: the source is
+// the list as well. The panel is the workspace layout's panel region (1.7.0,
+// core.css .sf-workspace-panel): a column from the wide width, below it the
+// Framework's drawer -- Escape, the scrim, the conversation inert behind it
+// and the focus coming back are the layer stack's, not this view's. Only the page's own origin is ever loaded: the source is
 // read through chat-message's proposed.js, which keeps a same-origin
 // preview_url and nothing else.
 //
@@ -25,10 +28,6 @@ import {iconButton, iconNode, text, textButton} from '../../chat-message/js/view
 import {previewTarget} from '../../chat-message/js/view/proposed.js';
 
 let views = 0;
-
-// The conversation needs this much room beside the panel; less, and the
-// panel is a sheet over it.
-export const PREVIEW_DOCK_MIN = 900;
 
 export class PreviewView {
   /** @param {HTMLElement} win  the sf-chat-window that shows it */
@@ -48,7 +47,7 @@ export class PreviewView {
     const doc = ctx.document;
     const id = `chat-preview-${++views}`;
     const root = doc.createElement('aside');
-    root.className = 'chat-shell__preview chat-preview';
+    root.className = 'chat-shell__preview chat-preview sf-workspace-panel';
     root.id = id;
     root.hidden = true;
     root.setAttribute('aria-labelledby', `${id}-title`);
@@ -91,8 +90,11 @@ export class PreviewView {
     status.setAttribute('aria-live', 'polite');
     root.append(head, body, status);
 
+    // Escape while it is a column, where no layer is open: as a drawer it is
+    // the layer stack's key, which closes the top layer only (a menu inside
+    // the panel first) and gives the focus back itself.
     root.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      if (event.key !== 'Escape' || event.defaultPrevented || this.win.panelDrawer) return;
       event.preventDefault();
       event.stopPropagation();
       this.win.closePreview();
