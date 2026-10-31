@@ -1863,6 +1863,28 @@
           "check": "window.item(4).querySelector('.sf-chat-quote__text').textContent === 'Сообщение удалено'"
         }
       ]
+    },
+    {
+      "id": "p45-nothing-open",
+      "title": "1.8.0: nothing open and nobody to greet — the field steps aside and the place says «Выберите разговор…»; an interlocutor's greeting brings the field back, and the note goes",
+      "covers": "runtime.empty-unselected, settings.interlocutors",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.box = () => window.w.querySelector('.chat-shell__composer'), window.note = () => window.w.querySelector('.sf-chat-unselected'), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async () => ({answer: 'applied'})}), window.w.setAttribute('capabilities', 'people'), window.w.setData({me: {id: 101, name: 'Анна'}, conversations: [{id: 7, title: 'Команда', type: 'group'}], conversation: null, messages: [], history: {has_older: false}, feed_state: 'ready'}), true)",
+          "wait": 200,
+          "check": "window.box().hidden === true && window.w.querySelector('.chat-shell').classList.contains('chat-shell--unselected') && window.note().textContent.includes('Выберите разговор')"
+        },
+        {
+          "script": "(window.w.setData({interlocutors: [{id: 'a1', title: 'Помощник', greeting: 'Здравствуйте!'}]}), true)",
+          "wait": 200,
+          "check": "window.box().hidden === false && !window.note() && !window.w.querySelector('.chat-shell').classList.contains('chat-shell--unselected') && window.w.querySelector('.sf-chat-greeting__title').textContent.includes('Здравствуйте')"
+        },
+        {
+          "script": "(window.w.setData({interlocutors: [], conversation: {id: 7, title: 'Команда', type: 'group'}, messages: [], feed_state: 'ready'}), true)",
+          "wait": 200,
+          "check": "window.box().hidden === false && !window.note()"
+        }
+      ]
     }
   ]
 }
