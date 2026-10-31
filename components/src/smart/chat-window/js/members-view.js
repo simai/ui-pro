@@ -11,7 +11,7 @@
 // be taken back is asked in place first, with what follows from it.
 import {iconButton, textButton} from '../../chat-message/js/view/message.js';
 import {groupLimits, initialsOf, memberRow, personItem} from './start-model.js';
-import {ASSIGNABLE_ROLES, CONFIRMED, excludeOf, headActions, memberOutcome, rowActions} from './members-model.js';
+import {ASSIGNABLE_ROLES, CONFIRMED, excludeOf, headActions, memberOutcome, ownFlagsOf, rowActions} from './members-model.js';
 
 let views = 0;
 
@@ -31,11 +31,18 @@ export class MembersView {
     this.adding = false;      // the add box stands under the head
     this.pending = new Set(); // what is on its way: 'add', 'leave', or a row's id
     this.problem = null;      // the last refusal's line: {word, retry}
+    this.own = {};            // the reader's flags from the latest roster answer
   }
 
   get ctx() { return this.win.ctx; }
   get words() { return this.win.words; }
   get managing() { return this.win.has('x-members-manage'); }
+
+  /** A roster answer's data: who is in, and the reader's own flags if given. */
+  takeRoster(data) {
+    this.members = Array.isArray(data?.participants) ? data.participants : [];
+    this.own = ownFlagsOf(data);
+  }
 
   build(headingTag) {
     const ctx = this.ctx;
@@ -94,6 +101,7 @@ export class MembersView {
 
   /** Forget what was being done: the view closed or shows another group. */
   reset() {
+    this.own = {};
     this.strip = null;
     this.adding = false;
     this.pending.clear();
@@ -160,7 +168,8 @@ export class MembersView {
   drawTools() {
     this.tools.replaceChildren();
     if (!this.managing || this.state !== 'ready') return;
-    const offered = headActions(this.win._data.conversation);
+    // The latest roster answer's flags win: a hand-over changes the reader's own.
+    const offered = headActions({...this.win._data.conversation, ...this.own});
     if (offered.includes('add')) {
       const add = textButton(this.ctx, {label: this.words('members.add'), appearance: 'ghost', scheme: 'primary', icon: 'person_add', className: 'chat-members__tool chat-members__add-open'});
       add.setAttribute('aria-expanded', String(this.adding));
@@ -413,6 +422,7 @@ export class MembersView {
     }
     if (outcome.state === 'roster') {
       if (outcome.participants) this.members = outcome.participants;
+      this.own = {...this.own, ...outcome.own};
       if (intent !== 'member.add') this.strip = null;
       this.redraw(intent === 'member.add' ? null : () => this.moreOf(one?.id) ?? this.title);
       if (intent === 'member.add') {

@@ -8,7 +8,7 @@ import {readFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import test from 'node:test';
 import {
-  ASSIGNABLE_ROLES, CONFIRMED, MEMBER_INTENTS, excludeOf, headActions, memberOutcome, rowActions,
+  ASSIGNABLE_ROLES, CONFIRMED, MEMBER_INTENTS, excludeOf, headActions, memberOutcome, ownFlagsOf, rowActions,
 } from '../src/smart/chat-window/js/members-model.js';
 import {EXTENSION_CAPABILITIES, EXTENSION_INTENTS, INTENTS, kindOf, verbOf} from '../src/smart/chat-window/js/port.js';
 
@@ -34,9 +34,13 @@ test('what cannot be taken back is asked first; a role is not', () => {
 
 test('an answer is read as the module gives it', () => {
   const roster = [{id: 1, name: 'А', role: 'owner'}];
-  assert.deepEqual(memberOutcome('member.add', {answer: 'applied', data: {participants: roster}}), {state: 'roster', participants: roster});
-  assert.deepEqual(memberOutcome('member.role', {answer: 'applied', data: {participants: roster}}), {state: 'roster', participants: roster});
-  assert.deepEqual(memberOutcome('member.transfer', {answer: 'applied', data: {}}), {state: 'roster', participants: null});
+  assert.deepEqual(memberOutcome('member.add', {answer: 'applied', data: {participants: roster}}), {state: 'roster', participants: roster, own: {}});
+  assert.deepEqual(memberOutcome('member.role', {answer: 'applied', data: {participants: roster}}), {state: 'roster', participants: roster, own: {}});
+  assert.deepEqual(memberOutcome('member.transfer', {answer: 'applied', data: {}}), {state: 'roster', participants: null, own: {}});
+  // After a hand-over the reader is no longer the owner: the answer's own flags say so.
+  assert.deepEqual(memberOutcome('member.transfer', {answer: 'applied', data: {participants: roster, can_manage: false, can_leave: true}}).own,
+    {can_manage: false, can_leave: true});
+  assert.deepEqual(ownFlagsOf({can_manage: 'yes'}), {}, 'only booleans count');
   assert.deepEqual(memberOutcome('member.remove', {answer: 'applied', data: {removed_user_id: 7}}), {state: 'removed', id: 7}, 'no roster asked for');
   assert.deepEqual(memberOutcome('member.leave', {answer: 'applied'}), {state: 'left'});
   assert.deepEqual(memberOutcome('member.leave', {answer: 'refused', reason: 'owner-transfer-required'}),

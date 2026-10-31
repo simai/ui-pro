@@ -34,6 +34,18 @@ export function headActions(conversation) {
 export const CONFIRMED = Object.freeze(['remove', 'transfer', 'leave']);
 
 /**
+ * The reader's own flags as a roster answer gives them (the module's describe
+ * carries role, canManage, canLeave beside the participants): after a hand-over
+ * the reader is no longer the owner, and only the answer knows. Absent: {}.
+ */
+export function ownFlagsOf(data) {
+  const own = {};
+  if (typeof data?.can_manage === 'boolean') own.can_manage = data.can_manage;
+  if (typeof data?.can_leave === 'boolean') own.can_leave = data.can_leave;
+  return own;
+}
+
+/**
  * An answer to one of the intents, as the view acts on it:
  *  {state: 'roster', participants}  add, role, transfer: the whole roster again;
  *  {state: 'removed', id}           remove: that row goes, the roster is not asked for;
@@ -46,7 +58,7 @@ export function memberOutcome(intent, result = {}) {
     const data = result.data || {};
     if (intent === 'member.leave') return {state: 'left'};
     if (intent === 'member.remove') return {state: 'removed', id: data.removed_user_id ?? null};
-    return {state: 'roster', participants: Array.isArray(data.participants) ? data.participants : null};
+    return {state: 'roster', participants: Array.isArray(data.participants) ? data.participants : null, own: ownFlagsOf(data)};
   }
   const reason = result?.reason ?? '';
   if (reason === 'owner-transfer-required') return {state: 'line', word: 'members.leave-owner', retry: false, reload: false};

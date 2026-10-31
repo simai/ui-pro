@@ -3203,7 +3203,7 @@ class SfChatWindow extends ChatWindowElement {
         if (!view.open || asked !== view.asked) return;
         if (result.answer === "applied") {
             view.state = "ready";
-            view.members = Array.isArray(result.data?.participants) ? result.data.participants : [];
+            view.takeRoster(result.data);
             view.draw();
             view.say(view.countText(view.members.length));
             return;
