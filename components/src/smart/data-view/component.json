@@ -526,7 +526,8 @@
     "table-template-save": {
       "shared": "table-intents@1",
       "carries": {},
-      "summary": "A table event the view listens to: a filter template was saved. The view turns it into saveView (view.save) with key, label, revision, level, roles, layout and settings; an array detail is saved template by template, each one its own view.save, entries without a key skipped."
+      "summary": "A table event the view listens to: a filter template was saved. The view turns it into saveView (view.save) with key, label, revision, level, roles, layout and settings; an array detail is saved template by template, each one its own view.save, entries without a key skipped.",
+      "x-comment": "The detail is one template object or an array of them: a carries map cannot say that, so the payload schema is x-registry/event-fields until 1.4 has a home for a detail that is not a flat object."
     },
     "table-template-select": {
       "shared": "table-intents@1",
@@ -1237,6 +1238,97 @@
               "type": "object"
             }
           }
+        }
+      }
+    },
+    "event-fields": {
+      "sf-table-template-save": {
+        "payload": {
+          "description": "One template object when a single template is saved from the form, or an array of them when Apply on the Templates tab changed several (order, pin, default, selected).",
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "key",
+                "label",
+                "settings"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "description": "The template's key; a new template gets filter_template_<n>."
+                },
+                "label": {
+                  "type": "string",
+                  "description": "The name the person gave it."
+                },
+                "selected": {
+                  "type": "boolean",
+                  "description": "Whether it is the applied template."
+                },
+                "data": {
+                  "type": "object",
+                  "description": "The filter draft it keeps: the form values, `values` and `tags`."
+                },
+                "settings": {
+                  "type": "object",
+                  "properties": {
+                    "filter_fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "The filter fields it was showing, so opening it shows them again."
+                    }
+                  },
+                  "description": "Passed through by the port as it is."
+                }
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "key",
+                  "label",
+                  "settings"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "The template's key; a new template gets filter_template_<n>."
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "The name the person gave it."
+                  },
+                  "selected": {
+                    "type": "boolean",
+                    "description": "Whether it is the applied template."
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The filter draft it keeps: the form values, `values` and `tags`."
+                  },
+                  "settings": {
+                    "type": "object",
+                    "properties": {
+                      "filter_fields": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "The filter fields it was showing, so opening it shows them again."
+                      }
+                    },
+                    "description": "Passed through by the port as it is."
+                  }
+                }
+              },
+              "minItems": 1
+            }
+          ]
         }
       }
     },

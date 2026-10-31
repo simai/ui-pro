@@ -1065,10 +1065,91 @@
     "sf-table-template-save": {
       "summary": "A table event the view listens to: a filter template was saved. The view turns it into saveView (view.save) with key, label, revision, level, roles, layout and settings; an array detail is saved template by template, each one its own view.save, entries without a key skipped.",
       "payload": {
-        "type": "object",
-        "required": [],
-        "properties": {},
-        "additionalProperties": true
+        "description": "One template object when a single template is saved from the form, or an array of them when Apply on the Templates tab changed several (order, pin, default, selected).",
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "key",
+              "label",
+              "settings"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "The template's key; a new template gets filter_template_<n>."
+              },
+              "label": {
+                "type": "string",
+                "description": "The name the person gave it."
+              },
+              "selected": {
+                "type": "boolean",
+                "description": "Whether it is the applied template."
+              },
+              "data": {
+                "type": "object",
+                "description": "The filter draft it keeps: the form values, `values` and `tags`."
+              },
+              "settings": {
+                "type": "object",
+                "properties": {
+                  "filter_fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The filter fields it was showing, so opening it shows them again."
+                  }
+                },
+                "description": "Passed through by the port as it is."
+              }
+            }
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "label",
+                "settings"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "description": "The template's key; a new template gets filter_template_<n>."
+                },
+                "label": {
+                  "type": "string",
+                  "description": "The name the person gave it."
+                },
+                "selected": {
+                  "type": "boolean",
+                  "description": "Whether it is the applied template."
+                },
+                "data": {
+                  "type": "object",
+                  "description": "The filter draft it keeps: the form values, `values` and `tags`."
+                },
+                "settings": {
+                  "type": "object",
+                  "properties": {
+                    "filter_fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "The filter fields it was showing, so opening it shows them again."
+                    }
+                  },
+                  "description": "Passed through by the port as it is."
+                }
+              }
+            },
+            "minItems": 1
+          }
+        ]
       }
     },
     "sf-table-template-select": {
