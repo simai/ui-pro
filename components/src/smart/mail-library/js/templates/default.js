@@ -55,7 +55,7 @@ export function renderMailLibraryTemplate(context) {
                       @input=${(event) => context.component.search({query: event.target?.value ?? event.detail?.value ?? ""})}></sf-input>
             ${context.chips.length
                 ? html`<div class="sf-mail-library-chips" role="group" aria-label=${context.categoryLabel}>
-                    ${context.chips.map((chip) => html`<sf-button size="1/2" appearance=${chip.id === context.category ? "tonal" : "outline"}
+                    ${context.chips.map((chip) => html`<sf-button size="1/2" appearance=${chip.id === context.category ? "tonal" : "link"} scheme=${chip.id === context.category ? "primary" : "on-surface"}
                         text=${chip.title} data-category=${chip.id} aria-pressed=${String(chip.id === context.category)}
                         @click=${() => context.component.filter({category: chip.id})}></sf-button>`)}
                 </div>`
