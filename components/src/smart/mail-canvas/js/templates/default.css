@@ -33,22 +33,18 @@
     display: none;
   }
 
-  /* sf-composition-overlay unhides its toolbar before its next frame places it,
-     and under load a frame can paint it in the page's corner first (the gate
-     measured that shift). Unplaced, it is not shown. */
-  .sf-mail-canvas-layer .sf-composition-overlay-toolbar:not([style*="top"]) {
-    visibility: hidden;
-  }
-
   /* The well holds its size from the first paint, whatever the letter's height:
      in a pane it fills what is left, on a page of its own it has the basis. The
-     gutter is kept, so a letter that scrolls does not move the paper sideways. */
+     gutter is kept, so a letter that scrolls does not move the paper sideways. The
+     room above the letter is the overlay toolbar's (40 px and its gap): over the
+     first block too it stands above the block, and a block brought into view keeps it. */
   .sf-mail-canvas-scroll {
     flex: 1 1 var(--sf-g4);
     min-block-size: 0;
     overflow: auto;
     scrollbar-gutter: stable;
-    scroll-padding-block-start: var(--sf-space-3);
+    scroll-padding-block-start: var(--sf-space-7);
+    padding-block-start: var(--sf-space-7);
     padding-inline: var(--sf-space-1);
     padding-block-end: var(--sf-space-4);
   }

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-canvas",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Letter canvas",
   "summary": "The canvas of SIMAI Email Editor: a rendered letter in a frame that runs nothing, the width switch, the out-of-date and weight notes and sf-composition-overlay on top. The element knows no letter, no block manifest and no renderer: the host passes the HTML and the data about it, and hears what the person did.",
   "kind": "smart",
@@ -79,7 +79,7 @@
       "box-attribute": {
         "type": "string",
         "default": "",
-        "description": "The attribute that marks a block's box inside it: the box takes the tint and the overlay's line. Empty is the block itself. A data- name."
+        "description": "The attribute that marks a block's box inside it: the box takes the overlay's line. Empty is the block itself. A data- name."
       },
       "paper": {
         "type": "string",
@@ -118,7 +118,7 @@
         "items": {
           "type": "object"
         },
-        "description": "The toolbar of the chosen block: up to 16 {id, label}, through the overlay's own check."
+        "description": "The toolbar of the chosen block: up to 16 {id, label, icon, shortcut, disabled, tone}, through the overlay's own check."
       }
     },
     "additionalProperties": false
@@ -485,15 +485,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/mail-canvas/index.js",
-        "sha256": "63dee8e43bb1bbdc096571a67da621b16675c894e78b1c0bc1b51e32eea52086"
+        "sha256": "2b220d9ff60a6d81e14dfa4f4fd42f48aeeee21d8c45afa6e3ed9cda4f33884f"
       },
       {
         "path": "src/smart/mail-canvas/js/templates/default.js",
-        "sha256": "302c02023476218f4bd4d3ddc75bb90105b43352673fb1c4007df57484b165b5"
+        "sha256": "6dbf414b327bf6087e82a4348ddc56a4287b51e8aab95b77dc81d70d23a28ac2"
       },
       {
         "path": "src/smart/mail-canvas/js/templates/default.css",
-        "sha256": "5f29f7229a0b38311b669bb61745d1a14851f31e30c5c03280e982179ea69be4"
+        "sha256": "d82fe40898b316becdb403a3f34440e2ef2ed8f125cfac5195c4c1921cc95a0e"
       },
       {
         "path": "src/smart/mail-canvas/rule.js",
@@ -501,11 +501,11 @@
       },
       {
         "path": "src/smart/mail-canvas/docs.md",
-        "sha256": "c01f16047003a65ad895a4ba25cc256b5122e79d1f46c9790822501cd27b5290"
+        "sha256": "b7d88367cab76b4d8949ba98c9f79b118fa25d1558d5cd1ee7dffbc124041a79"
       },
       {
         "path": "src/smart/mail-canvas/component.json",
-        "sha256": "4ef6abb1517f800904a0264302ac0a7d69f89b6c826ee2d2c9491e0624535565"
+        "sha256": "cbb7033915cb68334a8a8e47f47d69ee3c8f119b0f976263747a42f07031e056"
       },
       {
         "path": "src/smart/mail-canvas/lang/en.json",

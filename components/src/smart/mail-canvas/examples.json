@@ -446,24 +446,24 @@
           ]
         },
         {
-          "id": "p5-tints",
-          "title": "the chosen block takes the paper's selected tint and the hovered one the paper's hover tint, with the light theme's values in both themes; choosing does not reload the letter",
+          "id": "p5-no-tints",
+          "title": "hover and the chosen block take no tint, the overlay's frames mark them; choosing does not reload the letter",
           "covers": "settings.selected, settings.box-attribute",
           "steps": [
             {
               "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}]; one.setAttribute('selected', \"b2\"); one.html = LETTER;  return true; })()",
               "wait": 800,
-              "check": "(() => { const probe = document.createElement('span'); probe.style.color = 'var(--sf-paper-select)'; document.body.append(probe); const wanted = getComputedStyle(probe).color; probe.remove(); globalThis.letterDoc = frameDoc(); globalThis.tint = getComputedStyle(frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]')).backgroundColor; return wanted !== '' && globalThis.tint === wanted && getComputedStyle(frameDoc().querySelector('[data-block=\"b1\"] [data-block-box]')).backgroundColor === 'rgba(0, 0, 0, 0)'; })()"
+              "check": "(() => { globalThis.letterDoc = frameDoc(); return getComputedStyle(frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]')).backgroundColor === 'rgba(0, 0, 0, 0)'; })()"
             },
             {
               "script": "(() => { one.setAttribute('selected', 'b1'); return true; })()",
               "wait": 500,
-              "check": "frameDoc() === letterDoc && getComputedStyle(frameDoc().querySelector('[data-block=\"b1\"] [data-block-box]')).backgroundColor === tint && getComputedStyle(frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]')).backgroundColor === 'rgba(0, 0, 0, 0)'"
+              "check": "frameDoc() === letterDoc && getComputedStyle(frameDoc().querySelector('[data-block=\"b1\"] [data-block-box]')).backgroundColor === 'rgba(0, 0, 0, 0)' && getComputedStyle(frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]')).backgroundColor === 'rgba(0, 0, 0, 0)'"
             },
             {
-              "script": "(() => { const probe = document.createElement('span'); probe.style.color = 'var(--sf-paper-hover)'; document.body.append(probe); globalThis.hoverTint = getComputedStyle(probe).color; probe.remove(); globalThis.sheetText = [...frameDoc().querySelectorAll('style')].map((sheet) => sheet.textContent).join(''); document.documentElement.classList.remove('theme-light'); document.documentElement.classList.add('theme-dark'); one.refresh(); return true; })()",
-              "wait": 500,
-              "check": "(() => { const probe = document.createElement('span'); probe.style.color = 'var(--sf-paper-select)'; document.body.append(probe); const dark = getComputedStyle(probe).color; probe.remove(); const text = [...frameDoc().querySelectorAll('style')].map((sheet) => sheet.textContent).join(''); return sheetText.includes('[data-block]:hover [data-block-box]{background:' + hoverTint + '}') && dark === tint && text.includes('[data-block]:hover [data-block-box]{background:' + hoverTint + '}') && getComputedStyle(frameDoc().querySelector('[data-block=\"b1\"] [data-block-box]')).backgroundColor === tint && getComputedStyle(document.querySelector('#canvas iframe')).colorScheme === 'light'; })()"
+              "script": "(() => { one.refresh(); return true; })()",
+              "wait": 200,
+              "check": "(() => { const text = one.sheet.textContent; return text.includes('[data-block]{cursor:pointer}') && !text.includes(':hover') && !text.includes('background'); })()"
             }
           ]
         },
@@ -530,7 +530,7 @@
         },
         {
           "id": "p9-overlay-present",
-          "title": "the overlay is over the frame: bound to it, its tree holds the items with their names, its selection line is the box the tint fills, its keys choose",
+          "title": "the overlay is over the frame: bound to it, its tree holds the items with their names, its selection line is the block's box, its keys choose",
           "covers": "settings.items, settings.actions, relations.cl-composition-overlay, keyboard.tree",
           "steps": [
             {
@@ -642,13 +642,13 @@
         },
         {
           "id": "p14-marks-are-the-hosts",
-          "title": "the marks are the attributes the host names, the box takes the tint and the overlay's line; a name that is no data- attribute falls back; a part with no element of its own is a rect",
+          "title": "the marks are the attributes the host names, the box takes the overlay's line; a name that is no data- attribute falls back; a part with no element of its own is a rect",
           "covers": "settings.mark-attribute, settings.box-attribute, settings.items",
           "steps": [
             {
               "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}];  one.html = \"<!doctype html><html><body style=\\\"margin:0\\\"><table><tr data-ui-mail-block=\\\"b1\\\"><td><div data-ui-mail-box><p id=\\\"inner\\\">Первый</p></div></td></tr><tr data-ui-mail-block=\\\"b2\\\"><td><div data-ui-mail-box>Второй</div></td></tr></table></body></html>\"; one.setAttribute('mark-attribute', 'data-ui-mail-block'); one.setAttribute('box-attribute', 'data-ui-mail-box'); one.items = [{id: 'b1', label: 'Первый'}, {id: 'b2', label: 'Второй'}, {id: 'part', label: 'Часть', rect: {x: 500, y: 500, width: 10, height: 10}}]; one.setAttribute('selected', 'b2'); return true; })()",
               "wait": 900,
-              "check": "(() => { const doc = frameDoc(); const box = doc.querySelector('[data-ui-mail-block=\"b2\"] [data-ui-mail-box]'); const overlay = one.overlay; return getComputedStyle(box).backgroundColor !== 'rgba(0, 0, 0, 0)' && overlay.elementIds.get(box) === 'b2' && overlay.querySelectorAll('[role=\"treeitem\"]').length === 3; })()"
+              "check": "(() => { const doc = frameDoc(); const box = doc.querySelector('[data-ui-mail-block=\"b2\"] [data-ui-mail-box]'); const overlay = one.overlay; return getComputedStyle(box).backgroundColor === 'rgba(0, 0, 0, 0)' && overlay.elementIds.get(box) === 'b2' && overlay.querySelectorAll('[role=\"treeitem\"]').length === 3; })()"
             },
             {
               "script": "(() => { heard.length = 0; frameDoc().querySelector('#inner').click(); return true; })()",
@@ -659,6 +659,69 @@
               "script": "(() => { one.setAttribute('mark-attribute', 'onclick'); return true; })()",
               "wait": 200,
               "check": "one.markAttributeName() === 'data-block'"
+            }
+          ]
+        },
+        {
+          "id": "p15-patched-not-reloaded",
+          "title": "the letter is patched block by block: an edit, a move and an undo fire no load and keep the blocks' elements and the scroll, and in a move the frame stays on the block in every frame; only a new head writes the frame anew",
+          "covers": "settings.html, events.draw",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}]; one.setAttribute('selected', \"b2\"); one.html = LETTER;  return true; })()",
+              "wait": 800,
+              "check": "Boolean(frameDoc().querySelector('[data-block=\"b1\"]'))"
+            },
+            {
+              "script": "(() => { globalThis.loads = 0; one.frame.addEventListener('load', () => { globalThis.loads += 1; }); globalThis.letterDoc = frameDoc(); globalThis.b1 = frameDoc().querySelector('[data-block=\"b1\"]'); globalThis.b2 = frameDoc().querySelector('[data-block=\"b2\"]'); globalThis.b3 = frameDoc().querySelector('[data-block=\"b3\"]'); globalThis.draws = heard.filter(([name]) => name === 'draw').length; one.html = LETTER.replace('Осенняя рассылка', 'Правка'); return true; })()",
+              "wait": 300,
+              "check": "loads === 0 && frameDoc() === letterDoc && frameDoc().querySelector('h1').textContent === 'Правка' && frameDoc().querySelector('[data-block=\"b1\"]') === b1 && !one.hasAttribute('data-sf-drawing') && heard.filter(([name]) => name === 'draw').length === draws + 1"
+            },
+            {
+              "script": "(() => { globalThis.moved = ((first, second) => { const doc = new DOMParser().parseFromString(LETTER, 'text/html'); const a = doc.querySelector(`[data-block=\"${first}\"]`); const b = doc.querySelector(`[data-block=\"${second}\"]`); b.after(a); return `<!doctype html>${doc.documentElement.outerHTML}`; })('b2', 'b3'); one.html = moved; return new Promise((done) => requestAnimationFrame(() => { globalThis.gliding = b2.getAnimations().length + b3.getAnimations().length; done(true); })); })()",
+              "wait": 400,
+              "check": "loads === 0 && frameDoc() === letterDoc && gliding > 0 && [...frameDoc().querySelectorAll('[data-block]')].map((element) => element.dataset.block).join(' ') === 'b1 b3 b2' && frameDoc().querySelector('[data-block=\"b2\"]') === b2 && frameDoc().querySelector('[data-block=\"b3\"]') === b3"
+            },
+            {
+              "script": "(() => { one.html = LETTER; return true; })()",
+              "wait": 400,
+              "check": "loads === 0 && frameDoc() === letterDoc && [...frameDoc().querySelectorAll('[data-block]')].map((element) => element.dataset.block).join(' ') === 'b1 b2 b3' && frameDoc().querySelector('h1').textContent === 'Осенняя рассылка'"
+            },
+            {
+              "script": "(async () => { one.scroller.scrollTop = 40; one.setAttribute('selected', 'b2'); await new Promise((done) => setTimeout(done, 150)); const overlay = one.overlay; const line = overlay.querySelector('.sf-composition-overlay-frame--selected'); const gaps = []; const tops = []; const before = one.scroller.scrollTop; one.html = moved; for (let frame = 0; frame < 16; frame += 1) { await new Promise((done) => requestAnimationFrame(done)); const box = frameDoc().querySelector('[data-block=\"b2\"] [data-block-box]').getBoundingClientRect(); const top = one.frame.getBoundingClientRect().top + box.top; tops.push(Math.round(top)); gaps.push(Math.abs(line.getBoundingClientRect().top - top)); } globalThis.trace = {worst: Math.max(...gaps), seen: new Set(tops).size, held: one.scroller.scrollTop === before}; one.html = LETTER; return true; })()",
+              "wait": 400,
+              "check": "loads === 0 && trace.worst <= 1.5 && trace.seen >= 3 && trace.held"
+            },
+            {
+              "script": "(() => { one.html = LETTER.replace('</head>', '<meta name=\"x-probe\" content=\"1\"></head>'); return true; })()",
+              "wait": 600,
+              "check": "loads === 1 && frameDoc() !== letterDoc && Boolean(frameDoc().querySelector('meta[name=\"x-probe\"]'))"
+            },
+            {
+              "script": "(() => { const hostile = LETTER.replace('Осенняя рассылка', '<img src=x onerror=\"parent.hacked=1\"><script>parent.hacked=1<\\/script>Заголовок'); one.html = hostile; return true; })()",
+              "wait": 400,
+              "check": "globalThis.hacked === undefined && frameDoc().querySelector('h1').textContent.includes('Заголовок')"
+            }
+          ]
+        },
+        {
+          "id": "p16-overlay-travels",
+          "title": "the element's own overlay lies in the scroller: the frame stays on the block through a scroll with nothing measured, and the toolbar stands above the first block",
+          "covers": "template",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#canvas'); globalThis.one = one; globalThis.LETTER = \"<!doctype html><html lang=\\\"ru\\\"><head><meta charset=\\\"utf-8\\\"><title>Письмо</title><style>html,body{margin:0;background:transparent}.email{max-width:600px;margin:0 auto;background:#fff;color:#1a1a1a;font:16px/1.5 sans-serif}[data-block-box]{padding:8px 40px}h1{margin:0;font-size:24px}p{margin:0}</style></head><body><div class=\\\"email\\\"><div data-block=\\\"b1\\\"><div data-block-box><h1>Осенняя рассылка</h1></div></div><div data-block=\\\"b2\\\"><div data-block-box><p>Здравствуйте! Рассказываем, что нового.</p></div></div><div data-block=\\\"b3\\\"><div data-block-box><a href=\\\"https://example.com/\\\">Подробнее</a></div></div></div></body></html>\"; globalThis.frameDoc = () => one.querySelector('iframe').contentDocument; globalThis.heard = []; for (const name of ['sf-mail-canvas-select','sf-mail-canvas-hover','change','sf-mail-canvas-apply','sf-mail-canvas-insert','sf-mail-canvas-move','sf-mail-canvas-edit','sf-mail-canvas-draw']) one.addEventListener(name, (event) => globalThis.heard.push([name.replace('sf-mail-canvas-', ''), event.detail])); one.setAttribute('box-attribute', 'data-block-box'); one.setAttribute('paper', '.email'); one.widths = [{\"value\": \"600\", \"label\": \"Компьютер 600\", \"icon\": \"desktop_windows\", \"frame\": 680}, {\"value\": \"375\", \"label\": \"Телефон 375\", \"icon\": \"smartphone\"}, {\"value\": \"320\", \"label\": \"Узкий 320\", \"icon\": \"phone_iphone\"}]; one.items = [{\"id\": \"b1\", \"label\": \"Заголовок\"}, {\"id\": \"b2\", \"label\": \"Текст\"}, {\"id\": \"b3\", \"label\": \"Кнопка\"}]; one.actions = [{\"id\": \"up\", \"label\": \"Выше\"}, {\"id\": \"down\", \"label\": \"Ниже\"}, {\"id\": \"remove\", \"label\": \"Удалить\"}]; one.setAttribute('selected', \"b2\"); one.html = LETTER;  return true; })()",
+              "wait": 800
+            },
+            {
+              "script": "(() => { one.scroller.scrollTop = 0; one.actions = [{id: 'up', label: 'Выше'}]; one.setAttribute('selected', 'b1'); return true; })()",
+              "wait": 300,
+              "check": "(() => { const overlay = one.overlay; const line = overlay.querySelector('.sf-composition-overlay-frame--selected').getBoundingClientRect(); const bar = overlay.querySelector('.sf-composition-overlay-toolbar').getBoundingClientRect(); return overlay.getAttribute('data-sf-overlay-place') === 'content' && one.scroller.contains(overlay) && bar.bottom <= line.top + 0.5 && bar.top >= one.scroller.getBoundingClientRect().top; })()"
+            },
+            {
+              "script": "(async () => { const overlay = one.overlay; let runs = 0; const position = overlay.position; overlay.position = function counted() { runs += 1; return position.call(this); }; const gaps = []; one.frame.style.minHeight = '3000px'; await new Promise((done) => setTimeout(done, 100)); runs = 0; for (let top = 0; top <= 300; top += 20) { one.scroller.scrollTop = top; await new Promise((done) => requestAnimationFrame(done)); const line = overlay.querySelector('.sf-composition-overlay-frame--selected').getBoundingClientRect(); const box = frameDoc().querySelector('[data-block=\"b1\"] [data-block-box]').getBoundingClientRect(); gaps.push(Math.abs(line.top - (one.frame.getBoundingClientRect().top + box.top))); } overlay.position = position; globalThis.travel = {runs, worst: Math.max(...gaps), scrolled: one.scroller.scrollTop}; one.frame.style.minHeight = ''; return true; })()",
+              "wait": 100,
+              "check": "travel.scrolled > 0 && travel.runs === 0 && travel.worst <= 0.5"
             }
           ]
         }

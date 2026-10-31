@@ -5,8 +5,8 @@ import "./default.css";
 // before the frame, so the keyboard tree is reached first and the frame, which
 // takes no tab stop, is only ever pressed. The frame's sandbox is written here
 // and nowhere else: allow-same-origin and nothing more, so the letter runs no
-// script and the page can still read it. The overlay stays out of the scroller:
-// it clips its own line to what the scroller shows.
+// script and the page can still read it. The overlay lies in the scroller: its
+// frames and toolbar travel with the letter and nothing runs on scroll.
 export function renderMailCanvasTemplate(context) {
     const {component} = context;
     return html`
@@ -22,12 +22,12 @@ export function renderMailCanvasTemplate(context) {
                 : nothing}
             <p class="sf-mail-canvas-note sf-mail-canvas-stale" ?hidden=${!context.isStale}>${context.staleText}</p>
             <p class="sf-mail-canvas-note sf-mail-canvas-weight" role="status" ?hidden=${!context.weightText}>${context.weightText}</p>
-            ${context.ownOverlay
-                ? html`<section class="sf-mail-canvas-layer" aria-label=${context.layerLabel}>
-                    <sf-composition-overlay label=${context.previewLabel} accepts=${context.overlayAccepts || nothing}></sf-composition-overlay>
-                </section>`
-                : nothing}
             <div class="sf-mail-canvas-scroll">
+                ${context.ownOverlay
+                    ? html`<section class="sf-mail-canvas-layer" aria-label=${context.layerLabel}>
+                        <sf-composition-overlay label=${context.previewLabel} accepts=${context.overlayAccepts || nothing}></sf-composition-overlay>
+                    </section>`
+                    : nothing}
                 <iframe class=${["sf-mail-canvas-frame", context.frameCastsShadow ? "shadow-1" : ""].filter(Boolean).join(" ")}
                         sandbox="allow-same-origin" tabindex="-1" title=${context.frameLabel}
                         width=${context.frameSize || nothing}

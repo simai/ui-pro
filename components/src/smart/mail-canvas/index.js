@@ -54,14 +54,15 @@ const MailCanvasElement = elementFromManifest(manifest, {
             const box = target.getBoundingClientRect();
             const top = this.frame.getBoundingClientRect().top + box.top;
             const view = scroller.getBoundingClientRect();
-            if (top >= view.top && top + Math.min(box.height, view.height) <= view.bottom) return refused("unchanged");
+            // The room above the block is the toolbar's.
             const room = parseFloat(getComputedStyle(scroller).scrollPaddingBlockStart) || 0;
+            if (top - room >= view.top && top + Math.min(box.height, view.height) <= view.bottom) return refused("unchanged");
             const calm = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
             scroller.scrollBy({top: top - view.top - room, behavior: calm ? "auto" : "smooth"});
             return applied();
         },
         refresh() {
-            this.drawTints();
+            this.drawSheet();
             this.nodesFor = null;
             this.syncOverlay();
             this.fitFrame();
@@ -88,6 +89,7 @@ class SfMailCanvas extends MailCanvasElement {
             }
         }
         this.written = "";
+        this.writtenHead = null;
         this.waitingForLoad = false;
         this.sheet = null;
         this.hovered = "";
@@ -229,7 +231,7 @@ class SfMailCanvas extends MailCanvasElement {
         super.afterUpdate?.(...args);
         this.bindOverlay();
         this.drawFrame();
-        this.drawTints();
+        this.drawSheet();
         this.syncOverlay();
     }
 
@@ -241,9 +243,10 @@ class SfMailCanvas extends MailCanvasElement {
     }
 
     /**
-     * Writes the letter. The last good picture stays until a new one has loaded:
-     * an empty `html` changes nothing, and the frame is not cleared or shrunk
-     * while the next document is on its way.
+     * Writes the letter. Block by block when only the body changed, so the frame
+     * never reloads. A full write, when the head changed, keeps the last good
+     * picture until the new one has loaded: an empty `html` changes nothing, and
+     * the frame is not cleared or shrunk while the next document is on its way.
      */
     drawFrame() {
         const frame = this.frame;
@@ -251,15 +254,94 @@ class SfMailCanvas extends MailCanvasElement {
         const wide = this.frameWidth();
         const letter = this.html;
         if (letter && letter !== this.written) {
+            const parsed = new DOMParser().parseFromString(letter, "text/html");
+            const head = this.headOf(parsed);
+            const patches = !this.waitingForLoad && this.writtenHead === head && Boolean(this.frameDocument?.body);
             this.written = letter;
-            this.waitingForLoad = true;
-            this.toggleAttribute("data-sf-drawing", true);
-            frame.srcdoc = letter;
+            this.writtenHead = head;
+            if (patches) {
+                this.patchLetter(parsed);
+            } else {
+                this.waitingForLoad = true;
+                this.toggleAttribute("data-sf-drawing", true);
+                frame.srcdoc = letter;
+            }
         }
         // A new width lays the letter out anew, and it gets another height.
         if (wide !== this.drawnWidth) {
             this.drawnWidth = wide;
             this.fitFrame();
+        }
+    }
+
+    /** What only a new document can change: the doctype, the root's attributes and the head. */
+    headOf(parsed) {
+        const root = parsed.documentElement;
+        const attributes = [...root.attributes].map(({name, value}) => `${name}=${value}`).join(" ");
+        return `${parsed.doctype?.name ?? ""}|${attributes}|${parsed.head?.innerHTML ?? ""}`;
+    }
+
+    /**
+     * Brings the frame's body to a new letter in place. Blocks are matched by
+     * their mark and moved, an unchanged block is not touched, and nothing is
+     * reloaded: no flicker, and the overlay's elements stay the same elements. The
+     * parsed letter ran nothing, and what is taken from it runs nothing in the
+     * sandboxed frame either.
+     */
+    patchLetter(parsed) {
+        const letter = this.frameDocument;
+        // A block still gliding would count in the height measured below.
+        this.boundOverlay?.settleGlide?.();
+        for (const link of parsed.querySelectorAll("a")) link.tabIndex = -1;
+        this.patchNode(letter.body, parsed.body);
+        this.hovered = "";
+        this.nodesFor = null;
+        this.sfEmit("draw", {});
+        this.measureFrame();
+    }
+
+    patchNode(live, next) {
+        // The text being edited is the person's until the edit ends.
+        const editing = this.boundOverlay?.editing?.element;
+        if (live === editing) return;
+        if (live.isEqualNode(next)) return;
+        if (live.nodeType !== 1) {
+            live.nodeValue = next.nodeValue;
+            return;
+        }
+        for (const {name} of [...live.attributes]) if (!next.hasAttribute(name)) live.removeAttribute(name);
+        for (const {name, value} of next.attributes) if (live.getAttribute(name) !== value) live.setAttribute(name, value);
+        this.patchChildren(live, next);
+    }
+
+    /** The children of a node: marked ones by their mark wherever they stood, the rest in order by kind. */
+    patchChildren(live, next) {
+        const mark = this.markAttributeName();
+        const markOf = (node) => (node.nodeType === 1 ? node.getAttribute(mark) || "" : "");
+        const marked = new Map();
+        for (const child of live.children) if (markOf(child)) marked.set(markOf(child), child);
+        let cursor = live.firstChild;
+        for (const wanted of [...next.childNodes]) {
+            const id = markOf(wanted);
+            let have = id ? marked.get(id) : null;
+            if (have) marked.delete(id);
+            if (!id) {
+                let plain = cursor;
+                while (plain && markOf(plain)) plain = plain.nextSibling;
+                if (plain && plain.nodeType === wanted.nodeType && plain.nodeName === wanted.nodeName) have = plain;
+            }
+            if (!have) {
+                live.insertBefore(live.ownerDocument.importNode(wanted, true), cursor);
+                continue;
+            }
+            if (have === cursor) cursor = cursor.nextSibling;
+            else live.insertBefore(have, cursor);
+            this.patchNode(have, wanted);
+        }
+        while (cursor) {
+            const gone = cursor;
+            cursor = cursor.nextSibling;
+            gone.remove();
         }
     }
 
@@ -290,7 +372,7 @@ class SfMailCanvas extends MailCanvasElement {
         // Measured before the overlay hears of the letter, so its toolbar is
         // placed once, in the frame's real height.
         this.measureFrame();
-        this.drawTints();
+        this.drawSheet();
         this.syncOverlay();
     }
 
@@ -342,27 +424,14 @@ class SfMailCanvas extends MailCanvasElement {
     }
 
     /**
-     * What the canvas adds to the letter: a tint on hover and on the chosen
-     * block. They are the paper roles (--sf-paper-*), the light theme's values
-     * in both themes, because a letter is always light. A sheet in the frame's
-     * document, so choosing a block never reloads the letter.
+     * What the canvas adds to the letter: the pointer over a block and the paper's
+     * shadow. No tint on hover or on the chosen block: the overlay's frames mark
+     * them, and a tint changes how the letter looks. A sheet in the frame's document.
      */
-    drawTints() {
+    drawSheet() {
         const letter = this.frameDocument;
         if (!letter?.documentElement || !this.written || this.waitingForLoad) return;
-        const mark = this.markAttributeName();
-        const box = this.boxAttributeName();
-        const inner = box ? ` [${box}]` : "";
-        const id = String(this.selected ?? "");
-        const hover = this.resolved("color", "var(--sf-paper-hover)");
-        const chosen = this.resolved("color", "var(--sf-paper-select)");
-        const move = this.resolved("transition", "background-color var(--sf-duration-fast) var(--sf-ease-move)");
-        const rules = [
-            `[${mark}]{cursor:pointer}`,
-            `[${box || mark}]{transition:${move}}`,
-            `[${mark}]:hover${inner}{background:${hover}}`,
-        ];
-        if (id) rules.push(`[${mark}="${CSS.escape(id)}"]${inner}{background:${chosen}}`);
+        const rules = [`[${this.markAttributeName()}]{cursor:pointer}`];
         const paper = String(this.paper ?? "");
         if (paper && !this.frameIsPaper() && CSS.supports(`selector(${paper})`)) {
             rules.push(`${paper}{box-shadow:${this.resolved("boxShadow", "var(--sf-elevation-1--shadow)")}}`);
@@ -427,8 +496,8 @@ class SfMailCanvas extends MailCanvasElement {
 
     /**
      * Tells the overlay what the letter holds: one node per item, the element
-     * being the block's own box in the frame, so the line it draws is the box
-     * the tint fills. The next letter's items wait for the next letter.
+     * being the block's own box in the frame, so the line it draws is that box.
+     * The next letter's items wait for the next letter.
      */
     syncOverlay() {
         const overlay = this.boundOverlay;
