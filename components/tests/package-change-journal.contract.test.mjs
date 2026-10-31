@@ -30,6 +30,7 @@ const known = (component, from) => recorded.has(`${component}|${from}`) || recor
 // by component. Each has a dated row in its aliases.json.
 const PENDING = {
   'sf-admin-menu': ['sf-admin-menu-search', 'sf-admin-menu-settings-reset', 'sf-admin-menu-intent'],
+  'sf-data-view': ['sf-table-tree-intent'],
   'sf-change-confirm': ['sf-change-confirm-accept', 'sf-change-confirm-decline', 'sf-change-confirm-expire'],
   'sf-message-log': ['sf-message-log-load-earlier'],
   'sf-property-view': ['sf-property-view-open-record', 'sf-property-view-delete-record'],
