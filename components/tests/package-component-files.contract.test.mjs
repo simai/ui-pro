@@ -21,16 +21,17 @@ const root = resolve(import.meta.dirname, '..');
 // The package folders in the 1.4 form: every generated file is byte for byte
 // what the generator writes.
 const PHASE_A = ['change-confirm', 'message-log', 'thread-list', 'property-view', 'admin-menu', 'table',
-  'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window'];
+  'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view'];
 
 // The package folders still in the 1.3 form: the five files the generator
 // already gives back (rule.js, aliases.json, the fixture, the scenario,
 // probe.json) must stay equal to it; smart.manifest.json and meta.mjs follow
 // when the folder converts.
 // The chat components joined phase A with ui-pro chat/1.4 (the SIMAI Framework
-// thread, pair ui-e2cff39223f1). sf-data-view took simai.dataview-port 1.13.0
-// on that pair but not the 1.4 form yet; it joins PHASE_A when it moves.
-const PENDING = ['data-view'];
+// thread, pair ui-e2cff39223f1). sf-data-view, the last 1.3 folder, joined with
+// 1.6.3: every event it announces is declared, the ones of another family as a
+// shared event (§8), so the port and host-port contracts still find them.
+const PENDING = [];
 const CHECKED = ['rule.js', 'aliases.json', 'studio.fixture.json', 'studio.scenario.json', 'probe.json'];
 
 // Gate 1 (§4): the top-level fields of component.json are a closed list; 1.4
