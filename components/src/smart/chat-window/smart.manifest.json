@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -2526,6 +2526,13 @@
           "The window says the state in attributes and measures nothing: data-sf-workspace-panel=\"open\" while the preview is open, data-sf-workspace-view=\"main\" when a conversation or a view that takes its place opens and \"list\" when the conversations' own view changes. The reader's way back on a narrow container is .sf-workspace-back, in main, which the Framework shows, hides and answers.",
           "Removed, with the grid they placed: the classes chat-shell--preview, chat-shell--preview-sheet, chat-shell--side-hidden and chat-shell--side-open, the ResizeObserver behind the preview's placement (PREVIEW_DOCK_MIN) and the window's own inert, Escape, scrim and focus return for the panel as a drawer, which are the Framework's layer stack now. A page that toggled chat-shell--side-hidden sets data-sf-workspace-list=\"hidden\"; one that toggled chat-shell--side-open, or drew a scrim and juggled inert for the list, drops all of it. Escape still closes the panel standing as a column, where no layer is open. The nodes' own classes (chat-shell__*, chat-files__*) are unchanged.",
           "A page stops bringing the grid, the slide-over, the backdrop and the preview columns; it keeps its furniture. The region widths are the workspace's public variables, set here from the window's own: --sf-workspace-list from --sf-chat-window-side-width, --sf-workspace-panel from the preview's measure, --sf-workspace-divider-color from --sf-chat-window-border-color."
+        ]
+      },
+      {
+        "from": "1.7.0",
+        "to": "1.8.0",
+        "changes": [
+          "Nothing open (no conversation, no interlocutor to greet): the field steps aside and the place says «Выберите разговор слева или начните новый». Additive: a host with a greeting is unchanged."
         ]
       }
     ]

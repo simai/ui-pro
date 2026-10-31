@@ -4,6 +4,7 @@
     "action-retry": "Try again",
     "action-thanks": "Thanks for the feedback",
     "empty-suggestions": "Example questions",
+    "empty-unselected": "Pick a conversation on the left, or start a new one",
     "error-load": "Could not load. Check the connection and try again.",
     "feedback-sent": "Thanks, noted",
     "files-back": "Back to the conversation",

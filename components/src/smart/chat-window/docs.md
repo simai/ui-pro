@@ -654,3 +654,10 @@ Enter. Куда уходит фокус:
 1.6.1: инициалы приглушённым тоном по имени (`tone="auto"`, sf-avatar 1.2.0).
 
 1.7.0: раскладка — рабочее место Фреймворка (`core.css` `.sf-workspace`, `SF.workspace`): оболочка получила `sf-workspace sf-workspace--wide-h8`, список — `sf-workspace-list`, переписка — `sf-workspace-main`, просмотр источника — `sf-workspace-panel`; состояние в атрибутах (`data-sf-workspace-panel`, `data-sf-workspace-view`), «К разговорам» — `.sf-workspace-back` в шапке. Окно больше не измеряет ширину для просмотра (ушли `ResizeObserver` и порог 900 px) и не делает сам ни `inert`, ни затемнение, ни возврат фокуса для выдвинутой панели. Ушли классы `chat-shell--preview`, `chat-shell--preview-sheet`, `chat-shell--side-hidden`, `chat-shell--side-open`: страница ставит `data-sf-workspace-list="hidden"` и снимает свою сетку, выезжающий список и затемнение. Рельс страницы должен нести `.sf-workspace-rail` и быть первым в `parts.shell`. Порт 1.0 не менялся; для хоста ничего не меняется.
+
+### Ничего не открыто (1.8.0)
+
+Нет открытого разговора, некого приветствовать (хост не объявил `interlocutors`)
+и ничего не стоит на месте разговора — поле ввода убирается, на его месте строка
+«Выберите разговор слева или начните новый» (`empty.unselected`), на оболочке
+`chat-shell--unselected`. У хоста с приветствием (Mirai24) ничего не меняется.

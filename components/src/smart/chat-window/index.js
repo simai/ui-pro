@@ -1874,9 +1874,31 @@ class SfChatWindow extends ChatWindowElement {
             list.redraw();
             this.messagesDrawn();
         }
-        // The greeting is the log's empty state.
-        const greeting = this.greeting();
-        if (greeting) list.setSlot("empty", greeting); else list.clearSlot("empty");
+        // The greeting is the log's empty state; with nothing open at all —
+        // no conversation and nobody to greet — the place says so instead.
+        const note = this.greeting() ?? (this.nothingOpen ? this.unselectedNote() : null);
+        if (note) list.setSlot("empty", note); else list.clearSlot("empty");
+    }
+
+    /**
+     * Nothing stands in the conversation's place: no conversation is open, no
+     * interlocutor to greet (a messenger host declares none) and no view has
+     * taken the place. Then the field would invite writing into the void.
+     */
+    get nothingOpen() {
+        return !this._data.conversation && !this.who && !this.covered;
+    }
+
+    // Said where the greeting would stand: pick one on the left, or make one.
+    unselectedNote() {
+        const doc = this.ownerDocument;
+        const box = doc.createElement("section");
+        box.className = "sf-chat-greeting sf-chat-unselected";
+        const title = doc.createElement("p");
+        title.className = "sf-chat-greeting__title";
+        title.textContent = this.words("empty.unselected");
+        box.append(title);
+        return box;
     }
 
     greeting() {
@@ -2232,6 +2254,10 @@ class SfChatWindow extends ChatWindowElement {
         const empty = !data.conversation || (data.feed_state === "ready" && (data.messages || []).length === 0);
         shell.classList.toggle("chat-shell--empty", empty && !this.covered);
         suggestions.hidden = !empty || !suggestions.childElementCount;
+        // With nothing open the field steps aside: there is nowhere to send.
+        const nothing = this.nothingOpen;
+        shell.classList.toggle("chat-shell--unselected", nothing);
+        this.parts.composerBox.hidden = nothing;
         // «Мои файлы» and the like have a heading of their own.
         pageTitle.hidden = empty || this.covered;
         this.syncTitles();

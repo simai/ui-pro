@@ -83,7 +83,7 @@ test('roles have words, an unknown one none; only groups and channels have membe
 
 test('the intents are the window\'s own and the port does not change', () => {
   const window = json('chat-window', 'component.json');
-  assert.equal(window.version, '1.7.0');
+  assert.equal(window.version, '1.8.0');
   assert.deepEqual(window['x-port'].supports, ['1.0.0']);
   for (const [intent, capability] of [['recipients.search', 'x-conversation-start'], ['conversation.start', 'x-conversation-start'], ['members.list', 'x-members']]) {
     assert.equal(EXTENSION_INTENTS[intent].capability, capability);

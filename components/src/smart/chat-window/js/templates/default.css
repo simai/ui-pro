@@ -369,6 +369,13 @@
     text-wrap: balance;
   }
 
+  /* Nothing open: a quiet line where the greeting stands, and no field. */
+  .sf-chat-unselected .sf-chat-greeting__title {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text--size-1);
+    line-height: var(--sf-text--height-1);
+  }
+
   .sf-chat-greeting__suggestions {
     display: flex;
     flex-wrap: wrap;
