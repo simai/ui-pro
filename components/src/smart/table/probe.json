@@ -254,6 +254,22 @@
           "check": "document.querySelector('#t tbody tr[data-row-id=\"3\"]') === window.__row && window.__row.textContent.includes('Изменено')"
         }
       ]
+    },
+    {
+      "id": "p8-template-name",
+      "title": "the filter window's template row says its name: sf-radio is fetched when the window opens, so the row is not a handle and a menu with nothing between them",
+      "covers": "relations cl-radio (lazy), §18.4 portal",
+      "steps": [
+        {
+          "script": "(() => { const t = document.getElementById('t'); t.setColumns([{key: 'title', label: 'Название', filter: {enabled: true}}, {key: 'status', label: 'Статус'}]); t.setRows(Array.from({length: 12}, (_, i) => ({id: String(i + 1), title: 'Запись ' + (i + 1), status: 'active'}))); t.templates = [{key: 'default', label: 'Все записи', default: true}]; return true; })()",
+          "wait": 700
+        },
+        {
+          "script": "(() => { const t = document.getElementById('t'); const anchor = t.querySelector('button, [role=\"button\"]') || t; t.openContextMenu({currentTarget: anchor, target: anchor, composedPath: () => [anchor], preventDefault() {}, stopPropagation() {}}, {menu: 'filter-settings'}); return true; })()",
+          "wait": 1500,
+          "check": "(() => { const row = document.querySelector('[data-filter-template-key]'); if (!row) return false; const radio = row.querySelector('sf-radio'); if (!radio || !customElements.get('sf-radio')) return false; const drawn = radio.querySelector('.sf-radio-button, label'); const box = drawn?.getBoundingClientRect(); return Boolean(box) && box.width > 24 && box.height > 8 && row.textContent.includes('Все записи'); })()"
+        }
+      ]
     }
   ]
 }
