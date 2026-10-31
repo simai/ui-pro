@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -85,7 +85,8 @@
         "sf-chat-window-detach",
         "sf-chat-window-settled",
         "sf-chat-window-toggle",
-        "sf-chat-window-react"
+        "sf-chat-window-react",
+        "sf-chat-window-apply"
       ],
       "persistence": {
         "settings_key_prop": null,
@@ -136,7 +137,7 @@
       "capabilities": {
         "type": "string",
         "default": "",
-        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
       },
       "landmark": {
         "type": "string",
@@ -2100,6 +2101,35 @@
         "additionalProperties": true
       }
     },
+    "sf-chat-window-apply": {
+      "summary": "A group's members managed (x-members-manage): member.add, member.remove, member.role, member.transfer, member.leave, kind member; the buttons follow the host's flags (canRemove, canChangeRole, canTransfer; can_manage, can_leave).",
+      "payload": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "intent",
+          "payload"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string",
+            "description": "The port's intent (or the window's own, x-…) this event raises."
+          },
+          "kind": {
+            "type": "string",
+            "description": "Which of the verb's intents, where a verb carries more than one."
+          },
+          "payload": {
+            "type": "object",
+            "description": "The intent's payload, in the port's own field names; see the port contract."
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "chat-port:open": {
       "summary": "Dated alias of sf-chat-window-open until 2026-12-01 (split).",
       "payload": {
@@ -2533,6 +2563,13 @@
         "to": "1.8.0",
         "changes": [
           "Nothing open (no conversation, no interlocutor to greet): the field steps aside and the place says «Выберите разговор слева или начните новый». Additive: a host with a greeting is unchanged."
+        ]
+      },
+      {
+        "from": "1.8.0",
+        "to": "1.9.0",
+        "changes": [
+          "Managing a group's members (x-members-manage): «Добавить» and «Выйти» in the members view, and per row a «⋯» with role, remove and hand over, each only with the host's flag; remove, hand over and leave are asked in place first. Additive: without the capability the view stays read only."
         ]
       }
     ]

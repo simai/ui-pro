@@ -1885,6 +1885,63 @@
           "check": "window.box().hidden === false && !window.note()"
         }
       ]
+    },
+    {
+      "id": "p46-members-manage",
+      "title": "1.9.0 x-members-manage: without it the roster stays read only; with it a «⋯» only on a row with a flag and «Добавить»/«Выйти» by the conversation's flags; remove is asked, raised once and drops the row without asking for the roster; the last owner's exit is a line, not a general refusal; a pending role change sends once",
+      "covers": "capabilities.x-members-manage, events.apply, runtime.members-leave-owner, compatibility.1.9.0",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; const answer = typeof given === 'function' ? await given(payload) : given; return answer ?? {answer: 'applied'}; }}), window.of = (intent) => window.calls.filter((one) => one[0] === intent), window.roster = [{id: 7, name: 'Анна', role: 'owner', canRemove: false, canChangeRole: false, canTransfer: false}, {id: 102, name: 'Иван Петров', role: 'member', canRemove: true, canChangeRole: true, canTransfer: true}, {id: 103, name: 'Вера Смирнова', role: 'manager', canRemove: false, canChangeRole: false, canTransfer: false}], window.answers['members.list'] = () => ({answer: 'applied', data: {participants: window.roster}}), window.row = (id) => window.w.querySelector('.chat-members__row[data-id=\"' + id + '\"]'), window.w.setAttribute('capabilities', 'people x-members'), window.w.setData({me: {id: 7, name: 'Анна'}, conversations: [{id: 'c1', title: 'Отчёт', type: 'group'}], conversation: {id: 'c1', title: 'Отчёт', type: 'group', can_manage: true, can_leave: true}, messages: []}), window.w.openMembers(), true)",
+          "wait": 400,
+          "check": "window.w.querySelectorAll('.chat-members__row').length === 3 && window.w.querySelectorAll('.chat-members__more').length === 0 && window.w.querySelector('.chat-members__tools').children.length === 0"
+        },
+        {
+          "script": "(window.w.setAttribute('capabilities', 'people x-members x-members-manage'), window.w.loadMembers(), true)",
+          "wait": 300,
+          "check": "window.w.querySelectorAll('.chat-members__more').length === 1 && !!window.row(102).querySelector('.chat-members__more') && !window.row(103).querySelector('.chat-members__more') && window.w.querySelector('.chat-members__tools').children.length === 2"
+        },
+        {
+          "script": "(window.listed = window.of('members.list').length, window.answers['member.remove'] = {answer: 'applied', data: {removed_user_id: 102}}, window.row(102).querySelector('.chat-members__more').click(), true)",
+          "wait": 150,
+          "check": "!!window.row(102).querySelector('.chat-members__strip .chat-members__remove')"
+        },
+        {
+          "script": "(window.row(102).querySelector('.chat-members__remove').click(), true)",
+          "wait": 150,
+          "check": "!!window.row(102).querySelector('.chat-members__ask') && window.of('member.remove').length === 0"
+        },
+        {
+          "script": "(window.row(102).querySelector('.chat-members__yes').click(), window.row(102)?.querySelector('.chat-members__yes')?.click(), true)",
+          "wait": 300,
+          "check": "window.of('member.remove').length === 1 && window.of('member.remove')[0][1].user_id === 102 && !window.row(102) && window.of('members.list').length === window.listed"
+        },
+        {
+          "script": "(window.answers['member.leave'] = {answer: 'refused', reason: 'owner-transfer-required'}, window.w.querySelector('.chat-members__leave').click(), true)",
+          "wait": 150,
+          "check": "!!window.w.querySelector('.chat-members__leave-ask .chat-members__yes')"
+        },
+        {
+          "script": "(window.w.querySelector('.chat-members__leave-ask .chat-members__yes').click(), true)",
+          "wait": 300,
+          "check": "window.of('member.leave').length === 1 && window.w.querySelector('.chat-members__notice .sf-chat-notice__text')?.textContent === 'Сначала передайте владение' && !window.w.querySelector('.chat-members').hidden"
+        },
+        {
+          "script": "(window.answers['member.role'] = () => new Promise((done) => setTimeout(() => done({answer: 'applied', data: {participants: window.roster}}), 400)), window.w.loadMembers(), true)",
+          "wait": 300,
+          "check": "!!window.row(102)"
+        },
+        {
+          "script": "(window.row(102).querySelector('.chat-members__more').click(), true)",
+          "wait": 150,
+          "check": "window.row(102).querySelectorAll('.chat-members__role-pick').length === 3"
+        },
+        {
+          "script": "(() => { const pick = () => [...window.row(102).querySelectorAll('.chat-members__role-pick')].find((one) => one.getAttribute('aria-pressed') === 'false'); pick().click(); pick()?.click(); return true; })()",
+          "wait": 700,
+          "check": "window.of('member.role').length === 1"
+        }
+      ]
     }
   ]
 }

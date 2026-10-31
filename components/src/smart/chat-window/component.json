@@ -2,15 +2,15 @@
   "$comment": "The source of sf-chat-window's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-window (smart.manifest.json 0.3.1, ui-chat 07bc988) by the D31 move, step 6 (owner yes 2026-10-27), with files-view.js, port.js, chat-core's larena.js words and smart.css, and the staff page's layout of the window's nodes; written by hand on the shape of sf-chat-interlocutor, sf-chat-composer and sf-chat-message (steps 3-5), since migration/convert-1.3.8.mjs takes only the pinned 66. x-decisions says how each point was decided.",
   "id": "smart.chat-window",
   "tag": "sf-chat-window",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
     "capabilities": {
       "type": "string",
       "default": "",
-      "x-markup": "the port's capabilities the host offers (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read) and the window's own (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-reactions, x-reply), space-separated; a connected port's capabilities count as well. What is not offered is not shown. The property also takes a list (0.3).",
-      "summary": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+      "x-markup": "the port's capabilities the host offers (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read) and the window's own (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply), space-separated; a connected port's capabilities count as well. What is not offered is not shown. The property also takes a list (0.3).",
+      "summary": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
     },
     "landmark": {
       "type": "enum",
@@ -623,6 +623,28 @@
       "own-verb": true,
       "x-summary": "A reaction (1.6.0, x-reactions): message.react {conversation_id, message_id, emoji, on}; applied: data {message}, merged by revision. No former name.",
       "summary": "A reaction (x-reactions): message.react {conversation_id, message_id, emoji, on}. Answered applied with data {message}, merged by revision."
+    },
+    "apply": {
+      "carries": {
+        "request-id": "string",
+        "intent": {
+          "type": "string",
+          "summary": "The port's intent (or the window's own, x-…) this event raises."
+        },
+        "kind": {
+          "type": "string",
+          "optional": true,
+          "summary": "Which of the verb's intents, where a verb carries more than one."
+        },
+        "payload": {
+          "type": "object",
+          "summary": "The intent's payload, in the port's own field names; see the port contract."
+        }
+      },
+      "cancelable": true,
+      "own-verb": true,
+      "x-summary": "Managing a group's members (1.9.0, x-members-manage): member.add {conversation_id, user_id}, member.remove {conversation_id, user_id}, member.role {conversation_id, user_id, role}, member.transfer {conversation_id, user_id}, member.leave {conversation_id}; kind member. add, role and transfer are applied with data {participants}, the whole roster again; remove with data {removed_user_id}, the window drops that row; leave closes the view and opens the conversation again. No former name.",
+      "summary": "A group's members managed (x-members-manage): member.add, member.remove, member.role, member.transfer, member.leave, kind member; the buttons follow the host's flags (canRemove, canChangeRole, canTransfer; can_manage, can_leave)."
     }
   },
   "actions": {
@@ -1304,6 +1326,7 @@
       "x-brief",
       "x-conversation-start",
       "x-members",
+      "x-members-manage",
       "x-reactions",
       "x-reply"
     ],
@@ -1363,7 +1386,8 @@
     "author.kind (1.6.0): the port's author has additionalProperties false, so the kind is the window's own reading (speakerOf, js/people.js), between people only: assistant, agent or bot wins over the port's kind, and a port message without it is what its kind says. A message of kind person from a bot has no status, so it counts as completed.",
     "message.send and a reply (1.6.0): the port's message.send payload has additionalProperties false, so reply_to_id may not be a field of it without breaking conformance. Smallest way: an own intent message.reply, the same verb submit (kind reply), the same payload plus reply_to_id, capability x-reply, raised only when the field answers something. A host adds one case; message.retry stays by client_key.",
     "the field stays free (1.6.0, people): an assistant's wait no longer counts towards composer.busy between people, so nothing blocks or queues on it and its end takes nobody's focus; a send out still holds the field, as a double press must not send twice. Stop leaves the field for the message (can_stop, capability assistant): wait.stop keeps the port's payload {conversation_id}, which has no word for one message. sf-chat-composer 1.2.0's no-stop hides the field's button.",
-    "reactions and replies keep the page's state (1.6.0): the picker, a reaction on its way, an opened fold and what the field answers, by message key or draft key, as an editor or typed text; the strip over the field is made on first use, so a window without x-reply has no node more and its first paint is the same. An applied reaction merges data.message with same: a reaction need not make a new revision, an older one still loses."
+    "reactions and replies keep the page's state (1.6.0): the picker, a reaction on its way, an opened fold and what the field answers, by message key or draft key, as an editor or typed text; the strip over the field is made on first use, so a window without x-reply has no node more and its first paint is the same. An applied reaction merges data.message with same: a reaction need not make a new revision, an older one still loses.",
+    "x-members-manage (1.9.0): the window's own, as x-members is; simai.chat-port 1.0 does not change (owner, q-0c04e83775). One strip under one row at a time (a «⋯» per row), so 500 rows carry one button each. Buttons only from the host's flags, never from a role table: the module decides who may remove, change a role or hand over. member.remove answers {removed_user_id} and the window drops the row without asking for the roster (the module's remove changes no other role); add, role and transfer answer the whole roster. access-denied means the flags were stale: one line «Недоступно», and the roster is asked for again. member.leave applied: the view closes and the conversation is opened again, so the host says it is no longer the reader's and the window clears it as for access-revoked. Adding reuses sf-lookup as the new group does, single choice, exclude those already in and the reader."
   ],
   "x-rule": {
     "$comment": [
@@ -1734,10 +1758,19 @@
             "A page stops bringing the grid, the slide-over, the backdrop and the preview columns; it keeps its furniture. The region widths are the workspace's public variables, set here from the window's own: --sf-workspace-list from --sf-chat-window-side-width, --sf-workspace-panel from the preview's measure, --sf-workspace-divider-color from --sf-chat-window-border-color."
           ]
         },
-{
+        {
           "from": "1.7.0",
           "to": "1.8.0",
-          "changes": ["Nothing open (no conversation, no interlocutor to greet): the field steps aside and the place says «Выберите разговор слева или начните новый». Additive: a host with a greeting is unchanged."]
+          "changes": [
+            "Nothing open (no conversation, no interlocutor to greet): the field steps aside and the place says «Выберите разговор слева или начните новый». Additive: a host with a greeting is unchanged."
+          ]
+        },
+        {
+          "from": "1.8.0",
+          "to": "1.9.0",
+          "changes": [
+            "Managing a group's members (x-members-manage): «Добавить» and «Выйти» in the members view, and per row a «⋯» with role, remove and hand over, each only with the host's flag; remove, hand over and leave are asked in place first. Additive: without the capability the view stays read only."
+          ]
         }
       ]
     },

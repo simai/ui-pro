@@ -3149,6 +3149,7 @@ class SfChatWindow extends ChatWindowElement {
             view.open = true;
             view.conversation = String(id);
             view.members = [];
+            view.reset();
             view.root.hidden = false;
             this.parts.shell.classList.add("chat-shell--members");
             this.showRegion("main");
@@ -3170,6 +3171,7 @@ class SfChatWindow extends ChatWindowElement {
         view.asked++;
         view.state = "idle";
         view.members = [];
+        view.reset();
         view.root.hidden = true;
         view.body.replaceChildren();
         this.parts.shell.classList.remove("chat-shell--members");
@@ -3180,6 +3182,15 @@ class SfChatWindow extends ChatWindowElement {
         const {opener} = view;
         view.opener = null;
         if (focus || hadFocus) this.returnFocus(opener);
+    }
+
+    // The reader has left the group (x-members-manage, member.leave applied): the
+    // view closes and the conversation is opened again, so the host says it is no
+    // longer the reader's and the window clears it as it does for access-revoked.
+    leftGroup() {
+        const id = this._data.conversation?.id;
+        this.closeMembers({focus: false});
+        if (id !== null && id !== undefined) this.openConversation(id);
     }
 
     // members.list, when the view opens; only the latest answer is drawn.

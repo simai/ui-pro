@@ -814,6 +814,46 @@
 
   .chat-members__row + .chat-members__row { border-block-start: var(--sf-chat-window--line) solid var(--sf-chat-window--edge); }
 
+  /* Managing (1.9.0): the row holds its line and, under it, one strip at a time. */
+  .chat-members__row:has(.chat-members__strip) { flex-direction: column; align-items: stretch; content-visibility: visible; }
+  .chat-members__who {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    min-inline-size: 0;
+    min-block-size: var(--sf-chat-window--touch);
+  }
+  .chat-members__more { flex: none; color: var(--sf-chat-window--ink-muted); }
+  .chat-members__tools { display: flex; flex: none; gap: var(--sf-space-1\/4); }
+  .chat-members__tools:empty { display: none; }
+  .chat-members__strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-space-1\/4) var(--sf-space-1\/2);
+    padding-block: 0 var(--sf-space-1\/2);
+    padding-inline-start: calc(var(--sf-chat-window--touch) + var(--sf-space-1\/2));
+  }
+  .chat-members__leave-ask { padding-inline-start: 0; padding-block: var(--sf-space-1\/2); }
+  .chat-members__roles { display: flex; flex-wrap: wrap; gap: var(--sf-space-1\/4); }
+  .chat-members__ask { flex-basis: 100%; margin: 0; }
+  .chat-members__ask strong { font-weight: var(--sf-font-weight-bold); }
+  .chat-members__ask span { color: var(--sf-chat-window--ink-muted); }
+  .chat-members__ask-row { display: flex; gap: var(--sf-space-1\/2); }
+  .chat-members__remove { color: var(--sf-error); }
+  .chat-members__busy { opacity: .6; pointer-events: none; }
+  .chat-members__problem:empty { display: none; }
+  .chat-members__add {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/2);
+    padding-block: var(--sf-space-1\/2);
+  }
+  .chat-members__add[hidden] { display: none; }
+  .chat-members__warn { margin: 0; color: var(--sf-chat-window--ink-muted); }
+  .chat-members__add-done { align-self: flex-start; }
+
   .chat-members__name {
     flex: 1;
     min-inline-size: 0;
@@ -832,6 +872,10 @@
   @media (pointer: coarse) {
     .chat-start__back,
     .chat-members__back,
+    .chat-members__more,
+    .chat-members__tool,
+    .chat-members__strip .sf-button,
+    .chat-members__add-done,
     .chat-shell__members-open {
       min-block-size: var(--sf-chat-window--touch);
       min-inline-size: var(--sf-chat-window--touch);
