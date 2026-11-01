@@ -675,7 +675,7 @@ class SfContentEditor extends ContentEditorElement {
             return;
         }
         const query = typed.slice(1).toLowerCase();
-        const items = this.offeredKinds().filter((entry) => !query || this.sfWord(`type-${entry.id}`).toLowerCase().includes(query) || this.sfWord(`find-${entry.id}`).toLowerCase().includes(query));
+        const items = this.offeredKinds().filter((entry) => !query || this.sfWord(`type-${entry.id}`).toLowerCase().includes(query) || this.findWords(entry).toLowerCase().includes(query));
         const index = this.slash?.id === node.id ? Math.min(this.slash.index, Math.max(0, items.length - 1)) : 0;
         this.slash = {id: node.id, items, index, element};
         this.drawSlash();
@@ -1529,12 +1529,20 @@ class SfContentEditor extends ContentEditorElement {
         if (!element || !gutter || this.dragging) return;
         clearTimeout(this.gutterTimer);
         this.gutterFor = id;
-        const first = element.querySelector(".sf-content-editor-field") ?? element.firstElementChild ?? element;
         const sheet = this.sheet.getBoundingClientRect();
-        const box = first.getBoundingClientRect();
-        const style = globalThis.getComputedStyle(first);
-        const line = Math.min(parseFloat(style.lineHeight) || box.height, box.height || Infinity);
-        const top = box.top - sheet.top + (parseFloat(style.paddingTop) || 0) + (line - gutter.offsetHeight) / 2;
+        const field = element.querySelector(".sf-content-editor-field");
+        const start = element.getBoundingClientRect().top;
+        let top;
+        if (field && field.getBoundingClientRect().top - start < gutter.offsetHeight) {
+            const box = field.getBoundingClientRect();
+            const style = globalThis.getComputedStyle(field);
+            const line = Math.min(parseFloat(style.lineHeight) || box.height, box.height || Infinity);
+            top = box.top - sheet.top + (parseFloat(style.paddingTop) || 0) + (line - gutter.offsetHeight) / 2;
+        } else {
+            // A picture, a divider, a table: the gutter stands at the block's top,
+            // not on a caption or a cell further down.
+            top = start - sheet.top;
+        }
         gutter.style.top = `${Math.round(top)}px`;
         gutter.classList.add("is-shown");
     }
@@ -1591,8 +1599,13 @@ class SfContentEditor extends ContentEditorElement {
         });
     }
 
+    /** What finds a kind: its words in the page's language, and its own English names in every language (/div, /image). */
+    findWords(entry) {
+        return [this.sfWord(`find-${entry.id}`), entry.id.replace(/-/g, " "), entry.icon.replace(/_/g, " "), entry.hint ?? ""].join(" ").trim();
+    }
+
     kindEntries(current = "", prefix = "kind") {
-        return this.offeredKinds().map((entry) => ({id: `${prefix}:${entry.id}`, text: this.sfWord(`type-${entry.id}`), icon: entry.icon, keywords: [this.sfWord(`find-${entry.id}`), entry.hint ?? ""].join(" ").trim(), ...(entry.hint ? {shortcut: entry.hint} : {}), ...(current === entry.id ? {current: true} : {})}));
+        return this.offeredKinds().map((entry) => ({id: `${prefix}:${entry.id}`, text: this.sfWord(`type-${entry.id}`), icon: entry.icon, keywords: this.findWords(entry), ...(entry.hint ? {shortcut: entry.hint} : {}), ...(current === entry.id ? {current: true} : {})}));
     }
 
     blockEntries(id) {
@@ -2089,7 +2102,20 @@ class SfContentEditor extends ContentEditorElement {
         this.addEventListener("pointerleave", () => { if (!this.dragging) this.leaveGutter(); }, signal);
         this.addEventListener("sf-context-menu-select", (event) => {
             event.stopPropagation();
-            this.onMenuSelect(event);
+            // The menu closes after it tells its choice and gives the focus back
+            // to its + or grip; the choice runs after that, so a new block
+            // keeps the focus and the next Enter types in it.
+            const detail = event.detail;
+            queueMicrotask(() => this.onMenuSelect({detail}));
+        }, signal);
+        // Enter in the menu's search field takes the first match
+        // (simai/ui-source#72: sf-context-menu leaves Enter to the field).
+        this.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter" || event.defaultPrevented || event.isComposing || !event.target.matches?.(".sf-content-editor-menu .sf-context-menu-search-input")) return;
+            const first = [...event.target.closest(".sf-context-menu").querySelectorAll('[role="menuitem"]:not([aria-disabled="true"])')].find((row) => row.getClientRects().length);
+            if (!first) return;
+            event.preventDefault();
+            first.click();
         }, signal);
         this.addEventListener("dragover", (event) => this.onDragOver(event), signal);
         this.addEventListener("dragleave", (event) => {
