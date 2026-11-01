@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.content-editor",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "title": "Content editor",
   "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "kind": "smart",
@@ -78,7 +78,7 @@
       "kinds": {
         "type": "array",
         "default": [],
-        "description": "The kinds the / menu and the + of the gutter offer, by id (paragraph, heading-2, heading-3, list, ordered-list, quote, alert, details, steps, table, figure, code, divider, tabs, card, grid, html). Empty offers the first thirteen."
+        "description": "The kinds the / menu and the + of the gutter offer, by id (paragraph, heading-2, heading-3, list, ordered-list, quote, alert, details, steps, table, figure, file, code, divider, tabs, card, grid, html). Empty offers the first fourteen."
       },
       "editor-manifests": {
         "type": "array",
@@ -91,7 +91,7 @@
       "sources": {
         "type": "object",
         "default": null,
-        "description": "Where a picture's stored src is shown from: a map of the value a host answered with to an address the browser loads."
+        "description": "Where a picture's or file's stored value is shown from: a map of the value a host answered with to an address the browser loads."
       }
     },
     "additionalProperties": false
@@ -118,7 +118,7 @@
       ]
     },
     "change": {
-      "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen; params {id, type, kind, label, fields, open} is the chosen block's parameters for a host's panel; file {file, block} hands a picture to the host, which answers with answer-file."
+      "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen; params {id, type, kind, label, fields, open} is the chosen block's parameters for a host's panel; file {file, block, type} hands a picture or a file to the host, which answers with answer-file."
     }
   },
   "methods": {
@@ -210,7 +210,7 @@
       }
     },
     "answerFile": {
-      "summary": "Answer a file event: {block, value, href} stores the picture, {block, reason} shows the refusal with a retry, {block, progress} moves the bar; refused unknown.",
+      "summary": "Answer a file event: {block, value, href} stores the picture or file, {block, reason} shows the refusal with a retry, {block, progress} moves the bar; refused unknown.",
       "arguments": [
         {
           "name": "block",
@@ -325,7 +325,7 @@
       }
     },
     "sf-content-editor-file": {
-      "summary": "A picture to keep: {file, block}. The host stores the file and calls answer-file with {block, value, href} or {block, reason}.",
+      "summary": "A file to keep: {file, block, type}, type being the block's (content.figure or content.file). The host stores the file and calls answer-file with {block, value, href} or {block, reason}.",
       "payload": {
         "type": "object",
         "required": [
@@ -336,7 +336,10 @@
           "file": {
             "type": "object"
           },
-          "block": {}
+          "block": {},
+          "type": {
+            "type": "string"
+          }
         },
         "additionalProperties": true
       }
@@ -455,11 +458,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/content-editor/index.js",
-        "sha256": "8a957295515f09eb04563a520370d45296014a7578c965aed14dab2bf1086be5"
+        "sha256": "a84f6ba3e196db2062cb016aee37ae9136f2c6c01894a991e3605f1266368bd5"
       },
       {
         "path": "src/smart/content-editor/js/model.js",
-        "sha256": "046a648ba5b16e4606b1a38fd7691446014de034931a15d565020b088a1581ae"
+        "sha256": "0aa3619d695be081e82b11a2335b731acd0accbbd32bc32a83b2188889952176"
       },
       {
         "path": "src/smart/content-editor/js/paste.js",
@@ -467,11 +470,11 @@
       },
       {
         "path": "src/smart/content-editor/js/catalog.js",
-        "sha256": "4276bac458170cd48e643b5ac34fd95cd672c7102f9843a014bdae7d92780067"
+        "sha256": "af13116a8d816e32769bfaa8537ffd19000d601d3207130320cffc066b2853b9"
       },
       {
         "path": "src/smart/content-editor/js/view.js",
-        "sha256": "e36b604ac3464a9323a2b5936a2d0098a8a676f9198fb6ab7477eb45dfe31324"
+        "sha256": "194e5a423dfa69394528a616b95f98cb1457403b9931eccd04844177f9b82b3c"
       },
       {
         "path": "src/smart/content-editor/js/templates/default.js",
@@ -479,7 +482,7 @@
       },
       {
         "path": "src/smart/content-editor/js/templates/default.css",
-        "sha256": "50e80bc329303d2ce856232524438f646f600653d4ab5c71cca25d38d53b8d02"
+        "sha256": "8b1f0b0b007233b6476e8b05e54e7252fb57611a245fbce3b557198aa6953c46"
       },
       {
         "path": "src/smart/content-editor/rule.js",
@@ -487,19 +490,19 @@
       },
       {
         "path": "src/smart/content-editor/docs.md",
-        "sha256": "6775a05539461c948c99c7f54ad9516c6c4f8cc5b3560da6375d4320860f07b4"
+        "sha256": "5109ba94221a53fc35d1e9a799a6fa53651a19a8b92139e9b58adb495ac5bbf8"
       },
       {
         "path": "src/smart/content-editor/component.json",
-        "sha256": "80e8ce4bb06b251d8ea527861721a61850ca2dc220d0a6c2e0719afc49ce2105"
+        "sha256": "51fb0539feb521f1f2b310db0b438f024df544b98b539c5cead7a08ef963acbb"
       },
       {
         "path": "src/smart/content-editor/lang/en.json",
-        "sha256": "2e00077ae0498adebf019affefbf4d4061fa4ba5192a6812e49a1e04008bd9e5"
+        "sha256": "3c8b7e3ef005790aeb4d69abacaf625106edc90c0fec0859499dabe24357fb54"
       },
       {
         "path": "src/smart/content-editor/lang/ru.json",
-        "sha256": "a8cf218e1411eb435e8514ff4d2bfb2cb81e3866da71d0c343f8599e1f8d7440"
+        "sha256": "cb31ea16e788c62057712c48e85464dbfe1b44eb0f170ffc9093b76990b1198f"
       }
     ],
     "generated_runtime": []

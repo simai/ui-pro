@@ -14,6 +14,7 @@ export const CATALOG = Object.freeze([
     {id: "steps", type: "content.steps", icon: "format_list_numbered_rtl"},
     {id: "table", type: "content.table", icon: "table"},
     {id: "figure", type: "content.figure", icon: "image"},
+    {id: "file", type: "content.file", icon: "attach_file"},
     {id: "code", type: "content.code", icon: "code", hint: "```"},
     {id: "divider", type: "content.divider", icon: "horizontal_rule", hint: "---"},
     {id: "tabs", type: "content.tabs", icon: "tab"},
@@ -22,7 +23,7 @@ export const CATALOG = Object.freeze([
     {id: "html", type: "content.html", icon: "html"},
 ]);
 
-export const DEFAULT_KINDS = Object.freeze(["paragraph", "heading-2", "heading-3", "list", "ordered-list", "quote", "alert", "details", "steps", "table", "figure", "code", "divider"]);
+export const DEFAULT_KINDS = Object.freeze(["paragraph", "heading-2", "heading-3", "list", "ordered-list", "quote", "alert", "details", "steps", "table", "figure", "file", "code", "divider"]);
 
 // What a block may turn into from its grip menu.
 export const TURN_INTO = Object.freeze(["paragraph", "heading-2", "heading-3", "list", "ordered-list", "quote", "alert", "code"]);

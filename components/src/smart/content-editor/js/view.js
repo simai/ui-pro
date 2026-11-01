@@ -9,6 +9,7 @@
 // sf-inline-editor while it is typed in, and that session owns its children.
 // Text from the Document is set as text and inline content through
 // renderInlineDom, never as markup.
+import {fileNameFromAddress, fileSizeUnits, formatFileSize} from "../../../core/js/composition/file-size.mjs";
 import {renderInlineDom} from "../../../core/js/composition/inline-editor.mjs";
 import {ALERT_ICONS} from "./catalog.js";
 import {FIELDS, FLOWS, ITEMS, KNOWN, inlineOf} from "./model.js";
@@ -194,16 +195,22 @@ function progress(context, node, upload) {
     return element;
 }
 
+// An empty picture's or file's place on the page: sf-file-upload takes a
+// drop, a pick or a paste (a picture takes images, a file any type), and a
+// quiet «Link» turns it into one address field.
 function zone(context, node) {
     const {doc, word} = context;
+    const file = node.type === "content.file";
     const element = make(doc, "div", "sf-content-editor-zone", {"data-sf-zone": node.id, contenteditable: "false"});
     if (context.linking(node)) {
-        const address = make(doc, "sf-input", "sf-content-editor-zone-address", {size: "1/2", label: word("param-src"), "input-type": "url", "data-sf-zone-src": node.id, placeholder: "https://"});
+        const address = make(doc, "sf-input", "sf-content-editor-zone-address", {size: "1/2", label: word(file ? "param-href" : "param-src"), "input-type": "url", "data-sf-zone-src": node.id, placeholder: "https://"});
         element.append(address, make(doc, "sf-button", "", {size: "1/2", appearance: "link", icon: "upload", text: word("zone-upload"), "data-sf-zone-action": "upload"}));
         return element;
     }
     element.append(
-        make(doc, "sf-file-upload", "sf-content-editor-zone-files", {accept: "image/*", icon: "add_photo_alternate", "link-text": word("zone-pick"), text: word("zone-text"), "supporting-text": word("zone-formats")}),
+        file
+            ? make(doc, "sf-file-upload", "sf-content-editor-zone-files", {icon: "upload_file", "link-text": word("zone-pick"), text: word("zone-file-text"), "supporting-text": word("zone-file-formats")})
+            : make(doc, "sf-file-upload", "sf-content-editor-zone-files", {accept: "image/*", icon: "add_photo_alternate", "link-text": word("zone-pick"), text: word("zone-text"), "supporting-text": word("zone-formats")}),
         make(doc, "sf-button", "sf-content-editor-zone-link", {size: "1/2", appearance: "link", icon: "link", text: word("zone-link"), "data-sf-zone-action": "link"}),
     );
     return element;
@@ -212,6 +219,53 @@ function zone(context, node) {
 function figure(context, node) {
     const element = make(context.doc, "figure", "sf-content-editor-figure");
     element.append(picture(context, node, node.props?.ratio, node.props?.fit), field(context, "figcaption", node, "caption", {placeholder: "caption-placeholder", label: "caption-label", className: "sf-content-editor-caption"}));
+    return element;
+}
+
+// The icon of a file's kind by its media type: the Composition renderer's
+// table for content.file (composition/index.mjs, fileIcon), which it does not
+// export.
+const FILE_ICONS = [
+    [/^application\/pdf$/u, "picture_as_pdf"],
+    [/^image\//u, "image"],
+    [/^video\//u, "movie"],
+    [/^audio\//u, "audio_file"],
+    [/^application\/(?:zip|x-zip-compressed|x-7z-compressed|x-rar-compressed|vnd\.rar|x-tar|gzip|x-gzip)$/u, "folder_zip"],
+    [/^(?:text\/csv|application\/vnd\.ms-excel|application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.[a-z.]+|application\/vnd\.oasis\.opendocument\.spreadsheet)$/u, "table_chart"],
+    [/^(?:application\/vnd\.ms-powerpoint|application\/vnd\.openxmlformats-officedocument\.presentationml\.[a-z.]+|application\/vnd\.oasis\.opendocument\.presentation)$/u, "slideshow"],
+    [/^(?:text\/|application\/msword$|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.[a-z.]+$|application\/vnd\.oasis\.opendocument\.text$|application\/rtf$)/u, "description"],
+];
+const fileIcon = (mime) => FILE_ICONS.find(([pattern]) => typeof mime === "string" && pattern.test(mime))?.[1] ?? "download";
+
+// A file to download: sf-download-file's row as the page draws it (the icon
+// of its kind, its name, its size), the name typed in place. An empty one is
+// a drop zone for any file; a file on its way shows its row at once, with
+// progress, and a refusal its reason with a retry.
+function fileRow(context, node) {
+    const {doc, word} = context;
+    const data = node.data ?? {};
+    const upload = context.upload(node);
+    const element = make(doc, "div", "sf-content-editor-file");
+    if (!upload && !data.href) {
+        element.dataset.empty = "true";
+        element.append(zone(context, node));
+        return element;
+    }
+    const href = context.source(data.value) || data.href || "";
+    const mime = upload?.file?.type || data.mime;
+    const size = upload?.file ? upload.file.size : data.size;
+    const row = make(doc, "div", "sf-content-editor-file-row", {"data-href": href || undefined});
+    const name = field(context, "span", node, "label", {kind: "plain", label: "file-label", className: "sf-content-editor-file-name"});
+    name.dataset.placeholder = upload?.name || fileNameFromAddress(data.href ?? "") || word("file-label");
+    const sizeText = Number.isInteger(size) ? formatFileSize(size, fileSizeUnits(context.locale), context.locale) : "";
+    row.append(icon(doc, fileIcon(mime), "sf-content-editor-file-icon"), name);
+    if (sizeText) {
+        const amount = make(doc, "span", "sf-content-editor-file-size", {contenteditable: "false"});
+        amount.textContent = sizeText;
+        row.append(amount);
+    }
+    element.append(row);
+    if (upload) element.append(progress(context, node, upload));
     return element;
 }
 
@@ -265,6 +319,7 @@ function body(context, node) {
     case "content.divider": return make(doc, "hr", "sf-content-editor-divider");
     case "content.table": return table(context, node);
     case "content.figure": return figure(context, node);
+    case "content.file": return fileRow(context, node);
     case "content.tabs": return tabs(context, node);
     case "content.grid": {
         const element = flow(context, node, "default", "sf-content-editor-grid");

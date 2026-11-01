@@ -51,6 +51,10 @@ const NODES_TYPE = "application/x-simai-composition-nodes+json";
 const INLINE_EVENTS = ["sf-inline-editor-input", "sf-inline-editor-change", "sf-inline-editor-cancel", "sf-inline-edit-input", "sf-inline-edit-commit", "sf-inline-edit-cancel"];
 const UNDO_DEPTH = 200;
 const TYPING_PAUSE = 700;
+// A file's media type as content.file keeps it: lowercase type/subtype, no
+// parameters (the Framework's CONTENT_FILE_MIME).
+const FILE_MIME = /^[a-z0-9][a-z0-9!#$&^_.+-]{0,126}\/[a-z0-9][a-z0-9!#$&^_.+-]{0,126}$/u;
+
 // How long the gutter waits before it leaves, so the pointer can reach it (ms).
 const GUTTER_LINGER = 150;
 // The room between the quick toolbar and the block under it (px).
@@ -123,22 +127,37 @@ const ContentEditorElement = elementFromManifest(manifest, {
                 this.blockElement(this.flowBlockOf(node.id))?.querySelector("sf-progress-bar")?.setAttribute("value", String(upload.progress));
                 return applied();
             }
+            const file = node.type === "content.file";
             if (reason || !value) {
                 upload.state = "error";
-                upload.reason = String(reason || this.sfWord("file-refused"));
+                upload.reason = String(reason || this.sfWord(file ? "doc-refused" : "file-refused"));
                 this.redraw(node.id);
                 this.say(upload.reason);
                 return applied();
             }
+            if (file && !href) return refused("invalid");
             this.uploads.delete(node.id);
             const stored = String(value);
-            if (href) this.fileHrefs.set(stored, String(href));
-            else URL.revokeObjectURL(upload.href);
             node.data ??= {};
-            node.data.src = stored;
+            if (file) {
+                // A file keeps the host's reference and the address it is
+                // downloaded from, with its name, type and size.
+                URL.revokeObjectURL(upload.href);
+                node.data.value = stored;
+                node.data.href = String(href);
+                const mime = String(upload.file?.type ?? "").toLowerCase().split(";")[0].trim();
+                if (FILE_MIME.test(mime)) node.data.mime = mime;
+                else delete node.data.mime;
+                if (Number.isInteger(upload.file?.size)) node.data.size = upload.file.size;
+                if (!node.data.label && upload.name) node.data.label = upload.name.slice(0, 300);
+            } else {
+                if (href) this.fileHrefs.set(stored, String(href));
+                else URL.revokeObjectURL(upload.href);
+                node.data.src = stored;
+            }
             this.redraw(node.id);
             this.markPicked();
-            this.say(this.sfWord("file-stored"));
+            this.say(this.sfWord(file ? "doc-stored" : "file-stored"));
             this.changed("file");
             return applied();
         },
@@ -310,6 +329,7 @@ class SfContentEditor extends ContentEditorElement {
             word: (key, options) => this.sfWord(key, options),
             isOpen: (node) => (this.folds.has(node.id) ? this.folds.get(node.id) : node.props?.open === true),
             placeholderFor: () => "paragraph-placeholder",
+            locale: this.closest("[lang]")?.getAttribute("lang") || "en",
             source: (src) => this.sourceOf(src),
             upload: (node) => this.uploads.get(node.id) ?? null,
             linking: (node) => this.linking.has(node.id),
@@ -815,7 +835,7 @@ class SfContentEditor extends ContentEditorElement {
         this.redraw(node.id);
         this.redrawFlow(place.parent.id, place.slot);
         if (node.type === "content.divider") this.enter(place.parent.slots[place.slot][place.index + 1].id, 0);
-        else if (node.type === "content.figure") this.pick([node.id]);
+        else if (node.type === "content.figure" || node.type === "content.file") this.pick([node.id]);
         else this.enter(node.id, "end", "first");
         this.say(this.sfWord("inserted-text", {vars: {kind: this.sfWord(`type-${kindOf(node) || "paragraph"}`)}}));
     }
@@ -1903,10 +1923,11 @@ class SfContentEditor extends ContentEditorElement {
 
     setSource(id, src) {
         const node = locate(this.doc.root, id)?.node;
-        if (!node || node.data?.src === src) return;
+        const key = node?.type === "content.file" ? "href" : "src";
+        if (!node || node.data?.[key] === src) return;
         this.remember();
         node.data ??= {};
-        node.data.src = src;
+        node.data[key] = src;
         this.linking.delete(id);
         this.redraw(node.id);
         this.changed("params");
@@ -1914,7 +1935,7 @@ class SfContentEditor extends ContentEditorElement {
 
     // ------------------------------------------------------------ pictures on the page
 
-    /** A picture file goes into a block: shown at once, and handed to the host to keep. */
+    /** A file goes into a picture or file block: shown at once, and handed to the host to keep. */
     takeFile(id, file) {
         const node = locate(this.doc.root, id)?.node;
         if (!node || !file) return;
@@ -1926,23 +1947,30 @@ class SfContentEditor extends ContentEditorElement {
         this.redraw(id);
         this.markPicked();
         this.say(this.sfWord("file-sending", {vars: {name: upload.name}}));
-        this.sfEmit("file", {file, block: id});
+        this.sfEmit("file", {file, block: id, type: node.type});
     }
 
-    /** Makes a picture block for each image file at a place of the page. */
+    /** The kind a dropped or pasted file makes: a picture for an image, else a file, when offered. */
+    kindForFile(file) {
+        const offered = this.offeredKinds();
+        if (String(file.type).startsWith("image/") && offered.some((entry) => entry.id === "figure")) return "figure";
+        return offered.some((entry) => entry.id === "file") ? "file" : "";
+    }
+
+    /** Makes a picture block for each image and a file block for any other file, at a place of the page. */
     dropFiles(files, parentId, slot, index, {remember = true} = {}) {
-        const images = [...files].filter((file) => String(file.type).startsWith("image/"));
-        if (!images.length) {
+        const taken = [...files].filter((file) => this.kindForFile(file));
+        if (!taken.length) {
             if (files.length) this.say(this.sfWord("file-not-image"));
             return [];
         }
         this.finishSession();
         if (remember) this.remember();
-        const made = images.map(() => this.fresh(entryOf("figure")));
+        const made = taken.map((file) => this.fresh(entryOf(this.kindForFile(file))));
         insertAt(this.doc.root, parentId, slot, index, ...made);
         this.redrawFlow(parentId, slot);
         this.changed("insert");
-        made.forEach((node, at) => this.takeFile(node.id, images[at]));
+        made.forEach((node, at) => this.takeFile(node.id, taken[at]));
         this.pick([made.at(-1).id]);
         return made;
     }
@@ -1988,9 +2016,9 @@ class SfContentEditor extends ContentEditorElement {
         this.dropFiles(event.dataTransfer.files, this.doc.root.id, FLOWS[this.doc.root.type], seat.index);
     }
 
-    /** A paste with a picture on the clipboard: a picture block at the caret. Answers whether it took it. */
+    /** A paste with files on the clipboard: picture and file blocks at the caret. Answers whether it took them. */
     pasteFiles(event, afterId) {
-        const files = [...(event.clipboardData?.files ?? [])].filter((file) => String(file.type).startsWith("image/"));
+        const files = [...(event.clipboardData?.files ?? [])].filter((file) => this.kindForFile(file));
         if (!files.length) return false;
         event.preventDefault();
         event.stopPropagation();
@@ -2179,7 +2207,7 @@ class SfContentEditor extends ContentEditorElement {
         const keeps = event.target.closest?.(".sf-content-editor-gutter, .sf-content-editor-quick, sf-popover") || path.some((node) => node?.classList?.contains?.("sf-dropdown-portal"));
         if (keeps) return;
         // A press on a block with no text of its own (a picture, a line, an unknown block) chooses it.
-        const solid = event.target.closest?.(".sf-content-editor-frame img, .sf-content-editor-divider, .sf-content-editor-opaque, .sf-content-editor-upload");
+        const solid = event.target.closest?.(".sf-content-editor-frame img, .sf-content-editor-divider, .sf-content-editor-opaque, .sf-content-editor-upload, .sf-content-editor-file-icon, .sf-content-editor-file-size");
         if (solid && !event.target.closest?.("[data-sf-zone-action]")) {
             const id = this.flowBlockOf(solid.closest(".sf-content-editor-block")?.dataset.sfNode ?? "");
             if (id) {
@@ -2253,7 +2281,7 @@ class SfContentEditor extends ContentEditorElement {
 
     /** Every picture of the page: the blocks a stored src is shown in. */
     pictures(node) {
-        const own = node.type === "content.figure" || node.type === "content.media" ? [node] : [];
+        const own = node.type === "content.figure" || node.type === "content.media" || node.type === "content.file" ? [node] : [];
         return [...own, ...Object.values(node.slots ?? {}).flat().flatMap((child) => this.pictures(child))];
     }
 

@@ -2,7 +2,7 @@
   "$comment": "The source of sf-content-editor's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-editor by the owner's decision of 2026-11-01 (the text editor starts once the content types are out); behaviour per ui-editor prototypes/content-editor.html and the content standard, sections 6, 7 and 9. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
   "id": "smart.content-editor",
   "tag": "sf-content-editor",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -16,7 +16,7 @@
       "type": "list",
       "default": [],
       "of": "id",
-      "summary": "The kinds the / menu and the + of the gutter offer, by id (paragraph, heading-2, heading-3, list, ordered-list, quote, alert, details, steps, table, figure, code, divider, tabs, card, grid, html). Empty offers the first thirteen."
+      "summary": "The kinds the / menu and the + of the gutter offer, by id (paragraph, heading-2, heading-3, list, ordered-list, quote, alert, details, steps, table, figure, file, code, divider, tabs, card, grid, html). Empty offers the first fourteen."
     },
     "editor-manifests": {
       "type": "list",
@@ -41,7 +41,7 @@
       "type": "object",
       "default": null,
       "x-markup": "a property: {<stored src>: <address to show it from>}; a host that keeps files by reference (an IndexedDB key, a storage id) sets it.",
-      "summary": "Where a picture's stored src is shown from: a map of the value a host answered with to an address the browser loads."
+      "summary": "Where a picture's or file's stored value is shown from: a map of the value a host answered with to an address the browser loads."
     },
     "label": {
       "type": "string",
@@ -88,11 +88,12 @@
     "file": {
       "carries": {
         "file": "object",
-        "block": "id"
+        "block": "id",
+        "type": "string"
       },
       "own-verb": true,
-      "x-summary": "A picture was dropped on the page, pasted, or given to an empty picture's zone: the File and the block it stands in. The block shows it at once from an object URL; the host keeps the file and answers with answer-file. A verb of this element.",
-      "summary": "A picture to keep: {file, block}. The host stores the file and calls answer-file with {block, value, href} or {block, reason}."
+      "x-summary": "A file was dropped on the page, pasted, or given to an empty picture's or file's zone: the File and the block it stands in (a picture for an image, a file block for any other type). The block shows it at once; the host keeps the file and answers with answer-file. A verb of this element.",
+      "summary": "A file to keep: {file, block, type}, type being the block's (content.figure or content.file). The host stores the file and calls answer-file with {block, value, href} or {block, reason}."
     }
   },
   "actions": {
@@ -219,8 +220,8 @@
         "applied",
         "refused"
       ],
-      "x-summary": "the host's answer to a file event: value (what data.src keeps) and href (where it is shown from), or reason (the block shows it with a retry), or progress 0-100 on the way; refused unknown for a block with no file on its way",
-      "summary": "Answer a file event: {block, value, href} stores the picture, {block, reason} shows the refusal with a retry, {block, progress} moves the bar; refused unknown.",
+      "x-summary": "the host's answer to a file event: value and href (a picture keeps value in data.src and is shown from href; a file block keeps both, as data.value and data.href, with the file's name, type and size), or reason (the block shows it with a retry), or progress 0-100 on the way; refused unknown for a block with no file on its way",
+      "summary": "Answer a file event: {block, value, href} stores the picture or file, {block, reason} shows the refusal with a retry, {block, progress} moves the bar; refused unknown.",
       "x-returns": {
         "type": "object",
         "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
@@ -361,7 +362,7 @@
     "gutter (owner, 2026-11-01): a fixed 56px margin left of the text holds the + and the grip, 24px each, 4px apart, centred on the block's first line; it never overlaps the text. A sheet narrower than 640px has a 32px margin with the grip alone, and the grip's menu holds «Add below». It follows the block under the pointer or the caret, fades in 120ms (none under reduced motion) and waits 150ms before it leaves.",
     "menus (owner, 2026-11-01): the + and grip menus open under their trigger, left edges aligned, through sf-context-menu.openFor on the native button inside sf-icon-button (the host is display: contents and has no box); they flip above and have a search field over name, search words and the Markdown shortcut. The / list opens under the caret and flips inside the scroller.",
     "parameters (owner, 2026-11-01): three places. The content is typed in the block; a choice of two to six options is a quick toggle over the chosen block (six, so a picture's ratios are one); the rest is the host's panel (parameters: host, the params event and set-parameter) or an sf-popover from the quick toolbar. The form is the type's composition-editor-manifest, a host's own first; a value equal to its default is not written. The floating form and the quiet button on each block are gone.",
-    "pictures (owner, 2026-11-01): an empty picture is a drop zone the width of the text (sf-file-upload), with «Link» for an address. A file dropped anywhere makes a picture at the drop line, a pasted one at the caret; it shows at once from an object URL, goes to the host in the file event, and the host answers with answer-file {value, href} or {reason}. sources maps a stored value to where it is shown from. A file block waits for content.file from the Framework."
+    "pictures (owner, 2026-11-01): an empty picture is a drop zone the width of the text (sf-file-upload), with «Link» for an address. A file dropped anywhere makes a picture at the drop line, a pasted one at the caret; it shows at once from an object URL, goes to the host in the file event, and the host answers with answer-file {value, href} or {reason}. sources maps a stored value to where it is shown from. A file block (content.file, 1.2.0) is the same drop zone for any file; any file that is not an image dropped on the page makes one; it draws sf-download-file's row, its name typed in place, its address in the parameters."
   ],
   "x-rule": {
     "$comment": [
@@ -420,7 +421,7 @@
         ]
       },
       "change": {
-        "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen; params {id, type, kind, label, fields, open} is the chosen block's parameters for a host's panel; file {file, block} hands a picture to the host, which answers with answer-file."
+        "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen; params {id, type, kind, label, fields, open} is the chosen block's parameters for a host's panel; file {file, block, type} hands a picture or a file to the host, which answers with answer-file."
       }
     },
     "state": {

@@ -19,6 +19,7 @@ export const FIELDS = Object.freeze({
     "content.details": [{key: "summary", kind: "inline"}],
     "content.step": [{key: "title", kind: "inline", optional: true}],
     "content.figure": [{key: "caption", kind: "inline", optional: true}],
+    "content.file": [{key: "label", kind: "plain", optional: true}],
     "content.table": [{key: "rows", kind: "cells"}, {key: "caption", kind: "inline", optional: true}],
     "content.code": [{key: "code", kind: "plain"}],
     "content.html": [{key: "markup", kind: "plain"}],
@@ -110,7 +111,10 @@ export function setInline(node, key, content) {
 
 export function setPlain(node, key, text) {
     node.data ??= {};
-    node.data[key] = String(text ?? "");
+    const value = String(text ?? "");
+    // An optional key holds something or is not written (a file's label).
+    if (!value && FIELDS[node.type]?.find((entry) => entry.key === key)?.optional) delete node.data[key];
+    else node.data[key] = value;
 }
 
 export function setCell(node, row, column, content) {
@@ -138,6 +142,7 @@ export function blank(type, next, seed = []) {
     case "content.divider": return {id, type};
     case "content.table": return {id, type, data: {rows: [[[], [], []], [[], [], []], [[], [], []]]}};
     case "content.figure": return {id, type, data: {src: "", alt: ""}};
+    case "content.file": return {id, type, data: {href: ""}};
     case "content.tabs": return {id, type, slots: {tabs: [{id: next(), type: "content.tab", data: {label: "1"}, slots: {default: [paragraph()]}}]}};
     case "content.tab": return {id, type, data: {label: ""}, slots: {default: [paragraph()]}};
     case "content.grid": return {id, type, slots: {default: [paragraph(), paragraph()]}};

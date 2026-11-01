@@ -560,6 +560,57 @@
     flex-grow: 1;
   }
 
+  /* A file: sf-download-file's row (its tokens), the name typed in place. */
+  .sf-content-editor-file {
+    position: relative;
+  }
+
+  .sf-content-editor-file-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: var(--sf-0);
+    padding: var(--sf-space-1\/3);
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius--ui);
+    color: var(--sf-primary);
+  }
+
+  .sf-content-editor-file-icon {
+    flex: none;
+    color: var(--sf-primary);
+    --sf-icon--font-size: var(--sf-text-size-3);
+    --sf-icon--height: var(--sf-text-size-3);
+    --sf-icon--width: var(--sf-text-size-3);
+  }
+
+  .sf-content-editor-file-name {
+    flex: 1 1 auto;
+    min-inline-size: var(--sf-0);
+  }
+
+  /* With no name of its own the file reads under its file name, always. */
+  .sf-content-editor-file-name.sf-content-editor-field[data-optional]:empty::before {
+    content: attr(data-placeholder);
+  }
+
+  .sf-content-editor-file-name.sf-content-editor-field[data-optional]:empty:not(:focus) {
+    min-block-size: var(--sf-text--height);
+  }
+
+  .sf-content-editor-file-size {
+    flex: none;
+    color: var(--sf-on-surface-variant);
+    white-space: nowrap;
+  }
+
+  .sf-content-editor-file > .sf-content-editor-upload {
+    position: static;
+    margin-block-start: var(--sf-space-1\/2);
+  }
+
   /* The / list: a surface over the sheet. */
   .sf-content-editor-slash {
     position: fixed;
