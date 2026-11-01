@@ -1,0 +1,277 @@
+// How sf-content-editor draws a Document while it is edited: one element per
+// block, the block's own fields where the person types, and its slots as
+// flows of blocks again. The look follows the published page (the
+// Framework's renderers in composition/index.mjs) so the page reads the same
+// in both; what only editing needs (a placeholder, the parameters button, a
+// fold that is the editor's own) is added here.
+//
+// The drawing is plain DOM, not a Lit template: an inline field is handed to
+// sf-inline-editor while it is typed in, and that session owns its children.
+// Text from the Document is set as text and inline content through
+// renderInlineDom, never as markup.
+import {renderInlineDom} from "../../../core/js/composition/inline-editor.mjs";
+import {ALERT_ICONS} from "./catalog.js";
+import {FIELDS, FLOWS, ITEMS, KNOWN, inlineOf} from "./model.js";
+
+const make = (doc, tag, className, attributes = {}) => {
+    const element = doc.createElement(tag);
+    if (className) element.className = className;
+    for (const [name, value] of Object.entries(attributes)) {
+        if (value !== undefined && value !== null && value !== false) element.setAttribute(name, value === true ? "" : String(value));
+    }
+    return element;
+};
+
+const icon = (doc, name, className = "") => make(doc, "sf-icon", className, {icon: name, size: "1", "aria-hidden": "true"});
+
+/**
+ * A field the person types in. `kind` is inline (the inline model through
+ * sf-inline-editor), plain (text as it is) or cell (a table cell, inline).
+ */
+function field(context, tag, node, key, {kind = "inline", placeholder = "", label = "", row, column, className = ""} = {}) {
+    const {doc, word} = context;
+    const optional = FIELDS[node.type]?.find((entry) => entry.key === key)?.optional;
+    const element = make(doc, tag, ["sf-content-editor-field", className].filter(Boolean).join(" "), {
+        "data-sf-node": node.id,
+        "data-sf-field": key,
+        "data-sf-kind": kind,
+        "data-sf-row": row,
+        "data-sf-column": column,
+        "data-placeholder": placeholder ? word(placeholder) : undefined,
+        "data-optional": optional ? "true" : undefined,
+        "aria-label": label ? word(label) : undefined,
+        tabindex: "-1",
+    });
+    if (kind === "plain") {
+        element.setAttribute("contenteditable", "plaintext-only");
+        element.setAttribute("role", "textbox");
+        element.setAttribute("aria-multiline", "true");
+        element.setAttribute("spellcheck", "false");
+        element.textContent = String(node.data?.[key] ?? "");
+    } else {
+        const content = kind === "cell" ? node.data.rows[row][column] : inlineOf(node, key);
+        element.append(renderInlineDom(doc, content));
+    }
+    return element;
+}
+
+/** Draws inline content into a field again, after its session ended. */
+export function refill(element, content) {
+    element.replaceChildren(renderInlineDom(element.ownerDocument, content));
+}
+
+function flow(context, node, slot, className = "") {
+    const element = make(context.doc, "div", ["sf-content-editor-flow", className].filter(Boolean).join(" "), {"data-sf-flow": node.id, "data-sf-slot": slot});
+    for (const child of node.slots?.[slot] ?? []) element.append(block(context, child));
+    return element;
+}
+
+function heading(context, node) {
+    const level = Math.min(6, Math.max(1, Number(node.data?.level) || 2));
+    return field(context, `h${level}`, node, "content", {placeholder: "heading-placeholder", label: "heading-label", className: `sf-content-editor-heading sf-content-editor-heading--${level}`});
+}
+
+function list(context, node) {
+    const element = make(context.doc, node.props?.ordered ? "ol" : "ul", "sf-content-editor-list", {start: node.props?.ordered && node.props?.start > 1 ? node.props.start : undefined});
+    for (const item of node.slots?.items ?? []) {
+        const li = make(context.doc, "li", "sf-content-editor-item", {"data-sf-node": item.id});
+        li.append(field(context, "div", item, "content", {placeholder: "item-placeholder", label: "item-label"}));
+        if (item.slots?.default?.length) li.append(flow(context, item, "default", "sf-content-editor-nested"));
+        element.append(li);
+    }
+    return element;
+}
+
+function alert(context, node) {
+    const {doc} = context;
+    const status = node.props?.status ?? "neutral";
+    const element = make(doc, "div", "sf-content-editor-alert", {"data-status": status, "data-appearance": node.props?.appearance ?? "default"});
+    const body = make(doc, "div", "sf-content-editor-alert-body");
+    body.append(field(context, "div", node, "title", {placeholder: "alert-title-placeholder", label: "alert-title-label", className: "sf-content-editor-alert-title"}), flow(context, node, "default"));
+    element.append(icon(doc, ALERT_ICONS[status] ?? "info", "sf-content-editor-alert-icon"), body);
+    return element;
+}
+
+function details(context, node) {
+    const {doc, word, isOpen} = context;
+    const open = isOpen(node);
+    const element = make(doc, "div", "sf-content-editor-details", {"data-layout": node.props?.layout ?? "surface", "data-open": open ? "true" : "false"});
+    const head = make(doc, "div", "sf-content-editor-details-head");
+    const fold = make(doc, "button", "sf-content-editor-fold", {type: "button", "data-sf-fold": node.id, "aria-expanded": open ? "true" : "false", "aria-label": word("fold-label"), title: word("fold-label")});
+    fold.append(icon(doc, "expand_more"));
+    head.append(fold, field(context, "div", node, "summary", {placeholder: "summary-placeholder", label: "summary-label", className: "sf-content-editor-summary"}));
+    element.append(head);
+    if (open) element.append(flow(context, node, "default", "sf-content-editor-details-body"));
+    return element;
+}
+
+function steps(context, node) {
+    const {doc} = context;
+    const current = Number.isInteger(node.props?.current) ? node.props.current : null;
+    const element = make(doc, "ol", "sf-content-editor-steps", {"data-layout": node.props?.layout ?? "timeline"});
+    (node.slots?.steps ?? []).forEach((step, index) => {
+        const number = index + 1;
+        const state = current === null ? "" : number < current ? "complete" : number === current ? "current" : "";
+        const li = make(doc, "li", "sf-content-editor-step", {"data-sf-node": step.id, "data-state": state || undefined, "aria-current": state === "current" ? "step" : undefined});
+        li.append(field(context, "div", step, "title", {placeholder: "step-placeholder", label: "step-label", className: "sf-content-editor-step-title"}));
+        if (step.slots?.default?.length) li.append(flow(context, step, "default"));
+        element.append(li);
+    });
+    return element;
+}
+
+function code(context, node) {
+    const {doc} = context;
+    const element = make(doc, "div", "sf-content-editor-code");
+    const lang = node.props?.lang;
+    if (node.props?.title || (lang && lang !== "text")) {
+        const head = make(doc, "div", "sf-content-editor-code-head");
+        const title = make(doc, "span");
+        title.textContent = node.props?.title ?? "";
+        const language = make(doc, "span");
+        language.textContent = lang && lang !== "text" ? lang : "";
+        head.append(title, language);
+        element.append(head);
+    }
+    element.append(field(context, "pre", node, "code", {kind: "plain", placeholder: "code-placeholder", label: "code-label", className: "sf-content-editor-code-text"}));
+    return element;
+}
+
+function table(context, node) {
+    const {doc} = context;
+    const header = node.props?.header ?? "row";
+    const element = make(doc, "div", "sf-content-editor-table", {"data-header": header});
+    const grid = make(doc, "table");
+    const body = make(doc, "tbody");
+    node.data.rows.forEach((cells, row) => {
+        const tr = make(doc, "tr");
+        cells.forEach((_, column) => {
+            const head = ((header === "row" || header === "both") && row === 0) || ((header === "column" || header === "both") && column === 0);
+            const cell = make(doc, head ? "th" : "td");
+            cell.append(field(context, "div", node, "rows", {kind: "cell", row, column, label: "cell-label"}));
+            tr.append(cell);
+        });
+        body.append(tr);
+    });
+    grid.append(body);
+    element.append(grid, field(context, "div", node, "caption", {placeholder: "caption-placeholder", label: "caption-label", className: "sf-content-editor-caption"}));
+    return element;
+}
+
+function picture(context, data, ratio, fit) {
+    const {doc, word} = context;
+    const frame = make(doc, "div", "sf-content-editor-frame", {"data-ratio": ratio && ratio !== "auto" ? ratio : undefined, "data-fit": fit === "contain" ? "contain" : undefined});
+    if (data?.src) {
+        frame.append(make(doc, "img", "", {src: data.src, alt: data.alt ?? "", width: data.width, height: data.height, draggable: "false"}));
+    } else {
+        const pick = make(doc, "button", "sf-content-editor-pick", {type: "button", "data-sf-params": "open"});
+        pick.append(icon(doc, "image"), doc.createTextNode(word("figure-empty")));
+        frame.append(pick);
+    }
+    return frame;
+}
+
+function figure(context, node) {
+    const element = make(context.doc, "figure", "sf-content-editor-figure");
+    element.append(picture(context, node.data, node.props?.ratio, node.props?.fit), field(context, "figcaption", node, "caption", {placeholder: "caption-placeholder", label: "caption-label", className: "sf-content-editor-caption"}));
+    return element;
+}
+
+function tabs(context, node) {
+    const element = make(context.doc, "div", "sf-content-editor-tabs");
+    for (const tab of node.slots?.tabs ?? []) {
+        const section = make(context.doc, "section", "sf-content-editor-tab", {"data-sf-node": tab.id});
+        section.append(field(context, "div", tab, "label", {kind: "plain", placeholder: "tab-placeholder", label: "tab-label", className: "sf-content-editor-tab-label"}), flow(context, tab, "default"));
+        element.append(section);
+    }
+    return element;
+}
+
+function raw(context, node, key, title) {
+    const {doc, word} = context;
+    const element = make(doc, "div", "sf-content-editor-raw");
+    const head = make(doc, "div", "sf-content-editor-raw-head");
+    head.append(icon(doc, node.type === "content.html" ? "html" : "functions"), doc.createTextNode(word(title)));
+    element.append(head, field(context, "pre", node, key, {kind: "plain", label: title, className: "sf-content-editor-raw-text"}));
+    return element;
+}
+
+// A type the editor does not know is shown, never opened: its data and its
+// slots stay exactly as they came, and it can only be moved or removed whole.
+function opaque(context, node) {
+    const {doc, word} = context;
+    const element = make(doc, "div", "sf-content-editor-opaque", {contenteditable: "false"});
+    const head = make(doc, "div", "sf-content-editor-raw-head");
+    const name = make(doc, "code");
+    name.textContent = node.type;
+    head.append(icon(doc, "extension"), doc.createTextNode(word("unknown-text")), doc.createTextNode(" "), name);
+    element.append(head);
+    return element;
+}
+
+function body(context, node) {
+    const {doc} = context;
+    switch (node.type) {
+    case "content.paragraph": return field(context, "p", node, "content", {placeholder: context.placeholderFor(node), label: "paragraph-label", className: "sf-content-editor-paragraph"});
+    case "content.heading": return heading(context, node);
+    case "content.list": return list(context, node);
+    case "content.quote": {
+        const element = make(doc, "blockquote", "sf-content-editor-quote");
+        element.append(flow(context, node, "default"));
+        return element;
+    }
+    case "content.alert": return alert(context, node);
+    case "content.details": return details(context, node);
+    case "content.steps": return steps(context, node);
+    case "content.code": return code(context, node);
+    case "content.divider": return make(doc, "hr", "sf-content-editor-divider");
+    case "content.table": return table(context, node);
+    case "content.figure": return figure(context, node);
+    case "content.tabs": return tabs(context, node);
+    case "content.grid": {
+        const element = flow(context, node, "default", "sf-content-editor-grid");
+        element.style.setProperty("--sf-content-editor-columns", String(node.props?.columns ?? 3));
+        return element;
+    }
+    case "content.card": {
+        const element = make(doc, "div", "sf-content-editor-card", {"data-variant": node.props?.variant ?? "default"});
+        element.append(flow(context, node, "default"));
+        return element;
+    }
+    case "content.media": {
+        const element = make(doc, "div", "sf-content-editor-media", {"data-side": node.props?.side ?? "right"});
+        element.append(picture(context, node.data, node.props?.ratio ?? "16/9"), flow(context, node, "default"));
+        return element;
+    }
+    case "content.html": return raw(context, node, "markup", "html-text");
+    case "content.diagram":
+    case "content.math": return raw(context, node, "source", node.type === "content.math" ? "math-text" : "diagram-text");
+    default: return opaque(context, node);
+    }
+}
+
+/** One block of a flow: its body, and the quiet parameters button when it has parameters. */
+export function block(context, node) {
+    const {doc, word} = context;
+    const element = make(doc, "div", "sf-content-editor-block", {"data-sf-node": node.id, "data-sf-block": node.type, "data-known": KNOWN.has(node.type) ? undefined : "false"});
+    element.append(body(context, node));
+    const summary = context.paramsSummary(node);
+    if (summary !== null) {
+        const tag = make(doc, "button", "sf-content-editor-tag", {type: "button", "data-sf-params": "open", "aria-label": word("params-label"), contenteditable: "false"});
+        tag.append(icon(doc, "tune"), doc.createTextNode(summary || word("params-text")));
+        element.append(tag);
+    }
+    return element;
+}
+
+/** The blocks of a Document's root, for the sheet. */
+export function blocks(context, root) {
+    const fragment = context.doc.createDocumentFragment();
+    for (const child of root.slots?.[FLOWS[root.type] ?? "default"] ?? []) fragment.append(block(context, child));
+    return fragment;
+}
+
+/** Every field of the sheet in reading order: where ↑ and ↓ go. */
+export const fieldsIn = (root) => [...root.querySelectorAll(".sf-content-editor-field")];
+
+export {FIELDS, ITEMS};

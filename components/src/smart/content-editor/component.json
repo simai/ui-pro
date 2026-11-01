@@ -1,0 +1,396 @@
+{
+  "$comment": "The source of sf-content-editor's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-editor by the owner's decision of 2026-11-01 (the text editor starts once the content types are out); behaviour per ui-editor prototypes/content-editor.html and the content standard, sections 6, 7 and 9. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
+  "id": "smart.content-editor",
+  "tag": "sf-content-editor",
+  "version": "1.0.0",
+  "kind": "leaf",
+  "family": "editor",
+  "settings": {
+    "document": {
+      "type": "object",
+      "default": null,
+      "x-markup": "a property: a host has the Document as an object; the editor works on its own copy and never writes this property back.",
+      "summary": "The page: a Composition Document of the profile structured-content. Setting a new one starts editing it; the one the editor sent in change is recognised and kept."
+    },
+    "kinds": {
+      "type": "list",
+      "default": [],
+      "of": "id",
+      "summary": "The kinds the / menu and the + of the gutter offer, by id (paragraph, heading-2, heading-3, list, ordered-list, quote, alert, details, steps, table, figure, code, divider, tabs, card, grid, html). Empty offers the first thirteen."
+    },
+    "editor-manifests": {
+      "type": "list",
+      "default": [],
+      "of": "object",
+      "entries": {
+        "key": "type",
+        "changes": "content"
+      },
+      "summary": "Composition editor manifests of a host's own types, or ones that replace the Framework's for a type: the parameters form of a block is built from them."
+    },
+    "label": {
+      "type": "string",
+      "default-from": "runtime.label",
+      "summary": "The accessible name of the page's blocks."
+    }
+  },
+  "values": {},
+  "events": {
+    "change": {
+      "carries": {
+        "document": "object",
+        "reason": "string"
+      },
+      "x-summary": "vocabulary §5 change: the Document changed (typing, a split or a join, a block made, moved, removed, a parameter, undo); the editor stores nothing, the host does. reason names what happened.",
+      "summary": "The page changed: {document, reason}. The host saves the document."
+    },
+    "select": {
+      "carries": {
+        "ids": "list"
+      },
+      "x-summary": "vocabulary §5 select: blocks were chosen with Esc and the arrows, or the choice was let go (ids empty).",
+      "summary": "These blocks are chosen: {ids}; empty when none is."
+    },
+    "leave": {
+      "carries": {},
+      "own-verb": true,
+      "x-summary": "Esc while blocks are chosen: the choice is let go and the person may be taken back (a page editor returns to its layout). A verb of this element.",
+      "summary": "Esc with blocks chosen: the person asks to leave the text."
+    }
+  },
+  "actions": {
+    "edit": {
+      "with": {
+        "id": {
+          "type": "id",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "put the caret in a block (the first one with no id); a block with nothing to type in is chosen instead; refused unknown",
+      "summary": "Start typing in a block, the first with no id; refused unknown for a block not in the page.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "select": {
+      "with": {
+        "ids": "list"
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "choose blocks of one flow as Esc does; refused unknown, not-siblings",
+      "summary": "Choose blocks as Esc and Shift+arrows do; refused unknown, not-siblings.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | not-siblings}"
+      }
+    },
+    "insert": {
+      "with": {
+        "kind": "id",
+        "after": {
+          "type": "id",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "make a block of a kind after a block, or at the end; refused unknown",
+      "summary": "Make a block of an offered kind after a block, or at the end of the page; refused unknown.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "undo": {
+      "with": {},
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "one step back, as ⌘Z; refused empty",
+      "summary": "One step back, as ⌘Z; refused empty with nothing to undo.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: empty}"
+      }
+    },
+    "redo": {
+      "with": {},
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "one step forward, as ⇧⌘Z; refused empty",
+      "summary": "One step forward, as ⇧⌘Z; refused empty.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: empty}"
+      }
+    }
+  },
+  "slots": {},
+  "keyboard": {
+    "host": {
+      "Tab": "reach"
+    },
+    "field": {
+      "Enter": "split",
+      "Backspace": "merge",
+      "Delete": "merge",
+      "ArrowUp": "previous",
+      "ArrowDown": "next",
+      "Alt+ArrowUp": "move",
+      "Alt+ArrowDown": "move",
+      "Escape": "select",
+      "Meta+D": "duplicate",
+      "Meta+Z": "undo",
+      "Shift+Meta+Z": "redo",
+      "Meta+B": "strong",
+      "Meta+I": "em",
+      "Meta+E": "code",
+      "Meta+K": "link",
+      "Tab": "next-cell",
+      "/": "menu"
+    },
+    "picked": {
+      "ArrowUp": "previous",
+      "ArrowDown": "next",
+      "Shift+ArrowUp": "extend",
+      "Shift+ArrowDown": "extend",
+      "Alt+ArrowUp": "move",
+      "Alt+ArrowDown": "move",
+      "Enter": "edit",
+      "Escape": "leave",
+      "Backspace": "delete",
+      "Delete": "delete",
+      "Meta+D": "duplicate",
+      "Meta+A": "all",
+      "Meta+C": "copy",
+      "Meta+X": "cut"
+    }
+  },
+  "relations": [
+    {
+      "name": "cl-icon"
+    },
+    {
+      "name": "cl-icon-button"
+    },
+    {
+      "name": "cl-inline-editor"
+    },
+    {
+      "name": "cl-context-menu",
+      "lazy": true
+    },
+    {
+      "name": "cl-switch",
+      "lazy": true
+    },
+    {
+      "name": "cl-dropdown",
+      "lazy": true
+    },
+    {
+      "name": "cl-input",
+      "lazy": true
+    }
+  ],
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16): the sheet's frame; the blocks are drawn by js/view.js."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "group",
+    "name": {
+      "from": [
+        "runtime.label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Enter": "split",
+      "Backspace": "merge",
+      "ArrowUp": "previous",
+      "ArrowDown": "next",
+      "Alt+ArrowUp": "move",
+      "Alt+ArrowDown": "move",
+      "Escape": "select",
+      "Meta+Z": "undo"
+    },
+    "x-keys": "one tab stop on the field last typed in; the arrows go between fields at a field's first and last line; Esc chooses the block, then the arrows choose blocks, Shift extends, Enter goes back to typing and Esc leaves; the / list is a listbox the field points at with aria-activedescendant; the grip opens its menu with Enter; what happened is said in a status line"
+  },
+  "host-states": {},
+  "css-variables": {},
+  "x-summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip add, move and open a block's menu, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A block's parameters are a form from its editor manifest. The element saves nothing: it sends the new Document in change.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "content-editor",
+    "manifest": "simai/ui-editor prototypes/content-editor.html (accepted 2026-10-31)",
+    "converted": "written by hand (2026-11-01) from the accepted prototype, on the Framework's content types (ui-source 339f094b, pair ui-e4f44b2523ff): the keys, the menus and the words are the prototype's; the model is the Composition Document instead of the prototype's flat list"
+  },
+  "x-words": [],
+  "x-renamed": [],
+  "x-decisions": [
+    "names: sf-content-editor, as the content standard (section 6) names it.",
+    "shape: a leaf that draws its blocks itself (plain DOM, js/view.js), because sf-inline-editor owns a field while it is typed in; its frame, the gutter, the / list and the parameters form are its own markup, its menus one sf-context-menu.",
+    "inline editing: every inline field is a session of sf-inline-editor 1.2.0 (marks, links, atoms, its bar); the editor takes Enter, Backspace at the start, Esc and the arrows at a field's edge before the session does, and shows the session's bar over a selection only.",
+    "parameters: the form is the type's composition-editor-manifest (key, choices, default), a host's own manifest first; a props value equal to its default is not written.",
+    "unknown: a node of a type the editor does not know is drawn as a closed card and kept byte for byte; only moved or removed whole.",
+    "storage: none. Every change is a change event with the whole Document; the host saves it and may set it back, which the editor recognises.",
+    "events: change and select are vocabulary §5 verbs; leave is this element's own."
+  ],
+  "x-rule": {
+    "$comment": [
+      "The editor draws its gutter as sf-icon-button, its marks as sf-icon, and every inline field is",
+      "edited through sf-inline-editor, so those come with it. The block menu (sf-context-menu) and the",
+      "parameters form (sf-switch, sf-dropdown, sf-input) open on a press, so they are fetched after",
+      "the page is ready."
+    ]
+  },
+  "x-registry": {
+    "capabilities": [
+      "interaction",
+      "keyboard",
+      "responsive",
+      "editing"
+    ],
+    "persistence": {
+      "mode": "none",
+      "source_of_truth": "host",
+      "network_owner": "host",
+      "revision_field": null
+    },
+    "readiness": {
+      "level": "host-required",
+      "required_checks": [
+        "manifest",
+        "loader-rule",
+        "content-editor-probe"
+      ]
+    },
+    "tags": [
+      "content",
+      "editor",
+      "composition",
+      "blocks",
+      "text"
+    ],
+    "contracts": {
+      "document": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "const": "simai.composition.document"
+          },
+          "profile": {
+            "const": "structured-content"
+          },
+          "root": {
+            "type": "object",
+            "description": "content.document: data.title, slots.default the blocks."
+          }
+        },
+        "required": [
+          "schema",
+          "root"
+        ]
+      },
+      "change": {
+        "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen."
+      }
+    },
+    "state": {
+      "machines": {
+        "mode": [
+          "typing",
+          "picked",
+          "idle"
+        ]
+      },
+      "visual_states": [
+        "default",
+        "empty",
+        "open",
+        "closed",
+        "selected",
+        "active"
+      ]
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "storing the page",
+        "uploading files",
+        "rendering the published page"
+      ]
+    },
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "the Document's text, drawn as text",
+        "pasted HTML, read through the html@1 subset",
+        "link addresses, kept only when safe"
+      ],
+      "network_policy": "deny"
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile"
+      ]
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-content-editor wherever a person writes the content of a page (a Composition Document of the profile structured-content).",
+      "do_not": [
+        "Do not store the page in the element; listen for change and save the document it carries",
+        "Do not write a parameter equal to its default; the editor already leaves it out",
+        "Do not turn an unknown block into a paragraph; the editor keeps it as it is"
+      ],
+      "required_reads": [
+        "inputs",
+        "contracts",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-content-editor id=\"page\"></sf-content-editor> <script>page.document = doc; page.addEventListener('change', (e) => save(e.detail.document));</script>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-manifest-probes.mjs <free output> <package output> content-editor"
+      ]
+    },
+    "accessibility": {
+      "accessible_name": "internal",
+      "focus": "One tab stop, on the field last typed in. Esc chooses the block it is in; the arrows choose others, Enter types again. The / list is announced through aria-activedescendant; changes are said in a status line."
+    },
+    "compatibility": {
+      "migrations": []
+    }
+  }
+}

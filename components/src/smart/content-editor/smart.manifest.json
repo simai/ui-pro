@@ -1,0 +1,395 @@
+{
+  "schema_version": 2,
+  "id": "smart.content-editor",
+  "version": "1.0.0",
+  "title": "Content editor",
+  "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip add, move and open a block's menu, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A block's parameters are a form from its editor manifest. The element saves nothing: it sends the new Document in change.",
+  "kind": "smart",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "content",
+    "editor",
+    "composition",
+    "blocks",
+    "text"
+  ],
+  "capabilities": [
+    "interaction",
+    "keyboard",
+    "responsive",
+    "editing"
+  ],
+  "custom_element": "sf-content-editor",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "smart.context-menu",
+      "smart.dropdown",
+      "smart.icon",
+      "smart.icon-button",
+      "smart.inline-editor",
+      "smart.input",
+      "smart.switch"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "properties": {
+      "template": {
+        "type": "string",
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates."
+      },
+      "root-class": {
+        "type": "string",
+        "default": ""
+      },
+      "root-style": {
+        "type": "string",
+        "default": ""
+      },
+      "label": {
+        "type": "string",
+        "description": "The accessible name of the page's blocks."
+      },
+      "document": {
+        "type": "object",
+        "default": null,
+        "description": "The page: a Composition Document of the profile structured-content. Setting a new one starts editing it; the one the editor sent in change is recognised and kept."
+      },
+      "kinds": {
+        "type": "array",
+        "default": [],
+        "description": "The kinds the / menu and the + of the gutter offer, by id (paragraph, heading-2, heading-3, list, ordered-list, quote, alert, details, steps, table, figure, code, divider, tabs, card, grid, html). Empty offers the first thirteen."
+      },
+      "editor-manifests": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        },
+        "description": "Composition editor manifests of a host's own types, or ones that replace the Framework's for a type: the parameters form of a block is built from them."
+      }
+    },
+    "additionalProperties": false
+  },
+  "item_contract": {},
+  "contracts": {
+    "document": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "const": "simai.composition.document"
+        },
+        "profile": {
+          "const": "structured-content"
+        },
+        "root": {
+          "type": "object",
+          "description": "content.document: data.title, slots.default the blocks."
+        }
+      },
+      "required": [
+        "schema",
+        "root"
+      ]
+    },
+    "change": {
+      "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen."
+    }
+  },
+  "methods": {
+    "edit": {
+      "summary": "Start typing in a block, the first with no id; refused unknown for a block not in the page.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "select": {
+      "summary": "Choose blocks as Esc and Shift+arrows do; refused unknown, not-siblings.",
+      "arguments": [
+        {
+          "name": "ids",
+          "schema": {
+            "type": "array"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | not-siblings}"
+      }
+    },
+    "insert": {
+      "summary": "Make a block of an offered kind after a block, or at the end of the page; refused unknown.",
+      "arguments": [
+        {
+          "name": "kind",
+          "schema": {}
+        },
+        {
+          "name": "after",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "undo": {
+      "summary": "One step back, as ⌘Z; refused empty with nothing to undo.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: empty}"
+      }
+    },
+    "redo": {
+      "summary": "One step forward, as ⇧⌘Z; refused empty.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: empty}"
+      }
+    }
+  },
+  "events": {
+    "change": {
+      "summary": "The page changed: {document, reason}. The host saves the document.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "document",
+          "reason"
+        ],
+        "properties": {
+          "document": {
+            "type": "object"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-content-editor-select": {
+      "summary": "These blocks are chosen: {ids}; empty when none is.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-content-editor-leave": {
+      "summary": "Esc with blocks chosen: the person asks to leave the text.",
+      "payload": {
+        "type": "object",
+        "required": [],
+        "properties": {},
+        "additionalProperties": true
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "mode": [
+        "typing",
+        "picked",
+        "idle"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "empty",
+      "open",
+      "closed",
+      "selected",
+      "active"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "storing the page",
+      "uploading files",
+      "rendering the published page"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "the Document's text, drawn as text",
+      "pasted HTML, read through the html@1 subset",
+      "link addresses, kept only when safe"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "group",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Tab",
+      "Enter",
+      "Backspace",
+      "ArrowUp",
+      "ArrowDown",
+      "Alt+ArrowUp",
+      "Alt+ArrowDown",
+      "Escape",
+      "Meta+Z"
+    ],
+    "focus": "One tab stop, on the field last typed in. Esc chooses the block it is in; the arrows choose others, Enter types again. The / list is announced through aria-activedescendant; changes are said in a status line."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "content-editor-probe"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "339f094bd2f630fcf724ffcd670a864af5aa8f7a",
+      "ui_smart_revision": "339f094bd2f630fcf724ffcd670a864af5aa8f7a"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": []
+  },
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "154c366c366c76f986563926b0ad8b8a48aa5e47",
+    "source_artifacts": [
+      {
+        "path": "src/smart/content-editor/index.js",
+        "sha256": "6cb70ed31be245e2f56ffc8459c8dae81093ee28ff82f2b7e80f82ec1c0ed431"
+      },
+      {
+        "path": "src/smart/content-editor/js/model.js",
+        "sha256": "046a648ba5b16e4606b1a38fd7691446014de034931a15d565020b088a1581ae"
+      },
+      {
+        "path": "src/smart/content-editor/js/paste.js",
+        "sha256": "d76e2dc05d1d327e771bb863ab5f904f5365cc59b4897e758c85d74bb0da6632"
+      },
+      {
+        "path": "src/smart/content-editor/js/catalog.js",
+        "sha256": "4276bac458170cd48e643b5ac34fd95cd672c7102f9843a014bdae7d92780067"
+      },
+      {
+        "path": "src/smart/content-editor/js/view.js",
+        "sha256": "a69765db412d9b9f57839b029e797baad0bd78373e561df07eed9aab8e5c3f6b"
+      },
+      {
+        "path": "src/smart/content-editor/js/templates/default.js",
+        "sha256": "03bb5656b9bc867da13cd717821ee40044baab8bb16bf370c83febf34c3e0221"
+      },
+      {
+        "path": "src/smart/content-editor/js/templates/default.css",
+        "sha256": "87410ec2b4ca0949e2f09876c7ea8d3355397342ebf707add95b4ba6dce60ab0"
+      },
+      {
+        "path": "src/smart/content-editor/rule.js",
+        "sha256": "b2b745e2a338741c577e986b2b84bf43826faa722bd16add3f849f2e37af8142"
+      },
+      {
+        "path": "src/smart/content-editor/docs.md",
+        "sha256": "32a4169a2355dcbe13eaf8db1d34f0b7fae7bf2737328a79457138dd8c30d328"
+      },
+      {
+        "path": "src/smart/content-editor/component.json",
+        "sha256": "07d48313365b7f9cf0a57b26520abfa489d2b278b5e0c59f7168b78f916b7abb"
+      },
+      {
+        "path": "src/smart/content-editor/lang/en.json",
+        "sha256": "0f9b1cc9fa006abc022687a9d1d526704b3335b0b64a696d7d1b476cf86b0113"
+      },
+      {
+        "path": "src/smart/content-editor/lang/ru.json",
+        "sha256": "8be0d1b917198fd65ba4f240711c4651ff9927f0651935ef0d12c11bf3c613ea"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use sf-content-editor wherever a person writes the content of a page (a Composition Document of the profile structured-content).",
+    "do_not": [
+      "Do not store the page in the element; listen for change and save the document it carries",
+      "Do not write a parameter equal to its default; the editor already leaves it out",
+      "Do not turn an unknown block into a paragraph; the editor keeps it as it is"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-content-editor id=\"page\"></sf-content-editor> <script>page.document = doc; page.addEventListener('change', (e) => save(e.detail.document));</script>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node scripts/run-manifest-probes.mjs <free output> <package output> content-editor"
+    ]
+  }
+}
