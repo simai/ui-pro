@@ -324,7 +324,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/content-editor/index.js",
-        "sha256": "6cb70ed31be245e2f56ffc8459c8dae81093ee28ff82f2b7e80f82ec1c0ed431"
+        "sha256": "240609b1252af912d2e1ed378eb6fc0a7ca0916ab71e796889bce71104aaa7a2"
       },
       {
         "path": "src/smart/content-editor/js/model.js",

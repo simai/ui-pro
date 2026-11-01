@@ -181,6 +181,22 @@
           "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; return d?.root.slots.default.length === 2 && d.root.slots.default[0].data.content[0].value === 'Первая строка'; })()"
         }
       ]
+    },
+    {
+      "id": "p11-title-typing",
+      "title": "typing in the page's title writes the Document's data.title and nothing else",
+      "covers": "events.change",
+      "steps": [
+        {
+          "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"note\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Заметка\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Первая строка\"}]}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вторая строка\"}]}}]}}}; globalThis.heard = []; for (const name of ['change','sf-content-editor-select','sf-content-editor-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+          "wait": 500
+        },
+        {
+          "script": "(() => { const title = document.querySelector('#editor .sf-content-editor-title'); title.focus(); const range = document.createRange(); range.selectNodeContents(title); range.collapse(false); const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range); document.execCommand('insertText', false, '!'); return true; })()",
+          "wait": 300,
+          "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; return Boolean(d) && JSON.stringify(Object.keys(d.root.data)) === '[\"title\"]' && d.root.data.title === 'Заметка!'; })()"
+        }
+      ]
     }
   ]
 }

@@ -213,7 +213,10 @@ class SfContentEditor extends ContentEditorElement {
         host.replaceChildren(blocks(this.viewContext(), this.doc.root));
         const title = this.querySelector(".sf-content-editor-title");
         if (title) {
+            // A plain field of the root: write() puts what it holds in data.title.
             title.dataset.sfNode = this.doc.root.id;
+            title.dataset.sfField = "title";
+            title.dataset.sfKind = "plain";
             title.textContent = typeof this.doc.root.data?.title === "string" ? this.doc.root.data.title : "";
         }
         this.markPicked();
