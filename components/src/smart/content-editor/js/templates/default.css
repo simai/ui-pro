@@ -230,38 +230,56 @@
     counter-reset: sf-content-editor-step;
   }
 
+  /* Steps take sf-procedure's geometry: a half-size round marker in its own
+     column, the title and content beside it, so the text never runs under it. */
+  .sf-content-editor-steps {
+    --sf-content-editor-step--marker: var(--sf-ui-1\/2--control-height);
+  }
+
   .sf-content-editor-step {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: var(--sf-space-1\/4);
+    display: grid;
+    grid-template-columns: var(--sf-content-editor-step--marker) minmax(0, 1fr);
+    align-content: start;
+    column-gap: var(--sf-space-1);
+    row-gap: var(--sf-space-1\/4);
     padding-block-end: var(--sf-space-1);
-    padding-inline-start: var(--sf-space-4);
     counter-increment: sf-content-editor-step;
+  }
+
+  .sf-content-editor-step > * {
+    grid-column: 2;
+    min-inline-size: 0;
   }
 
   .sf-content-editor-step::before {
     content: counter(sf-content-editor-step);
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline-start: 0;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
     display: grid;
     place-items: center;
-    inline-size: var(--sf-ui-1--control-height);
-    block-size: var(--sf-ui-1--control-height);
+    box-sizing: border-box;
+    inline-size: var(--sf-content-editor-step--marker);
+    block-size: var(--sf-content-editor-step--marker);
+    border: var(--sf-px) solid var(--sf-outline-variant);
     border-radius: var(--sf-radius-circle);
     background: var(--sf-surface-container);
-    color: var(--sf-on-surface-variant);
-    font-size: var(--sf-text--size-1\/3);
+    color: var(--sf-on-surface);
+    font-size: var(--sf-text-size-1\/2);
     font-weight: var(--sf-font-weight-medium);
+    line-height: var(--sf-text-height-1\/2);
+    font-variant-numeric: tabular-nums;
   }
 
   .sf-content-editor-step[data-state="current"]::before {
+    border-color: var(--sf-primary);
     background: var(--sf-primary);
     color: var(--sf-on-primary);
   }
 
   .sf-content-editor-step[data-state="complete"]::before {
+    border-color: var(--sf-primary-container);
     background: var(--sf-primary-container);
     color: var(--sf-on-primary-container);
   }
@@ -269,8 +287,8 @@
   .sf-content-editor-steps[data-layout="timeline"] .sf-content-editor-step:not(:last-child)::after {
     content: "";
     position: absolute;
-    inset-block: var(--sf-ui-1--control-height) 0;
-    inset-inline-start: calc(var(--sf-ui-1--control-height) / 2);
+    inset-block: calc(var(--sf-content-editor-step--marker) + var(--sf-space-1\/4)) var(--sf-space-1\/4);
+    inset-inline-start: calc((var(--sf-content-editor-step--marker) - var(--sf-px)) / 2);
     inline-size: var(--sf-px);
     background: var(--sf-outline-variant);
   }
