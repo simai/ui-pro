@@ -1,8 +1,8 @@
 // Generated from component.json by scripts/generate-component-files.mjs; do not edit.
-// The editor draws its gutter as sf-icon-button, its marks as sf-icon, and every inline field is
-// edited through sf-inline-editor, so those come with it. The block menu (sf-context-menu) and the
-// parameters form (sf-switch, sf-dropdown, sf-input) open on a press, so they are fetched after
-// the page is ready.
+// The editor draws its gutter as sf-icon-button, its marks as sf-icon, the quick toolbar's words as sf-button,
+// and every inline field is edited through sf-inline-editor, so those come with it. The block menu (sf-context-menu),
+// the parameters' popover and form (sf-popover, sf-switch, sf-dropdown, sf-input) and a picture's drop zone and
+// progress (sf-file-upload, sf-progress-bar) open on a press or with an empty picture, so they are fetched after the page is ready.
 SF.RuleLoader['cl-content-editor'] = {
   tags: ['sf-content-editor'],
   type: 'smart',
@@ -17,5 +17,9 @@ SF.RuleLoader['cl-content-editor'] = {
     { name: 'cl-switch', lazy: true },
     { name: 'cl-dropdown', lazy: true },
     { name: 'cl-input', lazy: true },
+    { name: 'cl-button' },
+    { name: 'cl-file-upload', lazy: true },
+    { name: 'cl-progress-bar', lazy: true },
+    { name: 'cl-popover', lazy: true },
   ],
 };

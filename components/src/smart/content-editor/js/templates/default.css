@@ -6,7 +6,13 @@
      host is display: contents; .sf-content-editor is what a page places.
      Every value is a Framework token. */
   .sf-content-editor {
+    /* The margin the gutter stands in: the + and the grip, 24px each, 4px
+       apart and 4px from the text. Below 640px of sheet it holds the grip. */
+    --sf-content-editor-button: var(--sf-ui-1\/3--control-height);
+    --sf-content-editor-gap: var(--sf-a4);
+    --sf-content-editor-gutter: calc(var(--sf-content-editor-button) * 2 + var(--sf-content-editor-gap) * 2);
     position: relative;
+    container-type: inline-size;
     color: var(--sf-on-surface);
     font-family: var(--sf-text--family);
     font-size: var(--sf-text--size);
@@ -18,7 +24,7 @@
     max-inline-size: var(--sf-layout-reading-width);
     margin-inline: auto;
     padding-block: var(--sf-space-4) var(--sf-space-7);
-    padding-inline: var(--sf-space-7);
+    padding-inline: max(var(--sf-space-7), var(--sf-content-editor-gutter)) var(--sf-space-7);
   }
 
   .sf-content-editor-title {
@@ -207,9 +213,7 @@
     transform: rotate(-90deg);
   }
 
-  .sf-content-editor-fold:focus-visible,
-  .sf-content-editor-tag:focus-visible,
-  .sf-content-editor-pick:focus-visible {
+  .sf-content-editor-fold:focus-visible {
     outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
     outline-offset: var(--sf-focus--offset);
   }
@@ -353,6 +357,7 @@
   }
 
   .sf-content-editor-frame {
+    position: relative;
     overflow: hidden;
     border-radius: var(--sf-radius-2);
   }
@@ -370,26 +375,6 @@
   .sf-content-editor-frame[data-ratio="3/2"] { aspect-ratio: 3 / 2; }
   .sf-content-editor-frame[data-ratio="16/9"] { aspect-ratio: 16 / 9; }
   .sf-content-editor-frame[data-ratio="21/9"] { aspect-ratio: 21 / 9; }
-
-  .sf-content-editor-pick {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--sf-space-1\/2);
-    inline-size: 100%;
-    min-block-size: var(--sf-space-7);
-    block-size: 100%;
-    padding: var(--sf-space-1);
-    border: 0;
-    background: var(--sf-surface-1);
-    color: var(--sf-on-surface-variant);
-    font: inherit;
-    cursor: pointer;
-  }
-
-  .sf-content-editor-pick:hover {
-    background: var(--sf-surface-container-hover);
-  }
 
   .sf-content-editor-tabs {
     display: flex;
@@ -447,56 +432,30 @@
     font-family: var(--sf-mono);
   }
 
-  /* The block's parameters, quiet, where the pointer already is. */
-  .sf-content-editor-tag {
-    position: absolute;
-    inset-block-start: var(--sf-space-1\/4);
-    inset-inline-end: var(--sf-space-1\/2);
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sf-space-1\/4);
-    block-size: var(--sf-ui-1\/2--control-height);
-    padding-inline: var(--sf-space-1\/2);
-    border: 0;
-    border-radius: var(--sf-radius-1);
-    background: var(--sf-elevation-2--surface);
-    box-shadow: var(--sf-elevation-2--shadow);
-    color: var(--sf-on-surface-variant);
-    font-size: var(--sf-label-medium--size);
-    line-height: var(--sf-label-medium--height);
-    white-space: nowrap;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity var(--sf-duration-fast);
-  }
-
-  .sf-content-editor-block:hover > .sf-content-editor-tag,
-  .sf-content-editor-block:focus-within > .sf-content-editor-tag,
-  .sf-content-editor-block.is-picked > .sf-content-editor-tag,
-  .sf-content-editor-tag:focus-visible {
-    opacity: 1;
-  }
-
-  .sf-content-editor-tag:hover {
-    color: var(--sf-on-surface);
-  }
-
-  @media (hover: none) {
-    .sf-content-editor-tag {
-      opacity: 1;
-    }
-  }
-
-  /* The gutter: two quiet buttons beside the block under the pointer; gone while one types. */
+  /* The gutter: two quiet buttons in the margin beside the block under the
+     pointer or the caret, never over its text; gone while one types. It ends
+     where the text begins. */
   .sf-content-editor-gutter {
     position: absolute;
-    inset-inline-start: var(--sf-space-2);
+    inset-inline-start: calc(max(var(--sf-space-7), var(--sf-content-editor-gutter)) - var(--sf-content-editor-gutter));
     z-index: 2;
     display: flex;
+    gap: var(--sf-content-editor-gap);
+    justify-content: flex-end;
+    inline-size: var(--sf-content-editor-gutter);
+    padding-inline-end: var(--sf-content-editor-gap);
+    box-sizing: border-box;
     opacity: 0;
     pointer-events: none;
-    transition: opacity var(--sf-duration-fast);
+    transition: opacity 120ms ease-out;
+  }
+
+  .sf-content-editor-gutter > sf-icon-button > button {
+    inline-size: var(--sf-content-editor-button);
+    min-inline-size: var(--sf-content-editor-button);
+    block-size: var(--sf-content-editor-button);
+    min-block-size: var(--sf-content-editor-button);
+    padding: 0;
   }
 
   .sf-content-editor-gutter.is-shown,
@@ -512,7 +471,7 @@
 
   .sf-content-editor-drop {
     position: absolute;
-    inset-inline: var(--sf-space-7);
+    inset-inline: max(var(--sf-space-7), var(--sf-content-editor-gutter)) var(--sf-space-7);
     z-index: 2;
     block-size: var(--sf-focus--width);
     border-radius: var(--sf-radius-circle);
@@ -524,9 +483,85 @@
     display: none;
   }
 
-  /* The / list and the parameters form: surfaces over the sheet. */
-  .sf-content-editor-slash,
+  /* The quick toolbar over the chosen block: its choices as toggles and
+     «Parameters…». It floats, so a choice in it moves nothing on the page. */
+  .sf-content-editor-quick {
+    position: absolute;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/4);
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-elevation-2--surface);
+    box-shadow: var(--sf-elevation-2--shadow);
+    color: var(--sf-on-surface);
+    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
+  }
+
+  .sf-content-editor-quick[hidden] {
+    display: none;
+  }
+
+  .sf-content-editor-quick-group {
+    display: flex;
+  }
+
   .sf-content-editor-params {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1);
+    inline-size: calc(var(--sf-space-7) * 4);
+    padding: var(--sf-space-1) var(--sf-space-2) var(--sf-space-2);
+  }
+
+  /* An empty picture: a drop zone the width of the text. */
+  .sf-content-editor-frame[data-empty] {
+    aspect-ratio: auto;
+    background: none;
+  }
+
+  .sf-content-editor-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sf-space-1\/2);
+    inline-size: 100%;
+  }
+
+  .sf-content-editor-zone > sf-button {
+    align-self: flex-end;
+  }
+
+  /* A picture on its way to the host: progress, or the reason and a retry. */
+  .sf-content-editor-upload {
+    position: absolute;
+    inset-inline: var(--sf-space-1);
+    inset-block-end: var(--sf-space-1);
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/2) var(--sf-space-1);
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-elevation-2--surface);
+    box-shadow: var(--sf-elevation-2--shadow);
+    color: var(--sf-on-surface);
+  }
+
+  .sf-content-editor-upload > sf-progress-bar {
+    flex-grow: 1;
+  }
+
+  .sf-content-editor-upload[data-state="error"] {
+    color: var(--sf-error);
+  }
+
+  .sf-content-editor-upload-reason {
+    flex-grow: 1;
+  }
+
+  /* The / list: a surface over the sheet. */
+  .sf-content-editor-slash {
     position: fixed;
     z-index: calc(var(--sf-z-index-9) + 1);
     border-radius: var(--sf-radius-2);
@@ -536,8 +571,7 @@
     line-height: var(--sf-text--height-1\/2);
   }
 
-  .sf-content-editor-slash[hidden],
-  .sf-content-editor-params[hidden] {
+  .sf-content-editor-slash[hidden] {
     display: none;
   }
 
@@ -582,25 +616,6 @@
     color: var(--sf-on-surface-variant);
   }
 
-  .sf-content-editor-params {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sf-space-1);
-    inline-size: calc(var(--sf-space-7) * 4);
-    padding: var(--sf-space-1) var(--sf-space-2) var(--sf-space-2);
-  }
-
-  .sf-content-editor-params-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--sf-space-1\/2);
-  }
-
-  .sf-content-editor-params-title {
-    font-weight: var(--sf-font-weight-medium);
-  }
-
   .sf-content-editor-live {
     position: absolute;
     inline-size: var(--sf-px);
@@ -610,15 +625,28 @@
     white-space: nowrap;
   }
 
-  @media (max-width: 720px) {
+  /* A narrow sheet: a 32px margin with the grip alone; its menu adds below. */
+  @container (max-width: 640px) {
     .sf-content-editor-sheet {
-      padding-inline: var(--sf-space-4);
+      --sf-content-editor-gutter: calc(var(--sf-content-editor-button) + var(--sf-content-editor-gap) * 2);
+      padding-inline: var(--sf-content-editor-gutter) var(--sf-space-4);
     }
 
     .sf-content-editor-gutter {
       inset-inline-start: 0;
     }
 
+    /* The host is display: contents (written on it), so its button is hidden. */
+    .sf-content-editor-plus > button {
+      display: none;
+    }
+
+    .sf-content-editor-drop {
+      inset-inline: var(--sf-content-editor-gutter) var(--sf-space-4);
+    }
+  }
+
+  @media (max-width: 720px) {
     .sf-content-editor-grid,
     .sf-content-editor-media {
       grid-template-columns: minmax(0, 1fr);
@@ -626,7 +654,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .sf-content-editor-tag,
     .sf-content-editor-gutter,
     .sf-content-editor-fold {
       transition: none;

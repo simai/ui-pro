@@ -6,10 +6,16 @@
 // the grip moves a block or opens its menu; a selection gets the bar of
 // sf-inline-editor (bold, italic, code, link); Esc selects the block and the
 // arrows go between blocks; a paste is read through the html@1 subset; a
-// table goes cell by cell with Tab. A block's parameters are a form built
-// from its type's composition-editor-manifest, opened from a quiet button on
-// the block and from the grip menu, and a parameter equal to its default is
-// not written.
+// table goes cell by cell with Tab. The gutter stands outside the text, and
+// every menu opens at what opened it. A block's parameters come from its
+// type's composition-editor-manifest and live in three places: its content
+// in the block, its quick choices in a toolbar over the chosen block, and
+// the rest in the host's panel (the params event) or, with no panel, in an
+// sf-popover from that toolbar; a parameter equal to its default is not
+// written. A picture is dropped, pasted or picked on the page itself; the
+// file goes to the host (the file event) and the host answers with where it
+// keeps it (answer-file), as owner's review of 2026-11-01 asked
+// (ui-control control/ui-editor/CONTENT-EDITOR-UX-FIXES.md).
 //
 // It holds a Composition Document of the profile structured-content
 // (ui-source docs/developer/composition-content-types.md) and saves nothing:
@@ -22,7 +28,7 @@
 // the free Framework. From its component.json (standard simai.smart-component
 // 1.4 §3, §4, §8, §11): the settings are made by core/js/element-manifest.js,
 // its words are lang/<locale>.json, and the actions answer outcomes.
-import {html, render} from "lit";
+import {html, nothing, render} from "lit";
 import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {BUILTIN_EDITOR_MANIFESTS, BUILTIN_TYPE_MANIFESTS} from "../../core/js/composition/builtins.mjs";
@@ -45,6 +51,16 @@ const NODES_TYPE = "application/x-simai-composition-nodes+json";
 const INLINE_EVENTS = ["sf-inline-editor-input", "sf-inline-editor-change", "sf-inline-editor-cancel", "sf-inline-edit-input", "sf-inline-edit-commit", "sf-inline-edit-cancel"];
 const UNDO_DEPTH = 200;
 const TYPING_PAUSE = 700;
+// How long the gutter waits before it leaves, so the pointer can reach it (ms).
+const GUTTER_LINGER = 150;
+// The room between the quick toolbar and the block under it (px).
+const QUICK_GAP = 4;
+// The icons of the quick toggles a choice has; a choice without one shows its word.
+const QUICK_ICONS = Object.freeze({
+    fit: {cover: "crop", contain: "fit_screen"},
+    status: {neutral: "radio_button_unchecked", info: "info", success: "check_circle", warning: "warning", error: "error"},
+    side: {left: "align_horizontal_left", right: "align_horizontal_right"},
+});
 
 const ContentEditorElement = elementFromManifest(manifest, {
     base: SfBaseElement,
@@ -87,6 +103,45 @@ const ContentEditorElement = elementFromManifest(manifest, {
         redo() {
             return this.restore(this.redoStack, this.undoStack) ? applied() : refused("empty");
         },
+        "set-parameter"({id, key, value} = {}) {
+            const node = locate(this.doc.root, String(id ?? ""))?.node;
+            if (!node) return refused("unknown");
+            const item = this.editorFields(node.type).find((entry) => entry.key === String(key ?? ""));
+            if (!item) return refused("unknown");
+            const next = this.coerce(item, value);
+            if (!next) return refused("invalid");
+            this.writeParam(node.id, item, next.value);
+            return applied();
+        },
+        "answer-file"({block: id, value, href, reason, progress} = {}) {
+            const upload = this.uploads.get(String(id ?? ""));
+            const node = locate(this.doc.root, String(id ?? ""))?.node;
+            if (!upload || !node) return refused("unknown");
+            // On the way: how far the host has come, 0 to 100.
+            if (!value && !reason && Number.isFinite(Number(progress))) {
+                upload.progress = Math.max(0, Math.min(100, Math.round(Number(progress))));
+                this.blockElement(this.flowBlockOf(node.id))?.querySelector("sf-progress-bar")?.setAttribute("value", String(upload.progress));
+                return applied();
+            }
+            if (reason || !value) {
+                upload.state = "error";
+                upload.reason = String(reason || this.sfWord("file-refused"));
+                this.redraw(node.id);
+                this.say(upload.reason);
+                return applied();
+            }
+            this.uploads.delete(node.id);
+            const stored = String(value);
+            if (href) this.fileHrefs.set(stored, String(href));
+            else URL.revokeObjectURL(upload.href);
+            node.data ??= {};
+            node.data.src = stored;
+            this.redraw(node.id);
+            this.markPicked();
+            this.say(this.sfWord("file-stored"));
+            this.changed("file");
+            return applied();
+        },
     },
 });
 
@@ -99,7 +154,7 @@ class SfContentEditor extends ContentEditorElement {
         super();
         // A value set as a property before the element was defined is an own
         // property that would hide the accessor; it is taken through it.
-        for (const name of ["document", "kinds", "editorManifests"]) {
+        for (const name of ["document", "kinds", "editorManifests", "sources"]) {
             if (Object.prototype.hasOwnProperty.call(this, name)) {
                 const early = this[name];
                 delete this[name];
@@ -119,7 +174,14 @@ class SfContentEditor extends ContentEditorElement {
         this.menuMode = null;
         this.menuFor = "";
         this.gutterFor = "";
-        this.paramsFor = "";
+        this.gutterTimer = 0;
+        this.quickFor = "";
+        // A picture on its way to the host, by block: {href, name, state, reason, file}.
+        this.uploads = new Map();
+        // Where a stored src is shown from, as the host answered: value -> href.
+        this.fileHrefs = new Map();
+        // The empty pictures whose zone shows the address field instead.
+        this.linking = new Set();
         this.notice = "";
         this.listening = null;
     }
@@ -180,6 +242,54 @@ class SfContentEditor extends ContentEditorElement {
         return "text";
     }
 
+    /** A value as a field takes it: {value} or null when it cannot be one. */
+    coerce(item, value) {
+        if (value === undefined || value === null || value === "") return {value: undefined};
+        if (item.kind === "toggle") return {value: value === true || value === "true"};
+        if (item.kind === "integer") {
+            const number = Number(value);
+            if (!Number.isInteger(number)) return null;
+            return {value: Math.max(item.constraints?.min ?? -Infinity, Math.min(item.constraints?.max ?? Infinity, number))};
+        }
+        if (item.kind === "choice") return item.choices.map(String).includes(String(value)) ? {value: String(value)} : null;
+        return {value: String(value).trim() || undefined};
+    }
+
+    // A choice of two to six options is a quick one: icon toggles over the
+    // chosen block. A picture's six ratios are the widest the owner named.
+    isQuick(item) {
+        return item.kind === "choice" && item.choices.length >= 2 && item.choices.length <= 6;
+    }
+
+    /** What a host's panel draws for a block: its fields, their values and words. */
+    parameterFields(node) {
+        return this.editorFields(node.type).map((item) => {
+            const value = paramValue(node, item);
+            const missing = item.key === "alt" && (node.type === "content.figure" || node.type === "content.media") && !String(value ?? "").trim();
+            return {
+                key: item.key,
+                plane: item.plane,
+                kind: item.kind,
+                label: this.paramWord(item.key),
+                value: value ?? null,
+                default: item.default ?? null,
+                required: item.required,
+                quick: this.isQuick(item),
+                ...(item.kind === "choice" ? {choices: item.choices.map((choice) => ({value: String(choice), label: this.choiceWord(item.key, choice)}))} : {}),
+                ...(item.constraints ? {constraints: {...item.constraints}} : {}),
+                ...(missing ? {warning: this.sfWord("alt-missing")} : {}),
+            };
+        });
+    }
+
+    /** The address a src is shown from: the host's sources, its answers, else the src itself. */
+    sourceOf(src) {
+        const value = String(src ?? "");
+        if (!value) return "";
+        const given = this.sources && typeof this.sources === "object" ? this.sources[value] : undefined;
+        return String(given ?? this.fileHrefs.get(value) ?? value);
+    }
+
     // ------------------------------------------------------------ drawing
 
     get sheet() {
@@ -197,10 +307,12 @@ class SfContentEditor extends ContentEditorElement {
     viewContext() {
         return {
             doc: this.ownerDocument,
-            word: (key) => this.sfWord(key),
+            word: (key, options) => this.sfWord(key, options),
             isOpen: (node) => (this.folds.has(node.id) ? this.folds.get(node.id) : node.props?.open === true),
             placeholderFor: () => "paragraph-placeholder",
-            paramsSummary: (node) => this.paramsSummary(node),
+            source: (src) => this.sourceOf(src),
+            upload: (node) => this.uploads.get(node.id) ?? null,
+            linking: (node) => this.linking.has(node.id),
         };
     }
 
@@ -211,6 +323,7 @@ class SfContentEditor extends ContentEditorElement {
         host.dataset.sfFlow = this.doc.root.id;
         host.dataset.sfSlot = FLOWS[this.doc.root.type] ?? "default";
         host.replaceChildren(blocks(this.viewContext(), this.doc.root));
+        this.resizing?.observe(host);
         const title = this.querySelector(".sf-content-editor-title");
         if (title) {
             // A plain field of the root: write() puts what it holds in data.title.
@@ -268,6 +381,13 @@ class SfContentEditor extends ContentEditorElement {
         let place = locate(this.doc.root, id);
         while (place && !isFlow(place)) place = place.parent ? locate(this.doc.root, place.parent.id) : null;
         return place?.node.id ?? "";
+    }
+
+    /** The id of the page's own block a node stands in: what the gutter beside it serves. */
+    topBlockOf(id) {
+        let place = locate(this.doc.root, id);
+        while (place?.parent && place.parent !== this.doc.root) place = locate(this.doc.root, place.parent.id);
+        return place?.parent ? place.node.id : "";
     }
 
     blockElement(id) {
@@ -396,6 +516,7 @@ class SfContentEditor extends ContentEditorElement {
         this.closeSlash();
         this.lastField = element;
         this.updateTabStop();
+        this.showGutter(this.topBlockOf(element.dataset.sfNode));
         if (element.dataset.sfKind === "plain") {
             this.finishSession();
             element.focus({preventScroll: true});
@@ -583,9 +704,23 @@ class SfContentEditor extends ContentEditorElement {
         const rect = selection?.rangeCount ? selection.getRangeAt(0).getBoundingClientRect() : element.getBoundingClientRect();
         const anchor = rect.height ? rect : element.getBoundingClientRect();
         const own = box.getBoundingClientRect();
-        const below = anchor.bottom + 6;
-        const top = below + own.height > globalThis.innerHeight - 8 ? Math.max(8, anchor.top - own.height - 6) : below;
-        Object.assign(box.style, {top: `${top}px`, left: `${Math.max(8, Math.min(anchor.left, globalThis.innerWidth - own.width - 8))}px`});
+        // Under the caret; above it when the scroller has no room below.
+        const view = this.scrollBox();
+        const below = anchor.bottom + 8;
+        const top = below + own.height > view.bottom - 8 && anchor.top - own.height - 8 >= view.top ? anchor.top - own.height - 8 : below;
+        Object.assign(box.style, {top: `${Math.round(top)}px`, left: `${Math.round(Math.max(view.left + 8, Math.min(anchor.left, view.right - own.width - 8)))}px`});
+    }
+
+    /** The box of the scroller the editor stands in, cut to the window. */
+    scrollBox() {
+        let scroller = this.parentElement;
+        while (scroller && scroller !== this.ownerDocument.body) {
+            const {overflowY} = globalThis.getComputedStyle(scroller);
+            if ((overflowY === "auto" || overflowY === "scroll") && scroller.scrollHeight > scroller.clientHeight) break;
+            scroller = scroller.parentElement;
+        }
+        const box = scroller && scroller !== this.ownerDocument.body ? scroller.getBoundingClientRect() : {top: 0, left: 0, right: globalThis.innerWidth, bottom: globalThis.innerHeight};
+        return {top: Math.max(0, box.top), left: Math.max(0, box.left), right: Math.min(globalThis.innerWidth, box.right), bottom: Math.min(globalThis.innerHeight, box.bottom)};
     }
 
     slashId() {
@@ -680,7 +815,7 @@ class SfContentEditor extends ContentEditorElement {
         this.redraw(node.id);
         this.redrawFlow(place.parent.id, place.slot);
         if (node.type === "content.divider") this.enter(place.parent.slots[place.slot][place.index + 1].id, 0);
-        else if (node.type === "content.figure") this.openParams(node.id, this.blockElement(node.id));
+        else if (node.type === "content.figure") this.pick([node.id]);
         else this.enter(node.id, "end", "first");
         this.say(this.sfWord("inserted-text", {vars: {kind: this.sfWord(`type-${kindOf(node) || "paragraph"}`)}}));
     }
@@ -1032,6 +1167,7 @@ class SfContentEditor extends ContentEditorElement {
                 : this.sfWord("picked-one", {vars: {kind: this.sfWord(`type-${kindOf(node ?? {}) || "paragraph"}`)}}));
         }
         this.sfEmit("select", {ids: [...this.picked]});
+        this.tellParams();
     }
 
     clearPicked() {
@@ -1039,12 +1175,35 @@ class SfContentEditor extends ContentEditorElement {
         this.picked = [];
         this.markPicked();
         this.sfEmit("select", {ids: []});
+        this.tellParams();
     }
 
     markPicked() {
         for (const element of this.querySelectorAll(".sf-content-editor-block.is-picked")) element.classList.remove("is-picked");
         for (const id of this.picked) this.blockElement(id)?.classList.add("is-picked");
         this.blocksElement?.setAttribute("aria-activedescendant", "");
+        this.drawQuick();
+    }
+
+    /** The one chosen block, or null. */
+    chosenNode() {
+        return this.picked.length === 1 ? locate(this.doc.root, this.picked[0])?.node ?? null : null;
+    }
+
+    /**
+     * Tells the host which block's parameters its panel shows: {id, type,
+     * kind, label, fields, open}; id empty when no one block is chosen.
+     * open says the person asked for them (the grip menu's «Parameters…»).
+     */
+    tellParams({open = false} = {}) {
+        const node = this.chosenNode();
+        const detail = node
+            ? {id: node.id, type: node.type, kind: kindOf(node), label: this.sfWord(`type-${kindOf(node) || "paragraph"}`), fields: this.parameterFields(node), open}
+            : {id: "", type: "", kind: "", label: "", fields: [], open: false};
+        const key = JSON.stringify(detail);
+        if (key === this.toldParams && !open) return;
+        this.toldParams = key;
+        this.sfEmit("params", detail);
     }
 
     onPickedKey(event) {
@@ -1183,7 +1342,8 @@ class SfContentEditor extends ContentEditorElement {
         if (event.defaultPrevented || event.isComposing) return;
         const mod = event.metaKey || event.ctrlKey;
         const target = event.target;
-        if (this.querySelector(".sf-content-editor-params")?.contains(target)) return;
+        // The quick toolbar and its popover keep their own keys.
+        if (this.quick?.contains(target)) return;
         if (mod && event.key.toLowerCase() === "z") {
             event.preventDefault();
             event.stopPropagation();
@@ -1360,44 +1520,79 @@ class SfContentEditor extends ContentEditorElement {
 
     // ------------------------------------------------------------ the gutter, its menus and the grip
 
+    // The gutter stands in the sheet's left margin, outside the text, centred
+    // on the first line of the block it serves (the stylesheet keeps it out of
+    // the text at every width).
     showGutter(id) {
-        const element = this.blockElement(id);
+        const element = id ? this.blockElement(id) : null;
         const gutter = this.querySelector(".sf-content-editor-gutter");
         if (!element || !gutter || this.dragging) return;
+        clearTimeout(this.gutterTimer);
         this.gutterFor = id;
-        const first = element.querySelector(".sf-content-editor-field") ?? element;
+        const first = element.querySelector(".sf-content-editor-field") ?? element.firstElementChild ?? element;
         const sheet = this.sheet.getBoundingClientRect();
-        const line = first.getBoundingClientRect();
-        const height = parseFloat(globalThis.getComputedStyle(first).lineHeight) || line.height;
-        const top = line.top - sheet.top + Math.max(0, (Math.min(height, line.height || height) - gutter.offsetHeight) / 2);
+        const box = first.getBoundingClientRect();
+        const style = globalThis.getComputedStyle(first);
+        const line = Math.min(parseFloat(style.lineHeight) || box.height, box.height || Infinity);
+        const top = box.top - sheet.top + (parseFloat(style.paddingTop) || 0) + (line - gutter.offsetHeight) / 2;
         gutter.style.top = `${Math.round(top)}px`;
         gutter.classList.add("is-shown");
     }
 
     hideGutter() {
+        clearTimeout(this.gutterTimer);
         this.querySelector(".sf-content-editor-gutter")?.classList.remove("is-shown");
+    }
+
+    /** The gutter waits a moment before it leaves, so the pointer can reach it. */
+    leaveGutter() {
+        clearTimeout(this.gutterTimer);
+        this.gutterTimer = setTimeout(() => {
+            if (!this.dragging && !this.querySelector(".sf-content-editor-gutter")?.matches(":hover, :focus-within")) this.hideGutter();
+        }, GUTTER_LINGER);
     }
 
     onPointerMove(event) {
         if (this.dragging || event.pointerType === "touch") return;
+        // On the way from the text to the gutter the pointer crosses the margin:
+        // the gutter stays with the block it serves.
+        if (event.target.closest?.(".sf-content-editor-gutter")) {
+            clearTimeout(this.gutterTimer);
+            return;
+        }
+        const text = this.blocksElement?.getBoundingClientRect();
+        if (text && event.clientX < text.left && this.gutterFor) return;
         const element = event.target.closest?.(".sf-content-editor-blocks > .sf-content-editor-block");
         if (element) this.showGutter(element.dataset.sfNode);
     }
 
-    openMenu(mode, anchor) {
+    /** Whether the sheet is narrow: the gutter holds the grip alone, and its menu adds below. */
+    isNarrow() {
+        const plus = this.querySelector(".sf-content-editor-plus > button");
+        return Boolean(plus) && globalThis.getComputedStyle(plus).display === "none";
+    }
+
+    // A menu opens at what opened it: under the + or the grip, its left edge on
+    // theirs. The anchor is the native button inside sf-icon-button, whose
+    // host draws no box of its own (display: contents).
+    openMenu(mode, trigger) {
         const menu = this.menu;
         if (!menu || !this.gutterFor) return;
         this.finishSession();
         this.menuMode = mode;
         this.menuFor = this.gutterFor;
+        const anchor = trigger?.matches?.("button") ? trigger : trigger?.querySelector?.("button") ?? trigger;
+        clearTimeout(this.gutterTimer);
         customElements.whenDefined("sf-context-menu").then(() => {
+            menu.search = {placeholder: this.sfWord("menu-search"), empty: this.sfWord("nothing-found")};
             menu.entries = mode === "plus" ? this.kindEntries() : this.blockEntries(this.menuFor);
-            menu.toggleFor(anchor);
+            anchor?.focus?.({preventScroll: true});
+            menu.toggleFor(anchor, {side: "block-end", align: "start"});
         });
     }
 
-    kindEntries(current = "") {
-        return this.offeredKinds().map((entry) => ({id: `kind:${entry.id}`, text: this.sfWord(`type-${entry.id}`), icon: entry.icon, keywords: this.sfWord(`find-${entry.id}`), ...(entry.hint ? {shortcut: entry.hint} : {}), ...(current === entry.id ? {current: true} : {})}));
+    kindEntries(current = "", prefix = "kind") {
+        return this.offeredKinds().map((entry) => ({id: `${prefix}:${entry.id}`, text: this.sfWord(`type-${entry.id}`), icon: entry.icon, keywords: [this.sfWord(`find-${entry.id}`), entry.hint ?? ""].join(" ").trim(), ...(entry.hint ? {shortcut: entry.hint} : {}), ...(current === entry.id ? {current: true} : {})}));
     }
 
     blockEntries(id) {
@@ -1406,7 +1601,8 @@ class SfContentEditor extends ContentEditorElement {
         const node = place.node;
         const list = place.parent.slots[place.slot];
         const entries = [];
-        if (this.editorFields(node.type).length || node.type === "content.figure") entries.push({id: "params", text: this.sfWord("params-text"), icon: "tune"}, {type: "separator"});
+        if (this.isNarrow()) entries.push({id: "add", text: this.sfWord("add-below-text"), icon: "add", submenu: this.kindEntries(), search: {placeholder: this.sfWord("menu-search"), empty: this.sfWord("nothing-found")}}, {type: "separator"});
+        if (this.editorFields(node.type).length) entries.push({id: "params", text: this.sfWord("params-text"), icon: "tune"}, {type: "separator"});
         if (CONVERTIBLE.has(node.type)) {
             const turn = TURN_INTO.map(entryOf).filter((entry) => this.offeredKinds().includes(entry) || entry.id === "paragraph");
             entries.push({id: "turn", text: this.sfWord("turn-text"), icon: "swap_horiz", submenu: turn.map((entry) => ({id: `turn:${entry.id}`, text: this.sfWord(`type-${entry.id}`), icon: entry.icon, ...(kindOf(node) === entry.id ? {current: true} : {})}))}, {type: "separator"});
@@ -1435,7 +1631,7 @@ class SfContentEditor extends ContentEditorElement {
     onMenuSelect(event) {
         const choice = String(event.detail?.id ?? event.detail?.entry?.id ?? "");
         const id = this.menuFor;
-        if (!choice || !id || choice === "turn") return;
+        if (!choice || !id || choice === "turn" || choice === "add") return;
         const node = locate(this.doc.root, id)?.node;
         if (!node) return;
         if (choice.startsWith("kind:")) {
@@ -1443,7 +1639,7 @@ class SfContentEditor extends ContentEditorElement {
             if (node.type === "content.paragraph" && !inlineLength(inlineOf(node, "content"))) this.turnInto(id, entry);
             else this.insertKind(entry, id);
         } else if (choice.startsWith("turn:")) this.turnInto(id, entryOf(choice.slice(5)));
-        else if (choice === "params") this.openParams(id, this.blockElement(id));
+        else if (choice === "params") this.openParams(id);
         else if (choice === "up") this.shift(id, -1);
         else if (choice === "down") this.shift(id, 1);
         else if (choice === "duplicate") {
@@ -1525,7 +1721,11 @@ class SfContentEditor extends ContentEditorElement {
             element.classList.remove("is-dragging");
             this.dragging = false;
             if (!moved) {
-                if (drop) this.openMenu("block", grip);
+                // A press in the gutter chooses its block and opens the block's menu.
+                if (drop) {
+                    this.pick([id]);
+                    this.openMenu("block", grip);
+                }
                 return;
             }
             if (!drop || seat < 0) return;
@@ -1561,19 +1761,6 @@ class SfContentEditor extends ContentEditorElement {
 
     // ------------------------------------------------------------ parameters
 
-    /** The words of the parameters that differ from their defaults; null for a type without any. */
-    paramsSummary(node) {
-        const fields = this.editorFields(node.type);
-        if (!fields.length) return null;
-        const words = fields.filter((item) => item.plane === "props" && node.props && Object.hasOwn(node.props, item.key)).map((item) => {
-            const value = node.props[item.key];
-            if (item.kind === "choice") return this.choiceWord(item.key, value);
-            if (item.kind === "toggle") return value ? this.paramWord(item.key) : this.sfWord("without-text", {vars: {name: this.paramWord(item.key).toLowerCase()}});
-            return String(value);
-        });
-        return words.slice(0, 2).join(" · ");
-    }
-
     paramWord(key) {
         const word = this.sfWord(`param-${key}`);
         return word === `param-${key}` ? key : word;
@@ -1584,84 +1771,254 @@ class SfContentEditor extends ContentEditorElement {
         return word === `choice-${key}-${value}` ? String(value) : word;
     }
 
-    openParams(id, anchor) {
-        const place = locate(this.doc.root, id);
-        const panel = this.querySelector(".sf-content-editor-params");
-        if (!place || !panel) return;
-        this.finishSession();
-        this.paramsFor = id;
-        this.paramsReturn = this.ownerDocument.activeElement;
-        this.drawParams();
-        panel.hidden = false;
-        const box = (anchor?.querySelector?.(".sf-content-editor-tag") ?? anchor)?.getBoundingClientRect?.() ?? this.getBoundingClientRect();
-        const own = panel.getBoundingClientRect();
-        const top = box.bottom + 6 + own.height > globalThis.innerHeight - 8 ? Math.max(8, box.top - own.height - 6) : box.bottom + 6;
-        Object.assign(panel.style, {top: `${top}px`, left: `${Math.max(8, Math.min(box.right - own.width, globalThis.innerWidth - own.width - 8))}px`});
-        requestAnimationFrame(() => panel.querySelector("sf-switch, sf-dropdown, sf-input, input")?.focus?.());
+    get quick() {
+        return this.querySelector(".sf-content-editor-quick");
     }
 
-    closeParams({focus = true} = {}) {
-        const panel = this.querySelector(".sf-content-editor-params");
-        if (!panel || panel.hidden) return;
-        panel.hidden = true;
-        render(html``, panel);
-        const id = this.paramsFor;
-        this.paramsFor = "";
-        if (focus && id && locate(this.doc.root, id)) this.pick([id]);
+    // The quick toolbar stands over the one chosen block: its choices of two
+    // to six options as toggles, and «Parameters…» for the rest. It floats over
+    // the sheet, so choosing in it moves nothing on the page.
+    drawQuick() {
+        const bar = this.quick;
+        if (!bar) return;
+        const node = this.chosenNode();
+        const element = node ? this.blockElement(node.id) : null;
+        const fields = node ? this.editorFields(node.type) : [];
+        if (!node || !element || !fields.length) {
+            if (!bar.hidden) {
+                bar.hidden = true;
+                render(html``, bar);
+            }
+            this.quickFor = "";
+            return;
+        }
+        this.quickFor = node.id;
+        const quick = fields.filter((item) => this.isQuick(item));
+        const host = this.parameters === "host";
+        const toggle = (item, choice, index) => {
+            const value = String(paramValue(node, item) ?? "");
+            const on = value === String(choice);
+            const icon = QUICK_ICONS[item.key]?.[choice];
+            const label = `${this.paramWord(item.key)}: ${this.choiceWord(item.key, choice)}`;
+            const segment = item.choices.length === 1 ? "" : index === 0 ? "start" : index === item.choices.length - 1 ? "end" : "middle";
+            const choose = () => this.writeParam(node.id, item, String(choice));
+            return icon
+                ? html`<sf-icon-button size="1/3" icon=${icon} appearance=${on ? "tonal" : "link"} segment=${segment} aria-pressed=${on ? "true" : "false"}
+                    aria-label=${label} title=${label} data-param=${item.key} data-value=${String(choice)} @click=${choose}></sf-icon-button>`
+                : html`<sf-button size="1/3" text=${this.choiceWord(item.key, choice)} appearance=${on ? "tonal" : "link"} segment=${segment} aria-pressed=${on ? "true" : "false"}
+                    aria-label=${label} title=${label} data-param=${item.key} data-value=${String(choice)} @click=${choose}></sf-button>`;
+        };
+        const more = html`<sf-icon-button size="1/3" icon="tune" appearance="link" class="sf-content-editor-quick-more" aria-label=${this.sfWord("params-text")} title=${this.sfWord("params-text")}
+            slot=${host ? nothing : "trigger"} @click=${host ? () => this.tellParams({open: true}) : null}></sf-icon-button>`;
+        render(html`
+            ${quick.map((item) => html`<div class="sf-content-editor-quick-group" role="group" aria-label=${this.paramWord(item.key)}>${item.choices.map((choice, index) => toggle(item, choice, index))}</div>`)}
+            ${host ? more : html`<sf-popover class="sf-content-editor-popover" placement="bottom-end" surface-role="dialog" label=${this.sfWord("params-label")}
+                @sf-popover-opened=${() => this.drawParamsForm()} @sf-popover-closed=${() => this.drawParamsForm()}>
+                ${more}
+                <div slot="content" class="sf-content-editor-params"></div>
+            </sf-popover>`}
+        `, bar);
+        this.drawParamsForm();
+        bar.hidden = false;
+        bar.setAttribute("aria-label", this.sfWord("quick-label", {vars: {kind: this.sfWord(`type-${kindOf(node) || "paragraph"}`)}}));
+        this.placeQuick();
     }
 
-    drawParams() {
-        const panel = this.querySelector(".sf-content-editor-params");
-        const node = locate(this.doc.root, this.paramsFor)?.node;
-        if (!panel || !node) return;
-        const fields = this.editorFields(node.type);
-        const picture = node.type === "content.figure" || node.type === "content.media";
+    placeQuick() {
+        const bar = this.quick;
+        const element = this.quickFor ? this.blockElement(this.quickFor) : null;
+        if (!bar || bar.hidden || !element) return;
+        const sheet = this.sheet.getBoundingClientRect();
+        const box = element.getBoundingClientRect();
+        const top = box.top - sheet.top - bar.offsetHeight - QUICK_GAP;
+        Object.assign(bar.style, {top: `${Math.round(Math.max(0, top))}px`, left: `${Math.round(box.left - sheet.left)}px`});
+    }
+
+    // The form is drawn while the popover is open: the Loader fetches no code
+    // for an element inside a closed surface, so its fields are made when it
+    // opens.
+    drawParamsForm() {
+        const form = this.quick?.querySelector(".sf-content-editor-params");
+        const node = this.chosenNode();
+        if (!form) return;
+        const open = form.closest("sf-popover")?.open === true;
+        render(open && node ? this.paramsForm(node, this.editorFields(node.type)) : html``, form);
+    }
+
+    /** The fields of a host with no panel, in the popover from the quick toolbar. */
+    paramsForm(node, fields) {
         const control = (item) => {
             const value = paramValue(node, item);
             const label = this.paramWord(item.key);
             if (item.kind === "toggle") return html`<sf-switch size="1/2" label=${label} ?checked=${value === true} data-param=${item.key}
-                @change=${(event) => this.setParam(item, Boolean(event.target.checked ?? event.currentTarget.checked))}></sf-switch>`;
+                @change=${(event) => this.writeParam(node.id, item, Boolean(event.target.checked ?? event.currentTarget.checked))}></sf-switch>`;
             if (item.kind === "choice") return html`<sf-dropdown size="1/2" label=${label} data-param=${item.key} .options=${item.choices.map((choice) => ({value: String(choice), text: this.choiceWord(item.key, choice)}))} value=${String(value ?? "")}
-                @change=${(event) => this.setParam(item, String(event.detail?.value ?? event.currentTarget.value))}></sf-dropdown>`;
-            const integer = item.kind === "integer";
-            return html`<sf-input size="1/2" label=${label} data-param=${item.key} input-type=${integer ? "number" : "text"} value=${value === undefined || value === null ? "" : String(value)}
+                @change=${(event) => this.writeParam(node.id, item, String(event.detail?.value ?? event.currentTarget.value))}></sf-dropdown>`;
+            const missing = item.key === "alt" && !String(value ?? "").trim();
+            return html`<sf-input size="1/2" label=${label} data-param=${item.key} input-type="text" value=${value === undefined || value === null ? "" : String(value)}
+                hint=${missing ? this.sfWord("alt-missing") : ""}
                 @change=${(event) => {
                     event.stopPropagation();
-                    const raw = String(event.detail?.value ?? event.target.value ?? "").trim();
-                    if (!integer) this.setParam(item, raw);
-                    else if (raw === "") this.setParam(item, undefined);
-                    else if (Number.isInteger(Number(raw))) this.setParam(item, Math.max(item.constraints?.min ?? -Infinity, Math.min(item.constraints?.max ?? Infinity, Number(raw))));
+                    const next = this.coerce(item, String(event.detail?.value ?? event.target.value ?? ""));
+                    if (next) this.writeParam(node.id, item, next.value);
                 }}></sf-input>`;
         };
-        render(html`
-            <div class="sf-content-editor-params-head">
-                <span class="sf-content-editor-params-title">${this.sfWord(`type-${kindOf(node) || "paragraph"}`)}</span>
-                <sf-icon-button size="1/2" appearance="link" icon="close" aria-label=${this.sfWord("close-text")} title=${this.sfWord("close-text")} @click=${() => this.closeParams()}></sf-icon-button>
-            </div>
-            ${picture ? html`<sf-input size="1/2" label=${this.sfWord("param-src")} data-param="src" value=${String(node.data?.src ?? "")}
-                @change=${(event) => { event.stopPropagation(); this.setSource(String(event.detail?.value ?? event.target.value ?? "").trim()); }}></sf-input>` : ""}
-            ${fields.map(control)}
-        `, panel);
+        return html`${fields.map(control)}`;
     }
 
-    setParam(item, value) {
-        const node = locate(this.doc.root, this.paramsFor)?.node;
+    /** The grip menu's «Parameters…»: the host's panel, else the popover. */
+    openParams(id) {
+        if (!locate(this.doc.root, id)) return;
+        this.pick([id]);
+        if (this.parameters === "host") {
+            this.tellParams({open: true});
+            return;
+        }
+        requestAnimationFrame(() => this.quick?.querySelector("sf-popover")?.show?.());
+    }
+
+    writeParam(id, item, value) {
+        const node = locate(this.doc.root, id)?.node;
         if (!node || Object.is(paramValue(node, item), value)) return;
         this.remember();
         setParam(node, item, value);
         this.redraw(this.flowBlockOf(node.id) || node.id);
         this.say(this.sfWord("param-changed"));
         this.changed("params");
+        this.tellParams();
     }
 
-    setSource(src) {
-        const node = locate(this.doc.root, this.paramsFor)?.node;
+    setSource(id, src) {
+        const node = locate(this.doc.root, id)?.node;
         if (!node || node.data?.src === src) return;
         this.remember();
         node.data ??= {};
         node.data.src = src;
+        this.linking.delete(id);
         this.redraw(node.id);
         this.changed("params");
+    }
+
+    // ------------------------------------------------------------ pictures on the page
+
+    /** A picture file goes into a block: shown at once, and handed to the host to keep. */
+    takeFile(id, file) {
+        const node = locate(this.doc.root, id)?.node;
+        if (!node || !file) return;
+        const old = this.uploads.get(id);
+        if (old?.href) URL.revokeObjectURL(old.href);
+        const upload = {href: URL.createObjectURL(file), name: file.name ?? "", state: "process", reason: "", file};
+        this.uploads.set(id, upload);
+        this.linking.delete(id);
+        this.redraw(id);
+        this.markPicked();
+        this.say(this.sfWord("file-sending", {vars: {name: upload.name}}));
+        this.sfEmit("file", {file, block: id});
+    }
+
+    /** Makes a picture block for each image file at a place of the page. */
+    dropFiles(files, parentId, slot, index, {remember = true} = {}) {
+        const images = [...files].filter((file) => String(file.type).startsWith("image/"));
+        if (!images.length) {
+            if (files.length) this.say(this.sfWord("file-not-image"));
+            return [];
+        }
+        this.finishSession();
+        if (remember) this.remember();
+        const made = images.map(() => this.fresh(entryOf("figure")));
+        insertAt(this.doc.root, parentId, slot, index, ...made);
+        this.redrawFlow(parentId, slot);
+        this.changed("insert");
+        made.forEach((node, at) => this.takeFile(node.id, images[at]));
+        this.pick([made.at(-1).id]);
+        return made;
+    }
+
+    /** Where a drop at a height of the page lands: the seat between the page's blocks. */
+    seatAt(clientY) {
+        const list = this.flowOf(this.doc.root);
+        const top = this.sheet.getBoundingClientRect().top;
+        const seats = list.map((node) => (this.blockElement(node.id)?.getBoundingClientRect().top ?? 0) - top);
+        const last = list.length ? this.blockElement(list.at(-1).id)?.getBoundingClientRect() : null;
+        seats.push(last ? last.bottom - top : 0);
+        const y = clientY - top;
+        let best = 0;
+        seats.forEach((value, index) => { if (Math.abs(value - y) < Math.abs(seats[best] - y)) best = index; });
+        return {index: best, top: seats[best]};
+    }
+
+    hasFiles(event) {
+        return [...(event.dataTransfer?.types ?? [])].includes("Files");
+    }
+
+    onDragOver(event) {
+        if (!this.hasFiles(event) || this.dragging) return;
+        event.preventDefault();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
+        const line = this.querySelector(".sf-content-editor-drop");
+        if (event.target.closest?.("sf-file-upload")) {
+            line.hidden = true;
+            return;
+        }
+        const seat = this.seatAt(event.clientY);
+        line.style.top = `${Math.round(seat.top) - 1}px`;
+        line.hidden = false;
+    }
+
+    onDrop(event) {
+        const line = this.querySelector(".sf-content-editor-drop");
+        if (line) line.hidden = true;
+        event.preventDefault();
+        // An empty picture's zone takes its own drop (sf-file-upload's attach).
+        if (!this.hasFiles(event) || event.target.closest?.("sf-file-upload")) return;
+        const seat = this.seatAt(event.clientY);
+        this.dropFiles(event.dataTransfer.files, this.doc.root.id, FLOWS[this.doc.root.type], seat.index);
+    }
+
+    /** A paste with a picture on the clipboard: a picture block at the caret. Answers whether it took it. */
+    pasteFiles(event, afterId) {
+        const files = [...(event.clipboardData?.files ?? [])].filter((file) => String(file.type).startsWith("image/"));
+        if (!files.length) return false;
+        event.preventDefault();
+        event.stopPropagation();
+        const place = afterId ? locate(this.doc.root, this.topBlockOf(afterId) || afterId) : null;
+        const root = this.doc.root;
+        if (!place?.parent) {
+            this.dropFiles(files, root.id, FLOWS[root.type], this.flowOf(root).length);
+            return true;
+        }
+        // An empty line the caret stood in becomes the picture.
+        const empty = place.node.type === "content.paragraph" && !inlineLength(inlineOf(place.node, "content"));
+        this.finishSession();
+        this.remember();
+        if (empty) removeNode(root, place.node.id);
+        this.dropFiles(files, place.parent.id, place.slot, empty ? place.index : place.index + 1, {remember: false});
+        return true;
+    }
+
+    onZoneClick(event) {
+        const zone = event.target.closest?.("[data-sf-zone]");
+        if (!zone) return false;
+        const id = zone.dataset.sfZone;
+        const action = event.target.closest?.("[data-sf-zone-action]")?.dataset.sfZoneAction;
+        if (!action) return false;
+        event.preventDefault();
+        if (action === "link") this.linking.add(id);
+        if (action === "upload") this.linking.delete(id);
+        if (action === "retry") {
+            const upload = this.uploads.get(id);
+            if (upload?.file) this.takeFile(id, upload.file);
+            return true;
+        }
+        if (action === "cancel") {
+            const upload = this.uploads.get(id);
+            if (upload?.href) URL.revokeObjectURL(upload.href);
+            this.uploads.delete(id);
+        }
+        this.redraw(id);
+        this.markPicked();
+        if (action === "link") requestAnimationFrame(() => this.blockElement(id)?.querySelector("sf-input")?.focus?.());
+        return true;
     }
 
     // ------------------------------------------------------------ words for a reader
@@ -1716,6 +2073,10 @@ class SfContentEditor extends ContentEditorElement {
         this.addEventListener("click", (event) => this.onClick(event), signal);
         this.addEventListener("paste", (event) => {
             const element = event.target.closest?.(".sf-content-editor-field");
+            if (event.target.closest?.(".sf-content-editor-quick, sf-input")) return;
+            // A picture on the clipboard: a picture block at the caret, or after the chosen blocks.
+            if (element && this.blocksElement?.contains(element) && this.pasteFiles(event, element.dataset.sfNode)) return;
+            if (event.target === this.blocksElement && this.pasteFiles(event, this.picked.at(-1) ?? "")) return;
             if (element && this.blocksElement?.contains(element)) this.onPaste(event, element);
             else if (event.target.closest?.(".sf-content-editor-title")) {
                 event.preventDefault();
@@ -1725,12 +2086,30 @@ class SfContentEditor extends ContentEditorElement {
         this.addEventListener("copy", (event) => this.onCopy(event, false), signal);
         this.addEventListener("cut", (event) => this.onCopy(event, true), signal);
         this.addEventListener("pointermove", (event) => this.onPointerMove(event), signal);
-        this.addEventListener("pointerleave", () => { if (!this.dragging) this.hideGutter(); }, signal);
+        this.addEventListener("pointerleave", () => { if (!this.dragging) this.leaveGutter(); }, signal);
         this.addEventListener("sf-context-menu-select", (event) => {
             event.stopPropagation();
             this.onMenuSelect(event);
         }, signal);
-        this.addEventListener("drop", (event) => event.preventDefault(), signal);
+        this.addEventListener("dragover", (event) => this.onDragOver(event), signal);
+        this.addEventListener("dragleave", (event) => {
+            if (!this.contains(event.relatedTarget)) {
+                const line = this.querySelector(".sf-content-editor-drop");
+                if (line && !this.dragging) line.hidden = true;
+            }
+        }, signal);
+        this.addEventListener("drop", (event) => this.onDrop(event), signal);
+        // An empty picture's zone (sf-file-upload): the file it was given goes to the host.
+        this.addEventListener("sf-file-upload-attach", (event) => {
+            event.stopPropagation();
+            const id = event.target.closest?.("[data-sf-zone]")?.dataset.sfZone;
+            const file = event.detail?.files?.[0]?.file ?? event.detail?.files?.[0];
+            if (id && file instanceof Blob) this.takeFile(id, file);
+        }, signal);
+        for (const name of ["sf-file-upload-select", "sf-file-upload-attached", "sf-file-upload-file-add", "sf-file-upload-rejected", "sf-file-upload-begun"]) {
+            this.addEventListener(name, (event) => event.stopPropagation(), signal);
+        }
+        this.addEventListener("sf-file-upload-rejected", () => this.say(this.sfWord("file-not-image")), signal);
         doc.addEventListener("selectionchange", () => {
             if (!this.sessionField) return;
             requestAnimationFrame(() => this.placeToolbar());
@@ -1739,15 +2118,23 @@ class SfContentEditor extends ContentEditorElement {
             if (this.sessionField) requestAnimationFrame(() => this.placeToolbar());
             this.closeSlash();
         }, {...signal, capture: true, passive: true});
-        doc.addEventListener("pointerdown", (event) => {
-            const panel = this.querySelector(".sf-content-editor-params");
-            if (panel && !panel.hidden && !panel.contains(event.target) && !event.composedPath().some((node) => node?.classList?.contains?.("sf-dropdown-portal") || node?.localName === "sf-dropdown")) this.closeParams({focus: false});
-        }, {...signal, capture: true});
+        // The quick toolbar follows its block when the sheet's width changes.
+        this.resizing = new ResizeObserver(() => {
+            this.placeQuick();
+            if (this.gutterFor) this.showGutter(this.gutterFor);
+        });
+        this.listening.signal.addEventListener("abort", () => this.resizing?.disconnect());
     }
 
     /** input and change from inside: a plain field or the title is written; neither leaves the element. */
     onInner(event) {
         event.stopPropagation();
+        const address = event.type === "change" ? event.target.closest?.("[data-sf-zone-src]") : null;
+        if (address) {
+            const value = String(event.detail?.value ?? address.value ?? event.target.value ?? "").trim();
+            if (value) this.setSource(address.dataset.sfZoneSrc, value);
+            return;
+        }
         if (event.type !== "input") return;
         const element = event.target.closest?.(".sf-content-editor-field[data-sf-kind='plain'], .sf-content-editor-title");
         if (!element) return;
@@ -1761,7 +2148,21 @@ class SfContentEditor extends ContentEditorElement {
 
     onPointerDown(event) {
         if (event.button !== 0) return;
-        if (this.picked.length && !event.target.closest?.(".sf-content-editor-gutter")) this.clearPicked();
+        const path = event.composedPath();
+        // The gutter, the quick toolbar and what it opens keep the chosen block.
+        const keeps = event.target.closest?.(".sf-content-editor-gutter, .sf-content-editor-quick, sf-popover") || path.some((node) => node?.classList?.contains?.("sf-dropdown-portal"));
+        if (keeps) return;
+        // A press on a block with no text of its own (a picture, a line, an unknown block) chooses it.
+        const solid = event.target.closest?.(".sf-content-editor-frame img, .sf-content-editor-divider, .sf-content-editor-opaque, .sf-content-editor-upload");
+        if (solid && !event.target.closest?.("[data-sf-zone-action]")) {
+            const id = this.flowBlockOf(solid.closest(".sf-content-editor-block")?.dataset.sfNode ?? "");
+            if (id) {
+                event.preventDefault();
+                this.pick([id]);
+                return;
+            }
+        }
+        if (this.picked.length) this.clearPicked();
         const element = event.target.closest?.(".sf-content-editor-field");
         if (!element || !this.blocksElement?.contains(element) || element.dataset.sfKind === "plain" || element === this.sessionField || element.hasAttribute("data-sf-inline-editing")) return;
         // Where the press lands is where the caret goes, read before the session draws the field again.
@@ -1793,12 +2194,7 @@ class SfContentEditor extends ContentEditorElement {
             }
             return;
         }
-        const tag = event.target.closest?.("[data-sf-params]");
-        if (tag) {
-            const id = tag.closest(".sf-content-editor-block")?.dataset.sfNode;
-            if (id) this.openParams(id, tag);
-            return;
-        }
+        if (this.onZoneClick(event)) return;
         if (event.target.closest?.("a") && !(event.metaKey || event.ctrlKey)) event.preventDefault();
         // A press below the last block: a line to type in there.
         if (event.target === this.sheet || event.target === this.blocksElement) {
@@ -1821,6 +2217,18 @@ class SfContentEditor extends ContentEditorElement {
     afterUpdate(...rest) {
         super.afterUpdate?.(...rest);
         this.adopt();
+        // New sources from the host: the pictures are drawn from them again.
+        if (this.sources !== this.sourcesSeen) {
+            const first = this.sourcesSeen === undefined;
+            this.sourcesSeen = this.sources;
+            if (!first) for (const node of this.pictures(this.doc.root)) this.redraw(this.flowBlockOf(node.id) || node.id);
+        }
+    }
+
+    /** Every picture of the page: the blocks a stored src is shown in. */
+    pictures(node) {
+        const own = node.type === "content.figure" || node.type === "content.media" ? [node] : [];
+        return [...own, ...Object.values(node.slots ?? {}).flat().flatMap((child) => this.pictures(child))];
     }
 
     templateContext() {
@@ -1833,7 +2241,7 @@ class SfContentEditor extends ContentEditorElement {
             gripLabel: this.sfWord("grip-label"),
             slashLabel: this.sfWord("slash-label"),
             slashId: this.slashId(),
-            paramsLabel: this.sfWord("params-label"),
+            quickLabel: this.sfWord("params-label"),
             noticeText: this.notice,
             rootClass: this.getRootClass?.() ?? "",
         };

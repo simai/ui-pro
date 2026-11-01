@@ -1,8 +1,10 @@
 {
   "title": "Content editor",
   "runtime": {
+    "add-below-text": "Add below",
     "alert-title-label": "Note title",
     "alert-title-placeholder": "Note title",
+    "alt-missing": "Describe the picture for those who cannot see it",
     "caption-label": "Caption",
     "caption-placeholder": "Caption",
     "cell-label": "Cell",
@@ -35,7 +37,6 @@
     "choice-status-warning": "Warning",
     "choice-variant-default": "Card",
     "choice-variant-plain": "No background",
-    "close-text": "Close",
     "code-label": "Code",
     "code-placeholder": "Code",
     "column-add-text": "Add a column",
@@ -45,7 +46,12 @@
     "diagram-text": "Diagram",
     "down-text": "Down",
     "duplicate-text": "Duplicate",
-    "figure-empty": "Give the picture's address",
+    "file-cancel": "Remove",
+    "file-not-image": "Only a picture can be dropped here",
+    "file-refused": "The picture could not be saved",
+    "file-retry": "Retry",
+    "file-sending": "Saving the picture {name}",
+    "file-stored": "Picture added",
     "find-alert": "note alert warning",
     "find-card": "card",
     "find-code": "code",
@@ -73,6 +79,7 @@
     "item-placeholder": "Item",
     "label": "Page content",
     "math-text": "Formula",
+    "menu-search": "Find a block",
     "moved-text": "Position {position}",
     "nothing-found": "Nothing found",
     "paragraph-label": "Text",
@@ -100,7 +107,7 @@
     "param-title": "Caption",
     "param-variant": "Look",
     "params-label": "Block parameters",
-    "params-text": "Parameters",
+    "params-text": "Parameters…",
     "pasted-text": {
       "one": "{n} block pasted",
       "other": "{n} blocks pasted"
@@ -111,6 +118,7 @@
     },
     "picked-one": "Block chosen: {kind}. Arrows go to its neighbours, Enter edits, Esc leaves",
     "plus-label": "Add a block",
+    "quick-label": "Parameters: {kind}",
     "removed-text": "Removed. ⌘Z brings it back",
     "row-add-text": "Add a row",
     "row-remove-text": "Remove a row",
@@ -143,6 +151,10 @@
     "type-tabs": "Tabs",
     "unknown-text": "A block the editor does not know: kept as it is.",
     "up-text": "Up",
-    "without-text": "no {name}"
+    "zone-formats": "PNG, JPEG, WebP, GIF or SVG",
+    "zone-link": "Link",
+    "zone-pick": "Choose a file",
+    "zone-text": "or drop a picture here, or paste it",
+    "zone-upload": "Upload a file"
   }
 }

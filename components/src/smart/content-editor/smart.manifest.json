@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "id": "smart.content-editor",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "title": "Content editor",
-  "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip add, move and open a block's menu, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A block's parameters are a form from its editor manifest. The element saves nothing: it sends the new Document in change.",
+  "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "kind": "smart",
   "reuse_mode": "whole",
   "lifecycle": "experimental",
@@ -27,12 +27,16 @@
   "exported_parts": [],
   "composition": {
     "uses": [
+      "smart.button",
       "smart.context-menu",
       "smart.dropdown",
+      "smart.file-upload",
       "smart.icon",
       "smart.icon-button",
       "smart.inline-editor",
       "smart.input",
+      "smart.popover",
+      "smart.progress-bar",
       "smart.switch"
     ],
     "public_parts": []
@@ -52,6 +56,15 @@
       "root-style": {
         "type": "string",
         "default": ""
+      },
+      "parameters": {
+        "type": "string",
+        "default": "popover",
+        "description": "Where a chosen block's parameters beyond its quick choices are edited: popover (an sf-popover from the block's quick toolbar) or host (the host draws them from the params event, as a page editor's Properties panel does).",
+        "enum": [
+          "popover",
+          "host"
+        ]
       },
       "label": {
         "type": "string",
@@ -74,6 +87,11 @@
           "type": "object"
         },
         "description": "Composition editor manifests of a host's own types, or ones that replace the Framework's for a type: the parameters form of a block is built from them."
+      },
+      "sources": {
+        "type": "object",
+        "default": null,
+        "description": "Where a picture's stored src is shown from: a map of the value a host answered with to an address the browser loads."
       }
     },
     "additionalProperties": false
@@ -100,7 +118,7 @@
       ]
     },
     "change": {
-      "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen."
+      "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen; params {id, type, kind, label, fields, open} is the chosen block's parameters for a host's panel; file {file, block} hands a picture to the host, which answers with answer-file."
     }
   },
   "methods": {
@@ -164,6 +182,69 @@
         "type": "object",
         "description": "{outcome: applied} or {outcome: refused, reason: empty}"
       }
+    },
+    "setParameter": {
+      "summary": "Write a block's parameter from a host's panel; empty or the default takes it out; refused unknown or invalid.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        },
+        {
+          "name": "key",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "value",
+          "schema": {
+            "type": "string",
+            "description": "the value as the field takes it: a choice's or a text's string, a toggle's boolean, an integer; empty takes it out"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | invalid}"
+      }
+    },
+    "answerFile": {
+      "summary": "Answer a file event: {block, value, href} stores the picture, {block, reason} shows the refusal with a retry, {block, progress} moves the bar; refused unknown.",
+      "arguments": [
+        {
+          "name": "block",
+          "schema": {}
+        },
+        {
+          "name": "value",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "href",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "reason",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "progress",
+          "schema": {
+            "type": "number"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
     }
   },
   "events": {
@@ -207,6 +288,56 @@
         "type": "object",
         "required": [],
         "properties": {},
+        "additionalProperties": true
+      }
+    },
+    "sf-content-editor-params": {
+      "summary": "The chosen block's parameters for a host's panel: {id, type, kind, label, fields, open}; id empty when none is chosen.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "kind",
+          "label",
+          "fields",
+          "open"
+        ],
+        "properties": {
+          "id": {},
+          "type": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array"
+          },
+          "open": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-content-editor-file": {
+      "summary": "A picture to keep: {file, block}. The host stores the file and calls answer-file with {block, value, href} or {block, reason}.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "file",
+          "block"
+        ],
+        "properties": {
+          "file": {
+            "type": "object"
+          },
+          "block": {}
+        },
         "additionalProperties": true
       }
     }
@@ -324,7 +455,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/content-editor/index.js",
-        "sha256": "240609b1252af912d2e1ed378eb6fc0a7ca0916ab71e796889bce71104aaa7a2"
+        "sha256": "ed15d55c75decec238a3c7367eb4a90967bc67b0846cacb49598b1389da58ce3"
       },
       {
         "path": "src/smart/content-editor/js/model.js",
@@ -340,35 +471,35 @@
       },
       {
         "path": "src/smart/content-editor/js/view.js",
-        "sha256": "a69765db412d9b9f57839b029e797baad0bd78373e561df07eed9aab8e5c3f6b"
+        "sha256": "e36b604ac3464a9323a2b5936a2d0098a8a676f9198fb6ab7477eb45dfe31324"
       },
       {
         "path": "src/smart/content-editor/js/templates/default.js",
-        "sha256": "595b1e6ced8b61a56c2b30473b7aee8f2dfcb3e8c5032c30d1418fa88131477e"
+        "sha256": "c558acd8c6c0e50b96d4b17de5efbfc24ede8aec439329efaa08be78d60f0f55"
       },
       {
         "path": "src/smart/content-editor/js/templates/default.css",
-        "sha256": "87410ec2b4ca0949e2f09876c7ea8d3355397342ebf707add95b4ba6dce60ab0"
+        "sha256": "50e80bc329303d2ce856232524438f646f600653d4ab5c71cca25d38d53b8d02"
       },
       {
         "path": "src/smart/content-editor/rule.js",
-        "sha256": "b2b745e2a338741c577e986b2b84bf43826faa722bd16add3f849f2e37af8142"
+        "sha256": "630e6bffc4bee12f6c36f088dd06ee80ad6463015709ad34addb839d357e505d"
       },
       {
         "path": "src/smart/content-editor/docs.md",
-        "sha256": "32a4169a2355dcbe13eaf8db1d34f0b7fae7bf2737328a79457138dd8c30d328"
+        "sha256": "4613874661afb252241489fc70368c14c3108329ecb694d57e1133806a226e30"
       },
       {
         "path": "src/smart/content-editor/component.json",
-        "sha256": "c6c73f817990934e5f411a8115a65d8b51a17004fac5224e1156b79041a9b8ab"
+        "sha256": "5ba0ff66eb11a1c8568b5de03e1b6a7228ff2dc337038e3f9987129b2d345e25"
       },
       {
         "path": "src/smart/content-editor/lang/en.json",
-        "sha256": "0f9b1cc9fa006abc022687a9d1d526704b3335b0b64a696d7d1b476cf86b0113"
+        "sha256": "2e00077ae0498adebf019affefbf4d4061fa4ba5192a6812e49a1e04008bd9e5"
       },
       {
         "path": "src/smart/content-editor/lang/ru.json",
-        "sha256": "8be0d1b917198fd65ba4f240711c4651ff9927f0651935ef0d12c11bf3c613ea"
+        "sha256": "a8cf218e1411eb435e8514ff4d2bfb2cb81e3866da71d0c343f8599e1f8d7440"
       }
     ],
     "generated_runtime": []
@@ -378,7 +509,8 @@
     "do_not": [
       "Do not store the page in the element; listen for change and save the document it carries",
       "Do not write a parameter equal to its default; the editor already leaves it out",
-      "Do not turn an unknown block into a paragraph; the editor keeps it as it is"
+      "Do not turn an unknown block into a paragraph; the editor keeps it as it is",
+      "Do not keep a dropped picture in the Document as a data: URL; store the file from the file event and answer with answer-file"
     ],
     "required_reads": [
       "inputs",

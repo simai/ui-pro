@@ -2,7 +2,7 @@
   "$comment": "The source of sf-content-editor's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-editor by the owner's decision of 2026-11-01 (the text editor starts once the content types are out); behaviour per ui-editor prototypes/content-editor.html and the content standard, sections 6, 7 and 9. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
   "id": "smart.content-editor",
   "tag": "sf-content-editor",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -27,6 +27,21 @@
         "changes": "content"
       },
       "summary": "Composition editor manifests of a host's own types, or ones that replace the Framework's for a type: the parameters form of a block is built from them."
+    },
+    "parameters": {
+      "type": "enum",
+      "values": [
+        "popover",
+        "host"
+      ],
+      "default": "popover",
+      "summary": "Where a chosen block's parameters beyond its quick choices are edited: popover (an sf-popover from the block's quick toolbar) or host (the host draws them from the params event, as a page editor's Properties panel does)."
+    },
+    "sources": {
+      "type": "object",
+      "default": null,
+      "x-markup": "a property: {<stored src>: <address to show it from>}; a host that keeps files by reference (an IndexedDB key, a storage id) sets it.",
+      "summary": "Where a picture's stored src is shown from: a map of the value a host answered with to an address the browser loads."
     },
     "label": {
       "type": "string",
@@ -56,6 +71,28 @@
       "own-verb": true,
       "x-summary": "Esc while blocks are chosen: the choice is let go and the person may be taken back (a page editor returns to its layout). A verb of this element.",
       "summary": "Esc with blocks chosen: the person asks to leave the text."
+    },
+    "params": {
+      "carries": {
+        "id": "id",
+        "type": "string",
+        "kind": "string",
+        "label": "string",
+        "fields": "list",
+        "open": "boolean"
+      },
+      "own-verb": true,
+      "x-summary": "One block was chosen (Esc, a press in the gutter or on a picture), or its «Parameters…» was asked for (open true): its type's editor-manifest fields with their values, words, choices, defaults and a warning (a picture with no alt), for a host's panel. id empty when no one block is chosen. A verb of this element.",
+      "summary": "The chosen block's parameters for a host's panel: {id, type, kind, label, fields, open}; id empty when none is chosen."
+    },
+    "file": {
+      "carries": {
+        "file": "object",
+        "block": "id"
+      },
+      "own-verb": true,
+      "x-summary": "A picture was dropped on the page, pasted, or given to an empty picture's zone: the File and the block it stands in. The block shows it at once from an object URL; the host keeps the file and answers with answer-file. A verb of this element.",
+      "summary": "A picture to keep: {file, block}. The host stores the file and calls answer-file with {block, value, href} or {block, reason}."
     }
   },
   "actions": {
@@ -136,6 +173,58 @@
         "type": "object",
         "description": "{outcome: applied} or {outcome: refused, reason: empty}"
       }
+    },
+    "set-parameter": {
+      "with": {
+        "id": "id",
+        "key": "string",
+        "value": {
+          "type": "string",
+          "optional": true,
+          "summary": "the value as the field takes it: a choice's or a text's string, a toggle's boolean, an integer; empty takes it out"
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "write one of a block's parameters as the host's panel set it; a value equal to its default (or empty) is taken out; refused unknown, invalid",
+      "summary": "Write a block's parameter from a host's panel; empty or the default takes it out; refused unknown or invalid.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | invalid}"
+      }
+    },
+    "answer-file": {
+      "with": {
+        "block": "id",
+        "value": {
+          "type": "string",
+          "optional": true
+        },
+        "href": {
+          "type": "string",
+          "optional": true
+        },
+        "reason": {
+          "type": "string",
+          "optional": true
+        },
+        "progress": {
+          "type": "number",
+          "optional": true
+        }
+      },
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "the host's answer to a file event: value (what data.src keeps) and href (where it is shown from), or reason (the block shows it with a retry), or progress 0-100 on the way; refused unknown for a block with no file on its way",
+      "summary": "Answer a file event: {block, value, href} stores the picture, {block, reason} shows the refusal with a retry, {block, progress} moves the bar; refused unknown.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
     }
   },
   "slots": {},
@@ -204,6 +293,21 @@
     {
       "name": "cl-input",
       "lazy": true
+    },
+    {
+      "name": "cl-button"
+    },
+    {
+      "name": "cl-file-upload",
+      "lazy": true
+    },
+    {
+      "name": "cl-progress-bar",
+      "lazy": true
+    },
+    {
+      "name": "cl-popover",
+      "lazy": true
     }
   ],
   "templates": {
@@ -238,7 +342,7 @@
   },
   "host-states": {},
   "css-variables": {},
-  "x-summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip add, move and open a block's menu, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A block's parameters are a form from its editor manifest. The element saves nothing: it sends the new Document in change.",
+  "x-summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "x-source": {
     "package": "ui-pro",
     "folder": "content-editor",
@@ -249,19 +353,22 @@
   "x-renamed": [],
   "x-decisions": [
     "names: sf-content-editor, as the content standard (section 6) names it.",
-    "shape: a leaf that draws its blocks itself (plain DOM, js/view.js), because sf-inline-editor owns a field while it is typed in; its frame, the gutter, the / list and the parameters form are its own markup, its menus one sf-context-menu.",
+    "shape: a leaf that draws its blocks itself (plain DOM, js/view.js), because sf-inline-editor owns a field while it is typed in; its frame, the gutter, the quick toolbar and the / list are its own markup, its menus one sf-context-menu, its parameters' popover one sf-popover, a picture's drop zone sf-file-upload.",
     "inline editing: every inline field is a session of sf-inline-editor 1.2.0 (marks, links, atoms, its bar); the editor takes Enter, Backspace at the start, Esc and the arrows at a field's edge before the session does, and shows the session's bar over a selection only.",
-    "parameters: the form is the type's composition-editor-manifest (key, choices, default), a host's own manifest first; a props value equal to its default is not written.",
     "unknown: a node of a type the editor does not know is drawn as a closed card and kept byte for byte; only moved or removed whole.",
     "storage: none. Every change is a change event with the whole Document; the host saves it and may set it back, which the editor recognises.",
-    "events: change and select are vocabulary §5 verbs; leave is this element's own."
+    "events: change and select are vocabulary §5 verbs; leave is this element's own.",
+    "gutter (owner, 2026-11-01): a fixed 56px margin left of the text holds the + and the grip, 24px each, 4px apart, centred on the block's first line; it never overlaps the text. A sheet narrower than 640px has a 32px margin with the grip alone, and the grip's menu holds «Add below». It follows the block under the pointer or the caret, fades in 120ms (none under reduced motion) and waits 150ms before it leaves.",
+    "menus (owner, 2026-11-01): the + and grip menus open under their trigger, left edges aligned, through sf-context-menu.openFor on the native button inside sf-icon-button (the host is display: contents and has no box); they flip above and have a search field over name, search words and the Markdown shortcut. The / list opens under the caret and flips inside the scroller.",
+    "parameters (owner, 2026-11-01): three places. The content is typed in the block; a choice of two to six options is a quick toggle over the chosen block (six, so a picture's ratios are one); the rest is the host's panel (parameters: host, the params event and set-parameter) or an sf-popover from the quick toolbar. The form is the type's composition-editor-manifest, a host's own first; a value equal to its default is not written. The floating form and the quiet button on each block are gone.",
+    "pictures (owner, 2026-11-01): an empty picture is a drop zone the width of the text (sf-file-upload), with «Link» for an address. A file dropped anywhere makes a picture at the drop line, a pasted one at the caret; it shows at once from an object URL, goes to the host in the file event, and the host answers with answer-file {value, href} or {reason}. sources maps a stored value to where it is shown from. A file block waits for content.file from the Framework."
   ],
   "x-rule": {
     "$comment": [
-      "The editor draws its gutter as sf-icon-button, its marks as sf-icon, and every inline field is",
-      "edited through sf-inline-editor, so those come with it. The block menu (sf-context-menu) and the",
-      "parameters form (sf-switch, sf-dropdown, sf-input) open on a press, so they are fetched after",
-      "the page is ready."
+      "The editor draws its gutter as sf-icon-button, its marks as sf-icon, the quick toolbar's words as sf-button,",
+      "and every inline field is edited through sf-inline-editor, so those come with it. The block menu (sf-context-menu),",
+      "the parameters' popover and form (sf-popover, sf-switch, sf-dropdown, sf-input) and a picture's drop zone and",
+      "progress (sf-file-upload, sf-progress-bar) open on a press or with an empty picture, so they are fetched after the page is ready."
     ]
   },
   "x-registry": {
@@ -313,7 +420,7 @@
         ]
       },
       "change": {
-        "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen."
+        "const": "Every change dispatches change {document, reason} with the whole Document; nothing is stored by the element. select {ids} says which blocks are chosen; leave {} is Esc with blocks chosen; params {id, type, kind, label, fields, open} is the chosen block's parameters for a host's panel; file {file, block} hands a picture to the host, which answers with answer-file."
       }
     },
     "state": {
@@ -371,7 +478,8 @@
       "do_not": [
         "Do not store the page in the element; listen for change and save the document it carries",
         "Do not write a parameter equal to its default; the editor already leaves it out",
-        "Do not turn an unknown block into a paragraph; the editor keeps it as it is"
+        "Do not turn an unknown block into a paragraph; the editor keeps it as it is",
+        "Do not keep a dropped picture in the Document as a data: URL; store the file from the file event and answer with answer-file"
       ],
       "required_reads": [
         "inputs",

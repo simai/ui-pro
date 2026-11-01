@@ -1,8 +1,10 @@
 {
   "title": "Редактор содержимого",
   "runtime": {
+    "add-below-text": "Добавить ниже",
     "alert-title-label": "Заголовок заметки",
     "alert-title-placeholder": "Заголовок заметки",
+    "alt-missing": "Опишите картинку для тех, кто её не видит",
     "caption-label": "Подпись",
     "caption-placeholder": "Подпись",
     "cell-label": "Ячейка",
@@ -35,7 +37,6 @@
     "choice-status-warning": "Внимание",
     "choice-variant-default": "Карточка",
     "choice-variant-plain": "Без фона",
-    "close-text": "Закрыть",
     "code-label": "Код",
     "code-placeholder": "Код",
     "column-add-text": "Добавить столбец",
@@ -45,7 +46,12 @@
     "diagram-text": "Схема",
     "down-text": "Ниже",
     "duplicate-text": "Дублировать",
-    "figure-empty": "Укажите адрес картинки",
+    "file-cancel": "Убрать",
+    "file-not-image": "Сюда можно положить только картинку",
+    "file-refused": "Не удалось сохранить картинку",
+    "file-retry": "Повторить",
+    "file-sending": "Картинка {name} сохраняется",
+    "file-stored": "Картинка добавлена",
     "find-alert": "заметка важно предупреждение alert",
     "find-card": "карточка card",
     "find-code": "код code",
@@ -73,6 +79,7 @@
     "item-placeholder": "Пункт",
     "label": "Содержимое страницы",
     "math-text": "Формула",
+    "menu-search": "Найти блок",
     "moved-text": "Позиция {position}",
     "nothing-found": "Ничего не найдено",
     "paragraph-label": "Текст",
@@ -100,7 +107,7 @@
     "param-title": "Подпись",
     "param-variant": "Оформление",
     "params-label": "Параметры блока",
-    "params-text": "Параметры",
+    "params-text": "Параметры…",
     "pasted-text": {
       "one": "Вставлен {n} блок",
       "few": "Вставлено {n} блока",
@@ -115,6 +122,7 @@
     },
     "picked-one": "Выбран блок: {kind}. Стрелки — соседние, Enter — править, Esc — выйти",
     "plus-label": "Добавить блок",
+    "quick-label": "Параметры: {kind}",
     "removed-text": "Удалено. ⌘Z вернёт",
     "row-add-text": "Добавить строку",
     "row-remove-text": "Убрать строку",
@@ -147,6 +155,10 @@
     "type-tabs": "Вкладки",
     "unknown-text": "Блок, которого редактор не знает: хранится как есть.",
     "up-text": "Выше",
-    "without-text": "без: {name}"
+    "zone-formats": "PNG, JPEG, WebP, GIF или SVG",
+    "zone-link": "Ссылка",
+    "zone-pick": "Выберите файл",
+    "zone-text": "или перетащите картинку сюда, или вставьте из буфера",
+    "zone-upload": "Загрузить файл"
   }
 }

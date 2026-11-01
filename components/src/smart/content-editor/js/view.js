@@ -2,7 +2,7 @@
 // block, the block's own fields where the person types, and its slots as
 // flows of blocks again. The look follows the published page (the
 // Framework's renderers in composition/index.mjs) so the page reads the same
-// in both; what only editing needs (a placeholder, the parameters button, a
+// in both; what only editing needs (a placeholder, a picture's drop zone, a
 // fold that is the editor's own) is added here.
 //
 // The drawing is plain DOM, not a Lit template: an inline field is handed to
@@ -158,22 +158,60 @@ function table(context, node) {
     return element;
 }
 
-function picture(context, data, ratio, fit) {
+// A picture: the image as the page shows it, from where the host keeps it.
+// An empty one is a drop zone on the page (sf-file-upload: drop, pick,
+// paste) with a quiet «Link» that turns it into one address field; a file on
+// its way to the host shows at once, from its object URL, with progress, and
+// a refusal shows its reason with a retry.
+function picture(context, node, ratio, fit) {
     const {doc, word} = context;
+    const data = node.data;
     const frame = make(doc, "div", "sf-content-editor-frame", {"data-ratio": ratio && ratio !== "auto" ? ratio : undefined, "data-fit": fit === "contain" ? "contain" : undefined});
-    if (data?.src) {
-        frame.append(make(doc, "img", "", {src: data.src, alt: data.alt ?? "", width: data.width, height: data.height, draggable: "false"}));
-    } else {
-        const pick = make(doc, "button", "sf-content-editor-pick", {type: "button", "data-sf-params": "open"});
-        pick.append(icon(doc, "image"), doc.createTextNode(word("figure-empty")));
-        frame.append(pick);
+    const upload = context.upload(node);
+    const src = upload?.href ?? context.source(data?.src);
+    if (src) {
+        frame.append(make(doc, "img", "", {src, alt: data?.alt ?? "", width: data?.width, height: data?.height, draggable: "false"}));
+        if (upload) frame.append(progress(context, node, upload));
+        return frame;
     }
+    frame.dataset.empty = "true";
+    frame.append(zone(context, node));
     return frame;
+}
+
+function progress(context, node, upload) {
+    const {doc, word} = context;
+    const element = make(doc, "div", "sf-content-editor-upload", {"data-sf-zone": node.id, "data-state": upload.state, contenteditable: "false"});
+    if (upload.state === "error") {
+        const reason = make(doc, "span", "sf-content-editor-upload-reason", {role: "alert"});
+        reason.textContent = upload.reason;
+        element.append(icon(doc, "error"), reason,
+            make(doc, "sf-button", "", {size: "1/2", appearance: "tonal", text: word("file-retry"), "data-sf-zone-action": "retry"}),
+            make(doc, "sf-button", "", {size: "1/2", appearance: "link", text: word("file-cancel"), "data-sf-zone-action": "cancel"}));
+    } else {
+        element.append(make(doc, "sf-progress-bar", "", {size: "1/3", value: String(upload.progress ?? 0), label: word("file-sending", {vars: {name: upload.name}})}));
+    }
+    return element;
+}
+
+function zone(context, node) {
+    const {doc, word} = context;
+    const element = make(doc, "div", "sf-content-editor-zone", {"data-sf-zone": node.id, contenteditable: "false"});
+    if (context.linking(node)) {
+        const address = make(doc, "sf-input", "sf-content-editor-zone-address", {size: "1/2", label: word("param-src"), "input-type": "url", "data-sf-zone-src": node.id, placeholder: "https://"});
+        element.append(address, make(doc, "sf-button", "", {size: "1/2", appearance: "link", icon: "upload", text: word("zone-upload"), "data-sf-zone-action": "upload"}));
+        return element;
+    }
+    element.append(
+        make(doc, "sf-file-upload", "sf-content-editor-zone-files", {accept: "image/*", icon: "add_photo_alternate", "link-text": word("zone-pick"), text: word("zone-text"), "supporting-text": word("zone-formats")}),
+        make(doc, "sf-button", "sf-content-editor-zone-link", {size: "1/2", appearance: "link", icon: "link", text: word("zone-link"), "data-sf-zone-action": "link"}),
+    );
+    return element;
 }
 
 function figure(context, node) {
     const element = make(context.doc, "figure", "sf-content-editor-figure");
-    element.append(picture(context, node.data, node.props?.ratio, node.props?.fit), field(context, "figcaption", node, "caption", {placeholder: "caption-placeholder", label: "caption-label", className: "sf-content-editor-caption"}));
+    element.append(picture(context, node, node.props?.ratio, node.props?.fit), field(context, "figcaption", node, "caption", {placeholder: "caption-placeholder", label: "caption-label", className: "sf-content-editor-caption"}));
     return element;
 }
 
@@ -240,7 +278,7 @@ function body(context, node) {
     }
     case "content.media": {
         const element = make(doc, "div", "sf-content-editor-media", {"data-side": node.props?.side ?? "right"});
-        element.append(picture(context, node.data, node.props?.ratio ?? "16/9"), flow(context, node, "default"));
+        element.append(picture(context, node, node.props?.ratio ?? "16/9"), flow(context, node, "default"));
         return element;
     }
     case "content.html": return raw(context, node, "markup", "html-text");
@@ -250,17 +288,11 @@ function body(context, node) {
     }
 }
 
-/** One block of a flow: its body, and the quiet parameters button when it has parameters. */
+/** One block of a flow: its body; its parameters are over it when it is chosen. */
 export function block(context, node) {
-    const {doc, word} = context;
+    const {doc} = context;
     const element = make(doc, "div", "sf-content-editor-block", {"data-sf-node": node.id, "data-sf-block": node.type, "data-known": KNOWN.has(node.type) ? undefined : "false"});
     element.append(body(context, node));
-    const summary = context.paramsSummary(node);
-    if (summary !== null) {
-        const tag = make(doc, "button", "sf-content-editor-tag", {type: "button", "data-sf-params": "open", "aria-label": word("params-label"), contenteditable: "false"});
-        tag.append(icon(doc, "tune"), doc.createTextNode(summary || word("params-text")));
-        element.append(tag);
-    }
     return element;
 }
 
