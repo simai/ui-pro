@@ -763,6 +763,11 @@ export function renderTableTemplate(context) {
         const data = columns.filter((column) => column?.key && !['select', 'settings', 'actions'].includes(column.key)
             && !column.system && column.visible !== false);
         const title = data.find((column) => column.role === 'title') ?? data[0];
+        // The title the host marked opens its record with one click here as
+        // in the table's title column; a list on a laptop is the same admin.
+        const listTitle = (row) => (title.role === 'title'
+            ? renderTitleLink(context, row, renderCellValue(row, title))
+            : renderCellValue(row, title));
         const limit = Math.max(0, Number(context.component.getProp?.('listFields') ?? 3) || 0);
         const fields = data.filter((column) => column !== title)
             .map((column, order) => ({column, order}))
@@ -794,7 +799,7 @@ export function renderTableTemplate(context) {
                             ${select ? html`<span class="sf-table-list-select">${renderCellValue(row, select)}</span>` : nothing}
                             <div class="sf-table-list-main">
                                 <div class="sf-table-list-title">${title
-                                    ? (row.__tree || row.path ? renderTreeCell(context, row, renderCellValue(row, title)) : renderCellValue(row, title))
+                                    ? (row.__tree || row.path ? renderTreeCell(context, row, listTitle(row)) : listTitle(row))
                                     : nothing}</div>
                                 ${fields.some((column) => filled(row[column.key])) ? html`
                                     <div class="sf-table-list-fields">

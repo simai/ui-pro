@@ -48,7 +48,7 @@ try {
       {key: 'updated', label: 'Обновлено', priority: 4, sortable: true},
     ]);
     table.setRows([
-      {id: '1', title: 'Раз', code: 'one', status: 'В работе', owner: 'Анна', updated: '2026-10-01'},
+      {id: '1', title: 'Раз', code: 'one', status: 'В работе', owner: 'Анна', updated: '2026-10-01', actions: ['view']},
       {id: '2', title: 'Два', code: 'two', status: 'Готово', owner: '', updated: '2026-10-02'},
     ]);
   });
@@ -83,6 +83,17 @@ try {
       boxes: {toolbar: box && [box.left, box.right], field: field && [field.left, field.right], row: row && [row.getBoundingClientRect().left, row.getBoundingClientRect().right]},
     };
   });
+  // The title opens its record with one click, as in the table's title
+  // column; a row the host gives no view keeps a plain title.
+  report.title = await page.evaluate(async () => {
+    const table = document.getElementById('t');
+    const intents = [];
+    table.addEventListener('sf-table-action-intent', (event) => intents.push(event.detail?.action_id));
+    const links = [...table.querySelectorAll('.sf-table-list-title a.sf-table-title-link')].map((link) => link.textContent.trim());
+    table.querySelector('.sf-table-list-title a.sf-table-title-link')?.click();
+    await new Promise((settle) => setTimeout(settle, 100));
+    return {links, intents};
+  });
   // The same table above the threshold is a table again.
   report.wide = await page.evaluate(async () => {
     document.getElementById('box').style.inlineSize = '900px';
@@ -94,6 +105,9 @@ try {
   await browser.close();
 }
 if (!report.isList || report.hasTable) failures.push({said: 'a narrow table is not a list', report});
+if (report.title?.links.join() !== 'Раз' || report.title?.intents.join() !== 'view') {
+  failures.push({said: 'the list title does not open its record with one click', title: report.title});
+}
 if (report.items !== 2) failures.push({said: 'the list does not hold every record', report});
 if (JSON.stringify(report.labels) !== JSON.stringify([['Статус', 'Код', 'Ответственный'], ['Статус', 'Код']])) {
   failures.push({said: 'the fields are not the first by priority, or an empty one is shown', labels: report.labels});
