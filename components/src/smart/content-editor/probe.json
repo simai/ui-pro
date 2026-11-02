@@ -429,7 +429,7 @@
     },
     {
       "id": "p22-gutter-off-the-highlight",
-      "title": "the + and the grip stand 4px or more outside a block's highlight with their icons centred; under 640px of sheet the + stands above the grip instead of going",
+      "title": "the + and the grip stand 4px or more outside a block's highlight with their icons centred; under 640px of sheet the + stands above the grip instead of going; the quick toolbar of a chosen heading or list covers no text of any block, the neighbour above included, wide and narrow",
       "covers": "settings.label",
       "steps": [
         {
@@ -449,6 +449,50 @@
           "script": "(() => { const editor = document.querySelector('#editor'); globalThis.gutter = ['p1', 'h1', 'l1'].map((id) => { const block = editor.querySelector(`.sf-content-editor-blocks > [data-sf-node=\"${id}\"]`); const box = block.getBoundingClientRect(); block.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: box.left + 40, clientY: box.top + 4})); const buttons = ['plus', 'grip'].map((name) => editor.querySelector(`.sf-content-editor-${name} button`)); const [plus, grip] = buttons.map((button) => button.getBoundingClientRect()); const icons = buttons.map((button) => { const b = button.getBoundingClientRect(); const i = button.querySelector('i.sf-icon').getBoundingClientRect(); return [Math.abs(i.left + i.width / 2 - b.left - b.width / 2), Math.abs(i.top + i.height / 2 - b.top - b.height / 2)]; }); return {gap: box.left - Math.max(plus.right, grip.right), plus: plus.width, stacked: plus.bottom <= grip.top, side: plus.right <= grip.left, icons}; }); return true; })()",
           "wait": 200,
           "check": "globalThis.gutter.every((g) => g.gap >= 4 && g.plus === 24 && g.stacked && g.icons.flat().every((d) => d <= 0.5))"
+        },
+        {
+          "script": "(() => { document.querySelector('main').style.inlineSize = '375px'; return true; })()",
+          "wait": 300
+        },
+        {
+          "script": "(() => { const editor = document.querySelector('#editor'); const field = editor.querySelector('.sf-content-editor-blocks > [data-sf-node=\"h1\"] .sf-content-editor-field'); editor.edit({id: field.dataset.sfNode}); field.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true})); return true; })()",
+          "wait": 400
+        },
+        {
+          "script": "(() => { const editor = document.querySelector('#editor'); const overlap = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)); const lines = [...editor.querySelectorAll('.sf-content-editor-field, .sf-content-editor-title')].flatMap((field) => { const range = document.createRange(); range.selectNodeContents(field); return [...range.getClientRects()]; }); const bar = editor.querySelector('.sf-content-editor-quick'); const box = bar.getBoundingClientRect(); const block = editor.querySelector('.sf-content-editor-blocks > [data-sf-node=\"h1\"]').getBoundingClientRect(); globalThis.quick = {shown: !bar.hidden, onBlock: overlap(box, block), onText: lines.reduce((sum, line) => sum + overlap(box, line), 0)}; return true; })()",
+          "wait": 50,
+          "check": "globalThis.quick.shown && globalThis.quick.onBlock === 0 && globalThis.quick.onText === 0"
+        },
+        {
+          "script": "(() => { const editor = document.querySelector('#editor'); const field = editor.querySelector('.sf-content-editor-blocks > [data-sf-node=\"l1\"] .sf-content-editor-field'); editor.edit({id: field.dataset.sfNode}); field.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true})); return true; })()",
+          "wait": 400
+        },
+        {
+          "script": "(() => { const editor = document.querySelector('#editor'); const overlap = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)); const lines = [...editor.querySelectorAll('.sf-content-editor-field, .sf-content-editor-title')].flatMap((field) => { const range = document.createRange(); range.selectNodeContents(field); return [...range.getClientRects()]; }); const bar = editor.querySelector('.sf-content-editor-quick'); const box = bar.getBoundingClientRect(); const block = editor.querySelector('.sf-content-editor-blocks > [data-sf-node=\"l1\"]').getBoundingClientRect(); globalThis.quick = {shown: !bar.hidden, onBlock: overlap(box, block), onText: lines.reduce((sum, line) => sum + overlap(box, line), 0)}; return true; })()",
+          "wait": 50,
+          "check": "globalThis.quick.shown && globalThis.quick.onBlock === 0 && globalThis.quick.onText === 0"
+        },
+        {
+          "script": "(() => { document.querySelector('main').style.inlineSize = ''; return true; })()",
+          "wait": 300
+        },
+        {
+          "script": "(() => { const editor = document.querySelector('#editor'); const field = editor.querySelector('.sf-content-editor-blocks > [data-sf-node=\"h1\"] .sf-content-editor-field'); editor.edit({id: field.dataset.sfNode}); field.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true})); return true; })()",
+          "wait": 400
+        },
+        {
+          "script": "(() => { const editor = document.querySelector('#editor'); const overlap = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)); const lines = [...editor.querySelectorAll('.sf-content-editor-field, .sf-content-editor-title')].flatMap((field) => { const range = document.createRange(); range.selectNodeContents(field); return [...range.getClientRects()]; }); const bar = editor.querySelector('.sf-content-editor-quick'); const box = bar.getBoundingClientRect(); const block = editor.querySelector('.sf-content-editor-blocks > [data-sf-node=\"h1\"]').getBoundingClientRect(); globalThis.quick = {shown: !bar.hidden, onBlock: overlap(box, block), onText: lines.reduce((sum, line) => sum + overlap(box, line), 0)}; return true; })()",
+          "wait": 50,
+          "check": "globalThis.quick.shown && globalThis.quick.onBlock === 0 && globalThis.quick.onText === 0"
+        },
+        {
+          "script": "(() => { const editor = document.querySelector('#editor'); const field = editor.querySelector('.sf-content-editor-blocks > [data-sf-node=\"l1\"] .sf-content-editor-field'); editor.edit({id: field.dataset.sfNode}); field.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true})); return true; })()",
+          "wait": 400
+        },
+        {
+          "script": "(() => { const editor = document.querySelector('#editor'); const overlap = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)); const lines = [...editor.querySelectorAll('.sf-content-editor-field, .sf-content-editor-title')].flatMap((field) => { const range = document.createRange(); range.selectNodeContents(field); return [...range.getClientRects()]; }); const bar = editor.querySelector('.sf-content-editor-quick'); const box = bar.getBoundingClientRect(); const block = editor.querySelector('.sf-content-editor-blocks > [data-sf-node=\"l1\"]').getBoundingClientRect(); globalThis.quick = {shown: !bar.hidden, onBlock: overlap(box, block), onText: lines.reduce((sum, line) => sum + overlap(box, line), 0)}; return true; })()",
+          "wait": 50,
+          "check": "globalThis.quick.shown && globalThis.quick.onBlock === 0 && globalThis.quick.onText === 0"
         }
       ]
     }

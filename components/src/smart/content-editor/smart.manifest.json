@@ -458,7 +458,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/content-editor/index.js",
-        "sha256": "6425da3e7d3ec523e463cd51dd639b5d955342331cf241774f9cb106d2c7fe67"
+        "sha256": "456f66080c30e5b4630fe45d07c7d72aafb5308ea539cb672cc97057a97073de"
       },
       {
         "path": "src/smart/content-editor/js/model.js",
@@ -490,7 +490,7 @@
       },
       {
         "path": "src/smart/content-editor/docs.md",
-        "sha256": "e3f3c335b4e7a537a4aeeedbfbc018fae06350b820955f59e9e334aab9853ade"
+        "sha256": "4b9904a5aec876e3b7e6d74304a0744acf4dfbe6cbfe63afd4fc6b1a16038cdd"
       },
       {
         "path": "src/smart/content-editor/component.json",
