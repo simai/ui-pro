@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -139,7 +139,7 @@
       "capabilities": {
         "type": "string",
         "default": "",
-        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply, x-threads). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
       },
       "landmark": {
         "type": "string",
@@ -1407,7 +1407,7 @@
   },
   "events": {
     "sf-chat-window-open": {
-      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. Or a group's members asked for (1.4.0, x-members members.list {conversation_id}, kind members; no former name). The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01.",
+      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. Or a group's members asked for (1.4.0, x-members members.list {conversation_id}, kind members; no former name). The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01. Or a message's discussion (x-threads thread.open, kind thread).",
       "payload": {
         "type": "object",
         "required": [
@@ -2572,6 +2572,13 @@
         "to": "1.9.0",
         "changes": [
           "Managing a group's members (x-members-manage): «Добавить» and «Выйти» in the members view, and per row a «⋯» with role, remove and hand over, each only with the host's flag; remove, hand over and leave are asked in place first. Additive: without the capability the view stays read only."
+        ]
+      },
+      {
+        "from": "1.9.1",
+        "to": "1.10.0",
+        "changes": [
+          "A message's discussion (x-threads): «N ответов» under a message with answers and «Обсудить» in its «⋯» for one who may write; thread.open, then the discussion opens in place of the conversation with «В чат» and the message it discusses above the feed. Additive: without the capability nothing changes."
         ]
       }
     ]

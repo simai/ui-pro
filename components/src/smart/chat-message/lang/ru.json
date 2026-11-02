@@ -135,6 +135,13 @@
     "steps-state-running": "выполняется",
     "steps-stopped": "Прервано",
     "steps-stopped-in": "Прервано через {time}",
+    "thread-discuss": "Обсудить",
+    "thread-replies": {
+      "one": "{n} ответ",
+      "few": "{n} ответа",
+      "many": "{n} ответов",
+      "other": "{n} ответа"
+    },
     "time-hours": "{h} ч",
     "time-hours-minutes": "{h} ч {m} мин",
     "time-minutes": "{m} мин",

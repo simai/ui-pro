@@ -3,10 +3,10 @@
 // tools a hover or a focus shows, the picker of six, and the delete question,
 // which a document may ask too. Plain DOM like the rest of the view, and it
 // asks the host through ctx.onAction: react {id, emoji, on} | reply {id} |
-// quote {id, target} | picker {id, open} | edit-start | delete-ask. Nothing here
+// quote {id, target} | picker {id, open} | thread {id} | edit-start | delete-ask. Nothing here
 // is drawn unless the display says so (canReact, canReply) or the message has
 // reply_to or reactions, so a message without them draws as it did.
-import {element, iconButton, text} from './message.js';
+import {element, iconButton, iconNode, text} from './message.js';
 
 /** The six a reaction is chosen from. */
 export const REACTION_EMOJI = ['👍', '❤️', '😂', '🎉', '👀', '✅'];
@@ -92,21 +92,38 @@ export function renderReactions(ctx, message, view = {}) {
   return root;
 }
 
+/**
+ * The way into the message's discussion (1.5.0, sf-chat-window's x-threads):
+ * «3 ответа» under it, where view.replies says there are any. A discussion
+ * with no answers yet has no line: «Обсудить» in «⋯» starts it.
+ * @returns {HTMLElement|null}
+ */
+export function renderReplies(ctx, message, view = {}) {
+  const count = Number(view.replies);
+  if (!Number.isInteger(count) || count < 1) return null;
+  const button = text(ctx, 'button', 'sf-chat-replies', ctx.words('thread.replies', {count}), {type: 'button'});
+  button.prepend(iconNode(ctx, 'forum', 'sf-chat-replies__icon', '1/2'));
+  button.addEventListener('click', () => ctx.onAction?.('thread', {id: message.id}));
+  return button;
+}
+
 // «⋯»: edit and delete in the Framework's menu, made on the first press and
 // waiting for the element, which the Loader brings lazily (the rule).
-function openMore(ctx, message, holder, anchor, {edit, remove}) {
+function openMore(ctx, message, holder, anchor, {edit, remove, discuss}) {
   let menu = holder.querySelector('sf-context-menu');
   if (!menu) {
     menu = element(ctx, 'sf-context-menu', 'sf-chat-tools__menu', {popup: true, 'aria-label': ctx.words('people.actions')});
     menu.addEventListener('sf-context-menu-select', (event) => {
       event.stopPropagation();
       const id = event.detail?.id ?? event.detail?.value;
+      if (id === 'discuss') ctx.onAction?.('thread', {id: message.id});
       if (id === 'edit') ctx.onAction?.('edit-start', {message});
       if (id === 'delete') ctx.onAction?.('delete-ask', {message});
     });
     holder.append(menu);
   }
   const entries = [
+    ...(discuss ? [{id: 'discuss', text: ctx.words('thread.discuss'), icon: 'forum'}] : []),
     ...(edit ? [{id: 'edit', text: ctx.words('people.edit'), icon: 'edit'}] : []),
     ...(remove ? [{id: 'delete', text: ctx.words('people.delete'), icon: 'delete'}] : []),
   ];
@@ -117,7 +134,7 @@ function openMore(ctx, message, holder, anchor, {edit, remove}) {
 }
 
 /**
- * At most three tools: reply, reaction, «⋯» with edit and delete where allowed.
+ * At most three tools: reply, reaction, «⋯» with «Обсудить», edit and delete where allowed.
  * Shown as person.js shows its own: on hover or focus where a pointer hovers,
  * always on touch, at least 44 px under a finger.
  * @returns {HTMLElement|null}
@@ -126,7 +143,8 @@ export function renderTools(ctx, message, view = {}, {edit = false, remove = fal
   const words = ctx.words;
   const reply = Boolean(view.canReply);
   const react = Boolean(view.canReact);
-  if (!reply && !react && !edit && !remove) return null;
+  const discuss = Boolean(view.canDiscuss);
+  if (!reply && !react && !edit && !remove && !discuss) return null;
   const tools = element(ctx, 'div', 'sf-chat-tools', {role: 'group', 'aria-label': words('people.actions')});
   if (reply) {
     const button = iconButton(ctx, {icon: 'reply', label: words('reply.action'), size: '1/2', className: 'sf-chat-tools__reply'});
@@ -140,10 +158,10 @@ export function renderTools(ctx, message, view = {}, {edit = false, remove = fal
     button.addEventListener('click', () => ctx.onAction?.('picker', {id: message.id, open: !view.picker}));
     tools.append(button);
   }
-  if (edit || remove) {
+  if (edit || remove || discuss) {
     const more = iconButton(ctx, {icon: 'more_horiz', label: words('tools.more'), size: '1/2', className: 'sf-chat-tools__more'});
     more.setAttribute('aria-haspopup', 'menu');
-    more.addEventListener('click', () => openMore(ctx, message, tools, more, {edit, remove}));
+    more.addEventListener('click', () => openMore(ctx, message, tools, more, {edit, remove, discuss}));
     tools.append(more);
   }
   return tools;

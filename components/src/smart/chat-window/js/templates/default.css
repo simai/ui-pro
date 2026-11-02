@@ -293,6 +293,43 @@
 
   .chat-shell__suggestions { margin-block-start: var(--sf-space-1\/2); }
 
+  /* Over a discussion (1.10.0): «В чат» and the message being discussed, two
+     lines at most -- the whole of it is a press away in the conversation. */
+  .chat-shell__thread-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sf-space-1\/4);
+    padding-block: var(--sf-space-1\/3);
+    padding-inline: var(--sf-space-1\/2);
+    border-block-end: var(--sf-chat-window--line) solid var(--sf-chat-window--edge);
+  }
+
+  .chat-shell__thread-bar[hidden] { display: none; }
+
+  .chat-shell__thread-root {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+    padding-inline-start: var(--sf-space-1\/3);
+    border-inline-start: var(--sf-focus--width) solid var(--sf-chat-window--edge);
+    max-inline-size: 100%;
+    color: var(--sf-chat-window--ink-muted);
+  }
+
+  .chat-shell__thread-root-who { color: var(--sf-chat-window--ink); font-weight: var(--sf-font-weight-medium); }
+
+  .chat-shell__thread-root-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  .chat-shell__thread-root-text--deleted { font-style: italic; }
+
   /* A narrow container shows one region at a time, so the name belongs to the
      header there; the split width is the workspace's default (40rem). */
   @container sf-workspace (width < 40rem) {

@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-message",
   "tag": "sf-chat-message",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -120,7 +120,8 @@
           "type": "enum",
           "values": [
             "preview",
-            "quote"
+            "quote",
+            "thread"
           ]
         },
         "source": {
@@ -135,8 +136,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "A source's footnote or title, or an answer's file «Просмотр», asks for its preview (API.md v1.3, proposed: preview_url): {id, kind: preview, source}. A host that shows it (sf-chat-window's panel) cancels the event; not cancelled, a footnote opens the sources list on its source as before and a file opens its preview in a new tab. Without preview_url nothing is asked (1.1.0). A press on a quote (1.4.0): {id, kind: quote, target}; a host that shows the original cancels it.",
-      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}."
+      "x-summary": "A source's footnote or title, or an answer's file «Просмотр», asks for its preview (API.md v1.3, proposed: preview_url): {id, kind: preview, source}. A host that shows it (sf-chat-window's panel) cancels the event; not cancelled, a footnote opens the sources list on its source as before and a file opens its preview in a new tab. Without preview_url nothing is asked (1.1.0). A press on a quote (1.4.0): {id, kind: quote, target}; a host that shows the original cancels it. A message's discussion (1.5.0, sf-chat-window's x-threads): «Обсудить» in «⋯» or «N ответов» under the message, {id, kind: thread}; the host opens the discussion and cancels it.",
+      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}. A message's discussion asked for: {id, kind: thread}."
     },
     "copied": {
       "carries": {
@@ -646,10 +647,19 @@
             "Template default with display.document: a document without a bubble, who speaks (speaker, asked_by), a long text folded, stop on the message (canStop). Without these a message draws as before."
           ]
         },
-{
+        {
           "from": "1.4.0",
           "to": "1.4.1",
-          "changes": ["Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."]
+          "changes": [
+            "Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."
+          ]
+        },
+        {
+          "from": "1.4.2",
+          "to": "1.5.0",
+          "changes": [
+            "A message's discussion (sf-chat-window x-threads): view.replies draws «N ответов» under the message and view.canDiscuss adds «Обсудить» to «⋯»; either raises open {id, kind: thread}. Additive: without them a message draws as before."
+          ]
         }
       ]
     },

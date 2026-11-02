@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -255,7 +255,7 @@
       }
     },
     "sf-chat-message-open": {
-      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}.",
+      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}. A message's discussion asked for: {id, kind: thread}.",
       "payload": {
         "type": "object",
         "required": [
@@ -267,7 +267,8 @@
           "kind": {
             "enum": [
               "preview",
-              "quote"
+              "quote",
+              "thread"
             ]
           },
           "source": {
@@ -586,6 +587,13 @@
         "to": "1.4.1",
         "changes": [
           "Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."
+        ]
+      },
+      {
+        "from": "1.4.2",
+        "to": "1.5.0",
+        "changes": [
+          "A message's discussion (sf-chat-window x-threads): view.replies draws «N ответов» under the message and view.canDiscuss adds «Обсудить» to «⋯»; either raises open {id, kind: thread}. Additive: without them a message draws as before."
         ]
       }
     ]

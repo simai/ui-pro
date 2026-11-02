@@ -90,12 +90,16 @@ export const EXTENSION_INTENTS = {
   'member.role': {verb: 'apply', kind: 'member', capability: 'x-members-manage', former: null},
   'member.transfer': {verb: 'apply', kind: 'member', capability: 'x-members-manage', former: null},
   'member.leave': {verb: 'apply', kind: 'member', capability: 'x-members-manage', former: null},
+  // A message's discussion (1.10.0): the host finds or makes the conversation that
+  // discusses it and answers {conversation_id}; the window opens it as any other.
+  // How many answers a message has comes with the message (thread.replies).
+  'thread.open': {verb: 'open', kind: 'thread', capability: 'x-threads', former: null},
 };
 
 // x-brief (API.md v1.2) has no intent of its own: a host that declares it
 // gives an assistant message its `brief`, and the window draws it; the answer
 // goes out as an ordinary message.send.
-export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief', 'x-conversation-start', 'x-members', 'x-members-manage', 'x-reactions', 'x-reply'];
+export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief', 'x-conversation-start', 'x-members', 'x-members-manage', 'x-reactions', 'x-reply', 'x-threads'];
 
 /** Data a host with the window's capabilities sets beside the port's. */
 export const EXTENSION_DATA = ['conversation_list', 'composer_files', 'my_files'];

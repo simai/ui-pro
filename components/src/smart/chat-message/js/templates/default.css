@@ -1609,6 +1609,27 @@
 
   .sf-chat-reaction--pending { opacity: 0.6; cursor: progress; }
 
+  /* «3 ответа» (1.5.0): a quiet link under the message into its discussion,
+     at least a control's height so a finger finds it. */
+  .sf-chat-replies {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    padding: 0;
+    min-block-size: var(--sf-ui-1\/3--control-height);
+    border: 0;
+    background: none;
+    color: var(--sf-primary);
+    font: inherit;
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    cursor: pointer;
+  }
+
+  .sf-chat-replies:hover { text-decoration: underline; }
+
+
   /* The tools, shown the one way person.js shows its own: on hover or focus
      where a pointer hovers, always on touch. */
   .sf-chat-tools {

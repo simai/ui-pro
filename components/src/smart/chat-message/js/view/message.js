@@ -45,7 +45,7 @@ import {render} from 'lit';
 import '../../../../core/js/sanitize.js';
 import {attachmentState, renderAttachment as attachmentChip} from '../../../chat-composer/js/templates/parts.js';
 import {deliverablesOf, previewTarget, stepsOf, timeOf} from './proposed.js';
-import {renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderTools, whenPlaced} from './social.js';
+import {renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderReplies, renderTools, whenPlaced} from './social.js';
 
 export const safeHref = (value) => globalThis.SF.safeHref(value);
 const sanitizeHtml = (html, policy) => globalThis.SF.sanitizeHtml(html, policy);
@@ -951,6 +951,8 @@ export function renderMessage(ctx, message, view = {}) {
   if (documentOf && answered) {
     const reactions = renderReactions(ctx, message, view);
     if (reactions) body.append(reactions);
+    const replies = renderReplies(ctx, message, view);
+    if (replies) body.append(replies);
   }
   if (answered) body.append(renderActions(ctx, message, view, features, sources));
   if (documentOf && answered && view.picker && view.canReact) root.append(renderPicker(ctx, message, view));

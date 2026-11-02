@@ -115,7 +115,8 @@ class SfChatMessage extends ChatMessageElement {
     viewContext() {
         const documentRef = this.ownerDocument;
         const locale = pageLocale(this);
-        const words = (key, values = {}) => this.sfWord(wordName(key), {vars: values});
+        // A count picks the word's number form (thread-replies: «3 ответа»).
+        const words = (key, values = {}) => this.sfWord(wordName(key), values.count == null ? {vars: values} : {vars: values, count: values.count});
         const features = this.features && typeof this.features === "object" ? this.features : {};
         return {
             document: documentRef,
@@ -276,6 +277,10 @@ class SfChatMessage extends ChatMessageElement {
                 return;
             case "quote":
                 this.sfEmit("open", {id, kind: "quote", target: detail.target}, {cancelable: true});
+                return;
+            // A discussion of the message (1.5.0): «Обсудить» and «N ответов» open it alike.
+            case "thread":
+                this.sfEmit("open", {id, kind: "thread"}, {cancelable: true});
                 return;
             case "picker":
                 this.sfEmit("toggle", {id, kind: "react", open: Boolean(detail.open), quiet: Boolean(detail.quiet)});

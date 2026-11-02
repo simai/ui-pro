@@ -672,6 +672,13 @@ class SfChatWindow extends ChatWindowElement {
         const back = iconButton(this.ctx, {icon: "arrow_back", label: words("threads.back"), size: "1", className: "sf-workspace-back chat-shell__back"});
         header.append(back, interlocutor, headMark, headWho, spacer, members.command);
         const find = this.buildFind(element, words);
+        // Over a discussion (1.10.0): the way back to the conversation and the
+        // message being discussed.
+        const threadBar = element("div", "chat-shell__thread-bar");
+        threadBar.hidden = true;
+        const threadBack = textButton(this.ctx, {label: words("thread.back"), appearance: "link", scheme: "primary", icon: "arrow_back", className: "chat-shell__thread-back"});
+        const threadRoot = element("blockquote", "chat-shell__thread-root");
+        threadBar.append(threadBack, threadRoot);
         const list = element("sf-message-log", "chat-shell__list");
         const files = this._files.build(this._headingTag);
         const preview = this._preview.build(this._headingTag);
@@ -692,13 +699,14 @@ class SfChatWindow extends ChatWindowElement {
         const queueSaid = element("span", "sf-chat-offscreen", {role: "status", "aria-live": "polite"});
         queue.append(queueHeld, queueList, queueSaid);
         composerBox.append(archivedNote, statusLine, queue, composer, suggestions);
-        main.append(pageTitle, header, find.box, list, files.root, start.root, members.root, composerBox);
+        main.append(pageTitle, header, find.box, threadBar, list, files.root, start.root, members.root, composerBox);
         shell.append(side, main, preview.root);
         this._parts = {
             shell, side, sideHead, main, header, back, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, headMark, threadSub, statusLine, archivedNote, suggestions,
             search: search.box, searchInput: search.input, searchStatus: search.status,
             find: find.box, findInput: find.input, findCount: find.count, findStatus: find.status, findPrevious: find.previous, findNext: find.next,
             queue, queueHeld, queueList, queueSaid,
+            threadBar, threadBack, threadRoot,
             preview: preview.root,
         };
         this.wire();
@@ -1126,6 +1134,7 @@ class SfChatWindow extends ChatWindowElement {
         // Reactions and replies (1.6.0).
         list.addEventListener("sf-chat-message-react", (event) => this.react(event.detail.id, event.detail.emoji, event.detail.on));
         list.addEventListener("sf-chat-message-reply", (event) => this.startReply(event.detail.id));
+        this._parts.threadBack.addEventListener("click", () => this.backToChat());
         list.addEventListener("sf-chat-message-stop", () => {
             // The port stops a conversation's wait; it has no word for one message.
             this.request("wait.stop", {conversation_id: this._data.conversation?.id ?? null}).then((result) => this.showResult(result));
@@ -1160,6 +1169,11 @@ class SfChatWindow extends ChatWindowElement {
             if (event.detail?.kind === "quote") {
                 event.preventDefault();
                 this.showQuoted(event.detail.target);
+                return;
+            }
+            if (event.detail?.kind === "thread") {
+                event.preventDefault();
+                this.openThread(event.detail.id);
                 return;
             }
             if (event.detail?.kind !== "preview") return;
@@ -1696,6 +1710,7 @@ class SfChatWindow extends ChatWindowElement {
         if (keyChanged || changed.has("capabilities")) this.drawReply();
         if (keyChanged || changed.has("interlocutors") || changed.has("interlocutor") || changed.has("capabilities")) this.syncInterlocutor();
         this.syncSelected();
+        if (changed.has("conversation") || changed.has("capabilities")) this.syncThreadBar();
         parts.composer.disabled = Boolean(data.conversation && data.conversation.can_send === false) || revoked;
         this.syncMessages(changed);
         this.syncLayout();
@@ -1711,7 +1726,8 @@ class SfChatWindow extends ChatWindowElement {
     syncSelected() {
         const {threads} = this.parts;
         const data = this._data;
-        const selected = data.conversation && !this._files.open && !this._start.open ? String(data.conversation.id) : "";
+        const open = data.conversation ? String(this.inThread ? (data.conversation.parent_id ?? data.conversation.id) : data.conversation.id) : "";
+        const selected = !this._files.open && !this._start.open ? open : "";
         if ((threads.getAttribute("selected") || "") !== selected) {
             if (selected) threads.setAttribute("selected", selected); else threads.removeAttribute("selected");
         }
@@ -1988,10 +2004,18 @@ class SfChatWindow extends ChatWindowElement {
     socialView(message) {
         const reactions = this.has("x-reactions");
         const reply = this.has("x-reply");
-        if (!reactions && !reply) return {};
+        const threads = this.has("x-threads");
+        if (!reactions && !reply && !threads) return {};
         const key = keyOf(message);
         const stored = message.id != null && message.is_deleted !== true && (!message.local || message.local.state === "sent");
         const view = {};
+        // A discussion (1.10.0): «N ответов» where there are any, «Обсудить» for
+        // one who may write; neither inside a discussion -- they do not nest.
+        if (threads && !this.inThread) {
+            const replies = Number(message.thread?.replies);
+            if (message.id != null && Number.isInteger(replies) && replies > 0) view.replies = replies;
+            if (stored && this._data.conversation?.can_send !== false) view.canDiscuss = true;
+        }
         if (reply && stored) view.canReply = true;
         if (reactions && stored) view.canReact = true;
         const reacting = this._reacting.get(key);
@@ -2312,9 +2336,10 @@ class SfChatWindow extends ChatWindowElement {
         // A private conversation may come without a title (x-conversation-start):
         // the name is the list's, or until it comes the person who was chosen.
         const named = conversation && this.has("x-conversation-start") ? (listed?.title || this._pairNames.get(String(conversation.id)) || "") : "";
-        threadTitle.textContent = conversation?.title || listed?.title || named;
+        // A discussion has no title of its own: the root's text is not one.
+        threadTitle.textContent = this.inThread ? this.words("thread.title") : (conversation?.title || listed?.title || named);
         this.syncHeadWho(conversation, listed);
-        pageTitle.textContent = conversation?.title || named || this.who?.title || "";
+        pageTitle.textContent = this.inThread ? this.words("thread.title") : (conversation?.title || named || this.who?.title || "");
         const archived = conversation ? Boolean(conversation.archived ?? listed?.archived) : false;
         if (archived === this._archivedShown && conversation?.id === this._archivedFor) return;
         this._archivedShown = archived;
@@ -3041,6 +3066,80 @@ class SfChatWindow extends ChatWindowElement {
         const away = this._start.open || members.open;
         const {list, composerBox, find, interlocutor, threadTitle} = this.parts;
         for (const node of [list, composerBox, find, interlocutor, threadTitle]) node.inert = away;
+    }
+
+    // --- a message's discussion (x-threads, 1.10.0) ------------------------
+
+    /** The open conversation discusses a message of another one. */
+    get inThread() {
+        return this.has("x-threads") && this._data.conversation?.type === "thread";
+    }
+
+    /**
+     * thread.open, then the conversation it answers is opened as any other:
+     * its feed, its field and its draft are its own. The way back remembers
+     * which message it was, so «В чат» returns to it and not to the end.
+     */
+    async openThread(messageId) {
+        const parent = this._data.conversation?.id ?? null;
+        if (parent === null || messageId == null || this.inThread) return;
+        // The message's own id, as the host gave it: the event carries it as text.
+        messageId = this.messageOf(messageId)?.id ?? messageId;
+        this._navigating++;
+        const result = await this.request("thread.open", {conversation_id: parent, message_id: messageId});
+        this._navigating--;
+        if (result.answer !== "applied") {
+            this.showResult(result, () => this.openThread(messageId));
+            return;
+        }
+        this._threadFrom = {conversation: parent, message: messageId};
+        const id = result.data?.conversation_id ?? result.data?.conversation?.id ?? null;
+        if (id !== null && String(id) !== String(this._data.conversation?.id)) await this.openConversation(id);
+        if (this.inThread) this.focusComposer();
+    }
+
+    /** «В чат»: the conversation again, at the message that was discussed. */
+    async backToChat() {
+        const conversation = this._data.conversation;
+        const from = this._threadFrom && String(this._threadFrom.conversation) === String(conversation?.parent_id ?? this._threadFrom.conversation) ? this._threadFrom : null;
+        const parent = conversation?.parent_id ?? from?.conversation ?? null;
+        const root = conversation?.root?.id ?? from?.message ?? null;
+        if (parent === null) return;
+        await this.openConversation(parent);
+        if (this.inThread || root === null) return;
+        const {list} = this.parts;
+        this.afterDraw(() => list.querySelector(`.sf-message-log__item[data-id="${CSS.escape(String(root))}"] article`), (node) => {
+            if (node) this.showQuoted(root);
+        });
+    }
+
+    syncThreadBar() {
+        const {threadBar, threadRoot} = this.parts;
+        const inThread = this.inThread;
+        threadBar.hidden = !inThread;
+        if (!inThread) {
+            threadRoot.replaceChildren();
+            return;
+        }
+        const root = this._data.conversation.root;
+        const doc = this.ownerDocument;
+        threadRoot.replaceChildren();
+        threadRoot.hidden = !root;
+        if (!root) return;
+        const who = root.author?.name ?? root.author?.title ?? "";
+        if (who) {
+            const name = doc.createElement("span");
+            name.className = "chat-shell__thread-root-who";
+            name.textContent = who;
+            threadRoot.append(name);
+        }
+        const line = doc.createElement("span");
+        line.className = "chat-shell__thread-root-text";
+        // A deleted root keeps its discussion; its text is gone (the module's tombstone).
+        const deleted = root.is_deleted === true;
+        line.classList.toggle("chat-shell__thread-root-text--deleted", deleted);
+        line.textContent = deleted ? this.words("thread.rootDeleted") : String(root.text ?? root.body ?? "");
+        threadRoot.append(line);
     }
 
     /** The open conversation is a group or a channel, and the host shows its members. */
