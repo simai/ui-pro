@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1403,6 +1403,13 @@
         "changes": [
           "Standard simai.smart-component 1.4: component.json and examples.json are the source; rule.js, aliases.json, probe.json and smart.manifest.json are generated from them. The registry gains the settings and events component.json declares, the dated event names with alias_of and canonical, the base settings root-class and root-style, and the Loader relations in composition.uses; a word setting's default is the page language's (default-from), so the registry names no fixed one. No runtime behaviour changes. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.8.2",
+        "to": "1.8.3",
+        "changes": [
+          "The standard menu is asked for through SF.Loader.ensure; needs core.runtime >= 1.19.0. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
+        ]
       }
     ]
   },
@@ -1412,7 +1419,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "e567d59f5701ac861357d164dd77c5e9996833b0011e166091f5e3bea4f86640"
+        "sha256": "ce46bc111f54336333bcfcceb0ac17266f2ce1fe47e59f76df8e5a63278f7cd8"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view",
-  "version": "1.13.4",
+  "version": "1.13.5",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2270,6 +2270,13 @@
           "Many entries (§18.4, simai/ui-pro#2): from 300 rows only the rows in view and a margin are drawn, reported as sf-table-window {first, last}; a plain cell is class markup; one changed row is redrawn in place.",
           "The data state ready, populated its alias; current marks the open row (aria-current); actions answer outcomes."
         ]
+      },
+      {
+        "from": "1.13.4",
+        "to": "1.13.5",
+        "changes": [
+          "The windows' portal is watched by the Loader (SF.Loader.watch) and lazy elements are asked for through SF.Loader.ensure; needs core.runtime >= 1.19.0. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
+        ]
       }
     ]
   },
@@ -2279,7 +2286,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "fcb5a5942088dda1cfadbd15af00683c332faa4dde8168a2dd6dba9a7daf74ed"
+        "sha256": "fc0185dc2c4bbbb2d046d6df53ff12578cbc4bef3bfc6598361aed9e61ce0883"
       },
       {
         "path": "src/smart/table/js/templates/default.js",

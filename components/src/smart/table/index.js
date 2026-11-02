@@ -4857,17 +4857,13 @@ class SfTable extends TableElement {
     }
 
     renderContextMenu(data) {
-        // A window is drawn into this element's own portal, and the Loader does
-        // not scan a Smart element's own subtree for lazy relations: each lazy
-        // element a window draws is asked for by name when the window opens.
-        // Only sf-sortable was, so the filter window's template rows showed
-        // their handle and their menu with no name -- sf-radio never upgraded
-        // and its host is boxless (Larena storage list, simai/ui-pro, 2026-10-31).
+        // A window is drawn into this element's portal, which the Loader reads
+        // as the page (SF.Loader.watch in getPortalContainer); the window's
+        // elements are asked for as it opens so they arrive with it.
         if (data?.open) {
-            const needs = data.menu === 'tag-settings'
+            globalThis.SF?.Loader?.ensure?.(data.menu === 'tag-settings'
                 ? ["sf-datepicker", "sf-range-slider"]
-                : ["sf-sortable", "sf-radio", "sf-tabs"];
-            for (const tag of needs) globalThis.SF?.Loader?.ensureSmartElementLoaded?.(tag);
+                : ["sf-sortable", "sf-radio", "sf-tabs"]);
         }
         if (!data?.open) {
             render(null, this.getPortalContainer());
@@ -5074,8 +5070,8 @@ class SfTable extends TableElement {
         if (!table || this._columnResizeTable === table) return;
         const attach = globalThis.SF?.Resizer?.attach;
         if (typeof attach !== 'function') {
-            globalThis.SF?.Loader?.ensureSmartElementLoaded?.('sf-resizer');
-            customElements.whenDefined('sf-resizer').then(() => { if (this.isConnected) this.bindColumnResizeEvent(); });
+            globalThis.SF?.Loader?.ensure?.(['sf-resizer'], {timeout: Infinity})
+                .then(({missing}) => { if (!missing.length && this.isConnected) this.bindColumnResizeEvent(); });
             return;
         }
         this._columnResizeDetach?.();
@@ -5409,10 +5405,8 @@ class SfTable extends TableElement {
         const attach = globalThis.SF?.Sortable?.attach;
         if (typeof attach !== 'function') {
             // sf-sortable is a lazy relation: fetched when first needed.
-            globalThis.SF?.Loader?.ensureSmartElementLoaded?.('sf-sortable');
-            customElements.whenDefined('sf-sortable').then(() => {
-                if (this.isConnected) this.bindColumnDragEvent();
-            });
+            globalThis.SF?.Loader?.ensure?.(['sf-sortable'], {timeout: Infinity})
+                .then(({missing}) => { if (!missing.length && this.isConnected) this.bindColumnDragEvent(); });
             return;
         }
         this._headerSortableDetach?.();
@@ -5802,6 +5796,9 @@ class SfTable extends TableElement {
             portal.addEventListener(type, (event) => event.stopPropagation());
         }
         this.insertBefore(portal, this.firstChild);
+        // What the windows draw here is read by the Loader as the page is
+        // (core.runtime 1.19.0): no lazy element is asked for by name.
+        globalThis.SF?.Loader?.watch?.(portal);
         this._portalContainer = portal;
 
         return portal;
@@ -6587,10 +6584,7 @@ class SfTable extends TableElement {
             : {id: action.id, text: action.name, icon: iconOf(action), danger: action.danger === true}));
         // The standard menu is a lazy relation of the table: fetched after the
         // page is ready, and asked for here if a press comes first.
-        if (!customElements.get("sf-context-menu")) {
-            globalThis.SF?.Loader?.ensurePlugin?.("cl-context-menu");
-            await Promise.race([customElements.whenDefined("sf-context-menu"), new Promise((settle) => setTimeout(settle, 3000))]);
-        }
+        await globalThis.SF?.Loader?.ensure?.(["sf-context-menu"]);
         const menu = this.rowMenu();
         menu.setAttribute("aria-label", this.getContextMenuLabel({row, menu: "row-settings"}));
         menu.entries = entries;

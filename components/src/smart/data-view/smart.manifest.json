@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -1415,6 +1415,13 @@
         "changes": [
           "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.6.4",
+        "to": "1.6.5",
+        "changes": [
+          "Parts are asked for through SF.Loader.ensure; needs core.runtime >= 1.19.0. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
+        ]
       }
     ]
   },
@@ -1424,7 +1431,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/data-view/index.js",
-        "sha256": "e02e6cb54d9f0a98455338082db004ef57ebac7327de3f0bdf8bda6f3b834720"
+        "sha256": "406c6496143a51a44a7589441c41b77327765feb57b0fd39db57c839e58450b5"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",

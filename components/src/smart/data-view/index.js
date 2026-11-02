@@ -1649,30 +1649,20 @@ class SfDataView extends DataViewElement {
     _askForParts(tags) {
         const registry = globalThis.customElements;
         if (typeof registry?.get !== "function" || typeof registry.whenDefined !== "function") return;
-        const loader = globalThis.SF?.Loader;
         const missing = tags.filter((tag) => !registry.get(tag));
         if (!missing.length) return;
-        for (const tag of missing) loader?.ensureSmartElementLoaded?.(tag);
         const key = missing.join(",");
         this._partsAsked ??= new Set();
         if (this._partsAsked.has(key)) return;
         this._partsAsked.add(key);
-        Promise.all(missing.map((tag) => registry.whenDefined(tag))).then(() => {
+        globalThis.SF?.Loader?.ensure?.(missing, {timeout: Infinity}).then(() => {
             this._partsAsked.delete(key);
             if (this.isConnected && missing.some((tag) => tag !== "sf-toast")) this._renderProjection();
         });
     }
 
     async _ensureElements(tags) {
-        const loader = globalThis.SF?.Loader;
-        await Promise.all(tags.map((tag) => {
-            if (customElements.get(tag)) return null;
-            loader?.ensureSmartElementLoaded?.(tag);
-            return Promise.race([
-                customElements.whenDefined(tag),
-                new Promise((settle) => setTimeout(settle, 3000)),
-            ]);
-        }));
+        return globalThis.SF?.Loader?.ensure?.(tags);
     }
 
     // One small dialog for both the move and the confirmation: a native
@@ -1880,7 +1870,7 @@ class SfDataView extends DataViewElement {
     _awaitRowActions() {
         if (this._awaitingRowActions) return;
         this._awaitingRowActions = true;
-        globalThis.SF?.Loader?.ensureSmartElementLoaded?.("sf-table");
+        globalThis.SF?.Loader?.ensure?.(["sf-table"]);
         // Read off globalThis and asked for softly: a stand that renders this
         // view over a document of its own need not keep a registry, and a view
         // that cannot wait simply keeps the fallback words.

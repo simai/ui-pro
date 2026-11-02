@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -1255,6 +1255,13 @@
           "sf-admin-menu-search -> sf-admin-menu-query until 2026-12-01 (event)",
           "sf-admin-menu-settings-reset -> sf-admin-menu-reset until 2026-12-01 (event)"
         ]
+      },
+      {
+        "from": "1.6.3",
+        "to": "1.6.4",
+        "changes": [
+          "The standard menu and sf-dropdown are asked for through SF.Loader.ensure; needs core.runtime >= 1.19.0. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
+        ]
       }
     ]
   },
@@ -1292,11 +1299,11 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
-        "sha256": "8f8a895944aeb6af13769b4c0b014b42c3c27045385b93af1fde14a58e22557a"
+        "sha256": "76755332fd9f9e3654c677b5e5cb309694d059c409de8bf001ee4a882aadbb54"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",
-        "sha256": "3a7404da443145378337ecd5f633e1c2afa43a2ab4430114050ceb2a8c1d5acc"
+        "sha256": "198a694d19b0af43fd7cd830919ff12a31a4f34aaad9682f320a070464e5a04a"
       },
       {
         "path": "src/component/admin-menu/scss/_css__admin_menu.scss",
@@ -1304,7 +1311,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "ffbfe95002aa9d4907df7b5ed0148b88550635eaad41afd2402a1a2348aa0936"
+        "sha256": "47a9c85eb0d71bb61b8b8784a1d547712beeb95801dac7edf7669133422ae60a"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

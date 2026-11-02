@@ -40,7 +40,7 @@ test("CLI discovers and describes the whole data view", () => {
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-table");
   assert.equal(packet.conformance.compatibility.contract_schema.version, 2);
-  assert.equal(packet.identity.version, '1.13.4');
+  assert.equal(packet.identity.version, '1.13.5');
   assert.ok(packet.public_abi.methods.requestActionIntent);
   assert.ok(packet.public_abi.events['sf-table-action-intent']);
   for (const event of ['sf-table-create-intent', 'sf-table-template-select', 'sf-table-sort-change']) {
@@ -75,7 +75,7 @@ test("CLI discovers, describes and verifies the whole composite", () => {
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-admin-menu");
   assert.equal(packet.conformance.compatibility.contract_schema.version, 2);
-  assert.equal(packet.conformance.compatibility.migrations.at(-1).to, '1.2.0');
+  assert.equal(packet.conformance.compatibility.migrations.at(-1).to, '1.6.4');
   assert.match(packet.backend.integration_examples.larena_php, /Smart::render\('ui\.admin_menu'/);
   assert.deepEqual(JSON.parse(run("verify", "smart.admin-menu")), {ok: true, verified: ["smart.admin-menu"]});
 });

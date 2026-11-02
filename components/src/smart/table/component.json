@@ -2,7 +2,7 @@
   "$comment": "sf-table from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/table (convert-1.3.8.mjs over ui-pro 9cbe061); every x-todo decided in x-decisions.",
   "id": "smart.data-view",
   "tag": "sf-table",
-  "version": "1.13.4",
+  "version": "1.13.5",
   "kind": "leaf",
   "family": "table",
   "settings": {
@@ -1208,7 +1208,8 @@
     "css-variables": "the six public variables the sheet already reads; per-state colours of a selected and a current row are a later look pass (§6).",
     "examples": "examples.json from studio.fixture.json plus loading, empty, current and many; probe.json drives the window, the box, apply, the keys, the search alias, current and one changed row (gate 16, gate 17).",
     "side-effects": "network: a filter field whose options come from an endpoint is read page by page with fetch (same origin, the field's own URL, aborted with the menu); nothing else leaves the page.",
-    "docs": "docs/docs.md, where the folder keeps it."
+    "docs": "docs/docs.md, where the folder keeps it.",
+    "loader-ensure": "version 1.13.5: the windows' portal is read by the Loader as the page (SF.Loader.watch, core.runtime 1.19.0), so the lazy elements a window draws need no list by name; the window's elements, sf-resizer, sf-sortable and the row menu's sf-context-menu are asked for through SF.Loader.ensure, not ensureSmartElementLoaded or a race of whenDefined against 3 s of its own (reuse audit 2026-11-02, finding 4). Needs core.runtime >= 1.19.0: over an older Loader the calls are no-ops and the table falls back as before where it checks customElements.get."
   },
   "x-registry": {
     "kind": "composite",
@@ -1921,6 +1922,13 @@
             "From component.json (standard simai.smart-component 1.3.8): events by the vocabulary's verbs -- sf-table-apply, -select, -save, -create, -query, -refresh, -expand, -load-more, -move -- with the old names as dated aliases until 2026-12-01 (aliases.json); onSearchEnd, onTemplateSave, onFilterUpdate, onColumnSettingsChange and sf-table:column-settings-change follow once each, noted in SF.deprecations.",
             "Many entries (§18.4, simai/ui-pro#2): from 300 rows only the rows in view and a margin are drawn, reported as sf-table-window {first, last}; a plain cell is class markup; one changed row is redrawn in place.",
             "The data state ready, populated its alias; current marks the open row (aria-current); actions answer outcomes."
+          ]
+        },
+        {
+          "from": "1.13.4",
+          "to": "1.13.5",
+          "changes": [
+            "The windows' portal is watched by the Loader (SF.Loader.watch) and lazy elements are asked for through SF.Loader.ensure; needs core.runtime >= 1.19.0. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
           ]
         }
       ]

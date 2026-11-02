@@ -1032,13 +1032,7 @@ class SfPropertyView extends PropertyViewElement {
         if (!(anchor instanceof Element)) return null;
         // The panel did not draw a menu before, so its rule does not fetch one;
         // the Loader is asked for it the first time it is wanted.
-        if (!customElements.get("sf-context-menu")) {
-            globalThis.SF?.Loader?.ensureSmartElementLoaded?.("sf-context-menu");
-            await Promise.race([
-                customElements.whenDefined("sf-context-menu"),
-                new Promise((settle) => setTimeout(settle, 3000)),
-            ]);
-        }
+        await globalThis.SF?.Loader?.ensure?.(["sf-context-menu"]);
         let menu = this._standardMenu;
         if (!menu?.isConnected) {
             menu = document.createElement("sf-context-menu");

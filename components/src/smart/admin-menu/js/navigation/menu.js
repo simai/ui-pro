@@ -7,9 +7,7 @@
 // The standard menu is a lazy relation: fetched after the page is ready, so a
 // press that comes before it has arrived asks the Loader for it and waits.
 async function standardMenuDefined() {
-    if (customElements.get("sf-context-menu")) return true;
-    globalThis.SF?.Loader?.ensurePlugin?.("cl-context-menu") ?? globalThis.SF?.Loader?.ensureSmartElementLoaded?.("sf-context-menu");
-    await Promise.race([customElements.whenDefined("sf-context-menu"), new Promise((settle) => setTimeout(settle, 3000))]);
+    await globalThis.SF?.Loader?.ensure?.(["sf-context-menu"]);
     return Boolean(customElements.get("sf-context-menu"));
 }
 
