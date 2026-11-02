@@ -2715,6 +2715,33 @@
               "check": "window.of('member.role').length === 1"
             }
           ]
+        },
+        {
+          "id": "p47-threads",
+          "title": "1.10.0 x-threads: without it no «N ответов»; with it the line only where there are answers; a press raises thread.open once and the discussion opens in place: «Обсуждение», «В чат», the root above the feed, no line and no members inside, the parent kept selected; «В чат» opens the parent again",
+          "covers": "capabilities.x-threads, intents.thread.open, runtime.thread-title, runtime.thread-back, compatibility.1.10.0",
+          "steps": [
+            {
+              "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.of = (intent) => window.calls.filter((one) => one[0] === intent), window.item = (id) => window.w.querySelector('.sf-message-log__item[data-id=\"' + id + '\"]'), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; const answer = typeof given === 'function' ? await given(payload) : given; return answer ?? {answer: 'applied'}; }}), window.chat = {conversation: {id: 7, title: 'Планёрка', type: 'group', can_send: true}, messages: [{id: 41, kind: 'person', author: {id: 102, name: 'Ольга'}, body: 'Когда запускаем возвраты?', revision: 1, thread: {id: 't41', replies: 3}}, {id: 42, kind: 'person', author: {id: 102, name: 'Ольга'}, body: 'Без ответов', revision: 1}], history: {has_older: false}, feed_state: 'ready'}, window.answers['conversation.open'] = (p) => { if (String(p.conversation_id) === 't41') window.w.setData({conversation: {id: 't41', type: 'thread', parent_id: 7, title: null, can_send: true, root: {id: 41, author: {name: 'Ольга'}, text: 'Когда запускаем возвраты?'}}, messages: [{id: 51, kind: 'person', author: {id: 102, name: 'Ольга'}, body: 'В понедельник', revision: 1}], history: {has_older: false}, feed_state: 'ready'}); else window.w.setData(window.chat); return {answer: 'applied'}; }, window.w.setAttribute('capabilities', 'people x-members x-reply'), window.w.setData({me: {id: 101, name: 'Анна'}, conversations: [{id: 7, title: 'Планёрка', type: 'group'}], ...window.chat, limits: {}}), true)",
+              "wait": 900,
+              "check": "!!window.item(41) && !window.w.querySelector('.sf-chat-replies') && window.w.querySelector('.chat-shell__thread-bar').hidden"
+            },
+            {
+              "script": "(window.w.setAttribute('capabilities', 'people x-members x-reply x-threads'), window.w.setData({messages: window.chat.messages.map((one) => ({...one}))}), true)",
+              "wait": 600,
+              "check": "!!window.item(41).querySelector('.sf-chat-replies') && /3/.test(window.item(41).querySelector('.sf-chat-replies').textContent) && !window.item(42).querySelector('.sf-chat-replies')"
+            },
+            {
+              "script": "(window.answers['thread.open'] = {answer: 'applied', data: {conversation_id: 't41'}}, window.item(41).querySelector('.sf-chat-replies').click(), true)",
+              "wait": 900,
+              "check": "window.of('thread.open').length === 1 && window.of('thread.open')[0][1].message_id === 41 && window.of('thread.open')[0][1].conversation_id === 7 && window.w.conversation?.id === 't41' && !window.w.querySelector('.chat-shell__thread-bar').hidden && /Когда запускаем/.test(window.w.querySelector('.chat-shell__thread-root').textContent) && window.w.querySelector('.chat-shell__thread-title').textContent === 'Обсуждение' && !window.w.querySelector('.sf-chat-replies') && window.w.querySelector('sf-thread-list').getAttribute('selected') === '7'"
+            },
+            {
+              "script": "(window.w.querySelector('.chat-shell__thread-back').click(), true)",
+              "wait": 900,
+              "check": "window.w.conversation?.id === 7 && window.w.querySelector('.chat-shell__thread-bar').hidden && String(window.of('conversation.open').at(-1)[1].conversation_id) === '7' && !!window.item(41)"
+            }
+          ]
         }
       ]
     }

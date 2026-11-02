@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -139,7 +139,7 @@
       "capabilities": {
         "type": "string",
         "default": "",
-        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply, x-threads). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
       },
       "landmark": {
         "type": "string",
@@ -1407,7 +1407,7 @@
   },
   "events": {
     "sf-chat-window-open": {
-      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. Or a group's members asked for (1.4.0, x-members members.list {conversation_id}, kind members; no former name). The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01.",
+      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. Or a group's members asked for (1.4.0, x-members members.list {conversation_id}, kind members; no former name). The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01. Or a message's discussion (x-threads thread.open, kind thread).",
       "payload": {
         "type": "object",
         "required": [
@@ -2573,20 +2573,27 @@
         "changes": [
           "Managing a group's members (x-members-manage): «Добавить» and «Выйти» in the members view, and per row a «⋯» with role, remove and hand over, each only with the host's flag; remove, hand over and leave are asked in place first. Additive: without the capability the view stays read only."
         ]
+      },
+      {
+        "from": "1.9.1",
+        "to": "1.10.0",
+        "changes": [
+          "A message's discussion (x-threads): «N ответов» under a message with answers and «Обсудить» in its «⋯» for one who may write; thread.open, then the discussion opens in place of the conversation with «В чат» and the message it discusses above the feed. Additive: without the capability nothing changes."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "bb7ab4e816e956e3a04907d6541fcd5b0109debf",
+    "source_revision": "f877f607cc7a6a917183cd8587c78babeee1485d",
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "b9cf0c57f73c193f59c085c183c008a7523dc88c70a01ae70276c9d67a8a58e6"
+        "sha256": "430fd9dc5cc9171591a8a73a1e29ad0c3cd44e5301edbae4cd85623f3be79c17"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
-        "sha256": "7d7455507b5c684cd7dd5864c0b69f8b6247ffaf623816bb2ff1cea0f8bc668b"
+        "sha256": "3f8e404f4ae8980a8f2787658798a5a3972698bedb18f8abdc046425ef8b248c"
       },
       {
         "path": "src/smart/chat-window/js/files-view.js",
@@ -2626,7 +2633,7 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "642213d5014d389aae5d521e221228f2c119459be7499405e72ba2a49cfad700"
+        "sha256": "67985987d752f95f8f15a1b6f11d3898ec6d76a65ba3ab66e13736e93298e5db"
       },
       {
         "path": "src/smart/chat-window/rule.js",
@@ -2634,11 +2641,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "466c021d113553d045333f72b8bce26e969ccf146d74002f56ce365a0c6d90c8"
+        "sha256": "575e596346c0811f996afd57fc7c2c6f5b9accbdbee8ddd120e45300d9f64837"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "613840d4691db102900c8a7736fe8582fa7378ed4c55cf342e30e32fb0170e40"
+        "sha256": "367e960ef6dd25073707759c55c428538f06bb1ee5c28a741c248337e885e7bf"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2646,11 +2653,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "031f11b239b3f42cb03cc85a463172015dfa0a6ff216b1058e91f45c587e93af"
+        "sha256": "a25b9a7138fccdabbb7df8371ad44468dd5e073809213b8c2996c65db4c50124"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "ad7c25d58d98f7de008629a128c5a876a372e44c78261b456fe7c02683af3352"
+        "sha256": "07657e82a34d567078cbf8c42e37525519f71f36246e45a33f34bc77f3b4edcd"
       }
     ],
     "generated_runtime": []

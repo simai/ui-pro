@@ -135,6 +135,11 @@
     "steps-state-running": "in progress",
     "steps-stopped": "Stopped",
     "steps-stopped-in": "Stopped after {time}",
+    "thread-discuss": "Discuss",
+    "thread-replies": {
+      "one": "{n} reply",
+      "other": "{n} replies"
+    },
     "time-hours": "{h} h",
     "time-hours-minutes": "{h} h {m} min",
     "time-minutes": "{m} min",

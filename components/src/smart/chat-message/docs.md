@@ -108,6 +108,7 @@
 | `message.asked_by` | `{name}`: «по просьбе …», имя как дано (хост даёт падеж: «Анны»). |
 | `display.document` | документ без пузыря на всю колонку, копирование и оценка видны всегда. `display.showAuthor: false` — без знака и имени (один на один). |
 | `display.canReact`, `canReply` | кнопки «Реакция» и «Ответить»; у `person` «Изменить» и «Удалить» тогда уходят в «⋯». Без обоих — прежние две кнопки. |
+| `display.replies`, `canDiscuss` | 1.5.0: «N ответов» под сообщением (число больше нуля) и «Обсудить» в «⋯»; оба — `open {id, kind: thread}`. Без них сообщение прежнее. |
 | `display.reacting` | эмодзи в пути: пилюля ждёт, второго нажатия нет. |
 | `display.picker` | открыт выбор из шести; закрытие и открытие — `toggle {kind: react, open, quiet?}`. |
 | `display.replyLoaded: false`, `replyDeleted` | оригинала нет в ленте: подсказка, ничего не двигается; он удалён: «Сообщение удалено». |
@@ -226,5 +227,7 @@ Escape — отмена; вопрос об удалении ставит фок�
 1.3.0: `display.day` рисует подпись нового дня перед сообщением тем же разделителем (оба шаблона), над «Новые»; оба — `role="separator"` с именем-подписью. У `person`: `display.editLimit` — предел длины в правке: после 80 % счётчик как у `sf-chat-composer`, сверх предела сохранение не уходит (нет `save`), строка «Не сохранено: сообщение длиннее N знаков», текст остаётся целиком. Без этих полей сообщение прежнее.
 
 1.4.0: среди людей: `display.document` и `message.speaker`, `asked_by`; `message.reactions` и `reply_to` в обоих шаблонах; `display.canReact`, `canReply`, `reacting`, `picker`, `replyLoaded`, `replyDeleted`, `canStop`, `fold_open`; события `react`, `reply`, `stop`, `open {kind: quote}`, `toggle {kind: react | fold}`; аватар человека — `sf-avatar`. Без этих полей сообщение прежнее.
+
+1.5.0: обсуждение сообщения (`sf-chat-window`, `x-threads`): `display.replies` и `display.canDiscuss`, событие `open {kind: thread}`. Без этих полей сообщение прежнее.
 
 1.4.1: инициалы приглушённым тоном по имени (`tone="auto"`, sf-avatar 1.2.0).

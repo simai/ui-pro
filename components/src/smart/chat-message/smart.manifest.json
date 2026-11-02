@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -255,7 +255,7 @@
       }
     },
     "sf-chat-message-open": {
-      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}.",
+      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}. A message's discussion asked for: {id, kind: thread}.",
       "payload": {
         "type": "object",
         "required": [
@@ -267,7 +267,8 @@
           "kind": {
             "enum": [
               "preview",
-              "quote"
+              "quote",
+              "thread"
             ]
           },
           "source": {
@@ -587,16 +588,23 @@
         "changes": [
           "Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."
         ]
+      },
+      {
+        "from": "1.4.2",
+        "to": "1.5.0",
+        "changes": [
+          "A message's discussion (sf-chat-window x-threads): view.replies draws «N ответов» under the message and view.canDiscuss adds «Обсудить» to «⋯»; either raises open {id, kind: thread}. Additive: without them a message draws as before."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "ab496f48676dc08f9a13e6c1e124499ec8f8e33b",
+    "source_revision": "f877f607cc7a6a917183cd8587c78babeee1485d",
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
-        "sha256": "b9bab4ba2c0152e45563d1428111b5432ba3a13d3cc57b370b6c4a58ed266aa9"
+        "sha256": "72287ae697eb3c0b4f2437ec4901f1fe300ea186f0869c09cd0787289a70962e"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.js",
@@ -608,11 +616,11 @@
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
-        "sha256": "d26d9d60937e5df596a79b2ef606140836649d62d34f1279c1ae77bde48968ce"
+        "sha256": "8dd2429a4fbbae2e3af1c36e9d84fb4136053d8ba10be23e685c8c824633671c"
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
-        "sha256": "d024c8cef2eb3fa632519b829404cded5621bc61fffce44f241cddd0afa0cf23"
+        "sha256": "f1ab0b319442fcc7d80195779bea9aea618a1b6959511386755705ca160fa0cb"
       },
       {
         "path": "src/smart/chat-message/js/view/proposed.js",
@@ -620,11 +628,11 @@
       },
       {
         "path": "src/smart/chat-message/js/view/social.js",
-        "sha256": "f01b791e042d4b713de5e0187cc21f430f5e6dc293a5474453ed0f3c7ca7511d"
+        "sha256": "f91663a4871c549618a97316d9a14e230598cfcdab819cb1458ebcf02791dee6"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
-        "sha256": "4233a79f442f352e08dcd9dc00145c45d0ef2c225f2c19c0fcf2f02d564dd368"
+        "sha256": "512654766d494ef98d83b15557e2607ac28c7b16756f90502c260779ff21b8f4"
       },
       {
         "path": "src/smart/chat-message/rule.js",
@@ -632,11 +640,11 @@
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "efaa9045b5aa15bbdd543204c52ac7126d742fbfeb6f189175d9519c49ac8fb3"
+        "sha256": "4d0c7ba6d0c8833280c7c74a6a20862a98011e5bbe923224bc59ccd3b3100e26"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "d369b9c0c84053b23775cda3b7a704933f8cb9e3a521c8244858c76e21211fd5"
+        "sha256": "de2c7db7eb9a02028df5d974235896bb2910311cc7c70640da56bec18ff873b2"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
@@ -644,11 +652,11 @@
       },
       {
         "path": "src/smart/chat-message/lang/en.json",
-        "sha256": "124fd6e27a6f5e96ed5f721c2a1933b2671cf9e2cfdb95facaa9c94248c73f1a"
+        "sha256": "06f326a8d5df99ed21d364af38a090c1a2ea2a94549e9d26cd264a8b1b166e70"
       },
       {
         "path": "src/smart/chat-message/lang/ru.json",
-        "sha256": "11c664c760f8d8e841ed0dd1cb85d540947bf2a21464d04163eb83edbf199878"
+        "sha256": "b940ee12f11bb1e2dac7e415c19b131d1ba376bd211a0094e3a2d3d4ed61a4d1"
       }
     ],
     "generated_runtime": []

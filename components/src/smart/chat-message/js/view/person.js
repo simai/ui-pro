@@ -30,7 +30,7 @@
 // the display offers them (canReact, canReply) the tools are reply, reaction and
 // «⋯» with edit and delete: js/view/social.js. Without those the two buttons stay.
 import { element, text, iconButton, iconNode, renderAttachment } from './message.js';
-import { renderConflict, renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderTools, whenPlaced } from './social.js';
+import { renderConflict, renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderReplies, renderTools, whenPlaced } from './social.js';
 
 let editCounts = 0;
 
@@ -135,6 +135,8 @@ export function renderPersonMessage(ctx, message, view = {}) {
 
   const reactions = renderReactions(ctx, message, view);
   if (reactions) body.append(reactions);
+  const replies = renderReplies(ctx, message, view);
+  if (replies) body.append(replies);
 
   // The line under a message: when, «изменено», and what is happening to it.
   const meta = element(ctx, 'p', 'sf-chat-person__meta');
@@ -154,7 +156,7 @@ export function renderPersonMessage(ctx, message, view = {}) {
 
   if (view.askDelete) {
     body.append(renderDeleteAsk(ctx, message, view.conflict));
-  } else if (!view.editing && !pending && message.id != null && (view.canReact || view.canReply)) {
+  } else if (!view.editing && !pending && message.id != null && (view.canReact || view.canReply || view.canDiscuss)) {
     const tools = renderTools(ctx, message, view, { edit: Boolean(message.canEdit), remove: Boolean(message.canDelete) });
     if (tools) root.append(tools);
     if (view.picker && view.canReact) root.append(renderPicker(ctx, message, view));
