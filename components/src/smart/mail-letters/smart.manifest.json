@@ -382,7 +382,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "c0f42259c7bfdb44a5d775a44cea3d652027fd3f",
+    "source_revision": "999072fa350ab276fbcae3ed8f00c9ca234c58e5",
     "source_artifacts": [
       {
         "path": "src/smart/mail-letters/index.js",
