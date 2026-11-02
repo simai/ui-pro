@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -175,11 +175,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "chrome": {
         "type": "string",

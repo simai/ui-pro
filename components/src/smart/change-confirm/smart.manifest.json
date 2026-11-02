@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.change-confirm",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "title": "Change confirmation",
   "summary": "A prepared change put to a person: each value as it was and as it will be, two answers of equal weight, until when it can be answered, and then only the outcome. Applies nothing; a press is an event.",
   "kind": "smart",
@@ -41,11 +41,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "heading": {
         "type": "string",
@@ -447,7 +449,7 @@
       },
       {
         "path": "src/smart/change-confirm/component.json",
-        "sha256": "dfee51753a5eb4c8cec0368d62030067ba654ae204c1e4626c952efc4fe1180c"
+        "sha256": "cf8fadcc0dc0a860f56b736eb5260219cb1fa6d7b3c20ac2116c5aebdec7b6f5"
       },
       {
         "path": "src/smart/change-confirm/aliases.json",

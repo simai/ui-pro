@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view",
-  "version": "1.13.2",
+  "version": "1.13.3",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -188,11 +188,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "selectable": {
         "type": "boolean",

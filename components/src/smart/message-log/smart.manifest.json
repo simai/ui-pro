@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "title": "Message log",
   "summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
   "kind": "composite",
@@ -42,11 +42,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "changes": {
         "type": "string",
@@ -804,7 +806,7 @@
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "7e1ed565801128bd6f912e0e5b07c4189c4961730e62b50cc68753189aa0f221"
+        "sha256": "30e619f18750f83a0c6d5214e853c310b15ea53890ed148b67fac7880ae27b97"
       },
       {
         "path": "src/smart/message-log/aliases.json",

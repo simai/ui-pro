@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -145,11 +145,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "brand": {
         "type": "string",
@@ -1302,7 +1304,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "ae1c8273a4264a4af9221a5d6549c570e4afbee3cc115a4b7476de456c357c99"
+        "sha256": "ffbfe95002aa9d4907df7b5ed0148b88550635eaad41afd2402a1a2348aa0936"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

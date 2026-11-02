@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-composer",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "title": "Chat composer",
   "summary": "Where a question is written and files are added: Enter sends, Shift+Enter breaks the line, an IME composition is never cut short, the send button becomes «stop waiting» while an answer is awaited, and files are only reported for the host to upload; their chips come back as files.",
   "kind": "smart",
@@ -44,11 +44,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "placeholder": {
         "type": "string",
@@ -574,7 +576,7 @@
       },
       {
         "path": "src/smart/chat-composer/component.json",
-        "sha256": "b93ed7fe8d0b387c47ee7c254eb2a3f2b075c803d9505b5d1ffd4f6774d426b1"
+        "sha256": "500e8bc4d2da49dbc66e16a5d3dac6ddf1bdbaa9e185c32c9cee7ae8303f467b"
       },
       {
         "path": "src/smart/chat-composer/aliases.json",

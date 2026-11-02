@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-interlocutor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "title": "Chat interlocutor",
   "summary": "Who the conversation is with: the server's interlocutors in the Framework's context menu, the current one checked, and a choice of another reported for the host to start a new conversation with. One interlocutor is a name, not a choice.",
   "kind": "smart",
@@ -42,11 +42,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "value": {
         "type": "string",
@@ -341,7 +343,7 @@
       },
       {
         "path": "src/smart/chat-interlocutor/component.json",
-        "sha256": "fa39ada4bc67a63c8f551386d38c6abbce914a83e446a38b269f07df1e1cd6b9"
+        "sha256": "5bc80fdecb790d8e1640078c46348d1adaa884430ce7567ffd28e2fbff695e94"
       },
       {
         "path": "src/smart/chat-interlocutor/aliases.json",
