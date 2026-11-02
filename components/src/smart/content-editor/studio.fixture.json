@@ -340,16 +340,6 @@
               }
             },
             {
-              "id": "x1",
-              "type": "docara.example",
-              "data": {
-                "source": "<sf-button>Пример</sf-button>"
-              },
-              "props": {
-                "height": 240
-              }
-            },
-            {
               "id": "p2",
               "type": "content.paragraph",
               "data": {

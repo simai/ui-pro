@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.content-editor",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "title": "Content editor",
   "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "kind": "smart",
@@ -458,7 +458,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/content-editor/index.js",
-        "sha256": "a84f6ba3e196db2062cb016aee37ae9136f2c6c01894a991e3605f1266368bd5"
+        "sha256": "6425da3e7d3ec523e463cd51dd639b5d955342331cf241774f9cb106d2c7fe67"
       },
       {
         "path": "src/smart/content-editor/js/model.js",
@@ -482,7 +482,7 @@
       },
       {
         "path": "src/smart/content-editor/js/templates/default.css",
-        "sha256": "172d16a396e4b40a043d7bef0f92bb30645244676b66f0e749b1138fc318b975"
+        "sha256": "9b84c965991104166ace2e2f480e906bb59b48de345aba303bf71b15a816298a"
       },
       {
         "path": "src/smart/content-editor/rule.js",
@@ -490,11 +490,11 @@
       },
       {
         "path": "src/smart/content-editor/docs.md",
-        "sha256": "5109ba94221a53fc35d1e9a799a6fa53651a19a8b92139e9b58adb495ac5bbf8"
+        "sha256": "e3f3c335b4e7a537a4aeeedbfbc018fae06350b820955f59e9e334aab9853ade"
       },
       {
         "path": "src/smart/content-editor/component.json",
-        "sha256": "d7fc80c08000a88085db169e6e0db905ae5fb7fc8f37d3564d7b87822c46bc14"
+        "sha256": "9cf5610507328edcaac28ec7fa9bc197ca2e4c0aeb3561ce8c055431a0c36d50"
       },
       {
         "path": "src/smart/content-editor/lang/en.json",

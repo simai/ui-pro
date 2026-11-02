@@ -7,10 +7,13 @@
      Every value is a Framework token. */
   .sf-content-editor {
     /* The margin the gutter stands in: the + and the grip, 24px each, 4px
-       apart and 4px from the text. Below 640px of sheet it holds the grip. */
+       apart and 4px from a block's highlight, which reaches past the text.
+       Below 640px of sheet the two stand one above the other. */
     --sf-content-editor-button: var(--sf-ui-1\/3--control-height);
     --sf-content-editor-gap: var(--sf-a4);
+    --sf-content-editor-reach: var(--sf-space-1\/2);
     --sf-content-editor-gutter: calc(var(--sf-content-editor-button) * 2 + var(--sf-content-editor-gap) * 2);
+    --sf-content-editor-margin: max(var(--sf-space-7), calc(var(--sf-content-editor-gutter) + var(--sf-content-editor-reach)));
     position: relative;
     container-type: inline-size;
     color: var(--sf-on-surface);
@@ -24,7 +27,7 @@
     max-inline-size: var(--sf-layout-reading-width);
     margin-inline: auto;
     padding-block: var(--sf-space-4) var(--sf-space-7);
-    padding-inline: max(var(--sf-space-7), var(--sf-content-editor-gutter)) var(--sf-space-7);
+    padding-inline: var(--sf-content-editor-margin) var(--sf-space-7);
   }
 
   .sf-content-editor-title {
@@ -51,8 +54,8 @@
 
   .sf-content-editor-block {
     position: relative;
-    margin-inline: calc(var(--sf-space-1\/2) * -1);
-    padding: var(--sf-space-1\/4) var(--sf-space-1\/2);
+    margin-inline: calc(var(--sf-content-editor-reach) * -1);
+    padding: var(--sf-space-1\/4) var(--sf-content-editor-reach);
     border-radius: var(--sf-radius-1);
   }
 
@@ -451,11 +454,11 @@
   }
 
   /* The gutter: two quiet buttons in the margin beside the block under the
-     pointer or the caret, never over its text; gone while one types. It ends
-     where the text begins. */
+     pointer or the caret, never over its text or its highlight; gone while
+     one types with a mouse. It ends where a block's highlight begins. */
   .sf-content-editor-gutter {
     position: absolute;
-    inset-inline-start: calc(max(var(--sf-space-7), var(--sf-content-editor-gutter)) - var(--sf-content-editor-gutter));
+    inset-inline-start: calc(var(--sf-content-editor-margin) - var(--sf-content-editor-gutter) - var(--sf-content-editor-reach));
     z-index: 2;
     display: flex;
     gap: var(--sf-content-editor-gap);
@@ -474,6 +477,8 @@
     block-size: var(--sf-content-editor-button);
     min-block-size: var(--sf-content-editor-button);
     padding: 0;
+    /* The button is made square here, so its icon is centred on both axes. */
+    justify-content: center;
   }
 
   .sf-content-editor-gutter.is-shown,
@@ -489,7 +494,7 @@
 
   .sf-content-editor-drop {
     position: absolute;
-    inset-inline: max(var(--sf-space-7), var(--sf-content-editor-gutter)) var(--sf-space-7);
+    inset-inline: var(--sf-content-editor-margin) var(--sf-space-7);
     z-index: 2;
     block-size: var(--sf-focus--width);
     border-radius: var(--sf-radius-circle);
@@ -523,6 +528,13 @@
 
   .sf-content-editor-quick-group {
     display: flex;
+  }
+
+  /* The grip menu's keys: one step down the size ladder from the row's
+     words (the menu is size 1/2, its words 1/3). */
+  .sf-content-editor-menu .sf-context-menu-item-shortcut {
+    font-size: var(--sf-text-size-1\/4);
+    line-height: var(--sf-text-height-1\/4);
   }
 
   .sf-content-editor-params {
@@ -694,24 +706,23 @@
     white-space: nowrap;
   }
 
-  /* A narrow sheet: a 32px margin with the grip alone; its menu adds below. */
+  /* A narrow sheet: a 32px gutter with the + above the grip; the grip's
+     menu also adds below. */
   @container (max-width: 640px) {
     .sf-content-editor-sheet {
       --sf-content-editor-gutter: calc(var(--sf-content-editor-button) + var(--sf-content-editor-gap) * 2);
-      padding-inline: var(--sf-content-editor-gutter) var(--sf-space-4);
+      --sf-content-editor-margin: calc(var(--sf-content-editor-gutter) + var(--sf-content-editor-reach));
+      padding-inline: var(--sf-content-editor-margin) var(--sf-space-4);
     }
 
     .sf-content-editor-gutter {
-      inset-inline-start: 0;
-    }
-
-    /* The host is display: contents (written on it), so its button is hidden. */
-    .sf-content-editor-plus > button {
-      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding-inline: 0;
     }
 
     .sf-content-editor-drop {
-      inset-inline: var(--sf-content-editor-gutter) var(--sf-space-4);
+      inset-inline: var(--sf-content-editor-margin) var(--sf-space-4);
     }
   }
 

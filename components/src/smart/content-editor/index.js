@@ -344,6 +344,7 @@ class SfContentEditor extends ContentEditorElement {
         host.dataset.sfSlot = FLOWS[this.doc.root.type] ?? "default";
         host.replaceChildren(blocks(this.viewContext(), this.doc.root));
         this.resizing?.observe(host);
+        if (this.quick) this.resizing?.observe(this.quick);
         const title = this.querySelector(".sf-content-editor-title");
         if (title) {
             // A plain field of the root: write() puts what it holds in data.title.
@@ -662,7 +663,7 @@ class SfContentEditor extends ContentEditorElement {
         this.rememberTyping(before);
         this.write(element, value);
         this.lastSnapshot = this.snapshot();
-        this.hideGutter();
+        this.typed();
         this.changed("typing");
         const field = this.describe(element);
         const node = locate(this.doc.root, field.id)?.node;
@@ -1552,12 +1553,15 @@ class SfContentEditor extends ContentEditorElement {
         const sheet = this.sheet.getBoundingClientRect();
         const field = element.querySelector(".sf-content-editor-field");
         const start = element.getBoundingClientRect().top;
+        // On a narrow sheet the + stands above the grip: the first button is
+        // what is centred on the line.
+        const lead = gutter.querySelector("button")?.offsetHeight || gutter.offsetHeight;
         let top;
-        if (field && field.getBoundingClientRect().top - start < gutter.offsetHeight) {
+        if (field && field.getBoundingClientRect().top - start < lead) {
             const box = field.getBoundingClientRect();
             const style = globalThis.getComputedStyle(field);
             const line = Math.min(parseFloat(style.lineHeight) || box.height, box.height || Infinity);
-            top = box.top - sheet.top + (parseFloat(style.paddingTop) || 0) + (line - gutter.offsetHeight) / 2;
+            top = box.top - sheet.top + (parseFloat(style.paddingTop) || 0) + (line - lead) / 2;
         } else {
             // A picture, a divider, a table: the gutter stands at the block's top,
             // not on a caption or a cell further down.
@@ -1594,10 +1598,16 @@ class SfContentEditor extends ContentEditorElement {
         if (element) this.showGutter(element.dataset.sfNode);
     }
 
-    /** Whether the sheet is narrow: the gutter holds the grip alone, and its menu adds below. */
+    /** Whether the sheet is narrow: the gutter stands as a column, and the grip's menu also adds below. */
     isNarrow() {
-        const plus = this.querySelector(".sf-content-editor-plus > button");
-        return Boolean(plus) && globalThis.getComputedStyle(plus).display === "none";
+        const gutter = this.querySelector(".sf-content-editor-gutter");
+        return Boolean(gutter) && globalThis.getComputedStyle(gutter).flexDirection === "column";
+    }
+
+    // With a mouse the gutter leaves while one types; on a touch screen there
+    // is no hover to bring it back, so it stays with the block of the caret.
+    typed() {
+        if (!globalThis.matchMedia?.("(pointer: coarse)").matches) this.hideGutter();
     }
 
     // A menu opens at what opened it: under the + or the grip, its left edge on
@@ -1863,8 +1873,11 @@ class SfContentEditor extends ContentEditorElement {
         if (!bar || bar.hidden || !element) return;
         const sheet = this.sheet.getBoundingClientRect();
         const box = element.getBoundingClientRect();
-        const top = box.top - sheet.top - bar.offsetHeight - QUICK_GAP;
-        Object.assign(bar.style, {top: `${Math.round(Math.max(0, top))}px`, left: `${Math.round(box.left - sheet.left)}px`});
+        // Above the block, or under it when the sheet has no room above: never
+        // on the block's text or its highlight.
+        const above = box.top - sheet.top - bar.offsetHeight - QUICK_GAP;
+        const top = above >= 0 ? above : box.bottom - sheet.top + QUICK_GAP;
+        Object.assign(bar.style, {top: `${Math.round(top)}px`, left: `${Math.round(box.left - sheet.left)}px`});
     }
 
     // The form is drawn while the popover is open: the Loader fetches no code
@@ -2127,7 +2140,8 @@ class SfContentEditor extends ContentEditorElement {
         this.addEventListener("copy", (event) => this.onCopy(event, false), signal);
         this.addEventListener("cut", (event) => this.onCopy(event, true), signal);
         this.addEventListener("pointermove", (event) => this.onPointerMove(event), signal);
-        this.addEventListener("pointerleave", () => { if (!this.dragging) this.leaveGutter(); }, signal);
+        // A finger lifted leaves too; on a touch screen the gutter stays with the caret's block.
+        this.addEventListener("pointerleave", (event) => { if (!this.dragging && event.pointerType !== "touch") this.leaveGutter(); }, signal);
         this.addEventListener("sf-context-menu-select", (event) => {
             event.stopPropagation();
             // The menu closes after it tells its choice and gives the focus back
@@ -2172,7 +2186,8 @@ class SfContentEditor extends ContentEditorElement {
             if (this.sessionField) requestAnimationFrame(() => this.placeToolbar());
             this.closeSlash();
         }, {...signal, capture: true, passive: true});
-        // The quick toolbar follows its block when the sheet's width changes.
+        // The quick toolbar follows its block when the sheet's width changes,
+        // and stands again when its own toggles have grown it.
         this.resizing = new ResizeObserver(() => {
             this.placeQuick();
             if (this.gutterFor) this.showGutter(this.gutterFor);
@@ -2196,7 +2211,7 @@ class SfContentEditor extends ContentEditorElement {
         this.rememberTyping(before);
         this.write(element, element.textContent);
         this.lastSnapshot = this.snapshot();
-        this.hideGutter();
+        this.typed();
         this.changed("typing");
     }
 
