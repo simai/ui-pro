@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.content-editor",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "title": "Content editor",
   "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "kind": "smart",
@@ -51,11 +51,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "parameters": {
         "type": "string",
@@ -330,7 +332,8 @@
         "type": "object",
         "required": [
           "file",
-          "block"
+          "block",
+          "type"
         ],
         "properties": {
           "file": {
@@ -458,7 +461,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/content-editor/index.js",
-        "sha256": "456f66080c30e5b4630fe45d07c7d72aafb5308ea539cb672cc97057a97073de"
+        "sha256": "83eed6db373d42f9b710f2df3c906e668d199118e7dab249497e98a04eff1306"
       },
       {
         "path": "src/smart/content-editor/js/model.js",
@@ -494,7 +497,7 @@
       },
       {
         "path": "src/smart/content-editor/component.json",
-        "sha256": "9cf5610507328edcaac28ec7fa9bc197ca2e4c0aeb3561ce8c055431a0c36d50"
+        "sha256": "4954b737563e34fb852567516ceca68c326bb37051bd04227328feb98adc7af7"
       },
       {
         "path": "src/smart/content-editor/lang/en.json",

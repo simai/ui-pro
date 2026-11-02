@@ -254,7 +254,12 @@ class SfContentEditor extends ContentEditorElement {
         const own = Array.isArray(this.editorManifests) ? this.editorManifests : [];
         const found = own.find((entry) => entry?.type === type) ?? BUILTIN_EDITOR_MANIFESTS.find((entry) => entry.type === type);
         const required = BUILTIN_TYPE_MANIFESTS.find((entry) => entry.type === type)?.data_schema?.required ?? [];
-        return (found?.fields ?? []).filter((item) => item.visibility !== "hidden" && (item.plane === "props" || item.plane === "data"))
+        // A picture's src is the editor's own control (upload, link, the host's
+        // sources): since ui-source b94f978d the built-in manifests offer it as
+        // a field too (simai/ui-source#64), and drawing it here would give the
+        // block two address inputs.
+        const ownSource = type === "content.figure" || type === "content.media" ? "src" : null;
+        return (found?.fields ?? []).filter((item) => item.visibility !== "hidden" && (item.plane === "props" || item.plane === "data") && item.key !== ownSource)
             .map((item) => ({...item, required: item.plane === "data" && required.includes(item.key), kind: this.kindOfField(item)}));
     }
 
