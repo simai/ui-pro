@@ -22,6 +22,7 @@
 import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {pageLocale} from "../../core/js/page-language";
+import {formatRelativeTime} from "../../core/js/format.js";
 import {renderMailLettersTemplate} from "./js/templates/default.js";
 import manifest from "./component.json";
 import en from "./lang/en.json";
@@ -29,8 +30,6 @@ import ru from "./lang/ru.json";
 
 const ORDERS = ["changed", "title"];
 const CHOICES = ["open", "copy", "rename", "delete", "create"];
-// The longest unit first: the moment is worded in the largest unit it fills.
-const STEPS = [["year", 31536000], ["month", 2592000], ["week", 604800], ["day", 86400], ["hour", 3600], ["minute", 60]];
 
 const applied = () => ({outcome: "applied"});
 const refused = (reason) => ({outcome: "refused", reason});
@@ -95,15 +94,10 @@ class SfMailLetters extends MailLettersElement {
     }
 
     /** «5 минут назад»: the moment in the page's language, or '' when there is none. */
+    // Core's formatRelativeTime: the same steps (the largest unit the moment
+    // fills), numeric "auto", and '' for no moment.
     when(at) {
-        const moment = at ? new Date(at) : null;
-        if (!moment || Number.isNaN(moment.getTime())) return "";
-        const seconds = Math.round((moment.getTime() - Date.now()) / 1000);
-        const format = new Intl.RelativeTimeFormat(this.locale(), {numeric: "auto"});
-        for (const [unit, size] of STEPS) {
-            if (Math.abs(seconds) >= size) return format.format(Math.round(seconds / size), unit);
-        }
-        return format.format(seconds, "second");
+        return formatRelativeTime(at, {locale: this.locale()});
     }
 
     /** The rows the search leaves, in the chosen order. */

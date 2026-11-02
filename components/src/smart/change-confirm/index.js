@@ -30,7 +30,7 @@ import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {noteDeprecated} from "../../core/js/deprecations";
 import {instancePath, partId} from "../../core/js/instance-path";
-import {pageLocale} from "../../core/js/page-language";
+import {calendarDayOffset, formatDate} from "../../core/js/format.js";
 import {renderChangeConfirmTemplate} from "./js/templates/default.js";
 import manifest from "./component.json";
 import aliases from "./aliases.json";
@@ -120,12 +120,10 @@ class SfChangeConfirm extends ChangeConfirmElement {
     }
 
     formatTime(value) {
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return "";
-        const sameDay = date.toDateString() === new Date().toDateString();
-        return new Intl.DateTimeFormat(pageLocale(this), sameDay
+        const sameDay = calendarDayOffset(value) === 0;
+        return formatDate(value, {node: this, intl: sameDay
             ? {hour: "2-digit", minute: "2-digit"}
-            : {day: "numeric", month: "long", hour: "2-digit", minute: "2-digit"}).format(date);
+            : {day: "numeric", month: "long", hour: "2-digit", minute: "2-digit"}});
     }
 
     statusText(shown) {

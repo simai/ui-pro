@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -595,6 +595,13 @@
         "changes": [
           "A message's discussion (sf-chat-window x-threads): view.replies draws «N ответов» under the message and view.canDiscuss adds «Обсудить» to «⋯»; either raises open {id, kind: thread}. Additive: without them a message draws as before."
         ]
+      },
+      {
+        "from": "1.5.0",
+        "to": "1.5.1",
+        "changes": [
+          "Times, dates and copying through core's format and clipboard helpers, the person template's initials through helpers/text getInitials; needs core.runtime >= 1.20.0. Visible: a name of several words gives the initials of its words («Анна-Мария Смирнова» → АС, was АМ). Nothing to change for a host on a pair from core.runtime 1.20.0 on."
+        ]
       }
     ]
   },
@@ -616,11 +623,11 @@
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
-        "sha256": "8dd2429a4fbbae2e3af1c36e9d84fb4136053d8ba10be23e685c8c824633671c"
+        "sha256": "023eb6cb903986869e2ad01531df803978a765e3e5e1f49b3c5c72e0dfade582"
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
-        "sha256": "f1ab0b319442fcc7d80195779bea9aea618a1b6959511386755705ca160fa0cb"
+        "sha256": "f727ff4223b435b162da27a66b959748c44146dfad22fdeb193515a2bafc81be"
       },
       {
         "path": "src/smart/chat-message/js/view/proposed.js",
@@ -644,7 +651,7 @@
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "de2c7db7eb9a02028df5d974235896bb2910311cc7c70640da56bec18ff873b2"
+        "sha256": "d7fe24355809400eaf8dfda385f380008e58d969a46fde0d558b1d5dc3bbabad"
       },
       {
         "path": "src/smart/chat-message/aliases.json",

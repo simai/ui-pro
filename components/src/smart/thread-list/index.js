@@ -39,6 +39,7 @@
 import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {noteDeprecated} from "../../core/js/deprecations";
+import {calendarDayOffset, msUntilNextDay} from "../../core/js/format.js";
 import {renderThreadListTemplate} from "./js/templates/default.js";
 import manifest from "./component.json";
 import aliases from "./aliases.json";
@@ -99,8 +100,6 @@ const ThreadListElement = elementFromManifest(manifest, {
     source: "ru",
     aliases,
 });
-
-const dayKey = (date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 
 // Newest first by the last change; a thread without a readable date goes last
 // rather than first, where an unknown date would otherwise sort a string.
@@ -252,14 +251,24 @@ class SfThreadList extends ThreadListElement {
 
     // ── what is drawn ────────────────────────────────────────────────────────
 
+    // Calendar days in the reader's time zone (core's calendarDayOffset); an
+    // unreadable date is NaN and falls through to "earlier".
     groupOf(thread, today) {
         if (thread.pinned === true) return "pinned";
-        const date = new Date(thread["updated-at"]);
-        if (Number.isNaN(date.getTime())) return "earlier";
-        if (dayKey(date) === dayKey(today)) return "today";
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        return dayKey(date) === dayKey(yesterday) ? "yesterday" : "earlier";
+        const offset = calendarDayOffset(thread["updated-at"], {now: today});
+        return offset === 0 ? "today" : offset === -1 ? "yesterday" : "earlier";
+    }
+
+    // «Сегодня» said yesterday is wrong by morning: at the reader's midnight
+    // the groups are drawn again (as sf-chat-window's day dividers are).
+    watchDay() {
+        clearTimeout(this._dayTimer);
+        this._dayTimer = 0;
+        if (!this.isConnected) return;
+        this._dayTimer = setTimeout(() => {
+            this.watchDay();
+            this.requestComponentUpdate("day");
+        }, msUntilNextDay() + 1000);
     }
 
     groups() {
@@ -355,10 +364,17 @@ class SfThreadList extends ThreadListElement {
         }
     }
 
+    onConnected() {
+        super.onConnected?.();
+        this.watchDay();
+    }
+
     onDisconnected() {
         this._observer?.disconnect();
         this._observer = null;
         this._observed = null;
+        clearTimeout(this._dayTimer);
+        this._dayTimer = 0;
         super.onDisconnected?.();
     }
 

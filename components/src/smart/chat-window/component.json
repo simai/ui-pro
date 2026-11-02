@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-window's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-window (smart.manifest.json 0.3.1, ui-chat 07bc988) by the D31 move, step 6 (owner yes 2026-10-27), with files-view.js, port.js, chat-core's larena.js words and smart.css, and the staff page's layout of the window's nodes; written by hand on the shape of sf-chat-interlocutor, sf-chat-composer and sf-chat-message (steps 3-5), since migration/convert-1.3.8.mjs takes only the pinned 66. x-decisions says how each point was decided.",
   "id": "smart.chat-window",
   "tag": "sf-chat-window",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -1389,7 +1389,8 @@
     "the field stays free (1.6.0, people): an assistant's wait no longer counts towards composer.busy between people, so nothing blocks or queues on it and its end takes nobody's focus; a send out still holds the field, as a double press must not send twice. Stop leaves the field for the message (can_stop, capability assistant): wait.stop keeps the port's payload {conversation_id}, which has no word for one message. sf-chat-composer 1.2.0's no-stop hides the field's button.",
     "reactions and replies keep the page's state (1.6.0): the picker, a reaction on its way, an opened fold and what the field answers, by message key or draft key, as an editor or typed text; the strip over the field is made on first use, so a window without x-reply has no node more and its first paint is the same. An applied reaction merges data.message with same: a reaction need not make a new revision, an older one still loses.",
     "x-members-manage (1.9.0): the window's own, as x-members is; simai.chat-port 1.0 does not change (owner, q-0c04e83775). One strip under one row at a time (a «⋯» per row), so 500 rows carry one button each. Buttons only from the host's flags, never from a role table: the module decides who may remove, change a role or hand over. member.remove answers {removed_user_id} and the window drops the row without asking for the roster (the module's remove changes no other role); add, role and transfer answer the whole roster. access-denied means the flags were stale: one line «Недоступно», and the roster is asked for again. member.leave applied: the view closes and the conversation is opened again, so the host says it is no longer the reader's and the window clears it as for access-revoked. Adding reuses sf-lookup as the new group does, single choice, exclude those already in and the reader.",
-    "x-threads (1.10.0): the window's own; simai.chat-port 1.0 does not change. A discussion is a conversation of its own (type thread, parent_id, root): the host answers thread.open with its conversation_id and the window opens it with conversation.open, so the feed, the field, the draft, edit and delete are the port's as for any conversation. How many answers a message has comes with it (message.thread.replies): no request per message. Inside a discussion there is no «Обсудить» (they do not nest), no members (the roster is the parent's) and the title is «Обсуждение»: the root's text is not a title, and the root may be deleted. The list keeps the parent selected; «В чат» opens the parent and brings the discussed message into view."
+    "x-threads (1.10.0): the window's own; simai.chat-port 1.0 does not change. A discussion is a conversation of its own (type thread, parent_id, root): the host answers thread.open with its conversation_id and the window opens it with conversation.open, so the feed, the field, the draft, edit and delete are the port's as for any conversation. How many answers a message has comes with it (message.thread.replies): no request per message. Inside a discussion there is no «Обсудить» (they do not nest), no members (the roster is the parent's) and the title is «Обсуждение»: the root's text is not a title, and the root may be deleted. The list keeps the parent selected; «В чат» opens the parent and brings the discussed message into view.",
+    "version 1.10.1: days and initials are core's (core.runtime 1.20.0; reuse audit 2026-11-02, findings 7 and 10). The day dividers between people (js/people.js dayWord) are formatRelativeDay with weekday false, so they say today, yesterday or the date as before and the window's words people.today and people.yesterday still win; the midnight refresh waits msUntilNextDay; the file list's date is formatDate (the exact date, its year only when it is not this one). A found person's and a member's initials (js/start-model.js initialsOf) are getInitials of helpers/text.js; an empty name still gives '' and the avatar is left out. Visible: one hyphenated name reads as its parts («Жан-Поль» → ЖП, was Ж) and a preposition after the first word is skipped. Needs core.runtime >= 1.20.0."
   ],
   "x-rule": {
     "$comment": [
@@ -1779,6 +1780,13 @@
           "to": "1.10.0",
           "changes": [
             "A message's discussion (x-threads): «N ответов» under a message with answers and «Обсудить» in its «⋯» for one who may write; thread.open, then the discussion opens in place of the conversation with «В чат» and the message it discusses above the feed. Additive: without the capability nothing changes."
+          ]
+        },
+        {
+          "from": "1.10.0",
+          "to": "1.10.1",
+          "changes": [
+            "Day dividers, the midnight refresh and the file list's date through core's format helpers, initials through helpers/text getInitials; needs core.runtime >= 1.20.0. Visible: one hyphenated name gives the initials of its parts («Жан-Поль» → ЖП, was Ж). Nothing to change for a host on a pair from core.runtime 1.20.0 on."
           ]
         }
       ]

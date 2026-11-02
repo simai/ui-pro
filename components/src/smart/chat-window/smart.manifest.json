@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -2580,6 +2580,13 @@
         "changes": [
           "A message's discussion (x-threads): «N ответов» under a message with answers and «Обсудить» in its «⋯» for one who may write; thread.open, then the discussion opens in place of the conversation with «В чат» and the message it discusses above the feed. Additive: without the capability nothing changes."
         ]
+      },
+      {
+        "from": "1.10.0",
+        "to": "1.10.1",
+        "changes": [
+          "Day dividers, the midnight refresh and the file list's date through core's format helpers, initials through helpers/text getInitials; needs core.runtime >= 1.20.0. Visible: one hyphenated name gives the initials of its parts («Жан-Поль» → ЖП, was Ж). Nothing to change for a host on a pair from core.runtime 1.20.0 on."
+        ]
       }
     ]
   },
@@ -2589,7 +2596,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "430fd9dc5cc9171591a8a73a1e29ad0c3cd44e5301edbae4cd85623f3be79c17"
+        "sha256": "6fed38479230dbe46a1c3307b65ea8c1672f53fd5a710948a25c1fde939debce"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2597,7 +2604,7 @@
       },
       {
         "path": "src/smart/chat-window/js/files-view.js",
-        "sha256": "582bf8cb8c0f8fa5350a1df892ae3b0fa2abf570b7749fa411f8423143b50c21"
+        "sha256": "94ec4d39cdc810de6edb31b87e61e33c94078752dec42ebe78c0b30b8ff3958a"
       },
       {
         "path": "src/smart/chat-window/js/part-words.js",
@@ -2609,7 +2616,7 @@
       },
       {
         "path": "src/smart/chat-window/js/people.js",
-        "sha256": "569b31886a908ab8fe4ec93fb5471b2eccf8817885475cd5d7d7106bc3526a16"
+        "sha256": "6b51b76ffc5e87ef5a30d3d985db783dc4be40a51859fdb2eab09cb45be9e508"
       },
       {
         "path": "src/smart/chat-window/js/members-view.js",
@@ -2625,7 +2632,7 @@
       },
       {
         "path": "src/smart/chat-window/js/start-model.js",
-        "sha256": "7ca6cd12e91a6e135ae8eef259b9b020bc8cd17f35a58e41744df21281b9e102"
+        "sha256": "a113767b52b67678b56281cb889378f4769c5c74f51f41d5d0c9c10bd0d95de8"
       },
       {
         "path": "src/smart/chat-window/js/templates/default.js",
@@ -2645,7 +2652,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "367e960ef6dd25073707759c55c428538f06bb1ee5c28a741c248337e885e7bf"
+        "sha256": "a6c2a6de8ece77dfce5c347e998e1951f6dcb5f051ac1544611cff5037096b44"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

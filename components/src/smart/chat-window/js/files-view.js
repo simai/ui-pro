@@ -17,6 +17,7 @@
 // Moved with the window from simai/ui-chat (D31 step 6); the drawing helpers
 // and formatBytes are sf-chat-message's (js/view/message.js), imported by
 // relative path as the message imports the composer's chip.
+import {formatDate} from '../../../core/js/format.js';
 import {formatBytes, iconButton, iconNode, textButton} from '../../chat-message/js/view/message.js';
 
 let views = 0;
@@ -281,11 +282,10 @@ export class FilesView {
     return box;
   }
 
+  // The exact date (no «сегодня»): the year only when it is not this one.
   date(value) {
-    const date = new Date(value);
-    if (value == null || Number.isNaN(date.getTime())) return '';
-    const sameYear = date.getFullYear() === new Date().getFullYear();
-    return new Intl.DateTimeFormat(this.ctx.locale, { day: 'numeric', month: 'long', ...(sameYear ? {} : { year: 'numeric' }) }).format(date);
+    const sameYear = new Date(value).getFullYear() === new Date().getFullYear();
+    return formatDate(value, { locale: this.ctx.locale, intl: { day: 'numeric', month: 'long', ...(sameYear ? {} : { year: 'numeric' }) } });
   }
 
   // --- asking -------------------------------------------------------------------

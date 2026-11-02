@@ -43,6 +43,11 @@ import {render} from 'lit';
 // them; the import publishes them where it has not run (a page that calls
 // renderMessage without the Framework runtime) and never replaces Core's.
 import '../../../../core/js/sanitize.js';
+// Dates and copying are core's (core.runtime 1.20.0, reuse audit 2026-11-02,
+// findings 7 and 11): the same relative import as the sanitizer, so a page
+// without the Framework runtime still gets them.
+import {formatDate as formatCoreDate} from '../../../../core/js/format.js';
+import {copyText} from '../../../../core/js/clipboard.js';
 import {attachmentState, renderAttachment as attachmentChip} from '../../../chat-composer/js/templates/parts.js';
 import {deliverablesOf, previewTarget, stepsOf, timeOf} from './proposed.js';
 import {renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderReplies, renderTools, whenPlaced} from './social.js';
@@ -113,22 +118,17 @@ export function textButton(ctx, { label, appearance = 'default', scheme = 'prima
 }
 
 function formatTime(ctx, iso) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat(ctx.locale, { hour: '2-digit', minute: '2-digit' }).format(date);
+  return formatCoreDate(iso, { locale: ctx.locale, intl: { hour: '2-digit', minute: '2-digit' } });
 }
 
+// A value that is no date is shown as its own text.
 function formatDate(ctx, value) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value ?? '');
-  return new Intl.DateTimeFormat(ctx.locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+  return formatCoreDate(value, { locale: ctx.locale, intl: { day: 'numeric', month: 'long', year: 'numeric' }, gap: String(value ?? '') });
 }
 
 /** «1 ноября в 00:00» in the reader's own time zone; '' for what is not a date. */
 export function formatMoment(ctx, value) {
-  const date = new Date(value);
-  if (value == null || Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat(ctx.locale, { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(date);
+  return formatCoreDate(value, { locale: ctx.locale, intl: { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' } });
 }
 
 // --- sf-chat-markup ------------------------------------------------------
@@ -643,21 +643,10 @@ function copyValue(message, button) {
   return `${body.trim()}\n\n${list.join('\n')}`;
 }
 
-async function copyText(ctx, value) {
-  const navigatorRef = ctx.document.defaultView?.navigator;
-  if (ctx.document.defaultView?.isSecureContext && navigatorRef?.clipboard?.writeText) {
-    try { await navigatorRef.clipboard.writeText(value); return true; } catch { /* fall back */ }
-  }
-  const area = ctx.document.createElement('textarea');
-  area.value = value;
-  area.setAttribute('readonly', '');
-  area.className = 'sf-chat-offscreen';
-  ctx.document.body.append(area);
-  area.select();
-  let copied = false;
-  try { copied = ctx.document.execCommand('copy'); } catch { copied = false; }
-  area.remove();
-  return copied;
+// Core's copyText: the Clipboard API, else a hidden field in the message's own
+// document; true when it copied.
+async function copyMessage(ctx, value) {
+  try { await copyText(value, { document: ctx.document }); return true; } catch { return false; }
 }
 
 // A question the window sent for a button -- a proposal's command, or a
@@ -1302,7 +1291,7 @@ function renderActions(ctx, message, view, features, sources) {
   copy.classList.add('sf-chat-message__tool');
   if (time) copy.title = `${ctx.words('action.copy')} · ${time}`;
   copy.addEventListener('click', async () => {
-    const done = await copyText(ctx, copyValue(message, copy));
+    const done = await copyMessage(ctx, copyValue(message, copy));
     live.textContent = done ? ctx.words('action.copied') : ctx.words('action.copyFailed');
     ctx.onAction?.('copy', { id: message.id, done });
   });

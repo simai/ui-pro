@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-letters",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Emails",
   "summary": "Every letter a person has in SIMAI Email Editor: a search by name, an order, and what each row offers -- «Открыть» and, under ⋯, a copy, a rename and a delete. The moment and the block count are worded in the page's language. The element holds no letter and stores nothing; it says what the person chose.",
   "kind": "smart",
@@ -46,11 +46,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "query": {
         "type": "string",
@@ -368,6 +370,13 @@
           "sf-mail-letters-delete carries {ids, id} (was {id})",
           "choose, search and sort are actions"
         ]
+      },
+      {
+        "from": "1.0.0",
+        "to": "1.0.1",
+        "changes": [
+          "The letter's relative time through core's formatRelativeTime; needs core.runtime >= 1.20.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.20.0 on."
+        ]
       }
     ]
   },
@@ -377,7 +386,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/mail-letters/index.js",
-        "sha256": "55311542eab2434b70db6c49702d0ac3781d77053d86304fd9ecc8401ead6b7b"
+        "sha256": "0b0ae465c4d51bfef72c7847fa9d96111f8240e9f5b4ff56a8c0f46728859bbd"
       },
       {
         "path": "src/smart/mail-letters/js/templates/default.js",
@@ -397,7 +406,7 @@
       },
       {
         "path": "src/smart/mail-letters/component.json",
-        "sha256": "a4ad66817b7f7c4f9f884654990e7226f8c67aa2580bf713c5dbd536bea1d6c2"
+        "sha256": "bd4bf5d410ba6c1ee716184a1c26f66fa1932bca89fe9ce04e33d9e41013b2a4"
       },
       {
         "path": "src/smart/mail-letters/lang/en.json",

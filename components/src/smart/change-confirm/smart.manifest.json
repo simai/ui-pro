@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.change-confirm",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "title": "Change confirmation",
   "summary": "A prepared change put to a person: each value as it was and as it will be, two answers of equal weight, until when it can be answered, and then only the outcome. Applies nothing; a press is an event.",
   "kind": "smart",
@@ -420,6 +420,13 @@
         "changes": [
           "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.2.3",
+        "to": "1.2.4",
+        "changes": [
+          "The time a proposal stays open through core's format helpers; needs core.runtime >= 1.20.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.20.0 on."
+        ]
       }
     ]
   },
@@ -429,7 +436,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/change-confirm/index.js",
-        "sha256": "e9b71763fae58b71a00fd7f1da7b4de0ef3f00b1984fe2c2897ec8f2b2f6b34d"
+        "sha256": "cb0120760cc1b63e66daee62d1fc16b7fb5e4f30aa701423fc4fd603e0ca41e7"
       },
       {
         "path": "src/smart/change-confirm/js/templates/default.js",
@@ -449,7 +456,7 @@
       },
       {
         "path": "src/smart/change-confirm/component.json",
-        "sha256": "cf8fadcc0dc0a860f56b736eb5260219cb1fa6d7b3c20ac2116c5aebdec7b6f5"
+        "sha256": "68c2131d6c016344a97ea373158e2bad14914554573c4da204540bf2dbfe5862"
       },
       {
         "path": "src/smart/change-confirm/aliases.json",

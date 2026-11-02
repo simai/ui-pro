@@ -3,6 +3,8 @@
 // and answers mean. Plain functions of their arguments, so the views
 // (start-view.js, members-view.js) and the package's node tests read them alike.
 
+import {getInitials} from '../../helpers/text.js';
+
 // The host's numbers (limits.group), these when it gives none. They are this
 // window's defaults for the host it was made for, not the Framework's.
 // query_chars: the longest search the field takes.
@@ -18,11 +20,8 @@ export function groupLimits(group) {
   return Object.fromEntries(Object.keys(GROUP_LIMITS).map((name) => [name, read(name)]));
 }
 
-/** Up to two initials of a name, for the plain avatar markup. */
-export function initialsOf(name) {
-  const words = String(name ?? '').trim().split(/\s+/u).filter(Boolean);
-  return words.slice(0, 2).map((word) => [...word][0].toUpperCase()).join('');
-}
+/** Up to two initials of a name, for the plain avatar markup ('' for none): core's getInitials. */
+export const initialsOf = (name) => getInitials(name);
 
 /** A found person as sf-lookup's item: only the id and the name are read. */
 export function personItem(person) {

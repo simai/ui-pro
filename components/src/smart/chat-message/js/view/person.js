@@ -29,6 +29,8 @@
 // quote at the top of the bubble, message.reactions pills under it, and where
 // the display offers them (canReact, canReply) the tools are reply, reaction and
 // «⋯» with edit and delete: js/view/social.js. Without those the two buttons stay.
+import { formatDate } from '../../../../core/js/format.js';
+import { getInitials } from '../../../helpers/text.js';
 import { element, text, iconButton, iconNode, renderAttachment } from './message.js';
 import { renderConflict, renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderReplies, renderTools, whenPlaced } from './social.js';
 
@@ -37,11 +39,8 @@ let editCounts = 0;
 const PENDING_WORD = { send: 'people.sending', edit: 'people.saving', delete: 'people.deleting' };
 const FAILED_WORD = { send: 'people.failed', edit: 'people.failedEdit', delete: 'people.failedDelete' };
 
-/** «Анна Смирнова» → «АС»; at most two letters, «?» for an empty name. */
-export function initials(name) {
-  const letters = String(name || '').split(/[\s—–-]+/).filter(Boolean).slice(0, 2).map((part) => part[0]);
-  return letters.join('').toUpperCase() || '?';
-}
+/** «Анна Смирнова» → «АС»; at most two letters, «?» for an empty name (core's getInitials). */
+export const initials = (name) => getInitials(name, { fallback: '?' });
 
 /** A key that stays the same for a message before and after the server knows it. */
 export function messageKey(message) {
@@ -49,10 +48,7 @@ export function messageKey(message) {
 }
 
 function formatTime(ctx, value) {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat(ctx.locale, { hour: '2-digit', minute: '2-digit' }).format(date);
+  return formatDate(value, { locale: ctx.locale, intl: { hour: '2-digit', minute: '2-digit' } });
 }
 
 /**

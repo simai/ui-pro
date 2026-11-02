@@ -4,6 +4,8 @@
 // functions of the port's data (simai.chat-port 1.0 message fields only), so
 // the window and its tests read them alike.
 
+import {formatRelativeDay} from "../../../core/js/format.js";
+
 // Who speaks (1.6.0). author.kind is not the port's (its author takes id, name,
 // avatar_url and own): it is the window's own reading, between people only, and
 // a port message without it is what its kind says.
@@ -98,13 +100,13 @@ function timeOf(message) {
     return Number.isNaN(date.getTime()) ? null : date;
 }
 
-/** «Сегодня», «Вчера», else the date in `locale`, its year only when not the current one. */
+/**
+ * «Сегодня», «Вчера», else the date in `locale`, its year only when not the
+ * current one: core's formatRelativeDay, without the weekday step. The window's
+ * words (people.today, people.yesterday) win when given.
+ */
 export function dayWord(date, {now = new Date(), locale, today = "", yesterday = ""} = {}) {
-    if (date.toDateString() === now.toDateString()) return today;
-    const before = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-    if (date.toDateString() === before.toDateString()) return yesterday;
-    const year = date.getFullYear() === now.getFullYear() ? {} : {year: "numeric"};
-    return new Intl.DateTimeFormat(locale, {day: "numeric", month: "long", ...year}).format(date);
+    return formatRelativeDay(date, {now, locale, today: today || undefined, yesterday: yesterday || undefined, weekday: false});
 }
 
 /**

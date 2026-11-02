@@ -64,6 +64,7 @@
 import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {pageLocale} from "../../core/js/page-language";
+import {msUntilNextDay} from "../../core/js/format.js";
 import {renderChatWindowTemplate} from "./js/templates/default.js";
 import {iconButton, stageKey, stepsSay, textButton} from "../chat-message/js/view/message.js";
 import {PROPOSED_MESSAGE_FIELDS} from "../chat-message/js/view/proposed.js";
@@ -2579,9 +2580,7 @@ class SfChatWindow extends ChatWindowElement {
         clearTimeout(this._dayTimer);
         this._dayTimer = 0;
         if (!this.isConnected || !this._partsReady || !this.has("people")) return;
-        const now = new Date();
-        const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-        this._dayTimer = setTimeout(() => this.dayTurned(), next - now + 1000);
+        this._dayTimer = setTimeout(() => this.dayTurned(), msUntilNextDay() + 1000);
     }
 
     dayTurned() {

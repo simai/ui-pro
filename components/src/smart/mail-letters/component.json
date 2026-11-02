@@ -2,7 +2,7 @@
   "$comment": "The source of sf-mail-letters' element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Moved from simai/ui-mail package/src/smart/mail-letters (smart.manifest.json 0.1.0, ui-mail 750be03) by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. The name stays sf-mail-letters (owner decision q-08d1979fc9). Written by hand in the 1.4 form on the shape of sf-chat-interlocutor and sf-mail-library; x-decisions says how each point was decided.",
   "id": "smart.mail-letters",
   "tag": "sf-mail-letters",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "kind": "leaf",
   "family": "list",
   "settings": {
@@ -241,7 +241,8 @@
     "first paint (§5.4): no late data declared. The editor's letters come from its local store with the page; a host that loads them later holds its own skeleton.",
     "words: lang/ru.json and lang/en.json; ru is the source language. The own verb's word is events.copy.label.",
     "css-variables: none yet. Every value is a Framework token, as it was in ui-mail.",
-    "self-contained: nothing from simai/ui-mail is imported."
+    "self-contained: nothing from simai/ui-mail is imported.",
+    "version 1.0.1: a letter's «5 минут назад» is formatRelativeTime of core/js/format.js (core.runtime 1.20.0; reuse audit 2026-11-02, finding 7): the same steps (the largest unit the moment fills), numeric auto, and '' for no moment; the local STEPS table is gone. No visible change. Needs core.runtime >= 1.20.0."
   ],
   "x-rule": {
     "$comment": [
@@ -395,6 +396,13 @@
             "sf-mail-letters-new -> sf-mail-letters-create (event; never released, no alias)",
             "sf-mail-letters-delete carries {ids, id} (was {id})",
             "choose, search and sort are actions"
+          ]
+        },
+        {
+          "from": "1.0.0",
+          "to": "1.0.1",
+          "changes": [
+            "The letter's relative time through core's formatRelativeTime; needs core.runtime >= 1.20.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.20.0 on."
           ]
         }
       ]
