@@ -338,16 +338,6 @@
                   }
                 },
                 {
-                  "id": "x1",
-                  "type": "docara.example",
-                  "data": {
-                    "source": "<sf-button>Пример</sf-button>"
-                  },
-                  "props": {
-                    "height": 240
-                  }
-                },
-                {
                   "id": "p2",
                   "type": "content.paragraph",
                   "data": {
@@ -702,16 +692,6 @@
                     }
                   },
                   {
-                    "id": "x1",
-                    "type": "docara.example",
-                    "data": {
-                      "source": "<sf-button>Пример</sf-button>"
-                    },
-                    "props": {
-                      "height": 240
-                    }
-                  },
-                  {
                     "id": "p2",
                     "type": "content.paragraph",
                     "data": {
@@ -720,6 +700,51 @@
                   }
                 ]
               }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown",
+      "title": "Блок, которого редактор не знает",
+      "settings": {
+        "document": {
+          "schema": "simai.composition.document",
+          "schema_version": 1,
+          "id": "unknown",
+          "profile": "structured-content",
+          "root": {
+            "id": "root",
+            "type": "content.document",
+            "data": {
+              "title": "Чужой блок"
+            },
+            "slots": {
+              "default": [
+                {
+                  "id": "p1",
+                  "type": "content.paragraph",
+                  "data": {
+                    "content": [
+                      {
+                        "type": "text",
+                        "value": "Блок другого продукта редактор не меняет: он хранится как есть и уходит в документ без изменений."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "x1",
+                  "type": "docara.example",
+                  "data": {
+                    "source": "<sf-button>Пример</sf-button>"
+                  },
+                  "props": {
+                    "height": 240
+                  }
+                }
+              ]
             }
           }
         }

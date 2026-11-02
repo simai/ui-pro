@@ -2,7 +2,7 @@
   "$comment": "The source of sf-content-editor's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-editor by the owner's decision of 2026-11-01 (the text editor starts once the content types are out); behaviour per ui-editor prototypes/content-editor.html and the content standard, sections 6, 7 and 9. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
   "id": "smart.content-editor",
   "tag": "sf-content-editor",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -359,7 +359,7 @@
     "unknown: a node of a type the editor does not know is drawn as a closed card and kept byte for byte; only moved or removed whole.",
     "storage: none. Every change is a change event with the whole Document; the host saves it and may set it back, which the editor recognises.",
     "events: change and select are vocabulary §5 verbs; leave is this element's own.",
-    "gutter (owner, 2026-11-01): a fixed 56px margin left of the text holds the + and the grip, 24px each, 4px apart, centred on the block's first line; it never overlaps the text. A sheet narrower than 640px has a 32px margin with the grip alone, and the grip's menu holds «Add below». It follows the block under the pointer or the caret, fades in 120ms (none under reduced motion) and waits 150ms before it leaves.",
+    "gutter (owner, 2026-11-01): a fixed 56px margin left of the text holds the + and the grip, 24px each, 4px apart, centred on the block's first line; it never overlaps the text. It stands 4px outside a block's highlight. A sheet narrower than 640px has a 32px margin with the + above the grip, and the grip's menu also holds «Add below»; on a coarse pointer the gutter stays with the caret's block while one types. It follows the block under the pointer or the caret, fades in 120ms (none under reduced motion) and waits 150ms before it leaves.",
     "menus (owner, 2026-11-01): the + and grip menus open under their trigger, left edges aligned, through sf-context-menu.openFor on the native button inside sf-icon-button (the host is display: contents and has no box); they flip above and have a search field over name, search words and the Markdown shortcut. The / list opens under the caret and flips inside the scroller.",
     "parameters (owner, 2026-11-01): three places. The content is typed in the block; a choice of two to six options is a quick toggle over the chosen block (six, so a picture's ratios are one); the rest is the host's panel (parameters: host, the params event and set-parameter) or an sf-popover from the quick toolbar. The form is the type's composition-editor-manifest, a host's own first; a value equal to its default is not written. The floating form and the quiet button on each block are gone.",
     "pictures (owner, 2026-11-01): an empty picture is a drop zone the width of the text (sf-file-upload), with «Link» for an address. A file dropped anywhere makes a picture at the drop line, a pasted one at the caret; it shows at once from an object URL, goes to the host in the file event, and the host answers with answer-file {value, href} or {reason}. sources maps a stored value to where it is shown from. A file block (content.file, 1.2.0) is the same drop zone for any file; any file that is not an image dropped on the page makes one; it draws sf-download-file's row, its name typed in place, its address in the parameters."

@@ -59,6 +59,8 @@ const FILE_MIME = /^[a-z0-9][a-z0-9!#$&^_.+-]{0,126}\/[a-z0-9][a-z0-9!#$&^_.+-]{
 const GUTTER_LINGER = 150;
 // The room between the quick toolbar and the block under it (px).
 const QUICK_GAP = 4;
+// How long the quick toolbar may take to settle before its block is moved to make room for it (ms).
+const QUICK_SETTLE = 200;
 // The icons of the quick toggles a choice has; a choice without one shows its word.
 const QUICK_ICONS = Object.freeze({
     fit: {cover: "crop", contain: "fit_screen"},
@@ -195,6 +197,8 @@ class SfContentEditor extends ContentEditorElement {
         this.gutterFor = "";
         this.gutterTimer = 0;
         this.quickFor = "";
+        // The chosen block moved down to give its toolbar room (placeQuick).
+        this.quickRoom = null;
         // A picture on its way to the host, by block: {href, name, state, reason, file}.
         this.uploads = new Map();
         // Where a stored src is shown from, as the host answered: value -> href.
@@ -344,6 +348,7 @@ class SfContentEditor extends ContentEditorElement {
         host.dataset.sfSlot = FLOWS[this.doc.root.type] ?? "default";
         host.replaceChildren(blocks(this.viewContext(), this.doc.root));
         this.resizing?.observe(host);
+        if (this.quick) this.resizing?.observe(this.quick);
         const title = this.querySelector(".sf-content-editor-title");
         if (title) {
             // A plain field of the root: write() puts what it holds in data.title.
@@ -662,7 +667,7 @@ class SfContentEditor extends ContentEditorElement {
         this.rememberTyping(before);
         this.write(element, value);
         this.lastSnapshot = this.snapshot();
-        this.hideGutter();
+        this.typed();
         this.changed("typing");
         const field = this.describe(element);
         const node = locate(this.doc.root, field.id)?.node;
@@ -1552,12 +1557,15 @@ class SfContentEditor extends ContentEditorElement {
         const sheet = this.sheet.getBoundingClientRect();
         const field = element.querySelector(".sf-content-editor-field");
         const start = element.getBoundingClientRect().top;
+        // On a narrow sheet the + stands above the grip: the first button is
+        // what is centred on the line.
+        const lead = gutter.querySelector("button")?.offsetHeight || gutter.offsetHeight;
         let top;
-        if (field && field.getBoundingClientRect().top - start < gutter.offsetHeight) {
+        if (field && field.getBoundingClientRect().top - start < lead) {
             const box = field.getBoundingClientRect();
             const style = globalThis.getComputedStyle(field);
             const line = Math.min(parseFloat(style.lineHeight) || box.height, box.height || Infinity);
-            top = box.top - sheet.top + (parseFloat(style.paddingTop) || 0) + (line - gutter.offsetHeight) / 2;
+            top = box.top - sheet.top + (parseFloat(style.paddingTop) || 0) + (line - lead) / 2;
         } else {
             // A picture, a divider, a table: the gutter stands at the block's top,
             // not on a caption or a cell further down.
@@ -1594,10 +1602,16 @@ class SfContentEditor extends ContentEditorElement {
         if (element) this.showGutter(element.dataset.sfNode);
     }
 
-    /** Whether the sheet is narrow: the gutter holds the grip alone, and its menu adds below. */
+    /** Whether the sheet is narrow: the gutter stands as a column, and the grip's menu also adds below. */
     isNarrow() {
-        const plus = this.querySelector(".sf-content-editor-plus > button");
-        return Boolean(plus) && globalThis.getComputedStyle(plus).display === "none";
+        const gutter = this.querySelector(".sf-content-editor-gutter");
+        return Boolean(gutter) && globalThis.getComputedStyle(gutter).flexDirection === "column";
+    }
+
+    // With a mouse the gutter leaves while one types; on a touch screen there
+    // is no hover to bring it back, so it stays with the block of the caret.
+    typed() {
+        if (!globalThis.matchMedia?.("(pointer: coarse)").matches) this.hideGutter();
     }
 
     // A menu opens at what opened it: under the + or the grip, its left edge on
@@ -1823,8 +1837,10 @@ class SfContentEditor extends ContentEditorElement {
                 render(html``, bar);
             }
             this.quickFor = "";
+            this.clearQuickRoom();
             return;
         }
+        if (this.quickRoom && this.quickRoom !== element) this.clearQuickRoom();
         this.quickFor = node.id;
         const quick = fields.filter((item) => this.isQuick(item));
         const host = this.parameters === "host";
@@ -1854,17 +1870,90 @@ class SfContentEditor extends ContentEditorElement {
         this.drawParamsForm();
         bar.hidden = false;
         bar.setAttribute("aria-label", this.sfWord("quick-label", {vars: {kind: this.sfWord(`type-${kindOf(node) || "paragraph"}`)}}));
-        this.placeQuick();
+        // Its buttons are drawn by now; where it may stand depends on its size.
+        requestAnimationFrame(() => this.placeQuick());
     }
 
-    placeQuick() {
+    placeQuick(settled = false) {
         const bar = this.quick;
         const element = this.quickFor ? this.blockElement(this.quickFor) : null;
         if (!bar || bar.hidden || !element) return;
         const sheet = this.sheet.getBoundingClientRect();
         const box = element.getBoundingClientRect();
-        const top = box.top - sheet.top - bar.offsetHeight - QUICK_GAP;
-        Object.assign(bar.style, {top: `${Math.round(Math.max(0, top))}px`, left: `${Math.round(box.left - sheet.left)}px`});
+        const width = bar.offsetWidth;
+        const height = bar.offsetHeight;
+        const room = this.querySelector(".sf-content-editor")?.getBoundingClientRect() ?? sheet;
+        const blocked = this.quickObstacles(element);
+        const free = (left, top) => left >= room.left && left + width <= room.right && top >= sheet.top
+            && !blocked.some((one) => left < one.right && left + width > one.left && top < one.bottom && top + height > one.top);
+        // The toolbar never covers text, the chosen block's highlight or the
+        // gutter. It looks above the block, then under it, sliding across the
+        // sheet to a gap in the lines there; then down the margins beside the
+        // block (the gutter's column, the free side). When none is free, the
+        // block moves down by the toolbar's height while it is chosen.
+        const step = 8;
+        const across = (top) => {
+            for (let left = Math.max(room.left, box.left); left + width <= room.right; left += step) if (free(left, top)) return {left, top};
+            for (let left = Math.max(room.left, box.left) - step; left >= room.left; left -= step) if (free(left, top)) return {left, top};
+            return null;
+        };
+        const down = (left) => {
+            for (let top = box.top; top <= box.bottom; top += step) if (free(left, top)) return {left, top};
+            return null;
+        };
+        const spot = this.quickRoom === element
+            ? {left: box.left, top: box.top - height - QUICK_GAP}
+            : across(box.top - height - QUICK_GAP) ?? across(box.bottom + QUICK_GAP)
+              ?? down(Math.max(room.left, box.left - QUICK_GAP - width)) ?? down(box.right + QUICK_GAP)
+              ?? (settled ? this.makeQuickRoom(element, height) : null);
+        clearTimeout(this.quickTimer);
+        if (!spot) {
+            // The toolbar may still be settling (its toggles drawn, the gutter
+            // moving): the block is moved only if a moment later there is
+            // still no free place.
+            this.quickTimer = setTimeout(() => this.placeQuick(true), QUICK_SETTLE);
+            return;
+        }
+        Object.assign(bar.style, {top: `${Math.round(spot.top - sheet.top)}px`, left: `${Math.round(spot.left - sheet.left)}px`});
+    }
+
+    /** Room above the chosen block for its toolbar, when the page has no free place for it; placed again once the block has moved. */
+    makeQuickRoom(element, height) {
+        this.quickRoom = element;
+        element.style.marginBlockStart = `${height + QUICK_GAP * 2}px`;
+        requestAnimationFrame(() => this.placeQuick());
+        return null;
+    }
+
+    clearQuickRoom() {
+        this.quickRoom?.style.removeProperty("margin-block-start");
+        this.quickRoom = null;
+    }
+
+    /** What the quick toolbar must not cover: the lines of text and the solid blocks near the chosen one, its highlight, the shown gutter. */
+    quickObstacles(chosen) {
+        const near = chosen.getBoundingClientRect();
+        const reach = (this.quick?.offsetHeight ?? 0) * 2 + QUICK_GAP * 2;
+        const boxes = [near];
+        for (const block of this.blocksElement?.querySelectorAll(":scope > .sf-content-editor-block") ?? []) {
+            const outer = block.getBoundingClientRect();
+            if (outer.bottom < near.top - reach || outer.top > near.bottom + reach) continue;
+            for (const field of block.querySelectorAll(".sf-content-editor-field")) {
+                const range = this.ownerDocument.createRange();
+                range.selectNodeContents(field);
+                boxes.push(...[...range.getClientRects()].filter((line) => line.width && line.height));
+            }
+            for (const solid of block.querySelectorAll(".sf-content-editor-frame, .sf-content-editor-divider, .sf-content-editor-opaque, .sf-content-editor-zone, .sf-content-editor-file-row, img")) boxes.push(solid.getBoundingClientRect());
+        }
+        const title = this.querySelector(".sf-content-editor-title");
+        if (title) {
+            const range = this.ownerDocument.createRange();
+            range.selectNodeContents(title);
+            boxes.push(...range.getClientRects());
+        }
+        const gutter = this.querySelector(".sf-content-editor-gutter.is-shown");
+        if (gutter) boxes.push(...[...gutter.querySelectorAll("button")].map((button) => button.getBoundingClientRect()));
+        return boxes;
     }
 
     // The form is drawn while the popover is open: the Loader fetches no code
@@ -2127,7 +2216,8 @@ class SfContentEditor extends ContentEditorElement {
         this.addEventListener("copy", (event) => this.onCopy(event, false), signal);
         this.addEventListener("cut", (event) => this.onCopy(event, true), signal);
         this.addEventListener("pointermove", (event) => this.onPointerMove(event), signal);
-        this.addEventListener("pointerleave", () => { if (!this.dragging) this.leaveGutter(); }, signal);
+        // A finger lifted leaves too; on a touch screen the gutter stays with the caret's block.
+        this.addEventListener("pointerleave", (event) => { if (!this.dragging && event.pointerType !== "touch") this.leaveGutter(); }, signal);
         this.addEventListener("sf-context-menu-select", (event) => {
             event.stopPropagation();
             // The menu closes after it tells its choice and gives the focus back
@@ -2172,7 +2262,8 @@ class SfContentEditor extends ContentEditorElement {
             if (this.sessionField) requestAnimationFrame(() => this.placeToolbar());
             this.closeSlash();
         }, {...signal, capture: true, passive: true});
-        // The quick toolbar follows its block when the sheet's width changes.
+        // The quick toolbar follows its block when the sheet's width changes,
+        // and stands again when its own toggles have grown it.
         this.resizing = new ResizeObserver(() => {
             this.placeQuick();
             if (this.gutterFor) this.showGutter(this.gutterFor);
@@ -2196,7 +2287,7 @@ class SfContentEditor extends ContentEditorElement {
         this.rememberTyping(before);
         this.write(element, element.textContent);
         this.lastSnapshot = this.snapshot();
-        this.hideGutter();
+        this.typed();
         this.changed("typing");
     }
 
