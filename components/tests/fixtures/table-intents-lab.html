@@ -13,7 +13,7 @@
     for (const href of [`${assets}/core/css/core.css`, `${assets}/core/css/utility.full.css`]) document.write(`<link rel="stylesheet" href="${href}">`);
     window.sfPath = assets;
     window.sfSmartPath = view.get('smart');
-    window.SF_BOOT_CONFIG = {icons: {enabled: false}, preloader: {enabled: false}, smart: {base: true}, theme: false, packages: {larena: {base: `${view.get('smart')}/smart`}}};
+    window.SF_BOOT_CONFIG = {icons: {enabled: false}, preloader: {enabled: false}, smart: {base: true}, theme: false, packages: {pro: {base: `${view.get('smart')}/smart`}}};
     window.labEvents = [];
     for (const name of ['sf-table-create-intent', 'sf-table-sort-change', 'sf-table-template-select', 'sf-table-template-save',
       'sf-table-column-settings-change', 'sf-table-template-delete', 'sf-drawer-open', 'sf-drawer-opened', 'sf-drawer-close', 'sf-drawer-closed', 'sf-modal-opened', 'sf-modal-closed', 'sf-pagination-action-for-all-change']) {

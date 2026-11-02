@@ -1,7 +1,9 @@
-# SIMAI Pro components — the component package `larena`
+# SIMAI Pro components — the component package `pro`
 
 This folder is the source of the SIMAI Pro Smart components, the component
-package `larena` (the id Larena loads them by). It lives in `simai/ui-pro`
+package `pro` (owner decision q-4ac7d07595, 2026-11-02; it was published as
+`larena` from 2026-10-11, and that name is a dated alias until 2027-01-01 --
+see «The package's name» below). Larena is one of its consumers. It lives in `simai/ui-pro`
 (moved from `simai/larena-ui` to `simai/ui-admin` on 2026-10-22, and from
 there to `simai/ui-pro` on 2026-10-23). Advanced components shared by several
 products live here rather than in the free Framework (owner's decisions
@@ -127,19 +129,44 @@ ui-builder builds it over the pinned ui-source, from committed bytes, twice
 ```bash
 node <ui-builder>/scripts/verify-package-reproducibility.cjs \
   --package-source <ui-pro checkout> --package-path components \
-  <ui-source checkout> <new workspace outside the checkout> --package larena --package-revision <ui-pro commit>
+  <ui-source checkout> <new workspace outside the checkout> --package pro --package-revision <ui-pro commit>
 python3 <ui-builder>/scripts/write-package-receipt.py --report <workspace>/report.json --ui <ui checkout>
 ```
 
 The output is `smart/<folder>/…` and `smart/rule.js`, one
-`SF.RuleLoader.registerPackage("larena", {rules})` call, and a receipt that
+`SF.RuleLoader.registerPackage("pro", {rules})` call, and a receipt that
 names the ui-source revision and the free release `ui-<12>` it was built over.
-Larena delivers it inside its own distribution; a page declares it before the
+Each package is published as a release `pro-<12>` of `simai/ui-pro` (the tar,
+its sha256, the receipt and the unit inventory); the index of which package
+goes with which Framework release is
+`https://github.com/simai/ui-pro/releases/download/package-index/releases.json`.
+A consumer serves it from its own distribution; a page declares it before the
 Framework core starts:
 
 ```js
-window.SF_BOOT_CONFIG = {packages: {larena: {base: '/assets/larena/smart'}}};
+window.SF_BOOT_CONFIG = {packages: {pro: {base: '/assets/ui-pro/smart'}}};
 ```
+
+### The package's name
+
+The package is `pro`. Until 2027-01-01 its former name `larena` still works,
+so no consumer has to move on the day of the rename:
+
+- a SIMAI Framework pair from 2026-11-02 on (core.runtime 1.17.0) takes
+  `SF_BOOT_CONFIG.packages.larena` as `packages.pro`, and a build under the
+  old name (`--package larena`, `registerPackage("larena")`) as a build of
+  `pro`, and notes either in `SF.deprecations`; an older pair knows only the
+  name the page declares, so over it the page and the build must say the same;
+- `framework.lock.json` names no package until then, so ui-builder builds this
+  folder under either name; it says `"package": "pro"` again when the alias
+  leaves;
+- every package is published twice: `pro-<12>` on `simai/ui-pro` and the same
+  bytes as `larena-<12>` on `simai/larena-ui` (`package-larena.tar`), and the
+  index lists both;
+- this repository's probe scripts declare the name the build registers.
+
+Move a consumer by writing `pro` in its declaration and in its build's
+`--package`, and by reading `pro-<12>` releases of `simai/ui-pro`.
 
 ## Moving to a newer Framework
 

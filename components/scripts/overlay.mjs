@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Usage: node scripts/overlay.mjs <new directory> [--ui-source <ui-source checkout>] [--committed]
 //
-// Lays out the tree the larena package is built and tested in: ui-source at
+// Lays out the tree the pro package is built and tested in: ui-source at
 // the revision framework.lock.json pins, with this repository's src/, tests/
 // and docs/ laid over it. The package components import the free Framework by
 // relative path (../../core/js/smart-base, ../helpers/dom,
@@ -22,6 +22,20 @@ import {dirname, join, relative, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 export const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+// The package's name: pro since 2026-11-02 (owner decision q-4ac7d07595; it was
+// larena from 2026-10-11). A build under the former name is still taken until
+// 2027-01-01 (ui-source journal option-package-larena-to-pro), so a page this
+// repository writes declares the name the build itself registers (packageNameOf):
+// a Framework pair from before the rename knows only the name it is given.
+export const PACKAGE_NAME = 'pro';
+const REGISTERED = /registerPackage\(\s*["']([a-z][a-z0-9-]*)["']/u;
+
+// The name a built package registers under, read from its rule file, or
+// PACKAGE_NAME when the file says nothing.
+export function packageNameOf(ruleFile) {
+  const found = existsSync(ruleFile) ? REGISTERED.exec(readFileSync(ruleFile, 'utf8')) : null;
+  return found ? found[1] : PACKAGE_NAME;
+}
 export const OVERLAY_DIRECTORIES = ['src', 'tests', 'docs'];
 export const PACKAGE_COMPONENTS = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'content-editor', 'data-view', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'property-view', 'table', 'thread-list'];
 

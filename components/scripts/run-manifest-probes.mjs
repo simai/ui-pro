@@ -4,7 +4,8 @@
 // The conformance probes of standard simai.smart-component 1.3.8 §12 (gate
 // 20) for the package components: every src/smart/<folder>/probe.json of this
 // repository, on the built bytes with the real Loader, the package declared as
-// a page declares it (SF_BOOT_CONFIG.packages.larena).
+// a page declares it (SF_BOOT_CONFIG.packages.pro, or the name the build
+// registers while the former name larena is still taken).
 //
 // It runs ui-source's one runner for them (tests/browser/manifest-probes.browser.mjs
 // at the pinned revision, from the overlay), so a package probe means what a
@@ -19,7 +20,7 @@
 import {spawnSync} from 'node:child_process';
 import {cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
-import {PACKAGE_ROOT, materializeOverlay} from './overlay.mjs';
+import {PACKAGE_ROOT, materializeOverlay, packageNameOf} from './overlay.mjs';
 
 const args = process.argv.slice(2);
 const at = args.indexOf('--overlay');
@@ -60,7 +61,8 @@ const source = readFileSync(runner, 'utf8');
 const anchor = 'window.SF_BOOT_CONFIG={preloader:{enabled:false}};';
 if (source.split(anchor).length !== 2) throw new Error(`${runner}: the page's SF_BOOT_CONFIG line moved; this script must follow it`);
 const declared = join(overlay, 'tests', 'browser', '.manifest-probes.package.browser.mjs');
-writeFileSync(declared, source.replace(anchor, "window.SF_BOOT_CONFIG={preloader:{enabled:false},packages:{larena:{base:'/distr/smart/'}}};"));
+const name = packageNameOf(join(built, 'smart', 'rule.js'));
+writeFileSync(declared, source.replace(anchor, `window.SF_BOOT_CONFIG={preloader:{enabled:false},packages:{${name}:{base:'/distr/smart/'}}};`));
 const own = folders.length ? folders : readdirSync(join(PACKAGE_ROOT, 'src', 'smart')).filter((folder) => existsSync(join(PACKAGE_ROOT, 'src', 'smart', folder, 'probe.json')));
 const result = spawnSync(process.execPath, [declared, combined, ...own], {cwd: overlay, stdio: 'inherit'});
 process.exitCode = result.status ?? 1;

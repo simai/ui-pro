@@ -25,7 +25,7 @@
 import {spawnSync} from 'node:child_process';
 import {cpSync, existsSync, mkdirSync, rmSync, symlinkSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
-import {PACKAGE_COMPONENTS, PACKAGE_ROOT, materializeOverlay} from './overlay.mjs';
+import {PACKAGE_COMPONENTS, PACKAGE_ROOT, materializeOverlay, packageNameOf} from './overlay.mjs';
 
 const args = process.argv.slice(2);
 const at = args.indexOf('--overlay');
@@ -58,7 +58,7 @@ if (!existsSync(join(free, 'core', 'core', 'js', 'core.js'))) {
 
 // The package, declared.
 const config = join(overlay, '.first-paint-config.json');
-writeFileSync(config, `${JSON.stringify({packages: {larena: {output: join(built, 'smart'), base: '/distr/smart/'}}}, null, 2)}\n`);
+writeFileSync(config, `${JSON.stringify({packages: {[packageNameOf(join(built, 'smart', 'rule.js'))]: {output: join(built, 'smart'), base: '/distr/smart/'}}}, null, 2)}\n`);
 
 const tool = mode === 'gate' ? 'tests/browser/first-paint-gate.browser.mjs' : 'scripts/snapshot-first-paint.mjs';
 const result = spawnSync(process.execPath, [tool, root, `--config=${config}`, ...own, ...(mode === 'check' ? ['--check'] : [])], {cwd: overlay, stdio: 'inherit'});

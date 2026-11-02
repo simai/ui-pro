@@ -6,7 +6,8 @@
 // built against: the free output is the directory holding core/, component/,
 // utility/ and smart/ (wave-1/output of ui-builder's
 // verify-product-reproducibility.cjs for the pinned ui-source revision), the
-// package output the one holding smart/ (wave-1/output/package/larena of
+// package output the one holding smart/ (wave-1/output/package/pro -- or
+// package/larena for a build under the former name -- of
 // verify-package-reproducibility.cjs). The two are combined into one output root
 // with the package folders and the package rule file in smart/smart, and each
 // probe gets the roots it asks for, read from the sentence it throws when it is

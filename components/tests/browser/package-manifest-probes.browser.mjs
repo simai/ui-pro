@@ -8,8 +8,10 @@
 // of this package, run by the SIMAI Framework's own runner
 // (tests/browser/manifest-probes.browser.mjs of the pinned ui-source, here in
 // the overlay) on the built bytes with the real Loader. The one difference is
-// the page: it declares the package before the core starts, as a Larena page
+// the page: it declares the package before the core starts, as a consumer's page
 // does (README «Building the package»), so the Loader finds the package's tags.
+// The name declared is the one the build registers (pro; larena for a build
+// under the former name, which a Framework pair from before 2026-11-02 needs).
 import {spawnSync} from 'node:child_process';
 import {existsSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {dirname, join, resolve} from 'node:path';
@@ -19,7 +21,9 @@ if (!process.argv[2]) throw new Error('Build output root is required');
 const here = dirname(fileURLToPath(import.meta.url));
 const runner = join(here, 'manifest-probes.browser.mjs');
 const FREE_BOOT = "window.SF_BOOT_CONFIG={preloader:{enabled:false}};";
-const PACKAGE_BOOT = "window.SF_BOOT_CONFIG={preloader:{enabled:false},packages:{larena:{base:'/distr/smart'}}};";
+const ruleFile = join(process.argv[2], 'smart', 'smart', 'rule.js');
+const registered = existsSync(ruleFile) ? /registerPackage\(\s*["']([a-z][a-z0-9-]*)["']/u.exec(readFileSync(ruleFile, 'utf8')) : null;
+const PACKAGE_BOOT = `window.SF_BOOT_CONFIG={preloader:{enabled:false},packages:{${registered ? registered[1] : 'pro'}:{base:'/distr/smart'}}};`;
 const source = readFileSync(runner, 'utf8');
 if (!source.includes(FREE_BOOT)) throw new Error('the Framework runner no longer boots the page as this wrapper expects');
 const PACKAGE = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'content-editor', 'data-view', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'property-view', 'table', 'thread-list'];

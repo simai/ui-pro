@@ -13,9 +13,12 @@ them working.
 | `sf-admin-menu` | an admin navigation rail and menu with counters |
 
 The source, tests and build notes are in [`components/`](components/README.md).
-The components are published as the component package `larena`; each release
+The components are published as the component package `pro`; each release
 is built over one pinned Framework release and attached, with its sha256 and
-receipt, to a release of `simai/larena-ui`.
+receipt, to a release `pro-<12>` of this repository (and, until 2027-01-01,
+the same bytes as `larena-<12>` to a release of `simai/larena-ui`, under the
+package's former name). Which package goes with which Framework release:
+`https://github.com/simai/ui-pro/releases/download/package-index/releases.json`.
 
 Documentation (Russian) is in the «Pro» section of https://ui.simai.io/.
 

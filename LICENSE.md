@@ -9,7 +9,7 @@
 right to use them. Distributed and supported under licence by ООО «Симай».
 
 This licence covers everything in this repository: the SIMAI Pro Smart
-components (`components/`, the component package `larena`), their tests,
+components (`components/`, the component package `pro`, formerly `larena`), their tests,
 scripts and documentation. It does not cover the
 SIMAI Framework this repository builds on (`simai/ui-source`, `simai/ui`,
 `@simai-studio/ui`), which is licensed separately under Apache-2.0, nor
