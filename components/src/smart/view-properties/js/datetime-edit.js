@@ -1,5 +1,5 @@
 import {html} from 'lit';
-import {splitDateTime} from './datetime-value.js';
+import {splitDateTime} from '../../field-renderers/datetime.js';
 
 // A datetime field edited as what it is: a day and a time of day (Larena
 // acceptance, 2026-10-22: «Дата и время» kept only the day, so a new record

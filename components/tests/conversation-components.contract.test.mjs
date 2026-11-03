@@ -1,5 +1,7 @@
 // The three conversation components promoted from simai/ui-chat (owner,
-// 2026-10-25): sf-message-log, sf-chat-threads and sf-confirm-change. Promoted,
+// 2026-10-25): sf-message-log, sf-chat-threads and sf-confirm-change (the last
+// SIMAI Framework's since 2026-11-03, block confirm: its checks are ui-source
+// tests/confirm.contract.test.mjs). Promoted,
 // not copied -- so what made them chat-only must not have come along, and what a
 // host binds to (attributes, events, words) must be the same in the source, the
 // manifest and the docs. Their behaviour is held by the browser probes beside
@@ -28,13 +30,12 @@ const evaluateRule = (text) => {
 const COMPONENTS = {
   'message-log': {element: 'sf-message-log', id: 'smart.message-log', dictionary: 'MESSAGE_LOG_TEXT'},
   'chat-threads': {element: 'sf-chat-threads', id: 'smart.chat-threads', dictionary: 'THREAD_LIST_TEXT'},
-  'confirm-change': {element: 'sf-confirm-change', id: 'smart.confirm-change', dictionary: 'CHANGE_CONFIRM_TEXT'},
 };
 
 // Rename plan R2 (2026-11-03): two of them took new tags and keep the former
 // ones as dated aliases until 2027-01-01. Their public CSS variables and
 // internal hooks keep the former name, so a sheet's names follow either stem.
-const FORMER = {'chat-threads': 'thread-list', 'confirm-change': 'change-confirm'};
+const FORMER = {'chat-threads': 'thread-list'};
 const stems = (name) => [name, FORMER[name]].filter(Boolean).join('|');
 const formerTags = (name) => json(`src/smart/${name}/aliases.json`).aliases
   .filter((row) => row.kind === 'tag').map((row) => row.from);
@@ -301,14 +302,4 @@ test('the message log draws a message through the host, as text when the host do
   assert.match(source, /authorOf\(other\) === authorOf\(item\.message\)/u);
   // The column is one stable node: lit places it and never diffs the items.
   assert.match(read('src/smart/message-log/js/templates/default.js'), /\$\{context\.column\}/u);
-});
-
-test('the change confirmation applies nothing and keeps the question open when the host refuses the answer', () => {
-  const source = read('src/smart/confirm-change/index.js');
-  assert.equal(contract('confirm-change').events.answer.cancelable, true);
-  assert.match(source, /const delivered = this\.sfEmit\("answer", \{id: this\.changeId, accepted\}\);/u);
-  assert.match(source, /if \(!delivered\) \{\s*this\._pressed = null;\s*this\.setAttribute\("state", "open"\);/u);
-  // Both answers weigh the same.
-  const template = read('src/smart/confirm-change/js/templates/default.js');
-  assert.equal([...template.matchAll(/appearance="outline"/gu)].length, 2);
 });

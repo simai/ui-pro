@@ -3,12 +3,13 @@
 // Build output root is required: the free output with the package laid into
 // smart/smart (scripts/run-browser-probes.mjs makes it).
 //
-// Rename plan R2 (2026-11-03): six package elements took new tags and keep the
+// Rename plan R2 (2026-11-03): five package elements took new tags and keep the
 // old ones as dated aliases until 2027-01-01. Measured on the built bytes, on a
 // served page that declares the package as a consumer's page does, with the
 // real Loader:
 //   - markup that still writes a former tag (sf-table, sf-data-view,
-//     sf-property-view, sf-content-editor, sf-thread-list, sf-change-confirm)
+//     sf-property-view, sf-content-editor, sf-thread-list; sf-change-confirm
+//     moved to SIMAI Framework with sf-confirm-change on 2026-11-03)
 //     is found by the Loader, upgrades as the new element (instanceof its
 //     class) and keeps its own tag name, and the use is noted in
 //     SF.deprecations;
@@ -39,7 +40,6 @@ const RENAMED = [
   ['sf-property-view', 'sf-view-properties'],
   ['sf-content-editor', 'sf-editor-content'],
   ['sf-thread-list', 'sf-chat-threads'],
-  ['sf-change-confirm', 'sf-confirm-change'],
 ];
 const TABLE = 'aria-label="Записи" toolbar="false" selectable="false" settings="false" layout="table"';
 const page = `<!doctype html><html lang="ru" class="theme-light"><head><meta charset="utf-8">
@@ -52,7 +52,6 @@ const page = `<!doctype html><html lang="ru" class="theme-light"><head><meta cha
 <sf-property-view id="old-properties" aria-label="Запись"></sf-property-view>
 <sf-content-editor id="old-editor"></sf-content-editor>
 <sf-thread-list id="old-threads"></sf-thread-list>
-<sf-change-confirm id="old-card" heading="Переименовать раздел" change-id="c1"></sf-change-confirm>
 </div></body></html>`;
 
 const types = {'.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.svg': 'image/svg+xml'};
@@ -164,4 +163,4 @@ if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
 }
-console.log('pro former names: the six former tags upgrade as the new elements and draw alike; every former event name still fires');
+console.log('pro former names: the five former tags upgrade as the new elements and draw alike; every former event name still fires');

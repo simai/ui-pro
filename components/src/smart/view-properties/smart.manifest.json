@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1534,7 +1534,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-properties/index.js",
-        "sha256": "d4ff19983830a3044bf5a78bea3157880f0f7742da3498985bff9e23ac169682"
+        "sha256": "5c0ed2a12394b79e9dc74c240178391748b53d1ce0f3c0ec848502f7b6a1a63c"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
@@ -1545,12 +1545,8 @@
         "sha256": "2c808b433cdaaf80718bd9bc6f46d82550963897c45363df3ec3b003ff518459"
       },
       {
-        "path": "src/smart/view-properties/js/datetime-value.js",
-        "sha256": "01cfe61e97ca757e8e172a01b3d4030667ced76c7d6a4fa2f8660425c3eab585"
-      },
-      {
         "path": "src/smart/view-properties/js/datetime-edit.js",
-        "sha256": "c4930791ef3047430f9954aa5fbaa87f1b50e416d2ef65c8629bde5dbd30dca1"
+        "sha256": "2edcd0a30a00f2decc4a8bd51507dbe4b265e089435694e169ca4fc20d3cf8d5"
       },
       {
         "path": "src/smart/view-properties/js/conditions.js",

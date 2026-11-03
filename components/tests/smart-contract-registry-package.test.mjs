@@ -22,10 +22,13 @@ test("the package composites are generated into the searchable registry beside t
   // 2026-10-28), and sf-mail-library, sf-mail-letters, sf-mail-structure,
   // sf-mail-inspector and sf-mail-canvas, moved from simai/ui-mail (D31, 2026-10-29),
   // sf-editor-content, written for simai/ui-editor (2026-11-01), and sf-editor,
-  // the one block editor (owner 2026-11-03), make 84.
-  assert.equal(registry.entries.length, 84);
+  // the one block editor (owner 2026-11-03), make 84. sf-confirm-change moved to
+  // the Framework with the new sf-confirm (block confirm, stage 1 of the
+  // component sets, 2026-11-03): 68 free and 17 of the package make 85.
+  assert.equal(registry.entries.length, 85);
+  assert.ok(registry.entries.some((entry) => entry.id === "smart.confirm-change"), "sf-confirm-change, now the Framework's");
   for (const id of ["smart.admin-menu", "smart.view-table", "smart.view", "smart.view-properties",
-    "smart.message-log", "smart.chat-threads", "smart.confirm-change", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
+    "smart.message-log", "smart.chat-threads", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
     "smart.mail-library", "smart.mail-letters", "smart.mail-structure", "smart.mail-inspector", "smart.mail-canvas", "smart.editor-content", "smart.editor"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
   }

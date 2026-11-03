@@ -37,7 +37,7 @@ export function packageNameOf(ruleFile) {
   return found ? found[1] : PACKAGE_NAME;
 }
 export const OVERLAY_DIRECTORIES = ['src', 'tests', 'docs'];
-export const PACKAGE_COMPONENTS = ['admin-menu', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window', 'confirm-change', 'editor', 'editor-content', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'view', 'view-properties', 'view-table'];
+export const PACKAGE_COMPONENTS = ['admin-menu', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window', 'editor', 'editor-content', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'view', 'view-properties', 'view-table'];
 
 export function readLock(root = PACKAGE_ROOT) {
   const lock = JSON.parse(readFileSync(join(root, 'framework.lock.json'), 'utf8'));
