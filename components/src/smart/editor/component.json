@@ -403,7 +403,7 @@
     "model: js/model.mjs holds the Document, the selection by depth, the one undo history (typing coalesced by a pause), rights, template scope, parameters and their origins, data bindings and the block builder; it is plain JavaScript tested without a browser (tests/editor-model.test.mjs).",
     "drawing: the page is drawn by Composition.render with the Framework's and the host's renderers, at the chosen screen (responsive values flattened, theme defaults filled, hidden blocks faded), so the canvas is what the site shows; text is typed in place through sf-editor-inline sessions on the drawn elements.",
     "catalogue: one catalogue at a place (Part A catalogue narrowed by slotAccepts and rights); a tab with nothing that fits is left out; pictures are skeletons of the variant's own tree.",
-    "variant origin: the variant a block was made from is kept in the node's extension sf-editor:variant, so the panel can say a value came from the variant.",
+    "variant origin: the variant a block was made from is kept in the node's extension simai.composition:variant, so the panel can say a value came from the variant.",
     "rights: from the host only; layout false = the author writes only inside layout.area; a locked part is dimmed with a lock and says why on a press.",
     "theme: read only; its defaults are a level of origin, its attributes go on the drawn page.",
     "data: a block never fetches; the host's source port (connect-port {sources, fields, preview, saveBlock?}) is wrapped by createSourcePort and only previews and lists sources.",

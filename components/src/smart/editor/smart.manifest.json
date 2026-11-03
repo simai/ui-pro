@@ -493,7 +493,7 @@
       },
       {
         "path": "src/smart/editor/js/model.mjs",
-        "sha256": "05cdfe916da73db13587e794f56e6cdd9d32be2a77b7b134c3a86f69ea5a9428"
+        "sha256": "1ca04f7f362eaef8a46d43b2fd12be01dc2dcf2fc7629eb74ff6d014b50b8bb5"
       },
       {
         "path": "src/smart/editor/js/catalogue.mjs",
@@ -521,7 +521,7 @@
       },
       {
         "path": "src/smart/editor/component.json",
-        "sha256": "7a1b15dc5ca562e600e8fab1dc73ee686cb6febf0dc237724a7ad053deb2e0bf"
+        "sha256": "74d3e30471041f847370fbdceec6ed65cf604b7fbd740f18cfb8b6b019709065"
       },
       {
         "path": "src/smart/editor/lang/en.json",

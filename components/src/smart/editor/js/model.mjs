@@ -9,7 +9,7 @@
 // `layout.area` nodes, the site template is the regions around the page's
 // `main` region, a site block is a composed type (Part A, ui-source
 // a0b7f2ec). The one thing the editor writes of its own is the variant a
-// block was inserted from, in the node's extension `sf-editor:variant`, so
+// block was inserted from, in the node's extension `simai.composition:variant`, so
 // the parameter panel can say a value came from the variant.
 import Composition, {
     BUILTIN_EDITOR_MANIFESTS,
@@ -24,7 +24,7 @@ import {isComposed, textFields} from "../../../core/js/composition/composed.mjs"
 import {inlineLength, normalizeInline, sliceInline} from "../../../core/js/composition/inline-model.mjs";
 import {childrenOf, clone, freshCopy, idMaker, insertAt, isPlainObject, locate, removeAt, same, slotList, walk} from "./tree.mjs";
 
-export const VARIANT_EXTENSION = "sf-editor:variant";
+export const VARIANT_EXTENSION = "simai.composition:variant";
 /** The three screens of the editor and the breakpoint each one edits (phone has no prefix). */
 export const SCREENS = Object.freeze({phone: "xs", tablet: "md", desktop: "lg"});
 /** Where a parameter's value comes from, each layer over the one before. */
