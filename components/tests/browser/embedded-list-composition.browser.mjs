@@ -77,7 +77,7 @@ try {
     const result = await page.evaluate(async (dump) => {
       document.addEventListener('sf-host-port-request', (event) => {
         const element = event.target;
-        if (element.tagName !== 'SF-DATA-VIEW') return;
+        if (element.tagName !== 'SF-VIEW') return;
         element.setHostPort({
           version: '1.6.0', capabilities: [],
           async raise(intent, payload) {
