@@ -788,10 +788,6 @@
     },
     {
       "name": "cl-icon-button"
-    },
-    {
-      "name": "cl-modal",
-      "lazy": true
     }
   ],
   "templates": {
@@ -976,7 +972,7 @@
     "source-drift": "carried by hand: the estimated total «~N» (ui-pro 71ebff1) is the view's behaviour, not a member.",
     "docs": "docs.md, where the folder keeps it.",
     "loader-ensure": "version 1.6.5: the parts, the move dialog's elements and sf-table for the row-action catalogue are asked for through SF.Loader.ensure (core.runtime 1.19.0), not ensureSmartElementLoaded or a race of whenDefined against 3 s of its own (reuse audit 2026-11-02, finding 4). Needs core.runtime >= 1.19.0.",
-    "layer-stack-dialog": "version 1.7.0: the move dialog and the host's confirmation (confirm_required) are sf-modal, not a native <dialog> shown with showModal() (reuse audit 2026-11-02, findings 1 and 2): a modal layer of the one document stack, so a drawer or a modal opened over it or under it is ordered with it, Escape and a press outside close the top one only, focus returns by the stack's rule, the page lock is the stack's. The window is made in slot dialog and drawn in sf-modal's portal; open() asked with a signal answers when it closes (§19.4), accepted only through the apply button (sf-modal confirm()); Escape, the scrim, the close button and «Отмена» answer null as Escape and «Отмена» did. sf-modal, sf-button and sf-radio are asked for through SF.Loader.ensure before it opens; without sf-modal the view says unavailable and writes nothing. The rule names cl-modal as a lazy relation (fetched after the page is ready, as cl-toast). Visible: the shared scrim (black at 60) in place of the browser's light backdrop, the title in sf-modal's header with its close button, sf-modal's panel and footer. Needs core.runtime >= 1.19.0."
+    "layer-stack-dialog": "version 1.7.0: the move dialog and the host's confirmation (confirm_required) are sf-modal, not a native <dialog> shown with showModal() (reuse audit 2026-11-02, findings 1 and 2): a modal layer of the one document stack, so a drawer or a modal opened over it or under it is ordered with it, Escape and a press outside close the top one only, focus returns by the stack's rule, the page lock is the stack's. The window is made in slot dialog and drawn in sf-modal's portal; open() asked with a signal answers when it closes (§19.4), accepted only through the apply button (sf-modal confirm()); Escape, the scrim, the close button and «Отмена» answer null as Escape and «Отмена» did. sf-modal, sf-button and sf-radio are asked for through SF.Loader.ensure before it opens; without sf-modal the view says unavailable and writes nothing. Visible: the shared scrim (black at 60) in place of the browser's light backdrop, the title in sf-modal's header with its close button, sf-modal's panel and footer. Needs core.runtime >= 1.19.0."
   },
   "x-rule": {
     "$comment": [

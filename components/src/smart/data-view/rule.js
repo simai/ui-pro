@@ -18,6 +18,5 @@ SF.RuleLoader['cl-data-view'] = {
     { name: 'cl-checkbox' },
     { name: 'cl-dropdown' },
     { name: 'cl-icon-button' },
-    { name: 'cl-modal', lazy: true },
   ],
 };
