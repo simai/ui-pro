@@ -789,7 +789,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "82d4f017548f0c0369f5df75cde5ab768d3165d1",
+    "source_revision": "a5ac53753d95b49e2e70078c94fd89ccd3045993",
     "source_artifacts": [
       {
         "path": "src/smart/message-log/index.js",

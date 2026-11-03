@@ -1281,7 +1281,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "1ae41f6c1f4e0f3a72e809b48985f20f6f0111cf",
+    "source_revision": "a5ac53753d95b49e2e70078c94fd89ccd3045993",
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",

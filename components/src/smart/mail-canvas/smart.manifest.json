@@ -491,7 +491,7 @@
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "0149826f7822e531be1f2b85ecf6ded38b9a5eaf",
+    "source_revision": "a5ac53753d95b49e2e70078c94fd89ccd3045993",
     "source_artifacts": [
       {
         "path": "src/smart/mail-canvas/index.js",
