@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.6.6",
+  "version": "1.6.7",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -1276,6 +1276,13 @@
         "changes": [
           "Draws and finds the renamed Framework elements by their new tags (the navigation menu and the row menus are sf-menu-context, the icon buttons sf-button-icon); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
         ]
+      },
+      {
+        "from": "1.6.6",
+        "to": "1.6.7",
+        "changes": [
+          "The icon choices of the edit panel are read from the view properties folder, view-properties since rename plan R2 (was property-view). No visible change."
+        ]
       }
     ]
   },
@@ -1309,7 +1316,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/edit.js",
-        "sha256": "445fb875400f6f562d6c7550a8bfd95f41e740889a7009219af97f2acd0f08ca"
+        "sha256": "60de7f020893807f1131ebce7c357a77f38810374ad83024ddd749c3436bb485"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
@@ -1325,7 +1332,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "b4825c0012f53d8c148997c599302d466846e2f21868871ea98a33c5d4d8e1f6"
+        "sha256": "e5825610bcf08c55057db7e0d6815b862ce619ceae9cc406cd3618d157e54e4d"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

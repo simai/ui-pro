@@ -1,5 +1,5 @@
 import {html, nothing} from "lit";
-import {ICON_CHOICES} from "../../../property-view/js/icon-choices.js";
+import {ICON_CHOICES} from "../../../view-properties/js/icon-choices.js";
 import {LIST_ID} from "./controller";
 import {openMenu} from "./menu";
 
