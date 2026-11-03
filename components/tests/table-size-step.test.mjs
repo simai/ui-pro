@@ -14,7 +14,9 @@ const css = readFileSync(new URL('../src/smart/table/js/templates/default.css', 
 const view = readFileSync(new URL('../src/smart/data-view/index.js', import.meta.url), 'utf8');
 
 const override = table.slice(table.indexOf('    renderSmartElement(type, props = {}) {'), table.indexOf('    get size() {'));
-const context = vm.createContext({});
+// The override names a former tag by its current one (canonicalTag of the
+// Smart base); here every tag is current.
+const context = vm.createContext({canonicalTag: (tag) => tag});
 vm.runInContext(`class Base { renderSmartElement(type, props) { return props; } }
 class Table extends Base { ${override} }
 this.Table = Table;`, context);

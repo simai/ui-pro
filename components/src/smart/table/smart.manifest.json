@@ -2282,7 +2282,7 @@
         "from": "1.13.5",
         "to": "1.13.6",
         "changes": [
-          "Draws and finds the renamed Framework elements by their new tags (the row and column menus are sf-menu-context (its sf-menu-context-* events), the icon buttons sf-button-icon, the typed cells and editors sf-input-color, sf-input-country, sf-input-date and sf-slider-range); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+          "Draws and finds the renamed Framework elements by their new tags (the row and column menus are sf-menu-context (its sf-menu-context-* events), the icon buttons sf-button-icon, the typed cells and editors sf-input-color, sf-input-country, sf-input-date and sf-slider-range; a component type that names a former tag (a host's {type: 'icon-button'}) draws the element under its current tag (canonicalTag of the Smart base)); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
         ]
       }
     ]
@@ -2293,11 +2293,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "3e6d8aeb35e6f69f3b5a6eb7fd9c06ad422c789801b282dc5fe8ff73b1950151"
+        "sha256": "e6e03b0b611c92967fb66b760452f12a48e69d02c305a6bad4c7469210a34c8e"
       },
       {
         "path": "src/smart/table/js/templates/default.js",
-        "sha256": "f76140fe09feab98de2c131c66db47d49a9f2f945f73842bc40cef23cc00426d"
+        "sha256": "f88719d901dacb8e9a0fa871cfd0b3cfbce4a3787bda9563ad1e21448c4a1eae"
       },
       {
         "path": "src/smart/table/js/templates/default.css",
@@ -2313,7 +2313,7 @@
       },
       {
         "path": "src/smart/table/docs/smart-table-guide.md",
-        "sha256": "f3595cc9e9633b04c2d4da536941d06b61045dd205c9c894a48b742b997e5a4a"
+        "sha256": "c488ae7331ebbf341e074ca45a19f0d8164d3abbbdfd616049dcd69324ea8c21"
       },
       {
         "path": "src/smart/pagination/index.js",

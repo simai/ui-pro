@@ -177,7 +177,7 @@ table.setRows([{
 actions: [
   {
     component: {
-      type: 'icon-button',
+      type: 'button-icon',
       props: {
         icon: 'edit',
         type: 'link',
@@ -189,7 +189,7 @@ actions: [
   },
   {
     component: {
-      type: 'icon-button',
+      type: 'button-icon',
       props: {
         icon: 'delete',
         type: 'link',

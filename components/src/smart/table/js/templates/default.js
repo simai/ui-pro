@@ -1033,7 +1033,7 @@ export function renderTableTemplate(context) {
                 (!value || (Array.isArray(value) && !value.length))
             ) {
                 return renderComponent({
-                    type: "icon-button",
+                    type: "button-icon",
                     props: {
                         size: "1",
                         appearance: "link",

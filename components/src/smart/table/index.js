@@ -1,4 +1,4 @@
-import SfBaseElement from "../../core/js/smart-base";
+import SfBaseElement, {canonicalTag} from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {settingSetters} from "./js/manifest-actions.js";
 import manifest from "./component.json";
@@ -340,7 +340,7 @@ class SfTable extends TableElement {
                     name: this.text('editActionText'),
                     id: 'edit',
                     component: {
-                        type: 'icon-button',
+                        type: 'button-icon',
                         props: {
                             kind: 'icon',
                             size: '1',
@@ -356,7 +356,7 @@ class SfTable extends TableElement {
                     name: this.text('viewActionText'),
                     id: 'view',
                     component: {
-                        type: 'icon-button',
+                        type: 'button-icon',
                         props: {
                             kind: 'icon',
                             size: '1',
@@ -388,7 +388,7 @@ class SfTable extends TableElement {
                     // to (sf-button-icon: they cannot both paint it).
                     danger: true,
                     component: {
-                        type: 'icon-button',
+                        type: 'button-icon',
                         props: {
                             kind: 'icon',
                             size: '1',
@@ -417,7 +417,7 @@ class SfTable extends TableElement {
             system: true,
             width: 'calc(var(--sf-text-height-1) + (var(--sf-ui-1--space-y-tightness-default) * 2) + var(--sf-b6))',
             component: {
-                type: "icon-button",
+                type: "button-icon",
                 props: {
                     size: "1",
                     appearance: "link",
@@ -1405,7 +1405,7 @@ class SfTable extends TableElement {
         }
         if (key === "settings") {
             const cell = row.settings?.component;
-            if (cell?.type !== "icon-button" || cell.props?.icon !== "menu" || typeof cell.props?.["@click"] !== "function") return null;
+            if (canonicalTag(`sf-${String(cell?.type ?? "").replace(/^sf-/u, "")}`) !== "sf-button-icon" || cell.props?.icon !== "menu" || typeof cell.props?.["@click"] !== "function") return null;
             return {kind: "menu", size, label: cell.props.ariaLabel ?? this.text("menuLabel"), click: cell.props["@click"]};
         }
         // The actions cell keeps one kind whether its buttons show or not: a
@@ -6284,7 +6284,7 @@ class SfTable extends TableElement {
     // sort built them all). The classes, so the look, are the component's;
     // anything interactive, or a component not defined yet, stays an element.
     renderCellElement(type, props = {}) {
-        const tag = `sf-${String(type ?? "").replace(/^sf-/u, "")}`;
+        const tag = canonicalTag(`sf-${String(type ?? "").replace(/^sf-/u, "")}`);
         const shown = LIGHT_CELL_TAGS.has(tag)
             && props.interactive !== true && props.closable !== true && props.type !== "checkbox"
             && !Object.keys(props).some((key) => key.startsWith("@") || /^on[A-Z]/u.test(key));
@@ -6312,7 +6312,11 @@ class SfTable extends TableElement {
         }
     }
 
+    // A component type names a Framework element: a former tag (a host's
+    // {type: 'icon-button'}, a dated alias until 2027-01-01) draws the element
+    // under its current tag.
     renderSmartElement(type, props = {}) {
+        type = canonicalTag(`sf-${String(type ?? "").replace(/^sf-/u, "")}`);
         const size = this.size;
         if (size !== "1" && props && String(props.size) === "1") {
             return super.renderSmartElement(type, {...props, size});
@@ -6751,7 +6755,7 @@ class SfTable extends TableElement {
 
         if (column.key === "settings") {
             return this.createRowComponentCell(column.rowComponent || {
-                type: "icon-button",
+                type: "button-icon",
                 props: {
                     size: "1",
                     appearance: "link",

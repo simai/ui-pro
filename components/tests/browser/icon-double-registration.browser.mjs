@@ -16,9 +16,9 @@ const tags = ['sf-icon', 'sf-button-icon', 'sf-table', 'sf-pagination', 'sf-data
 const browser = await chromium.launch();
 try {
   for (const order of [
-    ['icon', 'icon-button', 'table', 'pagination', 'data-view'],
-    ['data-view', 'table', 'pagination', 'icon', 'icon-button'],
-    ['data-view', 'icon', 'table', 'icon-button', 'pagination'],
+    ['icon', 'button-icon', 'table', 'pagination', 'data-view'],
+    ['data-view', 'table', 'pagination', 'icon', 'button-icon'],
+    ['data-view', 'icon', 'table', 'button-icon', 'pagination'],
   ]) {
     const page = await browser.newPage();
     const warnings = [];

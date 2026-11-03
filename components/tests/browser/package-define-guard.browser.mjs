@@ -11,7 +11,7 @@ import {chromium} from 'playwright';
 if (!process.argv[3]) throw new Error('Smart output root and distr root are required');
 const smartRoot = resolve(process.argv[2]);
 const distrRoot = resolve(process.argv[3]);
-const bundles = ['icon', 'icon-button', 'table', 'pagination', 'data-view', 'button', 'modal', 'context-menu'];
+const bundles = ['icon', 'button-icon', 'table', 'pagination', 'data-view', 'button', 'modal', 'menu-context'];
 const tags = ['sf-icon', 'sf-button-icon', 'sf-table', 'sf-pagination', 'sf-data-view', 'sf-button', 'sf-modal', 'sf-menu-context'];
 const browser = await chromium.launch();
 const failures = [];
