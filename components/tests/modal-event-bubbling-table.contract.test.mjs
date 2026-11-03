@@ -6,7 +6,7 @@ import test from 'node:test';
 // ui-source; it runs in the overlay (ui-source at the pinned revision with this
 // repository laid over it), so paths are the ones ui-source uses.
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const table = read('src/smart/table/js/templates/default.js');
+const table = read('src/smart/view-table/js/templates/default.js');
 
 test('Table renders no modal of its own to guard against nested modal events', () => {
     // The table rendered a demo modal and guarded its close; round three removed

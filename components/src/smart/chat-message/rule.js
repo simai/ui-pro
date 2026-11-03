@@ -2,7 +2,7 @@
 // A message draws the Framework's plain markup: icon buttons (copy, rating,
 // a chip's remove), buttons (a brief's options, the «why» card, the person's
 // editor) and inputs («Свой вариант», the note of a rating); every glyph is a
-// Smart sf-icon, and a proposal is the package's sf-change-confirm. A tag it
+// Smart sf-icon, and a proposal is the package's sf-confirm-change. A tag it
 // renders is a tag it fetches. Code blocks go through SF.Highlight when the
 // page has it; the message does not bring it.
 // Among people an author is sf-avatar, or its class markup with a sign, the word
@@ -18,7 +18,7 @@ SF.RuleLoader['cl-chat-message'] = {
     { name: 'buttons' },
     { name: 'inputs' },
     { name: 'cl-icon' },
-    { name: 'cl-change-confirm' },
+    { name: 'cl-confirm-change' },
     { name: 'cl-avatar', lazy: true },
     { name: 'cl-badge', lazy: true },
     { name: 'cl-menu-context', lazy: true },

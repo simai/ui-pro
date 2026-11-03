@@ -17,7 +17,7 @@ const styles = [
   'component/component/context-menu/css/context-menu.css',
   'component/component/checkbox/css/checkbox.css',
   'component/component/tabs/css/tabs.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
@@ -26,7 +26,7 @@ const modules = [
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/button-close/js/button-close.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js',
-  'smart/smart/pagination/js/pagination.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
+  'smart/smart/pagination/js/pagination.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -44,7 +44,7 @@ const open = async (height = 700) => {
   const page = await browser.newPage({viewport: {width: 1280, height}});
   await page.setContent(
     `<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">
-       <div style="width:1200px"><sf-table id="t"></sf-table></div></body></html>`,
+       <div style="width:1200px"><sf-view-table id="t"></sf-view-table></div></body></html>`,
   );
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});

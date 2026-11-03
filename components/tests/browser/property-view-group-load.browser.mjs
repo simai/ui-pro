@@ -37,9 +37,9 @@ const styles = [
   'smart/smart/button-copy/css/button-copy.css',
   'smart/smart/empty-state/css/empty-state.css', 'component/component/featured-icon/css/featured-icon.css',
   'component/component/skeleton/css/skeleton.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/sortable/css/sortable.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'component/component/pagination/css/pagination.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -63,12 +63,12 @@ const modules = [
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
   'smart/smart/popover/js/popover.js',
   'smart/smart/button-copy/js/button-copy.js',
   'smart/smart/empty-state/js/empty-state.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 
 
@@ -84,10 +84,10 @@ const open = async (capabilities) => {
   page.on('pageerror', (error) => {
     if (!/Automatic publicPath/u.test(error.message)) note({case: 'page error', message: error.message});
   });
-  await page.setContent('<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0"><sf-property-view id="v" collection="pages" mode="auto" full></sf-property-view></body></html>');
+  await page.setContent('<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0"><sf-view-properties id="v" collection="pages" mode="auto" full></sf-view-properties></body></html>');
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => customElements.get('sf-property-view'), null, {timeout: 8000});
+  await page.waitForFunction(() => customElements.get('sf-view-properties'), null, {timeout: 8000});
   await page.evaluate((capabilities) => {
     const SECTIONS = [
       {key: 'main', label: 'Основное', groups: [{key: 'about', label: 'О странице', fields: [{key: 'title', label: 'Название', propertyType: 'string', value: 'A'}]}]},

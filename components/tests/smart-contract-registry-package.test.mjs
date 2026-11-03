@@ -21,29 +21,29 @@ test("the package composites are generated into the searchable registry beside t
   // sf-chat-composer, sf-chat-message and sf-chat-window, moved from it (D31,
   // 2026-10-28), and sf-mail-library, sf-mail-letters, sf-mail-structure,
   // sf-mail-inspector and sf-mail-canvas, moved from simai/ui-mail (D31, 2026-10-29),
-  // and sf-content-editor, written for simai/ui-editor (2026-11-01), make 83.
+  // and sf-editor-content, written for simai/ui-editor (2026-11-01), make 83.
   assert.equal(registry.entries.length, 83);
-  for (const id of ["smart.admin-menu", "smart.data-view", "smart.data-view-composite", "smart.property-view",
-    "smart.message-log", "smart.thread-list", "smart.change-confirm", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
-    "smart.mail-library", "smart.mail-letters", "smart.mail-structure", "smart.mail-inspector", "smart.mail-canvas", "smart.content-editor"]) {
+  for (const id of ["smart.admin-menu", "smart.view-table", "smart.view", "smart.view-properties",
+    "smart.message-log", "smart.chat-threads", "smart.confirm-change", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
+    "smart.mail-library", "smart.mail-letters", "smart.mail-structure", "smart.mail-inspector", "smart.mail-canvas", "smart.editor-content"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
   }
   assert.ok(registry.entries.find(({id}) => id === "smart.admin-menu").capabilities.includes("navigation"));
-  assert.ok(registry.entries.find(({id}) => id === "smart.data-view").capabilities.includes("data-view"));
+  assert.ok(registry.entries.find(({id}) => id === "smart.view-table").capabilities.includes("data-view"));
   assert.ok(registry.entries.every(({contract_schema}) => contract_schema.version === 2));
 });
 
 test("CLI discovers and describes the whole data view", () => {
   const listed = JSON.parse(run("list", "--kind", "smart", "--capability", "data-view"));
-  assert.deepEqual(listed.map(({id}) => id), ["smart.data-view", "smart.data-view-composite"]);
-  const packet = JSON.parse(run("describe", "smart.data-view", "--format", "ai"));
+  assert.deepEqual(listed.map(({id}) => id), ["smart.view", "smart.view-table"]);
+  const packet = JSON.parse(run("describe", "smart.view-table", "--format", "ai"));
   assert.equal(packet.decision.reuse_mode, "whole");
-  assert.equal(packet.public_abi.custom_element, "sf-table");
+  assert.equal(packet.public_abi.custom_element, "sf-view-table");
   assert.equal(packet.conformance.compatibility.contract_schema.version, 2);
-  assert.equal(packet.identity.version, '1.13.6');
+  assert.equal(packet.identity.version, '1.14.0');
   assert.ok(packet.public_abi.methods.requestActionIntent);
   assert.ok(packet.public_abi.events['sf-table-action-intent']);
-  for (const event of ['sf-table-create-intent', 'sf-table-template-select', 'sf-table-sort-change']) {
+  for (const event of ['sf-table-create-intent', 'sf-view-table-template-select', 'sf-view-table-sort-change']) {
     assert.ok(packet.public_abi.events[event], event);
   }
   assert.ok(packet.public_abi.methods.setCreateItems && packet.public_abi.methods.setSort);
@@ -53,9 +53,9 @@ test("CLI discovers and describes the whole data view", () => {
   assert.equal(packet.host_port.port, 'simai.dataview-port');
   assert.equal(packet.host_port.version, '1.0.0');
   assert.deepEqual(packet.host_port.supported_versions, ['1.0.0']);
-  assert.deepEqual(JSON.parse(run("verify", "smart.data-view")), {ok: true, verified: ["smart.data-view"]});
-  const composite = JSON.parse(run("describe", "smart.data-view-composite", "--format", "ai"));
-  assert.equal(composite.public_abi.custom_element, "sf-data-view");
+  assert.deepEqual(JSON.parse(run("verify", "smart.view-table")), {ok: true, verified: ["smart.view-table"]});
+  const composite = JSON.parse(run("describe", "smart.view", "--format", "ai"));
+  assert.equal(composite.public_abi.custom_element, "sf-view");
   // The comment here named 1.3.0 while the assertion pinned 1.5.0, two ports
   // apart: the number was updated and the sentence explaining it was not. The
   // version is now carried by the assertion alone, and what each one added is
@@ -81,8 +81,8 @@ test("CLI discovers, describes and verifies the whole composite", () => {
 });
 
 test("table preferences remain operable through the canonical source", () => {
-  const toolbar = readFileSync(new URL("../src/smart/table/js/templates/default.js", import.meta.url), "utf8");
-  const table = readFileSync(new URL("../src/smart/table/index.js", import.meta.url), "utf8");
+  const toolbar = readFileSync(new URL("../src/smart/view-table/js/templates/default.js", import.meta.url), "utf8");
+  const table = readFileSync(new URL("../src/smart/view-table/index.js", import.meta.url), "utf8");
   // Column settings are reached from the gear in the table's own head; the
   // toolbar's control carries the view's actions since round three.
   assert.match(table, /this\.openContextMenu\(e, \{menu: 'table-settings'\}\)/u);

@@ -5,7 +5,7 @@ import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
 
-// sf-property-view on simai.property-view-port 1.16.0 (consumer simai.main,
+// sf-view-properties on simai.property-view-port 1.16.0 (consumer simai.main,
 // agreed contract q-b0de123841): a masked string and a choice as buttons. The
 // controls are the renderer set's; the view's part is to hear an incomplete
 // masked entry (setFieldError), hold both saves while there is one -- Save
@@ -14,8 +14,8 @@ import vm from 'node:vm';
 // built bytes by tests/browser/property-view-mask-buttons.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
-const view = read('src/smart/property-view/index.js');
-const template = read('src/smart/property-view/js/templates/default.js');
+const view = read('src/smart/view-properties/index.js');
+const template = read('src/smart/view-properties/js/templates/default.js');
 const body = (source, start, end = '\n    }\n') => {
   const at = source.indexOf(start);
   assert.ok(at >= 0, start);
@@ -23,13 +23,13 @@ const body = (source, start, end = '\n    }\n') => {
 };
 
 test('the view declares port 1.17.0 and keeps every earlier version', () => {
-  const manifest = JSON.parse(read('src/smart/property-view/smart.manifest.json'));
+  const manifest = JSON.parse(read('src/smart/view-properties/smart.manifest.json'));
   const port = manifest.composition.declarative.host_port;
   assert.equal(port.version, '1.17.0');
   assert.equal(port.path, 'src/core/contracts/ports/simai.property-view-port/1.17.0/port.json');
   assert.deepEqual(port.supported_versions.slice(-3), ['1.15.0', '1.16.0', '1.17.0']);
   assert.match(view, /const SUPPORTED_PORT_VERSIONS = \[[^\]]*"1\.16\.0", "1\.17\.0"\];/u);
-  const component = JSON.parse(read('src/smart/property-view/component.json'));
+  const component = JSON.parse(read('src/smart/view-properties/component.json'));
   assert.equal(component.port.version, '1.17.0');
   assert.equal(manifest.version, component.version);
   assert.ok(manifest.compatibility.migrations.some((step) => step.from === '1.6.0' && step.to === '1.7.0'));
@@ -79,8 +79,8 @@ test('the field editors the set draws for the two are fetched by the rule', () =
   // rule.js is generated from component.json (standard 1.4): read as the rule
   // the Loader evaluates, not as text in one quoting style.
   const sandbox = {SF: {RuleLoader: {}}};
-  vm.runInContext(read('src/smart/property-view/rule.js'), vm.createContext(sandbox));
-  const relations = sandbox.SF.RuleLoader['cl-property-view'].relation;
+  vm.runInContext(read('src/smart/view-properties/rule.js'), vm.createContext(sandbox));
+  const relations = sandbox.SF.RuleLoader['cl-view-properties'].relation;
   for (const name of ['cl-input', 'cl-button-group', 'cl-dropdown']) {
     assert.ok(relations.some((relation) => relation.name === name && relation.lazy === true), name);
   }

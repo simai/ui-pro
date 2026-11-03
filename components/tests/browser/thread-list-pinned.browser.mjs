@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-thread-list (owner, 2026-10-28, q-a49e2045c1), on the built bytes:
+// sf-chat-threads (owner, 2026-10-28, q-a49e2045c1), on the built bytes:
 // - pinned conversations (pinned: true, Mirai24 API v1.1) lead under their own
 //   heading «Закреплённые», each with a quiet «Закреплён» line; the days follow
 //   with the rest; without groups the pinned ones simply lead; pinning is the
@@ -15,13 +15,13 @@ const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/badges/css/badges.css', 'component/component/avatars/css/avatars.css',
   'component/component/context-menu/css/context-menu.css',
-  'smart/smart/thread-list/css/thread-list.css',
+  'smart/smart/chat-threads/css/chat-threads.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js',
   'smart/smart/menu-context/js/menu-context.js',
-  'smart/smart/thread-list/js/thread-list.js',
+  'smart/smart/chat-threads/js/chat-threads.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
 if (absent.length) throw new Error(`${absent.length} build asset(s) not found under ${out}: ${absent.join(', ')}`);
@@ -43,17 +43,17 @@ const open = async (options) => {
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0"><div id="box" style="display:flex;flex-direction:column;height:600px;width:320px"></div></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-thread-list')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-chat-threads')));
   return {context, page};
 };
 const make = (page, attributes = {}) => page.evaluate(async ({threads, attributes}) => {
   const box = document.getElementById('box');
   box.replaceChildren();
   window.events = [];
-  const list = document.createElement('sf-thread-list');
+  const list = document.createElement('sf-chat-threads');
   list.id = 'list';
   for (const [name, value] of Object.entries(attributes)) list.setAttribute(name, value);
-  list.addEventListener('sf-thread-list-apply', (event) => window.events.push(event.detail));
+  list.addEventListener('sf-chat-threads-apply', (event) => window.events.push(event.detail));
   box.append(list);
   list.actions = [{id: 'pin', text: 'Закрепить'}];
   list.setThreads({threads, 'has-more': false});

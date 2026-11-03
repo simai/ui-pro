@@ -18,7 +18,7 @@ const styles = [
   'component/component/badges/css/badges.css', 'component/component/tags/css/tags.css', 'component/component/avatars/css/avatars.css',
   'component/component/tabs/css/tabs.css', 'smart/smart/tabs/css/tabs.css', 'component/component/context-menu/css/context-menu.css',
   'component/component/checkbox/css/checkbox.css', 'component/component/radio/css/radio.css', 'component/component/buttons/css/buttons.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
@@ -28,8 +28,8 @@ const modules = [
   'smart/smart/spinner/js/spinner.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js', 'smart/smart/radio/js/radio.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js', 'smart/smart/empty-state/js/empty-state.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -39,10 +39,10 @@ try {
   const page = await browser.newPage({viewport: {width: 1100, height: 800}});
   page.on('pageerror', (error) => console.error('pageerror', error.message));
   await page.setContent(`<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0">
-    <div style="width:1000px"><sf-data-view id="v" accept-files><sf-table slot="content" id="t" drag-rows></sf-table></sf-data-view></div></body></html>`);
+    <div style="width:1000px"><sf-view id="v" accept-files><sf-view-table slot="content" id="t" drag-rows></sf-view-table></sf-view></div></body></html>`);
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => customElements.get('sf-data-view') && customElements.get('sf-table'), null, {timeout: 8000});
+  await page.waitForFunction(() => customElements.get('sf-view') && customElements.get('sf-view-table'), null, {timeout: 8000});
   await page.evaluate(() => {
     document.getElementById('v').setHostPort({
       version: '1.10.0', capabilities: [],
@@ -65,7 +65,7 @@ try {
     const draggable = rows.every((row) => row.getAttribute('draggable') === 'true');
     const view = document.getElementById('v');
     window.dropped = null;
-    view.addEventListener('sf-data-view-files-drop', (event) => { window.dropped = event.detail.files.map((file) => file.name); });
+    view.addEventListener('sf-view-files-drop', (event) => { window.dropped = event.detail.files.map((file) => file.name); });
     const files = new DataTransfer();
     files.items.add(new File(['x'], 'new.pdf', {type: 'application/pdf'}));
     const target = document.querySelector('#t tbody td');

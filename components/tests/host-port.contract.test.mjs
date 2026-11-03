@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -16,9 +16,9 @@ const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 
 const schema = json('src/core/contracts/composite-host-port.v1.schema.json');
 const manifestPaths = [
-  'src/smart/table/smart.manifest.json',
-  'src/smart/data-view/smart.manifest.json',
-  'src/smart/property-view/smart.manifest.json',
+  'src/smart/view-table/smart.manifest.json',
+  'src/smart/view/smart.manifest.json',
+  'src/smart/view-properties/smart.manifest.json',
   'src/smart/admin-menu/smart.manifest.json',
 ];
 const declared = manifestPaths
@@ -113,7 +113,12 @@ test('every intent the port declares is an event the component announces', () =>
       ...(manifest.composition?.declarative?.events ?? []),
       ...Object.keys(manifest.events ?? {}),
     ]);
-    assert.equal(document.element, manifest.composition?.declarative?.renderer?.name, `${path}: the port names the element`);
+    // A published port version is frozen: one published before rename plan R2
+    // (2026-11-03) names the element by its former tag, a dated alias of it.
+    const renderer = manifest.composition?.declarative?.renderer?.name;
+    const aliases = resolve(root, dirname(path), 'aliases.json');
+    const former = existsSync(aliases) ? json(relative(root, aliases)).aliases.filter((row) => row.kind === 'tag').map((row) => row.from) : [];
+    assert.ok([renderer, ...former].includes(document.element), `${path}: the port names the element (${document.element}, not ${renderer} or a former tag of it)`);
     for (const [key, intent] of Object.entries(document.intents)) {
       assert.ok(announced.has(intent.event), `${path}: ${key} raises ${intent.event}, which the manifest does not announce`);
     }
@@ -188,11 +193,11 @@ test('a port that names no previous major says so out loud', () => {
 // component still refused anything newer than 1.2.0, so a host that moved when
 // asked to would have been turned away by the component that asked.
 test('the composite accepts exactly the versions its manifest supports', () => {
-  const source = readFileSync(resolve(root, 'src/smart/data-view/index.js'), 'utf8');
+  const source = readFileSync(resolve(root, 'src/smart/view/index.js'), 'utf8');
   const listed = source.match(/const SUPPORTED_PORT_VERSIONS = \[([^\]]*)\]/u);
   assert.ok(listed, 'the accepted versions are declared in one place');
   const accepted = listed[1].split(',').map((entry) => entry.trim().replace(/"/gu, '')).filter(Boolean);
-  const manifest = json('src/smart/data-view/smart.manifest.json');
+  const manifest = json('src/smart/view/smart.manifest.json');
   const declared = manifest.composition.declarative.host_port;
 
   assert.deepEqual(accepted, declared.supported_versions);

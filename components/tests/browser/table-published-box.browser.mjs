@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-table publishes its box on :root (docs/docs.md, «Коробка списка»), so a
+// sf-view-table publishes its box on :root (docs/docs.md, «Коробка списка»), so a
 // page can hold a list's room before it draws without typing pixels in
 // (Larena, 2026-10-28). Measured on the built bytes, at size 1/2 and 1: each
 // published length is what the table draws -- a one-line row, a two-line row,
@@ -18,7 +18,7 @@ const styles = [
   'component/component/icon-buttons/css/icon-buttons.css',
   'smart/smart/input/css/input.css', 'smart/smart/button/css/button.css',
   'smart/smart/button-icon/css/button-icon.css', 'smart/smart/checkbox/css/checkbox.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -28,8 +28,8 @@ const modules = [
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js', 'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const TWO = 'Длинное название записи, которое занимает две строки';
@@ -37,15 +37,15 @@ const answer = {
   records: [1, 2, 3, 4].map((n) => ({id: String(n), revision: 'r', title: n === 3 ? TWO : `Запись ${n}`, state: 'Опубликована'})),
   total: 4, echo: {page: 1, per_page: 20}, columns: [{key: 'title', label: 'Название', width: 180}, {key: 'state', label: 'Состояние'}],
 };
-const view = (size) => `<div style="width:1000px;margin-block-end:40px"><sf-data-view id="v${size === '1/2' ? 'half' : 'one'}" aria-label="Список" size="${size}" chrome="toolbar select settings">
+const view = (size) => `<div style="width:1000px;margin-block-end:40px"><sf-view id="v${size === '1/2' ? 'half' : 'one'}" aria-label="Список" size="${size}" chrome="toolbar select settings">
   <script type="application/json" data-sf-settings>${JSON.stringify({'first-answer': answer})}</script>
-  <sf-table slot="content" aria-label="Список"></sf-table></sf-data-view></div>`;
+  <sf-view-table slot="content" aria-label="Список"></sf-view-table></sf-view></div>`;
 
 const failures = [];
 const browser = await chromium.launch();
 try {
   const page = await browser.newPage({viewport: {width: 1280, height: 900}});
-  await page.setContent(`<!doctype html><html class="theme-light"><head><style>sf-table { --sf-table-cell--line-clamp: 2; }</style></head>
+  await page.setContent(`<!doctype html><html class="theme-light"><head><style>sf-view-table { --sf-table-cell--line-clamp: 2; }</style></head>
     <body style="margin:0">${view('1/2')}${view('1')}</body></html>`);
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
@@ -61,7 +61,7 @@ try {
     };
     const height = (element) => (element ? Math.round(element.getBoundingClientRect().height * 100) / 100 : null);
     return [['half', '1\\/2'], ['one', '1']].map(([id, step]) => {
-      const table = document.querySelector(`#v${id} sf-table`);
+      const table = document.querySelector(`#v${id} sf-view-table`);
       const rows = [...table.querySelectorAll('tbody tr[data-row-id]')].map(height);
       return {
         step,
@@ -86,7 +86,7 @@ try {
   // the drawn ones (Larena read them empty after load, 2026-10-28).
   const bare = await browser.newPage();
   await bare.setContent('<!doctype html><html class="theme-light"><body></body></html>');
-  for (const path of ['core/core/css/core.css', 'smart/smart/table/css/table.css']) await bare.addStyleTag({path: join(out, path)});
+  for (const path of ['core/core/css/core.css', 'smart/smart/view-table/css/view-table.css']) await bare.addStyleTag({path: join(out, path)});
   const sheetOnly = await bare.evaluate(() => {
     const style = getComputedStyle(document.documentElement);
     return Object.fromEntries(['1/2', '1'].flatMap((step) => [

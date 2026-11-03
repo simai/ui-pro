@@ -11,7 +11,7 @@ const read = (path) => readFile(new URL(`../src/${path}`, import.meta.url), 'utf
 test('table: select boxes have names, through a checkbox that can carry one', async () => {
   const checkbox = await read('smart/checkbox/js/templates/default.js');
   assert.match(checkbox, /aria-label=\$\{!label && [^}]*ariaLabel/);
-  const table = await read('smart/table/index.js');
+  const table = await read('smart/view-table/index.js');
   // The word itself lives in the table's dictionary now, in both languages;
   // what this contract is about is that the box carries a name at all.
   assert.match(table, /ariaLabel: this\.text\("selectAllLabel"\)/);

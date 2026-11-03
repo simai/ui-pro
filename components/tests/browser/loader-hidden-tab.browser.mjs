@@ -74,7 +74,7 @@ await page.addInitScript(() => {
 await page.goto(`${labUrl}?${new URLSearchParams({assets: assetsUrl, smart: smartUrl, dir: 'ltr', theme: 'light'})}`);
 
 try {
-  // The lab's own readiness waits for sf-table to be defined, so reaching it at
+  // The lab's own readiness waits for sf-view-table to be defined, so reaching it at
   // all means the loader worked without a single frame.
   // Playwright polls a waitForFunction through requestAnimationFrame by default,
   // and this probe has just taken rAF away: the poll would never run and the
@@ -94,9 +94,9 @@ const state = await page.evaluate(() => ({
   hidden: document.hidden,
   framesRequested: window.__framesRequested,
   framesRan: 0,
-  table: Boolean(customElements.get('sf-table')),
+  table: Boolean(customElements.get('sf-view-table')),
   input: Boolean(customElements.get('sf-input')),
-  rendered: Boolean(document.querySelector('sf-table thead th')),
+  rendered: Boolean(document.querySelector('sf-view-table thead th')),
 }));
 if (!state.hidden) failures.push({case: 'the test itself', got: state, expected: 'the tab reports itself hidden'});
 if (!state.table || !state.input) {

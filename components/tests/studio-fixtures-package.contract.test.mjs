@@ -8,7 +8,7 @@ import test from 'node:test';
 const json = async (path) => JSON.parse(await readFile(new URL(`../${path}`, import.meta.url), 'utf8'));
 
 test('the package owner reference fixtures use declared component inputs and meaningful data', async () => {
-  for (const name of ['table', 'admin-menu']) {
+  for (const name of ['view-table', 'admin-menu']) {
     const manifest = await json(`src/smart/${name}/smart.manifest.json`);
     const fixture = await json(`src/smart/${name}/studio.fixture.json`);
     const properties = manifest.inputs.properties;

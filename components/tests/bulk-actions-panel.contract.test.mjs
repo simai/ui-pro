@@ -61,7 +61,7 @@ test('the panel carries the four controls the owner asked for', async () => {
 test('the cross announces the end of a selection it does not own', async () => {
   const [pagination, view] = await Promise.all([
     read('src/smart/pagination/index.js'),
-    read('src/smart/data-view/index.js'),
+    read('src/smart/view/index.js'),
   ]);
 
   // The rows hold the selection. A page row carrying the band says it is over
@@ -108,7 +108,7 @@ test('every word in the panel is an attribute a host can translate', async () =>
 });
 
 test('the band is the last strip of the card, and it is the card that places it', async () => {
-  const [css, view] = await Promise.all([styles(), read('src/smart/data-view/index.js')]);
+  const [css, view] = await Promise.all([styles(), read('src/smart/view/index.js')]);
 
   // Three answers in three pairs. A panel floating at the bottom of the window
   // (2026-10-03) did not read as part of the table. Sticky inside the page row

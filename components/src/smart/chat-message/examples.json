@@ -952,12 +952,12 @@
             {
               "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').display = {busy: true}, document.querySelector('#a').message = {\"id\":\"m11\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"proposal\":{\"code\":\"P-17\",\"title\":\"Перенести отпуск\",\"state\":\"presented\",\"changes\":[{\"field\":\"Начало\",\"was\":\"1 июля\",\"will_be\":\"15 июля\"}]},\"summary\":{\"text\":\"Нашёл 2 источника\"}}, true)",
               "wait": 400,
-              "check": "(() => { const c = document.querySelector('#a sf-change-confirm'); return c.getAttribute('change-id') === 'P-17' && c.getAttribute('accept-text') === 'Подтвердить' && c.getAttribute('decline-text') === 'Отменить' && c.getAttribute('state') === 'open' && c.hasAttribute('disabled') && document.querySelector('#a .sf-chat-message__summary').textContent === 'Нашёл 2 источника'; })()"
+              "check": "(() => { const c = document.querySelector('#a sf-confirm-change'); return c.getAttribute('change-id') === 'P-17' && c.getAttribute('accept-text') === 'Подтвердить' && c.getAttribute('decline-text') === 'Отменить' && c.getAttribute('state') === 'open' && c.hasAttribute('disabled') && document.querySelector('#a .sf-chat-message__summary').textContent === 'Нашёл 2 источника'; })()"
             },
             {
-              "script": "(window.__card = document.querySelector('#a sf-change-confirm'), document.querySelector('#a').display = {}, true)",
+              "script": "(window.__card = document.querySelector('#a sf-confirm-change'), document.querySelector('#a').display = {}, true)",
               "wait": 300,
-              "check": "document.querySelector('#a sf-change-confirm') === window.__card && !window.__card.hasAttribute('disabled')"
+              "check": "document.querySelector('#a sf-confirm-change') === window.__card && !window.__card.hasAttribute('disabled')"
             },
             {
               "user": "click:#a [aria-label='Копировать ответ']",

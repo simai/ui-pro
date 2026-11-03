@@ -24,7 +24,7 @@ const styles = [
   'component/component/dropdown/css/dropdown.css',
   'smart/smart/drawer/css/drawer.css',
   'smart/smart/popover/css/popover.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/sortable/css/sortable.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -39,7 +39,7 @@ const modules = [
   'smart/smart/field-renderers/js/field-renderers.js',
   'smart/smart/sortable/js/sortable.js',
   'smart/smart/popover/js/popover.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -79,14 +79,14 @@ try {
   const page = await browser.newPage({viewport: {width: 1200, height: 900}});
   await page.setContent(
     '<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">'
-    + '<sf-property-view id="pv" panel panel-width="40rem" record-id="record-1" collection="pages"></sf-property-view>'
+    + '<sf-view-properties id="pv" panel panel-width="40rem" record-id="record-1" collection="pages"></sf-view-properties>'
     + '</body></html>',
   );
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
   await page.waitForTimeout(1400);
 
-  const unupgraded = await page.evaluate(() => ['sf-property-view', 'sf-drawer', 'sf-tree',
+  const unupgraded = await page.evaluate(() => ['sf-view-properties', 'sf-drawer', 'sf-tree',
     'sf-tree-item', 'sf-button', 'sf-button-icon', 'sf-button-group', 'sf-menu-context',
     'sf-switch', 'sf-input', 'sf-sortable'].filter((tag) => !customElements.get(tag)));
   if (unupgraded.length) {

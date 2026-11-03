@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
-const source = fs.readFileSync(new URL('../src/smart/table/index.js', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('../src/smart/view-table/index.js', import.meta.url), 'utf8');
 const body = source.split('    openContextMenu(event, opts = {}) {')[1].split('\n    // The element to anchor to')[0].trim().replace(/\}\s*$/, '');
 class Element {
  constructor(rect, parent=null, native=false) { this.rect=rect; this.parent=parent; this.native=native; this.children=[]; this.classList={add(){},remove(){}}; parent?.children.push(this); }

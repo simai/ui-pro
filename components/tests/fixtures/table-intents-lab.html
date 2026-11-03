@@ -15,8 +15,8 @@
     window.sfSmartPath = view.get('smart');
     window.SF_BOOT_CONFIG = {icons: {enabled: false}, preloader: {enabled: false}, smart: {base: true}, theme: false, packages: {pro: {base: `${view.get('smart')}/smart`}}};
     window.labEvents = [];
-    for (const name of ['sf-table-create-intent', 'sf-table-sort-change', 'sf-table-template-select', 'sf-table-template-save',
-      'sf-table-column-settings-change', 'sf-table-template-delete', 'sf-drawer-open', 'sf-drawer-opened', 'sf-drawer-close', 'sf-drawer-closed', 'sf-modal-opened', 'sf-modal-closed', 'sf-pagination-action-for-all-change']) {
+    for (const name of ['sf-table-create-intent', 'sf-view-table-sort-change', 'sf-view-table-template-select', 'sf-view-table-template-save',
+      'sf-table-column-settings-change', 'sf-view-table-template-delete', 'sf-drawer-open', 'sf-drawer-opened', 'sf-drawer-close', 'sf-drawer-closed', 'sf-modal-opened', 'sf-modal-closed', 'sf-pagination-action-for-all-change']) {
       document.addEventListener(name, (event) => {
         window.labEvents.push({name, detail: name.startsWith('sf-drawer-') ? {drawerId: event.detail?.drawerId} : name.startsWith('sf-modal-') ? {modalId: event.detail?.modalId} : name === 'sf-pagination-action-for-all-change' ? {actionForAll: event.detail?.['action-for-all']} : event.detail});
       });
@@ -28,8 +28,8 @@
 </head>
 <body>
   <main class="min-w-0">
-    <sf-table id="table" aria-label="Записи" table-settings-key="lab.records"></sf-table>
-    <sf-table id="second" aria-label="Вторая таблица"></sf-table>
+    <sf-view-table id="table" aria-label="Записи" table-settings-key="lab.records"></sf-view-table>
+    <sf-view-table id="second" aria-label="Вторая таблица"></sf-view-table>
   </main>
   <sf-drawer id="outer" drawer-id="outer" modal="false" heading="Запись">
     <div slot="content">
@@ -46,7 +46,7 @@
     const core = document.createElement('script');
     core.src = `${assets}/core/js/core.js`;
     core.onload = async () => {
-      await Promise.all(['sf-table', 'sf-drawer', 'sf-modal', 'sf-pagination'].map((tag) => customElements.whenDefined(tag)));
+      await Promise.all(['sf-view-table', 'sf-drawer', 'sf-modal', 'sf-pagination'].map((tag) => customElements.whenDefined(tag)));
       const second = document.getElementById('second');
       second.setColumns([{key: 'title', label: 'Название', sortable: true, colWidth: '200px'}]);
       second.setRows([{id: 9, title: 'Вторая'}]);

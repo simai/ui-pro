@@ -5,7 +5,7 @@ import {URL} from 'node:url';
 
 const root = new URL('../', import.meta.url);
 const read = (path) => readFile(new URL(path, root), 'utf8');
-const styles = () => read('src/smart/table/js/templates/default.css');
+const styles = () => read('src/smart/view-table/js/templates/default.css');
 // The comments beside these rules explain what was rejected and why, so the
 // guards read declarations rather than prose.
 const declarations = async () => (await styles()).replace(/\/\*[\s\S]*?\*\//gu, '');
@@ -42,7 +42,7 @@ test('a sorted column is answered in its header, never by shading the column', a
 
 test('a row says whether it is selected, and the look follows from that', async () => {
   const [template, css] = await Promise.all([
-    read('src/smart/table/js/templates/default.js'),
+    read('src/smart/view-table/js/templates/default.js'),
     declarations(),
   ]);
 
@@ -81,8 +81,8 @@ test('a row says whether it is selected, and the look follows from that', async 
 
 test('the resize guide runs through the rows, in the colour of the table lines', async () => {
   const [element, template, css] = await Promise.all([
-    read('src/smart/table/index.js'),
-    read('src/smart/table/js/templates/default.js'),
+    read('src/smart/view-table/index.js'),
+    read('src/smart/view-table/js/templates/default.js'),
     declarations(),
   ]);
 
@@ -149,7 +149,7 @@ test('the head paints its own surface, with a role behind the host property', as
 
   assert.match(
     css,
-    /sf-table > \.sf-table thead,\s*sf-table > \.sf-table thead th \{\s*background-color: var\(--sf-table-head--background-color, var\(--sf-surface-0\)\);/u,
+    /:is\(sf-view-table, sf-table\) > \.sf-table thead,\s*:is\(sf-view-table, sf-table\) > \.sf-table thead th \{\s*background-color: var\(--sf-table-head--background-color, var\(--sf-surface-0\)\);/u,
     'the cells paint too, because a sticky th leaves the box thead paints',
   );
   // The bare property had no fallback, so the head was transparent and the rows

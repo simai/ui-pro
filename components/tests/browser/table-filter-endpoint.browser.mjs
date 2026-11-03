@@ -55,7 +55,7 @@ page.on('pageerror', (error) => errors.push(error.message));
 try {
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   await page.waitForFunction(() => document.documentElement.dataset.ready === 'true');
-  const chip = page.locator('sf-table#table .sf-table-tags sf-tag .sf-tag').first();
+  const chip = page.locator('sf-view-table#table .sf-table-tags sf-tag .sf-tag').first();
   await chip.click({position: {x: 12, y: 8}});
   await page.waitForFunction(() => document.getElementById('table').getFilterOptions({key: 'author', filter: {optionsSource: {type: 'endpoint', url: '/filter-options?scope_ref=scope%3Atest&structure_id=workbench.demo&field_key=author'}}}).some((item) => item.value === 'first'));
   const menu = page.locator('sf-menu-context[aria-label^="Настройка фильтра"]');

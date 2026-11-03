@@ -11,8 +11,8 @@ const read = (path) => readFile(new URL(path, root), 'utf8');
 
 test('the resize handle is recognised by what it carries, not by a prefix of its id', async () => {
   const [element, template] = await Promise.all([
-    read('src/smart/table/index.js'),
-    read('src/smart/table/js/templates/default.js'),
+    read('src/smart/view-table/index.js'),
+    read('src/smart/view-table/js/templates/default.js'),
   ]);
 
   assert.match(
@@ -42,7 +42,7 @@ test('the resize handle is recognised by what it carries, not by a prefix of its
 });
 
 test('show more adds to the list instead of replacing it, and does not repeat a record', async () => {
-  const view = await read('src/smart/data-view/index.js');
+  const view = await read('src/smart/view/index.js');
 
   assert.match(
     view,
@@ -67,7 +67,7 @@ test('show more adds to the list instead of replacing it, and does not repeat a 
 // needed for it, which is why there is no separate selection-keeping code to
 // point at — this case pins the reason.
 test('a checked row survives show more because its state is on the row', async () => {
-  const table = await read('src/smart/table/index.js');
+  const table = await read('src/smart/view-table/index.js');
 
   assert.match(
     table,
@@ -83,9 +83,9 @@ test('a checked row survives show more because its state is on the row', async (
 
 test('the head can stick to the page, and does so by giving up the scroll container', async () => {
   const [element, template, styles] = await Promise.all([
-    read('src/smart/table/index.js'),
-    read('src/smart/table/js/templates/default.js'),
-    read('src/smart/table/js/templates/default.css'),
+    read('src/smart/view-table/index.js'),
+    read('src/smart/view-table/js/templates/default.js'),
+    read('src/smart/view-table/js/templates/default.css'),
   ]);
 
   assert.match(

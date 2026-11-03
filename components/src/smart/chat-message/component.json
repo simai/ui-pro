@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-message",
   "tag": "sf-chat-message",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -223,7 +223,7 @@
       "name": "cl-icon"
     },
     {
-      "name": "cl-change-confirm"
+      "name": "cl-confirm-change"
     },
     {
       "name": "cl-avatar",
@@ -421,14 +421,15 @@
     "«⋯» (1.4.0): sf-context-menu made on the first press, waiting for the element (lazy), as sf-thread-list's. Edit on a document is not offered: a machine's text is not a person's to edit in place; delete is, where can_delete says so.",
     "version 1.5.1: times, dates and copying are core's (core.runtime 1.20.0; reuse audit 2026-11-02, findings 7, 10 and 11). The message's times and dates go through formatDate of core/js/format.js (a source's read date that is no date still shows its own text), «Копировать» through core's copyText (the Clipboard API, else a hidden sf-clipboard-fallback field in the message's own document; the local copy that borrowed sf-chat-offscreen is gone), and the person template's initials through getInitials of helpers/text.js, «?» for an empty name as before. Visible: a name of several words is read by its words, so «Анна-Мария Смирнова» gives АС where it gave АМ; a preposition after the first word is skipped and a letter outside the basic plane is kept whole. A ctx without locale formats in the page language rather than the browser's. formatBytes keeps its own steps: the lang words size.b to size.gb carry {n}, which core's formatFileSize does not take (core would also group 1 023 bytes; this does not). Needs core.runtime >= 1.20.0.",
     "version 1.5.2: the reaction picker closes on a press elsewhere through the layer stack's one listener (core layer-stack.js onOutsidePress, core.runtime 1.19.0; reuse audit 2026-11-02, finding 1), not a pointerdown listener of its own on the document; a press on its own tool is still the tool's. It is a surface of the stack while open, so a press closes it only while it is the top layer, and Escape with the focus outside it closes it too (inside, its own keydown takes Escape first, as before). No visible change. Needs core.runtime >= 1.19.0.",
-    "version 1.5.3: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the «⋯» menu is sf-menu-context. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0)."
+    "version 1.5.3: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the «⋯» menu is sf-menu-context. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0).",
+    "version 1.5.4: a proposal is drawn as sf-confirm-change, the package's new tag for the card (rename plan R2)."
   ],
   "x-rule": {
     "$comment": [
       "A message draws the Framework's plain markup: icon buttons (copy, rating,",
       "a chip's remove), buttons (a brief's options, the «why» card, the person's",
       "editor) and inputs («Свой вариант», the note of a rating); every glyph is a",
-      "Smart sf-icon, and a proposal is the package's sf-change-confirm. A tag it",
+      "Smart sf-icon, and a proposal is the package's sf-confirm-change. A tag it",
       "renders is a tag it fetches. Code blocks go through SF.Highlight when the",
       "page has it; the message does not bring it.",
       "Among people an author is sf-avatar, or its class markup with a sign, the word",
@@ -683,6 +684,13 @@
           "to": "1.5.3",
           "changes": [
             "Draws and finds the renamed Framework elements by their new tags (the «⋯» menu is sf-menu-context); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+          ]
+        },
+        {
+          "from": "1.5.3",
+          "to": "1.5.4",
+          "changes": [
+            "Draws a proposal as sf-confirm-change (was sf-change-confirm); the rule relation names cl-confirm-change. Needs the SIMAI Framework pair with the R2 tag aliases (core.runtime 1.22.0). No visible change."
           ]
         }
       ]

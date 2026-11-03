@@ -17,7 +17,7 @@ const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -33,8 +33,8 @@ const modules = [
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const COLUMNS = [{key: 'title', label: 'Название'}, {key: 'state', label: 'Состояние'}];
@@ -53,16 +53,16 @@ const page = await browser.newPage({viewport: {width: 1000, height: 800}});
 await page.setContent(
   `<!doctype html><html class="theme-light"><body style="margin:0">
      <div style="width:900px">
-       <sf-data-view id="same" aria-label="Каталог">
+       <sf-view id="same" aria-label="Каталог">
          <script type="application/json" data-sf-settings>${JSON.stringify({'first-answer': answer(false)})}</script>
-         <sf-table slot="content" aria-label="Каталог"></sf-table>
+         <sf-view-table slot="content" aria-label="Каталог"></sf-view-table>
          <sf-pagination slot="pagination" page-size="20" current="1" total="0"></sf-pagination>
-       </sf-data-view>
-       <sf-data-view id="changed" aria-label="Каталог">
+       </sf-view>
+       <sf-view id="changed" aria-label="Каталог">
          <script type="application/json" data-sf-settings>${JSON.stringify({'first-answer': answer(false)})}</script>
-         <sf-table slot="content" aria-label="Каталог"></sf-table>
+         <sf-view-table slot="content" aria-label="Каталог"></sf-view-table>
          <sf-pagination slot="pagination" page-size="20" current="1" total="0"></sf-pagination>
-       </sf-data-view>
+       </sf-view>
      </div>
    </body></html>`,
 );
@@ -71,22 +71,22 @@ for (const path of modules) await page.addScriptTag({path, type: 'module'}).catc
 await page.waitForTimeout(1200);
 
 try {
-  const unupgraded = await page.evaluate(() => ['sf-data-view', 'sf-table', 'sf-pagination'].filter((tag) => !customElements.get(tag)));
+  const unupgraded = await page.evaluate(() => ['sf-view', 'sf-view-table', 'sf-pagination'].filter((tag) => !customElements.get(tag)));
   if (unupgraded.length) throw new Error(`not defined on the page: ${unupgraded.join(', ')}`);
 
   const revalidate = (id, next) => page.evaluate(async ({id, next}) => {
     const view = document.getElementById(id);
-    const rows = view.querySelector('sf-table tbody');
+    const rows = view.querySelector('sf-view-table tbody');
     if (!rows) return {error: 'no row block drawn from the printed answer'};
     const before = new Map([...rows.querySelectorAll('tr[data-row-id]')].map((row) => [row.dataset.rowId, row]));
     const mutations = [];
     const observer = new MutationObserver((list) => mutations.push(...list));
-    observer.observe(view.querySelector('sf-table'), {subtree: true, childList: true, attributes: true, characterData: true});
+    observer.observe(view.querySelector('sf-view-table'), {subtree: true, childList: true, attributes: true, characterData: true});
     let shift = 0;
     const shifts = new PerformanceObserver((list) => { for (const entry of list.getEntries()) shift += entry.value; });
     shifts.observe({type: 'layout-shift', buffered: false});
     const states = [];
-    view.addEventListener('sf-data-view-state', (event) => states.push(event.detail.state));
+    view.addEventListener('sf-view-state', (event) => states.push(event.detail.state));
     view.setHostPort({version: '1.12.0', capabilities: [], raise: (intent, payload) => new Promise((done) => setTimeout(() => done({
       answer: 'applied', sequence: payload.sequence, data: next,
     }), 150))});
@@ -96,12 +96,12 @@ try {
     const rowOf = (node) => (node.nodeType === 1 ? node : node.parentElement)?.closest?.('tr[data-row-id]')?.dataset.rowId ?? null;
     // Mutations in the row block, by the row they fall in.
     const inRows = mutations.filter((record) => rows.contains(record.target) || record.target === rows);
-    const after = new Map([...view.querySelectorAll('sf-table tbody tr[data-row-id]')].map((row) => [row.dataset.rowId, row]));
+    const after = new Map([...view.querySelectorAll('sf-view-table tbody tr[data-row-id]')].map((row) => [row.dataset.rowId, row]));
     return {
       rowMutations: inRows.length,
       touched: [...new Set(inRows.map((record) => rowOf(record.target) ?? '(block)'))],
       kept: [...before].filter(([key, row]) => after.get(key) === row).map(([key]) => key),
-      sameBlock: view.querySelector('sf-table tbody') === rows,
+      sameBlock: view.querySelector('sf-view-table tbody') === rows,
       shift,
       states,
       state: view.records.find((record) => record.id === '2')?.state,

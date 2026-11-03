@@ -18,13 +18,13 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 
 | Folder | Element | Manifest id |
 |:---|:---|:---|
-| `src/smart/table` | `sf-table` | `smart.data-view` |
-| `src/smart/data-view` | `sf-data-view` | `smart.data-view-composite` |
-| `src/smart/property-view` | `sf-property-view` | `smart.property-view` |
+| `src/smart/view-table` | `sf-view-table` | `smart.view-table` |
+| `src/smart/view` | `sf-view` | `smart.view` |
+| `src/smart/view-properties` | `sf-view-properties` | `smart.view-properties` |
 | `src/smart/admin-menu` | `sf-admin-menu` | `smart.admin-menu` |
 | `src/smart/message-log` | `sf-message-log` | `smart.message-log` |
-| `src/smart/thread-list` | `sf-thread-list` | `smart.thread-list` |
-| `src/smart/change-confirm` | `sf-change-confirm` | `smart.change-confirm` |
+| `src/smart/chat-threads` | `sf-chat-threads` | `smart.chat-threads` |
+| `src/smart/confirm-change` | `sf-confirm-change` | `smart.confirm-change` |
 | `src/smart/chat-interlocutor` | `sf-chat-interlocutor` | `smart.chat-interlocutor` |
 | `src/smart/chat-composer` | `sf-chat-composer` | `smart.chat-composer` |
 | `src/smart/chat-message` | `sf-chat-message` | `smart.chat-message` |
@@ -34,13 +34,22 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/mail-structure` | `sf-mail-structure` | `smart.mail-structure` |
 | `src/smart/mail-inspector` | `sf-mail-inspector` | `smart.mail-inspector` |
 | `src/smart/mail-canvas` | `sf-mail-canvas` | `smart.mail-canvas` |
-| `src/smart/content-editor` | `sf-content-editor` | `smart.content-editor` |
+| `src/smart/editor-content` | `sf-editor-content` | `smart.editor-content` |
+
+Six of them took new tags on 2026-11-03 (rename plan R2): `sf-table`,
+`sf-data-view`, `sf-property-view`, `sf-content-editor`, `sf-thread-list` and
+`sf-change-confirm` are dated aliases of the tags above until 2027-01-01. Old
+markup upgrades, the former bundle names are forwarded by the Loader and every
+event fires under its former name as well; the public CSS variables and class
+names keep the former name. Each component's docs say so under «Former tag».
+This needs the SIMAI Framework pair whose package reference lists the former
+tags (core.runtime 1.22.0).
 
 The three conversation components came from `simai/ui-chat` (`sf-chat-message-list`,
 `sf-chat-thread-list` and the proposal card) under neutral names (owner's decision
 2026-10-25): they serve a conversation with an assistant and one between people
 (simai.chat) alike, so what a message is, who wrote it and what a change means are
-the host's. `sf-mail-structure` is the same editor's list of a letter's blocks, `sf-mail-inspector` its right panel, a form drawn from data, and `sf-mail-canvas` its middle pane, the rendered letter in a sandboxed frame. `sf-content-editor` is the Content mode of the SIMAI page editor: a page typed as one flow over a Composition Document of the structured-content profile (owner's decision 2026-11-01). Their documentation is in each folder's `docs.md`.
+the host's. `sf-mail-structure` is the same editor's list of a letter's blocks, `sf-mail-inspector` its right panel, a form drawn from data, and `sf-mail-canvas` its middle pane, the rendered letter in a sandboxed frame. `sf-editor-content` is the Content mode of the SIMAI page editor: a page typed as one flow over a Composition Document of the structured-content profile (owner's decision 2026-11-01). Their documentation is in each folder's `docs.md`.
 
 `sf-chat-interlocutor` moved from `simai/ui-chat` under its own name (D31, owner's
 approval 2026-10-27): who a chat conversation is with, a thin element over the
@@ -51,7 +60,7 @@ rating, proposal and task brief, a person's question, and the template `person`
 for a conversation between people; a window places it in `sf-message-log`
 through the log's `renderMessage`, so the log stays chat-agnostic), and last the
 window, `sf-chat-window`: the whole chat on the host port `simai.chat-port` 1.0
-(handed with `connect-port`), built from `sf-thread-list`, `sf-message-log` and
+(handed with `connect-port`), built from `sf-chat-threads`, `sf-message-log` and
 the three chat components by tag, with «Мои файлы» and the window's own
 capabilities (archive, paging, search, pinning, early upload, task brief) beside
 the port.
@@ -65,8 +74,8 @@ delete and a new letter, the moment and the block count worded in the page's
 language). Neither touches a letter: each says what the person chose and the host
 does it. Their documentation is in each folder's `docs.md`.
 
-Documentation (Russian): [sf-table and sf-data-view](https://ui.simai.io/ru/smart-components/content/table/),
-[sf-property-view](https://ui.simai.io/ru/smart-components/composite/property-view/),
+Documentation (Russian): [sf-view-table and sf-view](https://ui.simai.io/ru/smart-components/content/table/),
+[sf-view-properties](https://ui.simai.io/ru/smart-components/composite/property-view/),
 [sf-admin-menu](https://ui.simai.io/ru/smart-components/composite/admin-menu/); the whole
 Framework at https://ui.simai.io/.
 
@@ -79,7 +88,7 @@ helpers, the typed renderer set `smart/field-renderers`, `component/admin-menu`,
 the badges and clipboard components. So are the public contracts they answer
 to: the host ports and their conformance kits (`src/core/contracts/ports/` in
 ui-source, shipped in `ui` as `distr/core/contracts/ports/`) — the data view,
-property view and admin navigation ports — the `sf-table` composition port and
+property view and admin navigation ports — the `sf-view-table` composition port and
 the `layout.scope` routing contract.
 
 The history of these files before the move is in `simai/ui-source-pro`

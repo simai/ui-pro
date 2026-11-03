@@ -5,10 +5,10 @@
 `simai/ui-chat` (решение владельца D31: компоненты живут только в SIMAI Framework
 или ui-pro; перенос одобрен 2026-10-27) последним из четырёх компонентов чата.
 
-Окно собрано из частей по тегу: `sf-thread-list` и `sf-message-log` (пакет
+Окно собрано из частей по тегу: `sf-chat-threads` и `sf-message-log` (пакет
 `larena`), `sf-chat-composer`, `sf-chat-interlocutor` и `sf-chat-message` (шаги
 3–5). Сообщение в ленте рисует `sf-chat-message` (окно ставит его через
-`renderMessage` ленты), предложение — его карточка `sf-change-confirm`, что
+`renderMessage` ленты), предложение — его карточка `sf-confirm-change`, что
 сказать читателю экрана, решает окно (`announceMessage`). Загрузчик приносит
 части сам (`rule.js`).
 
@@ -355,7 +355,7 @@ sf-workspace sf-workspace--wide-h8`. Шаг `wide-h8` (72rem) — это та ш
 Без возможности команд нет, и всё остальное работает как раньше: существующие
 разговоры доступны, хост только с `conversation-create` видит прежнюю кнопку.
 С возможностью голова списка показывает две команды вместо одной кнопки
-(`sf-thread-list` 1.5.0, `create-commands`). Порт 1.0 не меняется.
+(`sf-chat-threads` 1.5.0, `create-commands`). Порт 1.0 не меняется.
 
 Людей ищет `sf-input-lookup` Фреймворка; окно отвечает ему через хоста.
 
@@ -516,9 +516,9 @@ false`), поэтому ответ уходит своим намерением 
 `conversation.start` — исключение: окно применяет их после `settled`, когда ответ
 принимает форма.
 
-Окно слушает новые имена частей: `sf-thread-list-open`, `-apply`, `-restore`,
+Окно слушает новые имена частей: `sf-chat-threads-open`, `-apply`, `-restore`,
 `-toggle`, `-load-more`, `-create`, `-rename`, `-archive`;
-`sf-message-log-load-more`; `sf-change-confirm-answer`;
+`sf-message-log-load-more`; `sf-confirm-change-answer`;
 `sf-chat-composer-submit`, `-stop`, `-attach`, `-detach`;
 `sf-chat-interlocutor-select`; `sf-chat-message-retry`, `-check`, `-rate`,
 `-cancel {kind: rate}`, `-toggle {kind: sources | steps}`, `-submit`, `-open {kind:
@@ -639,7 +639,7 @@ Enter. Куда уходит фокус:
 - Классов `chat-shell--side-hidden`, `chat-shell--side-open`, `chat-shell--preview`
   и `chat-shell--preview-sheet` больше нет (1.7.0, см. раскладку выше).
 
-1.0.2: закреплённый разговор показывает сам `sf-thread-list` (1.3.0: группа «Закреплённые» и строка «Закреплён»); окно передаёт `pinned` и своей подписи «Закреплён» больше не добавляет — раньше она стояла дважды.
+1.0.2: закреплённый разговор показывает сам `sf-chat-threads` (1.3.0: группа «Закреплённые» и строка «Закреплён»); окно передаёт `pinned` и своей подписи «Закреплён» больше не добавляет — раньше она стояла дважды.
 
 1.1.0: очередь вопросов, заданных во время ответа (карточки над полем, отправка после успешного ответа, `no-queue`), и поиск в открытом разговоре (`open-find`, `close-find`, Ctrl/Cmd+F, событие `toggle`, атрибут `data-find-open`). Для хоста ничего не меняется: нового намерения нет.
 

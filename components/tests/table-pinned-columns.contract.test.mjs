@@ -5,8 +5,8 @@ import {URL} from 'node:url';
 
 const root = new URL('../', import.meta.url);
 const read = (path) => readFile(new URL(path, root), 'utf8');
-const element = () => read('src/smart/table/index.js');
-const styles = async () => (await read('src/smart/table/js/templates/default.css')).replace(/\/\*[\s\S]*?\*\//gu, '');
+const element = () => read('src/smart/view-table/index.js');
+const styles = async () => (await read('src/smart/view-table/js/templates/default.css')).replace(/\/\*[\s\S]*?\*\//gu, '');
 
 test('the person decides what is pinned, and the title column starts pinned', async () => {
   const source = await element();

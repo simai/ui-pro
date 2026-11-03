@@ -13,13 +13,13 @@ import {chromium} from 'playwright';
 if (!process.argv[2]) throw new Error('Build output root is required');
 const out = resolve(process.argv[2]);
 const styles = ['core/core/css/core.css', 'core/core/css/utility.full.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css'].map((p) => join(out, p));
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css'].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/list-item/js/list-item.js',
-  'smart/smart/pagination/js/pagination.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
+  'smart/smart/pagination/js/pagination.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -34,10 +34,10 @@ let report = {};
 try {
   const page = await browser.newPage({viewport: {width: 375, height: 800}});
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">'
-    + '<div id="box" style="inline-size:360px"><sf-table id="t" layout="auto" aria-label="Проба"></sf-table></div></body></html>');
+    + '<div id="box" style="inline-size:360px"><sf-view-table id="t" layout="auto" aria-label="Проба"></sf-view-table></div></body></html>');
   for (const style of styles) await page.addStyleTag({path: style});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-table')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view-table')));
   await page.evaluate(() => {
     const table = document.getElementById('t');
     table.setColumns([

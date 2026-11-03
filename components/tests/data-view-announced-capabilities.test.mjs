@@ -8,7 +8,7 @@ import vm from 'node:vm';
 // offered both without announcing them and keeps that; a host on 1.10.0 is
 // offered only what it announces, and the table is told to draw nothing else.
 
-const source = readFileSync(new URL('../src/smart/data-view/index.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../src/smart/view/index.js', import.meta.url), 'utf8');
 const rule = source.slice(source.indexOf('const BASELINE_UNTIL_1_10'), source.indexOf('const DATA_VIEW_TEXT'));
 const method = source.slice(source.indexOf('    hostOffers(capability) {'), source.indexOf('    async _raise('));
 const context = vm.createContext({});

@@ -31,7 +31,7 @@ const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/buttons/css/buttons.css',
   'component/component/icon-buttons/css/icon-buttons.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
@@ -41,7 +41,7 @@ const modules = [
   'smart/smart/pagination/js/pagination.js', 'smart/smart/badge/js/badge.js',
   'smart/smart/tag/js/tag.js', 'smart/smart/avatar/js/avatar.js',
   'smart/smart/input-color/js/input-color.js', 'smart/smart/reference-link/js/reference-link.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js', 'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js', 'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -57,13 +57,13 @@ try {
   const page = await browser.newPage({viewport: {width: 1400, height: 800}});
   await page.setContent(
     '<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">'
-    + '<sf-data-view id="list" chrome="" row-cap="5" aria-label="Решения">'
-    + '<sf-table slot="content" toolbar="false" aria-label="Решения"></sf-table>'
-    + '</sf-data-view></body></html>',
+    + '<sf-view id="list" chrome="" row-cap="5" aria-label="Решения">'
+    + '<sf-view-table slot="content" toolbar="false" aria-label="Решения"></sf-view-table>'
+    + '</sf-view></body></html>',
   );
   for (const style of styles) await page.addStyleTag({path: style});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-data-view') && customElements.get('sf-table')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view') && customElements.get('sf-view-table')));
 
   // A host answering the port and nothing else: the columns name what they hold
   // in the port's own words, snake_case, with no component's spelling in sight.

@@ -32,7 +32,7 @@ const styles = [
   'component/component/textarea/css/textarea.css',
   'smart/smart/popover/css/popover.css',
   'component/component/context-menu/css/context-menu.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/sortable/css/sortable.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -51,7 +51,7 @@ const modules = [
   'smart/smart/sortable/js/sortable.js',
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/popover/js/popover.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
 if (absent.length) throw new Error(`${absent.length} build asset(s) not found under ${out}: ${absent.join(', ')}`);
@@ -65,12 +65,12 @@ try {
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0"></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-property-view')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view-properties')));
 
   const make = (size) => page.evaluate(async (size) => {
     document.body.replaceChildren();
     window.raised = [];
-    const view = document.createElement('sf-property-view');
+    const view = document.createElement('sf-view-properties');
     view.id = 'view';
     view.setAttribute('record-id', 'r1');
     view.setAttribute('collection', 'events');
@@ -101,11 +101,11 @@ try {
     await new Promise((done) => setTimeout(done, 500));
   }, size);
 
-  const field = (key) => `sf-property-view [data-field="${key}"]`;
+  const field = (key) => `sf-view-properties [data-field="${key}"]`;
   const dateInput = (key) => `${field(key)} sf-input-date input`;
   const timeInput = (key) => `${field(key)} .sf-property-view-datetime-time input`;
   const look = (key) => page.evaluate(({key}) => {
-    const root = document.querySelector(`sf-property-view [data-field="${key}"]`);
+    const root = document.querySelector(`sf-view-properties [data-field="${key}"]`);
     const row = root.querySelector('.sf-property-view-datetime');
     const box = (element) => {
       const frame = element?.querySelector('.sf-input') ?? element;
@@ -159,13 +159,13 @@ try {
   await page.setViewportSize({width: 360, height: 800});
   await make('1');
   const narrow = await page.evaluate(() => {
-    const field = document.querySelector('sf-property-view [data-field="starts"]').getBoundingClientRect();
-    const time = document.querySelector('sf-property-view [data-field="starts"] .sf-property-view-datetime-time-field').getBoundingClientRect();
-    const date = document.querySelector('sf-property-view [data-field="starts"] sf-input-date .sf-input').getBoundingClientRect();
+    const field = document.querySelector('sf-view-properties [data-field="starts"]').getBoundingClientRect();
+    const time = document.querySelector('sf-view-properties [data-field="starts"] .sf-property-view-datetime-time-field').getBoundingClientRect();
+    const date = document.querySelector('sf-view-properties [data-field="starts"] sf-input-date .sf-input').getBoundingClientRect();
     return {fieldRight: Math.round(field.right), timeRight: Math.round(time.right), timeTop: Math.round(time.top), dateTop: Math.round(date.top),
       timeWidth: Math.round(time.width),
       // The footer bleeds into the gutter on purpose; what is measured is the row.
-      rowRight: Math.round(Math.max(...[...document.querySelectorAll('sf-property-view [data-field="starts"] .sf-property-view-datetime *')]
+      rowRight: Math.round(Math.max(...[...document.querySelectorAll('sf-view-properties [data-field="starts"] .sf-property-view-datetime *')]
         .map((element) => element.getBoundingClientRect().right)))};
   });
   results.narrow = narrow;

@@ -9,7 +9,7 @@ import {fileURLToPath} from 'node:url';
 // so a save carries nothing for the field: an empty value would clear the
 // password the host keeps. changeField is the one place a change is recorded.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const source = readFileSync(resolve(root, 'src/smart/property-view/index.js'), 'utf8');
+const source = readFileSync(resolve(root, 'src/smart/view-properties/index.js'), 'utf8');
 
 test('changeField takes a change back on undefined', () => {
   const start = source.indexOf('    changeField(field, value) {');

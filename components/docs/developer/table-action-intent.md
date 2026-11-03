@@ -6,7 +6,7 @@ requires runtime, manifest, generated-distribution and browser evidence.
 ## Public port
 
 `sf-table-action-intent` is an additive, bubbling, composed CustomEvent emitted
-by the exact `sf-table` instance that owns the action. Its `detail` has exactly
+by the exact `sf-view-table` instance that owns the action. Its `detail` has exactly
 two fields: `action_id` (nonempty opaque string) and `record_ids` (nonempty
 array of opaque strings or safe integers). String identities, including
 underscores and Unicode, and integer identities including zero are preserved.

@@ -73,7 +73,7 @@ test('the intents are the window\'s own, one verb, and the port does not change'
 
 test('the manifest, the words and the docs declare it', () => {
   const window = json('chat-window', 'component.json');
-  assert.equal(window.version, '1.10.2');
+  assert.equal(window.version, '1.10.3');
   assert.equal(window.port.version, '1.0.0', 'the port is not extended');
   assert.ok(window.events.apply, 'the apply event');
   assert.ok(window['x-registry'].compatibility.migrations.some((one) => one.from === '1.8.0' && one.to === '1.9.0'));

@@ -29,15 +29,15 @@
 <body class="p-2">
   <main class="min-w-0 flex flex-col gap-2">
     <h1>Smart Table action intent acceptance</h1>
-    <sf-table id="products-a" aria-label="Products A" pagin="false"></sf-table>
-    <sf-table id="products-b" aria-label="Products B" pagin="false"></sf-table>
+    <sf-view-table id="products-a" aria-label="Products A" pagin="false"></sf-view-table>
+    <sf-view-table id="products-b" aria-label="Products B" pagin="false"></sf-view-table>
     <button id="remount-a" type="button">Remount Products A</button>
-    <sf-table id="nested-parent" aria-label="Nested parent" selectable="false" settings="false" actions="false"></sf-table>
+    <sf-view-table id="nested-parent" aria-label="Nested parent" selectable="false" settings="false" actions="false"></sf-view-table>
     <pre id="intents" aria-label="Recorded action intents"></pre>
   </main>
   <script src="/core-a/core/js/core.js"></script>
   <script>
-    customElements.whenDefined('sf-table').then(() => {
+    customElements.whenDefined('sf-view-table').then(() => {
       for (const [id, rows] of [
         ['products-a', [{id: 'товар_α_01', name: 'Alpha'}, {id: 0, name: 'Zero'}]],
         ['products-b', [{id: 'other_β_02', name: 'Beta'}]],

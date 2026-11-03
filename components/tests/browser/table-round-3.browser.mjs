@@ -18,7 +18,7 @@ const styles = [
   'component/component/inputs/css/inputs.css',
   // The menu's own sheet: without it the page measures a menu nobody styled.
   'component/component/context-menu/css/context-menu.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -37,8 +37,8 @@ const modules = [
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -51,10 +51,10 @@ const open = async ({width = 1000, columnWidth = 300, rows = 10, delay = 60, hos
   await page.setContent(
     `<!doctype html><html class="theme-light" lang="ru"><head><base href="http://admin.test/"></head>
      <body style="margin:0"><div style="width:${width}px">
-       <sf-data-view id="v">
-         <sf-table slot="content" id="t"></sf-table>
+       <sf-view id="v">
+         <sf-view-table slot="content" id="t"></sf-view-table>
          <sf-pagination slot="pagination" id="p" page-size="10" current="3"></sf-pagination>
-       </sf-data-view>
+       </sf-view>
      </div></body></html>`,
   );
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
@@ -293,7 +293,7 @@ try {
     const checkbox = row?.querySelector('sf-checkbox input') ?? row?.querySelector('input[type="checkbox"]');
     checkbox?.click();
     await new Promise((done) => setTimeout(done, 500));
-    const strip = document.querySelector('sf-data-view > [slot="bulk"]');
+    const strip = document.querySelector('sf-view > [slot="bulk"]');
     const style = strip ? getComputedStyle(strip) : null;
     return {
       found: Boolean(strip),
@@ -326,7 +326,7 @@ try {
       statusHeight: Math.round(status?.getBoundingClientRect?.().height ?? 0),
       moved: region() - first,
       body: document.querySelector('#t tbody sf-empty-state')?.getAttribute('kind') ?? '',
-      notice: document.querySelectorAll('sf-data-view > [slot="notice"]').length,
+      notice: document.querySelectorAll('sf-view > [slot="notice"]').length,
     };
   });
   if (empty.statusHeight > 1 || empty.moved !== 0 || empty.body !== 'no-data'
@@ -350,13 +350,13 @@ try {
     // The page's notification area since SF.notify (2026-10-13); the band over
     // the card on an older Framework. The code travels in the record's source.
     const alert = document.querySelector('.sf-notifications .sf-toast')
-      ?? document.querySelector('sf-data-view > [slot="notice"] sf-toast');
+      ?? document.querySelector('sf-view > [slot="notice"] sf-toast');
     const box = alert?.querySelector('.sf-toast')?.getBoundingClientRect?.() ?? alert?.getBoundingClientRect?.();
     return {
       shown: Boolean(alert), moved: region() - before,
       title: alert?.getAttribute('heading') ?? alert?.getAttribute('title') ?? null,
       code: alert?.getAttribute('data-sf-code')
-        ?? (window.SF?.notifications?.history?.()[0]?.source ?? '').replace(/^sf-data-view:/u, '') ?? null,
+        ?? (window.SF?.notifications?.history?.()[0]?.source ?? '').replace(/^sf-view:/u, '') ?? null,
       text: (alert?.textContent ?? '').replace(/\s+/gu, ' ').trim().slice(0, 80),
       overlaps: box ? box.top <= before + 1 : null,
     };
@@ -375,7 +375,7 @@ try {
       .find((one) => one.getAttribute('aria-label') === 'Действия с представлением');
     const before = Boolean(control());
     window.toolbarEvents = [];
-    table.addEventListener('sf-table-toolbar-action', (event) => {
+    table.addEventListener('sf-view-table-toolbar-action', (event) => {
       event.preventDefault();
       window.toolbarEvents.push(event.detail);
     });
@@ -461,10 +461,10 @@ try {
   await late.setContent(
     `<!doctype html><html class="theme-light" lang="ru"><head><base href="http://admin.test/"></head>
      <body style="margin:0"><div id="surface" hidden style="width:1000px">
-       <sf-data-view id="v">
-         <sf-table slot="content" id="t"></sf-table>
+       <sf-view id="v">
+         <sf-view-table slot="content" id="t"></sf-view-table>
          <sf-pagination slot="pagination" id="p" page-size="10" current="1"></sf-pagination>
-       </sf-data-view>
+       </sf-view>
      </div></body></html>`,
   );
   for (const path of styles) await late.addStyleTag({path}).catch(() => {});

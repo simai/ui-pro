@@ -16,7 +16,7 @@ const styles = [
   // the check. The full utility sheet is what a page actually has.
   'core/core/css/utility.full.css',
   'component/component/tables/css/tables.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'smart/smart/sortable/css/sortable.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -29,7 +29,7 @@ const modules = [
   'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/pagination/js/pagination.js',
   'smart/smart/sortable/js/sortable.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -48,7 +48,7 @@ const open = async (markup) => {
 try {
   // 1. The resize handle is recognised: the element answers for it, which is
   // what pointerdown relies on.
-  const page = await open('<sf-table id="t" toolbar="false" settings="false"></sf-table>');
+  const page = await open('<sf-view-table id="t" toolbar="false" settings="false"></sf-view-table>');
   const recognised = await page.evaluate(() => {
     const table = document.getElementById('t');
     const handle = document.createElement('div');
@@ -64,7 +64,7 @@ try {
 
   // 1b. A drag that starts on the handle resizes and does not move the column:
   // the heading row's sortable (SF.Sortable.attach) is refused the start.
-  const grabbed = await open('<div style="width:900px"><sf-table id="m" toolbar="false" settings="false"></sf-table></div>');
+  const grabbed = await open('<div style="width:900px"><sf-view-table id="m" toolbar="false" settings="false"></sf-view-table></div>');
   const grip = await grabbed.evaluate(async () => {
     const table = document.getElementById('m');
     table.setColumns?.([
@@ -120,7 +120,7 @@ try {
   for (const [mode, shouldStay] of [['page', true], ['self', false]]) {
     const scrolled = await open(
       `<div style="height:200px"></div>
-       <sf-table id="t" toolbar="false" settings="false" vertical-scroll="${mode}"></sf-table>
+       <sf-view-table id="t" toolbar="false" settings="false" vertical-scroll="${mode}"></sf-view-table>
        <div style="height:1500px"></div>`,
     );
     const top = await scrolled.evaluate(async () => {

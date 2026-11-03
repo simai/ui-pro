@@ -6,8 +6,8 @@ const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('Smart Table names every owned action and contextual surface', async () => {
   const [table, template] = await Promise.all([
-    read('src/smart/table/index.js'),
-    read('src/smart/table/js/templates/default.js'),
+    read('src/smart/view-table/index.js'),
+    read('src/smart/view-table/js/templates/default.js'),
   ]);
 
   // Eight since round three: the toolbar's control opens the view's actions.
@@ -30,7 +30,7 @@ test('Smart Table names every owned action and contextual surface', async () => 
 });
 
 test('Smart Table owns one disposable portal and viewport-aware overlays', async () => {
-  const table = await read('src/smart/table/index.js');
+  const table = await read('src/smart/view-table/index.js');
 
   assert.match(table, /this\._portalContainer = portal/);
   assert.match(table, /portal\.className = "sf-table-portal"/);
@@ -45,9 +45,9 @@ test('Smart Table owns one disposable portal and viewport-aware overlays', async
 
 test('Smart Table exposes keyboard column resizing without literal design dimensions', async () => {
   const [table, template, styles] = await Promise.all([
-    read('src/smart/table/index.js'),
-    read('src/smart/table/js/templates/default.js'),
-    read('src/smart/table/js/templates/default.css'),
+    read('src/smart/view-table/index.js'),
+    read('src/smart/view-table/js/templates/default.js'),
+    read('src/smart/view-table/js/templates/default.css'),
   ]);
 
   // The column edges are the Framework's resize gesture since 2026-10-14
@@ -74,7 +74,7 @@ test('Smart Table exposes keyboard column resizing without literal design dimens
 });
 
 test('Smart Table Loader rule declares every rendered Smart dependency', async () => {
-  const rule = await read('src/smart/table/rule.js');
+  const rule = await read('src/smart/view-table/rule.js');
 
   for (const dependency of [
     'cl-checkbox', 'cl-button', 'cl-button-icon', 'cl-input', 'cl-tag',
@@ -86,9 +86,9 @@ test('Smart Table Loader rule declares every rendered Smart dependency', async (
 
 test('Smart Table implements its declared loading, empty, error and retry states', async () => {
   const [table, template, manifestSource] = await Promise.all([
-    read('src/smart/table/index.js'),
-    read('src/smart/table/js/templates/default.js'),
-    read('src/smart/table/smart.manifest.json'),
+    read('src/smart/view-table/index.js'),
+    read('src/smart/view-table/js/templates/default.js'),
+    read('src/smart/view-table/smart.manifest.json'),
   ]);
   const manifest = JSON.parse(manifestSource);
 
@@ -97,11 +97,11 @@ test('Smart Table implements its declared loading, empty, error and retry states
   // Sent by verb through the manifest (standard 1.3.8 §8); the registry lists
   // the DOM names, the old ones as aliases of the new.
   for (const [verb, eventName] of [
-    ['search-change', 'sf-table-search-change'],
-    ['filter-change', 'sf-table-filter-change'],
-    ['template-save', 'sf-table-template-save'],
-    ['save', 'sf-table-save'],
-    ['refresh', 'sf-table-refresh'],
+    ['search-change', 'sf-view-table-search-change'],
+    ['filter-change', 'sf-view-table-filter-change'],
+    ['template-save', 'sf-view-table-template-save'],
+    ['save', 'sf-view-table-save'],
+    ['refresh', 'sf-view-table-refresh'],
   ]) {
     assert.match(table, new RegExp(`emitTableEvent\\('${verb}'`));
     assert.ok(manifest.events[eventName]);

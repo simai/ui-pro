@@ -5,8 +5,8 @@ import {URL} from 'node:url';
 
 const root = new URL('../', import.meta.url);
 const read = (path) => readFile(new URL(path, root), 'utf8');
-const element = () => read('src/smart/table/index.js');
-const template = () => read('src/smart/table/js/templates/default.js');
+const element = () => read('src/smart/view-table/index.js');
+const template = () => read('src/smart/view-table/js/templates/default.js');
 
 test('a click moves the row the person is on, and nothing else', async () => {
   const [source, markup] = await Promise.all([element(), template()]);

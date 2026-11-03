@@ -20,7 +20,7 @@ const styles = [
   'smart/smart/empty-state/css/empty-state.css',
   'component/component/tabs/css/tabs.css', 'smart/smart/tabs/css/tabs.css', 'component/component/context-menu/css/context-menu.css',
   'component/component/checkbox/css/checkbox.css', 'component/component/radio/css/radio.css', 'component/component/buttons/css/buttons.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
@@ -30,8 +30,8 @@ const modules = [
   'smart/smart/spinner/js/spinner.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js', 'smart/smart/radio/js/radio.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/empty-state/js/empty-state.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -49,10 +49,10 @@ try {
   await page.goto('http://probe.test/');
   await page.setContent(`<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">
     <div style="padding:20px;width:900px"><h1 style="margin:0 0 200px">Каталог</h1>
-    <sf-data-view id="v"><sf-table slot="content" id="t"></sf-table></sf-data-view></div></body></html>`);
+    <sf-view id="v"><sf-view-table slot="content" id="t"></sf-view-table></sf-view></div></body></html>`);
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => customElements.get('sf-data-view') && customElements.get('sf-table'), null, {timeout: 8000});
+  await page.waitForFunction(() => customElements.get('sf-view') && customElements.get('sf-view-table'), null, {timeout: 8000});
   await page.evaluate(({columns, rows}) => {
     document.getElementById('v').setHostPort({
       version: '1.10.0', capabilities: [],

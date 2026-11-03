@@ -109,7 +109,7 @@ export async function loadPagination() {
 /**
  * A pagination with these settings, written as a host writes them: attribute
  * names, string values; true becomes the bare attribute and false the word
- * "false" (sf-data-view writes count-known and total-exact off that way).
+ * "false" (sf-view writes count-known and total-exact off that way).
  */
 export async function pagination(settings = {}) {
   const {SfPagination} = await loadPagination();

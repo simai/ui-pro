@@ -1,0 +1,82 @@
+{
+  "$comment": "Dated aliases of sf-confirm-change for the shim (core/js/aliases.js, standard §16 item 20). The two answers fold into sf-change-confirm-answer: each old name is sent only for its `when`, with the new detail (detail-adds: the old {id} is inside {id, accepted}), and the cancel is shared.",
+  "component": "sf-confirm-change",
+  "since": "2026-10-27",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "sf-change-confirm-accept",
+      "to": "sf-change-confirm-answer",
+      "kind": "event",
+      "component": "sf-confirm-change",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "cancelable": true,
+      "section": "§8, vocabulary §5 answer, §9",
+      "note": "{id} becomes {id, accepted}; sent only when accepted is true",
+      "when": {
+        "accepted": true
+      }
+    },
+    {
+      "from": "sf-change-confirm-decline",
+      "to": "sf-change-confirm-answer",
+      "kind": "event",
+      "component": "sf-confirm-change",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "detail-adds",
+      "cancelable": true,
+      "section": "§8, vocabulary §5 answer, §9",
+      "note": "{id} becomes {id, accepted}; sent only when accepted is false",
+      "when": {
+        "accepted": false
+      }
+    },
+    {
+      "from": "sf-change-confirm-expire",
+      "to": "sf-change-confirm-expired",
+      "kind": "event",
+      "component": "sf-confirm-change",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, vocabulary §5.1",
+      "note": "a fact takes the past form; {id} is unchanged"
+    },
+    {
+      "from": "sf-change-confirm",
+      "to": "sf-confirm-change",
+      "kind": "tag",
+      "component": "sf-confirm-change",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "section": "rename plan R2 (ui-control RENAME-PLAN-2026-11-03), naming decision 2026-11-02",
+      "note": "the element is sf-confirm-change; sf-change-confirm is a subclass defined beside it until the date"
+    },
+    {
+      "from": "sf-change-confirm-answer",
+      "to": "sf-confirm-change-answer",
+      "kind": "event",
+      "component": "sf-confirm-change",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-change-confirm-expired",
+      "to": "sf-confirm-change-expired",
+      "kind": "event",
+      "component": "sf-confirm-change",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    }
+  ]
+}

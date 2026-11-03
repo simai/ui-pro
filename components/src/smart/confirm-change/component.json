@@ -1,0 +1,597 @@
+{
+  "$comment": "The source of sf-change-confirm's element plumbing (core/js/element-manifest.js). Taken from simai/ui-control control/smart-architecture/migration/out/change-confirm (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); standard simai.smart-component 1.3.8, vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
+  "id": "smart.confirm-change",
+  "tag": "sf-confirm-change",
+  "version": "1.3.0",
+  "kind": "leaf",
+  "family": "confirm",
+  "settings": {
+    "heading": {
+      "type": "string",
+      "default": "",
+      "summary": "What the change is; without one the card is named «What will change»."
+    },
+    "heading-level": {
+      "type": "enum",
+      "values": [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "default": "3",
+      "summary": "The heading's level where the card is placed."
+    },
+    "state": {
+      "type": "enum",
+      "values": [
+        "open",
+        "pending",
+        "accepted",
+        "declined",
+        "expired"
+      ],
+      "default": "open",
+      "summary": "open: the answers are offered. pending: an answer is on its way (set by a press). accepted, declined, expired: only the outcome is shown."
+    },
+    "expires-at": {
+      "type": "date",
+      "optional": true,
+      "summary": "ISO 8601. Past it an open card reads as expired and says so once with sf-change-confirm-expired."
+    },
+    "change-id": {
+      "type": "id",
+      "default": "",
+      "summary": "The host's name for the change, carried back in every event."
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": false,
+      "summary": "The answers are shown and cannot be pressed (a send is in flight elsewhere)."
+    },
+    "accept-text": {
+      "type": "string",
+      "default-from": "runtime.accept-text",
+      "summary": "The accepting answer; empty is Confirm in the page's language."
+    },
+    "decline-text": {
+      "type": "string",
+      "default-from": "runtime.decline-text",
+      "summary": "The declining answer; empty is Decline in the page's language."
+    },
+    "changes": {
+      "type": "list",
+      "default": [],
+      "of": {
+        "label": "string",
+        "before": {
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        },
+        "after": {
+          "type": "string",
+          "nullable": true,
+          "optional": true
+        }
+      },
+      "x-markup": "the attribute takes the same list as JSON (markup, the Studio); the property wins; a number in before or after is shown as its text",
+      "summary": "The values, as JSON in markup; a property set from script wins."
+    }
+  },
+  "values": {},
+  "events": {
+    "answer": {
+      "carries": {
+        "id": {
+          "type": "id",
+          "summary": "change-id"
+        },
+        "accepted": "boolean"
+      },
+      "cancelable": true,
+      "x-summary": "The person answered (vocabulary §5 answer). Cancelable: a page that refuses it keeps the question open and the action answers refused.",
+      "summary": "The person answered (vocabulary answer). Cancel it to keep the question open. The 1.0 names sf-change-confirm-accept and -decline follow it until 2026-12-01."
+    },
+    "expired": {
+      "carries": {
+        "id": {
+          "type": "id",
+          "summary": "change-id"
+        }
+      },
+      "own-verb": true,
+      "x-summary": "An open card passed expires-at; said once per time (a fact of this component).",
+      "summary": "An open card passed expires-at; said once per time. The 1.0 name sf-change-confirm-expire follows it until 2026-12-01."
+    }
+  },
+  "actions": {
+    "open": {
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-answer": "puts the question again (state open); asked by an assembly (ask, §19.4) it answers when the person answers or the time runs out, with value {accepted, reason, value}",
+      "summary": "Puts the question again; asked by an assembly it answers {accepted, reason, value} when the person answers or the time runs out.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "answer": {
+      "with": {
+        "accepted": "boolean"
+      },
+      "emits": "answer",
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "Answers as the person would: accepted true confirms, false declines (refused: closed, disabled, prevented)",
+      "summary": "Answer as the person would: accepted true confirms, false declines. Refused closed, disabled or prevented. answer('accept') and answer('decline') are read until 2026-12-01.",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "confirm": {
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "The acceptance (§19.4): data-sf-action=\"<id>.confirm\" on a page button",
+      "summary": "The acceptance; data-sf-action=\"<id>.confirm\".",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    },
+    "cancel": {
+      "x-outcomes": [
+        "applied",
+        "refused"
+      ],
+      "x-summary": "The refusal (vocabulary §5 cancel resolves to the declining answer): data-sf-action=\"<id>.cancel\"",
+      "summary": "The declining answer; data-sf-action=\"<id>.cancel\".",
+      "x-returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason}"
+      }
+    }
+  },
+  "slots": {
+    "description": {}
+  },
+  "layer": {
+    "kind": "surface",
+    "locks-page": false,
+    "traps-focus": false
+  },
+  "side-effects": [],
+  "keyboard": {
+    "host": {
+      "Tab": "reach",
+      "Enter": "select",
+      "Space": "select"
+    }
+  },
+  "relations": [
+    {
+      "name": "cl-button"
+    },
+    {
+      "name": "cl-icon"
+    }
+  ],
+  "templates": {
+    "default": {
+      "file": "js/templates/default.js",
+      "$comment": "The Lit template in JavaScript, the migration form of §5.2 (§16)."
+    }
+  },
+  "styles": "js/templates/default.css",
+  "examples": "examples.json",
+  "docs": "docs.md",
+  "lang": "lang/",
+  "accessibility": {
+    "role": "region",
+    "name": {
+      "from": [
+        "heading",
+        "runtime.changes-label"
+      ]
+    },
+    "keys": {
+      "Tab": "reach",
+      "Enter": "select",
+      "Space": "select"
+    },
+    "x-keys": "Enter and Space press the focused answer (two native buttons); nothing else is a key of the card"
+  },
+  "host-states": {},
+  "css-variables": {
+    "--sf-change-confirm-radius": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-change-confirm-inset": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-change-confirm-gap": {
+      "type": "length",
+      "state": "default"
+    },
+    "--sf-change-confirm-before-background-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-change-confirm-after-background-color": {
+      "type": "color",
+      "state": "default"
+    },
+    "--sf-change-confirm-after-color": {
+      "type": "color",
+      "state": "default"
+    }
+  },
+  "aliases": {
+    "$comment": "Dated aliases of sf-confirm-change for the shim (core/js/aliases.js, standard §16 item 20). The two answers fold into sf-change-confirm-answer: each old name is sent only for its `when`, with the new detail (detail-adds: the old {id} is inside {id, accepted}), and the cancel is shared.",
+    "since": "2026-10-27",
+    "remove-after": "2026-12-01",
+    "rows": [
+      {
+        "from": "sf-change-confirm-accept",
+        "to": "sf-change-confirm-answer",
+        "kind": "event",
+        "mode": "detail-adds",
+        "when": {
+          "accepted": true
+        },
+        "cancelable": true,
+        "section": "§8, vocabulary §5 answer, §9",
+        "note": "{id} becomes {id, accepted}; sent only when accepted is true"
+      },
+      {
+        "from": "sf-change-confirm-decline",
+        "to": "sf-change-confirm-answer",
+        "kind": "event",
+        "mode": "detail-adds",
+        "when": {
+          "accepted": false
+        },
+        "cancelable": true,
+        "section": "§8, vocabulary §5 answer, §9",
+        "note": "{id} becomes {id, accepted}; sent only when accepted is false"
+      },
+      {
+        "from": "sf-change-confirm-expire",
+        "to": "sf-change-confirm-expired",
+        "kind": "event",
+        "mode": "same-detail",
+        "cancelable": false,
+        "section": "§8, vocabulary §5.1",
+        "note": "a fact takes the past form; {id} is unchanged"
+      },
+      {
+        "from": "sf-change-confirm",
+        "to": "sf-confirm-change",
+        "kind": "tag",
+        "since": "2026-11-03",
+        "remove_after": "2027-01-01",
+        "since-version": "1.3.0",
+        "section": "rename plan R2 (ui-control RENAME-PLAN-2026-11-03), naming decision 2026-11-02",
+        "note": "the element is sf-confirm-change; sf-change-confirm is a subclass defined beside it until the date"
+      },
+      {
+        "from": "sf-change-confirm-answer",
+        "to": "sf-confirm-change-answer",
+        "kind": "event",
+        "since": "2026-11-03",
+        "remove_after": "2027-01-01",
+        "mode": "same-detail",
+        "section": "§8",
+        "note": "the event name carries the tag"
+      },
+      {
+        "from": "sf-change-confirm-expired",
+        "to": "sf-confirm-change-expired",
+        "kind": "event",
+        "since": "2026-11-03",
+        "remove_after": "2027-01-01",
+        "mode": "same-detail",
+        "section": "§8",
+        "note": "the event name carries the tag"
+      }
+    ]
+  },
+  "x-summary": "A prepared change put to a person: each value as it was and as it will be, two answers of equal weight, until when it can be answered, and then only the outcome. Applies nothing; a press is an event.",
+  "x-source": {
+    "package": "ui-pro",
+    "folder": "confirm-change",
+    "manifest": "simai/ui-pro@9cbe061 components/src/smart/change-confirm/smart.manifest.json",
+    "converted": "control/smart-architecture/stands/17-ports-migration/out/change-confirm.component.json"
+  },
+  "x-words": [
+    "accept-text",
+    "decline-text"
+  ],
+  "x-renamed": [
+    "events.sf-change-confirm-accept → answer {id, accepted: true} (vocabulary §5 answer); the old name a dated detail-adds alias sent only when accepted is true, one cancel for both",
+    "events.sf-change-confirm-decline → answer {id, accepted: false}; folded the same way, sent only when accepted is false",
+    "events.sf-change-confirm-expire → expired: a fact takes the past form (vocabulary §5.1); the old name a dated same-detail alias",
+    "actions.answer(kind) → answer {accepted}: \"accept\" and \"decline\" are still read until 2026-12-01 and each use is noted",
+    "css: the six --sf-change-confirm--* hooks become public variables --sf-change-confirm-<name> (single dash, never set by the component, the old hook names stay the internal layer)"
+  ],
+  "x-decisions": [
+    "version: 1.0.0 → 1.1.0, a minor while the old event names and answer(kind) hold dated aliases (§4.10).",
+    "shape: a leaf. It places two sf-buttons and an sf-icon as its own markup; no part is in a role a rule could bind.",
+    "events: accept and decline fold into the vocabulary's answer {id, accepted} (vocabulary §5 answer {accepted, digest?}; the digest is the host's, the card never sees one). The old names follow through rows with `when` (accepted true / false) in detail-adds mode: the old detail {id} is inside the new one. answer stays cancelable as accept and decline were: a page that refuses either name keeps the question open (shared cancel).",
+    "own-verb-words: expire becomes the fact expired (vocabulary §5.1: a fact takes the past form); its word is lang events.expired.label.",
+    "actions (§4.4, §19.4): open, answer {accepted}, confirm and cancel answer outcomes. confirm is the acceptance a page reaches with data-sf-action=\"<id>.confirm\"; cancel the declining answer (vocabulary §5: cancel in a panel resolves to the refusal). open puts the question again; asked by an assembly (ask) it waits and answers {accepted, reason, value}: reason close for a confirmation, cancelled for a refusal, expired when the time ran out, as sf-modal answers (§19.4).",
+    "layer (§19.1, §19.4): a confirm surface drawn in place, kind surface, neither locking the page nor trapping focus; it never stands above the page, so it takes no z-index from the stack and handles no Escape and no outside press. It is a layer in the §19.4 sense only: ask opens it and waits for the answer. side-effects: none (no portal, no network).",
+    "a11y-name: the heading when there is one, else the runtime word changes-label («Что изменится»); the description slot goes to the description, never into the name (§4.8).",
+    "key-effects: Enter and Space press the focused answer (select) -- two native buttons; Tab reaches them. No other key.",
+    "item-shape: changes names its fields with `of` (label, before, after); before and after are text or null, drawn as text.",
+    "instance ids (§7.1.1, #41): the heading id came from a module counter (sf-change-confirm-heading-<n>); it is the path id and --heading now.",
+    "template: templates.default names the Lit template js/templates/default.js, the migration form §5.2 allows.",
+    "examples: examples.json has the open question, the pending card, the outcomes and the expired card; probe.json drives Tab, Enter and Space, the cancel, the page triggers and the old names (gate 16, gate 20).",
+    "css-variables: the six hooks the sheet already had, as public variables in the Framework's form (single dash, read with the token as fallback, public-variables.v1 rule); --sf-change-confirm--* stay the internal layer, so a page that set them still wins.",
+    "side-effects: none. It draws where it is placed.",
+    "version 1.1.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3.",
+    "version 1.2.4: the time a proposal stays open is formatDate and calendarDayOffset of core/js/format.js (core.runtime 1.20.0; reuse audit 2026-11-02, finding 7), in the element's page language as before: the time alone today, the day and month with it on another day. No visible change. Needs core.runtime >= 1.20.0.",
+    "version 1.3.0: the tag is sf-confirm-change (naming decision 2026-11-02: sf-[set]-<block>[-<variant>]; rename plan R2); the folder confirm-change, the id smart.confirm-change and the bundle cl-confirm-change follow it. sf-change-confirm stays a dated alias until 2027-01-01: a subclass the Smart base defines beside the new tag, listed in the package rule, in sheets as :is(sf-confirm-change, sf-change-confirm), its events named after the tag followed by their former names (ui-source change journal tag-sf-change-confirm-to-sf-confirm-change, path-smart-change-confirm-to-confirm-change)."
+  ],
+  "x-rule": {
+    "$comment": [
+      "The card draws its two answers as sf-button and the outcome's glyph as",
+      "sf-icon; a tag it renders is a tag it fetches. Nothing else: the values are",
+      "text, and what a change means is the host's."
+    ]
+  },
+  "x-registry": {
+    "capabilities": [
+      "confirmation",
+      "expiry",
+      "live-announcement"
+    ],
+    "persistence": {
+      "mode": "none",
+      "source_of_truth": "host",
+      "network_owner": "host",
+      "revision_field": null
+    },
+    "readiness": {
+      "level": "host-required",
+      "required_checks": [
+        "manifest",
+        "loader-rule",
+        "change-confirm-contract",
+        "change-confirm-browser"
+      ]
+    },
+    "tags": [
+      "confirmation",
+      "change",
+      "diff",
+      "chat"
+    ],
+    "contracts": {
+      "change": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "What changes (a field's name)."
+          },
+          "before": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ],
+            "description": "The value as it is; empty or null reads as empty."
+          },
+          "after": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ],
+            "description": "The value as it will be."
+          }
+        },
+        "required": [
+          "label"
+        ]
+      },
+      "answers": {
+        "const": "A press moves the card to pending and dispatches sf-change-confirm-answer {id, accepted} (cancelable). A cancelled event returns it to open. The host sets the outcome: accepted, declined, or open again when the answer could not be delivered. The card never applies anything."
+      },
+      "slots": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "A line under the heading (a code, who proposed it)."
+          }
+        }
+      },
+      "css_variables": {
+        "type": "object",
+        "properties": {
+          "--sf-change-confirm-radius": {
+            "type": "string"
+          },
+          "--sf-change-confirm-inset": {
+            "type": "string"
+          },
+          "--sf-change-confirm-gap": {
+            "type": "string"
+          },
+          "--sf-change-confirm-before-background-color": {
+            "type": "string"
+          },
+          "--sf-change-confirm-after-background-color": {
+            "type": "string"
+          },
+          "--sf-change-confirm-after-color": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "state": {
+      "machines": {
+        "answer": [
+          "open",
+          "pending",
+          "accepted",
+          "declined",
+          "expired"
+        ]
+      },
+      "visual_states": [
+        "default",
+        "loading",
+        "success",
+        "disabled"
+      ]
+    },
+    "artifacts": {
+      "fixtures": [
+        "studio.fixture.json"
+      ],
+      "scenarios": []
+    },
+    "ownership": {
+      "source": "simai/ui-pro",
+      "data": "host",
+      "effects": "host",
+      "forbidden_client_responsibilities": [
+        "applying the change",
+        "composing a command or a code for the server",
+        "access decisions"
+      ]
+    },
+    "security": {
+      "permissions_owner": "host",
+      "untrusted_inputs": [
+        "heading, labels and values (drawn as text)"
+      ],
+      "network_policy": "deny"
+    },
+    "presentation": {
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "locales": [
+        "en",
+        "ru"
+      ],
+      "responsive": [
+        "desktop",
+        "mobile"
+      ],
+      "skeleton": {
+        "shape": "none",
+        "while_loading": "none"
+      }
+    },
+    "ai_guidance": {
+      "use_when": "Use sf-change-confirm wherever a prepared change waits for a person's yes or no -- an assistant's proposal, a colleague's edit, an import. Promoted from simai/ui-chat renderProposal (owner decision 2026-10-25).",
+      "do_not": [
+        "Do not apply the change in the element; answer the event and set state",
+        "Do not leave the card pending: set accepted, declined, or open again",
+        "Do not pass markup in values; they are text"
+      ],
+      "required_reads": [
+        "inputs",
+        "contracts",
+        "events",
+        "accessibility"
+      ],
+      "minimal_example": "<sf-confirm-change heading=\"Переименовать раздел\" change-id=\"c1\" changes='[{\"label\":\"Название\",\"before\":\"Новости\",\"after\":\"События\"}]'></sf-confirm-change>",
+      "owner_commands": [
+        "node scripts/test.mjs",
+        "node scripts/run-browser-probes.mjs <free output> <package output>"
+      ]
+    },
+    "accessibility": {
+      "accessible_name": "internal",
+      "focus": "A section named by its heading (role=heading at heading-level). The values are a description list. The status line is a polite live region, present before it speaks; when a press takes the answers away, focus moves to it instead of falling to the page, and back to the first answer when the host cancels."
+    },
+    "compatibility": {
+      "migrations": [
+        {
+          "from": "1.0.0",
+          "to": "1.1.0",
+          "changes": [
+            "standard simai.smart-component 1.3.8: the element is made from component.json; dated aliases in aliases.json",
+            "sf-change-confirm-accept -> sf-change-confirm-answer until 2026-12-01 (event)",
+            "sf-change-confirm-decline -> sf-change-confirm-answer until 2026-12-01 (event)",
+            "sf-change-confirm-expire -> sf-change-confirm-expired until 2026-12-01 (event)"
+          ]
+        },
+        {
+          "from": "1.2.0",
+          "to": "1.2.1",
+          "changes": [
+            "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.2.3",
+          "to": "1.2.4",
+          "changes": [
+            "The time a proposal stays open through core's format helpers; needs core.runtime >= 1.20.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.20.0 on."
+          ]
+        },
+        {
+          "from": "1.2.4",
+          "to": "1.3.0",
+          "changes": [
+            "The tag is sf-confirm-change (rename plan R2, naming decision 2026-11-02: sf-[set]-<block>); the folder confirm-change, the id smart.confirm-change and the bundle cl-confirm-change follow it (were change-confirm, smart.change-confirm, cl-change-confirm). sf-change-confirm stays a dated alias until 2027-01-01: old markup upgrades as this element, the Loader forwards cl-change-confirm, and every event fires under its former name as well, with the same detail. Public CSS variables and classes keep their names. Needs the SIMAI Framework pair whose package reference lists the former tag (core.runtime 1.22.0). Nothing to change for a host until 2027-01-01; new markup writes sf-confirm-change."
+          ]
+        }
+      ]
+    },
+    "inputs": {
+      "template": {
+        "const": "default"
+      },
+      "changes": {
+        "items": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "What changes (a field's name)."
+            },
+            "before": {
+              "type": [
+                "string",
+                "number",
+                "null"
+              ],
+              "description": "The value as it is; empty or null reads as empty."
+            },
+            "after": {
+              "type": [
+                "string",
+                "number",
+                "null"
+              ],
+              "description": "The value as it will be."
+            }
+          },
+          "required": [
+            "label"
+          ]
+        }
+      }
+    }
+  }
+}

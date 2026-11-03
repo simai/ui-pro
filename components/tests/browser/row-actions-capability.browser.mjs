@@ -20,7 +20,7 @@ const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/buttons/css/buttons.css',
   'component/component/icon-buttons/css/icon-buttons.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
@@ -28,7 +28,7 @@ const modules = [
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js', 'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js', 'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -44,13 +44,13 @@ const measure = async (capabilities) => {
   const page = await browser.newPage({viewport: {width: 1200, height: 700}});
   await page.setContent(
     '<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">'
-    + '<sf-data-view id="list" chrome="" aria-label="Записи">'
-    + '<sf-table slot="content" toolbar="false" row-actions-visible="always" aria-label="Записи"></sf-table>'
-    + '</sf-data-view></body></html>',
+    + '<sf-view id="list" chrome="" aria-label="Записи">'
+    + '<sf-view-table slot="content" toolbar="false" row-actions-visible="always" aria-label="Записи"></sf-view-table>'
+    + '</sf-view></body></html>',
   );
   for (const style of styles) await page.addStyleTag({path: style});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-data-view') && customElements.get('sf-table')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view') && customElements.get('sf-view-table')));
 
   await page.evaluate((claimed) => {
     document.querySelector('#list').setHostPort({

@@ -9,7 +9,7 @@ const read = (path) => readFile(new URL(path, root), 'utf8');
 const json = async (path) => JSON.parse(await read(path));
 
 test('the mode is the host answer, not a setting', async () => {
-  const view = await read('src/smart/data-view/index.js');
+  const view = await read('src/smart/view/index.js');
 
   // A total in the answer means there is a number; no total means there is a
   // link. Nothing configures this: a host that stops counting should not need
@@ -37,7 +37,7 @@ test('without a count, has_next is the only thing that says there is more', asyn
 });
 
 test('a number that has been answered stays until the query changes', async () => {
-  const view = await read('src/smart/data-view/index.js');
+  const view = await read('src/smart/view/index.js');
 
   assert.match(
     view,
@@ -57,7 +57,7 @@ test('a number that has been answered stays until the query changes', async () =
 });
 
 test('the number is asked for only when a host can answer, and only once at a time', async () => {
-  const view = await read('src/smart/data-view/index.js');
+  const view = await read('src/smart/view/index.js');
   const counts = (element) => element.events.filter((event) => event.name === 'count');
 
   const cannot = await pagination({countKnown: false});
@@ -119,7 +119,7 @@ test('the three answers to "how many" are rendered, and nothing else is', async 
   // answer. What a count that is not known must not do -- invent a denominator
   // -- is now checked where that count lives, on the band.
   assert.doesNotMatch(markup, /sf-pagination-marked/u);
-  const view = await read('src/smart/data-view/index.js');
+  const view = await read('src/smart/view/index.js');
   assert.match(
     view,
     /const total = pagination\.countKnown === false \? null : pagination\.total;/u,
@@ -128,7 +128,7 @@ test('the three answers to "how many" are rendered, and nothing else is', async 
 });
 
 test('the last page is asked for, because nobody has its number yet', async () => {
-  const view = await read('src/smart/data-view/index.js');
+  const view = await read('src/smart/view/index.js');
 
   const unknown = await pagination({countKnown: false, canCount: true, current: 2});
   unknown.lastPage();
@@ -154,7 +154,7 @@ test('the last page is asked for, because nobody has its number yet', async () =
 test('for-all asks for the number it will be applied against', async () => {
   const [pagination, view] = await Promise.all([
     read('src/smart/pagination/index.js'),
-    read('src/smart/data-view/index.js'),
+    read('src/smart/view/index.js'),
   ]);
 
   assert.match(pagination, /if \(next\) \{\s*this\.requestCount\("action-for-all"\);/u, 'marking the box asks for the count');
@@ -172,7 +172,7 @@ test('the count port is additive, and the versions before it are untouched', asy
   const [port, kit, manifest] = await Promise.all([
     json('src/core/contracts/ports/simai.dataview-port/1.3.0/port.json'),
     json('src/core/contracts/ports/simai.dataview-port/1.3.0/kit/manifest.json'),
-    json('src/smart/data-view/smart.manifest.json'),
+    json('src/smart/view/smart.manifest.json'),
   ]);
   const declared = manifest.composition.declarative.host_port;
 

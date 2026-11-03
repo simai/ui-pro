@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
-import {evaluateCondition, fieldConditions} from '../src/smart/property-view/js/conditions.js';
+import {evaluateCondition, fieldConditions} from '../src/smart/view-properties/js/conditions.js';
 
 // Conditional fields (port 1.14.0, Larena 2026-10-23): `when` decides whether a
 // field is shown, required and enabled, over the values on screen. A field its
@@ -52,7 +52,7 @@ test('a field is as declared where its conditions say nothing', () => {
 });
 
 test('the component reads the values on screen, hides by condition only outside arranging, and does not save what it hides', () => {
-  const view = read('src/smart/property-view/index.js');
+  const view = read('src/smart/view-properties/index.js');
   assert.match(view, /values\.set\(key, this\.changed\.has\(key\) \? this\.changed\.get\(key\) : field\.value\);/u);
   assert.match(view, /\.filter\(\(entry\) => !values \|\| !entry\.when \|\| fieldConditions\(entry, values\)\.visible\);/u);
   assert.match(view, /readonly: field\.readonly === true \|\| !decided\.enabled,/u);
@@ -60,7 +60,7 @@ test('the component reads the values on screen, hides by condition only outside 
   // Left out of the save, never sent as empty: nothing writes null for it.
   assert.match(view, /_savedValues\(\) \{\n\s+const hidden = this\._hiddenByCondition\(\);\n\s+return Object\.fromEntries\(\[\.\.\.this\.changed\]\.filter\(\(\[key\]\) => !hidden\.has\(key\)\)\);/u);
   assert.doesNotMatch(view, /hidden\.has\(key\) \? null/u);
-  const template = read('src/smart/property-view/js/templates/default.js');
+  const template = read('src/smart/view-properties/js/templates/default.js');
   assert.match(template, /if \(!context\.configuring && field\.when\) field = context\.conditionedField\(field\);/u);
   // Arranging lists every entry, so a field hidden by its condition can still be placed.
   assert.match(template, /return context\.configuring \? \(entries \?\? \[\]\) : context\.visible\(entries\);/u);

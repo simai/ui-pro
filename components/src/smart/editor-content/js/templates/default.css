@@ -1,0 +1,742 @@
+@layer sf.components {
+  /* sf-editor-content, the content mode of the SIMAI page editor: a sheet of
+     text with no frames and no boxes. A block is drawn the way the published
+     page draws it; what only editing adds (the gutter, the quiet parameters
+     button, the picked state, the / list) is quiet until it is needed. The
+     host is display: contents; .sf-content-editor is what a page places.
+     Every value is a Framework token. */
+  .sf-content-editor {
+    /* The margin the gutter stands in: the + and the grip, 24px each, 4px
+       apart and 4px from a block's highlight, which reaches past the text.
+       Below 640px of sheet the two stand one above the other. */
+    --sf-content-editor-button: var(--sf-ui-1\/3--control-height);
+    --sf-content-editor-gap: var(--sf-a4);
+    --sf-content-editor-reach: var(--sf-space-1\/2);
+    --sf-content-editor-gutter: calc(var(--sf-content-editor-button) * 2 + var(--sf-content-editor-gap) * 2);
+    --sf-content-editor-margin: max(var(--sf-space-7), calc(var(--sf-content-editor-gutter) + var(--sf-content-editor-reach)));
+    position: relative;
+    container-type: inline-size;
+    color: var(--sf-on-surface);
+    font-family: var(--sf-text--family);
+    font-size: var(--sf-text--size);
+    line-height: var(--sf-text--height);
+  }
+
+  .sf-content-editor-sheet {
+    position: relative;
+    max-inline-size: var(--sf-layout-reading-width);
+    margin-inline: auto;
+    padding-block: var(--sf-space-4) var(--sf-space-7);
+    padding-inline: var(--sf-content-editor-margin) var(--sf-space-7);
+  }
+
+  .sf-content-editor-title {
+    margin: 0 0 var(--sf-space-2);
+    font-size: var(--sf-heading-1--size);
+    line-height: var(--sf-heading-1--height);
+    font-weight: var(--sf-font-weight-bold);
+    outline: 0;
+  }
+
+  .sf-content-editor-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+    outline: 0;
+  }
+
+  .sf-content-editor-flow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+    min-inline-size: 0;
+  }
+
+  .sf-content-editor-block {
+    position: relative;
+    margin-inline: calc(var(--sf-content-editor-reach) * -1);
+    padding: var(--sf-space-1\/4) var(--sf-content-editor-reach);
+    border-radius: var(--sf-radius-1);
+  }
+
+  .sf-content-editor-block.is-picked {
+    background: var(--sf-primary-transparent-select);
+  }
+
+  .sf-content-editor-block.is-dragging {
+    opacity: 0.4;
+  }
+
+  .sf-content-editor-field {
+    min-block-size: var(--sf-text--height);
+    margin: 0;
+    outline: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .sf-content-editor-field:empty::before,
+  .sf-content-editor-title:empty::before {
+    content: attr(data-placeholder);
+    color: var(--sf-on-surface-variant);
+    pointer-events: none;
+  }
+
+  /* An optional line (a note's title, a caption) shows its hint only where the person is. */
+  .sf-content-editor-field[data-optional]:empty::before {
+    content: "";
+  }
+
+  .sf-content-editor-block:hover > * > .sf-content-editor-field[data-optional]:empty::before,
+  .sf-content-editor-field[data-optional]:empty:focus::before {
+    content: attr(data-placeholder);
+  }
+
+  .sf-content-editor-field[data-optional]:empty:not(:focus) {
+    min-block-size: 0;
+  }
+
+  .sf-content-editor-field a {
+    color: var(--sf-primary);
+  }
+
+  .sf-content-editor-field code {
+    padding-inline: var(--sf-space-1\/4);
+    border-radius: var(--sf-radius-1\/2);
+    background: var(--sf-surface-container);
+    font-family: var(--sf-mono);
+    font-size: 0.9em;
+  }
+
+  .sf-content-editor-heading {
+    font-weight: var(--sf-font-weight-bold);
+  }
+
+  .sf-content-editor-heading--1 { font-size: var(--sf-heading-1--size); line-height: var(--sf-heading-1--height); }
+  .sf-content-editor-heading--2 { margin-block-start: var(--sf-space-1); font-size: var(--sf-heading-2--size); line-height: var(--sf-heading-2--height); }
+  .sf-content-editor-heading--3 { margin-block-start: var(--sf-space-1\/2); font-size: var(--sf-heading-3--size); line-height: var(--sf-heading-3--height); }
+  .sf-content-editor-heading--4 { font-size: var(--sf-heading-4--size); line-height: var(--sf-heading-4--height); }
+  .sf-content-editor-heading--5 { font-size: var(--sf-heading-5--size); line-height: var(--sf-heading-5--height); }
+  .sf-content-editor-heading--6 { font-size: var(--sf-heading-6--size); line-height: var(--sf-heading-6--height); }
+
+  .sf-content-editor-list {
+    margin: 0;
+    padding-inline-start: var(--sf-space-3);
+  }
+
+  .sf-content-editor-nested {
+    margin-block-start: var(--sf-space-1\/4);
+  }
+
+  .sf-content-editor-quote {
+    margin: 0;
+    padding-inline-start: var(--sf-space-2);
+    border-inline-start: var(--sf-space-1\/4) solid var(--sf-outline-variant);
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-content-editor-alert {
+    --sf-content-editor-tone: var(--sf-on-neutral-container);
+    display: flex;
+    gap: var(--sf-space-1);
+    padding: var(--sf-space-1) var(--sf-space-2);
+    border-radius: var(--sf-radius-2);
+    background: var(--sf-neutral-container);
+    color: var(--sf-on-neutral-container);
+  }
+
+  .sf-content-editor-alert[data-status="info"] { --sf-content-editor-tone: var(--sf-info); background: var(--sf-info-container); color: var(--sf-on-info-container); }
+  .sf-content-editor-alert[data-status="success"] { --sf-content-editor-tone: var(--sf-success); background: var(--sf-success-container); color: var(--sf-on-success-container); }
+  .sf-content-editor-alert[data-status="warning"] { --sf-content-editor-tone: var(--sf-warning); background: var(--sf-warning-container); color: var(--sf-on-warning-container); }
+  .sf-content-editor-alert[data-status="error"] { --sf-content-editor-tone: var(--sf-error); background: var(--sf-error-container); color: var(--sf-on-error-container); }
+
+  .sf-content-editor-alert[data-appearance="outlined"] {
+    background: transparent;
+    box-shadow: inset 0 0 0 var(--sf-px) var(--sf-content-editor-tone);
+  }
+
+  .sf-content-editor-alert[data-appearance="flat"] {
+    padding-inline: 0;
+    background: transparent;
+  }
+
+  .sf-content-editor-alert-icon {
+    flex-shrink: 0;
+    color: var(--sf-content-editor-tone);
+  }
+
+  .sf-content-editor-alert-body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: var(--sf-space-1\/4);
+    min-inline-size: 0;
+  }
+
+  .sf-content-editor-alert-title {
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-content-editor-details {
+    padding: var(--sf-space-1) var(--sf-space-2);
+    border-radius: var(--sf-radius-2);
+    background: var(--sf-surface-1);
+  }
+
+  .sf-content-editor-details[data-layout="lines"] {
+    padding-inline: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: inset 0 calc(var(--sf-px) * -1) 0 var(--sf-outline-variant);
+  }
+
+  .sf-content-editor-details-head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sf-space-1\/2);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-content-editor-summary {
+    flex-grow: 1;
+  }
+
+  .sf-content-editor-fold {
+    display: inline-flex;
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--sf-radius-1\/2);
+    background: transparent;
+    color: var(--sf-on-surface-variant);
+    cursor: pointer;
+    transition: transform var(--sf-duration-fast);
+  }
+
+  .sf-content-editor-details[data-open="false"] .sf-content-editor-fold {
+    transform: rotate(-90deg);
+  }
+
+  .sf-content-editor-fold:focus-visible {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: var(--sf-focus--offset);
+  }
+
+  .sf-content-editor-details-body {
+    margin-block-start: var(--sf-space-1\/2);
+    margin-inline-start: var(--sf-space-3);
+  }
+
+  .sf-content-editor-steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: sf-content-editor-step;
+  }
+
+  /* Steps take sf-procedure's geometry: a half-size round marker in its own
+     column, the title and content beside it, so the text never runs under it. */
+  .sf-content-editor-steps {
+    --sf-content-editor-step--marker: var(--sf-ui-1\/2--control-height);
+  }
+
+  .sf-content-editor-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--sf-content-editor-step--marker) minmax(0, 1fr);
+    align-content: start;
+    column-gap: var(--sf-space-1);
+    row-gap: var(--sf-space-1\/4);
+    padding-block-end: var(--sf-space-1);
+    counter-increment: sf-content-editor-step;
+  }
+
+  .sf-content-editor-step > * {
+    grid-column: 2;
+    min-inline-size: 0;
+  }
+
+  .sf-content-editor-step::before {
+    content: counter(sf-content-editor-step);
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--sf-content-editor-step--marker);
+    block-size: var(--sf-content-editor-step--marker);
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius-circle);
+    background: var(--sf-surface-container);
+    color: var(--sf-on-surface);
+    font-size: var(--sf-text-size-1\/2);
+    font-weight: var(--sf-font-weight-medium);
+    line-height: var(--sf-text-height-1\/2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sf-content-editor-step[data-state="current"]::before {
+    border-color: var(--sf-primary);
+    background: var(--sf-primary);
+    color: var(--sf-on-primary);
+  }
+
+  .sf-content-editor-step[data-state="complete"]::before {
+    border-color: var(--sf-primary-container);
+    background: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
+  }
+
+  .sf-content-editor-steps[data-layout="timeline"] .sf-content-editor-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    inset-block: calc(var(--sf-content-editor-step--marker) + var(--sf-space-1\/4)) var(--sf-space-1\/4);
+    inset-inline-start: calc((var(--sf-content-editor-step--marker) - var(--sf-px)) / 2);
+    inline-size: var(--sf-px);
+    background: var(--sf-outline-variant);
+  }
+
+  .sf-content-editor-step-title {
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-content-editor-code,
+  .sf-content-editor-raw,
+  .sf-content-editor-opaque {
+    overflow: hidden;
+    border-radius: var(--sf-radius-2);
+    background: var(--sf-surface-container);
+  }
+
+  .sf-content-editor-code-head,
+  .sf-content-editor-raw-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/3) var(--sf-space-2);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-medium--size);
+    line-height: var(--sf-label-medium--height);
+  }
+
+  .sf-content-editor-raw-head {
+    justify-content: flex-start;
+  }
+
+  .sf-content-editor-code-text,
+  .sf-content-editor-raw-text {
+    padding: var(--sf-space-1) var(--sf-space-2);
+    font-family: var(--sf-mono);
+    font-size: var(--sf-text--size-1\/2);
+    line-height: var(--sf-text--height-1\/2);
+    white-space: pre-wrap;
+    tab-size: 2;
+  }
+
+  .sf-content-editor-divider {
+    margin-block: var(--sf-space-1);
+    border: 0;
+    block-size: var(--sf-px);
+    background: var(--sf-outline-variant);
+  }
+
+  .sf-content-editor-table table {
+    inline-size: 100%;
+    border-collapse: collapse;
+  }
+
+  .sf-content-editor-table td,
+  .sf-content-editor-table th {
+    padding: var(--sf-space-1\/3) var(--sf-space-1\/2);
+    box-shadow: inset 0 0 0 var(--sf-px) var(--sf-outline-variant);
+    font-weight: var(--sf-font-weight-regular);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .sf-content-editor-table th {
+    background: var(--sf-surface-1);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-content-editor-table td:focus-within,
+  .sf-content-editor-table th:focus-within {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: calc(var(--sf-focus--width) * -1);
+  }
+
+  .sf-content-editor-caption {
+    margin-block-start: var(--sf-space-1\/4);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text--size-1\/2);
+    line-height: var(--sf-text--height-1\/2);
+  }
+
+  .sf-content-editor-figure {
+    margin: 0;
+  }
+
+  .sf-content-editor-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--sf-radius-2);
+  }
+
+  .sf-content-editor-frame img {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  .sf-content-editor-frame[data-ratio] img { block-size: 100%; object-fit: cover; }
+  .sf-content-editor-frame[data-fit="contain"] img { object-fit: contain; }
+  .sf-content-editor-frame[data-ratio="1/1"] { aspect-ratio: 1 / 1; }
+  .sf-content-editor-frame[data-ratio="4/3"] { aspect-ratio: 4 / 3; }
+  .sf-content-editor-frame[data-ratio="3/2"] { aspect-ratio: 3 / 2; }
+  .sf-content-editor-frame[data-ratio="16/9"] { aspect-ratio: 16 / 9; }
+  .sf-content-editor-frame[data-ratio="21/9"] { aspect-ratio: 21 / 9; }
+
+  .sf-content-editor-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1);
+  }
+
+  .sf-content-editor-tab {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+    padding-inline-start: var(--sf-space-1);
+    box-shadow: inset var(--sf-px) 0 0 var(--sf-outline-variant);
+  }
+
+  .sf-content-editor-tab-label {
+    color: var(--sf-primary);
+    font-weight: var(--sf-font-weight-medium);
+    white-space: normal;
+  }
+
+  .sf-content-editor-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--sf-content-editor-columns, 3), minmax(0, 1fr));
+    gap: var(--sf-space-2);
+  }
+
+  .sf-content-editor-card {
+    padding: var(--sf-space-2);
+    border-radius: var(--sf-radius-2);
+    background: var(--sf-surface-1);
+  }
+
+  .sf-content-editor-card[data-variant="plain"] {
+    padding: 0;
+    background: transparent;
+  }
+
+  .sf-content-editor-media {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--sf-space-2);
+    align-items: start;
+  }
+
+  .sf-content-editor-media[data-side="left"] > .sf-content-editor-frame {
+    order: -1;
+  }
+
+  .sf-content-editor-opaque {
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-content-editor-opaque code {
+    font-family: var(--sf-mono);
+  }
+
+  /* The gutter: two quiet buttons in the margin beside the block under the
+     pointer or the caret, never over its text or its highlight; gone while
+     one types with a mouse. It ends where a block's highlight begins. */
+  .sf-content-editor-gutter {
+    position: absolute;
+    inset-inline-start: calc(var(--sf-content-editor-margin) - var(--sf-content-editor-gutter) - var(--sf-content-editor-reach));
+    z-index: 2;
+    display: flex;
+    gap: var(--sf-content-editor-gap);
+    justify-content: flex-end;
+    inline-size: var(--sf-content-editor-gutter);
+    padding-inline-end: var(--sf-content-editor-gap);
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms ease-out;
+  }
+
+  .sf-content-editor-gutter > sf-button-icon > button {
+    inline-size: var(--sf-content-editor-button);
+    min-inline-size: var(--sf-content-editor-button);
+    block-size: var(--sf-content-editor-button);
+    min-block-size: var(--sf-content-editor-button);
+    padding: 0;
+    /* The button is made square here, so its icon is centred on both axes. */
+    justify-content: center;
+  }
+
+  .sf-content-editor-gutter.is-shown,
+  .sf-content-editor-gutter:focus-within {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sf-content-editor-grip {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .sf-content-editor-drop {
+    position: absolute;
+    inset-inline: var(--sf-content-editor-margin) var(--sf-space-7);
+    z-index: 2;
+    block-size: var(--sf-focus--width);
+    border-radius: var(--sf-radius-circle);
+    background: var(--sf-primary);
+    pointer-events: none;
+  }
+
+  .sf-content-editor-drop[hidden] {
+    display: none;
+  }
+
+  /* The quick toolbar over the chosen block: its choices as toggles and
+     «Parameters…». It floats, so a choice in it moves nothing on the page. */
+  .sf-content-editor-quick {
+    position: absolute;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/4);
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-elevation-2--surface);
+    box-shadow: var(--sf-elevation-2--shadow);
+    color: var(--sf-on-surface);
+    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
+  }
+
+  .sf-content-editor-quick[hidden] {
+    display: none;
+  }
+
+  .sf-content-editor-quick-group {
+    display: flex;
+  }
+
+  /* The grip menu's keys: one step down the size ladder from the row's
+     words (the menu is size 1/2, its words 1/3). */
+  .sf-content-editor-menu .sf-context-menu-item-shortcut {
+    font-size: var(--sf-text-size-1\/4);
+    line-height: var(--sf-text-height-1\/4);
+  }
+
+  .sf-content-editor-params {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1);
+    inline-size: calc(var(--sf-space-7) * 4);
+    padding: var(--sf-space-1) var(--sf-space-2) var(--sf-space-2);
+  }
+
+  /* An empty picture: a drop zone the width of the text. */
+  .sf-content-editor-frame[data-empty] {
+    aspect-ratio: auto;
+    background: none;
+  }
+
+  .sf-content-editor-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sf-space-1\/2);
+    inline-size: 100%;
+  }
+
+  .sf-content-editor-zone > sf-button {
+    align-self: flex-end;
+  }
+
+  /* A picture on its way to the host: progress, or the reason and a retry. */
+  .sf-content-editor-upload {
+    position: absolute;
+    inset-inline: var(--sf-space-1);
+    inset-block-end: var(--sf-space-1);
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/2) var(--sf-space-1);
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-elevation-2--surface);
+    box-shadow: var(--sf-elevation-2--shadow);
+    color: var(--sf-on-surface);
+  }
+
+  .sf-content-editor-upload > sf-progress-bar {
+    flex-grow: 1;
+  }
+
+  .sf-content-editor-upload[data-state="error"] {
+    color: var(--sf-error);
+  }
+
+  .sf-content-editor-upload-reason {
+    flex-grow: 1;
+  }
+
+  /* A file: sf-file-download's row (its tokens), the name typed in place. */
+  .sf-content-editor-file {
+    position: relative;
+  }
+
+  .sf-content-editor-file-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: var(--sf-0);
+    padding: var(--sf-space-1\/3);
+    border: var(--sf-px) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius--ui);
+    color: var(--sf-primary);
+  }
+
+  .sf-content-editor-file-icon {
+    flex: none;
+    color: var(--sf-primary);
+    --sf-icon--font-size: var(--sf-text-size-3);
+    --sf-icon--height: var(--sf-text-size-3);
+    --sf-icon--width: var(--sf-text-size-3);
+  }
+
+  .sf-content-editor-file-name {
+    flex: 1 1 auto;
+    min-inline-size: var(--sf-0);
+  }
+
+  /* With no name of its own the file reads under its file name, always. */
+  .sf-content-editor-file-name.sf-content-editor-field[data-optional]:empty::before {
+    content: attr(data-placeholder);
+  }
+
+  .sf-content-editor-file-name.sf-content-editor-field[data-optional]:empty:not(:focus) {
+    min-block-size: var(--sf-text--height);
+  }
+
+  .sf-content-editor-file-size {
+    flex: none;
+    color: var(--sf-on-surface-variant);
+    white-space: nowrap;
+  }
+
+  .sf-content-editor-file > .sf-content-editor-upload {
+    position: static;
+    margin-block-start: var(--sf-space-1\/2);
+  }
+
+  /* The / list: a surface over the sheet. */
+  .sf-content-editor-slash {
+    position: fixed;
+    z-index: calc(var(--sf-z-index-9) + 1);
+    border-radius: var(--sf-radius-2);
+    background-color: var(--sf-elevation-3--surface);
+    box-shadow: var(--sf-elevation-3--shadow);
+    font-size: var(--sf-text--size-1\/2);
+    line-height: var(--sf-text--height-1\/2);
+  }
+
+  .sf-content-editor-slash[hidden] {
+    display: none;
+  }
+
+  .sf-content-editor-slash {
+    inline-size: calc(var(--sf-space-7) * 4);
+    max-block-size: calc(var(--sf-space-7) * 6);
+    overflow: auto;
+    padding: var(--sf-space-1\/4);
+  }
+
+  .sf-content-editor-option {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    min-block-size: var(--sf-ui-1--control-height);
+    padding-inline: var(--sf-space-1\/2);
+    border-radius: var(--sf-radius-1);
+    cursor: pointer;
+  }
+
+  .sf-content-editor-option sf-icon {
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-content-editor-option:hover,
+  .sf-content-editor-option[aria-selected="true"] {
+    background: var(--sf-surface-transparent-hover);
+  }
+
+  .sf-content-editor-option-text {
+    flex-grow: 1;
+  }
+
+  .sf-content-editor-option-hint {
+    color: var(--sf-on-surface-variant);
+    font-family: var(--sf-mono);
+    font-size: var(--sf-text--size-1\/3);
+  }
+
+  .sf-content-editor-none {
+    padding: var(--sf-space-1\/2);
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-content-editor-live {
+    position: absolute;
+    inline-size: var(--sf-px);
+    block-size: var(--sf-px);
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* A narrow sheet: a 32px gutter with the + above the grip; the grip's
+     menu also adds below. */
+  @container (max-width: 640px) {
+    .sf-content-editor-sheet {
+      --sf-content-editor-gutter: calc(var(--sf-content-editor-button) + var(--sf-content-editor-gap) * 2);
+      --sf-content-editor-margin: calc(var(--sf-content-editor-gutter) + var(--sf-content-editor-reach));
+      padding-inline: var(--sf-content-editor-margin) var(--sf-space-4);
+    }
+
+    .sf-content-editor-gutter {
+      flex-direction: column;
+      align-items: center;
+      padding-inline: 0;
+    }
+
+    .sf-content-editor-drop {
+      inset-inline: var(--sf-content-editor-margin) var(--sf-space-4);
+    }
+  }
+
+  @media (max-width: 720px) {
+    .sf-content-editor-grid,
+    .sf-content-editor-media {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sf-content-editor-gutter,
+    .sf-content-editor-fold {
+      transition: none;
+    }
+  }
+}

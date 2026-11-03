@@ -9,7 +9,7 @@ const read = (path) => readFile(new URL(path, root), 'utf8');
 // Standard simai.smart-component gate 29: a shown total reads «~N» while the
 // host says it is an estimate (Larena Backend, msg-4c2483e3).
 test('an estimated total is shown as ~N and is never confirmed', async () => {
-  const view = await read('src/smart/data-view/index.js');
+  const view = await read('src/smart/view/index.js');
 
   assert.match(view, /if \(Number\.isSafeInteger\(data\.total\)\) this\.totalExact = data\.total_exact !== false;/u,
     'the answer says whether the number is exact; no flag means exact');

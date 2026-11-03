@@ -25,9 +25,9 @@ const styles = [
   // pair -- the reason a consumer saw plain stacked text.
   'smart/smart/popover/css/popover.css',
   'component/component/context-menu/css/context-menu.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/sortable/css/sortable.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'component/component/pagination/css/pagination.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -51,10 +51,10 @@ const modules = [
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
   'smart/smart/popover/js/popover.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -63,7 +63,7 @@ if (absent.length) {
   throw new Error(`${absent.length} build asset(s) not found under ${out}`);
 }
 
-// sf-property-view by mode and by right (owner, 2026-10-14). Measured with a
+// sf-view-properties by mode and by right (owner, 2026-10-14). Measured with a
 // host port that answers 1.12.0:
 // - a reader (no record.edit, no lifecycle act) sees values and nothing to
 //   change them with: no «изменить», no value buttons, no footer, no delete;
@@ -81,12 +81,12 @@ try {
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><body style="margin:0"></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-property-view')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view-properties')));
 
   const make = (setup) => page.evaluate(async ({mode, actions, version, capabilities}) => {
     document.body.replaceChildren();
     window.raised = [];
-    const view = document.createElement('sf-property-view');
+    const view = document.createElement('sf-view-properties');
     view.id = 'view';
     view.setAttribute('record-id', 'r1');
     view.setAttribute('collection', 'pages');
@@ -171,7 +171,7 @@ try {
   const made = await page.evaluate(async () => {
     const view = document.getElementById('view');
     let created = null;
-    view.addEventListener('sf-property-view-created', (event) => { created = event.detail; });
+    view.addEventListener('sf-view-properties-created', (event) => { created = event.detail; });
     view.changeField({key: 'title'}, 'Новая');
     await view.saveAll();
     await new Promise((done) => setTimeout(done, 400));

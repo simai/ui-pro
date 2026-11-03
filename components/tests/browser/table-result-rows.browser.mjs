@@ -4,7 +4,7 @@
 // A new result set moves no row it keeps (stand 25 D12: CLS 0.17 per search).
 // Keyed by id alone, a row the search kept was moved to its new place, and the
 // browser counted every kept row as a layout shift. Measured on the built
-// bytes, with sf-table's setRows:
+// bytes, with sf-view-table's setRows:
 //   - reason "result" with a kept row at another index: the rows are drawn new
 //     (no node of the old set stays), and no layout shift is recorded;
 //   - reason "result" with the kept rows where they were (another page's
@@ -18,7 +18,7 @@ const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -33,14 +33,14 @@ const modules = [
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
 ].map((p) => join(out, p));
 
 const failures = [];
 const browser = await chromium.launch();
 const page = await browser.newPage({viewport: {width: 1000, height: 800}});
 await page.setContent(`<!doctype html><html class="theme-light"><body style="margin:0">
-  <sf-table id="t" aria-label="Список" toolbar="false" selectable="false" settings="false" layout="table"></sf-table>
+  <sf-view-table id="t" aria-label="Список" toolbar="false" selectable="false" settings="false" layout="table"></sf-view-table>
 </body></html>`);
 for (const path of styles) await page.addStyleTag({path}).catch(() => {});
 for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
@@ -48,7 +48,7 @@ await page.waitForTimeout(700);
 
 try {
   const result = await page.evaluate(async () => {
-    if (!customElements.get('sf-table')) return {error: 'sf-table is not defined'};
+    if (!customElements.get('sf-view-table')) return {error: 'sf-view-table is not defined'};
     const frame = () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
     const table = document.getElementById('t');
     const row = (id) => ({id, title: `Запись ${id}`});

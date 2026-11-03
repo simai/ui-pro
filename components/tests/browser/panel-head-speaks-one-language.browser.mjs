@@ -21,7 +21,7 @@ const styles = [
   'component/component/buttons/css/buttons.css',
   'component/component/icon-buttons/css/icon-buttons.css',
   'smart/smart/button-copy/css/button-copy.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
@@ -31,7 +31,7 @@ const modules = [
   'smart/smart/tree/js/tree.js', 'smart/smart/tree-item/js/tree-item.js',
   'smart/smart/avatar/js/avatar.js', 'smart/smart/badge/js/badge.js',
   'smart/smart/button-copy/js/button-copy.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -66,10 +66,10 @@ const headLabels = async (lang) => {
   );
   for (const style of styles) await page.addStyleTag({path: style});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-property-view')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view-properties')));
 
   await page.evaluate((record) => {
-    const panel = document.createElement('sf-property-view');
+    const panel = document.createElement('sf-view-properties');
     panel.setAttribute('panel', '');
     panel.setAttribute('record-id', record.record_id);
     panel.setAttribute('collection', record.collection);

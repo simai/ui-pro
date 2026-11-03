@@ -19,7 +19,7 @@ const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -35,8 +35,8 @@ const modules = [
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -48,14 +48,14 @@ page.on('console', (message) => { if (message.type() === 'warning') warnings.pus
 await page.setContent(
   `<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">
      <div style="width:900px">
-       <sf-data-view id="named" aria-label="Статьи блога">
-         <sf-table slot="content" id="named-table" preferences-key="trial-4"></sf-table>
+       <sf-view id="named" aria-label="Статьи блога">
+         <sf-view-table slot="content" id="named-table" preferences-key="trial-4"></sf-view-table>
          <sf-pagination slot="pagination" id="named-pages"></sf-pagination>
-       </sf-data-view>
-       <sf-data-view id="failing">
-         <sf-table slot="content" toolbar="false"></sf-table>
+       </sf-view>
+       <sf-view id="failing">
+         <sf-view-table slot="content" toolbar="false"></sf-view-table>
          <sf-pagination slot="pagination"></sf-pagination>
-       </sf-data-view>
+       </sf-view>
      </div>
    </body></html>`,
 );
@@ -64,7 +64,7 @@ for (const path of modules) await page.addScriptTag({path, type: 'module'}).catc
 await page.waitForTimeout(900);
 
 try {
-  const unupgraded = await page.evaluate(() => ['sf-data-view', 'sf-table', 'sf-pagination']
+  const unupgraded = await page.evaluate(() => ['sf-view', 'sf-view-table', 'sf-pagination']
     .filter((tag) => !customElements.get(tag)));
   if (unupgraded.length) throw new Error(`not defined on the page: ${unupgraded.join(', ')}`);
 

@@ -14,7 +14,7 @@ const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -30,8 +30,8 @@ const modules = [
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -50,14 +50,14 @@ await page.setContent(
        });
      </script>
      <div id="host" style="width:900px">
-       <sf-data-view id="page-list">
-         <sf-table slot="content" id="page-table" toolbar="false"></sf-table>
+       <sf-view id="page-list">
+         <sf-view-table slot="content" id="page-table" toolbar="false"></sf-view-table>
          <sf-pagination slot="pagination" id="page-pages" total="100" page-size="10" current="1"></sf-pagination>
-       </sf-data-view>
-       <sf-data-view id="embedded" chrome="" row-cap="3" port-owner="property-view" port-record="record-7" port-group="related">
-         <sf-table slot="content" id="embedded-table" toolbar="false"></sf-table>
+       </sf-view>
+       <sf-view id="embedded" chrome="" row-cap="3" port-owner="property-view" port-record="record-7" port-group="related">
+         <sf-view-table slot="content" id="embedded-table" toolbar="false"></sf-view-table>
          <sf-pagination slot="pagination" id="embedded-pages"></sf-pagination>
-       </sf-data-view>
+       </sf-view>
      </div>
    </body></html>`,
 );
@@ -68,7 +68,7 @@ await page.waitForTimeout(900);
 try {
   // An undefined element has no behaviour, so every measurement of it is false in
   // the same direction: it reads as the feature being broken.
-  const unupgraded = await page.evaluate(() => ['sf-data-view', 'sf-table', 'sf-pagination']
+  const unupgraded = await page.evaluate(() => ['sf-view', 'sf-view-table', 'sf-pagination']
     .filter((tag) => !customElements.get(tag)));
   if (unupgraded.length) throw new Error(`not defined on the page: ${unupgraded.join(', ')}`);
 

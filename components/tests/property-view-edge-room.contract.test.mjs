@@ -13,9 +13,9 @@ import {fileURLToPath} from 'node:url';
 // (docs review, round 4, 2026-10-20). The probe
 // tests/browser/property-view-narrow-edge.browser.mjs measures both.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const source = readFileSync(resolve(root, 'src/smart/property-view/index.js'), 'utf8');
-const template = readFileSync(resolve(root, 'src/smart/property-view/js/templates/default.js'), 'utf8');
-const sheet = readFileSync(resolve(root, 'src/smart/property-view/js/templates/default.css'), 'utf8');
+const source = readFileSync(resolve(root, 'src/smart/view-properties/index.js'), 'utf8');
+const template = readFileSync(resolve(root, 'src/smart/view-properties/js/templates/default.js'), 'utf8');
+const sheet = readFileSync(resolve(root, 'src/smart/view-properties/js/templates/default.css'), 'utf8');
 
 const body = (text, start) => {
   const at = text.indexOf(start);

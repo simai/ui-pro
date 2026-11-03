@@ -19,7 +19,7 @@ const styles = [
   'component/component/badges/css/badges.css', 'component/component/tags/css/tags.css', 'component/component/avatars/css/avatars.css',
   'component/component/tabs/css/tabs.css', 'smart/smart/tabs/css/tabs.css', 'component/component/context-menu/css/context-menu.css',
   'component/component/checkbox/css/checkbox.css', 'component/component/radio/css/radio.css', 'component/component/buttons/css/buttons.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
@@ -29,22 +29,22 @@ const modules = [
   'smart/smart/spinner/js/spinner.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js', 'smart/smart/radio/js/radio.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js', 'smart/smart/empty-state/js/empty-state.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
 const note = (detail) => failures.push(detail);
 const browser = await chromium.launch();
-const tableSheet = styles.find((path) => path.endsWith('smart/smart/table/css/table.css'));
+const tableSheet = styles.find((path) => path.endsWith('smart/smart/view-table/css/view-table.css'));
 
 try {
   const page = await browser.newPage({viewport: {width: 1200, height: 800}});
-  await page.setContent('<!doctype html><html class="theme-light" lang="ru"><body style="margin:0"><div style="width:1000px"><sf-table id="t" size="1/2"></sf-table></div></body></html>');
+  await page.setContent('<!doctype html><html class="theme-light" lang="ru"><body style="margin:0"><div style="width:1000px"><sf-view-table id="t" size="1/2"></sf-view-table></div></body></html>');
   // Everything but the table's own sheet.
   for (const path of styles.filter((one) => one !== tableSheet)) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => customElements.get('sf-table'), null, {timeout: 8000});
+  await page.waitForFunction(() => customElements.get('sf-view-table'), null, {timeout: 8000});
   await page.waitForTimeout(200);
   const before = await page.evaluate(() => ({
     empty: Boolean(document.querySelector('#t sf-empty-state')),

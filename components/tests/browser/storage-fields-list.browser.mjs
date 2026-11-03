@@ -20,7 +20,7 @@ const styles = [
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
   'component/component/modal/css/modal.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -34,13 +34,13 @@ const modules = [
   'smart/smart/spinner/js/spinner.js',
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
-  // The confirmation is sf-modal (sf-data-view 1.7.0), a lazy relation a
+  // The confirmation is sf-modal (sf-view 1.7.0), a lazy relation a
   // page's Loader fetches; this page loads its modules by hand.
   'smart/smart/modal/js/modal.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -48,7 +48,7 @@ const note = (detail) => failures.push(detail);
 const browser = await chromium.launch();
 const page = await browser.newPage({viewport: {width: 1100, height: 800}});
 await page.setContent(`<!doctype html><html class="theme-light" lang="ru"><body style="margin:0"><div style="width:1000px">
-  <sf-data-view id="v"><sf-table slot="content" id="t" toolbar="false"></sf-table></sf-data-view></div></body></html>`);
+  <sf-view id="v"><sf-view-table slot="content" id="t" toolbar="false"></sf-view-table></sf-view></div></body></html>`);
 for (const path of styles) await page.addStyleTag({path}).catch(() => {});
 for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
 await page.waitForTimeout(900);

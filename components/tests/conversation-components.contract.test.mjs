@@ -1,5 +1,5 @@
 // The three conversation components promoted from simai/ui-chat (owner,
-// 2026-10-25): sf-message-log, sf-thread-list and sf-change-confirm. Promoted,
+// 2026-10-25): sf-message-log, sf-chat-threads and sf-confirm-change. Promoted,
 // not copied -- so what made them chat-only must not have come along, and what a
 // host binds to (attributes, events, words) must be the same in the source, the
 // manifest and the docs. Their behaviour is held by the browser probes beside
@@ -27,9 +27,17 @@ const evaluateRule = (text) => {
 
 const COMPONENTS = {
   'message-log': {element: 'sf-message-log', id: 'smart.message-log', dictionary: 'MESSAGE_LOG_TEXT'},
-  'thread-list': {element: 'sf-thread-list', id: 'smart.thread-list', dictionary: 'THREAD_LIST_TEXT'},
-  'change-confirm': {element: 'sf-change-confirm', id: 'smart.change-confirm', dictionary: 'CHANGE_CONFIRM_TEXT'},
+  'chat-threads': {element: 'sf-chat-threads', id: 'smart.chat-threads', dictionary: 'THREAD_LIST_TEXT'},
+  'confirm-change': {element: 'sf-confirm-change', id: 'smart.confirm-change', dictionary: 'CHANGE_CONFIRM_TEXT'},
 };
+
+// Rename plan R2 (2026-11-03): two of them took new tags and keep the former
+// ones as dated aliases until 2027-01-01. Their public CSS variables and
+// internal hooks keep the former name, so a sheet's names follow either stem.
+const FORMER = {'chat-threads': 'thread-list', 'confirm-change': 'change-confirm'};
+const stems = (name) => [name, FORMER[name]].filter(Boolean).join('|');
+const formerTags = (name) => json(`src/smart/${name}/aliases.json`).aliases
+  .filter((row) => row.kind === 'tag').map((row) => row.from);
 
 // The code without its comments: a comment may say where a component came
 // from (sf-chat-message-list) without the code carrying any of it.
@@ -82,7 +90,8 @@ test('the conversation components carry nothing chat-only from ui-chat', () => {
       // No chat names, tokens or classes: the components are promoted under
       // neutral names, and a --sf-chat-* token is ui-chat's adaptation point,
       // not the Framework's.
-      absent(/sf-chat|--sf-chat|chat-core|component\/chat/u, 'a chat name came along');
+      // sf-chat-threads is the list's own Framework name (rename plan R2).
+      absent(/sf-chat(?!-threads)|--sf-chat|chat-core|component\/chat/u, 'a chat name came along');
       // Roles are data: no component decides what "user" or "assistant" mean,
       // nor knows a command a server expects.
       absent(/["']assistant["']|role\s*===\s*["']user["']|confirm_command|cancel_command|send-command/u, 'a chat role or command');
@@ -120,7 +129,7 @@ test('the stylesheets read Framework tokens or their own public variables, nothi
     // the Framework's form --sf-<component>-<name>: read, never set.
     const publicVariables = migrated(name) ? Object.keys(contract(name)['css-variables']) : [];
     for (const variable of publicVariables) {
-      assert.match(variable, new RegExp(`^--sf-${name}-[a-z]+(-[a-z]+)*$`, 'u'), `${name}: public variable ${variable}`);
+      assert.match(variable, new RegExp(`^--sf-(${stems(name)})-[a-z]+(-[a-z]+)*$`, 'u'), `${name}: public variable ${variable}`);
       assert.match(css, new RegExp(`var\\(\\s*${variable}\\b`, 'u'), `${name}: the sheet reads ${variable}`);
       assert.doesNotMatch(css, new RegExp(`${variable}\\s*:`, 'u'), `${name}: the sheet sets ${variable}`);
     }
@@ -130,7 +139,7 @@ test('the stylesheets read Framework tokens or their own public variables, nothi
       // and the one hook of a Smart child it sets: the log's jump button takes
       // the icon button's public background.
       if (own_token === '--sf-icon-button-background-color') continue;
-      assert.match(own_token, new RegExp(`^--sf-${name}--[a-z-]+$`, 'u'), `${name}: declares ${own_token}`);
+      assert.match(own_token, new RegExp(`^--sf-(${stems(name)})--[a-z-]+$`, 'u'), `${name}: declares ${own_token}`);
     }
     for (const [, token] of css.matchAll(/var\(\s*(--sf-[a-z0-9\\/-]+)/gu)) {
       const plain = token.replace(/\\/gu, '');
@@ -156,7 +165,7 @@ test('the rule, the manifest and the folder name one component', () => {
     // as the rule it evaluates to, not as text in one quoting style.
     const rules = evaluateRule(rule);
     assert.deepEqual(Object.keys(rules), [`cl-${name}`], `${name}: the rule key`);
-    assert.deepEqual(rules[`cl-${name}`].tags, [element], `${name}: the tag`);
+    assert.deepEqual(rules[`cl-${name}`].tags, [element, ...formerTags(name)], `${name}: the tag, then its former tags`);
     assert.equal(rules[`cl-${name}`].css, true, `${name}: the template's sheet ships`);
     assert.equal(manifest.id, id);
     assert.equal(manifest.custom_element, element);
@@ -218,8 +227,9 @@ test('a 1.3.8 component sends only the events it declares, by verb; the docs nam
     const aliases = json(`src/smart/${name}/aliases.json`).aliases;
     for (const row of aliases.filter((one) => one.kind === 'event' && one.to)) {
       assert.match(docs, new RegExp(`\`${row.from}\``, 'u'), `${name}: the old name ${row.from} is not in docs.md`);
-      assert.equal(row.since, '2026-10-27');
-      assert.equal(row.remove_after, '2026-12-01');
+      // The 1.3.8 vocabulary names, or the former tag's names (rename plan R2).
+      assert.ok([['2026-10-27', '2026-12-01'], ['2026-11-03', '2027-01-01']].some(([since, until]) => row.since === since && row.remove_after === until),
+        `${name}: ${row.from} is dated ${row.since} to ${row.remove_after}`);
     }
     // An own verb has its word in every language (§8, §11).
     for (const [verb, event] of Object.entries(manifest.events).filter(([, one]) => one['own-verb'])) {
@@ -294,11 +304,11 @@ test('the message log draws a message through the host, as text when the host do
 });
 
 test('the change confirmation applies nothing and keeps the question open when the host refuses the answer', () => {
-  const source = read('src/smart/change-confirm/index.js');
-  assert.equal(contract('change-confirm').events.answer.cancelable, true);
+  const source = read('src/smart/confirm-change/index.js');
+  assert.equal(contract('confirm-change').events.answer.cancelable, true);
   assert.match(source, /const delivered = this\.sfEmit\("answer", \{id: this\.changeId, accepted\}\);/u);
   assert.match(source, /if \(!delivered\) \{\s*this\._pressed = null;\s*this\.setAttribute\("state", "open"\);/u);
   // Both answers weigh the same.
-  const template = read('src/smart/change-confirm/js/templates/default.js');
+  const template = read('src/smart/confirm-change/js/templates/default.js');
   assert.equal([...template.matchAll(/appearance="outline"/gu)].length, 2);
 });

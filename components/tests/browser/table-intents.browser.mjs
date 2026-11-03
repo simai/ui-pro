@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Browser acceptance for sf-table host intents and bubbling sf-drawer events:
+// Browser acceptance for sf-view-table host intents and bubbling sf-drawer events:
 // create button and create menu, template selection, sortable headers (not
 // after a column drag or resize), column drag without duplicated cells, badge
 // filter options, the actions system column.
@@ -33,12 +33,12 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await load({ dir, theme });
 
   // 1. Create: without items there is no arrow; the button emits item null.
-  const createButton = page.locator('sf-table#table .sf-table-toolbar-end sf-button').filter({ hasText: 'Создать' }).locator('button');
-  check(await page.locator('sf-table#table [aria-label="Дополнительные действия создания"]').count() === 0, `${tag}: no create arrow without items`);
+  const createButton = page.locator('sf-view-table#table .sf-table-toolbar-end sf-button').filter({ hasText: 'Создать' }).locator('button');
+  check(await page.locator('sf-view-table#table [aria-label="Дополнительные действия создания"]').count() === 0, `${tag}: no create arrow without items`);
   await createButton.click();
   check(JSON.stringify(await events('sf-table-create-intent')) === '[{"item":null}]', `${tag}: create button intent`, await events('sf-table-create-intent'));
   await page.evaluate(() => document.getElementById('table').setCreateItems([{ id: 'page', name: 'Страница' }, { id: 'folder', name: 'Раздел' }]));
-  const arrow = page.locator('sf-table#table [aria-label="Дополнительные действия создания"] button, sf-table#table button[aria-label="Дополнительные действия создания"]').first();
+  const arrow = page.locator('sf-view-table#table [aria-label="Дополнительные действия создания"] button, sf-view-table#table button[aria-label="Дополнительные действия создания"]').first();
   await arrow.waitFor();
   await arrow.click();
   const menuItem = page.locator('sf-menu-context[aria-label="Варианты создания"] button').filter({ hasText: 'Раздел' });
@@ -53,11 +53,11 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   check(await page.locator('sf-menu-context[aria-label="Варианты создания"]').count() === 0, `${tag}: create menu closes`);
 
   // 2. Sort: header click cycles; aria-sort follows; keyboard works; rows keep order.
-  const th = page.locator('sf-table#table th[data-key="title"]');
-  const rowOrder = () => page.locator('sf-table#table tbody td[data-key="title"]').allTextContents();
+  const th = page.locator('sf-view-table#table th[data-key="title"]');
+  const rowOrder = () => page.locator('sf-view-table#table tbody td[data-key="title"]').allTextContents();
   const before = await rowOrder();
   check(await th.getAttribute('aria-sort') === 'none', `${tag}: sortable header starts none`);
-  check(await page.locator('sf-table#table th[data-key="author"]').getAttribute('aria-sort') === null, `${tag}: plain header has no aria-sort`);
+  check(await page.locator('sf-view-table#table th[data-key="author"]').getAttribute('aria-sort') === null, `${tag}: plain header has no aria-sort`);
   await th.locator('.sf-table-sort-button').click();
   check(await th.getAttribute('aria-sort') === 'ascending', `${tag}: ascending after click`);
   await th.locator('.sf-table-sort-button').click();
@@ -65,30 +65,30 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await th.locator('.sf-table-sort-button').focus();
   await page.keyboard.press('Enter');
   check(await th.getAttribute('aria-sort') === 'none', `${tag}: keyboard clears sort`);
-  check(JSON.stringify(await events('sf-table-sort-change')) === JSON.stringify([
+  check(JSON.stringify(await events('sf-view-table-sort-change')) === JSON.stringify([
     { key: 'title', direction: 'asc' }, { key: 'title', direction: 'desc' }, { key: 'title', direction: null }]),
-    `${tag}: sort intents`, await events('sf-table-sort-change'));
+    `${tag}: sort intents`, await events('sf-view-table-sort-change'));
   check(JSON.stringify(await rowOrder()) === JSON.stringify(before), `${tag}: table never reorders rows`);
   await page.evaluate(() => document.getElementById('table').setSort('status', 'desc'));
-  check(await page.locator('sf-table#table th[data-key="status"]').getAttribute('aria-sort') === 'descending', `${tag}: setSort marks header`);
-  check((await events('sf-table-sort-change')).length === 3, `${tag}: setSort emits nothing`);
+  check(await page.locator('sf-view-table#table th[data-key="status"]').getAttribute('aria-sort') === 'descending', `${tag}: setSort marks header`);
+  check((await events('sf-view-table-sort-change')).length === 3, `${tag}: setSort emits nothing`);
 
   // Resizer keyboard and column drag must not sort. Round three took the handle
   // away: the strip on the line between two headers is the button itself.
   await page.locator('#table--column-resizer--title').focus();
   await page.keyboard.press('ArrowRight');
   const thBox = await th.boundingBox();
-  const statusBox = await page.locator('sf-table#table th[data-key="status"]').boundingBox();
+  const statusBox = await page.locator('sf-view-table#table th[data-key="status"]').boundingBox();
   await page.mouse.move(thBox.x + 20, thBox.y + thBox.height / 2);
   await page.mouse.down();
   await page.mouse.move(thBox.x + 60, thBox.y + thBox.height / 2, { steps: 4 });
   await page.mouse.move(statusBox.x + statusBox.width - 10, statusBox.y + statusBox.height / 2, { steps: 6 });
   await page.mouse.up();
   await page.waitForTimeout(400);
-  check((await events('sf-table-sort-change')).length === 3, `${tag}: column drag does not sort`, await events('sf-table-sort-change'));
-  const headers = await page.locator('sf-table#table thead th').evaluateAll((cells) => cells.map((cell) => cell.dataset.key));
+  check((await events('sf-view-table-sort-change')).length === 3, `${tag}: column drag does not sort`, await events('sf-view-table-sort-change'));
+  const headers = await page.locator('sf-view-table#table thead th').evaluateAll((cells) => cells.map((cell) => cell.dataset.key));
   check(new Set(headers).size === headers.length && headers.length === 6, `${tag}: column drag keeps one header per column`, headers);
-  const cellsPerRow = await page.locator('sf-table#table tbody tr').evaluateAll((rows) => rows.map((row) => row.cells.length));
+  const cellsPerRow = await page.locator('sf-view-table#table tbody tr').evaluateAll((rows) => rows.map((row) => row.cells.length));
   check(cellsPerRow.every((count) => count === 6), `${tag}: column drag keeps one cell per column`, cellsPerRow);
   // The strip is there to be grabbed, on hover and without it.
   await th.hover();
@@ -99,18 +99,18 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await page.mouse.move(handle.x + handle.width / 2 + 30, handle.y + handle.height / 2, { steps: 5 });
   await page.mouse.up();
   await page.waitForTimeout(300);
-  check((await events('sf-table-sort-change')).length === 3, `${tag}: pointer resize does not sort`, await events('sf-table-sort-change'));
+  check((await events('sf-view-table-sort-change')).length === 3, `${tag}: pointer resize does not sort`, await events('sf-view-table-sort-change'));
 
   // Stage A: instances are isolated, and the region declares its data state.
-  const resizerIds = await page.locator('sf-table [id*="column-resizer"]').evaluateAll((nodes) => nodes.map((node) => node.id));
+  const resizerIds = await page.locator('sf-view-table [id*="column-resizer"]').evaluateAll((nodes) => nodes.map((node) => node.id));
   check(new Set(resizerIds).size === resizerIds.length, `${tag}: resize handle ids are unique across tables`, resizerIds);
   check(resizerIds.every((id) => id.startsWith('table--') || id.startsWith('second--')), `${tag}: resize handle ids carry their instance`, resizerIds);
-  const regions = await page.locator('sf-table > .sf-table').evaluateAll((nodes) => nodes.map((node) => ({instance: node.dataset.sfInstance, state: node.dataset.state, busy: node.getAttribute('aria-busy')})));
+  const regions = await page.locator('sf-view-table > .sf-table').evaluateAll((nodes) => nodes.map((node) => ({instance: node.dataset.sfInstance, state: node.dataset.state, busy: node.getAttribute('aria-busy')})));
   check(regions.length === 2 && new Set(regions.map((region) => region.instance)).size === 2, `${tag}: each region names its instance`, regions);
   check(regions.every((region) => region.state === 'populated' && region.busy === null), `${tag}: regions declare the state they are in`, regions);
   await page.evaluate(() => document.getElementById('second').setDataState('loading'));
   await page.waitForTimeout(200);
-  const loading = await page.locator('sf-table#second > .sf-table').evaluate((node) => ({state: node.dataset.state, busy: node.getAttribute('aria-busy')}));
+  const loading = await page.locator('sf-view-table#second > .sf-table').evaluate((node) => ({state: node.dataset.state, busy: node.getAttribute('aria-busy')}));
   check(loading.state === 'loading' && loading.busy === 'true', `${tag}: a loading region says so`, loading);
   await page.evaluate(() => document.getElementById('second').setDataState('auto'));
 
@@ -118,10 +118,10 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   check(await page.locator('#table--column-resizer--actions').count() === 0, `${tag}: actions column has no resizer`);
   const settings = await events('sf-table-column-settings-change');
   check(settings.every((detail) => !Object.hasOwn(detail.columnSettings || {}, 'actions')), `${tag}: actions width never saved`, settings);
-  check(await page.locator('sf-table#table th').last().getAttribute('data-key') === 'actions', `${tag}: actions stays last`);
+  check(await page.locator('sf-view-table#table th').last().getAttribute('data-key') === 'actions', `${tag}: actions stays last`);
 
   // 5. Badge options in the filter menu.
-  await page.locator('sf-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
+  await page.locator('sf-view-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
   const filterMenu = page.locator('sf-menu-context[aria-label="Настройки фильтра"]');
   await filterMenu.waitFor();
   const statusField = filterMenu.getByText('Статус', { exact: true }).first();
@@ -140,7 +140,7 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
       table.setTemplates([{ key: 'lab', label: 'Статусы', selected: true,
         data: { tags: { status: { label: 'Статус', active: true } }, values: {} } }]);
     });
-    await page.locator('sf-table#table sf-tag').filter({ hasText: 'Статус' }).first().click();
+    await page.locator('sf-view-table#table sf-tag').filter({ hasText: 'Статус' }).first().click();
     await page.waitForTimeout(400);
     badges = await page.locator('sf-menu-context sf-badge').evaluateAll((nodes) => nodes.map((node) => {
       const box = node.querySelector('.sf-badge');
@@ -164,7 +164,7 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   // Chip menu opens under the chip (the sf-tag host has no box of its own).
   await page.evaluate(() => document.getElementById('table').setTemplates([{ key: 'lab', label: 'Статусы', selected: true,
     data: { tags: { status: { label: 'Статус', active: true } }, values: {} } }]));
-  const chip = page.locator('sf-table#table .sf-table-tags sf-tag .sf-tag').first();
+  const chip = page.locator('sf-view-table#table .sf-table-tags sf-tag .sf-tag').first();
   await chip.waitFor();
   await chip.click({ position: { x: 12, y: 8 } });
   const tagMenu = page.locator('sf-menu-context[aria-label^="Настройка фильтра"] > .sf-context-menu');
@@ -179,7 +179,7 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await page.waitForTimeout(200);
 
   // The chip is keyboard operable: its label is a button beside the remove action.
-  const chipAction = page.locator('sf-table#table .sf-table-tags sf-tag .sf-tag-action').first();
+  const chipAction = page.locator('sf-view-table#table .sf-table-tags sf-tag .sf-tag-action').first();
   await chipAction.focus();
   await page.keyboard.press('Enter');
   await tagMenu.waitFor();
@@ -189,11 +189,11 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await page.keyboard.press('Escape');
   await page.waitForTimeout(300);
   check(await page.evaluate(() => document.activeElement?.classList.contains('sf-tag-action')), `${tag}: focus returns to the chip after Escape`);
-  const removeName = await page.locator('sf-table#table .sf-table-tags sf-tag sf-button-icon button').first().getAttribute('aria-label');
+  const removeName = await page.locator('sf-view-table#table .sf-table-tags sf-tag sf-button-icon button').first().getAttribute('aria-label');
   check(removeName === 'Удалить', `${tag}: chip keeps a separate remove action`, removeName);
 
   // Row menu opens beside its button with the tail towards it.
-  const rowButton = page.locator('sf-table#table tbody tr').first().locator('td[data-key="settings"] button').first();
+  const rowButton = page.locator('sf-view-table#table tbody tr').first().locator('td[data-key="settings"] button').first();
   await rowButton.click();
   const rowMenu = page.locator('sf-menu-context[aria-label="Действия со строкой"]');
   await rowMenu.waitFor();
@@ -227,7 +227,7 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
     { key: 'all', label: 'Все записи', selected: true, data: { tags: {}, values: {} } },
     { key: 'old', label: 'Старый вид', data: { tags: {}, values: {} } },
   ]));
-  await page.locator('sf-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
+  await page.locator('sf-view-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
   const templateMenu = page.locator('sf-menu-context[aria-label="Настройки фильтра"]');
   await templateMenu.waitFor();
   const templatesTab = templateMenu.locator('sf-button').filter({ hasText: 'Шаблоны' }).locator('button').first();
@@ -242,9 +242,9 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await page.waitForTimeout(250);
   await templateMenu.locator('sf-button').filter({ hasText: 'Применить' }).locator('button').click();
   await page.waitForTimeout(350);
-  const deleted = await events('sf-table-template-delete');
+  const deleted = await events('sf-view-table-template-delete');
   check(JSON.stringify(deleted) === '[{"key":"old"}]', `${tag}: deleting a template raises its own intent`, deleted);
-  const savedAfterDelete = await events('sf-table-template-save');
+  const savedAfterDelete = await events('sf-view-table-template-save');
   check(savedAfterDelete.length > 0, `${tag}: the save intent still reports the flags`, savedAfterDelete);
   await page.keyboard.press('Escape');
   await page.waitForTimeout(200);
@@ -289,7 +289,7 @@ await page.evaluate(() => document.getElementById('table').setTemplates([
   { key: 'mine', label: 'Мои записи', data: { tags: {}, values: {} } },
 ]));
 await clearEvents();
-await page.locator('sf-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
+await page.locator('sf-view-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
 const menu = page.locator('sf-menu-context[aria-label="Настройки фильтра"]');
 await menu.waitFor();
 const tabs = await menu.locator('[role="tab"], button').allTextContents();
@@ -301,13 +301,13 @@ await mine.click();
 await page.waitForTimeout(200);
 await menu.locator('sf-button').filter({ hasText: 'Применить' }).locator('button').click();
 await page.waitForTimeout(300);
-const selectEvents = await events('sf-table-template-select');
+const selectEvents = await events('sf-view-table-template-select');
 check(JSON.stringify(selectEvents) === '[{"key":"mine"}]', 'template select event on Apply', { selectEvents, tabs });
-await page.locator('sf-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
+await page.locator('sf-view-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
 await menu.waitFor();
 await menu.locator('sf-button').filter({ hasText: 'Применить' }).locator('button').click();
 await page.waitForTimeout(300);
-check((await events('sf-table-template-select')).length === 1, 'Apply without a new choice emits no template select');
+check((await events('sf-view-table-template-select')).length === 1, 'Apply without a new choice emits no template select');
 
 await browser.close();
 const report = { schema: 'simai.framework.table-intents-browser.v1', lab: labUrl, failures, errors, observations };

@@ -4,8 +4,8 @@ import {dirname, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
-import * as treeModel from '../src/smart/data-view/js/tree.js';
-import {answerActions, settingSetters} from '../src/smart/table/js/manifest-actions.js';
+import * as treeModel from '../src/smart/view/js/tree.js';
+import {answerActions, settingSetters} from '../src/smart/view-table/js/manifest-actions.js';
 
 // What index.js imports since it is made from its component.json (standard
 // 1.3.8): the manifest, its aliases and words, and a stand-in for the core's
@@ -13,10 +13,10 @@ import {answerActions, settingSetters} from '../src/smart/table/js/manifest-acti
 // the DOM name <tag>-<verb>.
 const json = (path) => JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '..', path), 'utf8'));
 const manifestImports = {
-  manifest: json('src/smart/data-view/component.json'),
-  aliases: json('src/smart/data-view/aliases.json'),
-  en: json('src/smart/data-view/lang/en.json'),
-  ru: json('src/smart/data-view/lang/ru.json'),
+  manifest: json('src/smart/view/component.json'),
+  aliases: json('src/smart/view/aliases.json'),
+  en: json('src/smart/view/lang/en.json'),
+  ru: json('src/smart/view/lang/ru.json'),
   answerActions,
   settingSetters,
   installAliases: () => ({uninstall() {}}),
@@ -29,7 +29,7 @@ const manifestImports = {
 };
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const source = readFileSync(resolve(root, 'src/smart/data-view/index.js'), 'utf8')
+const source = readFileSync(resolve(root, 'src/smart/view/index.js'), 'utf8')
   .replace(/^import .*;\n/gm, '')
   .replace(/^export default SfDataView;\s*$/m, '');
 
@@ -46,7 +46,7 @@ class EventNode {
 
 class FakeTable extends EventNode {
   constructor() { super(); this.ACTIONS_SETTINGS_ROW = []; }
-  matches(name) { return name === 'sf-table'; }
+  matches(name) { return name === 'sf-view-table'; }
   setDataState(value) { this.setAttribute('data-state', value); }
   setColumns(value) { this.columns = value; }
   setRows(value) { this.rows = value; }
@@ -122,12 +122,17 @@ vm.runInNewContext(source, {
   // English table is what this fake answers with, which is enough for a test
   // about wiring rather than about wording.
   pageText: (table, key) => table.en?.[key] ?? key,
+  // The tag helpers of the Smart base (rename plan R2): the fake page holds
+  // only the new tags, so a selector is the tag and a former tag is not defined.
+  tagSelector: (tag) => tag,
+  isTag: (element, tag) => String(element?.localName ?? element?.tagName ?? '').toLowerCase() === tag,
+  defineTagAliases: () => {},
   ...manifestImports,
   // The tree model is a module of plain functions, supplied the same way.
   ...treeModel,
   document: {createElement: (tag) => new FakeChild(tag)},
 });
-const DataView = elements.get('sf-data-view');
+const DataView = elements.get('sf-view');
 const connect = (view) => { view.isConnected = true; view.connectedCallback(); };
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 const listing = (payload) => ({answer: 'applied', sequence: payload.sequence, data: {
@@ -201,19 +206,19 @@ test('the message goes with the next answer that does not carry one', async () =
 });
 
 test('markup in the message is text: the view sets textContent, the brick a heading attribute', () => {
-  const view = readFileSync(resolve(root, 'src/smart/data-view/index.js'), 'utf8');
+  const view = readFileSync(resolve(root, 'src/smart/view/index.js'), 'utf8');
   assert.match(view, /status\.textContent = message;/u);
   assert.doesNotMatch(view, /status\.innerHTML/u);
-  const table = readFileSync(resolve(root, 'src/smart/table/index.js'), 'utf8');
+  const table = readFileSync(resolve(root, 'src/smart/view-table/index.js'), 'utf8');
   assert.match(table, /title: message \|\| this\.getAttribute\("error-text"\)/u);
   assert.match(table, /kind === "no-access"\) return \{kind, size, headingLevel, title: message,/u);
-  const template = readFileSync(resolve(root, 'src/smart/table/js/templates/default.js'), 'utf8');
+  const template = readFileSync(resolve(root, 'src/smart/view-table/js/templates/default.js'), 'utf8');
   assert.match(template, /heading=\$\{brick\.title \|\| nothing\}/u);
 });
 
 test('the manifest declares the answer message and treats it as untrusted', () => {
-  const manifest = JSON.parse(readFileSync(resolve(root, 'src/smart/data-view/smart.manifest.json'), 'utf8'));
-  const message = manifest.events['sf-data-view-answer'].payload.properties.message;
+  const manifest = JSON.parse(readFileSync(resolve(root, 'src/smart/view/smart.manifest.json'), 'utf8'));
+  const message = manifest.events['sf-view-answer'].payload.properties.message;
   assert.equal(message.type, 'string');
   assert.match(message.description, /query\.change/u);
   assert.ok(manifest.security.untrusted_inputs.includes('answer messages'));

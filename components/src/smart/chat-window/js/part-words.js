@@ -1,5 +1,5 @@
 // The chat's words for the conversation parts the window places (this
-// package's sf-message-log, sf-thread-list and sf-change-confirm), registered
+// package's sf-message-log, sf-chat-threads and sf-confirm-change), registered
 // once per page through SF.language, in both languages: the parts speak
 // Russian and English on their own, but the chat says «Новое название
 // разговора», «Отменено» and «Срок подтверждения истёк. Попросите
@@ -21,7 +21,7 @@ export const PART_WORDS = {
         'latest-label': 'list-latest',
         'you-text': 'you',
     },
-    'sf-thread-list': {
+    'sf-chat-threads': {
         label: 'threads-label',
         'create-text': 'threads-new',
         today: 'threads-today',
@@ -38,7 +38,7 @@ export const PART_WORDS = {
         'archive-empty-text': 'threads-archive-empty',
         'loading-text': 'threads-loading',
     },
-    'sf-change-confirm': {
+    'sf-confirm-change': {
         'changes-label': 'proposal-label',
         'before-text': 'proposal-was',
         'after-text': 'proposal-will',

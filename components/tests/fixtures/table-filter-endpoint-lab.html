@@ -14,12 +14,12 @@
   </script>
 </head>
 <body>
-  <sf-table id="table" aria-label="Records"></sf-table>
+  <sf-view-table id="table" aria-label="Records"></sf-view-table>
   <script>
     const core = document.createElement('script');
     core.src = '/assets/core/js/core.js';
     core.onload = async () => {
-      await customElements.whenDefined('sf-table');
+      await customElements.whenDefined('sf-view-table');
       const table = document.getElementById('table');
       table.setColumns([{key: 'title', label: 'Title'}]);
       table.setRows([{id: 'one', title: 'Record'}]);

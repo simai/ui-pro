@@ -11,8 +11,8 @@ import {fileURLToPath} from 'node:url';
 // shown again.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
-const view = read('src/smart/property-view/index.js');
-const template = read('src/smart/property-view/js/templates/default.js');
+const view = read('src/smart/view-properties/index.js');
+const template = read('src/smart/view-properties/js/templates/default.js');
 const body = (source, start) => {
   const at = source.indexOf(start);
   assert.ok(at >= 0, start);
@@ -55,7 +55,7 @@ test('the bar asks, in both bars, in both languages', () => {
   // The words are the language files' since standard 1.3.8 §11 (lang/<locale>.json).
   for (const key of ['confirm-save-text', 'keep-editing-text']) {
     for (const language of ['en', 'ru']) {
-      const words = JSON.parse(read(`src/smart/property-view/lang/${language}.json`)).runtime;
+      const words = JSON.parse(read(`src/smart/view-properties/lang/${language}.json`)).runtime;
       assert.ok(words[key], `${key} in ${language}`);
     }
   }

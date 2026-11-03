@@ -12,7 +12,7 @@ const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -28,8 +28,8 @@ const modules = [
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -39,10 +39,10 @@ const page = await browser.newPage();
 await page.setContent(
   `<!doctype html><html class="theme-light"><body style="margin:0">
      <div style="width:900px">
-       <sf-data-view id="v">
-         <sf-table slot="content" id="t" toolbar="false"></sf-table>
+       <sf-view id="v">
+         <sf-view-table slot="content" id="t" toolbar="false"></sf-view-table>
          <sf-pagination slot="pagination" id="p" total="100" page-size="10" current="1"></sf-pagination>
-       </sf-data-view>
+       </sf-view>
      </div>
    </body></html>`,
 );
@@ -249,7 +249,7 @@ try {
   // mark was a second one.
   const searched = await page.evaluate(async () => {
     const table = document.getElementById('t');
-    const Table = customElements.get('sf-table');
+    const Table = customElements.get('sf-view-table');
     let renders = 0;
     const own = Table.prototype.template;
     Table.prototype.template = function (...args) { if (this === table) renders += 1; return own.apply(this, args); };

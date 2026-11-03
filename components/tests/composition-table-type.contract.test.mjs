@@ -12,9 +12,9 @@ import { compositionTypeFromSmartManifest } from '../src/core/js/composition/ind
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 test('a declared smart type carries its data, intents and settings key', async () => {
-  const smart = JSON.parse(await readFile(resolve(root, 'src/smart/table/smart.manifest.json'), 'utf8'));
+  const smart = JSON.parse(await readFile(resolve(root, 'src/smart/view-table/smart.manifest.json'), 'utf8'));
   const type = compositionTypeFromSmartManifest(smart);
-  assert.equal(type.type, 'smart.data-view');
+  assert.equal(type.type, 'smart.view-table');
   // Structure and request-bound data are separate channels, both closed.
   assert.deepEqual(Object.keys(type.data_schema.properties).sort(), ['columns', 'rows']);
   assert.equal(type.data_schema.additionalProperties, false);
@@ -23,8 +23,8 @@ test('a declared smart type carries its data, intents and settings key', async (
   // The intents a host must answer are declared, not discovered from the code.
   // sf-table-query is the 1.3.8 name of the 1.0 sf-table-query-intent, which
   // follows it until 2026-12-01 (aliases.json).
-  assert.ok(type.events['sf-table-query'].summary.length > 0);
-  assert.ok(type.events['sf-table-template-delete'].payload.required.includes('key'));
+  assert.ok(type.events['sf-view-table-query'].summary.length > 0);
+  assert.ok(type.events['sf-view-table-template-delete'].payload.required.includes('key'));
   assert.equal(type.events['sf-after-render'], undefined);
   // Settings survive the projection: mode, owner and where the key lives.
   assert.deepEqual(type.persistence, {

@@ -4,15 +4,15 @@
 // 07bc988) with the D31 move (components live in the Framework or in ui-pro,
 // owner 2026-10-26; the move approved 2026-10-27), last of the chat's four.
 //
-// It is a leaf with a declared port, as sf-data-view and sf-property-view
-// are (component.json, x-decisions shape): it composes sf-thread-list,
-// sf-message-log and sf-change-confirm (this package's conversation parts)
+// It is a leaf with a declared port, as sf-view and sf-view-properties
+// are (component.json, x-decisions shape): it composes sf-chat-threads,
+// sf-message-log and sf-confirm-change (this package's conversation parts)
 // with the chat's own sf-chat-composer, sf-chat-interlocutor and
 // sf-chat-message, by tag -- the Loader brings each (rule.js) -- and gives
 // them the chat's meaning through their public hooks: the log draws a
 // message as an sf-chat-message (renderMessage) and says of it what the
 // window decides (announceMessage); a proposal is the message's
-// sf-change-confirm, answered here. It never talks to a server.
+// sf-confirm-change, answered here. It never talks to a server.
 //
 // The host's side. The port is handed with connect-port {port} (the base
 // action, §4.1, §4.9; setHostPort its alias): an adapter {port, version,
@@ -61,7 +61,7 @@
 // attributes (data-sf-workspace-view, data-sf-workspace-panel) and measures
 // nothing; the panel as a drawer, its Escape, its scrim, the inert regions
 // behind it and the focus coming back are the Framework's.
-import SfBaseElement from "../../core/js/smart-base";
+import SfBaseElement, {tagSelector} from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {pageLocale} from "../../core/js/page-language";
 import {msUntilNextDay} from "../../core/js/format.js";
@@ -152,8 +152,8 @@ const HIGHLIGHT = "sf-chat-window-found";
 const HIGHLIGHT_CURRENT = "sf-chat-window-found-current";
 
 // The parts the window places and calls; the conversation waits for them.
-// sf-change-confirm is placed by the messages and needs nothing from the
-// window but its events; sf-thread-list is brought when its panel is shown
+// sf-confirm-change is placed by the messages and needs nothing from the
+// window but its events; sf-chat-threads is brought when its panel is shown
 // (a hidden side panel on a phone, ui-0edd49be08f8) and filled whenever it
 // is defined.
 const PARTS = ["sf-message-log", "sf-chat-message", "sf-chat-composer", "sf-chat-interlocutor"];
@@ -347,7 +347,7 @@ class SfChatWindow extends ChatWindowElement {
         this._features = {feedback: true, proposals: true, memory: true, brief: false};
         this._briefDrafts = new Map(); // message key -> what is chosen among a brief's questions, this page only
         this._partsReady = false;    // the parts are defined and upgraded
-        this._threadsReady = false;  // sf-thread-list is defined (it may come later)
+        this._threadsReady = false;  // sf-chat-threads is defined (it may come later)
         this._held = new Set();      // what changed while they were not
         this._footer = null;         // what the page puts under the list (Mirai24: spending)
         this._files = null;          // «Мои файлы» (x-my-files), made with the shell
@@ -647,7 +647,7 @@ class SfChatWindow extends ChatWindowElement {
         // The list inside names itself («Разговоры»); the aside adds no second name (Q-11).
         const side = element("aside", "chat-shell__side sf-workspace-list", {id: "chat-side"});
         const sideHead = element("div", "chat-shell__side-head");
-        const threads = element("sf-thread-list");
+        const threads = element("sf-chat-threads");
         const search = this.buildSearch(element, words);
         side.append(sideHead, search.box, threads);
         // Embedded in a page that has its own <main>, the window is a labelled region.
@@ -1018,7 +1018,7 @@ class SfChatWindow extends ChatWindowElement {
         // Once per page; SF.language may have come after the shell was built.
         registerPartWords({ru, en});
         this._partsReady = true;
-        customElements.whenDefined("sf-thread-list").then(() => this.threadsDefined());
+        customElements.whenDefined("sf-chat-threads").then(() => this.threadsDefined());
         const held = this._held;
         this._held = new Set();
         this.sync(new Set([...held, "interlocutors", "limits", "conversations", "conversation_list", "composer_files"]));
@@ -1054,7 +1054,7 @@ class SfChatWindow extends ChatWindowElement {
             if (this._preview?.open) this.closePreview();
         });
         // A command of the list's (kind) is a form of ours; else the one create button.
-        threads.addEventListener("sf-thread-list-create", (event) => {
+        threads.addEventListener("sf-chat-threads-create", (event) => {
             const kind = event.detail?.kind;
             if (!kind) {
                 this.startConversation();
@@ -1062,15 +1062,15 @@ class SfChatWindow extends ChatWindowElement {
             }
             this.openStart({kind, opener: threads.querySelector(`.sf-thread-list__command[data-action="create:${CSS.escape(kind)}"]`)});
         });
-        threads.addEventListener("sf-thread-list-open", (event) => this.openConversation(event.detail.id));
-        threads.addEventListener("sf-thread-list-rename", async (event) => {
+        threads.addEventListener("sf-chat-threads-open", (event) => this.openConversation(event.detail.id));
+        threads.addEventListener("sf-chat-threads-rename", async (event) => {
             const result = await this.request("conversation.rename", {conversation_id: event.detail.id, title: event.detail.title});
             // The list shows a new title at once; a host that did not keep it
             // gets the stored one back, as the list asks.
             if (result.answer !== "applied") this.syncThreads();
             this.showResult(result);
         });
-        threads.addEventListener("sf-thread-list-archive", (event) => this.archive(event.detail.id, true));
+        threads.addEventListener("sf-chat-threads-archive", (event) => this.archive(event.detail.id, true));
         // The list's own actions are one set for every row; «Pin» or «Unpin»
         // is put there for the row whose menu is about to open (capture runs
         // before the list's own handlers), so each row offers the one that
@@ -1082,18 +1082,18 @@ class SfChatWindow extends ChatWindowElement {
         threads.addEventListener("keydown", (event) => {
             if ((event.key === "F10" && event.shiftKey) || event.key === "ContextMenu") this.rowActions(event.target.closest?.(".sf-thread-list__link")?.dataset.id);
         }, true);
-        threads.addEventListener("sf-thread-list-apply", (event) => {
+        threads.addEventListener("sf-chat-threads-apply", (event) => {
             const {id, action} = event.detail;
             if (action === "pin" || action === "unpin") this.pin(id, action === "pin");
         });
-        threads.addEventListener("sf-thread-list-restore", (event) => this.archive(event.detail.id, false));
-        threads.addEventListener("sf-thread-list-toggle", (event) => this.showList(event.detail.archived));
-        threads.addEventListener("sf-thread-list-load-more", () => this.more());
+        threads.addEventListener("sf-chat-threads-restore", (event) => this.archive(event.detail.id, false));
+        threads.addEventListener("sf-chat-threads-toggle", (event) => this.showList(event.detail.archived));
+        threads.addEventListener("sf-chat-threads-load-more", () => this.more());
         interlocutor.addEventListener("sf-chat-interlocutor-select", (event) => this.choose(event.detail.id));
         list.addEventListener("sf-message-log-load-more", (event) => this.older(event.detail.before));
         // A proposal's answer, from its card. Not taken (a send in flight):
         // the event is cancelled and the card is open again.
-        list.addEventListener("sf-change-confirm-answer", (event) => {
+        list.addEventListener("sf-confirm-change-answer", (event) => {
             if (!this.decide(event.detail.id, event.detail.accepted ? "confirm" : "cancel")) event.preventDefault();
         });
         // What a person pressed in a message (sf-chat-message's events).
@@ -1540,7 +1540,7 @@ class SfChatWindow extends ChatWindowElement {
     }
 
     cardOf(code) {
-        return this.parts.list.querySelector(`sf-change-confirm[change-id="${CSS.escape(String(code))}"]`);
+        return this.parts.list.querySelector(`${tagSelector("sf-confirm-change")}[change-id="${CSS.escape(String(code))}"]`);
     }
 
     // An answer to a brief goes as the person's own message would (API.md
@@ -1788,7 +1788,7 @@ class SfChatWindow extends ChatWindowElement {
 
     // A conversation with another assistant than the first one names it on
     // a quiet second line (U-06); with the usual one the row stays one line.
-    // A pinned one is sf-thread-list's own (1.3.0: pinned: true leads under
+    // A pinned one is sf-chat-threads's own (1.3.0: pinned: true leads under
     // «Закреплённые» with its «Закреплён» line), so it is not said again here.
     listed(conversation) {
         const others = (this._data.interlocutors || []).slice(1);
@@ -2369,7 +2369,7 @@ class SfChatWindow extends ChatWindowElement {
         // While a send is out or an answer awaited, no proposal can be
         // answered: its command would be one more message in a turn that is
         // not over. Nor a brief: its fieldset waits with the field.
-        for (const card of list.querySelectorAll("sf-change-confirm")) card.toggleAttribute("disabled", busy);
+        for (const card of list.querySelectorAll(tagSelector("sf-confirm-change"))) card.toggleAttribute("disabled", busy);
         for (const brief of list.querySelectorAll("fieldset.sf-chat-brief[data-live]")) brief.disabled = busy;
         if (this._waiting && !waiting && this._sending === 0) composer.focus({preventScroll: true});
         this._waiting = waiting;

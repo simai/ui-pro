@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.10.2",
+  "version": "1.10.3",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -31,18 +31,18 @@
       "component.icon-buttons",
       "component.inputs",
       "smart.button",
-      "smart.change-confirm",
       "smart.chat-composer",
       "smart.chat-interlocutor",
       "smart.chat-message",
+      "smart.chat-threads",
+      "smart.confirm-change",
       "smart.empty-state",
       "smart.icon",
       "smart.input",
       "smart.input-lookup",
       "smart.menu-context",
       "smart.message-log",
-      "smart.progress-bar",
-      "smart.thread-list"
+      "smart.progress-bar"
     ],
     "public_parts": [],
     "declarative": {
@@ -2594,6 +2594,13 @@
         "changes": [
           "Draws and finds the renamed Framework elements by their new tags (the people are found with sf-input-lookup); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
         ]
+      },
+      {
+        "from": "1.10.2",
+        "to": "1.10.3",
+        "changes": [
+          "Places and hears the renamed package parts by their new tags: the list is sf-chat-threads (its sf-chat-threads-* events), a proposal sf-confirm-change (sf-confirm-change-answer); the rule relations name cl-chat-threads and cl-confirm-change. Needs the SIMAI Framework pair with the R2 tag aliases (core.runtime 1.22.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -2603,7 +2610,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "6fed38479230dbe46a1c3307b65ea8c1672f53fd5a710948a25c1fde939debce"
+        "sha256": "0830c0eb221227d90e973f88a030d95eac05ea7c23ebf9d93b6adb20ba6e83cb"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2615,7 +2622,7 @@
       },
       {
         "path": "src/smart/chat-window/js/part-words.js",
-        "sha256": "c19cddea561b6a81f88a6993b0c6571c4749a3c29a80db4090b96a10efbb720f"
+        "sha256": "7d20728f4eb6ba564495ff746f482b35a07339202de4543cc7632d3bc3ecdb51"
       },
       {
         "path": "src/smart/chat-window/js/preview-view.js",
@@ -2643,23 +2650,23 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.js",
-        "sha256": "e618ad146e539305dbe35b4a5259617fa2370bbd9fa38bcac4434610c4d18a2d"
+        "sha256": "e6082a0b3f69cfdf78746de8e3327d652a369b9ed633b78144b89d8a895c31f3"
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "67985987d752f95f8f15a1b6f11d3898ec6d76a65ba3ab66e13736e93298e5db"
+        "sha256": "194bfd84044943df59281bd404bde1ff6b7f8bbc83fc5c612b4767b13e77b510"
       },
       {
         "path": "src/smart/chat-window/rule.js",
-        "sha256": "6b9d0dce3bf672d66d443230a275074bea01796371c13ef881a17c0d93eb2516"
+        "sha256": "dd78c8184159e3119bc80ee2ae842dfb85f779bf0feff56efbc639a5c8cf97af"
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "075c10f1d5908e764f3b34c975c2617a45e64a8c1a1f3f78e100f63e9b9c0e0e"
+        "sha256": "a8712db8359cc15f8b547e8f6218edeb51658ba3a257b1ec3b28255208a411d5"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "9253434299882b1ec16a7230a90226d121064ed75cfbb75e2a1c5fce35107333"
+        "sha256": "a5ce0b82949b115671ba787064782a011584cb21b6afe45f6872645797d5b494"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

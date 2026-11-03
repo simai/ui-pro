@@ -10,13 +10,13 @@ import vm from 'node:vm';
 // group draws are lazy; what a record shows when it is read stays eager.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SF = {RuleLoader: {}};
-vm.runInNewContext(readFileSync(resolve(root, 'src/smart/property-view/rule.js'), 'utf8'), {SF});
-const relations = new Map(SF.RuleLoader['cl-property-view'].relation.map((one) => [one.name, one.lazy === true]));
+vm.runInNewContext(readFileSync(resolve(root, 'src/smart/view-properties/rule.js'), 'utf8'), {SF});
+const relations = new Map(SF.RuleLoader['cl-view-properties'].relation.map((one) => [one.name, one.lazy === true]));
 
-test('sf-property-view relates its editors lazily and its reading parts eagerly', () => {
+test('sf-view-properties relates its editors lazily and its reading parts eagerly', () => {
   for (const name of ['cl-input', 'cl-input-textarea', 'cl-dropdown', 'cl-input-date', 'cl-switch', 'cl-checkbox',
     'cl-button-group', 'cl-slider-range', 'cl-file-upload', 'cl-progress-bar', 'cl-sortable', 'cl-popover',
-    'cl-profile-picker', 'cl-data-view', 'cl-table']) {
+    'cl-profile-picker', 'cl-view', 'cl-view-table']) {
     assert.equal(relations.get(name), true, `${name} is lazy`);
   }
   for (const name of ['icons', 'cl-icon', 'cl-button', 'cl-drawer', 'cl-tabs', 'cl-badge', 'cl-tag', 'cl-reference-link',

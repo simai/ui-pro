@@ -20,15 +20,15 @@ const root = resolve(import.meta.dirname, '..');
 
 // The package folders in the 1.4 form: every generated file is byte for byte
 // what the generator writes.
-const PHASE_A = ['change-confirm', 'message-log', 'thread-list', 'property-view', 'admin-menu', 'table',
-  'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'data-view'];
+const PHASE_A = ['confirm-change', 'message-log', 'chat-threads', 'view-properties', 'admin-menu', 'view-table',
+  'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'view'];
 
 // The package folders still in the 1.3 form: the five files the generator
 // already gives back (rule.js, aliases.json, the fixture, the scenario,
 // probe.json) must stay equal to it; smart.manifest.json and meta.mjs follow
 // when the folder converts.
 // The chat components joined phase A with ui-pro chat/1.4 (the SIMAI Framework
-// thread, pair ui-e2cff39223f1). sf-data-view, the last 1.3 folder, joined with
+// thread, pair ui-e2cff39223f1). sf-view, the last 1.3 folder, joined with
 // 1.6.3: every event it announces is declared, the ones of another family as a
 // shared event (§8), so the port and host-port contracts still find them.
 const PENDING = [];

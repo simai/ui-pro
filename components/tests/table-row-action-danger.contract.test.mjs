@@ -7,8 +7,8 @@ import test from 'node:test';
 // carried `danger`, so a host that left row actions to the table got «Удалить»
 // drawn like «Изменить», and a host that wanted the red row had to name delete
 // in its own catalogue to say what the kit already knows (Larena storage QA).
-const table = fs.readFileSync(new URL('../src/smart/table/index.js', import.meta.url), 'utf8');
-const view = fs.readFileSync(new URL('../src/smart/data-view/index.js', import.meta.url), 'utf8');
+const table = fs.readFileSync(new URL('../src/smart/view-table/index.js', import.meta.url), 'utf8');
+const view = fs.readFileSync(new URL('../src/smart/view/index.js', import.meta.url), 'utf8');
 const literal = table.split('this.ACTIONS_SETTINGS_ROW =')[1].split('];')[0] + ']';
 // `return` and a newline is `return undefined`: the literal is parenthesised.
 const catalogue = new Function(`return (${literal})`).call({text: (key) => key});

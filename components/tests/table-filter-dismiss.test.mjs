@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-const source=fs.readFileSync(new URL('../src/smart/table/index.js',import.meta.url),'utf8');
+const source=fs.readFileSync(new URL('../src/smart/view-table/index.js',import.meta.url),'utf8');
 const body=source.split('    contextEvent(event) {')[1].split('\n    splitItemsByColumns(')[0].trim().replace(/\}\s*$/,'');
 const contextEvent=new Function('event',body);
 for(const menu of ['tag-settings','filter-settings']) {

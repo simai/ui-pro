@@ -24,7 +24,7 @@ const styles = [
   'component/component/buttons/css/buttons.css',
   'component/component/pagination/css/pagination.css',
   'smart/smart/empty-state/css/empty-state.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
@@ -34,15 +34,15 @@ const modules = [
   'smart/smart/spinner/js/spinner.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/empty-state/js/empty-state.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const LIMIT = 40;
 const TOO_LONG = `Строка поиска длиннее ${LIMIT} символов <b>сократите</b>`;
 const LONG = 'длинный поиск '.repeat(5).trim();
 const SHORT = 'длинный';
-const search = 'sf-table#t sf-input[name=sf_table_search] input';
+const search = 'sf-view-table#t sf-input[name=sf_table_search] input';
 
 const failures = [];
 const note = (detail) => failures.push(detail);
@@ -50,7 +50,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage({viewport: {width: 1100, height: 900}});
 page.on('pageerror', (error) => console.error('pageerror', error.message));
 await page.setContent(`<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0">
-  <div style="width:900px"><sf-data-view id="v" size="1/2"><sf-table slot="content" id="t"></sf-table></sf-data-view></div>
+  <div style="width:900px"><sf-view id="v" size="1/2"><sf-view-table slot="content" id="t"></sf-view-table></sf-view></div>
 </body></html>`);
 for (const path of styles) await page.addStyleTag({path}).catch(() => {});
 for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});

@@ -19,8 +19,8 @@ const json = (path) => JSON.parse(read(path));
 
 const sources = [
   'src/smart/field-renderers/index.js',
-  'src/smart/property-view/index.js',
-  'src/smart/property-view/js/templates/default.js',
+  'src/smart/view-properties/index.js',
+  'src/smart/view-properties/js/templates/default.js',
 ];
 
 // Keys a property-view host never sends, each with the reason it is not part of
@@ -39,7 +39,7 @@ const notInThisPort = new Map([
   ['precision', 'the stepper variant\'s decimals; not in port 1.14.0, due in 1.15.0'],
 ]);
 
-const portPath = json('src/smart/property-view/smart.manifest.json')
+const portPath = json('src/smart/view-properties/smart.manifest.json')
   .composition.declarative.host_port.path;
 const fieldSchema = json(portPath)
   .data.record.schema.properties.sections.items.properties.groups.items.properties.fields.items;

@@ -19,7 +19,7 @@
         {
           "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), (window.heard = [], document.querySelector('#w').addEventListener('sf-chat-window-settled', (e) => window.heard.push(['settled', e.detail.intent, e.detail.answer])), true), document.querySelector('#w').setAttribute('capabilities', \"assistant feedback proposals conversation-create conversation-manage interlocutors\"), document.querySelector('#w').setData({\"me\":{\"id\":7,\"name\":\"Анна\"},\"interlocutors\":[{\"id\":\"personal\",\"kind\":\"personal\",\"title\":\"Мой помощник\",\"greeting\":\"Чем помочь?\",\"suggestions\":[\"Сколько дней отпуска?\"]},{\"id\":\"hr\",\"kind\":\"knowledge\",\"title\":\"Кадры\"}],\"conversations\":[{\"id\":\"thr_01\",\"title\":\"Отпуск\",\"type\":\"assistant\",\"interlocutor\":\"personal\",\"updated_at\":\"2026-10-22T10:15:00+03:00\"},{\"id\":\"thr_02\",\"title\":\"График\",\"type\":\"assistant\",\"interlocutor\":\"hr\",\"updated_at\":\"2026-10-21T10:15:00+03:00\"}],\"conversation\":{\"id\":\"thr_01\",\"title\":\"Отпуск\",\"interlocutor\":\"personal\",\"can_send\":true},\"messages\":[{\"id\":\"msg_01\",\"kind\":\"person\",\"author\":{\"id\":7,\"own\":true},\"body\":\"Сколько дней отпуска?\"},{\"id\":\"msg_02\",\"kind\":\"assistant\",\"author\":{\"id\":\"personal\"},\"status\":\"completed\",\"body\":\"Ежегодный отпуск — 28 дней.\",\"html\":\"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}],\"history\":{\"has_older\":false},\"feed_state\":\"ready\",\"limits\":{\"body_chars\":4000}}), true)",
           "wait": 800,
-          "check": "(() => { const w = document.querySelector('#w'); const msgs = w.querySelectorAll('sf-message-log sf-chat-message'); return msgs.length === 2 && w.querySelector('.sf-chat-message--assistant .sf-chat-markup strong')?.textContent === '28 дней' && w.querySelector('sf-thread-list').getAttribute('selected') === 'thr_01' && w.querySelectorAll('.sf-thread-list__link').length === 2 && w.querySelector('.chat-shell__thread-title').textContent === 'Отпуск' && w.querySelector('.chat-shell__page-title').textContent === 'Отпуск' && w.querySelector('.sf-chat-message--assistant').classList.contains('sf-chat-message--last'); })()"
+          "check": "(() => { const w = document.querySelector('#w'); const msgs = w.querySelectorAll('sf-message-log sf-chat-message'); return msgs.length === 2 && w.querySelector('.sf-chat-message--assistant .sf-chat-markup strong')?.textContent === '28 дней' && w.querySelector('sf-chat-threads').getAttribute('selected') === 'thr_01' && w.querySelectorAll('.sf-thread-list__link').length === 2 && w.querySelector('.chat-shell__thread-title').textContent === 'Отпуск' && w.querySelector('.chat-shell__page-title').textContent === 'Отпуск' && w.querySelector('.sf-chat-message--assistant').classList.contains('sf-chat-message--last'); })()"
         }
       ]
     },
@@ -114,7 +114,7 @@
             ]
           },
           "wait": 600,
-          "check": "window.calls.length === 1 && window.calls[0][0] === 'conversation.open' && document.querySelector('#w .chat-shell__thread-title').textContent === 'График' && document.querySelector('#w sf-chat-message .sf-chat-message--assistant') && document.querySelector('#w sf-thread-list').getAttribute('selected') === 'thr_02'"
+          "check": "window.calls.length === 1 && window.calls[0][0] === 'conversation.open' && document.querySelector('#w .chat-shell__thread-title').textContent === 'График' && document.querySelector('#w sf-chat-message .sf-chat-message--assistant') && document.querySelector('#w sf-chat-threads').getAttribute('selected') === 'thr_02'"
         }
       ]
     },
@@ -143,10 +143,10 @@
         {
           "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.lastRequest = null, document.querySelector('#w').addEventListener('sf-chat-window-submit', (e) => { window.lastRequest = e.detail['request-id']; }), document.querySelector('#w').addEventListener('sf-chat-window-answer', (e) => { window.lastRequest = e.detail['request-id']; }), document.querySelector('#w').setAttribute('capabilities', \"assistant feedback proposals conversation-create conversation-manage interlocutors\"), document.querySelector('#w').setData({\"me\":{\"id\":7,\"name\":\"Анна\"},\"interlocutors\":[{\"id\":\"personal\",\"kind\":\"personal\",\"title\":\"Мой помощник\",\"greeting\":\"Чем помочь?\",\"suggestions\":[\"Сколько дней отпуска?\"]},{\"id\":\"hr\",\"kind\":\"knowledge\",\"title\":\"Кадры\"}],\"conversations\":[{\"id\":\"thr_01\",\"title\":\"Отпуск\",\"type\":\"assistant\",\"interlocutor\":\"personal\",\"updated_at\":\"2026-10-22T10:15:00+03:00\"},{\"id\":\"thr_02\",\"title\":\"График\",\"type\":\"assistant\",\"interlocutor\":\"hr\",\"updated_at\":\"2026-10-21T10:15:00+03:00\"}],\"conversation\":{\"id\":\"thr_01\",\"title\":\"Отпуск\",\"interlocutor\":\"personal\",\"can_send\":true},\"messages\":[{\"id\":\"msg_01\",\"kind\":\"person\",\"author\":{\"id\":7,\"own\":true},\"body\":\"Сколько дней отпуска?\"},{\"id\":\"msg_04\",\"kind\":\"assistant\",\"author\":{\"id\":\"personal\"},\"status\":\"completed\",\"body\":\"Подготовил перенос.\",\"proposal\":{\"code\":\"P-104\",\"title\":\"Перенос отпуска\",\"state\":\"presented\",\"changes\":[{\"field\":\"Начало\",\"was\":\"3 ноября\",\"will_be\":\"10 ноября\"}],\"confirm_command\":\"Подтверждаю P-104\",\"cancel_command\":\"Отменяю P-104\"}}],\"history\":{\"has_older\":false},\"feed_state\":\"ready\",\"limits\":{\"body_chars\":4000}}), true)",
           "wait": 1000,
-          "check": "(() => { const card = document.querySelector('#w sf-change-confirm'); return card && card.getAttribute('change-id') === 'P-104' && card.getAttribute('decline-text') === 'Отменить'; })()"
+          "check": "(() => { const card = document.querySelector('#w sf-confirm-change'); return card && card.getAttribute('change-id') === 'P-104' && card.getAttribute('decline-text') === 'Отменить'; })()"
         },
         {
-          "user": "click:#w sf-change-confirm button[data-action=accept]",
+          "user": "click:#w sf-confirm-change button[data-action=accept]",
           "expect": {
             "events": [
               {
@@ -184,7 +184,7 @@
         {
           "script": "(document.querySelector('#w').answer(window.lastRequest, {answer: 'refused', reason: 'Срок истёк'}), true)",
           "wait": 300,
-          "check": "document.querySelector('#w sf-change-confirm').getAttribute('state') === 'open' && document.querySelector('#w .chat-shell__error').textContent.includes('Срок истёк')"
+          "check": "document.querySelector('#w sf-confirm-change').getAttribute('state') === 'open' && document.querySelector('#w .chat-shell__error').textContent.includes('Срок истёк')"
         }
       ]
     },
@@ -248,7 +248,7 @@
           "wait": 900
         },
         {
-          "script": "(document.querySelector('#w sf-thread-list').dispatchEvent(new CustomEvent('sf-thread-list-archive', {bubbles: true, detail: {id: 'thr_02'}})), true)",
+          "script": "(document.querySelector('#w sf-chat-threads').dispatchEvent(new CustomEvent('sf-chat-threads-archive', {bubbles: true, detail: {id: 'thr_02'}})), true)",
           "wait": 400,
           "expect": {
             "events": [
@@ -313,7 +313,7 @@
         {
           "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor','sf-thread-list'].map((t) => customElements.whenDefined(t))), window.calls = [], document.querySelector('#w').connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); return intent === 'files.list' ? {answer: 'applied', data: {my_files: {used_bytes: 1048576, quota_bytes: 10485760, files: [{id: 'f1', name: 'Договор.pdf', size: 48213, download_url: '/files/f1'}, {id: 'f2', name: 'Счёт.xlsx', size: 1200}]}}} : {answer: 'applied', data: {my_files: {used_bytes: 0, quota_bytes: 10485760, files: [{id: 'f2', name: 'Счёт.xlsx', size: 1200}]}}}; }}), document.querySelector('#w').setAttribute('capabilities', \"assistant feedback proposals conversation-create conversation-manage interlocutors x-my-files\"), document.querySelector('#w').setData({\"me\":{\"id\":7,\"name\":\"Анна\"},\"interlocutors\":[{\"id\":\"personal\",\"kind\":\"personal\",\"title\":\"Мой помощник\",\"greeting\":\"Чем помочь?\",\"suggestions\":[\"Сколько дней отпуска?\"]},{\"id\":\"hr\",\"kind\":\"knowledge\",\"title\":\"Кадры\"}],\"conversations\":[{\"id\":\"thr_01\",\"title\":\"Отпуск\",\"type\":\"assistant\",\"interlocutor\":\"personal\",\"updated_at\":\"2026-10-22T10:15:00+03:00\"},{\"id\":\"thr_02\",\"title\":\"График\",\"type\":\"assistant\",\"interlocutor\":\"hr\",\"updated_at\":\"2026-10-21T10:15:00+03:00\"}],\"conversation\":{\"id\":\"thr_01\",\"title\":\"Отпуск\",\"interlocutor\":\"personal\",\"can_send\":true},\"messages\":[{\"id\":\"msg_01\",\"kind\":\"person\",\"author\":{\"id\":7,\"own\":true},\"body\":\"Сколько дней отпуска?\"},{\"id\":\"msg_02\",\"kind\":\"assistant\",\"author\":{\"id\":\"personal\"},\"status\":\"completed\",\"body\":\"Ежегодный отпуск — 28 дней.\",\"html\":\"<p>Ежегодный отпуск — <strong>28 дней</strong>.</p>\"}],\"history\":{\"has_older\":false},\"feed_state\":\"ready\",\"limits\":{\"body_chars\":4000}}), true)",
           "wait": 900,
-          "check": "Boolean(document.querySelector('#w sf-thread-list .chat-files__entry'))"
+          "check": "Boolean(document.querySelector('#w sf-chat-threads .chat-files__entry'))"
         },
         {
           "user": "click:#w .chat-files__entry",
@@ -1125,7 +1125,7 @@
         {
           "script": "(window.answers['conversation.start'] = () => ({answer: 'applied', data: {conversation: {id: 'p9', type: 'private', title: null}}}), window.answers['conversation.open'] = () => ({answer: 'applied', data: {messages: [{id: 1, kind: 'person', author: {id: 102, name: 'Иван Петров'}, body: 'Привет', revision: 1}]}}), window.w.querySelector('.chat-start__line button').click(), true)",
           "wait": 400,
-          "check": "window.of('conversation.start').length === 2 && JSON.stringify(window.of('conversation.start')[1][1]) === JSON.stringify({kind: 'private', user_id: 102}) && window.w.querySelector('.chat-start').hidden && JSON.stringify(window.of('conversation.open')[0][1]) === JSON.stringify({conversation_id: 'p9'}) && window.w.conversation.id === 'p9' && window.w.feedState === 'ready' && window.w.querySelector('sf-thread-list').getAttribute('selected') === 'p9' && window.w.querySelector('.chat-shell__thread-title').textContent === 'Иван Петров' && window.w.querySelector('.chat-shell__composer').contains(document.activeElement)"
+          "check": "window.of('conversation.start').length === 2 && JSON.stringify(window.of('conversation.start')[1][1]) === JSON.stringify({kind: 'private', user_id: 102}) && window.w.querySelector('.chat-start').hidden && JSON.stringify(window.of('conversation.open')[0][1]) === JSON.stringify({conversation_id: 'p9'}) && window.w.conversation.id === 'p9' && window.w.feedState === 'ready' && window.w.querySelector('sf-chat-threads').getAttribute('selected') === 'p9' && window.w.querySelector('.chat-shell__thread-title').textContent === 'Иван Петров' && window.w.querySelector('.chat-shell__composer').contains(document.activeElement)"
         },
         {
           "script": "(window.w.setData({conversations: [{id: 'p9', title: 'Иван Петров', type: 'private'}, ...window.w.conversations]}), true)",
@@ -1961,7 +1961,7 @@
         {
           "script": "(window.answers['thread.open'] = {answer: 'applied', data: {conversation_id: 't41'}}, window.item(41).querySelector('.sf-chat-replies').click(), true)",
           "wait": 900,
-          "check": "window.of('thread.open').length === 1 && window.of('thread.open')[0][1].message_id === 41 && window.of('thread.open')[0][1].conversation_id === 7 && window.w.conversation?.id === 't41' && !window.w.querySelector('.chat-shell__thread-bar').hidden && /Когда запускаем/.test(window.w.querySelector('.chat-shell__thread-root').textContent) && window.w.querySelector('.chat-shell__thread-title').textContent === 'Обсуждение' && !window.w.querySelector('.sf-chat-replies') && window.w.querySelector('sf-thread-list').getAttribute('selected') === '7'"
+          "check": "window.of('thread.open').length === 1 && window.of('thread.open')[0][1].message_id === 41 && window.of('thread.open')[0][1].conversation_id === 7 && window.w.conversation?.id === 't41' && !window.w.querySelector('.chat-shell__thread-bar').hidden && /Когда запускаем/.test(window.w.querySelector('.chat-shell__thread-root').textContent) && window.w.querySelector('.chat-shell__thread-title').textContent === 'Обсуждение' && !window.w.querySelector('.sf-chat-replies') && window.w.querySelector('sf-chat-threads').getAttribute('selected') === '7'"
         },
         {
           "script": "(window.w.querySelector('.chat-shell__thread-back').click(), true)",

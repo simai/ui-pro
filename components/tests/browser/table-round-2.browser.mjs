@@ -12,7 +12,7 @@ const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -28,7 +28,7 @@ const modules = [
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -49,7 +49,7 @@ const fill = (page, columns, rows) => page.evaluate(async ([columns, rows]) => {
   window.settings = [];
   window.resets = [];
   table.addEventListener('sf-table-column-settings-change', (event) => window.settings.push(event.detail));
-  table.addEventListener('sf-table-column-settings-reset', (event) => window.resets.push(event.detail));
+  table.addEventListener('sf-view-table-column-settings-reset', (event) => window.resets.push(event.detail));
   table.setColumns?.(columns);
   table.setRows?.(rows);
   await new Promise((done) => setTimeout(done, 400));
@@ -58,7 +58,7 @@ const fill = (page, columns, rows) => page.evaluate(async ([columns, rows]) => {
 try {
   // 1. The line is taken directly -- round three removed the handle -- and the
   //    guide answers for that strip alone.
-  const table = await open('<div style="width:800px"><sf-table id="t" toolbar="false"></sf-table></div>');
+  const table = await open('<div style="width:800px"><sf-view-table id="t" toolbar="false"></sf-view-table></div>');
   await fill(
     table,
     [{key: 'name', label: 'Name', role: 'title', width: 220, sortable: true}, {key: 'city', label: 'City', width: 220}],
@@ -204,7 +204,7 @@ try {
   // 3b. The settings list reads like the table: the pinned group, then the rest
   // of the visible columns, then the hidden ones. The consumer opened the gear
   // and found eight columns it had never shown standing above its own.
-  const listed = await open('<div style="width:800px"><sf-table id="t" toolbar="false"></sf-table></div>');
+  const listed = await open('<div style="width:800px"><sf-view-table id="t" toolbar="false"></sf-view-table></div>');
   await fill(
     listed,
     [
@@ -227,7 +227,7 @@ try {
 
   // 4. The toolbar: the search row sits above the chips when they do not fit,
   // whether or not the field has focus.
-  const narrow = await open('<div style="width:520px"><sf-table id="t"></sf-table></div>');
+  const narrow = await open('<div style="width:520px"><sf-view-table id="t"></sf-view-table></div>');
   await fill(
     narrow,
     [{key: 'name', label: 'Name', role: 'title', width: 200}],
@@ -278,7 +278,7 @@ try {
 
   // 5. No empty band between the last row and Show more.
   const banded = await open(
-    `<div style="width:700px"><sf-table id="t" toolbar="false"></sf-table>
+    `<div style="width:700px"><sf-view-table id="t" toolbar="false"></sf-view-table>
        <sf-pagination id="p" middle="false" bottom="false" total="100" page-size="10" current="1"></sf-pagination></div>`,
   );
   await fill(

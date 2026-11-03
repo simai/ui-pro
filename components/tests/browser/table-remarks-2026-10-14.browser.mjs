@@ -20,7 +20,7 @@ const styles = [
   'component/component/context-menu/css/context-menu.css',
   'component/component/checkbox/css/checkbox.css',
   'component/component/skeleton/css/skeleton.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'smart/smart/sortable/css/sortable.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -29,7 +29,7 @@ const modules = [
   'smart/smart/list-item/js/list-item.js', 'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/sortable/js/sortable.js',
-  'smart/smart/pagination/js/pagination.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
+  'smart/smart/pagination/js/pagination.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -40,7 +40,7 @@ const open = async (size) => {
   const page = await browser.newPage({viewport: {width: 1280, height: 800}});
   await page.setContent(
     `<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">
-       <div style="width:1200px"><sf-table id="t" size="${size}"></sf-table></div></body></html>`,
+       <div style="width:1200px"><sf-view-table id="t" size="${size}"></sf-view-table></div></body></html>`,
   );
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
@@ -161,7 +161,7 @@ try {
       const page = await context.newPage();
       await page.goto('http://probe.test/');
       await page.setContent(`<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">
-        <div style="width:1200px"><sf-table id="t" size="1/2" remember-widths table-settings-key="probe-widths"></sf-table></div></body></html>`);
+        <div style="width:1200px"><sf-view-table id="t" size="1/2" remember-widths table-settings-key="probe-widths"></sf-view-table></div></body></html>`);
       for (const path of styles) await page.addStyleTag({path}).catch(() => {});
       for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
       await page.waitForTimeout(1100);
@@ -261,7 +261,7 @@ try {
     await page.evaluate(() => {
       const table = document.getElementById('t');
       window.asked = [];
-      table.addEventListener('sf-table-reference-open', (event) => {
+      table.addEventListener('sf-view-table-reference-open', (event) => {
         window.asked.push(JSON.parse(JSON.stringify(event.detail)));
         event.preventDefault();
       });

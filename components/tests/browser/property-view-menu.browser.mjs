@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-property-view, the first pair: one object read through its port and one
+// sf-view-properties, the first pair: one object read through its port and one
 // group saved through it. What this measures is the seam, because that is where
 // this composite can be wrong in ways a screenshot would not show -- a save that
 // carries untouched fields, a value written on blur, a conflict that quietly
@@ -30,10 +30,10 @@ const styles = [
   // pair -- the reason a consumer saw plain stacked text.
   'smart/smart/popover/css/popover.css',
   'component/component/context-menu/css/context-menu.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/profile-picker/css/profile-picker.css',
   'smart/smart/sortable/css/sortable.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'component/component/pagination/css/pagination.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -57,11 +57,11 @@ const modules = [
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
   'smart/smart/popover/js/popover.js',
   'smart/smart/profile-picker/js/profile-picker.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -81,11 +81,11 @@ try {
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><body style="margin:0"></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-property-view') && customElements.get('sf-menu-context')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view-properties') && customElements.get('sf-menu-context')));
 
   await page.evaluate(async () => {
     window.raised = [];
-    const view = document.createElement('sf-property-view');
+    const view = document.createElement('sf-view-properties');
     view.id = 'view';
     view.setAttribute('record-id', 'r1');
     view.setAttribute('collection', 'pages');
@@ -300,7 +300,7 @@ try {
   await page.evaluate(() => document.getElementById('view').remove());
   await page.evaluate(async () => {
     window.hostPressed = 0;
-    const view = document.createElement('sf-property-view');
+    const view = document.createElement('sf-view-properties');
     view.id = 'hosted';
     view.setAttribute('record-id', 'r2');
     view.setAttribute('panel', '');

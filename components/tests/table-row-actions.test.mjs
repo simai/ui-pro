@@ -3,9 +3,9 @@ import fs from 'node:fs';
 import test from 'node:test';
 
 // row-actions hides the row action column alone; actions still owns the create button.
-const source = fs.readFileSync(new URL('../src/smart/table/index.js', import.meta.url), 'utf8');
-const template = fs.readFileSync(new URL('../src/smart/table/js/templates/default.js', import.meta.url), 'utf8');
-const manifest = JSON.parse(fs.readFileSync(new URL('../src/smart/table/smart.manifest.json', import.meta.url), 'utf8'));
+const source = fs.readFileSync(new URL('../src/smart/view-table/index.js', import.meta.url), 'utf8');
+const template = fs.readFileSync(new URL('../src/smart/view-table/js/templates/default.js', import.meta.url), 'utf8');
+const manifest = JSON.parse(fs.readFileSync(new URL('../src/smart/view-table/smart.manifest.json', import.meta.url), 'utf8'));
 const body = source.split('    getSystemColumns() {')[1].split('\n    setTemplates(')[0].trim().replace(/\}\s*$/, '');
 const systemColumns = new Function(body);
 

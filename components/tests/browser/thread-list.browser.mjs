@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-thread-list on the built bytes:
+// sf-chat-threads on the built bytes:
 // - conversations grouped by the day they last changed, the open one marked by
 //   aria-current and weight, one Tab stop for the whole list;
 // - arrows, Home and End move between rows, Enter opens one (the list reports
@@ -23,13 +23,13 @@ const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/badges/css/badges.css', 'component/component/avatars/css/avatars.css',
   'component/component/context-menu/css/context-menu.css',
-  'smart/smart/thread-list/css/thread-list.css',
+  'smart/smart/chat-threads/css/chat-threads.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js',
   'smart/smart/menu-context/js/menu-context.js',
-  'smart/smart/thread-list/js/thread-list.js',
+  'smart/smart/chat-threads/js/chat-threads.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
 if (absent.length) throw new Error(`${absent.length} build asset(s) not found under ${out}: ${absent.join(', ')}`);
@@ -46,14 +46,14 @@ try {
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0"><button id="before">до</button><div id="box" style="display:flex;flex-direction:column;height:420px;width:280px"></div></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-thread-list')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-chat-threads')));
 
   const make = async ({attributes = {}, threads = 'days', hasMore = false, actions = null, footer = false} = {}) => {
     await page.evaluate(async ({attributes, threads, hasMore, actions, footer}) => {
       const box = document.getElementById('box');
       box.replaceChildren();
       window.events = [];
-      const list = document.createElement('sf-thread-list');
+      const list = document.createElement('sf-chat-threads');
       list.id = 'list';
       for (const [name, value] of Object.entries(attributes)) list.setAttribute(name, value);
       if (footer) list.innerHTML = '<div slot="footer"><a id="usage" href="#usage">Мой расход</a></div>';

@@ -30,22 +30,15 @@ const known = (component, from) => recorded.has(`${component}|${from}`) || recor
 // by component. Each has a dated row in its aliases.json.
 const PENDING = {
   'sf-admin-menu': ['sf-admin-menu-search', 'sf-admin-menu-settings-reset', 'sf-admin-menu-intent'],
-  'sf-data-view': ['sf-table-tree-intent'],
-  'sf-change-confirm': ['sf-change-confirm-accept', 'sf-change-confirm-decline', 'sf-change-confirm-expire'],
   'sf-message-log': ['sf-message-log-load-earlier'],
-  'sf-property-view': ['sf-property-view-open-record', 'sf-property-view-delete-record'],
-  'sf-table': [
-    'sf-port-output', 'sf-table-action-intent', 'sf-table-column-settings-change', 'sf-table-create-intent',
-    'sf-table-query-intent', 'sf-table-retry', 'sf-table-tree-toggle', 'sf-table-tree-more', 'sf-table-rows-reorder',
-    'sf-table:column-settings-change', 'onColumnSettingsChange', 'onSearchEnd', 'onTemplateSave', 'onFilterUpdate',
-  ],
-  'sf-thread-list': ['sf-thread-list-select', 'sf-thread-list-unarchive', 'sf-thread-list-action', 'sf-thread-list-view'],
 };
 
 // The package's folders (scripts/overlay.mjs PACKAGE_COMPONENTS; the overlay
 // holds src/, tests/ and docs/ of this repository, not its scripts).
-const packageFolders = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window',
-  'data-view', 'message-log', 'property-view', 'table', 'thread-list'];
+// The renamed ones (rename plan R2, 2026-11-03) have their earlier former
+// names recorded with their tag record (tag-sf-table-to-sf-view-table, ...).
+const packageFolders = ['admin-menu', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window',
+  'confirm-change', 'message-log', 'view', 'view-properties', 'view-table'];
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/u;
 

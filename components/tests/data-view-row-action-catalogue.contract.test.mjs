@@ -4,13 +4,13 @@ import {dirname, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 
-// sf-table names the row actions it draws itself -- the eye for «view», the
+// sf-view-table names the row actions it draws itself -- the eye for «view», the
 // pencil for «edit» -- in its constructor, and the view reads that catalogue to
 // turn a record's action ids into controls. The read was
 // `this._knownRowActions ??= table.ACTIONS_SETTINGS_ROW ?? []`.
 //
 // The view's own fallback table stands in its shadow template, so it is in the
-// tree before sf-table is defined, and an element that has not upgraded carries
+// tree before sf-view-table is defined, and an element that has not upgraded carries
 // no ACTIONS_SETTINGS_ROW: `[]` was cached, and `??=` never looked again,
 // because `[]` is not nullish. From then on every id was unknown -- the warning
 // fired and «view» came out as a generic word instead of the eye, on every list
@@ -22,7 +22,7 @@ import {fileURLToPath} from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
-const source = read('src/smart/data-view/index.js');
+const source = read('src/smart/view/index.js');
 
 const method = (signature, next) => {
   const [, rest] = source.split(`    ${signature} {`);
@@ -32,7 +32,7 @@ const method = (signature, next) => {
 
 const captureRowActions = new Function('table', method('_captureRowActions(table)', '// Waited for once'));
 
-// What sf-table's constructor names, as the view sees it.
+// What sf-view-table's constructor names, as the view sees it.
 const catalogue = [
   {id: 'edit', name: 'Edit', component: {type: 'icon-button', props: {icon: 'edit'}}},
   {id: 'view', name: 'View', component: {type: 'icon-button', props: {icon: 'visibility'}}},
@@ -44,7 +44,7 @@ const view = () => ({
   _captureRowActions: captureRowActions,
 });
 
-test('a list in the tree before sf-table is defined still gets the eye and the pencil', () => {
+test('a list in the tree before sf-view-table is defined still gets the eye and the pencil', () => {
   const owner = view();
   // The fallback table from the shadow template: present, not upgraded, so it
   // carries nothing to read.
@@ -58,7 +58,7 @@ test('a list in the tree before sf-table is defined still gets the eye and the p
   owner._projectedRowActions = narrowed;
   assert.deepEqual(owner._captureRowActions(table), [], 'the view’s own list is not the catalogue');
 
-  // sf-table upgrades: its constructor names the catalogue, and the capture
+  // sf-view-table upgrades: its constructor names the catalogue, and the capture
   // that used to be stuck on `[]` for ever finds it.
   table.ACTIONS_SETTINGS_ROW = catalogue;
   assert.deepEqual(owner._captureRowActions(table), catalogue, 'the catalogue is captured once it exists');
@@ -88,7 +88,7 @@ test('the capture is written where the projection can reach it, and the old shap
     /table\.ACTIONS_SETTINGS_ROW = listed;[\s\S]{0,200}?this\._projectedRowActions = listed;/u,
     'the projected list is remembered beside the write',
   );
-  assert.match(source, /customElements\?\.whenDefined\?\.\("sf-table"\)/u, 'the definition is what is waited for');
+  assert.match(source, /customElements\?\.whenDefined\?\.\("sf-view-table"\)/u, 'the definition is what is waited for');
 });
 
 test('an id the host never named is still reported and still gets a word', () => {

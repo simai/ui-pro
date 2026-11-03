@@ -1,0 +1,1170 @@
+{
+  "examples": [
+    {
+      "name": "reference",
+      "title": "Страница с блоками всех основных видов",
+      "settings": {
+        "document": {
+          "schema": "simai.composition.document",
+          "schema_version": 1,
+          "id": "guide",
+          "profile": "structured-content",
+          "root": {
+            "id": "root",
+            "type": "content.document",
+            "data": {
+              "title": "Как подготовить письмо к рассылке"
+            },
+            "slots": {
+              "default": [
+                {
+                  "id": "p1",
+                  "type": "content.paragraph",
+                  "data": {
+                    "content": [
+                      {
+                        "type": "text",
+                        "value": "Эта страница написана в режиме содержимого. Просто печатайте: "
+                      },
+                      {
+                        "type": "text",
+                        "value": "Enter",
+                        "marks": [
+                          "strong"
+                        ]
+                      },
+                      {
+                        "type": "text",
+                        "value": " делает новый блок, а косая черта в пустой строке открывает меню."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "h1",
+                  "type": "content.heading",
+                  "data": {
+                    "level": 2,
+                    "content": [
+                      {
+                        "type": "text",
+                        "value": "Что проверить перед отправкой"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "l1",
+                  "type": "content.list",
+                  "slots": {
+                    "items": [
+                      {
+                        "id": "l1a",
+                        "type": "content.list-item",
+                        "data": {
+                          "content": [
+                            {
+                              "type": "text",
+                              "value": "Согласие получателей и ссылку отписки"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "l1b",
+                        "type": "content.list-item",
+                        "data": {
+                          "content": [
+                            {
+                              "type": "text",
+                              "value": "Тему письма и первые слова после неё"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "id": "l1c",
+                        "type": "content.list-item",
+                        "data": {
+                          "content": [
+                            {
+                              "type": "text",
+                              "value": "Вид на телефоне и в тёмной теме"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "a1",
+                  "type": "content.alert",
+                  "props": {
+                    "status": "warning"
+                  },
+                  "slots": {
+                    "default": [
+                      {
+                        "id": "a1p",
+                        "type": "content.paragraph",
+                        "data": {
+                          "content": [
+                            {
+                              "type": "text",
+                              "value": "Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки."
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "d1",
+                  "type": "content.details",
+                  "props": {
+                    "open": true
+                  },
+                  "data": {
+                    "summary": [
+                      {
+                        "type": "text",
+                        "value": "Зачем нужны параметры"
+                      }
+                    ]
+                  },
+                  "slots": {
+                    "default": [
+                      {
+                        "id": "d1p",
+                        "type": "content.paragraph",
+                        "data": {
+                          "content": [
+                            {
+                              "type": "text",
+                              "value": "У блока бывают настройки: вид заметки, пропорции картинки, язык кода."
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "f1",
+                  "type": "content.figure",
+                  "props": {
+                    "ratio": "21/9"
+                  },
+                  "data": {
+                    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E",
+                    "alt": "Градиент",
+                    "caption": [
+                      {
+                        "type": "text",
+                        "value": "Картинка с пропорциями 21:9"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "c1",
+                  "type": "content.code",
+                  "props": {
+                    "lang": "bash",
+                    "title": "Сборка",
+                    "numbers": true
+                  },
+                  "data": {
+                    "code": "npm ci\nnpm run build"
+                  }
+                },
+                {
+                  "id": "s1",
+                  "type": "content.steps",
+                  "props": {
+                    "current": 2
+                  },
+                  "slots": {
+                    "steps": [
+                      {
+                        "id": "s1a",
+                        "type": "content.step",
+                        "data": {
+                          "title": [
+                            {
+                              "type": "text",
+                              "value": "Напишите текст"
+                            }
+                          ]
+                        },
+                        "slots": {
+                          "default": []
+                        }
+                      },
+                      {
+                        "id": "s1b",
+                        "type": "content.step",
+                        "data": {
+                          "title": [
+                            {
+                              "type": "text",
+                              "value": "Проверьте вид на телефоне"
+                            }
+                          ]
+                        },
+                        "slots": {
+                          "default": []
+                        }
+                      },
+                      {
+                        "id": "s1c",
+                        "type": "content.step",
+                        "data": {
+                          "title": [
+                            {
+                              "type": "text",
+                              "value": "Отправьте на проверку"
+                            }
+                          ]
+                        },
+                        "slots": {
+                          "default": []
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "h2",
+                  "type": "content.heading",
+                  "data": {
+                    "level": 2,
+                    "content": [
+                      {
+                        "type": "text",
+                        "value": "Сроки"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "t1",
+                  "type": "content.table",
+                  "data": {
+                    "rows": [
+                      [
+                        [
+                          {
+                            "type": "text",
+                            "value": "Этап"
+                          }
+                        ],
+                        [
+                          {
+                            "type": "text",
+                            "value": "Кто"
+                          }
+                        ],
+                        [
+                          {
+                            "type": "text",
+                            "value": "Срок"
+                          }
+                        ]
+                      ],
+                      [
+                        [
+                          {
+                            "type": "text",
+                            "value": "Текст"
+                          }
+                        ],
+                        [
+                          {
+                            "type": "text",
+                            "value": "Автор"
+                          }
+                        ],
+                        [
+                          {
+                            "type": "text",
+                            "value": "3 дня"
+                          }
+                        ]
+                      ],
+                      [
+                        [
+                          {
+                            "type": "text",
+                            "value": "Вёрстка"
+                          }
+                        ],
+                        [
+                          {
+                            "type": "text",
+                            "value": "Редактор"
+                          }
+                        ],
+                        [
+                          {
+                            "type": "text",
+                            "value": "1 день"
+                          }
+                        ]
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "id": "q1",
+                  "type": "content.quote",
+                  "slots": {
+                    "default": [
+                      {
+                        "id": "q1p",
+                        "type": "content.paragraph",
+                        "data": {
+                          "content": [
+                            {
+                              "type": "text",
+                              "value": "Письмо хорошо, когда из него нечего убрать."
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "p2",
+                  "type": "content.paragraph",
+                  "data": {
+                    "content": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "first-paint": {
+        "max-bytes": 24000,
+        "why": "the whole reference page drawn from its Document: the title, every main type of block, the gutter and the closed surfaces"
+      },
+      "studio": {
+        "id": "content-editor-reference",
+        "title": "Content editor reference",
+        "summary": "Deterministic reference fixture for sf-editor-content: a page with a paragraph, headings, a list, a note, a collapsible block, a picture, code, steps, a table, a quote and an unknown block.",
+        "props": {
+          "document": {
+            "schema": "simai.composition.document",
+            "schema_version": 1,
+            "id": "guide",
+            "profile": "structured-content",
+            "root": {
+              "id": "root",
+              "type": "content.document",
+              "data": {
+                "title": "Как подготовить письмо к рассылке"
+              },
+              "slots": {
+                "default": [
+                  {
+                    "id": "p1",
+                    "type": "content.paragraph",
+                    "data": {
+                      "content": [
+                        {
+                          "type": "text",
+                          "value": "Эта страница написана в режиме содержимого. Просто печатайте: "
+                        },
+                        {
+                          "type": "text",
+                          "value": "Enter",
+                          "marks": [
+                            "strong"
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "value": " делает новый блок, а косая черта в пустой строке открывает меню."
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "h1",
+                    "type": "content.heading",
+                    "data": {
+                      "level": 2,
+                      "content": [
+                        {
+                          "type": "text",
+                          "value": "Что проверить перед отправкой"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "l1",
+                    "type": "content.list",
+                    "slots": {
+                      "items": [
+                        {
+                          "id": "l1a",
+                          "type": "content.list-item",
+                          "data": {
+                            "content": [
+                              {
+                                "type": "text",
+                                "value": "Согласие получателей и ссылку отписки"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "id": "l1b",
+                          "type": "content.list-item",
+                          "data": {
+                            "content": [
+                              {
+                                "type": "text",
+                                "value": "Тему письма и первые слова после неё"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "id": "l1c",
+                          "type": "content.list-item",
+                          "data": {
+                            "content": [
+                              {
+                                "type": "text",
+                                "value": "Вид на телефоне и в тёмной теме"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "a1",
+                    "type": "content.alert",
+                    "props": {
+                      "status": "warning"
+                    },
+                    "slots": {
+                      "default": [
+                        {
+                          "id": "a1p",
+                          "type": "content.paragraph",
+                          "data": {
+                            "content": [
+                              {
+                                "type": "text",
+                                "value": "Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки."
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "d1",
+                    "type": "content.details",
+                    "props": {
+                      "open": true
+                    },
+                    "data": {
+                      "summary": [
+                        {
+                          "type": "text",
+                          "value": "Зачем нужны параметры"
+                        }
+                      ]
+                    },
+                    "slots": {
+                      "default": [
+                        {
+                          "id": "d1p",
+                          "type": "content.paragraph",
+                          "data": {
+                            "content": [
+                              {
+                                "type": "text",
+                                "value": "У блока бывают настройки: вид заметки, пропорции картинки, язык кода."
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "f1",
+                    "type": "content.figure",
+                    "props": {
+                      "ratio": "21/9"
+                    },
+                    "data": {
+                      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E",
+                      "alt": "Градиент",
+                      "caption": [
+                        {
+                          "type": "text",
+                          "value": "Картинка с пропорциями 21:9"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "c1",
+                    "type": "content.code",
+                    "props": {
+                      "lang": "bash",
+                      "title": "Сборка",
+                      "numbers": true
+                    },
+                    "data": {
+                      "code": "npm ci\nnpm run build"
+                    }
+                  },
+                  {
+                    "id": "s1",
+                    "type": "content.steps",
+                    "props": {
+                      "current": 2
+                    },
+                    "slots": {
+                      "steps": [
+                        {
+                          "id": "s1a",
+                          "type": "content.step",
+                          "data": {
+                            "title": [
+                              {
+                                "type": "text",
+                                "value": "Напишите текст"
+                              }
+                            ]
+                          },
+                          "slots": {
+                            "default": []
+                          }
+                        },
+                        {
+                          "id": "s1b",
+                          "type": "content.step",
+                          "data": {
+                            "title": [
+                              {
+                                "type": "text",
+                                "value": "Проверьте вид на телефоне"
+                              }
+                            ]
+                          },
+                          "slots": {
+                            "default": []
+                          }
+                        },
+                        {
+                          "id": "s1c",
+                          "type": "content.step",
+                          "data": {
+                            "title": [
+                              {
+                                "type": "text",
+                                "value": "Отправьте на проверку"
+                              }
+                            ]
+                          },
+                          "slots": {
+                            "default": []
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "h2",
+                    "type": "content.heading",
+                    "data": {
+                      "level": 2,
+                      "content": [
+                        {
+                          "type": "text",
+                          "value": "Сроки"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "t1",
+                    "type": "content.table",
+                    "data": {
+                      "rows": [
+                        [
+                          [
+                            {
+                              "type": "text",
+                              "value": "Этап"
+                            }
+                          ],
+                          [
+                            {
+                              "type": "text",
+                              "value": "Кто"
+                            }
+                          ],
+                          [
+                            {
+                              "type": "text",
+                              "value": "Срок"
+                            }
+                          ]
+                        ],
+                        [
+                          [
+                            {
+                              "type": "text",
+                              "value": "Текст"
+                            }
+                          ],
+                          [
+                            {
+                              "type": "text",
+                              "value": "Автор"
+                            }
+                          ],
+                          [
+                            {
+                              "type": "text",
+                              "value": "3 дня"
+                            }
+                          ]
+                        ],
+                        [
+                          [
+                            {
+                              "type": "text",
+                              "value": "Вёрстка"
+                            }
+                          ],
+                          [
+                            {
+                              "type": "text",
+                              "value": "Редактор"
+                            }
+                          ],
+                          [
+                            {
+                              "type": "text",
+                              "value": "1 день"
+                            }
+                          ]
+                        ]
+                      ]
+                    }
+                  },
+                  {
+                    "id": "q1",
+                    "type": "content.quote",
+                    "slots": {
+                      "default": [
+                        {
+                          "id": "q1p",
+                          "type": "content.paragraph",
+                          "data": {
+                            "content": [
+                              {
+                                "type": "text",
+                                "value": "Письмо хорошо, когда из него нечего убрать."
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "p2",
+                    "type": "content.paragraph",
+                    "data": {
+                      "content": []
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown",
+      "title": "Блок, которого редактор не знает",
+      "settings": {
+        "document": {
+          "schema": "simai.composition.document",
+          "schema_version": 1,
+          "id": "unknown",
+          "profile": "structured-content",
+          "root": {
+            "id": "root",
+            "type": "content.document",
+            "data": {
+              "title": "Чужой блок"
+            },
+            "slots": {
+              "default": [
+                {
+                  "id": "p1",
+                  "type": "content.paragraph",
+                  "data": {
+                    "content": [
+                      {
+                        "type": "text",
+                        "value": "Блок другого продукта редактор не меняет: он хранится как есть и уходит в документ без изменений."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "x1",
+                  "type": "docara.example",
+                  "data": {
+                    "source": "<sf-button>Пример</sf-button>"
+                  },
+                  "props": {
+                    "height": 240
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "short",
+      "title": "Две строки",
+      "settings": {
+        "document": {
+          "schema": "simai.composition.document",
+          "schema_version": 1,
+          "id": "note",
+          "profile": "structured-content",
+          "root": {
+            "id": "root",
+            "type": "content.document",
+            "data": {
+              "title": "Заметка"
+            },
+            "slots": {
+              "default": [
+                {
+                  "id": "p1",
+                  "type": "content.paragraph",
+                  "data": {
+                    "content": [
+                      {
+                        "type": "text",
+                        "value": "Первая строка"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "p2",
+                  "type": "content.paragraph",
+                  "data": {
+                    "content": [
+                      {
+                        "type": "text",
+                        "value": "Вторая строка"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "empty",
+      "title": "Пустая страница",
+      "settings": {
+        "document": {
+          "schema": "simai.composition.document",
+          "schema_version": 1,
+          "id": "blank",
+          "profile": "structured-content",
+          "root": {
+            "id": "root",
+            "type": "content.document",
+            "slots": {
+              "default": [
+                {
+                  "id": "p1",
+                  "type": "content.paragraph",
+                  "data": {
+                    "content": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "conformance",
+      "title": "sf-content-editor against component.json (standard simai.smart-component 1.4 §12, gate 20): the blocks in order, typing, Enter and Backspace, Markdown, Esc and the arrows, the quick parameters, a paste, a table's Tab, undo, the gutter outside the text, menus at their trigger, a picture's parameters, a picture dropped, refused and pasted",
+      "format": "stands/15-scenarios (A4 modal: a page, probes in steps); the runner is ui-source tests/browser/manifest-probes.browser.mjs, run for the package by scripts/run-manifest-probes.mjs",
+      "page": {
+        "lang": "ru",
+        "body": [
+          "<main>",
+          "  <sf-editor-content id=\"editor\"></sf-editor-content>",
+          "</main>"
+        ]
+      },
+      "checks": [
+        {
+          "id": "p1-blocks-in-order",
+          "title": "the page's blocks are drawn in its order, the unknown one closed",
+          "covers": "settings.document",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"guide\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Как подготовить письмо к рассылке\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Эта страница написана в режиме содержимого. Просто печатайте: \"}, {\"type\": \"text\", \"value\": \"Enter\", \"marks\": [\"strong\"]}, {\"type\": \"text\", \"value\": \" делает новый блок, а косая черта в пустой строке открывает меню.\"}]}}, {\"id\": \"h1\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Что проверить перед отправкой\"}]}}, {\"id\": \"l1\", \"type\": \"content.list\", \"slots\": {\"items\": [{\"id\": \"l1a\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Согласие получателей и ссылку отписки\"}]}}, {\"id\": \"l1b\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Тему письма и первые слова после неё\"}]}}, {\"id\": \"l1c\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вид на телефоне и в тёмной теме\"}]}}]}}, {\"id\": \"a1\", \"type\": \"content.alert\", \"props\": {\"status\": \"warning\"}, \"slots\": {\"default\": [{\"id\": \"a1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки.\"}]}}]}}, {\"id\": \"d1\", \"type\": \"content.details\", \"props\": {\"open\": true}, \"data\": {\"summary\": [{\"type\": \"text\", \"value\": \"Зачем нужны параметры\"}]}, \"slots\": {\"default\": [{\"id\": \"d1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"У блока бывают настройки: вид заметки, пропорции картинки, язык кода.\"}]}}]}}, {\"id\": \"f1\", \"type\": \"content.figure\", \"props\": {\"ratio\": \"21/9\"}, \"data\": {\"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E\", \"alt\": \"Градиент\", \"caption\": [{\"type\": \"text\", \"value\": \"Картинка с пропорциями 21:9\"}]}}, {\"id\": \"c1\", \"type\": \"content.code\", \"props\": {\"lang\": \"bash\", \"title\": \"Сборка\", \"numbers\": true}, \"data\": {\"code\": \"npm ci\\nnpm run build\"}}, {\"id\": \"s1\", \"type\": \"content.steps\", \"props\": {\"current\": 2}, \"slots\": {\"steps\": [{\"id\": \"s1a\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Напишите текст\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1b\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Проверьте вид на телефоне\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1c\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Отправьте на проверку\"}]}, \"slots\": {\"default\": []}}]}}, {\"id\": \"h2\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Сроки\"}]}}, {\"id\": \"t1\", \"type\": \"content.table\", \"data\": {\"rows\": [[[{\"type\": \"text\", \"value\": \"Этап\"}], [{\"type\": \"text\", \"value\": \"Кто\"}], [{\"type\": \"text\", \"value\": \"Срок\"}]], [[{\"type\": \"text\", \"value\": \"Текст\"}], [{\"type\": \"text\", \"value\": \"Автор\"}], [{\"type\": \"text\", \"value\": \"3 дня\"}]], [[{\"type\": \"text\", \"value\": \"Вёрстка\"}], [{\"type\": \"text\", \"value\": \"Редактор\"}], [{\"type\": \"text\", \"value\": \"1 день\"}]]]}}, {\"id\": \"q1\", \"type\": \"content.quote\", \"slots\": {\"default\": [{\"id\": \"q1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Письмо хорошо, когда из него нечего убрать.\"}]}}]}}, {\"id\": \"x1\", \"type\": \"docara.example\", \"data\": {\"source\": \"<sf-button>Пример</sf-button>\"}, \"props\": {\"height\": 240}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 600,
+              "check": "[...document.querySelectorAll('#editor .sf-content-editor-blocks > .sf-content-editor-block')].map((b) => b.dataset.sfNode).join(',') === 'p1,h1,l1,a1,d1,f1,c1,s1,h2,t1,q1,x1,p2' && document.querySelector('#editor [data-sf-node=\"x1\"] .sf-content-editor-opaque') !== null && document.querySelector('#editor .sf-content-editor-title').textContent === 'Как подготовить письмо к рассылке'"
+            }
+          ]
+        },
+        {
+          "id": "p2-typing-changes",
+          "title": "typing in a paragraph sends the new Document; the unknown block comes back as it was",
+          "covers": "events.change, actions.edit",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"note\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Заметка\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Первая строка\"}]}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вторая строка\"}]}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 500
+            },
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.edit({id: 'p1'}); document.execCommand('insertText', false, '!'); return true; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; return d && d.root.slots.default[0].data.content.map((r) => r.value).join('') === 'Первая строка!'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p3-enter-splits",
+          "title": "Enter in the middle of a paragraph splits it in two",
+          "covers": "keyboard.field.Enter",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"note\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Заметка\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Первая строка\"}]}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вторая строка\"}]}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 500
+            },
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.edit({id: 'p1'}); const f = one.querySelector('[data-sf-node=\"p1\"].sf-content-editor-field'); const s = getSelection(); const text = f.firstChild; s.setBaseAndExtent(text, 6, text, 6); f.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true, cancelable: true})); return true; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const list = d?.root.slots.default ?? []; return list.length === 3 && list[0].data.content[0].value === 'Первая' && list[1].data.content[0].value === ' строка' && list[1].type === 'content.paragraph'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p4-backspace-merges",
+          "title": "Backspace at a paragraph's start joins it to the one before",
+          "covers": "keyboard.field.Backspace",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"note\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Заметка\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Первая строка\"}]}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вторая строка\"}]}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 500
+            },
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.edit({id: 'p2'}); const f = one.querySelector('[data-sf-node=\"p2\"].sf-content-editor-field'); const s = getSelection(); s.setBaseAndExtent(f.firstChild, 0, f.firstChild, 0); f.dispatchEvent(new KeyboardEvent('keydown', {key: 'Backspace', bubbles: true, cancelable: true})); return true; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const list = d?.root.slots.default ?? []; return list.length === 1 && list[0].data.content.map((r) => r.value).join('') === 'Первая строкаВторая строка'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p5-markdown-heading",
+          "title": "## at the start of an empty paragraph makes it a heading",
+          "covers": "keyboard.field./",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"blank\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 500
+            },
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.edit({id: 'p1'}); document.execCommand('insertText', false, '## '); return true; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const node = d?.root.slots.default[0]; return node?.type === 'content.heading' && node.data.level === 2 && document.querySelector('#editor h2.sf-content-editor-field') !== null; })()"
+            }
+          ]
+        },
+        {
+          "id": "p6-escape-picks",
+          "title": "Esc chooses the block, the arrows choose the next, Esc again asks to leave",
+          "covers": "events.select, events.leave",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"note\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Заметка\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Первая строка\"}]}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вторая строка\"}]}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 500
+            },
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.edit({id: 'p1'}); one.querySelector('[data-sf-node=\"p1\"].sf-content-editor-field').dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true})); return true; })()",
+              "wait": 200,
+              "check": "document.querySelector('#editor [data-sf-node=\"p1\"].sf-content-editor-block').classList.contains('is-picked') && globalThis.heard.some(([n, d]) => n === 'sf-editor-content-select' && d.ids.join() === 'p1')"
+            },
+            {
+              "script": "(() => { const f = document.querySelector('#editor .sf-content-editor-blocks'); f.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown', bubbles: true, cancelable: true})); return true; })()",
+              "wait": 200,
+              "check": "document.querySelector('#editor [data-sf-node=\"p2\"].sf-content-editor-block').classList.contains('is-picked') && !document.querySelector('#editor [data-sf-node=\"p1\"].sf-content-editor-block').classList.contains('is-picked')"
+            },
+            {
+              "script": "(() => { const f = document.querySelector('#editor .sf-content-editor-blocks'); f.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true})); return true; })()",
+              "wait": 200,
+              "check": "globalThis.heard.some(([n]) => n === 'sf-editor-content-leave') && !document.querySelector('#editor .is-picked')"
+            }
+          ]
+        },
+        {
+          "id": "p7-params-default-not-written",
+          "title": "a chosen block shows its quick choices over it; a value equal to its default is not written",
+          "covers": "settings.editor-manifests",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"guide\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Как подготовить письмо к рассылке\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Эта страница написана в режиме содержимого. Просто печатайте: \"}, {\"type\": \"text\", \"value\": \"Enter\", \"marks\": [\"strong\"]}, {\"type\": \"text\", \"value\": \" делает новый блок, а косая черта в пустой строке открывает меню.\"}]}}, {\"id\": \"h1\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Что проверить перед отправкой\"}]}}, {\"id\": \"l1\", \"type\": \"content.list\", \"slots\": {\"items\": [{\"id\": \"l1a\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Согласие получателей и ссылку отписки\"}]}}, {\"id\": \"l1b\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Тему письма и первые слова после неё\"}]}}, {\"id\": \"l1c\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вид на телефоне и в тёмной теме\"}]}}]}}, {\"id\": \"a1\", \"type\": \"content.alert\", \"props\": {\"status\": \"warning\"}, \"slots\": {\"default\": [{\"id\": \"a1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки.\"}]}}]}}, {\"id\": \"d1\", \"type\": \"content.details\", \"props\": {\"open\": true}, \"data\": {\"summary\": [{\"type\": \"text\", \"value\": \"Зачем нужны параметры\"}]}, \"slots\": {\"default\": [{\"id\": \"d1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"У блока бывают настройки: вид заметки, пропорции картинки, язык кода.\"}]}}]}}, {\"id\": \"f1\", \"type\": \"content.figure\", \"props\": {\"ratio\": \"21/9\"}, \"data\": {\"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E\", \"alt\": \"Градиент\", \"caption\": [{\"type\": \"text\", \"value\": \"Картинка с пропорциями 21:9\"}]}}, {\"id\": \"c1\", \"type\": \"content.code\", \"props\": {\"lang\": \"bash\", \"title\": \"Сборка\", \"numbers\": true}, \"data\": {\"code\": \"npm ci\\nnpm run build\"}}, {\"id\": \"s1\", \"type\": \"content.steps\", \"props\": {\"current\": 2}, \"slots\": {\"steps\": [{\"id\": \"s1a\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Напишите текст\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1b\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Проверьте вид на телефоне\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1c\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Отправьте на проверку\"}]}, \"slots\": {\"default\": []}}]}}, {\"id\": \"h2\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Сроки\"}]}}, {\"id\": \"t1\", \"type\": \"content.table\", \"data\": {\"rows\": [[[{\"type\": \"text\", \"value\": \"Этап\"}], [{\"type\": \"text\", \"value\": \"Кто\"}], [{\"type\": \"text\", \"value\": \"Срок\"}]], [[{\"type\": \"text\", \"value\": \"Текст\"}], [{\"type\": \"text\", \"value\": \"Автор\"}], [{\"type\": \"text\", \"value\": \"3 дня\"}]], [[{\"type\": \"text\", \"value\": \"Вёрстка\"}], [{\"type\": \"text\", \"value\": \"Редактор\"}], [{\"type\": \"text\", \"value\": \"1 день\"}]]]}}, {\"id\": \"q1\", \"type\": \"content.quote\", \"slots\": {\"default\": [{\"id\": \"q1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Письмо хорошо, когда из него нечего убрать.\"}]}}]}}, {\"id\": \"x1\", \"type\": \"docara.example\", \"data\": {\"source\": \"<sf-button>Пример</sf-button>\"}, \"props\": {\"height\": 240}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave','sf-editor-content-params','sf-editor-content-file']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 600
+            },
+            {
+              "script": "(() => { document.querySelector('#editor').select({ids: ['a1']}); return true; })()",
+              "wait": 400,
+              "check": "(() => { const bar = document.querySelector('#editor .sf-content-editor-quick'); return !bar.hidden && bar.querySelectorAll('[data-param=\"status\"]').length === 5 && bar.querySelectorAll('[data-param=\"appearance\"]').length === 3 && bar.querySelector('[data-param=\"status\"][data-value=\"warning\"]').getAttribute('aria-pressed') === 'true'; })()"
+            },
+            {
+              "script": "(() => { document.querySelector('#editor .sf-content-editor-quick button[data-param=\"status\"][data-value=\"neutral\"]').click(); return true; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const a = d?.root.slots.default.find((n) => n.id === 'a1'); const x = d?.root.slots.default.find((n) => n.id === 'x1'); return a && !('props' in a) && JSON.stringify(x) === JSON.stringify({id: 'x1', type: 'docara.example', data: {source: '<sf-button>Пример</sf-button>'}, props: {height: 240}}); })()"
+            }
+          ]
+        },
+        {
+          "id": "p8-paste-blocks",
+          "title": "a paste of HTML becomes blocks through the html@1 subset",
+          "covers": "keyboard.field.Meta+V",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"note\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Заметка\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Первая строка\"}]}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вторая строка\"}]}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 500
+            },
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.edit({id: 'p1'}); const data = new DataTransfer(); data.setData('text/html', '<h2>Раздел</h2><ul><li>один</li><li><b>два</b></li></ul><script>bad()</script>'); data.setData('text/plain', 'Раздел один два'); one.querySelector('[data-sf-node=\"p1\"].sf-content-editor-field').dispatchEvent(new ClipboardEvent('paste', {clipboardData: data, bubbles: true, cancelable: true})); return true; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const list = d?.root.slots.default ?? []; return list.map((n) => n.type).join() === 'content.paragraph,content.heading,content.list,content.paragraph' && list[2].slots.items[1].data.content[0].marks[0] === 'strong' && !JSON.stringify(d).includes('bad()'); })()"
+            }
+          ]
+        },
+        {
+          "id": "p9-table-tab",
+          "title": "Tab goes cell by cell, and past the last cell makes a row",
+          "covers": "keyboard.field.Tab",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"guide\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Как подготовить письмо к рассылке\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Эта страница написана в режиме содержимого. Просто печатайте: \"}, {\"type\": \"text\", \"value\": \"Enter\", \"marks\": [\"strong\"]}, {\"type\": \"text\", \"value\": \" делает новый блок, а косая черта в пустой строке открывает меню.\"}]}}, {\"id\": \"h1\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Что проверить перед отправкой\"}]}}, {\"id\": \"l1\", \"type\": \"content.list\", \"slots\": {\"items\": [{\"id\": \"l1a\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Согласие получателей и ссылку отписки\"}]}}, {\"id\": \"l1b\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Тему письма и первые слова после неё\"}]}}, {\"id\": \"l1c\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вид на телефоне и в тёмной теме\"}]}}]}}, {\"id\": \"a1\", \"type\": \"content.alert\", \"props\": {\"status\": \"warning\"}, \"slots\": {\"default\": [{\"id\": \"a1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки.\"}]}}]}}, {\"id\": \"d1\", \"type\": \"content.details\", \"props\": {\"open\": true}, \"data\": {\"summary\": [{\"type\": \"text\", \"value\": \"Зачем нужны параметры\"}]}, \"slots\": {\"default\": [{\"id\": \"d1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"У блока бывают настройки: вид заметки, пропорции картинки, язык кода.\"}]}}]}}, {\"id\": \"f1\", \"type\": \"content.figure\", \"props\": {\"ratio\": \"21/9\"}, \"data\": {\"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E\", \"alt\": \"Градиент\", \"caption\": [{\"type\": \"text\", \"value\": \"Картинка с пропорциями 21:9\"}]}}, {\"id\": \"c1\", \"type\": \"content.code\", \"props\": {\"lang\": \"bash\", \"title\": \"Сборка\", \"numbers\": true}, \"data\": {\"code\": \"npm ci\\nnpm run build\"}}, {\"id\": \"s1\", \"type\": \"content.steps\", \"props\": {\"current\": 2}, \"slots\": {\"steps\": [{\"id\": \"s1a\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Напишите текст\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1b\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Проверьте вид на телефоне\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1c\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Отправьте на проверку\"}]}, \"slots\": {\"default\": []}}]}}, {\"id\": \"h2\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Сроки\"}]}}, {\"id\": \"t1\", \"type\": \"content.table\", \"data\": {\"rows\": [[[{\"type\": \"text\", \"value\": \"Этап\"}], [{\"type\": \"text\", \"value\": \"Кто\"}], [{\"type\": \"text\", \"value\": \"Срок\"}]], [[{\"type\": \"text\", \"value\": \"Текст\"}], [{\"type\": \"text\", \"value\": \"Автор\"}], [{\"type\": \"text\", \"value\": \"3 дня\"}]], [[{\"type\": \"text\", \"value\": \"Вёрстка\"}], [{\"type\": \"text\", \"value\": \"Редактор\"}], [{\"type\": \"text\", \"value\": \"1 день\"}]]]}}, {\"id\": \"q1\", \"type\": \"content.quote\", \"slots\": {\"default\": [{\"id\": \"q1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Письмо хорошо, когда из него нечего убрать.\"}]}}]}}, {\"id\": \"x1\", \"type\": \"docara.example\", \"data\": {\"source\": \"<sf-button>Пример</sf-button>\"}, \"props\": {\"height\": 240}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 600
+            },
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); const cell = one.querySelector('[data-sf-node=\"t1\"][data-sf-row=\"2\"][data-sf-column=\"2\"]'); cell.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0})); cell.dispatchEvent(new KeyboardEvent('keydown', {key: 'Tab', bubbles: true, cancelable: true})); return true; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const t = d?.root.slots.default.find((n) => n.id === 't1'); return t?.data.rows.length === 4 && document.activeElement?.dataset.sfRow === '3' && document.activeElement?.dataset.sfColumn === '0'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p10-undo",
+          "title": "⌘Z takes the last change back",
+          "covers": "actions.undo",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"note\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Заметка\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Первая строка\"}]}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вторая строка\"}]}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 500
+            },
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.edit({id: 'p1'}); const f = one.querySelector('[data-sf-node=\"p1\"].sf-content-editor-field'); getSelection().setBaseAndExtent(f.firstChild, 6, f.firstChild, 6); f.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true, cancelable: true})); return one.undo().outcome === 'applied'; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; return d?.root.slots.default.length === 2 && d.root.slots.default[0].data.content[0].value === 'Первая строка'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p11-title-typing",
+          "title": "typing in the page's title writes the Document's data.title and nothing else",
+          "covers": "events.change",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"note\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Заметка\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Первая строка\"}]}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вторая строка\"}]}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 500
+            },
+            {
+              "script": "(() => { const title = document.querySelector('#editor .sf-content-editor-title'); title.focus(); const range = document.createRange(); range.selectNodeContents(title); range.collapse(false); const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range); document.execCommand('insertText', false, '!'); return true; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; return Boolean(d) && JSON.stringify(Object.keys(d.root.data)) === '[\"title\"]' && d.root.data.title === 'Заметка!'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p12-gutter-outside-text",
+          "title": "the gutter stands in the margin, never over the text, centred on the first line of a heading, a paragraph and a list",
+          "covers": "settings.label",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"guide\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Как подготовить письмо к рассылке\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Эта страница написана в режиме содержимого. Просто печатайте: \"}, {\"type\": \"text\", \"value\": \"Enter\", \"marks\": [\"strong\"]}, {\"type\": \"text\", \"value\": \" делает новый блок, а косая черта в пустой строке открывает меню.\"}]}}, {\"id\": \"h1\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Что проверить перед отправкой\"}]}}, {\"id\": \"l1\", \"type\": \"content.list\", \"slots\": {\"items\": [{\"id\": \"l1a\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Согласие получателей и ссылку отписки\"}]}}, {\"id\": \"l1b\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Тему письма и первые слова после неё\"}]}}, {\"id\": \"l1c\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вид на телефоне и в тёмной теме\"}]}}]}}, {\"id\": \"a1\", \"type\": \"content.alert\", \"props\": {\"status\": \"warning\"}, \"slots\": {\"default\": [{\"id\": \"a1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки.\"}]}}]}}, {\"id\": \"d1\", \"type\": \"content.details\", \"props\": {\"open\": true}, \"data\": {\"summary\": [{\"type\": \"text\", \"value\": \"Зачем нужны параметры\"}]}, \"slots\": {\"default\": [{\"id\": \"d1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"У блока бывают настройки: вид заметки, пропорции картинки, язык кода.\"}]}}]}}, {\"id\": \"f1\", \"type\": \"content.figure\", \"props\": {\"ratio\": \"21/9\"}, \"data\": {\"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E\", \"alt\": \"Градиент\", \"caption\": [{\"type\": \"text\", \"value\": \"Картинка с пропорциями 21:9\"}]}}, {\"id\": \"c1\", \"type\": \"content.code\", \"props\": {\"lang\": \"bash\", \"title\": \"Сборка\", \"numbers\": true}, \"data\": {\"code\": \"npm ci\\nnpm run build\"}}, {\"id\": \"s1\", \"type\": \"content.steps\", \"props\": {\"current\": 2}, \"slots\": {\"steps\": [{\"id\": \"s1a\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Напишите текст\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1b\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Проверьте вид на телефоне\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1c\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Отправьте на проверку\"}]}, \"slots\": {\"default\": []}}]}}, {\"id\": \"h2\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Сроки\"}]}}, {\"id\": \"t1\", \"type\": \"content.table\", \"data\": {\"rows\": [[[{\"type\": \"text\", \"value\": \"Этап\"}], [{\"type\": \"text\", \"value\": \"Кто\"}], [{\"type\": \"text\", \"value\": \"Срок\"}]], [[{\"type\": \"text\", \"value\": \"Текст\"}], [{\"type\": \"text\", \"value\": \"Автор\"}], [{\"type\": \"text\", \"value\": \"3 дня\"}]], [[{\"type\": \"text\", \"value\": \"Вёрстка\"}], [{\"type\": \"text\", \"value\": \"Редактор\"}], [{\"type\": \"text\", \"value\": \"1 день\"}]]]}}, {\"id\": \"q1\", \"type\": \"content.quote\", \"slots\": {\"default\": [{\"id\": \"q1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Письмо хорошо, когда из него нечего убрать.\"}]}}]}}, {\"id\": \"x1\", \"type\": \"docara.example\", \"data\": {\"source\": \"<sf-button>Пример</sf-button>\"}, \"props\": {\"height\": 240}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave','sf-editor-content-params','sf-editor-content-file']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 600
+            },
+            {
+              "script": "(() => { const editor = document.querySelector('#editor'); globalThis.gutter = ['p1', 'h1', 'l1'].map((id) => { const block = editor.querySelector(`.sf-content-editor-blocks > [data-sf-node=\"${id}\"]`); const box = block.getBoundingClientRect(); block.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: box.left + 40, clientY: box.top + 4})); const field = block.querySelector('.sf-content-editor-field'); const range = document.createRange(); range.selectNodeContents(field); const line = range.getClientRects()[0]; const grip = editor.querySelector('.sf-content-editor-grip button').getBoundingClientRect(); const plus = editor.querySelector('.sf-content-editor-plus button').getBoundingClientRect(); return {right: Math.max(grip.right, plus.right), text: Math.min(...[...range.getClientRects()].map((r) => r.left)), middle: grip.top + grip.height / 2, line: line.top + line.height / 2, size: [plus.width, plus.height, grip.width, grip.height], order: plus.right <= grip.left}; }); return true; })()",
+              "wait": 200,
+              "check": "globalThis.gutter.every((g) => g.right <= g.text && Math.abs(g.middle - g.line) <= 2 && g.size.every((s) => Math.round(s) === 24) && g.order)"
+            }
+          ]
+        },
+        {
+          "id": "p13-menu-at-its-trigger",
+          "title": "the + menu opens under the +, its left edge on the +'s, with a search field that finds a kind by its shortcut; Esc gives the focus back to the +",
+          "covers": "settings.kinds",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"guide\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Как подготовить письмо к рассылке\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Эта страница написана в режиме содержимого. Просто печатайте: \"}, {\"type\": \"text\", \"value\": \"Enter\", \"marks\": [\"strong\"]}, {\"type\": \"text\", \"value\": \" делает новый блок, а косая черта в пустой строке открывает меню.\"}]}}, {\"id\": \"h1\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Что проверить перед отправкой\"}]}}, {\"id\": \"l1\", \"type\": \"content.list\", \"slots\": {\"items\": [{\"id\": \"l1a\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Согласие получателей и ссылку отписки\"}]}}, {\"id\": \"l1b\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Тему письма и первые слова после неё\"}]}}, {\"id\": \"l1c\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вид на телефоне и в тёмной теме\"}]}}]}}, {\"id\": \"a1\", \"type\": \"content.alert\", \"props\": {\"status\": \"warning\"}, \"slots\": {\"default\": [{\"id\": \"a1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки.\"}]}}]}}, {\"id\": \"d1\", \"type\": \"content.details\", \"props\": {\"open\": true}, \"data\": {\"summary\": [{\"type\": \"text\", \"value\": \"Зачем нужны параметры\"}]}, \"slots\": {\"default\": [{\"id\": \"d1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"У блока бывают настройки: вид заметки, пропорции картинки, язык кода.\"}]}}]}}, {\"id\": \"f1\", \"type\": \"content.figure\", \"props\": {\"ratio\": \"21/9\"}, \"data\": {\"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E\", \"alt\": \"Градиент\", \"caption\": [{\"type\": \"text\", \"value\": \"Картинка с пропорциями 21:9\"}]}}, {\"id\": \"c1\", \"type\": \"content.code\", \"props\": {\"lang\": \"bash\", \"title\": \"Сборка\", \"numbers\": true}, \"data\": {\"code\": \"npm ci\\nnpm run build\"}}, {\"id\": \"s1\", \"type\": \"content.steps\", \"props\": {\"current\": 2}, \"slots\": {\"steps\": [{\"id\": \"s1a\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Напишите текст\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1b\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Проверьте вид на телефоне\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1c\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Отправьте на проверку\"}]}, \"slots\": {\"default\": []}}]}}, {\"id\": \"h2\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Сроки\"}]}}, {\"id\": \"t1\", \"type\": \"content.table\", \"data\": {\"rows\": [[[{\"type\": \"text\", \"value\": \"Этап\"}], [{\"type\": \"text\", \"value\": \"Кто\"}], [{\"type\": \"text\", \"value\": \"Срок\"}]], [[{\"type\": \"text\", \"value\": \"Текст\"}], [{\"type\": \"text\", \"value\": \"Автор\"}], [{\"type\": \"text\", \"value\": \"3 дня\"}]], [[{\"type\": \"text\", \"value\": \"Вёрстка\"}], [{\"type\": \"text\", \"value\": \"Редактор\"}], [{\"type\": \"text\", \"value\": \"1 день\"}]]]}}, {\"id\": \"q1\", \"type\": \"content.quote\", \"slots\": {\"default\": [{\"id\": \"q1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Письмо хорошо, когда из него нечего убрать.\"}]}}]}}, {\"id\": \"x1\", \"type\": \"docara.example\", \"data\": {\"source\": \"<sf-button>Пример</sf-button>\"}, \"props\": {\"height\": 240}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave','sf-editor-content-params','sf-editor-content-file']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 600
+            },
+            {
+              "script": "(() => { const editor = document.querySelector('#editor'); const block = editor.querySelector('.sf-content-editor-blocks > [data-sf-node=\"h1\"]'); const box = block.getBoundingClientRect(); block.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: box.left + 40, clientY: box.top + 4})); editor.querySelector('.sf-content-editor-plus button').click(); return true; })()",
+              "wait": 600,
+              "check": "(() => { const editor = document.querySelector('#editor'); const plus = editor.querySelector('.sf-content-editor-plus button').getBoundingClientRect(); const surface = editor.querySelector('.sf-content-editor-menu .sf-context-menu').getBoundingClientRect(); const search = editor.querySelector('.sf-context-menu-search-input'); return Math.abs(surface.left - plus.left) <= 12 && surface.top - plus.bottom >= 0 && surface.top - plus.bottom <= 12 && document.activeElement === search; })()"
+            },
+            {
+              "script": "(() => { const search = document.querySelector('#editor .sf-context-menu-search-input'); search.value = '###'; search.dispatchEvent(new Event('input', {bubbles: true})); return true; })()",
+              "wait": 300,
+              "check": "(() => { const rows = [...document.querySelectorAll('#editor .sf-context-menu [role=\"menuitem\"]')]; return rows.length === 1 && rows[0].textContent.includes('Подзаголовок'); })()"
+            },
+            {
+              "script": "(() => { document.activeElement.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true, cancelable: true})); return true; })()",
+              "wait": 300,
+              "check": "document.activeElement === document.querySelector('#editor .sf-content-editor-plus button')"
+            }
+          ]
+        },
+        {
+          "id": "p14-slash-under-the-caret",
+          "title": "the / list opens under the caret",
+          "covers": "settings.kinds",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"guide\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Как подготовить письмо к рассылке\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Эта страница написана в режиме содержимого. Просто печатайте: \"}, {\"type\": \"text\", \"value\": \"Enter\", \"marks\": [\"strong\"]}, {\"type\": \"text\", \"value\": \" делает новый блок, а косая черта в пустой строке открывает меню.\"}]}}, {\"id\": \"h1\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Что проверить перед отправкой\"}]}}, {\"id\": \"l1\", \"type\": \"content.list\", \"slots\": {\"items\": [{\"id\": \"l1a\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Согласие получателей и ссылку отписки\"}]}}, {\"id\": \"l1b\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Тему письма и первые слова после неё\"}]}}, {\"id\": \"l1c\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вид на телефоне и в тёмной теме\"}]}}]}}, {\"id\": \"a1\", \"type\": \"content.alert\", \"props\": {\"status\": \"warning\"}, \"slots\": {\"default\": [{\"id\": \"a1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки.\"}]}}]}}, {\"id\": \"d1\", \"type\": \"content.details\", \"props\": {\"open\": true}, \"data\": {\"summary\": [{\"type\": \"text\", \"value\": \"Зачем нужны параметры\"}]}, \"slots\": {\"default\": [{\"id\": \"d1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"У блока бывают настройки: вид заметки, пропорции картинки, язык кода.\"}]}}]}}, {\"id\": \"f1\", \"type\": \"content.figure\", \"props\": {\"ratio\": \"21/9\"}, \"data\": {\"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E\", \"alt\": \"Градиент\", \"caption\": [{\"type\": \"text\", \"value\": \"Картинка с пропорциями 21:9\"}]}}, {\"id\": \"c1\", \"type\": \"content.code\", \"props\": {\"lang\": \"bash\", \"title\": \"Сборка\", \"numbers\": true}, \"data\": {\"code\": \"npm ci\\nnpm run build\"}}, {\"id\": \"s1\", \"type\": \"content.steps\", \"props\": {\"current\": 2}, \"slots\": {\"steps\": [{\"id\": \"s1a\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Напишите текст\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1b\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Проверьте вид на телефоне\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1c\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Отправьте на проверку\"}]}, \"slots\": {\"default\": []}}]}}, {\"id\": \"h2\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Сроки\"}]}}, {\"id\": \"t1\", \"type\": \"content.table\", \"data\": {\"rows\": [[[{\"type\": \"text\", \"value\": \"Этап\"}], [{\"type\": \"text\", \"value\": \"Кто\"}], [{\"type\": \"text\", \"value\": \"Срок\"}]], [[{\"type\": \"text\", \"value\": \"Текст\"}], [{\"type\": \"text\", \"value\": \"Автор\"}], [{\"type\": \"text\", \"value\": \"3 дня\"}]], [[{\"type\": \"text\", \"value\": \"Вёрстка\"}], [{\"type\": \"text\", \"value\": \"Редактор\"}], [{\"type\": \"text\", \"value\": \"1 день\"}]]]}}, {\"id\": \"q1\", \"type\": \"content.quote\", \"slots\": {\"default\": [{\"id\": \"q1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Письмо хорошо, когда из него нечего убрать.\"}]}}]}}, {\"id\": \"x1\", \"type\": \"docara.example\", \"data\": {\"source\": \"<sf-button>Пример</sf-button>\"}, \"props\": {\"height\": 240}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave','sf-editor-content-params','sf-editor-content-file']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 600
+            },
+            {
+              "script": "(() => { document.querySelector('#editor').edit({id: 'p2'}); return true; })()",
+              "wait": 1200
+            },
+            {
+              "script": "(() => { document.execCommand('insertText', false, '/'); return true; })()",
+              "wait": 400,
+              "check": "(() => { const box = document.querySelector('#editor .sf-content-editor-slash'); const caret = getSelection().getRangeAt(0).getBoundingClientRect(); const own = box.getBoundingClientRect(); const field = document.querySelector('#editor [data-sf-node=\"p2\"] .sf-content-editor-field').getBoundingClientRect(); const anchor = caret.height ? caret : field; return !box.hidden && Math.abs(own.left - anchor.left) <= 12 && (Math.abs(own.top - anchor.bottom) <= 12 || Math.abs(anchor.top - own.bottom) <= 12); })()"
+            }
+          ]
+        },
+        {
+          "id": "p15-picture-quick-and-params",
+          "title": "choosing a picture shows its quick toolbar and tells the host its fields; the fit changes the picture and moves nothing",
+          "covers": "events.params",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"guide\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Как подготовить письмо к рассылке\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Эта страница написана в режиме содержимого. Просто печатайте: \"}, {\"type\": \"text\", \"value\": \"Enter\", \"marks\": [\"strong\"]}, {\"type\": \"text\", \"value\": \" делает новый блок, а косая черта в пустой строке открывает меню.\"}]}}, {\"id\": \"h1\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Что проверить перед отправкой\"}]}}, {\"id\": \"l1\", \"type\": \"content.list\", \"slots\": {\"items\": [{\"id\": \"l1a\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Согласие получателей и ссылку отписки\"}]}}, {\"id\": \"l1b\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Тему письма и первые слова после неё\"}]}}, {\"id\": \"l1c\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вид на телефоне и в тёмной теме\"}]}}]}}, {\"id\": \"a1\", \"type\": \"content.alert\", \"props\": {\"status\": \"warning\"}, \"slots\": {\"default\": [{\"id\": \"a1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки.\"}]}}]}}, {\"id\": \"d1\", \"type\": \"content.details\", \"props\": {\"open\": true}, \"data\": {\"summary\": [{\"type\": \"text\", \"value\": \"Зачем нужны параметры\"}]}, \"slots\": {\"default\": [{\"id\": \"d1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"У блока бывают настройки: вид заметки, пропорции картинки, язык кода.\"}]}}]}}, {\"id\": \"f1\", \"type\": \"content.figure\", \"props\": {\"ratio\": \"21/9\"}, \"data\": {\"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E\", \"alt\": \"Градиент\", \"caption\": [{\"type\": \"text\", \"value\": \"Картинка с пропорциями 21:9\"}]}}, {\"id\": \"c1\", \"type\": \"content.code\", \"props\": {\"lang\": \"bash\", \"title\": \"Сборка\", \"numbers\": true}, \"data\": {\"code\": \"npm ci\\nnpm run build\"}}, {\"id\": \"s1\", \"type\": \"content.steps\", \"props\": {\"current\": 2}, \"slots\": {\"steps\": [{\"id\": \"s1a\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Напишите текст\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1b\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Проверьте вид на телефоне\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1c\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Отправьте на проверку\"}]}, \"slots\": {\"default\": []}}]}}, {\"id\": \"h2\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Сроки\"}]}}, {\"id\": \"t1\", \"type\": \"content.table\", \"data\": {\"rows\": [[[{\"type\": \"text\", \"value\": \"Этап\"}], [{\"type\": \"text\", \"value\": \"Кто\"}], [{\"type\": \"text\", \"value\": \"Срок\"}]], [[{\"type\": \"text\", \"value\": \"Текст\"}], [{\"type\": \"text\", \"value\": \"Автор\"}], [{\"type\": \"text\", \"value\": \"3 дня\"}]], [[{\"type\": \"text\", \"value\": \"Вёрстка\"}], [{\"type\": \"text\", \"value\": \"Редактор\"}], [{\"type\": \"text\", \"value\": \"1 день\"}]]]}}, {\"id\": \"q1\", \"type\": \"content.quote\", \"slots\": {\"default\": [{\"id\": \"q1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Письмо хорошо, когда из него нечего убрать.\"}]}}]}}, {\"id\": \"x1\", \"type\": \"docara.example\", \"data\": {\"source\": \"<sf-button>Пример</sf-button>\"}, \"props\": {\"height\": 240}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave','sf-editor-content-params','sf-editor-content-file']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 600
+            },
+            {
+              "script": "(() => { const editor = document.querySelector('#editor'); editor.querySelector('[data-sf-node=\"f1\"] img').dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, cancelable: true, button: 0})); return true; })()",
+              "wait": 1200,
+              "check": "(() => { const bar = document.querySelector('#editor .sf-content-editor-quick'); const told = globalThis.heard.filter(([name]) => name === 'sf-editor-content-params').at(-1)?.[1]; return !bar.hidden && bar.querySelectorAll('[data-param=\"fit\"]').length === 2 && bar.querySelectorAll('[data-param=\"ratio\"]').length === 6 && told?.id === 'f1' && JSON.stringify(told.fields.map((f) => f.key)) === '[\"alt\",\"ratio\",\"fit\"]' && told.fields.find((f) => f.key === 'ratio').value === '21/9'; })()"
+            },
+            {
+              "script": "(() => { globalThis.tops = [...document.querySelectorAll('#editor .sf-content-editor-blocks > .sf-content-editor-block')].map((b) => Math.round(b.getBoundingClientRect().top)); return true; })()",
+              "wait": 100
+            },
+            {
+              "script": "(() => { document.querySelector('#editor .sf-content-editor-quick button[data-param=\"fit\"][data-value=\"contain\"]').click(); return true; })()",
+              "wait": 400,
+              "check": "(() => { const editor = document.querySelector('#editor'); const tops = [...editor.querySelectorAll('.sf-content-editor-blocks > .sf-content-editor-block')].map((b) => Math.round(b.getBoundingClientRect().top)); const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const f = d?.root.slots.default.find((n) => n.id === 'f1'); return getComputedStyle(editor.querySelector('[data-sf-node=\"f1\"] img')).objectFit === 'contain' && JSON.stringify(f.props) === JSON.stringify({ratio: '21/9', fit: 'contain'}) && JSON.stringify(tops) === JSON.stringify(globalThis.tops); })()"
+            },
+            {
+              "script": "(() => { globalThis.outcome = document.querySelector('#editor').setParameter({id: 'f1', key: 'fit', value: 'cover'}); return true; })()",
+              "wait": 300,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const f = d?.root.slots.default.find((n) => n.id === 'f1'); return globalThis.outcome.outcome === 'applied' && JSON.stringify(f.props) === JSON.stringify({ratio: '21/9'}) && document.querySelector('#editor').setParameter({id: 'f1', key: 'nope', value: 1}).reason === 'unknown'; })()"
+            }
+          ]
+        },
+        {
+          "id": "p16-picture-dropped-on-the-page",
+          "title": "a picture dropped on the page makes a picture block at the drop line, goes to the host and keeps what the host answers",
+          "covers": "events.file",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"guide\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Как подготовить письмо к рассылке\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Эта страница написана в режиме содержимого. Просто печатайте: \"}, {\"type\": \"text\", \"value\": \"Enter\", \"marks\": [\"strong\"]}, {\"type\": \"text\", \"value\": \" делает новый блок, а косая черта в пустой строке открывает меню.\"}]}}, {\"id\": \"h1\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Что проверить перед отправкой\"}]}}, {\"id\": \"l1\", \"type\": \"content.list\", \"slots\": {\"items\": [{\"id\": \"l1a\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Согласие получателей и ссылку отписки\"}]}}, {\"id\": \"l1b\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Тему письма и первые слова после неё\"}]}}, {\"id\": \"l1c\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вид на телефоне и в тёмной теме\"}]}}]}}, {\"id\": \"a1\", \"type\": \"content.alert\", \"props\": {\"status\": \"warning\"}, \"slots\": {\"default\": [{\"id\": \"a1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки.\"}]}}]}}, {\"id\": \"d1\", \"type\": \"content.details\", \"props\": {\"open\": true}, \"data\": {\"summary\": [{\"type\": \"text\", \"value\": \"Зачем нужны параметры\"}]}, \"slots\": {\"default\": [{\"id\": \"d1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"У блока бывают настройки: вид заметки, пропорции картинки, язык кода.\"}]}}]}}, {\"id\": \"f1\", \"type\": \"content.figure\", \"props\": {\"ratio\": \"21/9\"}, \"data\": {\"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E\", \"alt\": \"Градиент\", \"caption\": [{\"type\": \"text\", \"value\": \"Картинка с пропорциями 21:9\"}]}}, {\"id\": \"c1\", \"type\": \"content.code\", \"props\": {\"lang\": \"bash\", \"title\": \"Сборка\", \"numbers\": true}, \"data\": {\"code\": \"npm ci\\nnpm run build\"}}, {\"id\": \"s1\", \"type\": \"content.steps\", \"props\": {\"current\": 2}, \"slots\": {\"steps\": [{\"id\": \"s1a\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Напишите текст\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1b\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Проверьте вид на телефоне\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1c\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Отправьте на проверку\"}]}, \"slots\": {\"default\": []}}]}}, {\"id\": \"h2\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Сроки\"}]}}, {\"id\": \"t1\", \"type\": \"content.table\", \"data\": {\"rows\": [[[{\"type\": \"text\", \"value\": \"Этап\"}], [{\"type\": \"text\", \"value\": \"Кто\"}], [{\"type\": \"text\", \"value\": \"Срок\"}]], [[{\"type\": \"text\", \"value\": \"Текст\"}], [{\"type\": \"text\", \"value\": \"Автор\"}], [{\"type\": \"text\", \"value\": \"3 дня\"}]], [[{\"type\": \"text\", \"value\": \"Вёрстка\"}], [{\"type\": \"text\", \"value\": \"Редактор\"}], [{\"type\": \"text\", \"value\": \"1 день\"}]]]}}, {\"id\": \"q1\", \"type\": \"content.quote\", \"slots\": {\"default\": [{\"id\": \"q1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Письмо хорошо, когда из него нечего убрать.\"}]}}]}}, {\"id\": \"x1\", \"type\": \"docara.example\", \"data\": {\"source\": \"<sf-button>Пример</sf-button>\"}, \"props\": {\"height\": 240}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave','sf-editor-content-params','sf-editor-content-file']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 600
+            },
+            {
+              "script": "(async () => { const editor = document.querySelector('#editor'); const blocks = [...editor.querySelectorAll('.sf-content-editor-blocks > .sf-content-editor-block')]; const target = blocks.find((b) => b.dataset.sfNode === 'h1'); const y = target.getBoundingClientRect().top + 2; const canvas = Object.assign(document.createElement('canvas'), {width: 40, height: 20}); const blob = await new Promise((done) => canvas.toBlob(done, 'image/png')); const data = new DataTransfer(); data.items.add(new File([blob], 'green.png', {type: 'image/png'})); target.dispatchEvent(new DragEvent('dragover', {bubbles: true, cancelable: true, clientX: 300, clientY: y, dataTransfer: data})); globalThis.line = !editor.querySelector('.sf-content-editor-drop').hidden; target.dispatchEvent(new DragEvent('drop', {bubbles: true, cancelable: true, clientX: 300, clientY: y, dataTransfer: data})); return true; })()",
+              "wait": 500,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const list = d?.root.slots.default.map((n) => n.type); const asked = globalThis.heard.filter(([name]) => name === 'sf-editor-content-file').at(-1)?.[1]; return globalThis.line && list[1] === 'content.figure' && list[2] === 'content.heading' && asked?.file?.name === 'green.png' && asked.block === d.root.slots.default[1].id && document.querySelector(`#editor [data-sf-node=\"${asked.block}\"] img`)?.src.startsWith('blob:'); })()"
+            },
+            {
+              "script": "(() => { const asked = globalThis.heard.filter(([name]) => name === 'sf-editor-content-file').at(-1)[1]; globalThis.outcome = document.querySelector('#editor').answerFile({block: asked.block, value: 'media:green', href: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E'}); return true; })()",
+              "wait": 300,
+              "check": "(() => { const asked = globalThis.heard.filter(([name]) => name === 'sf-editor-content-file').at(-1)[1]; const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const f = d.root.slots.default.find((n) => n.id === asked.block); return globalThis.outcome.outcome === 'applied' && f.data.src === 'media:green' && document.querySelector(`#editor [data-sf-node=\"${asked.block}\"] img`).getAttribute('src').startsWith('data:image/svg+xml') && !document.querySelector('#editor .sf-content-editor-upload'); })()"
+            }
+          ]
+        },
+        {
+          "id": "p17-picture-refused-and-pasted",
+          "title": "a refusal shows its reason and a retry; a picture pasted in an empty line becomes that line",
+          "covers": "actions.answer-file",
+          "steps": [
+            {
+              "script": "(() => { const one = document.querySelector('#editor'); one.document = {\"schema\": \"simai.composition.document\", \"schema_version\": 1, \"id\": \"guide\", \"profile\": \"structured-content\", \"root\": {\"id\": \"root\", \"type\": \"content.document\", \"data\": {\"title\": \"Как подготовить письмо к рассылке\"}, \"slots\": {\"default\": [{\"id\": \"p1\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Эта страница написана в режиме содержимого. Просто печатайте: \"}, {\"type\": \"text\", \"value\": \"Enter\", \"marks\": [\"strong\"]}, {\"type\": \"text\", \"value\": \" делает новый блок, а косая черта в пустой строке открывает меню.\"}]}}, {\"id\": \"h1\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Что проверить перед отправкой\"}]}}, {\"id\": \"l1\", \"type\": \"content.list\", \"slots\": {\"items\": [{\"id\": \"l1a\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Согласие получателей и ссылку отписки\"}]}}, {\"id\": \"l1b\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Тему письма и первые слова после неё\"}]}}, {\"id\": \"l1c\", \"type\": \"content.list-item\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Вид на телефоне и в тёмной теме\"}]}}]}}, {\"id\": \"a1\", \"type\": \"content.alert\", \"props\": {\"status\": \"warning\"}, \"slots\": {\"default\": [{\"id\": \"a1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Щёлкните по ручке слева от блока: в её меню есть «Параметры…», а над выбранным блоком появятся быстрые настройки.\"}]}}]}}, {\"id\": \"d1\", \"type\": \"content.details\", \"props\": {\"open\": true}, \"data\": {\"summary\": [{\"type\": \"text\", \"value\": \"Зачем нужны параметры\"}]}, \"slots\": {\"default\": [{\"id\": \"d1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"У блока бывают настройки: вид заметки, пропорции картинки, язык кода.\"}]}}]}}, {\"id\": \"f1\", \"type\": \"content.figure\", \"props\": {\"ratio\": \"21/9\"}, \"data\": {\"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='520'%3E%3Crect width='1200' height='520' fill='%23c9d6f5'/%3E%3C/svg%3E\", \"alt\": \"Градиент\", \"caption\": [{\"type\": \"text\", \"value\": \"Картинка с пропорциями 21:9\"}]}}, {\"id\": \"c1\", \"type\": \"content.code\", \"props\": {\"lang\": \"bash\", \"title\": \"Сборка\", \"numbers\": true}, \"data\": {\"code\": \"npm ci\\nnpm run build\"}}, {\"id\": \"s1\", \"type\": \"content.steps\", \"props\": {\"current\": 2}, \"slots\": {\"steps\": [{\"id\": \"s1a\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Напишите текст\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1b\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Проверьте вид на телефоне\"}]}, \"slots\": {\"default\": []}}, {\"id\": \"s1c\", \"type\": \"content.step\", \"data\": {\"title\": [{\"type\": \"text\", \"value\": \"Отправьте на проверку\"}]}, \"slots\": {\"default\": []}}]}}, {\"id\": \"h2\", \"type\": \"content.heading\", \"data\": {\"level\": 2, \"content\": [{\"type\": \"text\", \"value\": \"Сроки\"}]}}, {\"id\": \"t1\", \"type\": \"content.table\", \"data\": {\"rows\": [[[{\"type\": \"text\", \"value\": \"Этап\"}], [{\"type\": \"text\", \"value\": \"Кто\"}], [{\"type\": \"text\", \"value\": \"Срок\"}]], [[{\"type\": \"text\", \"value\": \"Текст\"}], [{\"type\": \"text\", \"value\": \"Автор\"}], [{\"type\": \"text\", \"value\": \"3 дня\"}]], [[{\"type\": \"text\", \"value\": \"Вёрстка\"}], [{\"type\": \"text\", \"value\": \"Редактор\"}], [{\"type\": \"text\", \"value\": \"1 день\"}]]]}}, {\"id\": \"q1\", \"type\": \"content.quote\", \"slots\": {\"default\": [{\"id\": \"q1p\", \"type\": \"content.paragraph\", \"data\": {\"content\": [{\"type\": \"text\", \"value\": \"Письмо хорошо, когда из него нечего убрать.\"}]}}]}}, {\"id\": \"x1\", \"type\": \"docara.example\", \"data\": {\"source\": \"<sf-button>Пример</sf-button>\"}, \"props\": {\"height\": 240}}, {\"id\": \"p2\", \"type\": \"content.paragraph\", \"data\": {\"content\": []}}]}}}; globalThis.heard = []; for (const name of ['change','sf-editor-content-select','sf-editor-content-leave','sf-editor-content-params','sf-editor-content-file']) one.addEventListener(name, (event) => globalThis.heard.push([name, event.detail])); return true; })()",
+              "wait": 600
+            },
+            {
+              "script": "(async () => { const editor = document.querySelector('#editor'); const blocks = [...editor.querySelectorAll('.sf-content-editor-blocks > .sf-content-editor-block')]; const target = blocks.find((b) => b.dataset.sfNode === 'h1'); const y = target.getBoundingClientRect().top + 2; const canvas = Object.assign(document.createElement('canvas'), {width: 40, height: 20}); const blob = await new Promise((done) => canvas.toBlob(done, 'image/png')); const data = new DataTransfer(); data.items.add(new File([blob], 'green.png', {type: 'image/png'})); target.dispatchEvent(new DragEvent('dragover', {bubbles: true, cancelable: true, clientX: 300, clientY: y, dataTransfer: data})); globalThis.line = !editor.querySelector('.sf-content-editor-drop').hidden; target.dispatchEvent(new DragEvent('drop', {bubbles: true, cancelable: true, clientX: 300, clientY: y, dataTransfer: data})); return true; })()",
+              "wait": 500
+            },
+            {
+              "script": "(() => { const asked = globalThis.heard.filter(([name]) => name === 'sf-editor-content-file').at(-1)[1]; document.querySelector('#editor').answerFile({block: asked.block, reason: 'Слишком большой файл'}); return true; })()",
+              "wait": 300,
+              "check": "(() => { const box = document.querySelector('#editor .sf-content-editor-upload[data-state=\"error\"]'); return Boolean(box) && box.textContent.includes('Слишком большой файл') && Boolean(box.querySelector('[data-sf-zone-action=\"retry\"]')); })()"
+            },
+            {
+              "script": "(async () => { const editor = document.querySelector('#editor'); editor.edit({id: 'p2'}); await new Promise((done) => setTimeout(done, 200)); const canvas = Object.assign(document.createElement('canvas'), {width: 40, height: 20}); const blob = await new Promise((done) => canvas.toBlob(done, 'image/png')); const data = new DataTransfer(); data.items.add(new File([blob], 'clip.png', {type: 'image/png'})); document.activeElement.dispatchEvent(new ClipboardEvent('paste', {bubbles: true, cancelable: true, clipboardData: data})); return true; })()",
+              "wait": 500,
+              "check": "(() => { const d = globalThis.heard.filter(([name]) => name === 'change').at(-1)?.[1]?.document; const list = d.root.slots.default; const asked = globalThis.heard.filter(([name]) => name === 'sf-editor-content-file').at(-1)[1]; return !list.some((n) => n.id === 'p2') && list.at(-1).type === 'content.figure' && asked.file.name === 'clip.png' && asked.block === list.at(-1).id; })()"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

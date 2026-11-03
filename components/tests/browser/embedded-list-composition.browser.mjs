@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
 // An embedded list inside a property view, measured where it shows: a related
-// group holds an sf-data-view with no chrome, beside a group of fields. The
+// group holds an sf-view with no chrome, beside a group of fields. The
 // list draws no card of its own inside the group card, the table inside it
 // draws no second card, and the row text starts on the same inline axis as the
 // field labels above it. Zero tolerance, at a desktop and a mobile width. Row
-// height against the size ladder waits for sf-table to have a size.
+// height against the size ladder waits for sf-view-table to have a size.
 import {resolve, join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {chromium} from 'playwright';
@@ -29,9 +29,9 @@ const styles = [
   'component/component/progress-bar/css/progress-bar.css',
   // The composite's own stylesheet, which it did not have at all in the first
   // pair -- the reason a consumer saw plain stacked text.
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/sortable/css/sortable.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'component/component/pagination/css/pagination.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -55,9 +55,9 @@ const modules = [
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -91,7 +91,7 @@ try {
           },
         });
       });
-      const view = document.createElement('sf-property-view');
+      const view = document.createElement('sf-view-properties');
       view.setAttribute('record-id', 'record-1');
       view.setAttribute('collection', 'pages');
       document.body.append(view);
@@ -108,10 +108,10 @@ try {
       await new Promise((done) => setTimeout(done, 1500));
       const group = view.querySelector('[data-group="invoices"]');
       const fields = view.querySelector('[data-group="about"]');
-      const list = group?.querySelector('sf-data-view');
+      const list = group?.querySelector('sf-view');
       // The table is slotted into the list's light DOM; a shadow-tree fallback
       // is looked for only when none is.
-      const table = list?.querySelector('sf-table') || list?.shadowRoot?.querySelector('sf-table');
+      const table = list?.querySelector('sf-view-table') || list?.shadowRoot?.querySelector('sf-view-table');
       if (dump) return {field: fields?.innerHTML.slice(0, 400)};
       const frame = (element) => {
         if (!element) return null;

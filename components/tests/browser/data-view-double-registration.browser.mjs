@@ -11,8 +11,8 @@ const runtime = join(resolve(process.argv[3]), 'core', 'js', 'smart-base.js');
 const browser = await chromium.launch();
 try {
   for (const order of [
-    ['data-view', 'table', 'pagination'],
-    ['table', 'pagination', 'data-view'],
+    ['view', 'view-table', 'pagination'],
+    ['view-table', 'pagination', 'view'],
   ]) {
     const page = await browser.newPage();
     const warnings = [];
@@ -29,9 +29,9 @@ try {
     await page.evaluate((names) => Promise.race([
       Promise.all(names.map((tag) => customElements.whenDefined(tag))),
       new Promise((settle) => setTimeout(settle, 5000)),
-    ]), ['sf-data-view', 'sf-table', 'sf-pagination']);
+    ]), ['sf-view', 'sf-view-table', 'sf-pagination']);
     const registered = await page.evaluate(() =>
-      ['sf-data-view', 'sf-table', 'sf-pagination'].map((tag) => Boolean(customElements.get(tag))));
+      ['sf-view', 'sf-view-table', 'sf-pagination'].map((tag) => Boolean(customElements.get(tag))));
     await page.close();
     if (registered.some((value) => !value) || warnings.length || errors.length) {
       throw new Error(JSON.stringify({order, registered, warnings, errors}));

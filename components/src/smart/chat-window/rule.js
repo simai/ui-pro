@@ -3,7 +3,7 @@
 // tag, and a tag it renders is a tag it fetches: the list and the
 // conversation (sf-thread-list, sf-message-log), the field, whom one talks
 // to and the messages (sf-chat-composer, sf-chat-interlocutor,
-// sf-chat-message, which brings sf-change-confirm for a proposal). The way
+// sf-chat-message, which brings sf-confirm-change for a proposal). The way
 // back above the field and an error's «Повторить» are plain button markup,
 // the search above the list the Framework's input markup; every glyph is a
 // Smart sf-icon. «Мои файлы» (x-my-files) draw the space used and an empty
@@ -22,12 +22,12 @@ SF.RuleLoader['cl-chat-window'] = {
     { name: 'icon-buttons' },
     { name: 'inputs' },
     { name: 'cl-icon' },
-    { name: 'cl-thread-list' },
+    { name: 'cl-chat-threads' },
     { name: 'cl-message-log' },
     { name: 'cl-chat-composer' },
     { name: 'cl-chat-interlocutor' },
     { name: 'cl-chat-message' },
-    { name: 'cl-change-confirm', lazy: true },
+    { name: 'cl-confirm-change', lazy: true },
     { name: 'cl-menu-context', lazy: true },
     { name: 'cl-progress-bar', lazy: true },
     { name: 'cl-empty-state', lazy: true },

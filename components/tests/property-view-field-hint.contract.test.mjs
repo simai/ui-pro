@@ -20,9 +20,9 @@ import vm from 'node:vm';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
 
-const template = read('src/smart/property-view/js/templates/default.js');
-const styles = read('src/smart/property-view/js/templates/default.css');
-const rule = read('src/smart/property-view/rule.js');
+const template = read('src/smart/view-properties/js/templates/default.js');
+const styles = read('src/smart/view-properties/js/templates/default.css');
+const rule = read('src/smart/view-properties/rule.js');
 // rule.js is generated from component.json (standard 1.4): read as the rule
 // the Loader evaluates, not as text in one quoting style.
 const relationNames = (() => {
@@ -30,7 +30,7 @@ const relationNames = (() => {
   vm.runInContext(rule, vm.createContext(sandbox));
   return Object.values(sandbox.SF.RuleLoader).flatMap((one) => one.relation.map((relation) => relation.name));
 })();
-const manifest = JSON.parse(read('src/smart/property-view/smart.manifest.json'));
+const manifest = JSON.parse(read('src/smart/view-properties/smart.manifest.json'));
 
 // The one branch that draws the hint beside a field's label.
 const hint = template.match(/\$\{field\.hint\b[\s\S]*?: nothing\}/u)?.[0];
@@ -57,7 +57,7 @@ test('the component declares sf-help-mark where the Loader reads and where a rea
     'the manifest says what the component is built from',
   );
   assert.ok(relationNames.includes('cl-help-mark'), 'and the rule fetches it');
-  // A page that loads sf-property-view on demand gets only what the rule
+  // A page that loads sf-view-properties on demand gets only what the rule
   // fetches: an undeclared tag is an element that never upgrades, which looks
   // exactly like a hint that does nothing.
   const relations = new Set(relationNames);

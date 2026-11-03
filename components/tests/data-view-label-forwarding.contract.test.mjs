@@ -5,8 +5,8 @@ import test from 'node:test';
 // A host that lets the view draw its own table and pagination words them on the
 // view; each word the view takes is declared and passed on (Larena, 2026-10-13).
 test('the data view declares and passes on the words of the parts it draws', async () => {
-  const source = await readFile(new URL('../src/smart/data-view/index.js', import.meta.url), 'utf8');
-  const manifest = JSON.parse(await readFile(new URL('../src/smart/data-view/smart.manifest.json', import.meta.url), 'utf8'));
+  const source = await readFile(new URL('../src/smart/view/index.js', import.meta.url), 'utf8');
+  const manifest = JSON.parse(await readFile(new URL('../src/smart/view/smart.manifest.json', import.meta.url), 'utf8'));
   const list = (name) => JSON.parse(source.match(new RegExp(`const ${name} = (\\[[^\\]]*\\]);`, 'u'))[1].replace(/\s+/gu, ' '));
   const names = [...list('TABLE_LABELS'), ...list('PAGINATION_LABELS'), 'pagination-aria-label'];
   assert.equal(names.length, 20);

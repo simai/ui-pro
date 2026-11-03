@@ -9,12 +9,12 @@ import {fileURLToPath} from 'node:url';
 // limit, and never asks for a list that arrived inline.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
-const view = read('src/smart/property-view/index.js');
+const view = read('src/smart/view-properties/index.js');
 
 // 1.15.0 (group.load), 1.16.0 (mask, buttons) and 1.17.0 (html) are declared since; 1.14.0 stays accepted.
 test('the component accepts port 1.14.0 and declares it', () => {
   assert.match(view, /const SUPPORTED_PORT_VERSIONS = \[[^\]]*"1\.13\.0", "1\.14\.0", "1\.15\.0", "1\.16\.0", "1\.17\.0"\];/u);
-  const port = JSON.parse(read('src/smart/property-view/smart.manifest.json')).composition.declarative.host_port;
+  const port = JSON.parse(read('src/smart/view-properties/smart.manifest.json')).composition.declarative.host_port;
   assert.equal(port.version, '1.17.0');
   assert.ok(port.supported_versions.includes('1.14.0'));
   for (const version of port.supported_versions) assert.ok(view.includes(`"${version}"`), `${version} is accepted`);
@@ -32,6 +32,6 @@ test('a lookup is paged unless its list came inline', () => {
 });
 
 test('a lookup opens nothing in view: it is not a reference to a record', () => {
-  const template = read('src/smart/property-view/js/templates/default.js');
+  const template = read('src/smart/view-properties/js/templates/default.js');
   assert.match(template, /const reference = \['record', 'relation', 'user'\]\.includes\(field\.propertyType \|\| field\.type\)/u);
 });

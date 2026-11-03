@@ -11,8 +11,8 @@ import {chromium} from 'playwright';
 if (!process.argv[2]) throw new Error('Build output root is required');
 const out = resolve(process.argv[2]);
 const components = [
-  {tag: 'sf-data-view', bundle: 'data-view', version: '1.6.0'},
-  {tag: 'sf-property-view', bundle: 'property-view', version: '1.6.0'},
+  {tag: 'sf-view', bundle: 'view', version: '1.6.0'},
+  {tag: 'sf-view-properties', bundle: 'view-properties', version: '1.6.0'},
 ];
 const browser = await chromium.launch();
 const failures = [];

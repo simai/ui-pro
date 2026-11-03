@@ -6,8 +6,8 @@ import test from 'node:test';
 // ui-source; it runs in the overlay (ui-source at the pinned revision with this
 // repository laid over it), so paths are the ones ui-source uses.
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const table = read('src/smart/table/js/templates/default.js');
-const tableSource = read('src/smart/table/index.js');
+const table = read('src/smart/view-table/js/templates/default.js');
+const tableSource = read('src/smart/view-table/index.js');
 
 test('table filter chips are interactive and anchor their menu to the whole chip', () => {
     assert.match(table, /text='\$\{tag\.label\}'\s+interactive\s+closable/);

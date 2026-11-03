@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-const source=fs.readFileSync(new URL('../src/smart/table/js/templates/default.js',import.meta.url),'utf8');
+const source=fs.readFileSync(new URL('../src/smart/view-table/js/templates/default.js',import.meta.url),'utf8');
 const body=source.split('function renderComponent(component, owner) {')[1].split('\nfunction renderCellItem(')[0].trim().replace(/\}\s*$/,'');
 const render=new Function('component','owner','nothing',body);
 test('table rendering preserves caller key and never mutates component props',()=>{

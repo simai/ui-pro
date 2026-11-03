@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Browser acceptance for generic cross-composite routing with real sf-table
+// Browser acceptance for generic cross-composite routing with real sf-view-table
 // instances. Usage: PLAYWRIGHT_MODULE=/abs/playwright/index.mjs node
 //   composition-routing.browser.mjs <lab-url> <distr-url> <smart-url> <source-url> <output-dir>
 import { createHash } from 'node:crypto';
@@ -30,13 +30,13 @@ async function open({ width = 1280, theme = 'light', dir = 'ltr' } = {}) {
   const query = new URLSearchParams({ assets: assetsUrl, smart: smartUrl, source: sourceUrl, theme, dir });
   await page.goto(`${labUrl}?${query}`);
   await page.waitForFunction(() => document.documentElement.dataset.ready === 'true', null, { timeout: 30000 });
-  await page.waitForFunction(() => document.querySelectorAll('sf-table .sf-table').length === 5, null, { timeout: 30000 });
+  await page.waitForFunction(() => document.querySelectorAll('sf-view-table .sf-table').length === 5, null, { timeout: 30000 });
 }
 
-const table = (scope, endpoint) => page.locator(`sf-composition-scope[data-sf-composition-id="${scope}"] sf-table[data-sf-endpoint="${endpoint}"]`).first();
+const table = (scope, endpoint) => page.locator(`sf-composition-scope[data-sf-composition-id="${scope}"] sf-view-table[data-sf-endpoint="${endpoint}"]`).first();
 const rowCheckbox = (scope, endpoint, name) => table(scope, endpoint).locator('tr, [role="row"]').filter({ hasText: name }).locator('input[type="checkbox"]').first();
 const lab = () => page.evaluate(() => ({ intents: window.lab.intents.map((entry) => ({ ...entry })), results: window.lab.results.map((entry) => ({ ...entry })) }));
-const rowsOf = (scope, endpoint) => page.evaluate(({ scope, endpoint }) => document.querySelector(`sf-composition-scope[data-sf-composition-id="${scope}"] sf-table[data-sf-endpoint="${endpoint}"]`).getTableData().rows.map((row) => row.id), { scope, endpoint });
+const rowsOf = (scope, endpoint) => page.evaluate(({ scope, endpoint }) => document.querySelector(`sf-composition-scope[data-sf-composition-id="${scope}"] sf-view-table[data-sf-endpoint="${endpoint}"]`).getTableData().rows.map((row) => row.id), { scope, endpoint });
 const settle = () => page.waitForTimeout(250);
 
 await open();
@@ -132,7 +132,7 @@ await page.evaluate(() => { window.lab.delays['workspace/lines:[]'] = 400; });
 const beforeRemoval = (await lab()).results.length;
 await rowCheckbox('workspace', 'orders', 'Заказ 2').uncheck();
 await page.evaluate(() => {
-  const lines = document.querySelector('sf-composition-scope[data-sf-composition-id="workspace"] sf-table[data-sf-endpoint="lines"]');
+  const lines = document.querySelector('sf-composition-scope[data-sf-composition-id="workspace"] sf-view-table[data-sf-endpoint="lines"]');
   const parent = lines.parentNode;
   const next = lines.nextSibling;
   lines.remove();
@@ -141,7 +141,7 @@ await page.evaluate(() => {
 await page.waitForTimeout(900);
 state = await lab();
 const late = state.results.slice(beforeRemoval).filter((entry) => entry.key === 'workspace/lines');
-const dataState = await page.evaluate(() => document.querySelector('sf-composition-scope[data-sf-composition-id="workspace"] sf-table[data-sf-endpoint="lines"]').getAttribute('data-state'));
+const dataState = await page.evaluate(() => document.querySelector('sf-composition-scope[data-sf-composition-id="workspace"] sf-view-table[data-sf-endpoint="lines"]').getAttribute('data-state'));
 observations.lateAfterTargetRemount = { late, dataState };
 check(late.length === 2 && late.find((entry) => !entry.applied) && late.find((entry) => entry.applied)
   && late.find((entry) => !entry.applied).sequence < late.find((entry) => entry.applied).sequence, 'removed target refuses its old answer and re-requests once after remount', late);
@@ -149,7 +149,7 @@ check(dataState === null, 'remounted target leaves the loading state after the n
 check(state.intents.every((entry) => !entry.key.startsWith('archive/')), 'archive scope never receives workspace traffic', null);
 
 // Accessibility and layout across widths and themes.
-const a11y = await page.evaluate(() => [...document.querySelectorAll('sf-table')].map((element) => element.getAttribute('aria-label')));
+const a11y = await page.evaluate(() => [...document.querySelectorAll('sf-view-table')].map((element) => element.getAttribute('aria-label')));
 check(a11y.every(Boolean) && new Set(a11y).size === a11y.length, 'every routed table keeps a distinct accessible name', a11y);
 await page.screenshot({ path: resolve(outputDir, 'routing-wide-light.png'), fullPage: false });
 await open({ width: 390, theme: 'dark' });

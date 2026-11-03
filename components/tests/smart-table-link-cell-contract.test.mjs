@@ -6,7 +6,7 @@ import {URL} from 'node:url';
 
 async function loadContract() {
   const source = await readFile(
-    new URL('../src/smart/table/js/templates/link-cell-contract.js', import.meta.url),
+    new URL('../src/smart/view-table/js/templates/link-cell-contract.js', import.meta.url),
     'utf8',
   );
   return import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);

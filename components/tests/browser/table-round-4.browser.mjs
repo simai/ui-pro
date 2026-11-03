@@ -14,7 +14,7 @@ const styles = [
   'component/component/inputs/css/inputs.css',
   'component/component/context-menu/css/context-menu.css',
   'component/component/toast/css/toast.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
@@ -24,7 +24,7 @@ const modules = [
   'smart/smart/button-close/js/button-close.js', 'smart/smart/toast/js/toast.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js', 'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js', 'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js', 'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -38,10 +38,10 @@ const open = async (delay = 60) => {
   await page.setContent(
     `<!doctype html><html class="theme-light" lang="ru" style="font-size:87.5%"><head><base href="http://admin.test/"></head>
      <body style="margin:0"><div style="width:1200px">
-       <sf-data-view id="v">
-         <sf-table slot="content" id="t"></sf-table>
+       <sf-view id="v">
+         <sf-view-table slot="content" id="t"></sf-view-table>
          <sf-pagination slot="pagination" id="p" page-size="20" current="5" total="450"></sf-pagination>
-       </sf-data-view>
+       </sf-view>
      </div></body></html>`,
   );
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
@@ -288,7 +288,7 @@ try {
     // The page's notification area since SF.notify (2026-10-13); the band over
     // the card on an older Framework.
     const toast = document.querySelector('.sf-notifications .sf-toast')
-      ?? document.querySelector('sf-data-view > [slot="notice"] sf-toast');
+      ?? document.querySelector('sf-view > [slot="notice"] sf-toast');
     const root = toast?.querySelector('.sf-toast') ?? toast;
     const box = root?.getBoundingClientRect();
     const overlaps = (other) => box && other

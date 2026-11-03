@@ -4,8 +4,8 @@ import {dirname, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
-import * as treeModel from '../src/smart/data-view/js/tree.js';
-import {answerActions, settingSetters} from '../src/smart/table/js/manifest-actions.js';
+import * as treeModel from '../src/smart/view/js/tree.js';
+import {answerActions, settingSetters} from '../src/smart/view-table/js/manifest-actions.js';
 
 // What index.js imports since it is made from its component.json (standard
 // 1.3.8): the manifest, its aliases and words, and a stand-in for the core's
@@ -13,10 +13,10 @@ import {answerActions, settingSetters} from '../src/smart/table/js/manifest-acti
 // the DOM name <tag>-<verb>.
 const json = (path) => JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '..', path), 'utf8'));
 const manifestImports = {
-  manifest: json('src/smart/data-view/component.json'),
-  aliases: json('src/smart/data-view/aliases.json'),
-  en: json('src/smart/data-view/lang/en.json'),
-  ru: json('src/smart/data-view/lang/ru.json'),
+  manifest: json('src/smart/view/component.json'),
+  aliases: json('src/smart/view/aliases.json'),
+  en: json('src/smart/view/lang/en.json'),
+  ru: json('src/smart/view/lang/ru.json'),
   answerActions,
   settingSetters,
   installAliases: () => ({uninstall() {}}),
@@ -29,7 +29,7 @@ const manifestImports = {
 };
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const source = readFileSync(resolve(root, 'src/smart/data-view/index.js'), 'utf8')
+const source = readFileSync(resolve(root, 'src/smart/view/index.js'), 'utf8')
   .replace(/^import .*;\n/gm, '')
   .replace(/^export default SfDataView;\s*$/m, '');
 
@@ -44,7 +44,7 @@ class EventNode {
 
 class FakeTable extends EventNode {
   constructor() { super(); this.ACTIONS_SETTINGS_ROW = []; }
-  matches(name) { return name === 'sf-table'; }
+  matches(name) { return name === 'sf-view-table'; }
   setDataState(value) { this.setAttribute('data-state', value); }
   setColumns(value) { this.columns = value; }
   setRows(value) { this.rows = value; }
@@ -120,12 +120,17 @@ vm.runInNewContext(source, {
   // English table is what this fake answers with, which is enough for a test
   // about wiring rather than about wording.
   pageText: (table, key) => table.en?.[key] ?? key,
+  // The tag helpers of the Smart base (rename plan R2): the fake page holds
+  // only the new tags, so a selector is the tag and a former tag is not defined.
+  tagSelector: (tag) => tag,
+  isTag: (element, tag) => String(element?.localName ?? element?.tagName ?? '').toLowerCase() === tag,
+  defineTagAliases: () => {},
   ...manifestImports,
   // The tree model is a module of plain functions, supplied the same way.
   ...treeModel,
   document: {createElement: (tag) => new FakeChild(tag)},
 });
-const DataView = elements.get('sf-data-view');
+const DataView = elements.get('sf-view');
 const connect = (view) => { view.isConnected = true; view.connectedCallback(); };
 const disconnect = (view) => { view.isConnected = false; view.disconnectedCallback(); };
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -155,8 +160,8 @@ test('two instances reject stale answers and reconnect without duplicate handler
   disconnect(first); connect(first);
   await tick();
   assert.equal(calls, before + 1, 'reconnect requests once');
-  assert.equal(first.listeners.get('sf-table-search-change').size, 1, 'one listener after reconnect');
-  assert.equal(first.shadowRoot.listeners.get('sf-table-search-change').size, 1);
+  assert.equal(first.listeners.get('sf-view-table-search-change').size, 1, 'one listener after reconnect');
+  assert.equal(first.shadowRoot.listeners.get('sf-view-table-search-change').size, 1);
   assert.equal(second.records[0].id, 'other');
 });
 
@@ -277,7 +282,7 @@ test('selected bulk reaches the host with revisions even when its action differs
   assert.equal(JSON.stringify(calls[1].payload.revisions), JSON.stringify({one: 3}));
 
   // A row's own action (scope entry, standard 1.3.8 §18.3) the row does not offer.
-  await view._onEvent({type: 'sf-table-apply', target,
+  await view._onEvent({type: 'sf-view-table-apply', target,
     detail: {action: 'bulk_delete', scope: 'entry', ids: ['one']}});
   view.table.getSelectedRecordIds = () => ['one', 'missing'];
   await view._onEvent({type: 'sf-pagination-apply', target, detail: {action: 'bulk_delete', scope: 'selection'}});

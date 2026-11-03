@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-interlocutor",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "title": "Chat interlocutor",
   "summary": "Who the conversation is with: the server's interlocutors in the Framework's context menu, the current one checked, and a choice of another reported for the host to start a new conversation with. One interlocutor is a name, not a choice.",
   "kind": "smart",
@@ -321,6 +321,13 @@
         "changes": [
           "Draws and finds the renamed Framework elements by their new tags (the choice opens in sf-menu-context); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
         ]
+      },
+      {
+        "from": "1.0.4",
+        "to": "1.0.5",
+        "changes": [
+          "Its guidance names the conversation list by its new tag, sf-chat-threads (was sf-thread-list). No change in behaviour."
+        ]
       }
     ]
   },
@@ -350,7 +357,7 @@
       },
       {
         "path": "src/smart/chat-interlocutor/component.json",
-        "sha256": "cf16ff689365cfaaf24284bdbe18cd8316027328af0419895a0441020d62aa6f"
+        "sha256": "94a9a05fa285f5fd9afed7f454803e7b82bbd4ec35005798ffe83818bd67ba28"
       },
       {
         "path": "src/smart/chat-interlocutor/aliases.json",
@@ -371,7 +378,7 @@
     "use_when": "Use sf-chat-interlocutor in a chat window's header to name whom the conversation is with and, when the server lists several, to let the person choose another one, which the host turns into a new conversation.",
     "do_not": [
       "Do not change the interlocutor of an existing conversation; start a new one and write value back",
-      "Do not use it to pick a conversation: that is sf-thread-list",
+      "Do not use it to pick a conversation: that is sf-chat-threads",
       "Do not pass markup in titles; they are text"
     ],
     "required_reads": [

@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
-import {composeDateTime, normalizeTime, splitDateTime} from '../src/smart/property-view/js/datetime-value.js';
+import {composeDateTime, normalizeTime, splitDateTime} from '../src/smart/view-properties/js/datetime-value.js';
 
 // Larena acceptance, 2026-10-22: a «Дата и время» field edited only the day,
 // so a new record could not get a time and «15.11.2026 10:30» was saved as
@@ -60,9 +60,9 @@ test('clearing both clears the value; a partial entry is an error, never a guess
 });
 
 test('the template edits a datetime with the pair and leaves every other type to the shared set', () => {
-  const template = read('src/smart/property-view/js/templates/default.js');
+  const template = read('src/smart/view-properties/js/templates/default.js');
   assert.match(template, /editing && type === 'datetime' && field\.readonly !== true\n\s+\? renderDateTimeEdit\(/u);
-  const editor = read('src/smart/property-view/js/datetime-edit.js');
+  const editor = read('src/smart/view-properties/js/datetime-edit.js');
   assert.match(editor, /<sf-input-date[\s\S]*size=\$\{size\}[\s\S]*aria-label=\$\{words\.dateLabel/u);
   // A value attribute is read back after the field is emptied: the day is a property.
   assert.match(editor, /\n\s+\.value=\$\{draft\.date\}\n/u);
@@ -71,7 +71,7 @@ test('the template edits a datetime with the pair and leaves every other type to
 });
 
 test('an entry that is not a value yet stops both saves and is said under the field', () => {
-  const view = read('src/smart/property-view/index.js');
+  const view = read('src/smart/view-properties/index.js');
   assert.match(view, /if \(this\.editing && this\.inputErrors\.size\) return this\._inputsInvalid\(\);/u);
   assert.match(view, /async saveAll\(\{confirm = null\} = \{\}\) \{\n\s+if \(this\.inputErrors\.size\) return this\._inputsInvalid\(\);/u);
   assert.match(view, /errors: this\.inputErrors\.size \? new Map\(\[\.\.\.this\.errors, \.\.\.this\.inputErrors\]\) : this\.errors/u);
@@ -80,7 +80,7 @@ test('an entry that is not a value yet stops both saves and is said under the fi
     (view.match(/this\.changed\.clear\(\);/gu) ?? []).length);
   // The words are the language files' since standard 1.3.8 §11 (lang/<locale>.json).
   for (const language of ['en', 'ru']) {
-    const words = JSON.parse(read(`src/smart/property-view/lang/${language}.json`)).runtime;
+    const words = JSON.parse(read(`src/smart/view-properties/lang/${language}.json`)).runtime;
     for (const key of ['date-time-date-label', 'date-time-time-label', 'time-placeholder-text', 'date-missing-text', 'date-invalid-text', 'time-missing-text', 'time-invalid-text']) {
       assert.ok(words[key], `${language} ${key}`);
     }

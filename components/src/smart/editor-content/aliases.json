@@ -1,0 +1,62 @@
+{
+  "$comment": "Dated aliases of sf-editor-content, generated from component.json \"aliases\" by scripts/generate-component-files.mjs; read by core/js/alias-table.js and the shim. Do not edit.",
+  "component": "sf-editor-content",
+  "since": "2026-11-03",
+  "remove_after": "2027-01-01",
+  "aliases": [
+    {
+      "from": "sf-content-editor",
+      "to": "sf-editor-content",
+      "kind": "tag",
+      "component": "sf-editor-content",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "section": "rename plan R2 (ui-control RENAME-PLAN-2026-11-03), naming decision 2026-11-02",
+      "note": "the element is sf-editor-content; sf-content-editor is a subclass defined beside it until the date"
+    },
+    {
+      "from": "sf-content-editor-select",
+      "to": "sf-editor-content-select",
+      "kind": "event",
+      "component": "sf-editor-content",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-content-editor-leave",
+      "to": "sf-editor-content-leave",
+      "kind": "event",
+      "component": "sf-editor-content",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-content-editor-params",
+      "to": "sf-editor-content-params",
+      "kind": "event",
+      "component": "sf-editor-content",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-content-editor-file",
+      "to": "sf-editor-content-file",
+      "kind": "event",
+      "component": "sf-editor-content",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    }
+  ]
+}

@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import test from 'node:test';
 import {optionBadgeProps} from '../src/smart/helpers/option-badge.js';
 
-const source = fs.readFileSync(new URL('../src/smart/table/index.js', import.meta.url), 'utf8');
-const template = fs.readFileSync(new URL('../src/smart/table/js/templates/default.js', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('../src/smart/view-table/index.js', import.meta.url), 'utf8');
+const template = fs.readFileSync(new URL('../src/smart/view-table/js/templates/default.js', import.meta.url), 'utf8');
 const drawer = fs.readFileSync(new URL('../src/smart/drawer/index.js', import.meta.url), 'utf8');
 const elementManifest = fs.readFileSync(new URL('../src/core/js/element-manifest.js', import.meta.url), 'utf8');
 
@@ -27,7 +27,7 @@ function table() {
         events: [],
         state: {createItems: [], toolbarActions: [], sort: {key: null, direction: null}},
         set(patch) { Object.assign(this.state, patch); return this; },
-        emitTableEvent(name, detail) { this.events.push({name: `sf-table-${name}`, detail}); return true; },
+        emitTableEvent(name, detail) { this.events.push({name: `sf-view-table-${name}`, detail}); return true; },
         setCreateItems, requestCreateIntent, getSort, setSort, toggleSort,
         setToolbarActions, getToolbarActions, isSameSiteHref,
     };
@@ -39,8 +39,8 @@ test('create button and menu items emit a create intent with the chosen item', (
     owner.setCreateItems([{id: 'page', name: 'Страница'}, {id: 'folder', name: 'Раздел'}]);
     owner.requestCreateIntent('folder');
     assert.deepEqual(owner.events, [
-        {name: 'sf-table-create', detail: {item: null}},
-        {name: 'sf-table-create', detail: {item: 'folder'}},
+        {name: 'sf-view-table-create', detail: {item: null}},
+        {name: 'sf-view-table-create', detail: {item: 'folder'}},
     ]);
     assert.ok(Object.isFrozen(owner.events[1].detail));
     assert.throws(() => owner.requestCreateIntent('unknown'), TypeError);
@@ -70,7 +70,7 @@ test('header sort cycles asc, desc, none and reports intent only', () => {
         {key: 'name', direction: 'asc'},
         {key: 'date', direction: 'asc'},
     ]);
-    assert.ok(owner.events.every((event) => event.name === 'sf-table-sort-change' && Object.isFrozen(event.detail)));
+    assert.ok(owner.events.every((event) => event.name === 'sf-view-table-sort-change' && Object.isFrozen(event.detail)));
     assert.deepEqual(owner.getSort(), {key: 'date', direction: 'asc'});
 });
 

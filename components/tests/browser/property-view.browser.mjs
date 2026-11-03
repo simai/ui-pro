@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-property-view, the first pair: one object read through its port and one
+// sf-view-properties, the first pair: one object read through its port and one
 // group saved through it. What this measures is the seam, because that is where
 // this composite can be wrong in ways a screenshot would not show -- a save that
 // carries untouched fields, a value written on blur, a conflict that quietly
@@ -31,9 +31,9 @@ const styles = [
   'smart/smart/popover/css/popover.css',
   'component/component/icon-buttons/css/icon-buttons.css',
   'smart/smart/button-copy/css/button-copy.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/sortable/css/sortable.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'component/component/pagination/css/pagination.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -57,11 +57,11 @@ const modules = [
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
   'smart/smart/popover/js/popover.js',
   'smart/smart/button-copy/js/button-copy.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -86,8 +86,8 @@ try {
     + 'window.__portAsks.push({owner: event.detail.context.owner, record: event.detail.context.record,'
     + ' group: event.detail.context.group, tag: event.target.tagName.toLowerCase()});'
     + '});</script>'
-    + '<sf-property-view id="many" record-id="record-1" collection="pages"></sf-property-view>'
-    + '<sf-property-view id="one" record-id="record-2" collection="settings"></sf-property-view>'
+    + '<sf-view-properties id="many" record-id="record-1" collection="pages"></sf-view-properties>'
+    + '<sf-view-properties id="one" record-id="record-2" collection="settings"></sf-view-properties>'
     + '</body></html>',
   );
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
@@ -95,11 +95,11 @@ try {
   await page.waitForTimeout(1400);
 
   const unupgraded = await page.evaluate(() => {
-    const tags = ['sf-property-view', 'sf-drawer', 'sf-input', 'sf-input-textarea', 'sf-dropdown',
+    const tags = ['sf-view-properties', 'sf-drawer', 'sf-input', 'sf-input-textarea', 'sf-dropdown',
       'sf-input-date', 'sf-switch', 'sf-button-group', 'sf-checkbox', 'sf-file-upload',
       'sf-file-preview', 'sf-progress-bar', 'sf-progress-scale', 'sf-avatar', 'sf-badge',
       'sf-tag', 'sf-reference-link', 'sf-tree', 'sf-tree-item', 'sf-button', 'sf-button-icon',
-      'sf-sortable', 'sf-data-view', 'sf-table', 'sf-pagination'];
+      'sf-sortable', 'sf-view', 'sf-view-table', 'sf-pagination'];
     return tags.filter((tag) => !customElements.get(tag));
   });
   if (unupgraded.length) {
@@ -204,7 +204,7 @@ try {
     // makes a slot different from injecting into the DOM: the very same nodes
     // survive a render. A consumer's menu or history panel keeps its listeners
     // and its open state, which a re-created subtree would lose.
-    const slotView = document.createElement('sf-property-view');
+    const slotView = document.createElement('sf-view-properties');
     slotView.setAttribute('record-id', 'record-5');
     const actions = document.createElement('div');
     actions.setAttribute('slot', 'actions');
@@ -266,7 +266,7 @@ try {
     // A date arriving as {value, text}: the view reads the text and the editor must
     // take the value. A consumer had every date field editing as empty while its
     // view read correctly, which is the worst shape of this defect.
-    const dateView = document.createElement('sf-property-view');
+    const dateView = document.createElement('sf-view-properties');
     dateView.setAttribute('record-id', 'record-dates');
     document.body.append(dateView);
     dateView.setHostPort({
@@ -336,7 +336,7 @@ try {
     // its own. Measured through the composite, because the two failures worth
     // catching are a list that renders and never asks, and a list that asks with a
     // context a host cannot answer.
-    const relatedView = document.createElement('sf-property-view');
+    const relatedView = document.createElement('sf-view-properties');
     relatedView.setAttribute('record-id', 'record-related');
     relatedView.setAttribute('collection', 'pages');
     document.body.append(relatedView);
@@ -360,7 +360,7 @@ try {
     await new Promise((done) => setTimeout(done, 700));
 
     const relatedGroup = relatedView.querySelector('[data-group="invoices"]');
-    const nested = relatedGroup?.querySelector('sf-data-view');
+    const nested = relatedGroup?.querySelector('sf-view');
     // Before the nested host answers. A consumer found the chrome drawn until data
     // arrived, because the attributes were read once at connection -- and a
     // template sets them after the element is in the document.
@@ -397,7 +397,7 @@ try {
     // see is a measurement waiting to lie.
     const contentSlot = nested?.shadowRoot?.querySelector('slot[name="content"]');
     const nestedTable = contentSlot
-        ? (contentSlot.assignedElements?.()[0] ?? contentSlot.querySelector('sf-table'))
+        ? (contentSlot.assignedElements?.()[0] ?? contentSlot.querySelector('sf-view-table'))
         : null;
     const related = {
       // The group holds a list rather than fields, and a list has nothing to edit
@@ -409,8 +409,8 @@ try {
       rowCap: nested?.getAttribute('row-cap'),
       // Who asked, and about what. A context a host cannot answer is worse than
       // no request: the list would sit empty and the host would never know why.
-      asks: relatedAsks.filter((ask) => ask.tag === 'sf-data-view'),
-      propertyViewAsked: relatedAsks.some((ask) => ask.tag === 'sf-property-view'),
+      asks: relatedAsks.filter((ask) => ask.tag === 'sf-view'),
+      propertyViewAsked: relatedAsks.some((ask) => ask.tag === 'sf-view-properties'),
       rows: nestedTable ? nestedTable.querySelectorAll('tbody tr').length : 0,
       // The frame: a card inside a card is what an embedded list must not look
       // like. The group draws the card; the list must not draw a second one.
@@ -419,7 +419,7 @@ try {
       // shadow tree: fallback content is styled only by shadow-scoped rules, and
       // the Framework's component stylesheets are page level. A consumer got a list
       // whose sort buttons read «unfold_more» as text because of this.
-      tableInLightDom: nested ? Boolean(nested.querySelector(':scope > sf-table')) : null,
+      tableInLightDom: nested ? Boolean(nested.querySelector(':scope > sf-view-table')) : null,
       tableParentIsSlot: nestedTable ? nestedTable.parentElement?.tagName?.toLowerCase() === 'slot' : null,
       listBorder: nested ? getComputedStyle(nested).borderTopWidth : null,
       listPadding: nested ? getComputedStyle(nested).paddingTop : null,
@@ -453,7 +453,7 @@ try {
     // write, and which layer hid an entry. Measured through the composite, because
     // the interesting failures are a control that appears without the capability
     // and a hide button that is enabled over a decision made above it.
-    const plainView = document.createElement('sf-property-view');
+    const plainView = document.createElement('sf-view-properties');
     plainView.setAttribute('record-id', 'record-plain');
     plainView.setAttribute('collection', 'pages');
     document.body.append(plainView);
@@ -495,7 +495,7 @@ try {
     const startedWithoutCapability = plainView.startConfiguringView();
     plainView.remove();
 
-    const configView = document.createElement('sf-property-view');
+    const configView = document.createElement('sf-view-properties');
     configView.setAttribute('record-id', 'record-config');
     configView.setAttribute('collection', 'pages');
     document.body.append(configView);
@@ -652,7 +652,7 @@ try {
 
     // The file editor: the host takes the file, the component holds nothing but
     // what is in flight, and the stored file waits for the save button.
-    const uploadView = document.createElement('sf-property-view');
+    const uploadView = document.createElement('sf-view-properties');
     uploadView.setAttribute('record-id', 'record-6');
     uploadView.setAttribute('collection', 'pages');
     document.body.append(uploadView);
@@ -718,14 +718,14 @@ try {
     // What matters is that it is modeless -- a modal would take the list away,
     // which is the whole reason the consumer asked for a panel -- and that the
     // two controls needing an address appear only when the host gave one.
-    const panelView = document.createElement('sf-property-view');
+    const panelView = document.createElement('sf-view-properties');
     panelView.setAttribute('record-id', 'record-7');
     panelView.setAttribute('collection', 'pages');
     panelView.setAttribute('panel', '');
     document.body.append(panelView);
     const panelEvents = [];
-    for (const name of ['sf-property-view-close', 'sf-property-view-address-copy',
-      'sf-property-view-open-full']) {
+    for (const name of ['sf-view-properties-close', 'sf-view-properties-address-copy',
+      'sf-view-properties-open-full']) {
       panelView.addEventListener(name, (event) => panelEvents.push({name, detail: event.detail}));
     }
     panelView.setHostPort({
@@ -837,7 +837,7 @@ try {
 
     // A second panel whose host sends no address, to read what the controls do
     // when there is nothing to copy or open.
-    const addresslessView = document.createElement('sf-property-view');
+    const addresslessView = document.createElement('sf-view-properties');
     addresslessView.setAttribute('record-id', 'record-8');
     addresslessView.setAttribute('panel', '');
     document.body.append(addresslessView);
@@ -915,7 +915,7 @@ try {
         return {answer: 'unavailable', reason: 'unknown-intent'};
       },
     });
-    const lower = document.createElement('sf-property-view');
+    const lower = document.createElement('sf-view-properties');
     lower.setAttribute('record-id', 'stack-1');
     lower.setAttribute('panel', '');
     document.body.append(lower);
@@ -927,7 +927,7 @@ try {
     lower.changeField({key: 'name'}, 'Набрано и не сохранено');
     await new Promise((done) => setTimeout(done, 200));
 
-    const upper = document.createElement('sf-property-view');
+    const upper = document.createElement('sf-view-properties');
     upper.setAttribute('record-id', 'stack-2');
     upper.setAttribute('panel', '');
     document.body.append(upper);
@@ -935,8 +935,8 @@ try {
     await new Promise((done) => setTimeout(done, 500));
 
     const closes = [];
-    lower.addEventListener('sf-property-view-close', (event) => closes.push(['lower', event.detail.reason]));
-    upper.addEventListener('sf-property-view-close', (event) => closes.push(['upper', event.detail.reason]));
+    lower.addEventListener('sf-view-properties-close', (event) => closes.push(['lower', event.detail.reason]));
+    upper.addEventListener('sf-view-properties-close', (event) => closes.push(['upper', event.detail.reason]));
     document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
     await new Promise((done) => setTimeout(done, 250));
 
@@ -969,10 +969,10 @@ try {
       // as beneath it: a consumer measured two panels covering each other exactly
       // and the stack was true only in the DOM.
       widths: [
-        Math.round(document.querySelector('sf-property-view[record-id=\'stack-1\'] .sf-drawer-panel')?.getBoundingClientRect().width ?? 0),
-        Math.round(document.querySelector('sf-property-view[record-id=\'stack-2\'] .sf-drawer-panel')?.getBoundingClientRect().width ?? 0),
+        Math.round(document.querySelector('sf-view-properties[record-id=\'stack-1\'] .sf-drawer-panel')?.getBoundingClientRect().width ?? 0),
+        Math.round(document.querySelector('sf-view-properties[record-id=\'stack-2\'] .sf-drawer-panel')?.getBoundingClientRect().width ?? 0),
       ],
-      drawerWidthAttr: document.querySelector('sf-property-view[record-id=\'stack-2\'] sf-drawer')?.getAttribute('width') ?? null,
+      drawerWidthAttr: document.querySelector('sf-view-properties[record-id=\'stack-2\'] sf-drawer')?.getAttribute('width') ?? null,
       closedByEscape: closes,
       // The point of separate elements: the lower window still holds what was
       // typed into it while another window stands over it.
@@ -991,7 +991,7 @@ try {
     // must show the value read-only rather than an empty control -- the promise
     // that an additive port version stays additive, measured instead of asserted
     // in a changelog.
-    const oldHostView = document.createElement('sf-property-view');
+    const oldHostView = document.createElement('sf-view-properties');
     oldHostView.setAttribute('record-id', 'record-9');
     oldHostView.setAttribute('collection', 'pages');
     document.body.append(oldHostView);
@@ -1024,7 +1024,7 @@ try {
     // A record the host answered with that holds nothing visible says so. An
     // empty box reads as something still loading, which is the one thing it is
     // not: the host has answered.
-    const bare = document.createElement('sf-property-view');
+    const bare = document.createElement('sf-view-properties');
     // Since 1.5.0 a view asks the host nothing until it is told its record.
     bare.setAttribute('record-id', 'record-bare');
     document.body.append(bare);
@@ -1324,7 +1324,7 @@ try {
 
   if (measured.missing) {
     note({case: 'the element upgrades and takes a port', got: measured,
-      expected: 'sf-property-view with setHostPort'});
+      expected: 'sf-view-properties with setHostPort'});
   } else {
     // The arrangement is the host's, and both sections arrive.
     if (!measured.switched?.asked || measured.switched.showing !== measured.switched.asked) {
@@ -1782,12 +1782,12 @@ try {
         got: inPanel.withoutAddress, expected: 'close alone'});
     }
     const announced = measured.panelAnnounced ?? [];
-    const closed = announced.find((entry) => entry.name === 'sf-property-view-close');
+    const closed = announced.find((entry) => entry.name === 'sf-view-properties-close');
     if (!closed || closed.reason !== 'escape' || closed.unsaved === null) {
       note({case: 'Esc announces the close, with the count of unsaved fields',
         got: announced, expected: 'a close carrying reason escape and a field count'});
     }
-    const opened = announced.find((entry) => entry.name === 'sf-property-view-open-full');
+    const opened = announced.find((entry) => entry.name === 'sf-view-properties-open-full');
     if (!opened || opened.address !== '/admin/cms/pages/record-7') {
       note({case: 'opening full page announces the address the host gave',
         got: announced, expected: "the host's own address"});
@@ -1924,7 +1924,7 @@ try {
   await page.setViewportSize({width: 390, height: 780});
   await page.waitForTimeout(400);
   const phone = await page.evaluate(async () => {
-    const view = document.createElement('sf-property-view');
+    const view = document.createElement('sf-view-properties');
     view.setAttribute('record-id', 'record-phone');
     view.setAttribute('collection', 'pages');
     document.body.append(view);
@@ -2038,7 +2038,7 @@ try {
   await page.setViewportSize({width: 1100, height: 900});
   await page.waitForTimeout(300);
   const head = await page.evaluate(async () => {
-    const view = document.createElement('sf-property-view');
+    const view = document.createElement('sf-view-properties');
     view.setAttribute('record-id', 'record-head');
     view.setAttribute('collection', 'pages');
     // As a panel, because the copy and the close stand on the drawer's outer

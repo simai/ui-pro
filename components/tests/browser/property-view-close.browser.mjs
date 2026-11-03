@@ -29,7 +29,7 @@ const styles = [
   'component/component/textarea/css/textarea.css',
   'smart/smart/popover/css/popover.css',
   'component/component/context-menu/css/context-menu.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/sortable/css/sortable.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -48,7 +48,7 @@ const modules = [
   'smart/smart/sortable/js/sortable.js',
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/popover/js/popover.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
 if (absent.length) throw new Error(`${absent.length} build asset(s) not found under ${out}: ${absent.join(', ')}`);
@@ -62,21 +62,21 @@ try {
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0"></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-property-view')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view-properties')));
 
   // The host keeps the panel: it only writes down what was announced, so what
   // happens after a «no» to its question can be read.
   const make = () => page.evaluate(async () => {
-    document.querySelectorAll('sf-property-view').forEach((one) => one.remove());
+    document.querySelectorAll('sf-view-properties').forEach((one) => one.remove());
     document.querySelectorAll('[data-sf-drawer-root]').forEach((one) => one.remove());
     window.announced = [];
-    const view = document.createElement('sf-property-view');
+    const view = document.createElement('sf-view-properties');
     view.id = 'view';
     view.setAttribute('record-id', 'r1');
     view.setAttribute('collection', 'events');
     view.setAttribute('mode', 'edit');
     view.setAttribute('panel', '');
-    for (const name of ['sf-property-view-close', 'sf-property-view-cancel']) {
+    for (const name of ['sf-view-properties-close', 'sf-view-properties-cancel']) {
       view.addEventListener(name, (event) => window.announced.push({name, reason: event.detail?.reason ?? null,
         unsaved: event.detail?.unsaved_fields ?? null}));
     }
@@ -101,7 +101,7 @@ try {
     for (let tries = 0; tries < 80 && !view.sections?.length; tries += 1) await new Promise((done) => setTimeout(done, 50));
     await new Promise((done) => setTimeout(done, 600));
   });
-  const closes = () => page.evaluate(() => window.announced.filter((one) => one.name === 'sf-property-view-close'));
+  const closes = () => page.evaluate(() => window.announced.filter((one) => one.name === 'sf-view-properties-close'));
   const field = (key) => `.sf-property-view-panel [data-field="${key}"]`;
   const cancel = () => page.click('.sf-property-view-panel .sf-property-view-actions [data-action="cancel"]');
 

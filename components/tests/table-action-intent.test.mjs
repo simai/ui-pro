@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
 
-const source = fs.readFileSync(new URL('../src/smart/table/index.js', import.meta.url), 'utf8');
+const source = fs.readFileSync(new URL('../src/smart/view-table/index.js', import.meta.url), 'utf8');
 const intent = source.split('    requestActionIntent(actionId, recordIds, options = {}) {')[1]
     .split('\n    getSelectedRecordIds(')[0].trim().replace(/\}\s*$/, '');
 const rows = source.split('    getActionRowItems(row = {}, actions = this.ACTIONS_SETTINGS_ROW) {')[1]
@@ -83,7 +83,7 @@ test('context trigger and trusted legacy callbacks do not implicitly emit an ope
 });
 
 test('public manifest declares the same additive command and closed payload', () => {
-    const manifest = JSON.parse(fs.readFileSync(new URL('../src/smart/table/smart.manifest.json', import.meta.url)));
+    const manifest = JSON.parse(fs.readFileSync(new URL('../src/smart/view-table/smart.manifest.json', import.meta.url)));
     assert.ok(manifest.methods.requestActionIntent);
     assert.deepEqual(manifest.events['sf-table-action-intent'].payload, manifest.contracts.action_intent);
     assert.equal(manifest.contracts.action_intent.additionalProperties, false);

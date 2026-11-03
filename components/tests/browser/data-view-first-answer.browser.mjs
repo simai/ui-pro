@@ -17,7 +17,7 @@ const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -33,8 +33,8 @@ const modules = [
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const records = (title) => [1, 2, 3].map((n) => ({id: String(n), revision: `r${n}`, title: `${title} ${n}`}));
@@ -47,15 +47,15 @@ const page = await browser.newPage();
 await page.setContent(
   `<!doctype html><html class="theme-light"><body style="margin:0">
      <div style="width:900px">
-       <sf-data-view id="asks-twenty" aria-label="Список">
-         <sf-table slot="content" aria-label="Список"></sf-table>
+       <sf-view id="asks-twenty" aria-label="Список">
+         <sf-view-table slot="content" aria-label="Список"></sf-view-table>
          <sf-pagination slot="pagination" page-size="20" current="1" total="0"></sf-pagination>
-       </sf-data-view>
-       <sf-data-view id="printed" aria-label="Каталог">
+       </sf-view>
+       <sf-view id="printed" aria-label="Каталог">
          <script type="application/json" data-sf-settings>${JSON.stringify({'first-answer': answer('Напечатанная')})}</script>
-         <sf-table slot="content" aria-label="Каталог"></sf-table>
+         <sf-view-table slot="content" aria-label="Каталог"></sf-view-table>
          <sf-pagination slot="pagination" page-size="20" current="1" total="0"></sf-pagination>
-       </sf-data-view>
+       </sf-view>
      </div>
    </body></html>`,
 );
@@ -64,7 +64,7 @@ for (const path of modules) await page.addScriptTag({path, type: 'module'}).catc
 await page.waitForTimeout(900);
 
 try {
-  const unupgraded = await page.evaluate(() => ['sf-data-view', 'sf-table', 'sf-pagination']
+  const unupgraded = await page.evaluate(() => ['sf-view', 'sf-view-table', 'sf-pagination']
     .filter((tag) => !customElements.get(tag)));
   if (unupgraded.length) throw new Error(`not defined on the page: ${unupgraded.join(', ')}`);
 

@@ -21,8 +21,8 @@ const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
-  'smart/smart/data-view/css/data-view.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view/css/view.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -32,8 +32,8 @@ const modules = [
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js', 'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const DEFAULTS = {filters: {}, search: '', sort: [], page: 1, per_page: 25};
@@ -43,11 +43,11 @@ const columns = [{key: 'title', label: 'Название'}];
 const rows = (count) => Array.from({length: count}, (_, at) => ({id: String(at + 1), revision: 'r', title: `Запись ${at + 1}`}));
 const printed = {records: rows(25), total: 400, query: DEFAULTS, columns,
   echo: {page: 1, per_page: 25, search: '', filters: {}, sort: []}};
-const view = (id, {island = true, answer = false} = {}) => `<sf-data-view id="${id}" aria-label="Каталог" preferences-key="probe.${id}">
+const view = (id, {island = true, answer = false} = {}) => `<sf-view id="${id}" aria-label="Каталог" preferences-key="probe.${id}">
   ${island ? `<script type="application/json" data-sf-port>${JSON.stringify(declared)}</script>` : ''}
   ${answer ? `<script type="application/json" data-sf-settings>${JSON.stringify({'first-answer': printed})}</script>` : ''}
-  <sf-table slot="content" aria-label="Каталог"></sf-table>
-  <sf-pagination slot="pagination" page-size="25" current="1" total="0"></sf-pagination></sf-data-view>`;
+  <sf-view-table slot="content" aria-label="Каталог"></sf-view-table>
+  <sf-pagination slot="pagination" page-size="25" current="1" total="0"></sf-pagination></sf-view>`;
 
 const failures = [];
 const browser = await chromium.launch();
@@ -65,7 +65,7 @@ const load = async (saved) => {
     window.__drawn = {declared: [], printed: []};
     new MutationObserver(() => {
       for (const id of ['declared', 'printed']) {
-        const count = document.querySelectorAll(`#${id} sf-table tbody tr[data-row-id]`).length;
+        const count = document.querySelectorAll(`#${id} sf-view-table tbody tr[data-row-id]`).length;
         const seen = window.__drawn[id];
         if (count && seen.at(-1) !== count) seen.push(count);
       }
@@ -74,7 +74,7 @@ const load = async (saved) => {
   await page.goto('https://probe.test/');
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-data-view') && customElements.get('sf-table')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view') && customElements.get('sf-view-table')));
   await page.waitForTimeout(400);
   const result = await page.evaluate(async () => {
     const asked = {};

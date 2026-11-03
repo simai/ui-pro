@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-property-view on simai.property-view-port 1.16.0 (consumer simai.main,
+// sf-view-properties on simai.property-view-port 1.16.0 (consumer simai.main,
 // agreed contract q-b0de123841): a masked string and a choice as buttons,
 // measured on the built bytes with a host port that answers 1.16.0, both ways
 // a record is saved -- one group (group.save) and the whole record open at once
@@ -30,7 +30,7 @@ const styles = [
   'component/component/buttons/css/buttons.css', 'component/component/button-group/css/button-group.css',
   'component/component/dropdown/css/dropdown.css', 'smart/smart/drawer/css/drawer.css',
   'component/component/tags/css/tags.css', 'smart/smart/popover/css/popover.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
 ];
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/badge/js/badge.js',
@@ -38,7 +38,7 @@ const modules = [
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js', 'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/spinner/js/spinner.js', 'smart/smart/drawer/js/drawer.js', 'smart/smart/tag/js/tag.js',
   'smart/smart/button-group/js/button-group.js', 'smart/smart/field-renderers/js/field-renderers.js',
-  'smart/smart/popover/js/popover.js', 'smart/smart/property-view/js/property-view.js',
+  'smart/smart/popover/js/popover.js', 'smart/smart/view-properties/js/view-properties.js',
 ];
 const absent = [...styles, ...modules].map((path) => join(out, path)).filter((path) => !existsSync(path));
 if (absent.length) throw new Error(`${absent.length} build asset(s) not found under ${out}: ${absent.join(', ')}`);
@@ -65,12 +65,12 @@ try {
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0"></body></html>');
   for (const style of styles) await page.addStyleTag({url: `${origin}/${style}`}).catch(() => {});
   for (const module of modules) await page.addScriptTag({url: `${origin}/${module}`, type: 'module'});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-property-view')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-view-properties')));
 
   const make = (mode, size) => page.evaluate(async ({mode, size}) => {
     document.body.replaceChildren();
     window.raised = [];
-    const view = document.createElement('sf-property-view');
+    const view = document.createElement('sf-view-properties');
     view.id = 'view';
     view.setAttribute('record-id', 'r1');
     view.setAttribute('collection', 'contacts');
@@ -112,7 +112,7 @@ try {
     await new Promise((done) => setTimeout(done, 500));
   }, {mode, size});
 
-  const field = (key) => `sf-property-view [data-field="${key}"]`;
+  const field = (key) => `sf-view-properties [data-field="${key}"]`;
   const input = (key) => `${field(key)} sf-input input`;
   const look = () => page.evaluate(() => {
     const view = document.getElementById('view');
@@ -184,7 +184,7 @@ try {
       const left = await look();
       check(at('left incomplete: the field says so, once'), left.phone.invalid && left.phone.message === 'Заполните поле полностью'
         && left.panelErrors.length === 0 && left.saveDisabled === true, left);
-      await page.locator('sf-property-view [data-action="save"]').click({force: true});
+      await page.locator('sf-view-properties [data-action="save"]').click({force: true});
       const viaAction = await saveBy(mode);
       check(at('neither the button nor the action raises a save'), viaAction.answer === 'refused' && viaAction.reason === 'input_invalid'
         && viaAction.raised.length === 0, viaAction);

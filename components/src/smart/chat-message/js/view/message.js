@@ -34,7 +34,7 @@
 //   avatar?: ({text, image, icon}) => Node, among people: sf-avatar, or its markup with a sign
 //   enhanceCode?: (pre) => void,         SF.Highlight on a Framework page
 //   renderProposal?: (proposal, {disabled}) => Node,
-//                                        sf-change-confirm (index.js)
+//                                        sf-confirm-change (index.js)
 //   features?: {feedback, proposals, memory, brief}   brief (v1.2) is off unless given
 // }
 import {render} from 'lit';
@@ -1344,7 +1344,7 @@ function renderActions(ctx, message, view, features, sources) {
 /**
  * Let what a detached rendering still runs go: the clock of a running
  * answer's steps (v1.3). The proposal's expiry went with the card to
- * sf-change-confirm, which stops its own timer when it leaves the page. The
+ * sf-confirm-change, which stops its own timer when it leaves the page. The
  * widget and the pilot call it on every node they drop.
  */
 export function disposeRendering(root) {

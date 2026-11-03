@@ -1,4 +1,4 @@
-// sf-chat-window 1.6.0, sf-chat-message 1.4.0, sf-thread-list 1.6.0 and
+// sf-chat-window 1.6.0, sf-chat-message 1.4.0, sf-chat-threads 1.6.0 and
 // sf-chat-composer 1.2.0: the first real step of the one window for every
 // conversation (ui-chat docs/design/UNIVERSAL-CHAT.md; owner decision
 // q-0c04e83775: simai.chat-port 1.0 does not change). The behaviour in the browser
@@ -85,9 +85,9 @@ test('the window keeps people\'s behaviour behind people: the field, the strip, 
 test('the versions, the events and the words are declared', () => {
   const window = json('chat-window', 'component.json');
   const message = json('chat-message', 'component.json');
-  const list = json('thread-list', 'component.json');
+  const list = json('chat-threads', 'component.json');
   const composer = json('chat-composer', 'component.json');
-  assert.deepEqual([window.version, message.version, list.version, composer.version], ['1.10.2', '1.5.3', '1.6.4', '1.2.1']);
+  assert.deepEqual([window.version, message.version, list.version, composer.version], ['1.10.3', '1.5.4', '1.7.0', '1.2.1']);
   for (const [manifest, from, to] of [[window, '1.5.1', '1.6.0'], [message, '1.3.0', '1.4.0'], [list, '1.5.1', '1.6.0'], [composer, '1.1.0', '1.2.0']]) {
     assert.ok(manifest['x-registry'].compatibility.migrations.some((one) => one.from === from && one.to === to), `${manifest.tag} ${to}`);
   }
@@ -105,6 +105,6 @@ test('the versions, the events and the words are declared', () => {
     const runtime = json('chat-window', `lang/${locale}.json`).runtime;
     for (const name of ['reactions-refused', 'reply-cancel', 'reply-label', 'reply-say', 'reply-you']) assert.ok(runtime[name], `${locale}: ${name}`);
   }
-  assert.match(read('thread-list', 'js/templates/default.js'), /SHAPES = new Set\(\["circle", "square"\]\)/u);
-  assert.doesNotMatch(read('thread-list', 'js/templates/default.css'), /#[0-9a-f]{3,8}\b/iu, 'no hardcoded colours');
+  assert.match(read('chat-threads', 'js/templates/default.js'), /SHAPES = new Set\(\["circle", "square"\]\)/u);
+  assert.doesNotMatch(read('chat-threads', 'js/templates/default.css'), /#[0-9a-f]{3,8}\b/iu, 'no hardcoded colours');
 });

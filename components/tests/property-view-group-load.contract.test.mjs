@@ -4,14 +4,14 @@ import {dirname, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 
-// sf-property-view on simai.property-view-port 1.15.0 (standard
+// sf-view-properties on simai.property-view-port 1.15.0 (standard
 // simai.smart-component 1.3.8 §4.9, §7.2.1): group.load behind the capability
 // group-load, record.load once per revision without it. The behaviour both ways
 // is measured on the built bytes by tests/browser/property-view-group-load;
 // this holds the declarations and the payloads to the port.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
-const view = read('src/smart/property-view/index.js');
+const view = read('src/smart/view-properties/index.js');
 const port = JSON.parse(read('src/core/contracts/ports/simai.property-view-port/1.15.0/port.json'));
 const body = (start) => {
   const at = view.indexOf(start);
@@ -21,11 +21,11 @@ const body = (start) => {
 
 // 1.16.0 (mask, buttons) and 1.17.0 (html) are declared since; 1.15.0 and 1.14.0 stay accepted.
 test('the view takes port 1.15.0 and 1.14.0', () => {
-  const manifest = JSON.parse(read('src/smart/property-view/smart.manifest.json')).composition.declarative.host_port;
+  const manifest = JSON.parse(read('src/smart/view-properties/smart.manifest.json')).composition.declarative.host_port;
   assert.equal(manifest.version, '1.17.0');
   assert.ok(manifest.supported_versions.includes('1.14.0'));
   assert.ok(manifest.supported_versions.includes('1.15.0'));
-  const component = JSON.parse(read('src/smart/property-view/component.json')).port;
+  const component = JSON.parse(read('src/smart/view-properties/component.json')).port;
   assert.equal(component.version, '1.17.0');
   assert.equal(component.contract, 'src/core/contracts/ports/simai.property-view-port/1.17.0/port.json');
 });

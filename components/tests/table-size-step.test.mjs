@@ -8,10 +8,10 @@ import vm from 'node:vm';
 // size (1/2 or 1) and hands it to its table, page row and selection band; the
 // table draws its own controls and rows at that step.
 
-const table = readFileSync(new URL('../src/smart/table/index.js', import.meta.url), 'utf8');
-const template = readFileSync(new URL('../src/smart/table/js/templates/default.js', import.meta.url), 'utf8');
-const css = readFileSync(new URL('../src/smart/table/js/templates/default.css', import.meta.url), 'utf8');
-const view = readFileSync(new URL('../src/smart/data-view/index.js', import.meta.url), 'utf8');
+const table = readFileSync(new URL('../src/smart/view-table/index.js', import.meta.url), 'utf8');
+const template = readFileSync(new URL('../src/smart/view-table/js/templates/default.js', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../src/smart/view-table/js/templates/default.css', import.meta.url), 'utf8');
+const view = readFileSync(new URL('../src/smart/view/index.js', import.meta.url), 'utf8');
 
 const override = table.slice(table.indexOf('    renderSmartElement(type, props = {}) {'), table.indexOf('    get size() {'));
 // The override names a former tag by its current one (canonicalTag of the
@@ -37,7 +37,7 @@ test('a size of 1 becomes the table step; a size of its own or none is kept', ()
 test('the table writes its step on what it draws and its rows follow', () => {
   assert.doesNotMatch(template, /\bsize="1"/u, 'no control in the template is fixed at 1');
   assert.doesNotMatch(table, /\bsize="1"/u, 'no control in the menus is fixed at 1');
-  assert.match(css, /sf-table\[size="1\/2"\][^{]*\{\s*padding-block: var\(--sf-ui-1\\\/2--space-y\);/u);
+  assert.match(css, /:is\(sf-view-table, sf-table\)\[size="1\/2"\][^{]*\{\s*padding-block: var\(--sf-ui-1\\\/2--space-y\);/u);
 });
 
 test('the data view hands its step to the table, the page row and the band', () => {

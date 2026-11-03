@@ -22,7 +22,7 @@ const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -38,8 +38,8 @@ const modules = [
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -49,10 +49,10 @@ const page = await browser.newPage();
 await page.setContent(
   `<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">
      <div style="width:900px">
-       <sf-data-view id="view">
-         <sf-table slot="content" id="table" preferences-key="trial-5"></sf-table>
+       <sf-view id="view">
+         <sf-view-table slot="content" id="table" preferences-key="trial-5"></sf-view-table>
          <sf-pagination slot="pagination"></sf-pagination>
-       </sf-data-view>
+       </sf-view>
      </div>
    </body></html>`,
 );
@@ -61,7 +61,7 @@ for (const path of modules) await page.addScriptTag({path, type: 'module'}).catc
 await page.waitForTimeout(900);
 
 try {
-  const unupgraded = await page.evaluate(() => ['sf-data-view', 'sf-table', 'sf-pagination']
+  const unupgraded = await page.evaluate(() => ['sf-view', 'sf-view-table', 'sf-pagination']
     .filter((tag) => !customElements.get(tag)));
   if (unupgraded.length) throw new Error(`not defined on the page: ${unupgraded.join(', ')}`);
 
@@ -129,8 +129,8 @@ try {
     const searchedRows = table.querySelectorAll('tbody tr[data-row-id]').length;
 
     // Shared view from page code; several templates at once.
-    view.dispatchEvent(new CustomEvent('sf-data-view-saved-view-intent', {detail: {key: 'team', label: 'Команда'}}));
-    table.dispatchEvent(new CustomEvent('sf-table-template-save', {bubbles: true, composed: true, detail: [{key: 'a', label: 'A'}, {key: 'b', label: 'B'}]}));
+    view.dispatchEvent(new CustomEvent('sf-view-saved-view-intent', {detail: {key: 'team', label: 'Команда'}}));
+    table.dispatchEvent(new CustomEvent('sf-view-table-template-save', {bubbles: true, composed: true, detail: [{key: 'a', label: 'A'}, {key: 'b', label: 'B'}]}));
     await wait(400);
     const views = (host.views ?? []).map((entry) => entry.join(':'));
 

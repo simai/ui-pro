@@ -23,12 +23,12 @@ import {wordsOf} from "../words.js";
 
 export const NAVIGATION_PORT = "simai.admin-navigation-port";
 
-// Every port version this shell accepts, in one place, the way sf-data-view and
-// sf-property-view keep theirs.
+// Every port version this shell accepts, in one place, the way sf-view and
+// sf-view-properties keep theirs.
 export const SUPPORTED_NAVIGATION_VERSIONS = ["1.0.0"];
 
 // The width at which two columns become two screens. The same query
-// sf-property-view and sf-drawer switch on, written the same way, so a reader
+// sf-view-properties and sf-drawer switch on, written the same way, so a reader
 // grepping 48rem finds all three.
 const WIDE_MEDIA_QUERY = "(min-width: 48rem)";
 

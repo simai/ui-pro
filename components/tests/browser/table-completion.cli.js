@@ -22,11 +22,11 @@ async page => {
   const load = async ({theme = 'light', dir = 'ltr', width = 390, height = 844} = {}) => {
     await page.setViewportSize({width, height});
     await page.goto(url);
-    await page.waitForFunction(() => document.querySelectorAll('sf-table .sf-table').length === 2);
+    await page.waitForFunction(() => document.querySelectorAll('sf-view-table .sf-table').length === 2);
     await page.evaluate(({theme, dir}) => {
       document.documentElement.className = `theme-${theme}`;
       document.documentElement.dir = dir;
-      const table = document.querySelector('sf-table');
+      const table = document.querySelector('sf-view-table');
       table.setColumns([
         {key: 'name', label: 'Имя', resizable: true, colWidth: '180px'},
         {key: 'role', label: 'Роль', resizable: true, colWidth: '160px'},
@@ -35,7 +35,7 @@ async page => {
     }, {theme, dir});
     await page.waitForFunction(() => document.querySelectorAll('#column_resizer_name button').length === 1);
     await page.waitForFunction(() => {
-      const icons = [...document.querySelectorAll('sf-table .sf-icon')]
+      const icons = [...document.querySelectorAll('sf-view-table .sf-icon')]
         .filter(icon => icon.textContent.trim());
       return icons.length > 0 && icons.every(icon => icon.classList.contains('sf-icon-loaded'));
     });
@@ -46,14 +46,14 @@ async page => {
       await load({theme, dir});
       const resizer = page.getByRole('button', {name: 'Изменить ширину столбца: Имя'});
       await resizer.focus();
-      const before = await page.locator('sf-table').first().locator('th[data-key="name"]').evaluate(node => node.getBoundingClientRect().width);
+      const before = await page.locator('sf-view-table').first().locator('th[data-key="name"]').evaluate(node => node.getBoundingClientRect().width);
       await page.keyboard.press('ArrowRight');
       await page.waitForTimeout(100);
-      const after = await page.locator('sf-table').first().locator('th[data-key="name"]').evaluate(node => node.getBoundingClientRect().width);
+      const after = await page.locator('sf-view-table').first().locator('th[data-key="name"]').evaluate(node => node.getBoundingClientRect().width);
       const geometry = await page.evaluate(() => ({
         noDocumentOverflow: document.documentElement.scrollWidth <= innerWidth,
         loaderComplete: [
-          '/smart/table/',
+          '/smart/view-table/',
           '/smart/buttons/',
           '/smart/checkbox/',
           '/smart/menu-context/',
@@ -66,12 +66,12 @@ async page => {
           '/smart/tabs/',
           '/smart/tags/',
         ].every(fragment => performance.getEntriesByType('resource').some(entry => entry.name.includes(fragment))),
-        tableRefConnected: document.querySelector('sf-table').refs.table.value?.isConnected === true,
+        tableRefConnected: document.querySelector('sf-view-table').refs.table.value?.isConnected === true,
         settingsActionsRespectProps:
           document.querySelectorAll('button[aria-label="Настройки таблицы"]').length === 1 &&
           document.querySelectorAll('button[aria-label="Дополнительные действия создания"]').length === 1,
-        tableNamed: document.querySelector('sf-table table')?.getAttribute('aria-label') === 'Сотрудники',
-        iconsRendered: [...document.querySelectorAll('sf-table .sf-icon')]
+        tableNamed: document.querySelector('sf-view-table table')?.getAttribute('aria-label') === 'Сотрудники',
+        iconsRendered: [...document.querySelectorAll('sf-view-table .sf-icon')]
           .filter(icon => icon.textContent.trim())
           .every(icon => icon.classList.contains('sf-icon-loaded') && parseFloat(getComputedStyle(icon).fontSize) > 0),
         focusPreserved: document.activeElement?.getAttribute('aria-label') === 'Изменить ширину столбца: Имя',
@@ -105,7 +105,7 @@ async page => {
 
   await load({width: 900, height: 700});
   const stateResult = await page.evaluate(async () => {
-    const table = document.querySelectorAll('sf-table')[1];
+    const table = document.querySelectorAll('sf-view-table')[1];
     let retries = 0;
     table.addEventListener('sf-table-retry', () => retries += 1);
     table.setDataState('loading');
@@ -125,7 +125,7 @@ async page => {
 
   await load({width: 900, height: 700});
   const lifecycle = await page.evaluate(async () => {
-    const tables = [...document.querySelectorAll('sf-table')];
+    const tables = [...document.querySelectorAll('sf-view-table')];
     tables[1].setAttribute('settings', 'true');
     await new Promise(resolve => setTimeout(resolve, 80));
     const triggers = tables.map(table => table.querySelector('button[aria-label="Настройки таблицы"]'));

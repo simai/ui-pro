@@ -21,7 +21,7 @@ const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -31,8 +31,8 @@ const modules = [
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js', 'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
 ].map((p) => join(out, p));
 
 const CAPS = ['row-actions', 'personal-column-settings', 'create-record'];
@@ -44,11 +44,11 @@ const answer = {records, total: 4, revision: 'list-1', columns: [{key: 'title', 
   echo: {page: 1, per_page: 20, search: '', filters: {}, sort: [{key: 'title', direction: 'desc'}]}};
 const declared = {port: 'simai.dataview-port', version: '1.12.0', url: '/port', capabilities: CAPS,
   first: {intent: 'query.change', payload: {query: QUERY}}};
-const view = (id, {island = true, port = true, printed = true} = {}) => `<sf-data-view id="${id}" aria-label="Каталог">
+const view = (id, {island = true, port = true, printed = true} = {}) => `<sf-view id="${id}" aria-label="Каталог">
   ${port ? `<script type="application/json" data-sf-port>${JSON.stringify(declared)}</script>` : ''}
   ${printed ? `<script type="application/json" data-sf-settings>${JSON.stringify({'first-answer': island ? answer : {...answer, capabilities: CAPS, query: QUERY}})}</script>` : ''}
-  <sf-table slot="content" aria-label="Каталог"></sf-table>
-  <sf-pagination slot="pagination" page-size="20" current="1" total="0"></sf-pagination></sf-data-view>`;
+  <sf-view-table slot="content" aria-label="Каталог"></sf-view-table>
+  <sf-pagination slot="pagination" page-size="20" current="1" total="0"></sf-pagination></sf-view>`;
 
 const failures = [];
 const browser = await chromium.launch();
@@ -62,7 +62,7 @@ await page.waitForTimeout(1500);
 
 const connect = (id, capabilities) => page.evaluate(async ({id, capabilities, answer}) => {
   const view = document.getElementById(id);
-  const table = view.querySelector('sf-table');
+  const table = view.querySelector('sf-view-table');
   const rows = table.querySelector('tbody');
   const toolbar = table.querySelector('.sf-table-toolbar');
   const mutations = {rows: 0, toolbar: 0, rowNodes: []};
@@ -92,11 +92,11 @@ const connect = (id, capabilities) => page.evaluate(async ({id, capabilities, an
 }, {id, capabilities, answer});
 
 try {
-  const defined = await page.evaluate(() => ['sf-data-view', 'sf-table'].every((tag) => customElements.get(tag)));
+  const defined = await page.evaluate(() => ['sf-view', 'sf-view-table'].every((tag) => customElements.get(tag)));
   if (!defined) throw new Error('the list is not defined');
   // Before any port: the declared capabilities are drawn.
   const before = await page.evaluate(() => {
-    const table = document.querySelector('#declared sf-table');
+    const table = document.querySelector('#declared sf-view-table');
     return {rowActions: table.getAttribute('row-actions'), settingsMenu: table.getAttribute('settings-menu'), creatable: table.getAttribute('creatable')};
   });
   if (before.settingsMenu !== 'true' || before.creatable !== 'true') failures.push(`the declared capabilities are not drawn before the port: ${JSON.stringify(before)}`);

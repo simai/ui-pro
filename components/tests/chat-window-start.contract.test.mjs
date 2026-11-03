@@ -1,4 +1,4 @@
-// sf-chat-window 1.4.0 and sf-thread-list 1.5.0: a new conversation or group
+// sf-chat-window 1.4.0 and sf-chat-threads 1.5.0: a new conversation or group
 // (x-conversation-start) and a group's members, read only (x-members). The
 // behaviour in the browser (no commands without the capability, the stale
 // answer, refused against no results, the form kept with what was entered, the
@@ -83,7 +83,7 @@ test('roles have words, an unknown one none; only groups and channels have membe
 
 test('the intents are the window\'s own and the port does not change', () => {
   const window = json('chat-window', 'component.json');
-  assert.equal(window.version, '1.10.2');
+  assert.equal(window.version, '1.10.3');
   assert.deepEqual(window['x-port'].supports, ['1.0.0']);
   for (const [intent, capability] of [['recipients.search', 'x-conversation-start'], ['conversation.start', 'x-conversation-start'], ['members.list', 'x-members']]) {
     assert.equal(EXTENSION_INTENTS[intent].capability, capability);
@@ -111,11 +111,11 @@ test('the window itself hides the conversation under the form and the members, o
 });
 
 test('the list declares its commands additively', () => {
-  const list = json('thread-list', 'component.json');
-  assert.equal(list.version, '1.6.4');
+  const list = json('chat-threads', 'component.json');
+  assert.equal(list.version, '1.7.0');
   assert.deepEqual(list.settings['create-commands'].default, []);
   assert.equal(list.events.create.carries.kind.optional, true);
-  assert.ok(json('thread-list', 'smart.manifest.json').compatibility.migrations.some((one) => one.from === '1.4.0' && one.to === '1.5.0'));
+  assert.ok(json('chat-threads', 'smart.manifest.json').compatibility.migrations.some((one) => one.from === '1.4.0' && one.to === '1.5.0'));
 });
 
 test('the words are there in both languages, with plurals where a number is said', () => {

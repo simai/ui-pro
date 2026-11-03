@@ -10,8 +10,8 @@ import assert from 'node:assert/strict';
 const root = new URL('../src/smart/', import.meta.url).pathname;
 
 test('the dataview table describes the labels a host has to translate', () => {
-  const manifest = JSON.parse(readFileSync(join(root, 'table/smart.manifest.json'), 'utf8'));
-  const component = JSON.parse(readFileSync(join(root, 'table/component.json'), 'utf8'));
+  const manifest = JSON.parse(readFileSync(join(root, 'view-table/smart.manifest.json'), 'utf8'));
+  const component = JSON.parse(readFileSync(join(root, 'view-table/component.json'), 'utf8'));
   const described = manifest.inputs?.properties ?? {};
   for (const input of [
     'column-move-label',

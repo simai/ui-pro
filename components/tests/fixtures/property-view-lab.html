@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>sf-property-view — лаборатория</title>
+<title>sf-view-properties — лаборатория</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="/ui/distr/core/css/core.css">
 <link rel="stylesheet" href="/ui/distr/core/css/utility.full.css">
@@ -29,16 +29,16 @@
 <link rel="stylesheet" href="/ui/distr/component/checkbox/css/checkbox.css">
 <link rel="stylesheet" href="/ui/distr/component/switch/css/switch.css">
 <link rel="stylesheet" href="/ui/distr/component/pagination/css/pagination.css">
-<link rel="stylesheet" href="/smart/table/css/table.css">
+<link rel="stylesheet" href="/smart/view-table/css/view-table.css">
 <link rel="stylesheet" href="/smart/drawer/css/drawer.css">
 <link rel="stylesheet" href="/smart/sortable/css/sortable.css">
 <link rel="stylesheet" href="/ui/distr/component/country-code/css/country-code.css">
 <link rel="stylesheet" href="/smart/color/css/color.css">
-<link rel="stylesheet" href="/smart/property-view/css/property-view.css">
+<link rel="stylesheet" href="/smart/view-properties/css/view-properties.css">
 <style>
   /* The lab page itself, which is not the component: a page behind the panel so
      the panel can be seen lying over something, and a bar to switch the states the
-     assignment names. Nothing here styles sf-property-view -- if the component
+     assignment names. Nothing here styles sf-view-properties -- if the component
      needs a rule to look right, that rule belongs in the component. */
   body { margin: 0; font-family: var(--sf-font-family, system-ui); }
   .lab-bar {
@@ -61,7 +61,7 @@
 </head>
 <body>
   <div class="lab-bar">
-    <h1>sf-property-view</h1>
+    <h1>sf-view-properties</h1>
     <sf-button size="1" appearance="outline" data-state="card" text="Карточка записи"></sf-button>
     <sf-button size="1" appearance="outline" data-state="edit" text="Правка группы"></sf-button>
     <sf-button size="1" appearance="outline" data-state="related" text="Связанная запись поверх"></sf-button>
@@ -84,10 +84,10 @@
   <div class="lab-page">
     <h2>Каталог решений (демо)</h2>
     <p class="lab-note">Страница под панелью. Её раскладка не должна меняться, когда панель открыта.</p>
-    <sf-data-view id="behind" chrome="toolbar pagination select settings">
-      <sf-table slot="content" id="behind-table" toolbar="false" aria-label="Каталог решений"></sf-table>
+    <sf-view id="behind" chrome="toolbar pagination select settings">
+      <sf-view-table slot="content" id="behind-table" toolbar="false" aria-label="Каталог решений"></sf-view-table>
       <sf-pagination slot="pagination"></sf-pagination>
-    </sf-data-view>
+    </sf-view>
   </div>
 
   <script>
@@ -129,19 +129,19 @@
   <script type="module" src="/smart/spinner/js/spinner.js"></script>
   <script type="module" src="/smart/pagination/js/pagination.js"></script>
   <script type="module" src="/ui/distr/component/accordion/js/accordion.js"></script>
-<script type="module" src="/smart/table/js/table.js"></script>
-  <script type="module" src="/smart/data-view/js/data-view.js"></script>
+<script type="module" src="/smart/view-table/js/view-table.js"></script>
+  <script type="module" src="/smart/view/js/view.js"></script>
   <script type="module" src="/smart/sortable/js/sortable.js"></script>
   <script type="module" src="/smart/field-renderers/js/field-renderers.js"></script>
   <script type="module" src="/smart/drawer/js/drawer.js"></script>
   <script type="module" src="/smart/country-code/js/country-code.js"></script>
   <script type="module" src="/smart/color/js/color.js"></script>
-  <script type="module" src="/smart/property-view/js/property-view.js"></script>
+  <script type="module" src="/smart/view-properties/js/view-properties.js"></script>
   <script type="module">
     // Last, and after the elements are defined. A module script runs in document
     // order, so this one placed above the component imports ran first and called
     // setHostPort on an element that was still an unknown tag.
-    await Promise.all(['sf-property-view', 'sf-data-view', 'sf-table', 'sf-button', 'sf-input-color', 'sf-input-country']
+    await Promise.all(['sf-view-properties', 'sf-view', 'sf-view-table', 'sf-button', 'sf-input-color', 'sf-input-country']
       .map((tag) => customElements.whenDefined(tag)));
 
     // A lab reads its fixtures as they are on disk now, not as the browser
@@ -285,7 +285,7 @@
 
     const panels = [];
     const openPanel = (record, {label, collection, icon, answer = 'applied', favourite = false} = {}) => {
-      const panel = document.createElement('sf-property-view');
+      const panel = document.createElement('sf-view-properties');
       panel.setAttribute('panel', '');
       panel.setAttribute('panel-width', '40rem');
       panel.setAttribute('record-id', record.record?.record_id ?? 'record');
@@ -297,11 +297,11 @@
       if (favourite) panel.setAttribute('favourite', '');
       document.body.append(panel);
       panel.setHostPort(makeHost(record, {answer}));
-      panel.addEventListener('sf-property-view-close', () => {
+      panel.addEventListener('sf-view-properties-close', () => {
         panel.remove();
         panels.splice(panels.indexOf(panel), 1);
       });
-      panel.addEventListener('sf-property-view-favourite', (event) => {
+      panel.addEventListener('sf-view-properties-favourite', (event) => {
         panel.toggleAttribute('favourite', event.detail.favourite);
       });
       panels.push(panel);

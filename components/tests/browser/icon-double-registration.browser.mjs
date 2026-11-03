@@ -12,13 +12,13 @@ const root = resolve(process.argv[2]);
 // The bundles are built against the shared Smart runtime (2026-10-13), which
 // they wait for before they define their elements.
 const runtime = join(resolve(process.argv[3]), 'core', 'js', 'smart-base.js');
-const tags = ['sf-icon', 'sf-button-icon', 'sf-table', 'sf-pagination', 'sf-data-view'];
+const tags = ['sf-icon', 'sf-button-icon', 'sf-view-table', 'sf-pagination', 'sf-view'];
 const browser = await chromium.launch();
 try {
   for (const order of [
-    ['icon', 'button-icon', 'table', 'pagination', 'data-view'],
-    ['data-view', 'table', 'pagination', 'icon', 'button-icon'],
-    ['data-view', 'icon', 'table', 'button-icon', 'pagination'],
+    ['icon', 'button-icon', 'view-table', 'pagination', 'view'],
+    ['view', 'view-table', 'pagination', 'icon', 'button-icon'],
+    ['view', 'icon', 'view-table', 'button-icon', 'pagination'],
   ]) {
     const page = await browser.newPage();
     const warnings = [];

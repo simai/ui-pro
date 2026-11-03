@@ -4,8 +4,8 @@ import test from 'node:test';
 
 // «Add a view» asks for the name before anything is written: simai.main QA
 // (2026-10-27) found it made «New view» at once, a host record nobody had named.
-const source = readFileSync(new URL('../src/smart/property-view/index.js', import.meta.url), 'utf8');
-const template = readFileSync(new URL('../src/smart/property-view/js/templates/default.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../src/smart/view-properties/index.js', import.meta.url), 'utf8');
+const template = readFileSync(new URL('../src/smart/view-properties/js/templates/default.js', import.meta.url), 'utf8');
 
 test('the add-a-view button opens the naming row and writes nothing', () => {
   const button = template.slice(template.indexOf('data-action="add-profile"'), template.indexOf('</section>', template.indexOf('data-action="add-profile"')));

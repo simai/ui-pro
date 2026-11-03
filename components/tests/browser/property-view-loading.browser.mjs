@@ -35,9 +35,9 @@ const styles = [
   'smart/smart/button-copy/css/button-copy.css',
   'smart/smart/empty-state/css/empty-state.css', 'component/component/featured-icon/css/featured-icon.css',
   'component/component/skeleton/css/skeleton.css',
-  'smart/smart/property-view/css/property-view.css',
+  'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/sortable/css/sortable.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'component/component/pagination/css/pagination.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -61,12 +61,12 @@ const modules = [
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
-  'smart/smart/data-view/js/data-view.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
+  'smart/smart/view/js/view.js',
   'smart/smart/popover/js/popover.js',
   'smart/smart/button-copy/js/button-copy.js',
   'smart/smart/empty-state/js/empty-state.js',
-  'smart/smart/property-view/js/property-view.js',
+  'smart/smart/view-properties/js/view-properties.js',
 ].map((p) => join(out, p));
 
 
@@ -79,10 +79,10 @@ const RECORD = {record_id: 'r-1', collection: 'demo', revision: 1, label: 'За�
 
 const open = async () => {
   const page = await browser.newPage({viewport: {width: 1200, height: 800}});
-  await page.setContent('<!doctype html><html class="theme-light" lang="ru"><body style="margin:0"><sf-property-view id="v" collection="demo"></sf-property-view></body></html>');
+  await page.setContent('<!doctype html><html class="theme-light" lang="ru"><body style="margin:0"><sf-view-properties id="v" collection="demo"></sf-view-properties></body></html>');
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => customElements.get('sf-property-view'), null, {timeout: 8000});
+  await page.waitForFunction(() => customElements.get('sf-view-properties'), null, {timeout: 8000});
   await page.evaluate((record) => {
     window.asked = [];
     window.mode = 'slow';
@@ -145,14 +145,14 @@ try {
   // the skeleton, never the empty body, and opening a record costs two renders
   // -- the skeleton and the record -- not one more for every state it passes.
   const opened = await fresh.evaluate(async (record) => {
-    const Ctor = customElements.get('sf-property-view');
+    const Ctor = customElements.get('sf-view-properties');
     const renders = [];
     const own = Ctor.prototype.template;
     Ctor.prototype.template = function (...args) {
       if (this.id === 'w') renders.push({state: this.getAttribute('data-state'), record: Boolean(this.record)});
       return own.apply(this, args);
     };
-    const view = document.createElement('sf-property-view');
+    const view = document.createElement('sf-view-properties');
     view.id = 'w';
     view.setAttribute('collection', 'demo');
     view.setAttribute('record-id', 'r-1');

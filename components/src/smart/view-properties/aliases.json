@@ -1,0 +1,174 @@
+{
+  "$comment": "Dated aliases of sf-view-properties for the shim (core/js/aliases.js, standard §16 item 20).",
+  "component": "sf-view-properties",
+  "since": "2026-10-27",
+  "remove_after": "2026-12-01",
+  "aliases": [
+    {
+      "from": "aria-label",
+      "to": null,
+      "kind": "attribute",
+      "component": "sf-view-properties",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "host-attribute",
+      "section": "§3.1, §4.8",
+      "note": "stays a host attribute, read for the accessible name; no shim"
+    },
+    {
+      "from": "sf-property-view-open-record",
+      "to": "sf-property-view-open",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, vocabulary §5 open",
+      "note": "ui-admin listens to it (src/polygon.ts:124); the detail {field, value, answer} is unchanged"
+    },
+    {
+      "from": "sf-property-view-delete-record",
+      "to": "sf-property-view-delete",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-10-27",
+      "remove_after": "2026-12-01",
+      "mode": "same-detail",
+      "cancelable": false,
+      "section": "§8, vocabulary §5 delete",
+      "note": "the detail {record_id, collection, revision, answer} is unchanged"
+    },
+    {
+      "from": "sf-property-view",
+      "to": "sf-view-properties",
+      "kind": "tag",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "section": "rename plan R2 (ui-control RENAME-PLAN-2026-11-03), naming decision 2026-11-02",
+      "note": "the element is sf-view-properties; sf-property-view is a subclass defined beside it until the date"
+    },
+    {
+      "from": "sf-property-view-close",
+      "to": "sf-view-properties-close",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-open-full",
+      "to": "sf-view-properties-open-full",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-saved",
+      "to": "sf-view-properties-saved",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-failed",
+      "to": "sf-view-properties-failed",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-open",
+      "to": "sf-view-properties-open",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-delete",
+      "to": "sf-view-properties-delete",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-created",
+      "to": "sf-view-properties-created",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-cancel",
+      "to": "sf-view-properties-cancel",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-state",
+      "to": "sf-view-properties-state",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-address-copy",
+      "to": "sf-view-properties-address-copy",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-property-view-favourite",
+      "to": "sf-view-properties-favourite",
+      "kind": "event",
+      "component": "sf-view-properties",
+      "since": "2026-11-03",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "§8",
+      "note": "the event name carries the tag"
+    }
+  ]
+}

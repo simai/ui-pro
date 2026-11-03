@@ -18,7 +18,7 @@ test('no component touches localStorage outside SF.Preferences', async () => {
   // The package's own components: the tests run in the overlay, where the
   // Framework's source lies under the same folder (its own contract checks it).
   const root = new URL('../src/', import.meta.url).pathname;
-  const own = ['smart/admin-menu', 'smart/data-view', 'smart/property-view', 'smart/table'];
+  const own = ['smart/admin-menu', 'smart/view', 'smart/view-properties', 'smart/view-table'];
   const offenders = [];
   const walk = async (dir) => {
     for (const entry of await readdir(dir, {withFileTypes: true})) {
@@ -40,7 +40,7 @@ test('no component touches localStorage outside SF.Preferences', async () => {
 
 test('the table, the data view and the menu keep their view through SF.Preferences', async () => {
   const read = (file) => readFile(new URL(`../src/smart/${file}`, import.meta.url), 'utf8');
-  const [table, view, menu] = await Promise.all([read('table/index.js'), read('data-view/index.js'), read('admin-menu/js/navigation/controller.js')]);
+  const [table, view, menu] = await Promise.all([read('view-table/index.js'), read('view/index.js'), read('admin-menu/js/navigation/controller.js')]);
   for (const [name, source] of [['table', table], ['data view', view], ['menu', menu]]) {
     assert.match(source, /globalThis\.SF\?\.Preferences \|\| BundledPreferences/u, `${name} reads the shared store`);
   }

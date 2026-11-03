@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -30,7 +30,7 @@
       "component.inputs",
       "smart.avatar",
       "smart.badge",
-      "smart.change-confirm",
+      "smart.confirm-change",
       "smart.icon",
       "smart.menu-context"
     ],
@@ -616,6 +616,13 @@
         "changes": [
           "Draws and finds the renamed Framework elements by their new tags (the «⋯» menu is sf-menu-context); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
         ]
+      },
+      {
+        "from": "1.5.3",
+        "to": "1.5.4",
+        "changes": [
+          "Draws a proposal as sf-confirm-change (was sf-change-confirm); the rule relation names cl-confirm-change. Needs the SIMAI Framework pair with the R2 tag aliases (core.runtime 1.22.0). No visible change."
+        ]
       }
     ]
   },
@@ -625,7 +632,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
-        "sha256": "72287ae697eb3c0b4f2437ec4901f1fe300ea186f0869c09cd0787289a70962e"
+        "sha256": "c3c6e9c2122e2996441a3b96af5bc3841b2972156bd209e1c6c4c10b1b86bc3c"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.js",
@@ -637,7 +644,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
-        "sha256": "023eb6cb903986869e2ad01531df803978a765e3e5e1f49b3c5c72e0dfade582"
+        "sha256": "f3793694bcbf4d68626aa6ffa24d83afd7083c4b9fe8594f73b332ec6abdf995"
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
@@ -657,15 +664,15 @@
       },
       {
         "path": "src/smart/chat-message/rule.js",
-        "sha256": "bc15afa55c6c0aac82b54dd2606ea02207bfd50ad5935db0f53217268733d147"
+        "sha256": "eb4e9e82e867fa870aa874f534b6edb0cad5155275c830bb3035d895a4a6e919"
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "4d0c7ba6d0c8833280c7c74a6a20862a98011e5bbe923224bc59ccd3b3100e26"
+        "sha256": "a0a784f58a945ed48c23b7e62e0ff30e113639be681a7460498c3e8f9acbffb1"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "e69569e9ab5df98f89c9dc26067127133f336733c6e8032f99aa295ef11de7fc"
+        "sha256": "f612b01dd583bfbbd4351224e3f20fdce6f87bd0e721d3eabe4d40d3aa11838e"
       },
       {
         "path": "src/smart/chat-message/aliases.json",

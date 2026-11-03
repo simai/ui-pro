@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-const source=fs.readFileSync(new URL('../src/smart/table/index.js',import.meta.url),'utf8');
+const source=fs.readFileSync(new URL('../src/smart/view-table/index.js',import.meta.url),'utf8');
 
 test('table disconnect keeps base cleanup and releases its transient state',()=>{
   const body=source.split('    disconnectedCallback() {')[1].split('\n    templateContext()')[0];

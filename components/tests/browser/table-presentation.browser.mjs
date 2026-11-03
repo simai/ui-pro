@@ -13,7 +13,7 @@ const styles = [
   // scroll area has no size and every measurement below collapses to zero.
   'core/core/css/utility.full.css',
   'component/component/tables/css/tables.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -24,7 +24,7 @@ const modules = [
   'smart/smart/list-item/js/list-item.js',
   'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/pagination/js/pagination.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -51,7 +51,7 @@ try {
   // 1. A sorted column is answered in its header: the label takes the primary
   // role and a mark sits under the header. The cells of that column keep the
   // background every other column has.
-  const sorted = await open('<sf-table id="t" toolbar="false" settings="false"></sf-table>');
+  const sorted = await open('<sf-view-table id="t" toolbar="false" settings="false"></sf-view-table>');
   await fill(sorted, [{key: 'name', label: 'Name', sortable: true}, {key: 'city', label: 'City'}], [
     {id: 'a', name: 'A', city: 'X'},
     {id: 'b', name: 'B', city: 'Y'},
@@ -110,7 +110,7 @@ try {
 
   // 2. Hover, selection and selected-hover each resolve to their own colour,
   // and selection reads from the row rather than from the checkbox in a cell.
-  const rows = await open('<sf-table id="t" toolbar="false" settings="false" selectable="true"></sf-table>');
+  const rows = await open('<sf-view-table id="t" toolbar="false" settings="false" selectable="true"></sf-view-table>');
   await fill(rows, [{key: 'name', label: 'Name'}], [{id: 'a', name: 'A'}, {id: 'b', name: 'B'}]);
   // The state is a tint over the row's surface, because every state colour here
   // is an alpha colour and a pinned cell has to inherit the layers rather than
@@ -178,7 +178,7 @@ try {
   // result painted the tint a second time and came out a shade darker — which
   // is what the consumer saw on a hovered row. Both layers are compared,
   // because that is where the difference lived.
-  const pinnedRow = await open('<div style="width:600px"><sf-table id="t" toolbar="false"></sf-table></div>');
+  const pinnedRow = await open('<div style="width:600px"><sf-view-table id="t" toolbar="false"></sf-view-table></div>');
   await fill(
     pinnedRow,
     [{key: 'name', label: 'Name', role: 'title', width: 200}, {key: 'city', label: 'City', width: 200}, {key: 'extra', label: 'Extra', width: 200}],
@@ -216,7 +216,7 @@ try {
   // 3. The guide runs from the bottom of the head to the end of the body, on
   // the edge of the column being resized. Only the page can say this: the
   // position is computed from boxes that do not exist in the source.
-  const guided = await open('<div style="width:600px"><sf-table id="t" toolbar="false" settings="false"></sf-table></div>');
+  const guided = await open('<div style="width:600px"><sf-view-table id="t" toolbar="false" settings="false"></sf-view-table></div>');
   await fill(guided, [{key: 'name', label: 'Name'}, {key: 'city', label: 'City'}], [
     {id: 'a', name: 'A', city: 'X'},
     {id: 'b', name: 'B', city: 'Y'},
@@ -291,7 +291,7 @@ try {
   // until the table rests on a surface of another colour.
   const headed = await open(
     `<div style="height:400px;background:#ff00ff">
-       <sf-table id="t" toolbar="false" settings="false"></sf-table>
+       <sf-view-table id="t" toolbar="false" settings="false"></sf-view-table>
      </div>`,
   );
   await fill(headed, [{key: 'name', label: 'Name'}], Array.from({length: 30}, (_, index) => ({id: String(index), name: `Row ${index}`})));

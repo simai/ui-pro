@@ -38,7 +38,7 @@ export const wordName = (key) => String(key).replace(/[._]/gu, "-").replace(/[A-
 // v1.2) only where a surface asks for it.
 export const DEFAULT_FEATURES = Object.freeze({feedback: true, proposals: true, memory: true, brief: false});
 
-// API.md's proposal states, as sf-change-confirm's.
+// API.md's proposal states, as sf-confirm-change's.
 const PROPOSAL_STATE = {presented: "open", applied: "accepted", rejected: "declined", expired: "expired"};
 
 // What redraws the view: the three settings, the template, the language.
@@ -76,7 +76,7 @@ class SfChatMessage extends ChatMessageElement {
         this._node = null;
         this._drawn = null;
         this._stale = true;
-        // One sf-change-confirm per proposal code, kept across redraws, so a
+        // One sf-confirm-change per proposal code, kept across redraws, so a
         // card just pressed stays pending until the verdict comes.
         this._cards = new Map();
         // A value set as a property before the element was defined is an own
@@ -185,7 +185,7 @@ class SfChatMessage extends ChatMessageElement {
     }
 
     /**
-     * A proposal as sf-change-confirm. The card applies nothing: a press moves
+     * A proposal as sf-confirm-change. The card applies nothing: a press moves
      * it to pending and leaves as sf-change-confirm-answer {id: code,
      * accepted}, which the window answers with the proposal's command (port
      * proposal.decide); the server's next answer sets the outcome here.
@@ -195,7 +195,7 @@ class SfChatMessage extends ChatMessageElement {
         const code = String(proposal.code);
         const kept = this._cards.get(code);
         const same = kept && kept.dataset.state === state && kept.dataset.expiresAt === String(proposal.expires_at ?? "");
-        const card = same ? kept : this.ownerDocument.createElement("sf-change-confirm");
+        const card = same ? kept : this.ownerDocument.createElement("sf-confirm-change");
         if (!same) {
             card.setAttribute("heading", proposal.title ?? "");
             card.setAttribute("heading-level", "2");
@@ -209,7 +209,7 @@ class SfChatMessage extends ChatMessageElement {
             card.dataset.state = state;
             card.dataset.expiresAt = String(proposal.expires_at ?? "");
             // The attribute, not the property: the card may be made before
-            // the Loader defined sf-change-confirm, and a property set on a
+            // the Loader defined sf-confirm-change, and a property set on a
             // node not yet upgraded would shadow its accessor.
             card.setAttribute("changes", JSON.stringify((proposal.changes || []).map((change) => ({
                 label: change.field,

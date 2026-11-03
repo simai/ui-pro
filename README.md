@@ -7,9 +7,9 @@ them working.
 
 | Element | What it is |
 |:---|:---|
-| `sf-table` | a data table: columns, sorting, selection, row actions |
-| `sf-data-view` | a table with its toolbar, filters, paging and bulk actions |
-| `sf-property-view` | a record view and editor over typed fields |
+| `sf-view-table` | a data table: columns, sorting, selection, row actions |
+| `sf-view` | a table with its toolbar, filters, paging and bulk actions |
+| `sf-view-properties` | a record view and editor over typed fields |
 | `sf-admin-menu` | an admin navigation rail and menu with counters |
 
 The source, tests and build notes are in [`components/`](components/README.md).

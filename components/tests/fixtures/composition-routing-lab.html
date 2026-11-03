@@ -70,7 +70,7 @@
         profiles: ['ui-layout'], data_schema: {type: 'object', additionalProperties: false, properties: {}},
         props_schema: {type: 'object', additionalProperties: false, properties: {'aria-label': {type: 'string'}, 'table-settings-key': {type: 'string'}}},
         presentation: {views: ['default'], presets: [], modifiers: []}, slots: {},
-        renderer: {kind: 'custom-element', name: 'sf-table'}, assets: ['smart/table'], capabilities: ['html', 'hydration'],
+        renderer: {kind: 'custom-element', name: 'sf-view-table'}, assets: ['smart/view-table'], capabilities: ['html', 'hydration'],
       };
       const route = (id, from, to) => ({id, from: {endpoint: from, port: 'selection'}, to: {endpoint: to, port: 'context'}});
       const workspace = {
@@ -96,8 +96,8 @@
       if (rendered.diagnostics.length) throw new Error(JSON.stringify(rendered.diagnostics));
       window.lab.html = rendered.html;
       document.getElementById('host').innerHTML = rendered.html;
-      await customElements.whenDefined('sf-table');
-      for (const table of document.querySelectorAll('sf-table')) {
+      await customElements.whenDefined('sf-view-table');
+      for (const table of document.querySelectorAll('sf-view-table')) {
         table.setColumns([{key: 'name', label: 'Название'}]);
         table.setRows(table.getAttribute('data-sf-endpoint') === 'orders' ? DATA.orders : []);
       }

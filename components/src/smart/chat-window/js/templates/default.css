@@ -2,7 +2,7 @@
   /* sf-chat-window: the window's own nodes -- its shell (the conversations
      beside the conversation, the field under it), the search above the list,
      the greeting, the passing line, «Мои файлы» -- and how it tunes the parts
-     it places (sf-message-log, sf-thread-list) through their public
+     it places (sf-message-log, sf-chat-threads) through their public
      variables. Moved from simai/ui-chat (ui-chat 07bc988): chat-core's
      smart.css, less the composer's and the interlocutor's rules, which went
      with them, and the staff page's layout of the window's nodes
@@ -344,7 +344,7 @@
 
   /* --- the package's parts in the window ------------------------------ */
 
-  /* sf-message-log and sf-thread-list (component package larena) carry their
+  /* sf-message-log and sf-chat-threads (component package larena) carry their
      own layout; the window only tunes them through their public variables
      to the chat's grammar (SPEC §3), so the conversation reads as it did when
      the list was the chat's own: the chat's reading column, and a question

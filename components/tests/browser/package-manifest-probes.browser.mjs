@@ -26,7 +26,7 @@ const registered = existsSync(ruleFile) ? /registerPackage\(\s*["']([a-z][a-z0-9
 const PACKAGE_BOOT = `window.SF_BOOT_CONFIG={preloader:{enabled:false},packages:{${registered ? registered[1] : 'pro'}:{base:'/distr/smart'}}};`;
 const source = readFileSync(runner, 'utf8');
 if (!source.includes(FREE_BOOT)) throw new Error('the Framework runner no longer boots the page as this wrapper expects');
-const PACKAGE = ['admin-menu', 'change-confirm', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'content-editor', 'data-view', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'property-view', 'table', 'thread-list'];
+const PACKAGE = ['admin-menu', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window', 'confirm-change', 'editor-content', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'view', 'view-properties', 'view-table'];
 const asked = process.argv.slice(3);
 const folders = (asked.length ? asked : PACKAGE).filter((folder) => existsSync(join(here, '..', '..', 'src', 'smart', folder, 'probe.json')));
 if (!folders.length) throw new Error('no package component has a probe.json');

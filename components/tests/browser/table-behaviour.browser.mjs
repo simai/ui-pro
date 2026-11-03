@@ -13,7 +13,7 @@ const styles = [
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
   'component/component/inputs/css/inputs.css',
-  'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
+  'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'smart/smart/sortable/css/sortable.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -28,7 +28,7 @@ const modules = [
   'smart/smart/spinner/js/spinner.js',
   'smart/smart/pagination/js/pagination.js',
   'smart/smart/sortable/js/sortable.js',
-  'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
+  'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
 ].map((p) => join(out, p));
 
 const failures = [];
@@ -54,7 +54,7 @@ const rows = (count, {open: canOpen = true} = {}) => Array.from({length: count},
 try {
   // 1. A click makes a row current without marking it; a double click asks the
   // host to open the record, and only when the row offers the view action.
-  const table = await open('<div style="width:700px"><sf-table id="t" toolbar="false"></sf-table></div>');
+  const table = await open('<div style="width:700px"><sf-view-table id="t" toolbar="false"></sf-view-table></div>');
   await table.evaluate(async (records) => {
     const element = document.getElementById('t');
     window.intents = [];
@@ -207,7 +207,7 @@ try {
   // back on every answer — which put the cells where the data says they are and
   // lost the move without a word. Both drags are real pointer drags.
   for (const rerenderMidway of [false, true]) {
-    const dragged = await open('<div style="width:1000px"><sf-table id="t" toolbar="false"></sf-table></div>');
+    const dragged = await open('<div style="width:1000px"><sf-view-table id="t" toolbar="false"></sf-view-table></div>');
     const before = await dragged.evaluate(async () => {
       const element = document.getElementById('t');
       window.rows = Array.from({length: 6}, (_, index) => ({

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {acceptLevel, collapse, createTree, expandKnown, hasLevel, knownRecords, markLoading, visibleRows} from '../src/smart/data-view/js/tree.js';
+import {acceptLevel, collapse, createTree, expandKnown, hasLevel, knownRecords, markLoading, visibleRows} from '../src/smart/view/js/tree.js';
 
 // The data view port 1.8.0 tree, as the view keeps it: levels the host
 // answered, which nodes are open, and the rows that walk produces.

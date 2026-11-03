@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-change-confirm on the built bytes:
+// sf-confirm-change on the built bytes:
 // - the values read as «field: was …, will be …», as text, empty ones named;
 // - Confirm reports the change and waits (pending: the answers stay, the pressed
 //   one busy -- aria-busy and the button's spinner -- and the other disabled;
@@ -20,12 +20,12 @@ const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/buttons/css/buttons.css',
-  'smart/smart/change-confirm/css/change-confirm.css',
+  'smart/smart/confirm-change/css/confirm-change.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/button/js/button.js',
-  'smart/smart/change-confirm/js/change-confirm.js',
+  'smart/smart/confirm-change/js/confirm-change.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
 if (absent.length) throw new Error(`${absent.length} build asset(s) not found under ${out}: ${absent.join(', ')}`);
@@ -42,24 +42,24 @@ try {
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0"><button id="before">до</button><div id="box" style="width:420px;padding:16px"></div></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-change-confirm')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-confirm-change')));
 
   const make = async ({attributes = {}, changes = null, cancel = null} = {}) => {
     await page.evaluate(async ({attributes, changes, cancel}) => {
       const box = document.getElementById('box');
       box.replaceChildren();
       window.events = [];
-      const card = document.createElement('sf-change-confirm');
+      const card = document.createElement('sf-confirm-change');
       card.id = 'card';
       for (const [name, value] of Object.entries(attributes)) card.setAttribute(name, value);
       // The 1.1 names (vocabulary answer {id, accepted}; the fact expired),
       // read back as the person's two answers and the expiry.
-      card.addEventListener('sf-change-confirm-answer', (event) => {
+      card.addEventListener('sf-confirm-change-answer', (event) => {
         const name = event.detail.accepted ? 'accept' : 'decline';
         window.events.push({name, id: event.detail.id});
         if (cancel === name) event.preventDefault();
       });
-      card.addEventListener('sf-change-confirm-expired', (event) => window.events.push({name: 'expire', id: event.detail.id}));
+      card.addEventListener('sf-confirm-change-expired', (event) => window.events.push({name: 'expire', id: event.detail.id}));
       box.append(card);
       card.changes = changes ?? [
         {label: 'Название', before: 'Новости', after: 'События'},
