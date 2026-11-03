@@ -21,7 +21,7 @@ const root = resolve(import.meta.dirname, '..');
 // The package folders in the 1.4 form: every generated file is byte for byte
 // what the generator writes.
 const PHASE_A = ['confirm-change', 'message-log', 'chat-threads', 'view-properties', 'admin-menu', 'view-table',
-  'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'view'];
+  'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'view', 'editor'];
 
 // The package folders still in the 1.3 form: the five files the generator
 // already gives back (rule.js, aliases.json, the fixture, the scenario,

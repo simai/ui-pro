@@ -34,6 +34,7 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/mail-structure` | `sf-mail-structure` | `smart.mail-structure` |
 | `src/smart/mail-inspector` | `sf-mail-inspector` | `smart.mail-inspector` |
 | `src/smart/mail-canvas` | `sf-mail-canvas` | `smart.mail-canvas` |
+| `src/smart/editor` | `sf-editor` | `smart.editor` |
 | `src/smart/editor-content` | `sf-editor-content` | `smart.editor-content` |
 
 Six of them took new tags on 2026-11-03 (rename plan R2): `sf-table`,
@@ -49,7 +50,7 @@ The three conversation components came from `simai/ui-chat` (`sf-chat-message-li
 `sf-chat-thread-list` and the proposal card) under neutral names (owner's decision
 2026-10-25): they serve a conversation with an assistant and one between people
 (simai.chat) alike, so what a message is, who wrote it and what a change means are
-the host's. `sf-mail-structure` is the same editor's list of a letter's blocks, `sf-mail-inspector` its right panel, a form drawn from data, and `sf-mail-canvas` its middle pane, the rendered letter in a sandboxed frame. `sf-editor-content` is the Content mode of the SIMAI page editor: a page typed as one flow over a Composition Document of the structured-content profile (owner's decision 2026-11-01). Their documentation is in each folder's `docs.md`.
+the host's. `sf-mail-structure` is the same editor's list of a letter's blocks, `sf-mail-inspector` its right panel, a form drawn from data, and `sf-mail-canvas` its middle pane, the rendered letter in a sandboxed frame. `sf-editor-content` is the Content mode of the SIMAI page editor: a page typed as one flow over a Composition Document of the structured-content profile (owner's decision 2026-11-01). `sf-editor` is the one block editor of the SIMAI page (owner's decision 2026-11-03): layout and text in one Document of the ui-layout profile, edited by depth, with one catalogue, a parameter panel that shows where each value comes from, data from the host's source port, the block builder and the site template as an explicit edit. Their documentation is in each folder's `docs.md`.
 
 `sf-chat-interlocutor` moved from `simai/ui-chat` under its own name (D31, owner's
 approval 2026-10-27): who a chat conversation is with, a thin element over the

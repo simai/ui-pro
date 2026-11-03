@@ -1,0 +1,557 @@
+{
+  "schema_version": 2,
+  "id": "smart.editor",
+  "version": "1.0.0",
+  "title": "Page editor",
+  "summary": "The one block editor of the SIMAI page: layout and text in one Composition Document, edited by depth. A click on text types, a click beside it chooses the block, Esc goes up and Enter down. One catalogue (Text and Blocks, groups, variants with pictures, search, favourites, recent) serves the + between blocks, / in text and the library; blocks move by the grip with drop lines or Alt+arrows, and a drop beside a block splits it into columns. The parameter panel says where every value comes from (type, theme, variant, block, screen) and sets values per screen; the Data tab binds a block to a host source through the source port. The block builder makes and changes site blocks everywhere; the site template is a separate, explicit edit. Rights and theme come from the host. One undo history; output as JSON, HTML and Markdown.",
+  "kind": "smart",
+  "reuse_mode": "whole",
+  "lifecycle": "experimental",
+  "tags": [
+    "page",
+    "editor",
+    "composition",
+    "blocks",
+    "layout",
+    "text"
+  ],
+  "capabilities": [
+    "interaction",
+    "keyboard",
+    "responsive",
+    "editing"
+  ],
+  "custom_element": "sf-editor",
+  "templates": [
+    "default"
+  ],
+  "exported_parts": [],
+  "composition": {
+    "uses": [
+      "smart.button",
+      "smart.button-group",
+      "smart.button-icon",
+      "smart.dropdown",
+      "smart.editor-inline",
+      "smart.icon",
+      "smart.input",
+      "smart.menu-context",
+      "smart.modal",
+      "smart.skeleton",
+      "smart.switch",
+      "smart.tabs"
+    ],
+    "public_parts": []
+  },
+  "inputs": {
+    "type": "object",
+    "properties": {
+      "template": {
+        "type": "string",
+        "default": "default",
+        "description": "Template variant name for SfBaseElement external templates."
+      },
+      "root-class": {
+        "type": "string",
+        "default": "",
+        "description": "Classes added to the root element the component draws."
+      },
+      "root-style": {
+        "type": "string",
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
+      },
+      "screen": {
+        "type": "string",
+        "default": "desktop",
+        "description": "The screen the page is drawn and its values are set for: desktop (lg), tablet (md), phone (xs).",
+        "enum": [
+          "desktop",
+          "tablet",
+          "phone"
+        ]
+      },
+      "preferences-key": {
+        "type": "string",
+        "default": "",
+        "description": "Where favourites and recent blocks are kept through SF.Preferences (sf-editor/<key>); empty keeps them for the session only."
+      },
+      "label": {
+        "type": "string",
+        "description": "The accessible name of the page."
+      },
+      "document": {
+        "type": "object",
+        "default": null,
+        "description": "The page: a Composition Document of the profile ui-layout (layout.page, or layout.regions with a banner, main and contentinfo region for a page with a site template). A new one starts editing it; the one the editor sent in change is recognised and kept."
+      },
+      "types": {
+        "type": "array",
+        "default": [],
+        "description": "The host's own block types beside the Framework's; their renderers come in renderers."
+      },
+      "renderers": {
+        "type": "object",
+        "default": null,
+        "description": "The renderers of the host's types: the page is drawn by them as the site draws it."
+      },
+      "editor-manifests": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "object"
+        },
+        "description": "Composition editor manifests of the host's types, or ones that replace the Framework's: the parameter panel is built from them."
+      },
+      "site-blocks": {
+        "type": "array",
+        "default": [],
+        "description": "The site's own blocks made in the block builder; the newest version of each is offered in the catalogue."
+      },
+      "words": {
+        "type": "object",
+        "default": null,
+        "description": "The words of the host's blocks, by locale."
+      },
+      "rights": {
+        "type": "object",
+        "default": null,
+        "description": "What the person may change, from the host: layout false lets the author write only inside text areas; template false keeps the site template closed; builder false hides the block builder. There is no role switch in the editor."
+      },
+      "theme": {
+        "type": "object",
+        "default": null,
+        "description": "The site's theme: its defaults are a level of where a value comes from, its attributes are put on the drawn page. The editor never changes it; settings_url links to where it is changed."
+      }
+    },
+    "additionalProperties": false
+  },
+  "item_contract": {},
+  "contracts": {
+    "document": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "const": "simai.composition.document"
+        },
+        "profile": {
+          "const": "ui-layout"
+        },
+        "root": {
+          "type": "object",
+          "description": "layout.page, or layout.regions with banner, main and contentinfo layout.region children."
+        }
+      },
+      "required": [
+        "schema",
+        "root"
+      ]
+    },
+    "change": {
+      "const": "Every change dispatches change {document, reason, scope}; nothing is stored by the element. select {ids} says which block is chosen; block-save {manifest, words, changes} hands a new or changed site block to the host."
+    },
+    "port": {
+      "const": "connect-port {sources(shape), fields(source), preview(binding, {settings, shape}), saveBlock?(manifest, words)}: the host's data sources (Composition source port) and where site blocks are kept."
+    }
+  },
+  "methods": {
+    "select": {
+      "summary": "Choose a block as a press does; with no id the choice is let go.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown}"
+      }
+    },
+    "edit": {
+      "summary": "Put the caret at the end of a text block.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | not-text | template | page | layout}"
+      }
+    },
+    "insert": {
+      "summary": "Add a block of a type (and variant) after a block, or where it first fits; the value is the new block's id.",
+      "arguments": [
+        {
+          "name": "type",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "variant",
+          "schema": {}
+        },
+        {
+          "name": "after",
+          "schema": {}
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied, value: {id}} or {outcome: refused, reason}"
+      }
+    },
+    "undo": {
+      "summary": "One step back, as ⌘Z: typing and structure are one history.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: empty}"
+      }
+    },
+    "redo": {
+      "summary": "One step forward, as ⇧⌘Z.",
+      "arguments": [],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: empty}"
+      }
+    },
+    "setParameter": {
+      "summary": "Set a parameter of a block, for a screen when it differs by screen.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        },
+        {
+          "name": "key",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "value",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "screen",
+          "schema": {
+            "enum": [
+              "desktop",
+              "tablet",
+              "phone"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: unknown | template | page | layout}"
+      }
+    },
+    "editTemplate": {
+      "summary": "Start (or end, on false) editing the site template: the header and footer of every page.",
+      "arguments": [
+        {
+          "name": "on",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: rights}"
+      }
+    },
+    "buildBlock": {
+      "summary": "Open the block builder: a new site block, one made from a block, or a site block to change everywhere.",
+      "arguments": [
+        {
+          "name": "id",
+          "schema": {}
+        },
+        {
+          "name": "type",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied} or {outcome: refused, reason: rights | unknown}"
+      }
+    },
+    "output": {
+      "summary": "The page as JSON, HTML (utility classes) or Markdown of its text areas; the value is the text.",
+      "arguments": [
+        {
+          "name": "format",
+          "schema": {
+            "enum": [
+              "json",
+              "html",
+              "markdown"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object",
+        "description": "{outcome: applied, value: text} or {outcome: refused, reason: unknown}"
+      }
+    }
+  },
+  "events": {
+    "change": {
+      "summary": "The page changed: {document, reason, scope}. The host saves the document; scope template means the header or footer of every page.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "document",
+          "reason",
+          "scope"
+        ],
+        "properties": {
+          "document": {
+            "type": "object"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "page",
+              "template"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-editor-select": {
+      "summary": "This block is chosen: {ids}; empty when none is.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-editor-block-save": {
+      "summary": "A site block was saved: {manifest, words, changes}. Keep the manifest in site-blocks.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "manifest",
+          "words",
+          "changes"
+        ],
+        "properties": {
+          "manifest": {
+            "type": "object"
+          },
+          "words": {
+            "type": "object"
+          },
+          "changes": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "state": {
+    "machines": {
+      "mode": [
+        "typing",
+        "chosen",
+        "idle",
+        "template",
+        "builder"
+      ]
+    },
+    "visual_states": [
+      "default",
+      "empty",
+      "selected",
+      "active",
+      "disabled"
+    ]
+  },
+  "persistence": {
+    "mode": "none",
+    "source_of_truth": "host",
+    "network_owner": "host",
+    "revision_field": null
+  },
+  "ownership": {
+    "source": "simai/ui-pro",
+    "data": "host",
+    "effects": "host",
+    "forbidden_client_responsibilities": [
+      "storing the page",
+      "fetching data",
+      "changing the theme",
+      "deciding rights"
+    ]
+  },
+  "security": {
+    "permissions_owner": "host",
+    "untrusted_inputs": [
+      "the Document's text, drawn by the Framework's renderers",
+      "link addresses, kept only when safe",
+      "the host's source answers, checked by createSourcePort"
+    ],
+    "network_policy": "deny"
+  },
+  "accessibility": {
+    "role": "group",
+    "accessible_name": "internal",
+    "keyboard": [
+      "Tab",
+      "Enter",
+      "Escape",
+      "ArrowUp",
+      "ArrowDown",
+      "Alt+ArrowUp",
+      "Alt+ArrowDown",
+      "Meta+Z"
+    ],
+    "focus": "The page is one tab stop; Enter and Esc move by depth, the arrows by siblings; the panels are Framework controls in tab order; changes are said in a status line."
+  },
+  "presentation": {
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "responsive": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "adapter": {
+    "kind": "generic",
+    "protocol": "simai.smart-studio-adapter.v1",
+    "module": null
+  },
+  "artifacts": {
+    "fixtures": [
+      "studio.fixture.json"
+    ],
+    "scenarios": [
+      "studio.scenario.json"
+    ]
+  },
+  "readiness": {
+    "level": "host-required",
+    "required_checks": [
+      "manifest",
+      "loader-rule",
+      "editor-probe"
+    ]
+  },
+  "compatibility": {
+    "contract_schema": {
+      "id": "https://simai.io/contracts/smart-component-manifest.v2.schema.json",
+      "version": 2
+    },
+    "runtime_pair": {
+      "ui_revision": "a0b7f2ecb3bbff6a4de21fbe89cc4815db9695d4",
+      "ui_smart_revision": "a0b7f2ecb3bbff6a4de21fbe89cc4815db9695d4"
+    },
+    "aliases": [],
+    "deprecations": [],
+    "replacement": null,
+    "migrations": []
+  },
+  "provenance": {
+    "source_repository": "simai/ui-pro",
+    "source_revision": "04b7726e91a3e4a155a6f3973f98604a9c3626eb",
+    "source_artifacts": [
+      {
+        "path": "src/smart/editor/index.js",
+        "sha256": "d07059928b236debddc719fe1301353073ba9aae4c921fe2bf5d322cb57c7926"
+      },
+      {
+        "path": "src/smart/editor/js/model.mjs",
+        "sha256": "05cdfe916da73db13587e794f56e6cdd9d32be2a77b7b134c3a86f69ea5a9428"
+      },
+      {
+        "path": "src/smart/editor/js/catalogue.mjs",
+        "sha256": "39f8b85535793d0f06e7d94f7a408f807c513770a2507efa7e84f5ac0a298904"
+      },
+      {
+        "path": "src/smart/editor/js/tree.mjs",
+        "sha256": "14bcc143fd8f8f86f6861c6551b6958ffdab68bbebe261a2f93a5c639221c26b"
+      },
+      {
+        "path": "src/smart/editor/js/templates/default.js",
+        "sha256": "0cf7a67bf594c0d1a9135c05b6a616d07629ca2c76ca82e80c2e22fb028154f9"
+      },
+      {
+        "path": "src/smart/editor/js/templates/default.css",
+        "sha256": "59e863a5f3528b2d682fd799435beca5ae6a39c58d9ed4e398557e0790184a8f"
+      },
+      {
+        "path": "src/smart/editor/rule.js",
+        "sha256": "3b7fe49064fd6987ab0c95c10bf0fc4b23510bde04b4a5c61062c8e71f154c0e"
+      },
+      {
+        "path": "src/smart/editor/docs.md",
+        "sha256": "029c274976d1c53854384faa34d3b0044e056540bf8664803130eedae0419ef3"
+      },
+      {
+        "path": "src/smart/editor/component.json",
+        "sha256": "7a1b15dc5ca562e600e8fab1dc73ee686cb6febf0dc237724a7ad053deb2e0bf"
+      },
+      {
+        "path": "src/smart/editor/lang/en.json",
+        "sha256": "4fbf60c37beba3a9223f28cf54480f61aea2871ac1892579c06ddaddfd3c3762"
+      },
+      {
+        "path": "src/smart/editor/lang/ru.json",
+        "sha256": "0f98274db493fbde923cafeb0d6b9091bbafa82c66c8fa25d7006f267f07d39d"
+      }
+    ],
+    "generated_runtime": []
+  },
+  "ai_guidance": {
+    "use_when": "Use sf-editor wherever a person builds or writes a page (a Composition Document of the profile ui-layout).",
+    "do_not": [
+      "Do not store the page in the element; listen for change and save the document it carries",
+      "Do not give the editor a role switch; set rights from the person's real rights",
+      "Do not let a block fetch; give data through connect-port",
+      "Do not edit the theme here; link to its settings with theme.settings_url"
+    ],
+    "required_reads": [
+      "inputs",
+      "contracts",
+      "events",
+      "accessibility"
+    ],
+    "minimal_example": "<sf-editor id=\"page\"></sf-editor> <script>page.document = doc; page.addEventListener('change', (e) => save(e.detail.document));</script>",
+    "owner_commands": [
+      "node scripts/test.mjs",
+      "node tests/browser/editor-flows.browser.mjs <free output> <package output>"
+    ]
+  }
+}

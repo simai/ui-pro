@@ -1,0 +1,234 @@
+{
+  "schema": "simai.smart-component-fixture.v2",
+  "id": "editor-reference",
+  "component": "smart.editor",
+  "title": "Block editor reference",
+  "summary": "Deterministic reference fixture for sf-editor: a page with a site template (header and footer), a text area and a section in two columns.",
+  "locale": "ru",
+  "props": {
+    "document": {
+      "schema": "simai.composition.document",
+      "schema_version": 1,
+      "id": "home",
+      "profile": "ui-layout",
+      "locale": "ru",
+      "root": {
+        "id": "regs",
+        "type": "layout.regions",
+        "slots": {
+          "regions": [
+            {
+              "id": "hd",
+              "type": "layout.region",
+              "props": {
+                "name": "header",
+                "landmark": "banner"
+              },
+              "slots": {
+                "default": [
+                  {
+                    "id": "logo",
+                    "type": "content.paragraph",
+                    "data": {
+                      "content": [
+                        {
+                          "type": "text",
+                          "value": "SIMAI Студия"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "mn",
+              "type": "layout.region",
+              "props": {
+                "name": "main",
+                "landmark": "main"
+              },
+              "slots": {
+                "default": [
+                  {
+                    "id": "s1",
+                    "type": "layout.section",
+                    "props": {
+                      "width": "normal"
+                    },
+                    "slots": {
+                      "default": [
+                        {
+                          "id": "a1",
+                          "type": "layout.area",
+                          "slots": {
+                            "default": [
+                              {
+                                "id": "h1",
+                                "type": "content.heading",
+                                "data": {
+                                  "level": 1,
+                                  "content": [
+                                    {
+                                      "type": "text",
+                                      "value": "Сайт, который собирается из блоков"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "id": "p1",
+                                "type": "content.paragraph",
+                                "data": {
+                                  "content": [
+                                    {
+                                      "type": "text",
+                                      "value": "Щёлкните по тексту, чтобы печатать, или рядом с ним, чтобы выбрать блок."
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "id": "p2",
+                                "type": "content.paragraph",
+                                "data": {
+                                  "content": [
+                                    {
+                                      "type": "text",
+                                      "value": "Esc поднимает на уровень выше, Enter опускает ниже."
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "s2",
+                    "type": "layout.section",
+                    "props": {
+                      "width": "normal"
+                    },
+                    "slots": {
+                      "default": [
+                        {
+                          "id": "c1",
+                          "type": "layout.columns",
+                          "props": {
+                            "columns": {
+                              "xs": 1,
+                              "md": 2
+                            }
+                          },
+                          "slots": {
+                            "columns": [
+                              {
+                                "id": "a2",
+                                "type": "layout.area",
+                                "slots": {
+                                  "default": [
+                                    {
+                                      "id": "h2",
+                                      "type": "content.heading",
+                                      "data": {
+                                        "level": 2,
+                                        "content": [
+                                          {
+                                            "type": "text",
+                                            "value": "Слева"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "id": "p3",
+                                      "type": "content.paragraph",
+                                      "data": {
+                                        "content": [
+                                          {
+                                            "type": "text",
+                                            "value": "Колонка на компьютере, строка на телефоне."
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "id": "a3",
+                                "type": "layout.area",
+                                "slots": {
+                                  "default": [
+                                    {
+                                      "id": "h3",
+                                      "type": "content.heading",
+                                      "data": {
+                                        "level": 2,
+                                        "content": [
+                                          {
+                                            "type": "text",
+                                            "value": "Справа"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "id": "p4",
+                                      "type": "content.paragraph",
+                                      "data": {
+                                        "content": [
+                                          {
+                                            "type": "text",
+                                            "value": "Перетащите блок за ручку к краю соседнего — получатся колонки."
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "ft",
+              "type": "layout.region",
+              "props": {
+                "name": "footer",
+                "landmark": "contentinfo"
+              },
+              "slots": {
+                "default": [
+                  {
+                    "id": "copy",
+                    "type": "content.paragraph",
+                    "data": {
+                      "content": [
+                        {
+                          "type": "text",
+                          "value": "© SIMAI"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "children": [],
+  "state": "default"
+}

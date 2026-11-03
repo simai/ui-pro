@@ -1,0 +1,49 @@
+{
+  "schema": "simai.smart-component-scenario.v1",
+  "id": "smoke",
+  "component": "smart.editor",
+  "fixture": "editor-reference",
+  "viewport": "desktop",
+  "actions": [
+    {
+      "type": "invoke",
+      "method": "select",
+      "arguments": [
+        {
+          "id": "p1"
+        }
+      ]
+    },
+    {
+      "type": "invoke",
+      "method": "insert",
+      "arguments": [
+        {
+          "type": "content.paragraph",
+          "after": "p1"
+        }
+      ]
+    },
+    {
+      "type": "invoke",
+      "method": "undo",
+      "arguments": [
+        {}
+      ]
+    }
+  ],
+  "assertions": [
+    {
+      "type": "upgraded"
+    },
+    {
+      "type": "visible"
+    },
+    {
+      "type": "no-console-error"
+    },
+    {
+      "type": "no-network"
+    }
+  ]
+}
