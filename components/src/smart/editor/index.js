@@ -33,6 +33,19 @@ import ru from "./lang/ru.json";
 const applied = (value) => (value === undefined ? {outcome: "applied"} : {outcome: "applied", value});
 const refused = (reason) => ({outcome: "refused", reason});
 const ID = "data-sf-composition-id";
+
+/**
+ * The box an element is drawn in. A Framework button's host (sf-button,
+ * sf-button-icon) is display: contents and has no box of its own, so its
+ * rectangle is 0 at the window's top-left: the box is its button's (G-37).
+ */
+function boxOf(element) {
+    if (!element?.getBoundingClientRect) return null;
+    const own = element.getBoundingClientRect();
+    if (own.width || own.height) return own;
+    const inner = element.querySelector?.(":scope > button, button") ?? element.firstElementChild;
+    return inner && inner !== element ? boxOf(inner) : own;
+}
 const INLINE_EVENTS = ["sf-editor-inline-input", "sf-editor-inline-change", "sf-editor-inline-cancel", "sf-inline-editor-input", "sf-inline-editor-change", "sf-inline-editor-cancel", "sf-inline-edit-input", "sf-inline-edit-commit", "sf-inline-edit-cancel"];
 const TEXT_TAGS = new Set(["content.paragraph", "content.heading", "content.list-item"]);
 // The part of a block's width a drop near its side counts as a side drop.
@@ -334,7 +347,7 @@ class SfEditor extends EditorElement {
         let result;
         try {
             result = await Composition.render(document, {
-                registry: this.model.registry,
+                registry: this.model.printRegistry,
                 preview: true,
                 resolveBinding: (binding, context) => this.previewBinding(binding, context),
             });
@@ -530,9 +543,38 @@ class SfEditor extends EditorElement {
         const id = block?.id ?? "";
         if (id === this.hoverId) return;
         this.hoverId = id;
-        if (id && !this.model.placeLock(this.model.place(id)?.parent?.id ?? "")) this.gutterId = id;
-        else if (!id) this.gutterId = this.gutterId && this.model.place(this.gutterId) ? this.gutterId : "";
+        const gutter = this.gutterFor(id);
+        if (gutter && !this.model.placeLock(this.model.place(gutter)?.parent?.id ?? "")) this.gutterId = gutter;
+        else if (!gutter) this.gutterId = this.gutterId && this.model.place(this.gutterId) ? this.gutterId : "";
         this.placeOverlays();
+    }
+
+    /**
+     * The block whose gutter (+ and grip) a pointer over a block shows: the
+     * hovered one, except over a block that fills the chosen block it stands
+     * in. A section its hero fills has no point of its own, so its grip menu
+     * was the hero's, and «Make a site block» on the chosen section made a
+     * block of the hero alone (G-38); there the gutter stays the chosen
+     * block's. Enter, or a press on the block inside, goes down to it. While
+     * typing, the gutter is the hovered block's.
+     */
+    gutterFor(id) {
+        const chosen = this.model.typing ? "" : this.model.selected;
+        if (!id || !chosen || id === chosen) return id;
+        let inside = false;
+        for (let at = this.model.place(id); at?.parent; at = this.model.place(at.parent.id)) {
+            if (at.parent.id === chosen) {
+                inside = true;
+                break;
+            }
+        }
+        if (!inside) return id;
+        const outer = this.blockElement(chosen)?.getBoundingClientRect();
+        const inner = this.blockElement(id)?.getBoundingClientRect();
+        if (!outer || !inner) return id;
+        const fills = Math.abs(outer.left - inner.left) <= 4 && Math.abs(outer.right - inner.right) <= 4
+            && Math.abs(outer.top - inner.top) <= 4 && Math.abs(outer.bottom - inner.bottom) <= 4;
+        return fills ? chosen : id;
     }
 
     // ------------------------------------------------------------ pressing on the page
@@ -594,6 +636,10 @@ class SfEditor extends EditorElement {
     choose(id) {
         this.finishSession(false);
         this.model.select(id);
+        // The chosen block's gutter stands beside it, so its grip and + are
+        // reached without a hover (the Structure tab, the arrows).
+        const chosen = this.model.selected;
+        if (chosen && this.blockElement(chosen) && !this.model.placeLock(this.model.place(chosen)?.parent?.id ?? "")) this.gutterId = chosen;
         this.closeCatalogue();
         this.lockNote = id && this.model.lockOf(id) ? this.lockNote : null;
         this.announce(this.model.selected);
@@ -883,15 +929,33 @@ class SfEditor extends EditorElement {
 
     /** Opens the catalogue at a place: the + between blocks, / in text. */
     openCatalogue(anchor, place, mode, slashId = "") {
-        const rect = anchor?.getBoundingClientRect?.() ?? {left: 0, bottom: 0, top: 0};
+        // The + is an sf-button-icon, whose host is display: contents and has
+        // no box: the catalogue stands by the button it draws (G-37).
+        const rect = boxOf(anchor) ?? {left: 0, right: 0, bottom: 0, top: 0};
         const at = this.catalogue(place);
-        this.pop = {mode, place, slashId, x: rect.left, y: rect.bottom + 4, tab: at.tab};
+        this.pop = {mode, place, slashId, x: rect.left, y: rect.bottom + 4, above: rect.top - 4, tab: at.tab};
         this.popQuery = "";
         this.popActive = 0;
         this.refresh();
         requestAnimationFrame(() => {
+            this.keepPopInView();
             if (mode !== "slash") this.querySelector(".sf-editor-pop input, .sf-editor-pop sf-input")?.focus?.();
         });
+    }
+
+    /** The catalogue stays inside the window: moved left at the end edge, above its anchor at the bottom. */
+    keepPopInView() {
+        const element = this.querySelector(".sf-editor-pop");
+        const view = this.ownerDocument.defaultView;
+        if (!element || !this.pop || !view) return;
+        const box = element.getBoundingClientRect();
+        const margin = 8;
+        let {x, y} = this.pop;
+        if (x + box.width > view.innerWidth - margin) x = Math.max(margin, view.innerWidth - margin - box.width);
+        if (y + box.height > view.innerHeight - margin && this.pop.above - box.height >= margin) y = this.pop.above - box.height;
+        if (x === this.pop.x && y === this.pop.y) return;
+        this.pop = {...this.pop, x, y};
+        this.refresh();
     }
 
     closeCatalogue() {
@@ -1148,7 +1212,8 @@ class SfEditor extends EditorElement {
         ];
         menu.entries = entries;
         menu.dataset.for = id;
-        const button = anchor?.closest?.("sf-button-icon")?.querySelector("button") ?? anchor;
+        // sf-button-icon's host is display: contents: the menu stands by its button.
+        const button = anchor?.closest?.("sf-button-icon")?.querySelector(":scope > button, button") ?? anchor;
         menu.openFor?.(button, {side: "block-end", align: "start"});
     }
 

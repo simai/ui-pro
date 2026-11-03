@@ -98,6 +98,7 @@ export class EditorModel {
         } catch {
             this.registry = Composition.extendRegistry([], this.renderers);
         }
+        this.printRegistry = printingRegistry(this.registry);
     }
 
     setTypes({types, siteBlocks, renderers, editorManifests} = {}) {
@@ -1370,7 +1371,13 @@ export class EditorModel {
                 const theme = this.themeValue(node.type, key);
                 const has = isPlainObject(node.props) && Object.hasOwn(node.props, key);
                 if (!has && theme === undefined) continue;
-                const raw = has ? node.props[key] : theme;
+                // What the site prints at this screen (printedValue), so the
+                // canvas draws the phone's grid-col-1 where the site does.
+                const raw = printedValue(has ? node.props[key] : theme, schema);
+                if (raw === undefined) {
+                    if (has) delete node.props[key];
+                    continue;
+                }
                 const value = isResponsive(schema) && isBreakpointValue(raw) ? valuesByBreakpoint(raw, schema)[screen] : raw;
                 node.props ??= {};
                 if (value === undefined) delete node.props[key];
@@ -1399,10 +1406,33 @@ export class EditorModel {
         return doc;
     }
 
+    /**
+     * The themed Document as it is printed: each responsive value with its
+     * phone value spelled out wherever a wider screen differs from it, and
+     * left out where every screen keeps the type's default (printedValue).
+     * Rendered with printRegistry, which prints the phone value even when it
+     * is the type's default.
+     */
+    printedDocument() {
+        const doc = this.themedDocument();
+        walk(doc.root, (node) => {
+            if (!isPlainObject(node.props)) return;
+            const properties = this.manifestOf(node.type)?.props_schema?.properties ?? {};
+            for (const [key, schema] of Object.entries(properties)) {
+                if (!Object.hasOwn(node.props, key)) continue;
+                const value = printedValue(node.props[key], schema);
+                if (value === undefined) delete node.props[key];
+                else node.props[key] = value;
+            }
+            if (!Object.keys(node.props).length) delete node.props;
+        });
+        return doc;
+    }
+
     /** The HTML a site prints: SIMAI Framework utilities, mobile first; unknown own modifiers left out. */
     async toHTML({resolveBinding, utilityRules} = {}) {
-        const result = await Composition.render(this.themedDocument(), {
-            registry: this.registry,
+        const result = await Composition.render(this.printedDocument(), {
+            registry: this.printRegistry,
             ...(resolveBinding ? {resolveBinding} : {}),
             options: utilityRules ? {utilityRules} : {},
         });
@@ -1443,6 +1473,51 @@ export function slugify(value) {
 }
 
 const TRANSLIT = {а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "e", ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "h", ц: "c", ч: "ch", ш: "sh", щ: "sch", ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya"};
+
+/**
+ * A responsive value as the site prints it, mobile first (G-36). The
+ * Framework's utilities print nothing at the phone for a value equal to the
+ * type's default, so columns {xs: 1, md: 2} printed md:grid-col-2 alone and a
+ * phone got the grid's implicit auto column instead of grid-col-1. Here the
+ * phone value is spelled out (the default where the value sets none) whenever
+ * a wider screen differs from it; a value that keeps the type's default on
+ * every screen prints nothing (undefined). Anything else is returned as it is.
+ */
+export function printedValue(value, schema) {
+    if (!isResponsive(schema) || !isPlainObject(schema) || !("default" in schema) || value === undefined) return value;
+    const values = valuesByBreakpoint(value, schema);
+    const base = values[UTILITY_BREAKPOINTS[0]];
+    const differs = UTILITY_BREAKPOINTS.some((breakpoint) => !same(values[breakpoint], base));
+    if (!differs) return same(base, schema.default) ? undefined : value;
+    if (!isBreakpointValue(value)) return value;
+    return {[UTILITY_BREAKPOINTS[0]]: clone(base), ...value};
+}
+
+/**
+ * The registry the editor renders with: the same types, but a responsive
+ * utility parameter has no default, so the Framework prints its phone value
+ * even when it is the default. printedValue has already left out the values
+ * that keep the default everywhere, so only a phone value a wider screen
+ * changes from reaches the page (grid-col-1 md:grid-col-2).
+ */
+function printingRegistry(registry) {
+    const types = new Map();
+    for (const [type, manifest] of registry.types) {
+        const properties = manifest?.props_schema?.properties;
+        const keys = isPlainObject(properties) ? Object.keys(properties).filter((key) => isResponsive(properties[key]) && isPlainObject(properties[key]) && "default" in properties[key]) : [];
+        if (!keys.length) {
+            types.set(type, manifest);
+            continue;
+        }
+        const own = {...properties};
+        for (const key of keys) {
+            const {default: _default, ...rest} = own[key];
+            own[key] = rest;
+        }
+        types.set(type, {...manifest, props_schema: {...manifest.props_schema, properties: own}});
+    }
+    return {...registry, types};
+}
 
 /** What a parameter is bound to in the Framework, for the line under its control: the utility it prints. */
 function describeUtility(schema) {

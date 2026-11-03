@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-editor 1.0.2 on the built bytes: the defects the ui-editor host found
-// with sf-editor 1.0.x (ui-editor docs/GAPS.md, G-22 and G-24 to G-35, the
+// sf-editor 1.0.3 on the built bytes: the defects the ui-editor host found
+// with sf-editor 1.0.x (ui-editor docs/GAPS.md, G-22 and G-24 to G-38, the
 // one-editor scenarios of scripts/e2e-one-editor.mjs), each driven by a real
 // pointer and keyboard as the host's driver does:
 // - G-27 after «Edit template» the editor still draws, and a page the host
@@ -20,7 +20,13 @@
 //   a column adds a column;
 // - G-30 ↓ with nothing chosen chooses the first open block, then the next;
 // - G-32 the gutter never covers the start of a line;
-// - G-24 an empty named place draws its prompt and is its own +.
+// - G-24 an empty named place draws its prompt and is its own +;
+// - G-36 a phone value equal to the type's default is printed (and drawn)
+//   when a wider screen differs: grid-col-1 md:grid-col-2;
+// - G-37 the + catalogue and the grip menu open beside their button, never at
+//   the window's corner (the sf-button-icon host has no box);
+// - G-38 «Make a site block» on a chosen section its hero fills keeps the
+//   section, and the section's own parameters can be exposed.
 import {resolve, join} from 'node:path';
 import {existsSync, readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
@@ -388,9 +394,9 @@ try {
     await settle(tab, 400);
     check('G-22: the desktop keeps its value', (await columns()).value === '2', await columns());
     const printed = await tab.evaluate(async () => (await document.getElementById('editor').output({format: 'html'})).value ?? '');
-    // One column is the grid's own default: the phone needs no class, md: takes the two.
+    // Mobile first: the phone's one column is printed because md: changes it (G-36).
     const line = printed.split('\n').find((text) => text.includes('data-sf-composition-id="c1"')) ?? '';
-    check('G-22: the HTML is mobile first: two columns from md: on, no unprefixed or lg: column class', / md:grid-col-2[ "]/u.test(line) && !/[ "]grid-col-2/u.test(line) && !/lg:grid-col/u.test(line), line.trim());
+    check('G-22: the HTML is mobile first: one column, two from md: on, no lg: column class', /[ "]grid-col-1 md:grid-col-2[ "]/u.test(line) && !/lg:grid-col/u.test(line), line.trim());
     await tab.close();
   });
 
@@ -516,6 +522,129 @@ try {
     check('G-24: the place takes the chosen block', media.length === 1 && media[0].type === 'content.figure', media.map((node) => node.type));
     check('G-24: a filled place draws no prompt', !(await tab.evaluate(() => Boolean(document.querySelector('#editor [data-sf-composition-id="hero"] .sf-editor-empty')))), null);
     check('G-24: no page errors', tab.errors.length === 0, tab.errors.slice(0, 3));
+    await tab.close();
+  });
+
+  // ---------------------------------------------------------------- G-36
+  await scenario('G-36', async () => {
+    const tab = await open();
+    await tab.evaluate(() => document.getElementById('editor').choose('p1'));
+    await hover(tab, 'p1');
+    await tab.locator('#editor .sf-editor-grip button').click();
+    await settle(tab, 400);
+    await tab.locator('#editor .sf-editor-menu [role="menuitem"]', {hasText: 'Split into columns'}).first().click();
+    await settle(tab, 400);
+    const doc = (await model(tab)).doc;
+    const columns = parentOf(doc.root, parentOf(doc.root, 'p1').id);
+    check('G-36: the split stores one column on the phone, two from md: on', JSON.stringify(columns?.props?.columns) === JSON.stringify({xs: 1, md: 2}), columns?.props);
+    const printed = await tab.evaluate(async () => (await document.getElementById('editor').output({format: 'html'})).value ?? '');
+    const line = printed.split('\n').find((text) => text.includes(`data-sf-composition-id="${columns.id}"`)) ?? '';
+    check('G-36: the HTML prints the phone\'s grid-col-1 before md:grid-col-2', /class="[^"]*\bgrid-col-1 md:grid-col-2[ "]/u.test(line), line.trim());
+    await tab.locator('#editor .sf-editor-bar .sf-editor-screens button').nth(2).click();
+    await settle(tab, 400);
+    const phone = await tab.evaluate((id) => {
+      const grid = document.querySelector(`#editor [data-sf-composition-id="${id}"]`);
+      const wide = document.createElement('div');
+      wide.style.inlineSize = '4000px';
+      grid.querySelector('[data-sf-composition-id="p1"]')?.append(wide);
+      const result = {classes: grid.className, track: getComputedStyle(grid).gridTemplateColumns, grid: Math.round(grid.getBoundingClientRect().width)};
+      wide.remove();
+      return result;
+    }, columns.id);
+    check('G-36: on the phone the canvas draws grid-col-1, so a wide child cannot stretch the column', phone.classes.split(' ').includes('grid-col-1') && !phone.track.includes(' ') && Number.parseFloat(phone.track) <= phone.grid + 1, phone);
+    check('G-36: no page errors', tab.errors.length === 0, tab.errors.slice(0, 3));
+    await tab.close();
+  });
+
+  // ---------------------------------------------------------------- G-37
+  await scenario('G-37', async () => {
+    const tab = await open();
+    await hover(tab, 'p1');
+    const button = await tab.locator('#editor .sf-editor-plus button').boundingBox();
+    await tab.locator('#editor .sf-editor-plus button').click();
+    await settle(tab, 300);
+    const pop = await tab.locator('#editor .sf-editor-pop').boundingBox();
+    check('G-37: the + catalogue opens beside the +, not at the window\'s corner', Boolean(pop && button) && Math.abs(pop.x - button.x) <= 2 && pop.y >= button.y + button.height && pop.y <= button.y + button.height + 12, {pop, button});
+    const option = tab.locator('#editor .sf-editor-pop [role="option"]').first();
+    const said = String(await option.getAttribute('data-item')).split('#')[0];
+    await option.click();
+    await settle(tab, 400);
+    const doc = (await model(tab)).doc;
+    check('G-37: an option of the catalogue can be pressed', JSON.stringify(doc).includes(`"type":"${said}"`) && find(doc.root, 'a1').slots.default.length > 3, said);
+    // Near the window's end edge the catalogue stays inside the window.
+    await tab.evaluate(() => document.getElementById('editor').choose(null));
+    const last = await box(tab, 'p2');
+    const bottom = Math.round(last.y + last.height + 40);
+    await tab.setViewportSize({width: 1400, height: bottom});
+    await settle(tab, 300);
+    await hover(tab, 'p2');
+    const low = await tab.locator('#editor .sf-editor-plus button').boundingBox();
+    await tab.locator('#editor .sf-editor-plus button').click();
+    await settle(tab, 300);
+    const kept = await tab.locator('#editor .sf-editor-pop').boundingBox();
+    check('G-37: at the window\'s bottom the catalogue stays inside it, by its +', Boolean(kept && low) && kept.y >= 0 && kept.y + kept.height <= bottom + 1 && kept.y + kept.height <= low.y + 1 && Math.abs(kept.x - low.x) <= 2, {kept, low});
+    await tab.keyboard.press('Escape');
+    await tab.setViewportSize({width: 1400, height: 900});
+    await settle(tab, 300);
+    // The grip menu stands by the grip too.
+    await hover(tab, 'p2');
+    const grip = await tab.locator('#editor .sf-editor-grip button').boundingBox();
+    await tab.locator('#editor .sf-editor-grip button').click();
+    await settle(tab, 400);
+    const menu = await tab.evaluate(() => {
+      const item = document.querySelector('#editor .sf-editor-menu [role="menuitem"]');
+      const list = item?.closest('[role="menu"]') ?? item?.parentElement;
+      const rect = list?.getBoundingClientRect();
+      return rect ? {x: rect.x, y: rect.y, width: rect.width, height: rect.height} : null;
+    });
+    check('G-37: the grip menu opens by the grip, not at the corner', Boolean(menu && grip) && menu.width > 0 && Math.abs(menu.x - grip.x) <= 24 && menu.y >= grip.y && menu.y <= grip.y + grip.height + 24, {menu, grip});
+    check('G-37: no page errors', tab.errors.length === 0, tab.errors.slice(0, 3));
+    await tab.close();
+  });
+
+  // ---------------------------------------------------------------- G-38
+  await scenario('G-38', async () => {
+    const host = {types: [SPLIT], words: {en: {'probe.split.name': 'Split hero', 'probe.split.text': 'Text', 'probe.split.media': 'Picture', 'probe.split.media_empty': 'Picture or video'}}};
+    // A section its hero fills: the section has no point of its own.
+    const HERO = page('hero', {main: [{id: 'x1', type: 'layout.section', slots: {default: [
+      {id: 'hero', type: 'probe.split', slots: {default: [{id: 'hp', type: 'content.paragraph', data: {content: t('Hero text')}}], media: []}},
+    ]}}]});
+    const tab = await open({doc: HERO, host});
+    let saved = null;
+    await tab.evaluate(() => {
+      const editor = document.getElementById('editor');
+      editor.addEventListener(editor.sfEventName?.('block-save') ?? 'block-save', (event) => { window.saved = event.detail; });
+    });
+    await tab.evaluate(() => document.getElementById('editor').choose('x1'));
+    await settle(tab, 300);
+    await hover(tab, 'hero');
+    const gutter = await tab.evaluate(() => document.getElementById('editor').gutterId);
+    check('G-38: inside the chosen section the gutter stays the section\'s', gutter === 'x1', gutter);
+    await tab.locator('#editor .sf-editor-grip button').click();
+    await settle(tab, 400);
+    const forId = await tab.evaluate(() => document.querySelector('#editor .sf-editor-menu')?.dataset.for);
+    check('G-38: the grip menu is the chosen section\'s', forId === 'x1', forId);
+    await tab.locator('#editor .sf-editor-menu [role="menuitem"]', {hasText: 'Make a site block'}).first().click();
+    await settle(tab, 500);
+    const opened = await tab.evaluate(() => {
+      const editor = document.getElementById('editor');
+      return {root: editor.builder?.root?.type ?? null, chosen: editor.model.selected, fields: [...document.querySelectorAll('#editor .sf-editor-right .sf-editor-field')].map((field) => field.dataset.key)};
+    });
+    check('G-38: the builder holds the section itself, chosen, with its own parameters', opened.root === 'layout.section' && opened.chosen === 'x1' && opened.fields.includes('background'), opened);
+    await tab.locator('#editor .sf-editor-field[data-key="background"] sf-switch.sf-editor-expose').locator('input, [role="switch"]').first().click();
+    await settle(tab, 300);
+    await tab.locator('#editor .sf-editor-builder-bar sf-input input').fill('Our hero');
+    await settle(tab, 200);
+    await tab.locator('#editor .sf-editor-builder-bar sf-button').last().locator('button').click();
+    await settle(tab, 600);
+    saved = await tab.evaluate(() => window.saved ? {root: window.saved.manifest.composed.root.type, exposed: window.saved.manifest.exposed, props: Object.keys(window.saved.manifest.props_schema?.properties ?? {})} : null);
+    check('G-38: the saved block is the section with its background exposed', saved?.root === 'layout.section' && saved.props.join() === 'background' && saved.exposed?.[0]?.target === 'props.background', saved);
+    const instance = (await model(tab)).doc.root.slots.regions[1].slots.default[0];
+    await tab.evaluate((id) => document.getElementById('editor').choose(id), instance.id);
+    await settle(tab, 300);
+    const offered = await tab.evaluate(() => [...document.querySelectorAll('#editor .sf-editor-right .sf-editor-field')].map((field) => field.dataset.key));
+    check('G-38: the instance stands in the section\'s place and offers the author the background', /^site\./u.test(instance.type) && offered.join() === 'background', {type: instance.type, offered});
+    check('G-38: no page errors', tab.errors.length === 0, tab.errors.slice(0, 3));
     await tab.close();
   });
 } finally {

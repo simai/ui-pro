@@ -278,6 +278,42 @@ test("G-22: a phone value equal to the type's default is the phone's own; the wi
     valid(model);
 });
 
+test("G-36: a phone value equal to the type's default is printed when a wider screen differs, mobile first", async () => {
+    const model = editor();
+    const split = model.splitColumns("p1");
+    assert.deepEqual(model.node(split.id).props.columns, {xs: 1, md: 2});
+    const classes = async () => {
+        const {html} = await model.toHTML();
+        return html.match(new RegExp(`class="([^"]*)" data-sf-composition-id="${split.id}"`, "u"))?.[1] ?? null;
+    };
+    assert.equal(await classes(), "sf-composition-columns grid gap-4 grid-col-1 md:grid-col-2", "the phone's grid-col-1 is printed, not the grid's implicit auto column");
+    model.node(split.id).props.columns = {md: 3};
+    assert.equal(await classes(), "sf-composition-columns grid gap-4 grid-col-1 md:grid-col-3", "a phone value left to the type's default is printed too");
+    model.node(split.id).props.columns = 1;
+    assert.equal(await classes(), "sf-composition-columns grid gap-4", "the default on every screen prints nothing");
+    model.node(split.id).props.columns = {xs: 2, md: 2};
+    assert.equal(await classes(), "sf-composition-columns grid gap-4 grid-col-2");
+    // The canvas draws the phone as the site prints it.
+    model.node(split.id).props.columns = {xs: 1, md: 2};
+    const phone = model.canvasDocument("xs").document;
+    const drawn = (await Composition.render(phone, {registry: model.printRegistry})).html;
+    assert.match(drawn, new RegExp(`class="sf-composition-columns grid gap-4 grid-col-1" data-sf-composition-id="${split.id}"`, "u"));
+    // The Document is not changed by printing it.
+    assert.deepEqual(model.node(split.id).props.columns, {xs: 1, md: 2});
+    valid(model);
+});
+
+test("G-38: a site block made of a section keeps the section, its parameters exposable", () => {
+    const model = editor();
+    const builder = model.startBuilder({from: "s1"}).builder;
+    assert.equal(builder.root.type, "layout.section");
+    assert.ok(model.exposable(builder).some((entry) => entry.path === "s1" && entry.target === "props.background"));
+    const saved = model.saveBuilder({...builder, exposed: [{key: "background", path: "s1", target: "props.background"}]}, {name: "Hero"});
+    assert.equal(saved.ok, true, JSON.stringify(saved.diagnostics));
+    assert.equal(saved.manifest.composed.root.type, "layout.section");
+    assert.deepEqual(Object.keys(saved.manifest.props_schema.properties), ["background"]);
+});
+
 test("the per-screen switch: columns 3/2/1 print grid-col-1 md:grid-col-2 lg:grid-col-3", async () => {
     const model = editor();
     model.setParam("cards", "cols", 3, "lg");
