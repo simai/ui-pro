@@ -30,6 +30,8 @@ export const SCREENS = Object.freeze({phone: "xs", tablet: "md", desktop: "lg"})
 /** Where a parameter's value comes from, each layer over the one before. */
 export const ORIGINS = Object.freeze(["type", "theme", "variant", "block", "screen"]);
 export const MAX_COLUMNS = 4;
+/** The breakpoints the editor's screens edit, narrowest first. */
+const EDITOR_BREAKPOINTS = Object.freeze(["xs", "md", "lg"]);
 const UNDO_DEPTH = 200;
 const TYPING_PAUSE = 800;
 const DOCUMENT = {schema: "simai.composition.document", schema_version: 1};
@@ -320,6 +322,56 @@ export class EditorModel {
             if (deeper) return deeper;
         }
         return null;
+    }
+
+    lastChoosable(node) {
+        for (const child of childrenOf(node).reverse()) {
+            if (this.choosable(child.node)) return child.node;
+            const deeper = this.lastChoosable(child.node);
+            if (deeper) return deeper;
+        }
+        return null;
+    }
+
+    /**
+     * ↑ ↓ on the canvas: the block before or after a block among its
+     * siblings. A container a person cannot choose (a region of the site
+     * template) is no wall: past its last block ↓ goes on to the next
+     * region's first. Inside a block the arrows stay among its children (Esc
+     * goes up). With nothing chosen, ↓ takes the first block a person can
+     * work on and ↑ the last. Returns the id, or null when there is none.
+     */
+    neighbour(id, delta) {
+        if (!id || !this.place(id)) return this.openEnd(delta);
+        let at = locate(this.doc.root, this.place(id).node.id);
+        while (at?.parent) {
+            const list = at.parent.slots[at.slot];
+            for (let index = at.index + delta; index >= 0 && index < list.length; index += delta) {
+                const node = list[index];
+                if (this.choosable(node)) return node.id;
+                const inside = delta > 0 ? this.firstChoosable(node) : this.lastChoosable(node);
+                if (inside) return inside.id;
+            }
+            if (this.choosable(at.parent)) return null;
+            at = locate(this.doc.root, at.parent.id);
+        }
+        return null;
+    }
+
+    /** The first (or last) block a person can choose and change; a locked one when every block is locked. */
+    openEnd(delta = 1) {
+        // The outermost choosable blocks, in page order: ↑ starts at the last section, not inside it.
+        const all = [];
+        const visit = (node) => {
+            if (this.choosable(node)) {
+                all.push(node);
+                return;
+            }
+            for (const list of Object.values(node?.slots ?? {})) for (const child of list) visit(child);
+        };
+        visit(this.doc.root);
+        if (delta < 0) all.reverse();
+        return (all.find((node) => !this.lockOf(node.id)) ?? all[0])?.id ?? null;
     }
 
     isColumnArea(id) {
@@ -867,6 +919,63 @@ export class EditorModel {
         return result;
     }
 
+    /** Whether a type may stand beside a block in a column of its own (a side drop): a column is a text area. */
+    standsBeside(type) {
+        if (!type || ["layout.section", "layout.columns"].includes(type)) return false;
+        return Composition.slotAccepts(this.registry, this.manifestOf("layout.area"), "default", type);
+    }
+
+    /**
+     * A new block from the catalogue dropped at a block's side (a library card
+     * pulled to its edge): as a side drop, in one step -- inside a column it
+     * stands in a new column beside that one (up to four), elsewhere the two
+     * are split into two columns. Returns {ok, id} of the new block.
+     */
+    /**
+     * The block a side drop stands beside: the block itself, or, for a block inside
+     * another (a paragraph in a quote), the nearest outer block that stands in an
+     * area or a place that takes columns. Containers and layout give none.
+     */
+    besideTarget(id) {
+        let at = locate(this.doc.root, id);
+        while (at?.parent) {
+            if (/^layout\./u.test(at.node.type)) return null;
+            if (at.parent.type === "layout.area" || this.accepts(at.parent.id, at.slot, "layout.columns")) return at.node.id;
+            at = locate(this.doc.root, at.parent.id);
+        }
+        return null;
+    }
+
+    insertBeside(choice, targetId, side = "right") {
+        targetId = this.besideTarget(targetId) ?? targetId;
+        const target = locate(this.doc.root, targetId);
+        if (!target?.parent) return refused("unknown");
+        const lock = this.placeLock(target.parent.id) ?? (this.rights.layout ? null : "layout");
+        if (lock) return refused(lock);
+        if (!this.standsBeside(choice?.type)) return refused("place");
+        const node = this.make(choice);
+        if (!node) return refused("unknown");
+        const column = target.parent.type === "layout.area" ? locate(this.doc.root, target.parent.id) : null;
+        if (column?.parent?.type === "layout.columns") {
+            const columns = column.parent;
+            if (columns.slots.columns.length >= MAX_COLUMNS) return refused("limit");
+            this.remember();
+            const area = node.type === "layout.area" ? node : {id: this.next(), type: "layout.area", slots: {default: [node]}};
+            const at = columns.slots.columns.findIndex((entry) => entry.id === column.node.id);
+            columns.slots.columns.splice(side === "left" ? at : at + 1, 0, area);
+            this.syncColumns(columns);
+            this.selected = node.id;
+            this.typing = this.typingTarget(node);
+            this.changed("columns", {id: columns.id});
+            return done({id: node.id, typing: Boolean(this.typing)});
+        }
+        const result = this.splitColumns(targetId, {side, other: node});
+        if (!result.ok) return result;
+        this.selected = node.id;
+        this.typing = this.typingTarget(node);
+        return done({id: node.id, columns: result.id, typing: Boolean(this.typing)});
+    }
+
     /** The columns parameter follows the number of columns; the phone keeps its own value. */
     syncColumns(node) {
         const count = node.slots?.columns?.length ?? 0;
@@ -955,7 +1064,9 @@ export class EditorModel {
                 const decided = [...order].reverse().find((key) => key in own);
                 if (decided) {
                     value = own[decided];
-                    origin = decided === "xs" ? "block" : "screen";
+                    // The phone's value is the block's own unless other screens differ
+                    // from it: then, seen on the phone, it is the phone's.
+                    origin = decided !== "xs" || (screen === "xs" && Object.keys(own).length > 1) ? "screen" : "block";
                 }
             } else {
                 value = own;
@@ -1358,7 +1469,21 @@ export function coerce(field, value) {
     return {value: String(value)};
 }
 
-/** Writes a field's value into a node, at a screen, keeping only what differs from what it inherits. */
+/** The value a breakpoint map gives at a breakpoint, mobile first; `inherited` below its first key. */
+function valueAt(values, breakpoint, inherited) {
+    const order = UTILITY_BREAKPOINTS.slice(0, UTILITY_BREAKPOINTS.indexOf(breakpoint) + 1);
+    const decided = [...order].reverse().find((key) => key in values);
+    return decided ? values[decided] : inherited;
+}
+
+/**
+ * Writes a field's value into a node, at a screen, keeping only what differs
+ * from what it inherits. A responsive value set for one screen is that
+ * screen's only: the next wider screen the editor shows keeps what it showed,
+ * and the narrowest value is stored whatever the type's default while a wider
+ * screen differs from it (columns {xs: 2} set to 1 on the phone become
+ * {xs: 1, md: 2}, not nothing).
+ */
 function writeField(node, field, value, screen) {
     const planeName = field.plane;
     node[planeName] ??= {};
@@ -1369,22 +1494,42 @@ function writeField(node, field, value, screen) {
         else plane[field.target] = value;
     } else {
         const current = plane[field.target];
-        const values = isBreakpointValue(current) ? {...current} : current !== undefined ? {xs: current} : {};
+        const before = isBreakpointValue(current) ? {...current} : current !== undefined ? {xs: current} : {};
+        const values = {...before};
+        const wider = EDITOR_BREAKPOINTS[EDITOR_BREAKPOINTS.indexOf(screen) + 1];
+        if (wider && !(wider in values)) {
+            const kept = valueAt(before, wider, inherited);
+            if (kept !== undefined) values[wider] = kept;
+        }
         if (value === undefined) delete values[screen];
         else values[screen] = value;
-        // Mobile first: a value is kept only where it changes from the narrower screen.
-        let carried = inherited;
+        // Mobile first: a wider value is kept only where it changes from the narrower one.
+        let carried;
+        let first = true;
         for (const breakpoint of UTILITY_BREAKPOINTS) {
             if (!(breakpoint in values)) continue;
-            if (same(values[breakpoint], carried)) delete values[breakpoint];
+            if (!first && same(values[breakpoint], carried)) delete values[breakpoint];
             else carried = values[breakpoint];
+            first = false;
         }
         const keys = Object.keys(values);
-        if (!keys.length) delete plane[field.target];
+        if (!keys.length || (keys.length === 1 && same(values[keys[0]], inherited))) delete plane[field.target];
         else if (keys.length === 1 && keys[0] === "xs") plane[field.target] = values.xs;
         else plane[field.target] = values;
     }
     if (!Object.keys(plane).length) delete node[planeName];
+}
+
+/** Why each class of the «Extra classes» was not taken, by reason: [{reason, classes}], each class by its name. */
+export function refusedClasses(dropped) {
+    const groups = new Map();
+    for (const entry of Array.isArray(dropped) ? dropped : []) {
+        const name = typeof entry === "string" ? entry : String(entry?.class ?? "");
+        if (!name) continue;
+        const reason = typeof entry === "string" ? "modifier_unknown" : String(entry?.reason ?? "modifier_unknown");
+        groups.set(reason, [...(groups.get(reason) ?? []), name]);
+    }
+    return [...groups].map(([reason, classes]) => ({reason, classes}));
 }
 
 // ------------------------------------------------------------ Markdown

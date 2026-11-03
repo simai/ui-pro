@@ -8,7 +8,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import Composition from "../src/core/js/composition/index.mjs";
-import {EditorModel, VARIANT_EXTENSION, inlineToMarkdown} from "../src/smart/editor/js/model.mjs";
+import {EditorModel, VARIANT_EXTENSION, inlineToMarkdown, refusedClasses} from "../src/smart/editor/js/model.mjs";
 import {catalogueAt, itemKey, pick, pushRecent, searchItems, skeletonOf, tabForPlace, toggleFavourite} from "../src/smart/editor/js/catalogue.mjs";
 import cardsType from "../kits/block/examples/sample-cards/type.json" with {type: "json"};
 import cardsEditor from "../kits/block/examples/sample-cards/editor.json" with {type: "json"};
@@ -235,19 +235,46 @@ test("parameters: origin type -> theme -> variant -> block -> screen, written mo
     model.setParam("s1", "padding_y", 6, "lg");
     assert.deepEqual(model.node("s1").props.padding_y, {lg: 6}, "the phone keeps the theme");
     model.setParam("s1", "padding_y", 4, "xs");
-    assert.deepEqual(model.node("s1").props.padding_y, {xs: 4, lg: 6});
+    assert.deepEqual(model.node("s1").props.padding_y, {xs: 4, md: 2, lg: 6}, "the phone's value is the phone's only: the tablet keeps the theme's 2");
     field = model.fields("s1", "md").find((entry) => entry.key === "padding_y");
-    assert.deepEqual([field.origin, field.value, field.screens], ["block", 4, ["lg"]]);
+    assert.deepEqual([field.origin, field.value], ["screen", 2]);
     field = model.fields("s1", "lg").find((entry) => entry.key === "padding_y");
     assert.equal(field.origin, "screen");
+    model.setParam("s1", "padding_y", 4, "md");
+    assert.deepEqual(model.node("s1").props.padding_y, {xs: 4, lg: 6}, "a value equal to the narrower one is not written");
+    field = model.fields("s1", "md").find((entry) => entry.key === "padding_y");
+    assert.deepEqual([field.origin, field.value, field.screens], ["block", 4, ["lg"]]);
     model.setParam("s1", "padding_y", 4, "lg");
-    assert.equal(model.node("s1").props.padding_y, 4, "a value equal to the narrower one is not written");
+    assert.equal(model.node("s1").props.padding_y, 4, "one value on every screen is a plain value");
     model.setParam("s1", "padding_y", 2, "xs");
-    assert.equal(model.node("s1").props.padding_y, undefined, "a value equal to the theme is not written");
+    assert.deepEqual(model.node("s1").props.padding_y, {xs: 2, md: 4}, "the theme's value on the phone keeps the wider screens' 4");
+    model.setParam("s1", "padding_y", 2, "md");
+    assert.deepEqual(model.node("s1").props.padding_y, {xs: 2, lg: 4}, "the tablet's value is the tablet's only");
+    model.setParam("s1", "padding_y", 2, "lg");
+    assert.equal(model.node("s1").props.padding_y, undefined, "a value equal to the theme on every screen is not written");
     model.setParam("s1", "width", "wide");
     model.resetParam("s1", "width");
     assert.equal(model.node("s1").props?.width, undefined);
     assert.equal(model.setParam("s1", "width", "huge").reason, "invalid");
+    valid(model);
+});
+
+test("G-22: a phone value equal to the type's default is the phone's own; the wider screens keep theirs", async () => {
+    const model = editor();
+    const gap = (screen) => model.fields("cards", screen).find((entry) => entry.key === "gap");
+    model.node("cards").props.gap = 5; // a block with gap 5 on every screen
+    assert.deepEqual([gap("xs").origin, gap("lg").value], ["block", 5]);
+    model.setParam("cards", "gap", 3, "xs");
+    assert.deepEqual(model.node("cards").props.gap, {xs: 3, md: 5}, "the phone's 3 (the default) does not clear the desktop's 5");
+    assert.deepEqual([gap("xs").origin, gap("xs").value], ["screen", 3]);
+    assert.deepEqual([gap("lg").origin, gap("lg").value], ["screen", 5]);
+    const {html} = await model.toHTML({resolveBinding: async () => Composition.demoData("cards")});
+    assert.match(html, /md:gap-5/u);
+    assert.doesNotMatch(html, /lg:gap/u);
+    model.setParam("cards", "gap", 5, "xs");
+    assert.equal(model.node("cards").props.gap, 5, "the same value on every screen is one plain value again");
+    model.setParam("cards", "gap", 3, "lg");
+    assert.deepEqual(model.node("cards").props.gap, {xs: 5, lg: 3}, "the desktop's value is the desktop's only");
     valid(model);
 });
 
@@ -423,4 +450,61 @@ test("remove and duplicate keep the slot rules and select a neighbour", () => {
     model.remove(copy.id);
     assert.equal(model.selected, "p2");
     valid(model);
+});
+
+test("G-30: the arrows with nothing chosen start at the first open block; neighbours cross regions, not a chosen parent's edge", () => {
+    const plain = editor();
+    assert.ok(plain.lockOf("logo") && plain.lockOf("copy"), "the header and the footer are the site template's");
+    assert.equal(plain.neighbour(null, 1), "s1", "↓ starts at the first block a person can change");
+    assert.equal(plain.neighbour(null, -1), "s2", "↑ at the last one");
+    assert.equal(plain.neighbour("logo", 1), "s1", "from the header region into the main one");
+    assert.equal(plain.neighbour("s1", 1), "s2");
+    assert.equal(plain.neighbour("s2", 1), "copy");
+    assert.equal(plain.neighbour("s1", -1), "logo");
+    assert.equal(plain.neighbour("h1", -1), null, "a chosen parent's edge stops the arrows");
+    assert.equal(plain.neighbour("p1", 1), "p2");
+    assert.equal(plain.neighbour("copy", 1), null);
+});
+
+test("G-34: a library block dropped at a side splits, adds a column inside columns, up to four, one undo each", () => {
+    const model = editor();
+    const first = model.insertBeside({type: "content.quote"}, "p1", "right");
+    assert.equal(first.ok, true);
+    const columns = model.node(first.columns);
+    assert.equal(columns.type, "layout.columns");
+    assert.deepEqual(columns.props.columns, {xs: 1, md: 2});
+    assert.deepEqual(ids(model.node(columns.slots.columns[0].id).slots.default), ["p1"]);
+    assert.equal(model.selected, first.id);
+    const inner = model.node(first.id).slots.default[0].id;
+    const second = model.insertBeside({type: "content.alert"}, inner, "right");
+    assert.equal(second.ok, true, "a block inside the quote gives its side to the quote");
+    assert.equal(model.node(first.columns).slots.columns.length, 3);
+    assert.equal(model.node(first.columns).slots.columns[2].slots.default[0].type, "content.alert");
+    assert.deepEqual(model.node(first.columns).props.columns, {xs: 1, md: 3});
+    assert.equal(model.insertBeside({type: "content.paragraph"}, "p1", "left").ok, true);
+    assert.equal(model.node(first.columns).slots.columns[0].slots.default[0].type, "content.paragraph");
+    assert.equal(model.insertBeside({type: "content.paragraph"}, "p1", "left").reason, "limit");
+    assert.equal(model.insertBeside({type: "layout.section"}, "p2", "left").reason, "place");
+    valid(model);
+    model.undo();
+    assert.equal(model.node(first.columns).slots.columns.length, 3);
+    model.undo();
+    assert.equal(model.node(first.columns).slots.columns.length, 2);
+    model.undo();
+    assert.equal(model.node(first.columns), null);
+    assert.deepEqual(ids(model.node("a1").slots.default), ["h1", "p1", "p2"]);
+});
+
+test("G-29: refused classes are grouped by reason, by name", () => {
+    assert.deepEqual(refusedClasses([
+        {class: "bogus", reason: "modifier_unknown"},
+        {class: "also-bogus", reason: "modifier_unknown"},
+        {class: "p-x-99", reason: "modifier_invalid"},
+        "plain-string",
+    ]), [
+        {reason: "modifier_unknown", classes: ["bogus", "also-bogus", "plain-string"]},
+        {reason: "modifier_invalid", classes: ["p-x-99"]},
+    ]);
+    assert.deepEqual(refusedClasses([]), []);
+    assert.deepEqual(refusedClasses(undefined), []);
 });

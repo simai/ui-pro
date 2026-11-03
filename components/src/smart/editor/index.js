@@ -22,7 +22,7 @@ import {CATALOGUE_GROUPS} from "../../core/js/composition/catalogue.mjs";
 import {isComposed} from "../../core/js/composition/composed.mjs";
 import {readInlineDom, renderInlineDom, startInlineEdit, textOffset} from "../../core/js/composition/inline-editor.mjs";
 import {localeText, pageLocale} from "../../core/js/page-language.js";
-import {EditorModel, MAX_COLUMNS, ORIGINS, SCREENS} from "./js/model.mjs";
+import {EditorModel, MAX_COLUMNS, ORIGINS, SCREENS, refusedClasses} from "./js/model.mjs";
 import {catalogueAt, itemKey, pick, pushRecent, searchItems, skeletonOf, toggleFavourite, typeWordKey} from "./js/catalogue.mjs";
 import {isPlainObject, locate} from "./js/tree.mjs";
 import {renderEditorTemplate} from "./js/templates/default.js";
@@ -136,6 +136,8 @@ class SfEditor extends EditorElement {
         this.pendingAfterDraw = [];
         this.listening = null;
         this.seen = {};
+        this.pageLandmarks = false;
+        this.dropped = null;
     }
 
     // ------------------------------------------------------------ inputs
@@ -253,6 +255,28 @@ class SfEditor extends EditorElement {
         // The first render made the page's element: the Document is drawn into it.
         if (this.pageElement && !this.drawToken) this.redraw();
         else this.placeOverlays();
+        this.wireSearch();
+    }
+
+    /** sf-input names its own input only: the catalogue's search is a combobox over the list, said on the native input. */
+    wireSearch() {
+        const input = this.querySelector(".sf-editor-pop sf-input input");
+        if (!input) {
+            // The search draws its input on its own update: wire it then.
+            const host = this.querySelector(".sf-editor-pop sf-input");
+            if (host && !host.sfEditorWired) {
+                host.sfEditorWired = true;
+                Promise.resolve(host.updateComplete).then(() => requestAnimationFrame(() => this.wireSearch()));
+            }
+            return;
+        }
+        const count = this.querySelectorAll(".sf-editor-pop [role=\"option\"]").length;
+        input.setAttribute("role", "combobox");
+        input.setAttribute("aria-controls", "sf-editor-pop-list");
+        input.setAttribute("aria-expanded", "true");
+        input.setAttribute("aria-autocomplete", "list");
+        if (count) input.setAttribute("aria-activedescendant", `sf-editor-pop-${Math.min(this.popActive, count - 1)}`);
+        else input.removeAttribute("aria-activedescendant");
     }
 
     /** The host learns of every change: the whole Document, the reason, and whether it was the page or the template. */
@@ -324,6 +348,12 @@ class SfEditor extends EditorElement {
             if (/^(?:data-[a-z0-9-]+|class|lang|dir)$/u.test(name)) page.setAttribute(name, String(value));
         }
         this.diagnostics = result.diagnostics ?? [];
+        // A page with its own main landmark keeps its landmarks top level: the canvas around it is then no region.
+        const landmarks = Boolean(page.querySelector('main, [role="main"]'));
+        if (landmarks !== this.pageLandmarks) {
+            this.pageLandmarks = landmarks;
+            this.refresh();
+        }
         this.decorate(hidden);
         this.placeOverlays();
         if (typing && this.model.typing && typing.id === this.model.typing.id) this.activate(typing.id, typing.at);
@@ -346,6 +376,9 @@ class SfEditor extends EditorElement {
             const lock = this.model.lockOf(id);
             if (lock) {
                 element.dataset.sfEditorLock = lock;
+                // Inactive for this person: said so, and its dimmed text is not
+                // held to the contrast of what can be changed (WCAG 1.4.3).
+                element.setAttribute("aria-disabled", "true");
                 const marked = element.parentElement?.closest(".sf-editor-locked");
                 const open = [...element.querySelectorAll(`[${ID}]`)].some((inner) => !this.model.lockOf(inner.getAttribute(ID)));
                 if (this.model.scopeOf(id) !== "frame" && !open && marked?.dataset.sfEditorLock !== lock) {
@@ -366,13 +399,38 @@ class SfEditor extends EditorElement {
             if (node && TEXT_TAGS.has(node.type) && !element.textContent.trim()) element.dataset.placeholder = this.sfWord(node.type === "content.heading" ? "heading-placeholder" : "text-placeholder");
             if (id.includes(":")) element.classList.add("sf-editor-part");
             const own = locate(this.model.doc.root, id)?.node;
-            if (own && ["layout.area", "layout.region"].includes(own.type) && !(own.slots?.default?.length)) {
-                const place = this.ownerDocument.createElement("div");
-                place.className = "sf-editor-empty";
-                place.dataset.sfEditorEmpty = id;
-                place.textContent = this.word(this.model.manifestOf(own.type)?.slots?.default?.empty_key ?? "empty-place");
-                element.append(place);
-            }
+            if (own && !lock) this.drawEmptyPlaces(own, element);
+        }
+    }
+
+    /**
+     * The empty places of a block: an empty text area or region, and an empty
+     * named place that declares its prompt (empty_key), such as a split
+     * hero's picture. Each says what it takes and is its own +; it stands in
+     * the renderer's element for that place (data-sf-composition-slot) when
+     * there is one, else at the end of the block.
+     */
+    drawEmptyPlaces(node, element) {
+        const manifest = this.model.manifestOf(node.type);
+        if (!manifest || isComposed(manifest) || this.model.placeLock(node.id)) return;
+        for (const [slot, rule] of Object.entries(manifest.slots ?? {})) {
+            if (node.slots?.[slot]?.length) continue;
+            const container = ["layout.area", "layout.region"].includes(node.type) && slot === "default";
+            if (!container && !rule?.empty_key) continue;
+            const holder = [...element.querySelectorAll(`[data-sf-composition-slot="${cssEscape(slot)}"]`)]
+                .find((candidate) => candidate.closest(`[${ID}]`) === element) ?? element;
+            const place = this.ownerDocument.createElement("div");
+            place.className = "sf-editor-empty";
+            place.dataset.sfEditorEmpty = node.id;
+            place.dataset.sfEditorSlot = slot;
+            const plus = this.ownerDocument.createElement("sf-icon");
+            plus.setAttribute("icon", "add");
+            plus.setAttribute("size", "1/2");
+            plus.setAttribute("aria-hidden", "true");
+            const words = this.ownerDocument.createElement("span");
+            words.textContent = this.word(rule?.empty_key ?? "empty-place");
+            place.append(plus, words);
+            holder.append(place);
         }
     }
 
@@ -484,7 +542,7 @@ class SfEditor extends EditorElement {
         const empty = event.target.closest?.("[data-sf-editor-empty]");
         if (empty) {
             event.preventDefault();
-            const place = this.model.placeInside(empty.dataset.sfEditorEmpty);
+            const place = this.model.placeInside(empty.dataset.sfEditorEmpty, empty.dataset.sfEditorSlot || undefined);
             this.openCatalogue(empty, place, "plus");
             return;
         }
@@ -571,6 +629,13 @@ class SfEditor extends EditorElement {
         }
         this.sessionElement = element;
         this.sessionId = id;
+        // A heading being typed stays a heading: the textbox role the inline
+        // session gives is not one a heading may take (its editable state says
+        // enough); the session puts the attributes back when it ends.
+        if (/^H[1-6]$/u.test(element.tagName)) {
+            element.removeAttribute("role");
+            element.removeAttribute("aria-multiline");
+        }
         element.focus({preventScroll: true});
         setCaret(element, at);
         this.model.startTyping(id);
@@ -672,10 +737,13 @@ class SfEditor extends EditorElement {
             return;
         }
         if (!id) {
-            if (key === "Enter" || key === "ArrowDown") {
+            if (key === "Enter") {
                 event.preventDefault();
                 this.model.down();
                 this.choose(this.model.selected);
+            } else if (key === "ArrowDown" || key === "ArrowUp") {
+                event.preventDefault();
+                this.chooseNeighbour(null, key === "ArrowUp" ? -1 : 1);
             }
             return;
         }
@@ -696,10 +764,7 @@ class SfEditor extends EditorElement {
         }
         if (key === "ArrowUp" || key === "ArrowDown") {
             event.preventDefault();
-            const at = locate(this.model.doc.root, id);
-            const list = at?.parent?.slots?.[at.slot] ?? [];
-            const next = list[at.index + (key === "ArrowUp" ? -1 : 1)];
-            if (next) this.choose(next.id);
+            this.chooseNeighbour(id, key === "ArrowUp" ? -1 : 1);
             return;
         }
         if (key === "Backspace" || key === "Delete") {
@@ -711,6 +776,14 @@ class SfEditor extends EditorElement {
             event.preventDefault();
             this.run(this.model.duplicate(id), "duplicated-text");
         }
+    }
+
+    /** ↑ ↓: the block before or after (the first one when nothing is chosen), brought into view. */
+    chooseNeighbour(id, delta) {
+        const next = this.model.neighbour(id, delta);
+        if (!next) return;
+        this.choose(next);
+        this.blockElement(next)?.scrollIntoView?.({block: "nearest", inline: "nearest"});
     }
 
     onTypingKey(event) {
@@ -790,6 +863,12 @@ class SfEditor extends EditorElement {
         return result;
     }
 
+    /**
+     * Says what happened in the status line. The line has no part of the
+     * template inside it: its text is written here only, so a render never
+     * meets nodes it did not make (writing into a template part broke every
+     * later render, G-27).
+     */
     say(text) {
         this.notice = text;
         const live = this.querySelector(".sf-editor-live");
@@ -975,7 +1054,7 @@ class SfEditor extends EditorElement {
         if (!type) return null;
         const empty = under.closest("[data-sf-editor-empty]");
         if (empty) {
-            const place = this.model.placeInside(empty.dataset.sfEditorEmpty);
+            const place = this.model.placeInside(empty.dataset.sfEditorEmpty, empty.dataset.sfEditorSlot || undefined);
             if (place && this.model.accepts(place.parent, place.slot, type) && !this.model.placeLock(place.parent)) return {place, rect: empty.getBoundingClientRect(), edge: "inside"};
         }
         let block = this.blockAt(under);
@@ -989,9 +1068,15 @@ class SfEditor extends EditorElement {
             const rect = block.element.getBoundingClientRect();
             const ratio = (x - rect.left) / Math.max(1, rect.width);
             const sideways = this.model.rights.layout && (ratio < SIDE_ZONE || ratio > 1 - SIDE_ZONE) && rect.width > 160 && !["layout.section", "layout.columns"].includes(at.node.type);
-            if (sideways && this.drag.kind === "move") {
-                const left = ratio < SIDE_ZONE;
-                return {beside: {id: block.id, side: (left !== this.isRtl) ? "left" : "right"}, rect, edge: left ? "start" : "end"};
+            // A block inside another (a paragraph in a quote) gives its side to the outer block.
+            const besideId = sideways ? this.model.besideTarget(block.id) ?? block.id : null;
+            const beside = besideId && besideId !== block.id ? this.blockElement(besideId) : block.element;
+            const outer = beside?.getBoundingClientRect();
+            const outerRatio = outer ? (x - outer.left) / Math.max(1, outer.width) : 0.5;
+            const besideAt = besideId ? locate(this.model.doc.root, besideId) : null;
+            if (besideAt && (outerRatio < SIDE_ZONE || outerRatio > 1 - SIDE_ZONE) && (this.drag.kind === "move" ? !locate(this.model.node(besideId), this.drag.id) : this.model.standsBeside(type)) && !this.model.placeLock(besideAt.parent.id)) {
+                const left = outerRatio < SIDE_ZONE;
+                return {beside: {id: besideId, side: (left !== this.isRtl) ? "left" : "right"}, rect: outer, edge: left ? "start" : "end"};
             }
             const after = y > rect.top + rect.height / 2;
             const place = {parent: at.parent.id, slot: at.slot, index: at.index + (after ? 1 : 0)};
@@ -1034,6 +1119,13 @@ class SfEditor extends EditorElement {
             return;
         }
         const choice = {type: drag.item.type, ...(drag.item.variant ? {variant: drag.item.variant} : {})};
+        if (target.beside) {
+            this.finishSession(false);
+            const result = this.model.insertBeside(choice, target.beside.id, target.beside.side);
+            if (result.ok) this.remember(drag.item);
+            this.run(result, "columns-text");
+            return;
+        }
         this.insertChoice(choice, target.place, drag.item);
     }
 
@@ -1066,6 +1158,8 @@ class SfEditor extends EditorElement {
         const id = menu.dataset.for;
         const action = event.detail?.entry?.id ?? event.detail?.id;
         queueMicrotask(() => {
+            // The menu closes: the keys (⌘Z first) act where a person works, on the canvas.
+            if (action !== "build") this.canvasElement?.focus({preventScroll: true});
             if (action === "up" || action === "down") this.moveBy(id, action === "up" ? -1 : 1);
             else if (action === "duplicate") this.run(this.model.duplicate(id), "duplicated-text");
             else if (action === "remove") this.run(this.model.remove(id), "removed-text");
@@ -1154,11 +1248,37 @@ class SfEditor extends EditorElement {
         return null;
     }
 
+    /**
+     * The output dialog: drawn, then opened. sf-modal is fetched on the first
+     * press (a lazy part), so its open() is waited for: the first press opens
+     * the dialog (G-28). A tab switch only changes the text.
+     */
     async openOutput(format = "json") {
+        const shown = Boolean(this.outputView);
         this.outputView = {format, text: await this.outputOf(format)};
         this.refresh();
         await this.updateComplete?.catch?.(() => {});
-        requestAnimationFrame(() => this.querySelector(".sf-editor-output")?.open?.());
+        if (shown) return;
+        const modal = await this.defined(() => this.querySelector(".sf-editor-output"), "sf-modal", "open");
+        if (!modal || !this.outputView) return;
+        await modal.updateComplete?.catch?.(() => {});
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        if (this.outputView) modal.open();
+    }
+
+    /** An element of a lazy part once its definition has come: it, or null after a few seconds. */
+    async defined(find, tag, method) {
+        const ready = () => {
+            const element = find();
+            return element && typeof element[method] === "function" ? element : null;
+        };
+        if (ready()) return ready();
+        const registry = this.ownerDocument.defaultView?.customElements ?? globalThis.customElements;
+        await Promise.race([registry?.whenDefined?.(tag), new Promise((resolve) => setTimeout(resolve, 5000))]).catch(() => {});
+        // An element made before its definition is upgraded with it.
+        const element = find();
+        if (element && typeof element[method] !== "function") registry?.upgrade?.(element);
+        return ready();
     }
 
     // ------------------------------------------------------------ the panels
@@ -1201,7 +1321,7 @@ class SfEditor extends EditorElement {
         event.stopPropagation();
         const value = event.detail?.value ?? event.currentTarget.value ?? "";
         const result = this.model.setModifiers(this.model.selected, String(value));
-        this.dropped = result.dropped ?? [];
+        this.dropped = {id: this.model.selected, groups: refusedClasses(result.dropped)};
         this.redraw();
     }
 
@@ -1377,6 +1497,7 @@ class SfEditor extends EditorElement {
             states: STATES.map((value) => ({value, label: this.sfWord(`state-${value}`)})),
             origins: ORIGINS,
             hasTemplate: this.main.hasRegions(),
+            landmarks: Boolean(this.pageLandmarks),
             tree: this.treeOf(model.doc.root, 0),
         };
     }

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.editor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "title": "Page editor",
   "summary": "The one block editor of the SIMAI page: layout and text in one Composition Document, edited by depth. A click on text types, a click beside it chooses the block, Esc goes up and Enter down. One catalogue (Text and Blocks, groups, variants with pictures, search, favourites, recent) serves the + between blocks, / in text and the library; blocks move by the grip with drop lines or Alt+arrows, and a drop beside a block splits it into columns. The parameter panel says where every value comes from (type, theme, variant, block, screen) and sets values per screen; the Data tab binds a block to a host source through the source port. The block builder makes and changes site blocks everywhere; the site template is a separate, explicit edit. Rights and theme come from the host. One undo history; output as JSON, HTML and Markdown.",
   "kind": "smart",
@@ -489,11 +489,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/editor/index.js",
-        "sha256": "d07059928b236debddc719fe1301353073ba9aae4c921fe2bf5d322cb57c7926"
+        "sha256": "d36cd56f746d65fd55d904c9bafa2be16a781f40aec0d6ffcbb80b28d2ad6aa7"
       },
       {
         "path": "src/smart/editor/js/model.mjs",
-        "sha256": "1ca04f7f362eaef8a46d43b2fd12be01dc2dcf2fc7629eb74ff6d014b50b8bb5"
+        "sha256": "6492776ca37bcd7fe0d2c7c787856f4afda922775c38c9d1d2bceb3ead3be1ae"
       },
       {
         "path": "src/smart/editor/js/catalogue.mjs",
@@ -505,11 +505,11 @@
       },
       {
         "path": "src/smart/editor/js/templates/default.js",
-        "sha256": "0cf7a67bf594c0d1a9135c05b6a616d07629ca2c76ca82e80c2e22fb028154f9"
+        "sha256": "f7176b4861edae1ee7867ac4111a8367baeadfde66d5ae968195b03a8d90233b"
       },
       {
         "path": "src/smart/editor/js/templates/default.css",
-        "sha256": "59e863a5f3528b2d682fd799435beca5ae6a39c58d9ed4e398557e0790184a8f"
+        "sha256": "12b3bbb4d8a618fb260a5711f391e4299908704cd1e011c7d657e79bcde106ba"
       },
       {
         "path": "src/smart/editor/rule.js",
@@ -521,15 +521,15 @@
       },
       {
         "path": "src/smart/editor/component.json",
-        "sha256": "7ccae690fa49e9eb1bd2e432e5d3cf6ac4ee4f2949909897cb771d4b17478595"
+        "sha256": "2bd72294ae896aa946340e2539538f49d25c9ef0de34c03facc460cba156280c"
       },
       {
         "path": "src/smart/editor/lang/en.json",
-        "sha256": "4fbf60c37beba3a9223f28cf54480f61aea2871ac1892579c06ddaddfd3c3762"
+        "sha256": "5fd05e62120bf5571d9e2427aa06a5de11dddd22e0a78aac285d8004dc9d2297"
       },
       {
         "path": "src/smart/editor/lang/ru.json",
-        "sha256": "0f98274db493fbde923cafeb0d6b9091bbafa82c66c8fa25d7006f267f07d39d"
+        "sha256": "87ae6c6eab96c7256ac35354b0ab966d1a488f5e09968b05749791209c4af286"
       }
     ],
     "generated_runtime": []

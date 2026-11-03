@@ -8,9 +8,23 @@ import "./default.css";
 // + and the grip, the drop line), the parameter and data panel on the right,
 // and the path of the chosen block under the page. The page itself is drawn
 // by the Framework's renderers into .sf-editor-page (index.js redraw), so
-// Lit leaves that element's children alone. Every control is a Framework
+// Lit leaves that element's children alone; so it does the status line's,
+// which index.js say() writes.
+//
+// Landmarks: the bar is in a region of its own, the panels are asides and the
+// path a nav. The canvas is a named region when the page brings no landmarks;
+// a page with its own (banner, main, contentinfo) keeps them top level, and
+// the canvas is then an unnamed group that says its role. Every control is a Framework
 // part: sf-button, sf-button-icon, sf-button-group, sf-tabs, sf-input,
 // sf-dropdown, sf-switch, sf-menu-context, sf-modal, sf-skeleton, sf-icon.
+/** The word for each reason a class of «Extra classes» is not taken. */
+const REFUSED = {
+    modifier_unknown: "modifiers-unknown",
+    modifier_invalid: "modifiers-invalid",
+    modifier_rules_unavailable: "modifiers-unchecked",
+    modifier_limit: "modifiers-limit",
+};
+
 export function renderEditorTemplate(component) {
     const view = component.view();
     const w = (key, vars) => component.sfWord(key, vars ? {vars} : undefined);
@@ -20,20 +34,24 @@ export function renderEditorTemplate(component) {
     const classes = ["sf-editor", component.getRootClass?.() ?? "", component.builder ? "sf-editor--builder" : "", view.model.templateEditing ? "sf-editor--template" : ""].filter(Boolean).join(" ");
     return html`
         <div class=${classes} @input=${stop} @change=${stop}>
-            ${bar(component, view, w)}
-            ${component.builder ? builderBar(component, w) : nothing}
+            <div class="sf-editor-top" role="region" aria-label=${component.label || w("label")}>
+                ${bar(component, view, w)}
+                ${component.builder ? builderBar(component, w) : nothing}
+                <p id="sf-editor-help" class="sf-editor-visually-hidden">${w("help-text")}</p>
+                <div class="sf-editor-live sf-editor-visually-hidden" role="status" aria-live="polite"></div>
+            </div>
             <div class="sf-editor-body">
                 ${left(component, view, w)}
                 <div class="sf-editor-stage">
-                    <div class="sf-editor-canvas" tabindex="0" role="group" aria-roledescription=${w("canvas-role")}
-                         aria-label=${component.label || w("label")} aria-describedby="sf-editor-help">
+                    <div class="sf-editor-canvas" tabindex="0" role=${view.landmarks ? "group" : "region"} aria-roledescription=${w("canvas-role")}
+                         aria-label=${view.landmarks ? nothing : component.label || w("label")} aria-describedby="sf-editor-help">
                         <div class="sf-editor-frame" data-screen=${component.screenName}>
                             <div class="sf-editor-page"></div>
                         </div>
                         <div class="sf-editor-hover" hidden aria-hidden="true"></div>
                         <div class="sf-editor-chosen" hidden aria-hidden="true"></div>
                         <div class="sf-editor-drop" hidden aria-hidden="true"></div>
-                        <div class="sf-editor-gutter" hidden>
+                        <div class="sf-editor-gutter" role="region" aria-label=${w("gutter-label")} hidden>
                             <sf-button-icon class="sf-editor-plus" size="1/3" appearance="ghost" scheme="on-surface-variant" icon="add"
                                             aria-label=${w("plus-label")} title=${w("plus-label")}
                                             @click=${(event) => component.onPlus(event)}></sf-button-icon>
@@ -48,14 +66,12 @@ export function renderEditorTemplate(component) {
                 ${right(component, view, w)}
             </div>
             ${view.pop ? popover(component, view, w) : nothing}
-            ${component.lockNote ? html`<div class="sf-editor-lock-note" role="note"
+            ${component.lockNote ? html`<div class="sf-editor-lock-note" role="status"
                     style=${`inset-block-start:${component.lockNote.y + 12}px;inset-inline-start:${component.lockNote.x}px`}>
                 <sf-icon icon="lock" size="1/2"></sf-icon><span>${component.lockNote.text}</span></div>` : nothing}
             <sf-menu-context class="sf-editor-menu" size="1/2" @sf-menu-context-select=${(event) => component.onMenuSelect(event)}></sf-menu-context>
             <sf-editor-inline></sf-editor-inline>
             ${component.outputView ? outputModal(component, w) : nothing}
-            <p id="sf-editor-help" class="sf-editor-visually-hidden">${w("help-text")}</p>
-            <div class="sf-editor-live sf-editor-visually-hidden" role="status" aria-live="polite">${component.notice}</div>
         </div>
     `;
 }
@@ -127,6 +143,7 @@ function left(component, view, w) {
     const tabs = [{id: "blocks", label: w("left-blocks")}, {id: "structure", label: w("left-structure")}];
     return html`
         <aside class="sf-editor-left" aria-label=${w("left-label")}>
+            <h2 class="sf-editor-visually-hidden">${w("left-label")}</h2>
             <sf-tabs type="underline" size="1/2" .items=${tabs} active-index=${component.leftTab === "structure" ? 1 : 0}
                      @sf-tabs-change=${(event) => {
                          event.stopPropagation();
@@ -309,7 +326,7 @@ function parameters(component, view, w) {
             <section class="sf-editor-group">
                 <sf-input size="1/2" label=${w("modifiers-label")} hint=${w("modifiers-hint")} .value=${view.modifiers}
                           @change=${(event) => component.onModifiers(event)}></sf-input>
-                ${component.dropped?.length ? html`<p class="sf-editor-error" role="alert">${w("modifiers-dropped", {classes: component.dropped.join(" ")})}</p>` : nothing}
+                ${component.dropped?.id === view.selected.id ? component.dropped.groups.map((group) => html`<p class="sf-editor-error" role="alert">${w(REFUSED[group.reason] ?? "modifiers-dropped", {classes: group.classes.join(" ")})}</p>`) : nothing}
             </section>` : nothing}
         <dl class="sf-editor-origins" aria-label=${w("origins-label")}>
             ${view.origins.map((origin) => html`<div><dt><span class="sf-editor-origin" data-origin=${origin}>${w(`origin-${origin}`)}</span></dt><dd>${w(`origin-${origin}-help`)}</dd></div>`)}
@@ -436,7 +453,7 @@ function popover(component, view, w) {
              style=${`inset-block-start:${pop.y}px;inset-inline-start:${pop.x}px`}>
             ${pop.mode === "slash" ? html`<p class="sf-editor-quiet">${component.popQuery ? w("slash-filter", {query: component.popQuery}) : w("slash-hint")}</p>` : html`
                 <sf-input size="1/2" input-type="search" icon-start="search" placeholder=${w("search-placeholder")} aria-label=${w("search-placeholder")}
-                          aria-controls="sf-editor-pop-list" .value=${component.popQuery}
+                          .value=${component.popQuery}
                           @input=${(event) => {
                               event.stopPropagation();
                               component.popQuery = String(event.currentTarget.value ?? "");
@@ -452,15 +469,21 @@ function popover(component, view, w) {
                                      component.popActive = 0;
                                      component.refresh();
                                  }}></sf-button-group>` : nothing}
-            <ul id="sf-editor-pop-list" class="sf-editor-pop-list" role="listbox" aria-label=${w("catalogue-label")}>
+            <ul id="sf-editor-pop-list" class="sf-editor-pop-list" role="listbox" tabindex="0" aria-label=${w("catalogue-label")}>
                 ${list.length ? list.map((item, index) => html`
                     <li role="option" id=${`sf-editor-pop-${index}`} aria-selected=${index === component.popActive ? "true" : "false"}
-                        class=${index === component.popActive ? "is-active" : ""}>
+                        class=${index === component.popActive ? "is-active" : ""} data-item=${`${item.type}${item.variant ? `#${item.variant}` : ""}`}
+                        @pointerenter=${() => {
+                            if (component.popActive === index) return;
+                            component.popActive = index;
+                            component.refresh();
+                        }}
+                        @mousedown=${(event) => event.preventDefault()}
+                        @click=${() => component.chooseItem(item)}>
                         <div class="sf-editor-preview sf-editor-preview--small" aria-hidden="true">${skeleton(component.skeleton(item))}</div>
-                        <sf-button size="1/2" appearance="link" scheme="on-surface" text=${item.label}
-                                   @click=${() => component.chooseItem(item)}></sf-button>
-                        <span class="sf-editor-quiet">${item.variant ? item.typeLabel : component.word(`group-${item.group}`)}</span>
-                    </li>`) : html`<li class="sf-editor-quiet">${w("nothing-fits")}</li>`}
+                        <span class="sf-editor-option-name" data-label=${item.label}>${item.label}</span>
+                        <span class="sf-editor-quiet sf-editor-option-note">${item.variant ? item.typeLabel : component.word(`group-${item.group}`)}</span>
+                    </li>`) : html`<li class="sf-editor-quiet" role="presentation">${w("nothing-fits")}</li>`}
             </ul>
         </div>
     `;
