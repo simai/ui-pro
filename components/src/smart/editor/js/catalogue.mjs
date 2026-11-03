@@ -135,10 +135,16 @@ function shapeOf(node, model) {
     default: {
         if (/button/u.test(node.type)) return {kind: "button"};
         const columns = columnsOf(node.props?.columns ?? node.props?.cols);
-        if (!children.length) {
-            const bound = model.registry.types.get(node.type)?.data_bindings;
-            return bound ? {kind: "row", columns: Math.max(columns, 2), children: [{kind: "card"}, {kind: "card"}, {kind: "card"}].slice(0, Math.max(columns, 2))} : {kind: "box"};
+        // A block with data draws its records as the variant lays them out:
+        // cards in its columns, or one under another, below its own slots (an
+        // intro heading). Variants that differ by their columns so look apart.
+        if (model.registry.types.get(node.type)?.data_bindings) {
+            const records = columns > 1
+                ? {kind: "row", columns: Math.min(4, columns), children: Array.from({length: Math.min(4, columns)}, () => ({kind: "card"}))}
+                : {kind: "stack", children: [{kind: "card"}, {kind: "card"}]};
+            return children.length ? {kind: "stack", children: [...children, records]} : records;
         }
+        if (!children.length) return {kind: "box"};
         return columns > 1 ? {kind: "row", columns, children} : {kind: "stack", children};
     }
     }

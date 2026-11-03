@@ -356,8 +356,11 @@ test("the catalogue: tab by place, hidden what the place cannot take, search in 
     const author = editor({rights: {layout: false}});
     const authorItems = catalogueAt(author, author.placeAfter("p1"), {word}).items;
     assert.equal(authorItems.some((item) => item.type === "layout.columns"), false);
-    const skeleton = skeletonOf(model, cards[0]);
-    assert.equal(skeleton[0].kind, "row");
+    const [columns] = skeletonOf(model, cards[0]);
+    assert.deepEqual(columns.children.map((part) => part.kind), ["heading", "row"], "the intro, then the records");
+    assert.equal(columns.children[1].children.length, 3, "three columns draw three cards");
+    const [list] = skeletonOf(model, cards[1]);
+    assert.deepEqual(list, {kind: "stack", children: [{kind: "card"}, {kind: "card"}]}, "one column draws the records one under another");
 });
 
 test("block builder: compose, expose a parameter, save a site block, change it everywhere with the texts kept", async () => {
