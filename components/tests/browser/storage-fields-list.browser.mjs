@@ -19,6 +19,7 @@ const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
   'component/component/pagination/css/pagination.css',
+  'component/component/modal/css/modal.css',
   'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
 const modules = [
@@ -33,6 +34,9 @@ const modules = [
   'smart/smart/spinner/js/spinner.js',
   'smart/smart/context-menu/js/context-menu.js',
   'smart/smart/tabs/js/tabs.js',
+  // The confirmation is sf-modal (sf-data-view 1.7.0), a lazy relation a
+  // page's Loader fetches; this page loads its modules by hand.
+  'smart/smart/modal/js/modal.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',

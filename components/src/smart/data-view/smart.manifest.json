@@ -34,6 +34,7 @@
       "smart.checkbox",
       "smart.dropdown",
       "smart.icon-button",
+      "smart.modal",
       "smart.pagination",
       "smart.table",
       "smart.toast"
