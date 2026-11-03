@@ -23,6 +23,7 @@ import en from "./lang/en.json";
 import ru from "./lang/ru.json";
 import {ICON_CHOICES} from "./js/icon-choices.js";
 import {pageText} from "../../core/js/page-language";
+import {FOCUSABLE} from "../../core/js/layer-stack";
 import {renderPropertyViewTemplate} from "./js/templates/default";
 import {composeDateTime, normalizeTime, splitDateTime} from "./js/datetime-value.js";
 import {fieldConditions} from "./js/conditions.js";
@@ -2760,8 +2761,8 @@ class SfPropertyView extends PropertyViewElement {
     // where the mode was entered from. The first selector that finds a
     // control wins.
     _focusAfterRender(selectors) {
-        const focusable = "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])";
-        const inside = (area) => (area?.matches?.(focusable) ? area : area?.querySelector?.(focusable)) ?? null;
+        // What can take focus is the layer stack's one list (core.runtime 1.19.0).
+        const inside = (area) => (area?.matches?.(FOCUSABLE) ? area : area?.querySelector?.(FOCUSABLE)) ?? null;
         this.whenRendered(() => requestAnimationFrame(async () => {
             const root = this.panelContent?.() ?? this;
             let target = null;

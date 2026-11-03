@@ -1626,9 +1626,8 @@ class SfDataView extends DataViewElement {
         const label = String(record.title ?? record.label ?? record.name ?? record.id);
         // The choices are sf-radio, which nothing else on the page may have
         // asked for: a Loader that scans the light DOM never meets the
-        // dialog's (Larena: an empty choice list, 2026-10-12). Asked for here,
-        // and waited for briefly; the dialog opens either way.
-        await this._ensureElements(["sf-radio", "sf-button"]);
+        // dialog's (Larena: an empty choice list, 2026-10-12). _dialog asks
+        // for it with the window, and waits briefly.
         const chosen = await this._dialog({
             title: pageText(DATA_VIEW_TEXT, "moveTitle", this).replace("{label}", label),
             apply: pageText(DATA_VIEW_TEXT, "moveApply", this),
@@ -1665,31 +1664,33 @@ class SfDataView extends DataViewElement {
         return globalThis.SF?.Loader?.ensure?.(tags);
     }
 
-    // One small dialog for both the move and the confirmation: a native
-    // <dialog> in the light DOM, where the Framework's styles reach it, shown
-    // modal so it holds the focus and Escape closes it. Resolves with what was
-    // chosen, true for a plain confirmation, or null.
-    _dialog({title, text = "", apply, options = null, reorder = false}) {
-        const dialog = document.createElement("dialog");
-        dialog.slot = "dialog";
-        // No layout utility on the dialog itself: one that sets display would
-        // beat the browser's own hiding of a closed dialog.
-        dialog.className = "sf-data-view-dialog";
-        dialog.setAttribute("aria-label", title);
-        dialog.style.cssText = "max-inline-size: min(var(--sf-g4), calc(100vw - 2 * var(--sf-space-3)));"
-            + "padding: var(--sf-space-3); border: 0; border-radius: var(--sf-radius--surface);"
-            + "background-color: var(--sf-elevation-3--surface); box-shadow: var(--sf-elevation-3--shadow);"
-            + "color: var(--sf-on-surface);";
-        const heading = document.createElement("h2");
-        heading.className = "sf-text-2 font-semibold m-0";
-        heading.textContent = title;
+    // One small window for both the move and the confirmation: the
+    // Framework's sf-modal, a modal layer of the one document stack (core
+    // layer-stack.js) with the shared scrim, Escape, a press on the scrim and
+    // the focus kept inside and given back. It was a native <dialog> shown with
+    // showModal(), outside the stack and over the browser's own backdrop, so a
+    // drawer or a modal opened from it, or under it, did not know it was there
+    // (reuse audit 2026-11-02, findings 1 and 2). The window stands in this
+    // element (slot dialog) and draws in its portal at the end of the body, in
+    // this element's language and theme. Resolves with what was chosen, true
+    // for a plain confirmation, or null.
+    async _dialog({title, text = "", apply, options = null, reorder = false}) {
+        await this._ensureElements(["sf-modal", "sf-button", ...(options ? ["sf-radio"] : [])]);
+        if (!globalThis.customElements?.get("sf-modal")) {
+            this.notify(pageText(DATA_VIEW_TEXT, "noticeUnavailable", this));
+            return null;
+        }
+        const modal = document.createElement("sf-modal");
+        modal.slot = "dialog";
+        modal.className = "sf-data-view-dialog";
+        modal.setAttribute("heading", title);
+        modal.setAttribute("aria-label", title);
+        modal.setAttribute("width", "min(var(--sf-g4), calc(100vw - 2 * var(--sf-space-3)))");
         // The places can be many; the list scrolls and the title and the
         // buttons stay where they are.
         const content = document.createElement("div");
+        content.slot = "content";
         content.className = "flex flex-col gap-3";
-        content.style.cssText = "max-block-size: calc(100dvh - 4 * var(--sf-space-3));";
-        dialog.append(content);
-        content.append(heading);
         if (text) {
             const body = document.createElement("p");
             body.className = "sf-text-1 m-0";
@@ -1730,6 +1731,7 @@ class SfDataView extends DataViewElement {
             }
         }
         const footer = document.createElement("div");
+        footer.slot = "footer";
         footer.className = "flex justify-end gap-2";
         const cancel = document.createElement("sf-button");
         cancel.setAttribute("appearance", "outline");
@@ -1738,31 +1740,33 @@ class SfDataView extends DataViewElement {
         confirm.setAttribute("text", apply);
         confirm.dataset.apply = "";
         footer.append(cancel, confirm);
-        content.append(footer);
-        this.append(dialog);
-        const checked = (radioName) => [...dialog.querySelectorAll(`sf-radio[name="${radioName}"]`)]
+        modal.append(content, footer);
+        this.append(modal);
+        // The nodes are the page's own, drawn in the window's portal: they are
+        // read where they are.
+        const checked = (radioName) => [...content.querySelectorAll(`sf-radio[name="${radioName}"]`)]
             .find((radio) => radio.checked === true || radio.hasAttribute("checked") && radio.checked !== false);
-        return new Promise((settle) => {
-            const finish = (value) => {
-                dialog.close();
-                dialog.remove();
-                settle(value);
-            };
-            cancel.addEventListener("click", () => finish(null));
-            dialog.addEventListener("cancel", (event) => {
-                event.preventDefault();
-                finish(null);
-            });
-            confirm.addEventListener("click", () => {
-                if (!options) return finish(true);
+        let chosen = null;
+        cancel.addEventListener("click", () => modal.close({reason: "cancelled"}));
+        confirm.addEventListener("click", () => {
+            if (!options) {
+                chosen = true;
+            } else {
                 const parentRadio = checked(name);
                 const value = parentRadio?.getAttribute("value") ?? "";
                 const option = options.find((item) => (item.id === null ? "" : String(item.id)) === value) ?? options[0];
                 const place = reorder ? checked(`${name}-place`)?.getAttribute("value") : "last";
-                return finish({parent: option.id, index: place === "first" ? 0 : null});
-            });
-            dialog.showModal();
+                chosen = {parent: option.id, index: place === "first" ? 0 : null};
+            }
+            modal.confirm();
         });
+        // Asked with a signal, open() answers when the window closes (§19.4):
+        // accepted through confirm(), else closed by Escape, the scrim, the
+        // close button or «Отмена».
+        const scope = new AbortController();
+        const answer = await modal.open({}, {signal: scope.signal});
+        modal.remove();
+        return answer?.outcome === "applied" && answer.value?.accepted === true ? chosen : null;
     }
 
     _renderTreeRows() {

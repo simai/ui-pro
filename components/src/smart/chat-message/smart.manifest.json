@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -602,6 +602,13 @@
         "changes": [
           "Times, dates and copying through core's format and clipboard helpers, the person template's initials through helpers/text getInitials; needs core.runtime >= 1.20.0. Visible: a name of several words gives the initials of its words («Анна-Мария Смирнова» → АС, was АМ). Nothing to change for a host on a pair from core.runtime 1.20.0 on."
         ]
+      },
+      {
+        "from": "1.5.1",
+        "to": "1.5.2",
+        "changes": [
+          "The picker's press elsewhere through the layer stack; needs core.runtime >= 1.19.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
+        ]
       }
     ]
   },
@@ -635,7 +642,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/social.js",
-        "sha256": "f91663a4871c549618a97316d9a14e230598cfcdab819cb1458ebcf02791dee6"
+        "sha256": "43bccad9d0d8db0eabb1d66abd42eecee736f259ea0c1abfe03aa3494f51ccdb"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
@@ -651,7 +658,7 @@
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "d7fe24355809400eaf8dfda385f380008e58d969a46fde0d558b1d5dc3bbabad"
+        "sha256": "28da1c5d7cddde258d1becde250225419700168960a1f3cc1797fbc388ade9e9"
       },
       {
         "path": "src/smart/chat-message/aliases.json",

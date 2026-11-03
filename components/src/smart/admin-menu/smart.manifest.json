@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -1262,6 +1262,13 @@
         "changes": [
           "The standard menu and sf-dropdown are asked for through SF.Loader.ensure; needs core.runtime >= 1.19.0. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
         ]
+      },
+      {
+        "from": "1.6.4",
+        "to": "1.6.5",
+        "changes": [
+          "The ⌘K palette joins the layer stack: Escape, Tab, the press on the scrim, the page lock, focus return and its height are the stack's, its scrim the shared --sf-scrim-* (black at 60, as before); needs core.runtime >= 1.19.0. New: the page no longer scrolls under the open palette, and Tab stays inside it. A page that tinted the palette through --sf-drawer-overlay-* sets --sf-scrim-color/--sf-scrim-opacity instead."
+        ]
       }
     ]
   },
@@ -1279,7 +1286,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
-        "sha256": "f05a39e480e43eb0292caf85cb66d9f2160c9d0919ae65bb8fdf1be64143b3c6"
+        "sha256": "16f81f101e94a0177c4149d52dc9fd1db1b3ce18fad93bc2eac10ad18fb8fd6e"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
@@ -1287,7 +1294,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/palette.js",
-        "sha256": "3613d902b3b3e0f2246f5a2c4d7879214642a888886ebc1b9be012f11cc2b960"
+        "sha256": "2f229d846705d6a198681c6768e9ae75fedf8ce0cd987de2e0f20ac67499f083"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/account.js",
@@ -1299,7 +1306,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
-        "sha256": "76755332fd9f9e3654c677b5e5cb309694d059c409de8bf001ee4a882aadbb54"
+        "sha256": "01558cadd9006ef6309686a2f831e29df3b171caadf7a0fc6a0490620a547244"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",
@@ -1311,7 +1318,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "47a9c85eb0d71bb61b8b8784a1d547712beeb95801dac7edf7669133422ae60a"
+        "sha256": "4ed066ddbcc529e4fef4c2b61eb16dbc7ee43862bb86f69140f56cfa6572db5b"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

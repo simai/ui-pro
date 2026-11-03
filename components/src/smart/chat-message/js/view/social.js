@@ -7,6 +7,11 @@
 // is drawn unless the display says so (canReact, canReply) or the message has
 // reply_to or reactions, so a message without them draws as it did.
 import {element, iconButton, iconNode, text} from './message.js';
+import {closeLayer, openLayer} from '../../../../core/js/layer-stack.js';
+
+// The picker open in this bundle, so the next one takes its place in the layer
+// stack: the host draws the message again without it, which no close here sees.
+let openPicker = null;
 
 /** The six a reaction is chosen from. */
 export const REACTION_EMOJI = ['👍', '❤️', '😂', '🎉', '👀', '✅'];
@@ -185,7 +190,11 @@ export function renderPicker(ctx, message, view = {}) {
     return button;
   });
   picker.append(...buttons);
-  const close = (quiet) => ctx.onAction?.('picker', {id: message.id, open: false, quiet});
+  const close = (quiet) => {
+    closeLayer(picker, {restoreFocus: false});
+    if (openPicker === picker) openPicker = null;
+    ctx.onAction?.('picker', {id: message.id, open: false, quiet});
+  };
   picker.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       event.preventDefault();
@@ -199,16 +208,26 @@ export function renderPicker(ctx, message, view = {}) {
     event.preventDefault();
     buttons[(buttons.indexOf(event.target) + step + buttons.length) % buttons.length]?.focus();
   });
-  // A press on its own tool is the tool's: it closes the picker by itself.
+  // A press elsewhere comes from the layer stack's one listener while the
+  // picker is the top layer (core layer-stack.js, core.runtime 1.19.0); a
+  // press on its own tool is the tool's: it closes the picker by itself.
+  // Escape with the focus outside it closes it too (inside, the keydown above
+  // takes it first).
   whenPlaced(picker, () => {
-    const documentRef = ctx.document;
-    const away = (event) => {
-      if (!picker.isConnected) { documentRef.removeEventListener('pointerdown', away, true); return; }
-      if (picker.contains(event.target) || event.target.closest?.('.sf-chat-tools__react')) return;
-      documentRef.removeEventListener('pointerdown', away, true);
-      close(true);
-    };
-    documentRef.addEventListener('pointerdown', away, true);
+    if (openPicker && openPicker !== picker) closeLayer(openPicker, {restoreFocus: false});
+    openPicker = picker;
+    openLayer(picker, {
+      kind: 'surface',
+      root: () => picker,
+      onOutsidePress: (event) => {
+        if (event.composedPath().some((node) => node?.classList?.contains?.('sf-chat-tools__react'))) return;
+        close(true);
+      },
+      onEscape: () => {
+        close(false);
+        return true;
+      },
+    });
     // Opened at the top of the feed it would be cut off: it stands under the tools.
     const scroller = picker.closest('.sf-message-log');
     const top = scroller ? scroller.getBoundingClientRect().top : 0;

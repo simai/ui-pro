@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-message",
   "tag": "sf-chat-message",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -419,7 +419,8 @@
     "folding (1.4.0): measured once placed (lines depend on the column), not estimated from characters. Budget 14 lines of the text's own line height, with two of grace; a table's region is outside the count and always stays; a proposal stands outside the text. Blocks past the budget get hidden, the one across it is cut to whole lines with a fade. Nothing to measure (no width): the text stays open. hidden also means the window's find does not see folded text until it is opened.",
     "reactions (1.4.0): not optimistic; the pill is drawn from message.reactions only, display.reacting marks one as on its way (aria-busy, no second press), and a first reaction waits on a pill with no number. The picker is one row of six over the tools, under them where the feed's top would cut it; display.picker is the host's so a redraw keeps it. The tools are shown the one way the template person shows edit and delete: hover or focus where a pointer hovers, always on touch, 44 px under a finger; on touch they stand under the bubble so they do not squeeze it. With neither canReact nor canReply the two buttons of 1.2.0 stay exactly.",
     "«⋯» (1.4.0): sf-context-menu made on the first press, waiting for the element (lazy), as sf-thread-list's. Edit on a document is not offered: a machine's text is not a person's to edit in place; delete is, where can_delete says so.",
-    "version 1.5.1: times, dates and copying are core's (core.runtime 1.20.0; reuse audit 2026-11-02, findings 7, 10 and 11). The message's times and dates go through formatDate of core/js/format.js (a source's read date that is no date still shows its own text), «Копировать» through core's copyText (the Clipboard API, else a hidden sf-clipboard-fallback field in the message's own document; the local copy that borrowed sf-chat-offscreen is gone), and the person template's initials through getInitials of helpers/text.js, «?» for an empty name as before. Visible: a name of several words is read by its words, so «Анна-Мария Смирнова» gives АС where it gave АМ; a preposition after the first word is skipped and a letter outside the basic plane is kept whole. A ctx without locale formats in the page language rather than the browser's. formatBytes keeps its own steps: the lang words size.b to size.gb carry {n}, which core's formatFileSize does not take (core would also group 1 023 bytes; this does not). Needs core.runtime >= 1.20.0."
+    "version 1.5.1: times, dates and copying are core's (core.runtime 1.20.0; reuse audit 2026-11-02, findings 7, 10 and 11). The message's times and dates go through formatDate of core/js/format.js (a source's read date that is no date still shows its own text), «Копировать» through core's copyText (the Clipboard API, else a hidden sf-clipboard-fallback field in the message's own document; the local copy that borrowed sf-chat-offscreen is gone), and the person template's initials through getInitials of helpers/text.js, «?» for an empty name as before. Visible: a name of several words is read by its words, so «Анна-Мария Смирнова» gives АС where it gave АМ; a preposition after the first word is skipped and a letter outside the basic plane is kept whole. A ctx without locale formats in the page language rather than the browser's. formatBytes keeps its own steps: the lang words size.b to size.gb carry {n}, which core's formatFileSize does not take (core would also group 1 023 bytes; this does not). Needs core.runtime >= 1.20.0.",
+    "version 1.5.2: the reaction picker closes on a press elsewhere through the layer stack's one listener (core layer-stack.js onOutsidePress, core.runtime 1.19.0; reuse audit 2026-11-02, finding 1), not a pointerdown listener of its own on the document; a press on its own tool is still the tool's. It is a surface of the stack while open, so a press closes it only while it is the top layer, and Escape with the focus outside it closes it too (inside, its own keydown takes Escape first, as before). No visible change. Needs core.runtime >= 1.19.0."
   ],
   "x-rule": {
     "$comment": [
@@ -667,6 +668,13 @@
           "to": "1.5.1",
           "changes": [
             "Times, dates and copying through core's format and clipboard helpers, the person template's initials through helpers/text getInitials; needs core.runtime >= 1.20.0. Visible: a name of several words gives the initials of its words («Анна-Мария Смирнова» → АС, was АМ). Nothing to change for a host on a pair from core.runtime 1.20.0 on."
+          ]
+        },
+        {
+          "from": "1.5.1",
+          "to": "1.5.2",
+          "changes": [
+            "The picker's press elsewhere through the layer stack; needs core.runtime >= 1.19.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
           ]
         }
       ]

@@ -47,10 +47,11 @@ function renderResults(context) {
 }
 
 export function renderPalette(context) {
-    const {controller, palette, text} = context;
+    const {controller, palette, paletteZIndex, text} = context;
     if (!palette.open) return nothing;
-    return html`<div class="sf-admin-nav-palette"
-        @pointerdown=${(event) => { if (event.target === event.currentTarget) controller.closePalette(); }}>
+    // A press on the dimmed page closes it through the layer stack
+    // (controller.openPalette), which also gives it its height.
+    return html`<div class="sf-admin-nav-palette" style=${paletteZIndex ? `z-index: ${paletteZIndex}` : nothing}>
         <div class="sf-admin-nav-palette-dialog" role="dialog" aria-modal="true" aria-label=${text("search")}>
             <div class="sf-admin-nav-palette-field" @keydown=${(event) => controller.onPaletteKey(event)}>
                 <sf-input size="1" icon-start="search"

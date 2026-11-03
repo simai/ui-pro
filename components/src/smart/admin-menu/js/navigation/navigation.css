@@ -604,25 +604,29 @@
   /* ─── the ⌘K palette ────────────────────────────────────────────────────── */
 
   /* Over the page, so the same search is there on the rail and on a phone. The
-     page is dimmed the way sf-drawer dims it, and the dialog stands on step 3. */
+     page is dimmed by the shared scrim, and the dialog stands on step 3. Its
+     height is the layer stack's (written inline when it opens); the token is
+     where the stack starts. */
   .sf-admin-nav-palette {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: var(--sf-z-index-layer, 9000);
     display: flex;
     justify-content: center;
     align-items: flex-start;
     padding: var(--sf-e2) var(--sf-space-1) var(--sf-space-1);
   }
 
-  /* The same dimming as the record panel's (sf-drawer's overlay, black at 60):
-     at 20 it all but vanished in the dark theme (owner, 2026-10-16). */
+  /* The one scrim every window draws (core --sf-scrim-color at
+     --sf-scrim-opacity, black at 60 by default): it borrowed sf-drawer's
+     overlay variables before. At 20 it all but vanished in the dark theme
+     (owner, 2026-10-16). */
   .sf-admin-nav-palette::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: var(--sf-drawer-overlay-background, var(--sf-black));
-    opacity: var(--sf-drawer-overlay-opacity, var(--sf-opacity-60));
+    background: var(--sf-scrim-color, var(--sf-black));
+    opacity: var(--sf-scrim-opacity, var(--sf-opacity-60));
   }
 
   .sf-admin-nav-palette-dialog {

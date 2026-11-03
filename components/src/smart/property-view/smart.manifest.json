@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1410,6 +1410,13 @@
         "changes": [
           "The standard menu is asked for through SF.Loader.ensure; needs core.runtime >= 1.19.0. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
         ]
+      },
+      {
+        "from": "1.8.3",
+        "to": "1.8.4",
+        "changes": [
+          "The focus after arranging is found with the layer stack's FOCUSABLE; needs core.runtime >= 1.19.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
+        ]
       }
     ]
   },
@@ -1419,7 +1426,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "ce46bc111f54336333bcfcceb0ac17266f2ce1fe47e59f76df8e5a63278f7cd8"
+        "sha256": "1d25762b9f14ebaec048730fcdd677e3ce9370f3288c657c37effff3f47b9937"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",

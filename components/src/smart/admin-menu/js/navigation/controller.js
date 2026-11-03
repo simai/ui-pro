@@ -17,6 +17,7 @@
 import {closeMenu, openMenu, removeMenu, updateMenu} from "./menu";
 import {getInitials} from "../../../helpers/text";
 import {pageText} from "../../../../core/js/page-language";
+import {closeLayer, focusablesIn, openLayer} from "../../../../core/js/layer-stack";
 import BundledPreferences from "../../../../core/js/preferences.js";
 import {wordsOf} from "../words.js";
 
@@ -201,8 +202,14 @@ export class NavigationController {
         // The ⌘K palette: what was typed, what the host answered for it, which
         // result is under the keyboard, and where focus goes back to.
         this.palette = {open: false, query: "", groups: [], scope: "", active: 0, loading: false, sequence: 0};
-        this._paletteOpener = null;
         this._paletteTimer = null;
+        this._paletteZIndex = "";
+        // The palette's place in the one document layer stack (core
+        // layer-stack.js, core.runtime 1.19.0): not the element, whose own rows
+        // a press on the dimmed page would count as inside. Live while the
+        // element is on the page.
+        const owner = element;
+        this._paletteLayer = {get isConnected() { return owner.isConnected; }};
         // The edit mode: on or off, what is being renamed or added, the row whose
         // ⋯ is open, the profile list in the banner, and what the last save said.
         this.edit = {on: false, renaming: null, adding: null, rowMenu: null, profiles: false, naming: null, message: ""};
@@ -223,10 +230,6 @@ export class NavigationController {
         };
         this.wideMedia?.addEventListener?.("change", this._onWideChange);
 
-        this._onDocumentPointer = (event) => {
-            const path = event.composedPath();
-            const within = (name) => path.some((node) => node?.classList?.contains?.(name));
-        };
         this._onKeyDown = (event) => {
             // ⌘K / Ctrl+K opens the palette from anywhere on the page, in every
             // arrangement of the menu -- the rail and the phone included, which
@@ -236,16 +239,10 @@ export class NavigationController {
                 event.preventDefault();
                 if (this.palette.open) this.closePalette();
                 else this.openPalette();
-                return;
-            }
-            if (event.key === "Escape" && this.palette.open) {
-                event.preventDefault();
-                event.stopPropagation();
-                this.closePalette();
-                return;
             }
         };
-        document.addEventListener("pointerdown", this._onDocumentPointer, true);
+        // Escape, Tab and a press on the dimmed page are the layer stack's
+        // while the palette is its top layer (openPalette).
         document.addEventListener("keydown", this._onKeyDown, true);
         // The admin's pages without full reloads (interface fragments,
         // 2026-10-15), piloted here: the menu turns region navigation on when
@@ -319,10 +316,10 @@ export class NavigationController {
     dispose() {
         removeMenu(this);
         clearTimeout(this._paletteTimer);
+        closeLayer(this._paletteLayer, {restoreFocus: false});
         this.element.removeEventListener("sf-sortable-intent", this._onSortableIntent);
         this.element.removeEventListener("sf-resizer-resize", this._onResize);
         this.wideMedia?.removeEventListener?.("change", this._onWideChange);
-        document.removeEventListener("pointerdown", this._onDocumentPointer, true);
         document.removeEventListener("keydown", this._onKeyDown, true);
         document.removeEventListener("sf-region-load", this._onRegionLoad);
         this.wideMedia = null;
@@ -1156,11 +1153,31 @@ export class NavigationController {
 
     // ─── the palette ─────────────────────────────────────────────────────────
 
+    // The palette is a modal layer of the one document stack (core
+    // layer-stack.js): drawn at the stack's height (it stood at z-index 1000,
+    // under a drawer or a modal it was opened over), Escape and Tab while it is
+    // on top, a press on the dimmed page closes it, the page does not scroll
+    // under it, and focus goes back where it was.
     openPalette() {
         if (!this.offers("search") || this.palette.open) return;
-        this._paletteOpener = document.activeElement;
         this.closeSites();
         this.palette = {...this.palette, open: true, query: "", groups: [], scope: "", active: 0};
+        openLayer(this._paletteLayer, {
+            kind: "modal",
+            locksPage: true,
+            trapsFocus: true,
+            root: () => this.element.querySelector(".sf-admin-nav-palette-dialog"),
+            focusIn: () => this.focusPalette(),
+            onEscape: () => {
+                this.closePalette();
+                return true;
+            },
+            onTab: (event) => this.onPaletteTab(event),
+            onOutsidePress: () => this.closePalette(),
+            place: ({zIndex}) => {
+                this._paletteZIndex = String(zIndex);
+            },
+        });
         this.update("palette");
         // Empty text asks for what the host shows before anything is typed:
         // «Недавние» and the actions.
@@ -1189,9 +1206,28 @@ export class NavigationController {
         clearTimeout(this._paletteTimer);
         this.palette = {...this.palette, open: false};
         this.update("palette");
-        const opener = this._paletteOpener;
-        this._paletteOpener = null;
-        if (restoreFocus && opener?.isConnected) opener.focus?.();
+        // Focus goes back to what was active when it opened (the stack's rule).
+        closeLayer(this._paletteLayer, {restoreFocus});
+    }
+
+    // Tab stays inside the palette (aria-modal), with the stack's focus list.
+    onPaletteTab(event) {
+        const root = this.element.querySelector(".sf-admin-nav-palette-dialog");
+        const items = focusablesIn(root);
+        if (!root || !items.length) return;
+        const first = items[0];
+        const last = items.at(-1);
+        const active = document.activeElement;
+        if (!root.contains(active)) {
+            event.preventDefault();
+            (event.shiftKey ? last : first).focus();
+        } else if (event.shiftKey && active === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && active === last) {
+            event.preventDefault();
+            first.focus();
+        }
     }
 
     queryPalette(text, {now = false} = {}) {
@@ -1271,6 +1307,7 @@ export class NavigationController {
             filter: this.filter,
             sites: this.sites,
             palette: this.palette,
+            paletteZIndex: this._paletteZIndex,
             shortcut: PALETTE_SHORTCUT,
             edit: this.edit,
             columns: skeletonColumns(this.element),
