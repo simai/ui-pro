@@ -724,6 +724,10 @@
           "template": false,
           "builder": false
         }
+      },
+      "first-paint": {
+        "max-bytes": 40000,
+        "why": "the author's view: the bar, both panels with the locked template parts and the page drawn from its Document"
       }
     },
     {
@@ -744,6 +748,10 @@
             }
           }
         }
+      },
+      "first-paint": {
+        "max-bytes": 40000,
+        "why": "an empty page still draws the bar, the catalogue panel with its groups and the parameter panel"
       }
     }
   ]
