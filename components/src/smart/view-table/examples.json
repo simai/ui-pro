@@ -292,7 +292,7 @@
                 "journal": [
                   {
                     "from": "sf-port-output",
-                    "to": "sf-view-table-select",
+                    "to": "sf-table-select",
                     "since": "2026-10-27",
                     "remove_after": "2026-12-01"
                   }
@@ -355,7 +355,7 @@
                 "journal": [
                   {
                     "from": "sf-table-action-intent",
-                    "to": "sf-view-table-apply"
+                    "to": "sf-table-apply"
                   }
                 ]
               }
@@ -425,7 +425,7 @@
                 "journal": [
                   {
                     "from": "onSearchEnd",
-                    "to": "sf-view-table-search-change"
+                    "to": "sf-table-search-change"
                   }
                 ]
               },

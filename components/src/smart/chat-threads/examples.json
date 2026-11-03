@@ -320,7 +320,7 @@
                 "journal": [
                   {
                     "from": "sf-thread-list-select",
-                    "to": "sf-chat-threads-open",
+                    "to": "sf-thread-list-open",
                     "since": "2026-10-27",
                     "remove_after": "2026-12-01"
                   }
@@ -440,7 +440,7 @@
                 "journal": [
                   {
                     "from": "sf-thread-list-action",
-                    "to": "sf-chat-threads-apply"
+                    "to": "sf-thread-list-apply"
                   }
                 ]
               }
@@ -493,7 +493,7 @@
                 "journal": [
                   {
                     "from": "sf-thread-list-unarchive",
-                    "to": "sf-chat-threads-restore"
+                    "to": "sf-thread-list-restore"
                   }
                 ]
               }
@@ -527,7 +527,7 @@
                 "journal": [
                   {
                     "from": "sf-thread-list-view",
-                    "to": "sf-chat-threads-toggle"
+                    "to": "sf-thread-list-toggle"
                   }
                 ]
               }

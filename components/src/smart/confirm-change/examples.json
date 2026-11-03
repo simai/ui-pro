@@ -260,7 +260,7 @@
                 "journal": [
                   {
                     "from": "sf-change-confirm-accept",
-                    "to": "sf-confirm-change-answer",
+                    "to": "sf-change-confirm-answer",
                     "since": "2026-10-27",
                     "remove_after": "2026-12-01"
                   }
@@ -433,7 +433,7 @@
                 "journal": [
                   {
                     "from": "sf-change-confirm-expire",
-                    "to": "sf-confirm-change-expired"
+                    "to": "sf-change-confirm-expired"
                   }
                 ]
               },
