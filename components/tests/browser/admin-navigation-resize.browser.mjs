@@ -24,8 +24,8 @@ const styles = [
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
   'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
-  'smart/smart/icon-button/js/icon-button.js', 'smart/smart/badge/js/badge.js',
-  'smart/smart/input/js/input.js', 'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/button-icon/js/button-icon.js', 'smart/smart/badge/js/badge.js',
+  'smart/smart/input/js/input.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/profile-picker/js/profile-picker.js', 'smart/smart/admin-menu/js/admin-menu.js',
 ].map((p) => join(out, p));
 
@@ -137,7 +137,7 @@ try {
     const person = document.querySelector('.sf-admin-nav-person');
     person?.click();
     await new Promise((done) => setTimeout(done, 400));
-    const menu = document.querySelector('sf-context-menu[data-sf-admin-nav-menu]');
+    const menu = document.querySelector('sf-menu-context[data-sf-admin-nav-menu]');
     const rows = [...(menu?.querySelectorAll('.sf-context-menu-item') ?? [])];
     const row = rows.find((item) => item.querySelector('.sf-context-menu-item-label')?.textContent.trim() === 'Тема');
     const labels = [...(menu?.querySelectorAll('.sf-context-menu-item-label, .sf-context-menu-item-value') ?? [])];
@@ -191,7 +191,7 @@ try {
     const person = document.querySelector('.sf-admin-nav-person');
     person?.click();
     await new Promise((done) => setTimeout(done, 400));
-    const menu = document.querySelector('sf-context-menu[data-sf-admin-nav-menu]');
+    const menu = document.querySelector('sf-menu-context[data-sf-admin-nav-menu]');
     const labels = [...(menu?.querySelectorAll('.sf-context-menu-item-label, .sf-context-menu-item-value') ?? [])];
     const surface = menu?.querySelector('.sf-context-menu-content')?.getBoundingClientRect();
     return {width: surface ? Math.round(surface.width) : null, button: Math.round(person?.getBoundingClientRect().width ?? 0),

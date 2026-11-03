@@ -15,7 +15,7 @@ test("the package composites are generated into the searchable registry beside t
   const registry = JSON.parse(readFileSync(new URL("../contracts/generated/smart-component-contract-registry.json", import.meta.url), "utf8"));
   assert.equal(registry.schema, "simai.smart-component-contract-registry.v2");
   // The free registry's Smart components (sf-settings-menu folded into
-  // sf-context-menu the latest) and the package's own make 82: 66
+  // sf-menu-context the latest) and the package's own make 82: 66
   // free, the four admin composites, the three conversation components
   // promoted from simai/ui-chat (2026-10-25), sf-chat-interlocutor,
   // sf-chat-composer, sf-chat-message and sf-chat-window, moved from it (D31,
@@ -40,7 +40,7 @@ test("CLI discovers and describes the whole data view", () => {
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-table");
   assert.equal(packet.conformance.compatibility.contract_schema.version, 2);
-  assert.equal(packet.identity.version, '1.13.5');
+  assert.equal(packet.identity.version, '1.13.6');
   assert.ok(packet.public_abi.methods.requestActionIntent);
   assert.ok(packet.public_abi.events['sf-table-action-intent']);
   for (const event of ['sf-table-create-intent', 'sf-table-template-select', 'sf-table-sort-change']) {
@@ -68,14 +68,14 @@ test("CLI discovers and describes the whole data view", () => {
 
 test("CLI discovers, describes and verifies the whole composite", () => {
   const listed = JSON.parse(run("list", "--kind", "smart", "--capability", "navigation"));
-  // The free sf-contents, sf-menu, sf-pager, sf-search and sf-site-header
+  // The free sf-contents, sf-menu, sf-pager, sf-search and sf-header-site
   // (site navigation) and the package's admin menu.
-  assert.deepEqual(listed.map(({id}) => id), ["smart.admin-menu", "smart.contents", "smart.menu", "smart.pager", "smart.search", "smart.site-header"]);
+  assert.deepEqual(listed.map(({id}) => id), ["smart.admin-menu", "smart.contents", "smart.header-site", "smart.menu", "smart.pager", "smart.search"]);
   const packet = JSON.parse(run("describe", "smart.admin-menu", "--format", "ai"));
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-admin-menu");
   assert.equal(packet.conformance.compatibility.contract_schema.version, 2);
-  assert.equal(packet.conformance.compatibility.migrations.at(-1).to, '1.6.5');
+  assert.equal(packet.conformance.compatibility.migrations.at(-1).to, '1.6.6');
   assert.match(packet.backend.integration_examples.larena_php, /Smart::render\('ui\.admin_menu'/);
   assert.deepEqual(JSON.parse(run("verify", "smart.admin-menu")), {ok: true, verified: ["smart.admin-menu"]});
 });

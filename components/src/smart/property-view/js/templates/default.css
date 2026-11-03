@@ -483,7 +483,7 @@
 
   /* Both hosts are display: contents, so the flex items are what they draw:
      the datepicker's wrap and the time field's root (its root-class). */
-  .sf-property-view-datetime > sf-datepicker > .sf-datepicker-wrap {
+  .sf-property-view-datetime > sf-input-date > .sf-datepicker-wrap {
     flex: 0 1 auto;
     min-inline-size: 0;
   }
@@ -908,7 +908,7 @@
      surface -- a transparent control with a dark glyph stood on the dimmed page
      and could not be seen at all, which is why the owner found no way to close
      the panel. */
-  .sf-property-view-edge sf-icon-button button {
+  .sf-property-view-edge sf-button-icon button {
     border-radius: 50%;
   }
   /* A panel filling the screen has the strip inside it, in a row along its top

@@ -108,8 +108,8 @@ function renderIconChooser(context, row) {
         search-placeholder=${text("chooseIcon")} aria-label=${`${text("chooseIcon")}: ${row.label ?? ""}`}
         value=${current} .options=${options}
         @change=${(event) => controller.setRowIcon(row.key, event.detail?.value ?? "")}>
-        <sf-icon-button slot="trigger" size="1/2" appearance="link" scheme="on-surface" icon=${current || "add_photo_alternate"}
-            title=${text("chooseIcon")} aria-label=${`${text("chooseIcon")}: ${row.label ?? ""}`}></sf-icon-button>
+        <sf-button-icon slot="trigger" size="1/2" appearance="link" scheme="on-surface" icon=${current || "add_photo_alternate"}
+            title=${text("chooseIcon")} aria-label=${`${text("chooseIcon")}: ${row.label ?? ""}`}></sf-button-icon>
     </sf-dropdown>`;
 }
 

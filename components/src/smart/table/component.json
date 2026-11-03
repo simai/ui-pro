@@ -2,7 +2,7 @@
   "$comment": "sf-table from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/table (convert-1.3.8.mjs over ui-pro 9cbe061); every x-todo decided in x-decisions.",
   "id": "smart.data-view",
   "tag": "sf-table",
-  "version": "1.13.5",
+  "version": "1.13.6",
   "kind": "leaf",
   "family": "table",
   "settings": {
@@ -742,7 +742,7 @@
       "$comment": [
         "The cells drawn with another Smart element come with the table, not",
         "after the rows: a reference (sf-reference-link), a file",
-        "(sf-file-preview) and a colour (sf-color, in a cell as well as in a",
+        "(sf-file-preview) and a colour (sf-input-color, in a cell as well as in a",
         "card). Fetched lazily, each upgraded some 600 ms after the rows had",
         "drawn and moved the row (stand 24: CLS 0.0145 at 1280 when the data",
         "arrived)."
@@ -752,13 +752,13 @@
       "name": "cl-file-preview"
     },
     {
-      "name": "cl-color"
+      "name": "cl-input-color"
     },
     {
-      "name": "cl-country-code",
+      "name": "cl-input-country",
       "lazy": true,
       "$comment": [
-        "A string whose variant is a phone draws sf-country-code. The rule fence",
+        "A string whose variant is a phone draws sf-input-country. The rule fence",
         "reads a component's own templates, and this element comes from the shared",
         "renderer set instead -- so nothing would have caught its absence until a",
         "page showed an element that never upgraded."
@@ -768,7 +768,7 @@
       "name": "cl-button"
     },
     {
-      "name": "cl-icon-button"
+      "name": "cl-button-icon"
     },
     {
       "name": "icons"
@@ -792,7 +792,7 @@
       ]
     },
     {
-      "name": "cl-datepicker",
+      "name": "cl-input-date",
       "lazy": true
     },
     {
@@ -806,7 +806,7 @@
       ]
     },
     {
-      "name": "cl-context-menu",
+      "name": "cl-menu-context",
       "lazy": true
     },
     {
@@ -845,7 +845,7 @@
       "lazy": true
     },
     {
-      "name": "cl-range-slider",
+      "name": "cl-slider-range",
       "lazy": true
     }
   ],
@@ -1209,7 +1209,8 @@
     "examples": "examples.json from studio.fixture.json plus loading, empty, current and many; probe.json drives the window, the box, apply, the keys, the search alias, current and one changed row (gate 16, gate 17).",
     "side-effects": "network: a filter field whose options come from an endpoint is read page by page with fetch (same origin, the field's own URL, aborted with the menu); nothing else leaves the page.",
     "docs": "docs/docs.md, where the folder keeps it.",
-    "loader-ensure": "version 1.13.5: the windows' portal is read by the Loader as the page (SF.Loader.watch, core.runtime 1.19.0), so the lazy elements a window draws need no list by name; the window's elements, sf-resizer, sf-sortable and the row menu's sf-context-menu are asked for through SF.Loader.ensure, not ensureSmartElementLoaded or a race of whenDefined against 3 s of its own (reuse audit 2026-11-02, finding 4). Needs core.runtime >= 1.19.0: over an older Loader the calls are no-ops and the table falls back as before where it checks customElements.get."
+    "loader-ensure": "version 1.13.5: the windows' portal is read by the Loader as the page (SF.Loader.watch, core.runtime 1.19.0), so the lazy elements a window draws need no list by name; the window's elements, sf-resizer, sf-sortable and the row menu's sf-context-menu are asked for through SF.Loader.ensure, not ensureSmartElementLoaded or a race of whenDefined against 3 s of its own (reuse audit 2026-11-02, finding 4). Needs core.runtime >= 1.19.0: over an older Loader the calls are no-ops and the table falls back as before where it checks customElements.get.",
+    "framework-tag-renames": "version 1.13.6: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the row and column menus are sf-menu-context (its sf-menu-context-* events), the icon buttons sf-button-icon, the typed cells and editors sf-input-color, sf-input-country, sf-input-date and sf-slider-range. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0)."
   },
   "x-registry": {
     "kind": "composite",
@@ -1929,6 +1930,13 @@
           "to": "1.13.5",
           "changes": [
             "The windows' portal is watched by the Loader (SF.Loader.watch) and lazy elements are asked for through SF.Loader.ensure; needs core.runtime >= 1.19.0. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
+          ]
+        },
+        {
+          "from": "1.13.5",
+          "to": "1.13.6",
+          "changes": [
+            "Draws and finds the renamed Framework elements by their new tags (the row and column menus are sf-menu-context (its sf-menu-context-* events), the icon buttons sf-button-icon, the typed cells and editors sf-input-color, sf-input-country, sf-input-date and sf-slider-range); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
           ]
         }
       ]

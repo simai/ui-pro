@@ -5,9 +5,9 @@ import {splitDateTime} from './datetime-value.js';
 // acceptance, 2026-10-22: «Дата и время» kept only the day, so a new record
 // could not get a time and «15.11.2026 10:30» was saved as «15.11.2026»).
 //
-// The shared renderer set edits a datetime with sf-datepicker alone, which has
+// The shared renderer set edits a datetime with sf-input-date alone, which has
 // no clock, and puts the record's old time back on the way out. This view
-// draws the pair itself: the Framework's sf-datepicker for the day and the
+// draws the pair itself: the Framework's sf-input-date for the day and the
 // Framework's sf-input, masked to hh:mm, for the time -- sf-input has no
 // input-type="time" (its types are text, email, password, search, tel, url),
 // and a raw <input type="time"> would be the one unstyled control in the panel.
@@ -34,13 +34,13 @@ export function renderDateTimeEdit(context, field, value) {
     const invalid = context.errors.has(key);
     const change = (part, text) => context.component.changeDateTime(field, value, part, text);
 
-    // The day is bound as a property, not as the value attribute: sf-datepicker
+    // The day is bound as a property, not as the value attribute: sf-input-date
     // reads a value attribute back after the person empties the field, so an
     // attribute-bound day could not be cleared (its date getter falls back to
     // the attribute once its own state is empty).
     return html`
         <div class="sf-property-view-datetime" role="group" aria-label=${label} data-datetime=${key}>
-            <sf-datepicker
+            <sf-input-date
                     class="sf-property-view-datetime-date"
                     size=${size}
                     name=${`${name}_date`}
@@ -53,7 +53,7 @@ export function renderDateTimeEdit(context, field, value) {
                         if (event.target !== event.currentTarget) return;
                         change('date', event.detail?.value ?? event.currentTarget?.value ?? '');
                     }}
-            ></sf-datepicker>
+            ></sf-input-date>
             <sf-input
                     class="sf-property-view-datetime-time"
                     size=${size}

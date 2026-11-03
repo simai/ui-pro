@@ -471,7 +471,7 @@
     transition: opacity 120ms ease-out;
   }
 
-  .sf-content-editor-gutter > sf-icon-button > button {
+  .sf-content-editor-gutter > sf-button-icon > button {
     inline-size: var(--sf-content-editor-button);
     min-inline-size: var(--sf-content-editor-button);
     block-size: var(--sf-content-editor-button);
@@ -590,7 +590,7 @@
     flex-grow: 1;
   }
 
-  /* A file: sf-download-file's row (its tokens), the name typed in place. */
+  /* A file: sf-file-download's row (its tokens), the name typed in place. */
   .sf-content-editor-file {
     position: relative;
   }

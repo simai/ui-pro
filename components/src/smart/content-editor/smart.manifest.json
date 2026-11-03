@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.content-editor",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "title": "Content editor",
   "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "kind": "smart",
@@ -28,13 +28,13 @@
   "composition": {
     "uses": [
       "smart.button",
-      "smart.context-menu",
+      "smart.button-icon",
       "smart.dropdown",
+      "smart.editor-inline",
       "smart.file-upload",
       "smart.icon",
-      "smart.icon-button",
-      "smart.inline-editor",
       "smart.input",
+      "smart.menu-context",
       "smart.popover",
       "smart.progress-bar",
       "smart.switch"
@@ -453,7 +453,15 @@
     "aliases": [],
     "deprecations": [],
     "replacement": null,
-    "migrations": []
+    "migrations": [
+      {
+        "from": "1.2.3",
+        "to": "1.2.4",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the gutter is sf-button-icon, the block menu sf-menu-context, inline fields are edited through sf-editor-inline (its sf-editor-inline-* events)); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
+      }
+    ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
@@ -461,15 +469,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/content-editor/index.js",
-        "sha256": "83eed6db373d42f9b710f2df3c906e668d199118e7dab249497e98a04eff1306"
+        "sha256": "b205d4814e7cd2dd20344a588b918e0235b998dd58adf0cc0469a5623c139dba"
       },
       {
         "path": "src/smart/content-editor/js/model.js",
-        "sha256": "0aa3619d695be081e82b11a2335b731acd0accbbd32bc32a83b2188889952176"
+        "sha256": "4453855148f2a6a47b2a07b7de0291c527bb89375a5fa218df6de89679cb63af"
       },
       {
         "path": "src/smart/content-editor/js/paste.js",
-        "sha256": "d76e2dc05d1d327e771bb863ab5f904f5365cc59b4897e758c85d74bb0da6632"
+        "sha256": "5059e5688d0a22b2941a0fa9f4f41880c6385aca235c2c6f0104f29b93193694"
       },
       {
         "path": "src/smart/content-editor/js/catalog.js",
@@ -477,27 +485,27 @@
       },
       {
         "path": "src/smart/content-editor/js/view.js",
-        "sha256": "194e5a423dfa69394528a616b95f98cb1457403b9931eccd04844177f9b82b3c"
+        "sha256": "75854da5bc009b87dec8908dbff0e6da434cc1e2005eb1813a13360eff93c135"
       },
       {
         "path": "src/smart/content-editor/js/templates/default.js",
-        "sha256": "c558acd8c6c0e50b96d4b17de5efbfc24ede8aec439329efaa08be78d60f0f55"
+        "sha256": "c0e01364d2d1c0799678282885e2aed017e1f98430870108e9543fd654c39990"
       },
       {
         "path": "src/smart/content-editor/js/templates/default.css",
-        "sha256": "9b84c965991104166ace2e2f480e906bb59b48de345aba303bf71b15a816298a"
+        "sha256": "98544e3211928169a6cf67dae158dab4ef3f87986c7242a7e0f4756b95111c06"
       },
       {
         "path": "src/smart/content-editor/rule.js",
-        "sha256": "630e6bffc4bee12f6c36f088dd06ee80ad6463015709ad34addb839d357e505d"
+        "sha256": "168ebcaf849a65887cec88dd84df0cc36487966954781b1502ee927c8acad806"
       },
       {
         "path": "src/smart/content-editor/docs.md",
-        "sha256": "4b9904a5aec876e3b7e6d74304a0744acf4dfbe6cbfe63afd4fc6b1a16038cdd"
+        "sha256": "dc07532a7d77801d50ad2f4381dd4ec0f743077e348379e0ac6e05397b5fdcbe"
       },
       {
         "path": "src/smart/content-editor/component.json",
-        "sha256": "4954b737563e34fb852567516ceca68c326bb37051bd04227328feb98adc7af7"
+        "sha256": "ec17f66ea54782bef558a15941a7117b70ea41eb683ee45345751ceb5c6b0ea3"
       },
       {
         "path": "src/smart/content-editor/lang/en.json",

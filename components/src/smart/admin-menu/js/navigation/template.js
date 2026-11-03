@@ -168,11 +168,11 @@ function renderBottom(context) {
 function renderCollapse(context) {
     const {controller, text, compact} = context;
     if (!context.wide || controller.edit?.on) return nothing;
-    return html`<sf-icon-button class="sf-admin-nav-collapse" size="1/2" appearance="ghost" scheme="on-surface"
+    return html`<sf-button-icon class="sf-admin-nav-collapse" size="1/2" appearance="ghost" scheme="on-surface"
         icon=${compact ? "chevron_right" : "chevron_left"}
         aria-label=${compact ? text("expand") : text("collapse")}
         title=${compact ? text("expand") : text("collapse")}
-        @click=${() => controller.toggleCompact()}></sf-icon-button>`;
+        @click=${() => controller.toggleCompact()}></sf-button-icon>`;
 }
 
 // The columns are widened and narrowed by their edges (owner, 2026-10-14),
@@ -256,17 +256,17 @@ function renderSecondColumn(context) {
     const rows = controller.rowsOf(openRoot);
     return html`<div class="sf-admin-nav-second" aria-label=${openRoot.label}>
         <div class="sf-admin-nav-second-head">
-            ${wide ? nothing : html`<sf-icon-button size="1/2" appearance="ghost" scheme="on-surface"
-                icon="arrow_back" aria-label=${text("back")} @click=${() => controller.back()}></sf-icon-button>`}
+            ${wide ? nothing : html`<sf-button-icon size="1/2" appearance="ghost" scheme="on-surface"
+                icon="arrow_back" aria-label=${text("back")} @click=${() => controller.back()}></sf-button-icon>`}
             <div class="sf-admin-nav-second-title">
                 <span class="sf-admin-nav-second-label">${openRoot.label}</span>
                 <span class="sf-admin-nav-second-caption" data-install=${install ? "true" : nothing}>${install
                     ? text("allSites")
                     : navigation?.site?.current?.label ?? ""}</span>
             </div>
-            ${wide ? html`<sf-icon-button size="1/2" appearance="ghost" scheme="on-surface"
+            ${wide ? html`<sf-button-icon size="1/2" appearance="ghost" scheme="on-surface"
                 icon="left_panel_close" aria-label=${text("hideColumn")} title=${text("hideColumn")}
-                @click=${() => controller.hideColumn()}></sf-icon-button>` : nothing}
+                @click=${() => controller.hideColumn()}></sf-button-icon>` : nothing}
         </div>
         ${context.edit.on ? html`<div class="sf-admin-nav-scroll">${renderEditRows(context, openRoot)}</div>` : nothing}
         ${!context.edit.on && controller.offersFind(openRoot) ? html`<div class="sf-admin-nav-find">

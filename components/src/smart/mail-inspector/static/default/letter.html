@@ -129,7 +129,7 @@
 </span>
 
 </label>
-</sf-input><sf-textarea class="sf-mail-inspector-field" size="1/2" auto-grow min-rows="2" max-rows="12" data-path="/reason" label="Причина получения" value hint="Как в бренде: Вы подписаны на новости" inherited-value="Вы подписаны на новости" style="display: contents;" data-inherited="true">
+</sf-input><sf-input-textarea class="sf-mail-inspector-field" size="1/2" auto-grow min-rows="2" max-rows="12" data-path="/reason" label="Причина получения" value hint="Как в бренде: Вы подписаны на новости" inherited-value="Вы подписаны на новости" style="display: contents;" data-inherited="true">
 <label class="sf-textarea sf-textarea--size-1/2 sf-textarea--bordered sf-textarea--auto-grow flex flex-col" data-mask="false" data-mask-pattern data-mask-options data-sf-textarea-bound="1" for="sf-mail-inspector-letter-15" data-sf-static>
 
 <span class="sf-textarea-label flex">
@@ -148,7 +148,7 @@
 
 <span class="sf-textarea-hint-text-wrap" id="sf-mail-inspector-letter-16" data-field-message="hint">Как в бренде: Вы подписаны на новости</span>
 </label>
-</sf-textarea><sf-input class="sf-mail-inspector-field" size="1/2" data-path="/unsubscribe" label="Ссылка отписки" value="htt" placeholder="https://" hint="Адрес https:// или тег системы рассылки" input-type="url" required invalid error-message="Нужен адрес https:// или тег системы рассылки" style="display: contents;">
+</sf-input-textarea><sf-input class="sf-mail-inspector-field" size="1/2" data-path="/unsubscribe" label="Ссылка отписки" value="htt" placeholder="https://" hint="Адрес https:// или тег системы рассылки" input-type="url" required invalid error-message="Нужен адрес https:// или тег системы рассылки" style="display: contents;">
 <label class="sf-input error sf-input--size-1/2 sf-input--bordered  flex flex-col" data-mask="false" data-mask-pattern data-mask-lazy data-mask-placeholder-char data-mask-options data-sf-input-bound="1" for="sf-mail-inspector-letter-18" data-sf-static>
 
 <span class="sf-input-label flex">
@@ -206,8 +206,8 @@
 </div>
 </sf-tabs>
 <span class="sf-mail-inspector-said sr-only" role="status"></span>
-<sf-context-menu class="sf-mail-inspector-menu" popup size="1/2" aria-label="Действия с элементом" style="display: contents;">
+<sf-menu-context class="sf-mail-inspector-menu" popup size="1/2" aria-label="Действия с элементом" style="display: contents;">
 <div class="sf-context-menu flex" role="menu" aria-label="Действия с элементом" data-sf-static></div>
-</sf-context-menu>
+</sf-menu-context>
 </div>
 </sf-mail-inspector>

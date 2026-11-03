@@ -21,10 +21,10 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
-  'smart/smart/icon-button/js/icon-button.js', 'smart/smart/checkbox/js/checkbox.js',
+  'smart/smart/button-icon/js/button-icon.js', 'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/list-item/js/list-item.js', 'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
-  'smart/smart/close/js/close.js', 'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/button-close/js/button-close.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
 ].map((p) => join(out, p));
@@ -66,7 +66,7 @@ const open = async (height = 700) => {
 const openWindow = async (page, label) => {
   // The gear closes the window it opened (owner, 2026-10-15): one left open
   // by the step before is closed first, so the click opens it again.
-  if (await page.evaluate(() => Boolean(document.querySelector('sf-context-menu .sf-table-context-menu')))) {
+  if (await page.evaluate(() => Boolean(document.querySelector('sf-menu-context .sf-table-context-menu')))) {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
   }
@@ -76,7 +76,7 @@ const openWindow = async (page, label) => {
   const opened = await page.evaluate((name) => {
     // A control with visible text carries it in `text` and has no aria-label;
     // an icon-only one carries the name in aria-label. Match either.
-    const host = [...document.querySelectorAll('#t sf-button, #t sf-icon-button')]
+    const host = [...document.querySelectorAll('#t sf-button, #t sf-button-icon')]
       .find((node) => node.getAttribute('aria-label') === name || node.getAttribute('text') === name);
     const control = host?.querySelector('button') ?? host;
     control?.click();
@@ -84,7 +84,7 @@ const openWindow = async (page, label) => {
   }, label);
   if (!opened) throw new Error(`no control labelled ${label}`);
   await page.waitForTimeout(700);
-  const surface = await page.evaluate(() => Boolean(document.querySelector('sf-context-menu .sf-table-context-menu')));
+  const surface = await page.evaluate(() => Boolean(document.querySelector('sf-menu-context .sf-table-context-menu')));
   if (!surface) throw new Error(`the window ${label} did not open`);
 };
 
@@ -100,7 +100,7 @@ try {
       await openWindow(page, label);
       if (label === 'Фильтр') {
         const switched = await page.evaluate(() => {
-          const tabs = document.querySelector('sf-context-menu sf-tabs');
+          const tabs = document.querySelector('sf-menu-context sf-tabs');
           const tab = [...(tabs?.querySelectorAll('.sf-tabs-top-container button') ?? [])]
             .find((node) => node.textContent.trim() === 'Поля');
           tab?.click();
@@ -110,7 +110,7 @@ try {
         await page.waitForTimeout(600);
       }
       const fit = await page.evaluate((head) => {
-        const surface = document.querySelector('sf-context-menu .sf-table-context-menu');
+        const surface = document.querySelector('sf-menu-context .sf-table-context-menu');
         if (!surface) return null;
         const box = surface.getBoundingClientRect();
         const list = surface.querySelector('.sf-context-menu-columns');
@@ -146,7 +146,7 @@ try {
 
   // 2. A pin applies on the spot, reaches the host and shows a filled mark.
   const pins = await page.evaluate(async () => {
-    const row = () => [...document.querySelectorAll('sf-context-menu [data-column-key]')]
+    const row = () => [...document.querySelectorAll('sf-menu-context [data-column-key]')]
       .find((item) => item.dataset.columnKey === 'f3');
     const read = () => {
       const node = row();
@@ -183,13 +183,13 @@ try {
   //    rule of 2026-10-05: everything here applies as it is pressed.
   const atOnce = await page.evaluate(async () => {
     const table = document.getElementById('t');
-    const surface = document.querySelector('sf-context-menu .sf-table-context-menu');
+    const surface = document.querySelector('sf-menu-context .sf-table-context-menu');
     const buttons = [...surface.querySelectorAll('.sf-context-menu-footer sf-button')]
       .map((node) => node.getAttribute('text'));
     const visible = () => (table.getColumns?.() ?? []).filter((col) => col.visible !== false).length;
     const before = {buttons, visible: visible(), saved: window.saved.length};
 
-    const row = [...document.querySelectorAll('sf-context-menu [data-column-key]')]
+    const row = [...document.querySelectorAll('sf-menu-context [data-column-key]')]
       .find((item) => item.dataset.columnKey === 'f5');
     row?.querySelector('input[type="checkbox"]')?.click();
     await new Promise((done) => setTimeout(done, 400));
@@ -199,7 +199,7 @@ try {
     // A click away loses nothing now.
     document.body.click();
     await new Promise((done) => setTimeout(done, 300));
-    const afterAway = {visible: visible(), windowClosed: !document.querySelector('sf-context-menu .sf-table-context-menu')};
+    const afterAway = {visible: visible(), windowClosed: !document.querySelector('sf-menu-context .sf-table-context-menu')};
     return {before, afterTick, afterAway};
   });
   if (atOnce.before?.buttons?.includes('Применить')) {
@@ -221,7 +221,7 @@ try {
     const visible = () => (table.getColumns?.() ?? []).filter((col) => col.visible !== false).length;
     const pinned = () => (table.getPinnedColumnKeys?.() ?? []).filter((key) => !['select', 'settings'].includes(key));
     const opened = {visible: visible(), pinned: pinned().length};
-    const row = (key) => [...document.querySelectorAll('sf-context-menu [data-column-key]')]
+    const row = (key) => [...document.querySelectorAll('sf-menu-context [data-column-key]')]
       .find((item) => item.dataset.columnKey === key);
     row('f7')?.querySelector('input[type="checkbox"]')?.click();
     await new Promise((done) => setTimeout(done, 300));
@@ -229,7 +229,7 @@ try {
     await new Promise((done) => setTimeout(done, 350));
     const changed = {visible: visible(), pinned: pinned().length};
     const savedBefore = window.saved.length;
-    document.querySelector('sf-context-menu .sf-context-menu-footer sf-button button')?.click();
+    document.querySelector('sf-menu-context .sf-context-menu-footer sf-button button')?.click();
     await new Promise((done) => setTimeout(done, 400));
     return {opened, changed, restored: {visible: visible(), pinned: pinned().length},
       announcements: window.saved.length - savedBefore};
@@ -245,7 +245,7 @@ try {
   // 4. The search is inset like every other block in the window.
   await openWindow(page, 'Настройки');
   const inset = await page.evaluate(() => {
-    const surface = document.querySelector('sf-context-menu .sf-table-context-menu');
+    const surface = document.querySelector('sf-menu-context .sf-table-context-menu');
     const search = surface?.querySelector('.sf-table-column-search');
     const list = surface?.querySelector('.sf-context-menu-columns');
     const read = (node) => {
@@ -272,8 +272,8 @@ try {
   // the padding box of .sf-context-menu-content, which is the panel the items
   // live in -- against the axis the menu publishes for its own items.
   const axis = await page.evaluate(() => {
-    const content = document.querySelector('sf-context-menu .sf-context-menu-content')
-      ?? document.querySelector('sf-context-menu .sf-table-context-menu');
+    const content = document.querySelector('sf-menu-context .sf-context-menu-content')
+      ?? document.querySelector('sf-menu-context .sf-table-context-menu');
     if (!content) return null;
     // From the padding edge, where the published inset is counted from: the
     // panel has a hairline border since the standard menu (2026-10-12), and
@@ -331,7 +331,7 @@ try {
   //    always did; with a draft it carries the number of conditions a press
   //    would change, and the host can translate the label.
   const applyButton = async (page) => page.evaluate(() => {
-    const bottom = document.querySelector('sf-context-menu .sf-context-menu-footer');
+    const bottom = document.querySelector('sf-menu-context .sf-context-menu-footer');
     const buttons = [...(bottom?.querySelectorAll('sf-button') ?? [])];
     const commit = buttons[buttons.length - 1];
     return {
@@ -353,14 +353,14 @@ try {
   // A draft: switch two fields on, through the window's own fields tab.
   const pending = await filterPage.evaluate(async () => {
     const table = document.getElementById('t');
-    const tabs = document.querySelector('sf-context-menu sf-tabs');
+    const tabs = document.querySelector('sf-menu-context sf-tabs');
     [...(tabs?.querySelectorAll('.sf-tabs-top-container button') ?? [])]
       .find((node) => node.textContent.trim() === 'Поля')?.click();
     await new Promise((done) => setTimeout(done, 500));
     // The fields tab renders its own checkboxes inside the window's tabs; the
     // settings window's rows carry data-column-key, this window's do not.
-    const boxes = [...document.querySelectorAll('sf-context-menu .sf-context-menu-body input[type="checkbox"]')];
-    const panel = document.querySelector('sf-context-menu .sf-context-menu-content');
+    const boxes = [...document.querySelectorAll('sf-menu-context .sf-context-menu-body input[type="checkbox"]')];
+    const panel = document.querySelector('sf-menu-context .sf-context-menu-content');
     const before = Math.round(panel?.getBoundingClientRect().width ?? 0);
     boxes[0]?.click();
     await new Promise((done) => setTimeout(done, 250));
@@ -386,7 +386,7 @@ try {
     const table = document.getElementById('t');
     table.setAttribute('filter-apply-text', 'Apply filter');
     await new Promise((done) => setTimeout(done, 400));
-    const bottom = document.querySelector('sf-context-menu .sf-context-menu-footer');
+    const bottom = document.querySelector('sf-menu-context .sf-context-menu-footer');
     const buttons = [...(bottom?.querySelectorAll('sf-button') ?? [])];
     return buttons[buttons.length - 1]?.getAttribute('text') ?? null;
   });

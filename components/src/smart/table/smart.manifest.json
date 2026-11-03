@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view",
-  "version": "1.13.5",
+  "version": "1.13.6",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -35,23 +35,23 @@
       "smart.avatar",
       "smart.badge",
       "smart.button",
+      "smart.button-icon",
       "smart.checkbox",
-      "smart.color",
-      "smart.context-menu",
-      "smart.country-code",
-      "smart.datepicker",
       "smart.dropdown",
       "smart.empty-state",
       "smart.file-preview",
-      "smart.icon-button",
       "smart.input",
+      "smart.input-color",
+      "smart.input-country",
+      "smart.input-date",
       "smart.list-item",
+      "smart.menu-context",
       "smart.modal",
       "smart.pagination",
       "smart.radio",
-      "smart.range-slider",
       "smart.reference-link",
       "smart.resizer",
+      "smart.slider-range",
       "smart.sortable",
       "smart.spinner",
       "smart.tabs",
@@ -2277,6 +2277,13 @@
         "changes": [
           "The windows' portal is watched by the Loader (SF.Loader.watch) and lazy elements are asked for through SF.Loader.ensure; needs core.runtime >= 1.19.0. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
         ]
+      },
+      {
+        "from": "1.13.5",
+        "to": "1.13.6",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the row and column menus are sf-menu-context (its sf-menu-context-* events), the icon buttons sf-button-icon, the typed cells and editors sf-input-color, sf-input-country, sf-input-date and sf-slider-range); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -2286,15 +2293,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/table/index.js",
-        "sha256": "fc0185dc2c4bbbb2d046d6df53ff12578cbc4bef3bfc6598361aed9e61ce0883"
+        "sha256": "3e6d8aeb35e6f69f3b5a6eb7fd9c06ad422c789801b282dc5fe8ff73b1950151"
       },
       {
         "path": "src/smart/table/js/templates/default.js",
-        "sha256": "928b3bcba57c1f58d6a4e5dd1926d7072c75dbc4c245dc951a64b2339a8321f3"
+        "sha256": "f76140fe09feab98de2c131c66db47d49a9f2f945f73842bc40cef23cc00426d"
       },
       {
         "path": "src/smart/table/js/templates/default.css",
-        "sha256": "6b417d8d537b1ade8cf74a720b00713036e455cb29ceb1b3bb6401883c64c794"
+        "sha256": "66c3494d45748de52968f85eb417fde6fb1a115a25806c1b3e5b21b9f745a615"
       },
       {
         "path": "src/smart/helpers/option-badge.js",
@@ -2302,7 +2309,7 @@
       },
       {
         "path": "src/smart/table/rule.js",
-        "sha256": "38fcfa15582767a8da8dcaaabef4bc852d842737a7bcb362674e0ce425039c56"
+        "sha256": "dd1cf0b8ef799f23959c989c9c8d32ae3fa33d5a630dd6a298094a47300cf43d"
       },
       {
         "path": "src/smart/table/docs/smart-table-guide.md",

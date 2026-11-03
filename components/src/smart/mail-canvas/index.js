@@ -1,6 +1,6 @@
 // sf-mail-canvas: the middle pane of SIMAI Email Editor -- a rendered letter in
 // a frame that runs nothing, the width switch over it, the two notes about it
-// (out of date, heavy) and sf-composition-overlay on top: the frames, the
+// (out of date, heavy) and sf-editor-overlay on top: the frames, the
 // toolbar and the keyboard tree.
 //
 // It knows no letter, no block manifest and no renderer. The host passes the
@@ -15,7 +15,7 @@
 // simai.smart-component 1.4 §3, §4, §8, §11): the settings are attributes and
 // properties made by core/js/element-manifest.js, its words are
 // lang/<locale>.json, and the actions answer outcomes.
-import SfBaseElement from "../../core/js/smart-base";
+import SfBaseElement, {isTag} from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {renderMailCanvasTemplate} from "./js/templates/default.js";
 import manifest from "./component.json";
@@ -26,7 +26,7 @@ const applied = () => ({outcome: "applied"});
 const refused = (reason) => ({outcome: "refused", reason});
 
 const MARK = /^data-[a-z0-9-]+$/u;
-const OVERLAY = "sf-composition-overlay";
+const OVERLAY = "sf-editor-overlay";
 
 const MailCanvasElement = elementFromManifest(manifest, {
     base: SfBaseElement,
@@ -127,12 +127,14 @@ class SfMailCanvas extends MailCanvasElement {
         return this.frame?.contentDocument ?? null;
     }
 
-    /** The sf-composition-overlay in use: the one at overlay-target, else the element's own. */
+    /** The sf-editor-overlay in use: the one at overlay-target, else the element's own. */
     get overlay() {
         const target = String(this.overlayTarget ?? "");
         if (target) {
             const found = this.ownerDocument.getElementById(target);
-            return found?.localName === OVERLAY ? found : null;
+            // The host places it, so it may still write the former tag,
+            // sf-composition-overlay, a dated alias until 2027-01-01.
+            return found && isTag(found, OVERLAY) ? found : null;
         }
         return this.querySelector(`.sf-mail-canvas-layer ${OVERLAY}`);
     }

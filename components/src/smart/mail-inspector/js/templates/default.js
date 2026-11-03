@@ -14,12 +14,12 @@ function renderText(context, field) {
     const onLeave = () => component.onFieldLeave(field.path);
     const onInput = (event) => component.onFieldInput(field.path, event.currentTarget);
     if (field.kind === "multiline") {
-        return html`<sf-textarea class="sf-mail-inspector-field" size="1/2" auto-grow min-rows="2" max-rows="12" data-path=${field.path}
+        return html`<sf-input-textarea class="sf-mail-inspector-field" size="1/2" auto-grow min-rows="2" max-rows="12" data-path=${field.path}
                                  label=${field.label || nothing} aria-label=${field.ariaLabel || nothing}
                                  value=${component.valueAttribute(field)} placeholder=${field.placeholder || nothing} hint=${field.hint || nothing}
                                  inherited-value=${field.inheritedValue || nothing} ?required=${field.required} ?disabled=${field.disabled}
                                  ?invalid=${Boolean(error)} error-message=${error || nothing} data-draft=${component.isDraft(field) ? "true" : nothing}
-                                 @input=${onInput} @focusout=${onLeave}></sf-textarea>`;
+                                 @input=${onInput} @focusout=${onLeave}></sf-input-textarea>`;
     }
     return html`<sf-input class="sf-mail-inspector-field" size="1/2" data-path=${field.path}
                           label=${field.label || nothing} aria-label=${field.ariaLabel || nothing}
@@ -57,7 +57,7 @@ function renderGroup(context, field) {
     </div>`;
 }
 
-// One image as sf-image-field: the picture, its name and size, «Заменить…» and
+// One image as sf-input-image: the picture, its name and size, «Заменить…» and
 // «Убрать»; a file dropped on it replaces it. Under it, what the host offers to
 // choose again. The field uploads nothing: the host stores the file.
 function renderImage(context, field) {
@@ -65,13 +65,13 @@ function renderImage(context, field) {
     const error = component.errorOf(field);
     const choices = Array.isArray(field.choices) ? field.choices : [];
     return html`<div class="sf-mail-inspector-image" data-path=${field.path}>
-        <sf-image-field size="1/2" label=${field.label || nothing} aria-label=${field.label ? nothing : field.ariaLabel || nothing}
+        <sf-input-image size="1/2" label=${field.label || nothing} aria-label=${field.label ? nothing : field.ariaLabel || nothing}
                         accept=${field.accept || nothing} empty-text=${field.emptyText || context.words.imageEmpty} hint=${field.hint || nothing}
                         value=${field.value ? JSON.stringify(field.value) : nothing} ?required=${field.required} ?disabled=${field.disabled}
                         ?invalid=${Boolean(error)} error-message=${error || nothing}
                         @sf-image-field-attach=${(event) => component.onAttach(field.path, event)}
                         @sf-image-field-detach=${(event) => component.onDetach(field.path, event)}
-                        @sf-image-field-rejected=${(event) => component.onRejected(field.path, event)}></sf-image-field>
+                        @sf-image-field-rejected=${(event) => component.onRejected(field.path, event)}></sf-input-image>
         ${choices.length
             ? html`<sf-dropdown class="sf-mail-inspector-choose" size="1/2" mode="select" data-choose=${field.path} label=${field.chooseLabel || nothing}
                                 placeholder=${field.choosePlaceholder || nothing} value="" .options=${choices}
@@ -100,9 +100,9 @@ function renderItem(context, field, item, index) {
                     <sf-icon icon=${isOpen ? "expand_more" : "chevron_right"} size="1" aria-hidden="true"></sf-icon>
                     <span class="sf-mail-inspector-item-label">${label}</span>
                 </button>
-                <sf-icon-button class="sf-mail-inspector-item-more" appearance="ghost" scheme="on-surface" size="1/2" icon="more_horiz"
+                <sf-button-icon class="sf-mail-inspector-item-more" appearance="ghost" scheme="on-surface" size="1/2" icon="more_horiz"
                                 aria-label=${actions} title=${actions} data-item-menu=${index}
-                                @click=${(event) => component.openItemMenu(field.path, index, event.currentTarget)}></sf-icon-button>
+                                @click=${(event) => component.openItemMenu(field.path, index, event.currentTarget)}></sf-button-icon>
             </div>
             <div id=${bodyId} class="sf-mail-inspector-item-body" role="group" aria-label=${label} data-item-body=${index} data-item-list=${field.path} ?hidden=${!isOpen}>
                 ${isOpen ? renderFields(context, item.fields) : nothing}
@@ -206,9 +206,9 @@ function renderHead(context) {
                 ? html`<div class="sf-mail-inspector-title-row">
                     ${context.headingIcon ? html`<sf-icon icon=${context.headingIcon} size="2" aria-hidden="true"></sf-icon>` : nothing}
                     <h2 class="sf-mail-inspector-title">${context.heading}</h2>
-                    ${context.actions.map((name) => html`<sf-icon-button class="sf-mail-inspector-action" appearance="ghost" scheme="on-surface" size="1/2" icon=${ICONS[name] || "more_horiz"}
+                    ${context.actions.map((name) => html`<sf-button-icon class="sf-mail-inspector-action" appearance="ghost" scheme="on-surface" size="1/2" icon=${ICONS[name] || "more_horiz"}
                                                                           aria-label=${context.words[name] || name} title=${context.words[name] || name} data-action=${name}
-                                                                          @click=${() => component[name]?.()}></sf-icon-button>`)}
+                                                                          @click=${() => component[name]?.()}></sf-button-icon>`)}
                 </div>`
                 : nothing}
         </div>
@@ -239,11 +239,11 @@ export function renderMailInspectorTemplate(context) {
             ${renderNotice(context)}
             ${keyed(`${context.formKey}\n${context.tabsKey}`, context.tabs.length ? renderTabs(context) : renderForm(context))}
             <span class="sf-mail-inspector-said sr-only" role="status">${context.said}</span>
-            <sf-context-menu class="sf-mail-inspector-menu" popup size="1/2" aria-label=${context.words.itemMenu}
-                             @sf-context-menu-select=${(event) => {
+            <sf-menu-context class="sf-mail-inspector-menu" popup size="1/2" aria-label=${context.words.itemMenu}
+                             @sf-menu-context-select=${(event) => {
                                  event.stopPropagation();
                                  component.onMenuSelect(event.detail);
-                             }}></sf-context-menu>
+                             }}></sf-menu-context>
         </div>
     `;
 }

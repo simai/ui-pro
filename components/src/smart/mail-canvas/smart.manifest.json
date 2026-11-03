@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "id": "smart.mail-canvas",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "title": "Letter canvas",
-  "summary": "The canvas of SIMAI Email Editor: a rendered letter in a frame that runs nothing, the width switch, the out-of-date and weight notes and sf-composition-overlay on top. The element knows no letter, no block manifest and no renderer: the host passes the HTML and the data about it, and hears what the person did.",
+  "summary": "The canvas of SIMAI Email Editor: a rendered letter in a frame that runs nothing, the width switch, the out-of-date and weight notes and sf-editor-overlay on top. The element knows no letter, no block manifest and no renderer: the host passes the HTML and the data about it, and hears what the person did.",
   "kind": "smart",
   "reuse_mode": "whole",
   "lifecycle": "experimental",
@@ -26,7 +26,7 @@
   "composition": {
     "uses": [
       "smart.button-group",
-      "smart.composition-overlay"
+      "smart.editor-overlay"
     ],
     "public_parts": []
   },
@@ -40,11 +40,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "html": {
         "type": "string",
@@ -89,7 +91,7 @@
       "overlay-target": {
         "type": "string",
         "default": "",
-        "description": "The id of an sf-composition-overlay the host placed elsewhere on the page, outside a contained ancestor (simai/ui-source#58). Empty places one in the element's own markup."
+        "description": "The id of an sf-editor-overlay the host placed elsewhere on the page, outside a contained ancestor (simai/ui-source#58). Empty places one in the element's own markup."
       },
       "widths": {
         "type": "array",
@@ -477,7 +479,15 @@
     "aliases": [],
     "deprecations": [],
     "replacement": null,
-    "migrations": []
+    "migrations": [
+      {
+        "from": "1.1.0",
+        "to": "1.1.1",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the overlay is sf-editor-overlay (its sf-editor-overlay-* events); an overlay-target the host placed may still be the former sf-composition-overlay); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
+      }
+    ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
@@ -485,11 +495,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/mail-canvas/index.js",
-        "sha256": "2b220d9ff60a6d81e14dfa4f4fd42f48aeeee21d8c45afa6e3ed9cda4f33884f"
+        "sha256": "8b8a910a228e83fcfa9afa9066348e9c882cbf4c3dd4113993397d5650d94b6a"
       },
       {
         "path": "src/smart/mail-canvas/js/templates/default.js",
-        "sha256": "6dbf414b327bf6087e82a4348ddc56a4287b51e8aab95b77dc81d70d23a28ac2"
+        "sha256": "d9a92dc0c4ad0b6bc997f316c7fee581ab3d0d280ab0574bdc35f1cd36e54964"
       },
       {
         "path": "src/smart/mail-canvas/js/templates/default.css",
@@ -497,15 +507,15 @@
       },
       {
         "path": "src/smart/mail-canvas/rule.js",
-        "sha256": "a163b81e25f00c2c2316ef95209429a68ecf7e1fd889b5cb7ea55544e0d72466"
+        "sha256": "9afe33d67adb8c1a23225e93333c557816032b50574d57d49588d9cddcbfa23e"
       },
       {
         "path": "src/smart/mail-canvas/docs.md",
-        "sha256": "b7d88367cab76b4d8949ba98c9f79b118fa25d1558d5cd1ee7dffbc124041a79"
+        "sha256": "e0f2de81c0670804be2b75c77eb4dfdcd5234f2ef5b054bcc4f1eef6cb76ad8d"
       },
       {
         "path": "src/smart/mail-canvas/component.json",
-        "sha256": "cbb7033915cb68334a8a8e47f47d69ee3c8f119b0f976263747a42f07031e056"
+        "sha256": "87ea6af8bb69a2e7d05a63bd0afc8308cd9ecc9f6ea699e74dbd6a6a834f4a5c"
       },
       {
         "path": "src/smart/mail-canvas/lang/en.json",

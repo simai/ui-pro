@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-letters",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "title": "Emails",
   "summary": "Every letter a person has in SIMAI Email Editor: a search by name, an order, and what each row offers -- «Открыть» and, under ⋯, a copy, a rename and a delete. The moment and the block count are worded in the page's language. The element holds no letter and stores nothing; it says what the person chose.",
   "kind": "smart",
@@ -27,11 +27,11 @@
   "composition": {
     "uses": [
       "smart.button",
-      "smart.context-menu",
+      "smart.button-icon",
       "smart.dropdown",
       "smart.empty-state",
-      "smart.icon-button",
-      "smart.input"
+      "smart.input",
+      "smart.menu-context"
     ],
     "public_parts": []
   },
@@ -311,7 +311,7 @@
       "Enter",
       "Space"
     ],
-    "focus": "The bar comes first -- the search, the order, «Новое письмо» -- then every row's «Открыть» and its ⋯ in the tab order; the menu is sf-context-menu and keeps its own keyboard. A row's ⋯ is named «Действия с письмом: <name>», so two rows never sound alike. The open letter's row says «открыто сейчас» in its own words, not by colour alone, and offers no «Открыть»."
+    "focus": "The bar comes first -- the search, the order, «Новое письмо» -- then every row's «Открыть» and its ⋯ in the tab order; the menu is sf-menu-context and keeps its own keyboard. A row's ⋯ is named «Действия с письмом: <name>», so two rows never sound alike. The open letter's row says «открыто сейчас» in its own words, not by colour alone, and offers no «Открыть»."
   },
   "presentation": {
     "themes": [
@@ -377,6 +377,13 @@
         "changes": [
           "The letter's relative time through core's formatRelativeTime; needs core.runtime >= 1.20.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.20.0 on."
         ]
+      },
+      {
+        "from": "1.0.1",
+        "to": "1.0.2",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the row's ⋯ is sf-button-icon, its menu sf-menu-context); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -386,11 +393,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/mail-letters/index.js",
-        "sha256": "0b0ae465c4d51bfef72c7847fa9d96111f8240e9f5b4ff56a8c0f46728859bbd"
+        "sha256": "2b16db37d5326d5141a041fcd9627ca46672462edcc953fd91b9b57176814a88"
       },
       {
         "path": "src/smart/mail-letters/js/templates/default.js",
-        "sha256": "a0086b57d95fba396142604f6fb304b1f160992e773bd8fe36c6114738e8456b"
+        "sha256": "5b2b96de2be55a4533d70ecdb3ccb2abee827097780168978ed3060446c89f11"
       },
       {
         "path": "src/smart/mail-letters/js/templates/default.css",
@@ -398,15 +405,15 @@
       },
       {
         "path": "src/smart/mail-letters/rule.js",
-        "sha256": "92be7b5693ab1b843dadfd523d91f11fc623ba0210c63bb2807b244cf535ee86"
+        "sha256": "baeebdba443b65d26aa37e5a36acb2ddb3adafe65bfb2988abab8a18be7e298a"
       },
       {
         "path": "src/smart/mail-letters/docs.md",
-        "sha256": "68934f1111150427c641dee07b0ebe6e29f9e8aca59fadf17662d139a9f3b3ff"
+        "sha256": "f16b481bc1aae1eabc7e8beab67424b3293409d9e4a89561d42fbc15d9a694bd"
       },
       {
         "path": "src/smart/mail-letters/component.json",
-        "sha256": "bd4bf5d410ba6c1ee716184a1c26f66fa1932bca89fe9ce04e33d9e41013b2a4"
+        "sha256": "7cbaf14e547c29e2d27073443777a18168d32fee41650959d02477670cba20f3"
       },
       {
         "path": "src/smart/mail-letters/lang/en.json",

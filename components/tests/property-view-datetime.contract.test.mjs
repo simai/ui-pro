@@ -63,7 +63,7 @@ test('the template edits a datetime with the pair and leaves every other type to
   const template = read('src/smart/property-view/js/templates/default.js');
   assert.match(template, /editing && type === 'datetime' && field\.readonly !== true\n\s+\? renderDateTimeEdit\(/u);
   const editor = read('src/smart/property-view/js/datetime-edit.js');
-  assert.match(editor, /<sf-datepicker[\s\S]*size=\$\{size\}[\s\S]*aria-label=\$\{words\.dateLabel/u);
+  assert.match(editor, /<sf-input-date[\s\S]*size=\$\{size\}[\s\S]*aria-label=\$\{words\.dateLabel/u);
   // A value attribute is read back after the field is emptied: the day is a property.
   assert.match(editor, /\n\s+\.value=\$\{draft\.date\}\n/u);
   assert.match(editor, /<sf-input[\s\S]*size=\$\{size\}[\s\S]*mask-pattern="00:00"[\s\S]*aria-label=\$\{words\.timeLabel/u);

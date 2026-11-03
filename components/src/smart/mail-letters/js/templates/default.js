@@ -17,9 +17,9 @@ function renderRow(context, letter) {
                     ? nothing
                     : html`<sf-button size="1/2" appearance="outline" text=${context.openLabel} data-action="open"
                              @click=${() => context.component.choose({action: "open", id: letter.id})}></sf-button>`}
-                <sf-icon-button size="1/2" appearance="link" icon="more_horiz" data-action="more"
+                <sf-button-icon size="1/2" appearance="link" icon="more_horiz" data-action="more"
                     aria-label=${letter.actionsLabel}
-                    @click=${(event) => context.component.openMenu(letter.id, event.currentTarget)}></sf-icon-button>
+                    @click=${(event) => context.component.openMenu(letter.id, event.currentTarget)}></sf-button-icon>
             </span>
         </li>
     `;
@@ -49,11 +49,11 @@ export function renderMailLettersTemplate(context) {
                 ? html`<sf-empty-state class="sf-mail-letters-empty" kind=${context.empty} size="1/2" heading-level="2"
                          heading=${context.emptyTitle} text=${context.emptyText}></sf-empty-state>`
                 : nothing}
-            <sf-context-menu class="sf-mail-letters-menu" popup
-                             @sf-context-menu-select=${(event) => {
+            <sf-menu-context class="sf-mail-letters-menu" popup
+                             @sf-menu-context-select=${(event) => {
                                  event.stopPropagation();
                                  context.component.onMenuSelect(event.detail);
-                             }}></sf-context-menu>
+                             }}></sf-menu-context>
         </div>
     `;
 }

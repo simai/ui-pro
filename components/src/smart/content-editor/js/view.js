@@ -6,7 +6,7 @@
 // fold that is the editor's own) is added here.
 //
 // The drawing is plain DOM, not a Lit template: an inline field is handed to
-// sf-inline-editor while it is typed in, and that session owns its children.
+// sf-editor-inline while it is typed in, and that session owns its children.
 // Text from the Document is set as text and inline content through
 // renderInlineDom, never as markup.
 import {fileNameFromAddress, fileSizeUnits, formatFileSize} from "../../../core/js/composition/file-size.mjs";
@@ -27,7 +27,7 @@ const icon = (doc, name, className = "") => make(doc, "sf-icon", className, {ico
 
 /**
  * A field the person types in. `kind` is inline (the inline model through
- * sf-inline-editor), plain (text as it is) or cell (a table cell, inline).
+ * sf-editor-inline), plain (text as it is) or cell (a table cell, inline).
  */
 function field(context, tag, node, key, {kind = "inline", placeholder = "", label = "", row, column, className = ""} = {}) {
     const {doc, word} = context;
@@ -237,7 +237,7 @@ const FILE_ICONS = [
 ];
 const fileIcon = (mime) => FILE_ICONS.find(([pattern]) => typeof mime === "string" && pattern.test(mime))?.[1] ?? "download";
 
-// A file to download: sf-download-file's row as the page draws it (the icon
+// A file to download: sf-file-download's row as the page draws it (the icon
 // of its kind, its name, its size), the name typed in place. An empty one is
 // a drop zone for any file; a file on its way shows its row at once, with
 // progress, and a refusal its reason with a retry.

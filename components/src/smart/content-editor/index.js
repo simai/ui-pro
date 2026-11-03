@@ -4,7 +4,7 @@
 // block's start joins it to the one before; Markdown at the start of a line
 // changes its kind; / in an empty line and the + of the gutter offer a kind;
 // the grip moves a block or opens its menu; a selection gets the bar of
-// sf-inline-editor (bold, italic, code, link); Esc selects the block and the
+// sf-editor-inline (bold, italic, code, link); Esc selects the block and the
 // arrows go between blocks; a paste is read through the html@1 subset; a
 // table goes cell by cell with Tab. The gutter stands outside the text, and
 // every menu opens at what opened it. A block's parameters come from its
@@ -48,7 +48,13 @@ const refused = (reason) => ({outcome: "refused", reason});
 // What a copy of blocks carries on the clipboard: the nodes themselves, so a
 // paste into an editor gives them back exactly.
 const NODES_TYPE = "application/x-simai-composition-nodes+json";
-const INLINE_EVENTS = ["sf-inline-editor-input", "sf-inline-editor-change", "sf-inline-editor-cancel", "sf-inline-edit-input", "sf-inline-edit-commit", "sf-inline-edit-cancel"];
+// sf-editor-inline's events, and the former names it still sends beside them
+// (dated aliases): every one stops here, the current names are acted on.
+const INLINE_EVENTS = [
+    "sf-editor-inline-input", "sf-editor-inline-change", "sf-editor-inline-cancel",
+    "sf-inline-editor-input", "sf-inline-editor-change", "sf-inline-editor-cancel",
+    "sf-inline-edit-input", "sf-inline-edit-commit", "sf-inline-edit-cancel",
+];
 const UNDO_DEPTH = 200;
 const TYPING_PAUSE = 700;
 // A file's media type as content.file keeps it: lowercase type/subtype, no
@@ -517,7 +523,7 @@ class SfContentEditor extends ContentEditorElement {
         selection.addRange(range);
     }
 
-    // The bar of sf-inline-editor is shown over a selection only, where the
+    // The bar of sf-editor-inline is shown over a selection only, where the
     // selection is: while the caret only blinks, the page stays quiet.
     placeToolbar() {
         const bar = this.toolbar;
@@ -560,10 +566,10 @@ class SfContentEditor extends ContentEditorElement {
             return;
         }
         this.finishSession();
-        const carrier = this.querySelector("sf-inline-editor");
+        const carrier = this.querySelector("sf-editor-inline");
         if (!carrier || typeof carrier.edit !== "function") {
-            // The Loader brings sf-inline-editor with the editor; a press before it arrives waits for it.
-            customElements.whenDefined("sf-inline-editor").then(() => {
+            // The Loader brings sf-editor-inline with the editor; a press before it arrives waits for it.
+            customElements.whenDefined("sf-editor-inline").then(() => {
                 if (!this.session) this.activate(element, at);
             });
             return;
@@ -1332,7 +1338,7 @@ class SfContentEditor extends ContentEditorElement {
         if (!nodes.length) nodes = nodesFromClipboard(data, this.newId, this.ownerDocument);
         const place = locate(this.doc.root, field.id);
         const single = nodes.length === 1 && TEXT_BLOCKS.has(nodes[0].type) && !own;
-        // One line, or a paste into a cell, a caption, a title: the words go where the caret is (sf-inline-editor does that).
+        // One line, or a paste into a cell, a caption, a title: the words go where the caret is (sf-editor-inline does that).
         if (single || field.kind === "cell" || field.key !== "content" || !isFlow(place) || !TEXT_BLOCKS.has(place.node.type)) {
             if (!single && !own) {
                 event.preventDefault();
@@ -1620,7 +1626,7 @@ class SfContentEditor extends ContentEditorElement {
     }
 
     // A menu opens at what opened it: under the + or the grip, its left edge on
-    // theirs. The anchor is the native button inside sf-icon-button, whose
+    // theirs. The anchor is the native button inside sf-button-icon, whose
     // host draws no box of its own (display: contents).
     openMenu(mode, trigger) {
         const menu = this.menu;
@@ -1630,7 +1636,7 @@ class SfContentEditor extends ContentEditorElement {
         this.menuFor = this.gutterFor;
         const anchor = trigger?.matches?.("button") ? trigger : trigger?.querySelector?.("button") ?? trigger;
         clearTimeout(this.gutterTimer);
-        customElements.whenDefined("sf-context-menu").then(() => {
+        customElements.whenDefined("sf-menu-context").then(() => {
             menu.search = {placeholder: this.sfWord("menu-search"), empty: this.sfWord("nothing-found")};
             menu.entries = mode === "plus" ? this.kindEntries() : this.blockEntries(this.menuFor);
             anchor?.focus?.({preventScroll: true});
@@ -1857,13 +1863,13 @@ class SfContentEditor extends ContentEditorElement {
             const segment = item.choices.length === 1 ? "" : index === 0 ? "start" : index === item.choices.length - 1 ? "end" : "middle";
             const choose = () => this.writeParam(node.id, item, String(choice));
             return icon
-                ? html`<sf-icon-button size="1/3" icon=${icon} appearance=${on ? "tonal" : "link"} segment=${segment} aria-pressed=${on ? "true" : "false"}
-                    aria-label=${label} title=${label} data-param=${item.key} data-value=${String(choice)} @click=${choose}></sf-icon-button>`
+                ? html`<sf-button-icon size="1/3" icon=${icon} appearance=${on ? "tonal" : "link"} segment=${segment} aria-pressed=${on ? "true" : "false"}
+                    aria-label=${label} title=${label} data-param=${item.key} data-value=${String(choice)} @click=${choose}></sf-button-icon>`
                 : html`<sf-button size="1/3" text=${this.choiceWord(item.key, choice)} appearance=${on ? "tonal" : "link"} segment=${segment} aria-pressed=${on ? "true" : "false"}
                     aria-label=${label} title=${label} data-param=${item.key} data-value=${String(choice)} @click=${choose}></sf-button>`;
         };
-        const more = html`<sf-icon-button size="1/3" icon="tune" appearance="link" class="sf-content-editor-quick-more" aria-label=${this.sfWord("params-text")} title=${this.sfWord("params-text")}
-            slot=${host ? nothing : "trigger"} @click=${host ? () => this.tellParams({open: true}) : null}></sf-icon-button>`;
+        const more = html`<sf-button-icon size="1/3" icon="tune" appearance="link" class="sf-content-editor-quick-more" aria-label=${this.sfWord("params-text")} title=${this.sfWord("params-text")}
+            slot=${host ? nothing : "trigger"} @click=${host ? () => this.tellParams({open: true}) : null}></sf-button-icon>`;
         render(html`
             ${quick.map((item) => html`<div class="sf-content-editor-quick-group" role="group" aria-label=${this.paramWord(item.key)}>${item.choices.map((choice, index) => toggle(item, choice, index))}</div>`)}
             ${host ? more : html`<sf-popover class="sf-content-editor-popover" placement="bottom-end" surface-role="dialog" label=${this.sfWord("params-label")}
@@ -2193,8 +2199,8 @@ class SfContentEditor extends ContentEditorElement {
                 // The inline editor speaks to whoever starts it; here that is
                 // this element, which speaks to the page in its own events.
                 event.stopPropagation();
-                if (name === "sf-inline-editor-input") this.onFieldInput(event.target, event.detail.content);
-                if (name === "sf-inline-editor-change" && event.target === this.sessionField) {
+                if (name === "sf-editor-inline-input") this.onFieldInput(event.target, event.detail.content);
+                if (name === "sf-editor-inline-change" && event.target === this.sessionField) {
                     this.session = null;
                     queueMicrotask(() => this.afterSession());
                 }
@@ -2223,7 +2229,7 @@ class SfContentEditor extends ContentEditorElement {
         this.addEventListener("pointermove", (event) => this.onPointerMove(event), signal);
         // A finger lifted leaves too; on a touch screen the gutter stays with the caret's block.
         this.addEventListener("pointerleave", (event) => { if (!this.dragging && event.pointerType !== "touch") this.leaveGutter(); }, signal);
-        this.addEventListener("sf-context-menu-select", (event) => {
+        this.addEventListener("sf-menu-context-select", (event) => {
             event.stopPropagation();
             // The menu closes after it tells its choice and gives the focus back
             // to its + or grip; the choice runs after that, so a new block
@@ -2232,7 +2238,7 @@ class SfContentEditor extends ContentEditorElement {
             queueMicrotask(() => this.onMenuSelect({detail}));
         }, signal);
         // Enter in the menu's search field takes the first match
-        // (simai/ui-source#72: sf-context-menu leaves Enter to the field).
+        // (simai/ui-source#72: sf-menu-context leaves Enter to the field).
         this.addEventListener("keydown", (event) => {
             if (event.key !== "Enter" || event.defaultPrevented || event.isComposing || !event.target.matches?.(".sf-content-editor-menu .sf-context-menu-search-input")) return;
             const first = [...event.target.closest(".sf-context-menu").querySelectorAll('[role="menuitem"]:not([aria-disabled="true"])')].find((row) => row.getClientRects().length);

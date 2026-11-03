@@ -8,7 +8,7 @@
 import {inlineLength, inlineText, normalizeInline, sliceInline} from "../../../core/js/composition/inline-model.mjs";
 
 // The editable surfaces of each type, in reading order. `inline` is the inline
-// model of content.paragraph, edited through sf-inline-editor; `plain` is text
+// model of content.paragraph, edited through sf-editor-inline; `plain` is text
 // as it is (code, raw markup, a label); `cells` is a table's rows of inline
 // cells. `optional` means the key is written only when it holds something.
 export const FIELDS = Object.freeze({

@@ -101,7 +101,7 @@ focus is what the mark opens.
 
 ## Date and time fields
 
-A `datetime` field is edited as a day and a time on one row: `sf-datepicker`
+A `datetime` field is edited as a day and a time on one row: `sf-input-date`
 for the day and `sf-input`, masked to hh:mm, for the time, both at the view's
 size and each named for assistive technology («Начало: дата», «Начало: время»).
 The value is the host's text in the site's time zone, read as ISO 8601 (a day, or

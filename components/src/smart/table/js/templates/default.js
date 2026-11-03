@@ -55,7 +55,7 @@ function renderListToolbar(context) {
                         hint-icon="search"
                 ></sf-input>
                 ${context.component.offersFilter(active.length) ? html`<span class="sf-table-list-filter">
-                    <sf-icon-button
+                    <sf-button-icon
                             size=${context.size}
                             appearance=${active.length ? 'default' : 'outline'}
                             scheme="primary"
@@ -64,11 +64,11 @@ function renderListToolbar(context) {
                                 ? context.component.text('listFilterLabel').replace('{count}', String(active.length))
                                 : context.filterText}
                             @click=${(e) => context.component.openContextMenu(e, {type: 'bottom', menu: 'filter-settings'})}
-                    ></sf-icon-button>
+                    ></sf-button-icon>
                     ${active.length ? html`<span class="sf-table-list-filter-count" aria-hidden="true">${active.length}</span>` : nothing}
                 </span>` : nothing}
                 ${context.component.getColumns().some((column) => column?.sortable && !column.system) ? html`
-                    <sf-icon-button
+                    <sf-button-icon
                             size=${context.size}
                             appearance=${state.sort?.key ? 'default' : 'outline'}
                             scheme=${state.sort?.key ? 'primary' : 'on-surface'}
@@ -76,9 +76,9 @@ function renderListToolbar(context) {
                             aria-label=${context.component.text('sortLabel')}
                             aria-haspopup="menu"
                             @click=${(e) => context.component.openContextMenu(e, {type: 'bottom', menu: 'list-sort'})}
-                    ></sf-icon-button>` : nothing}
+                    ></sf-button-icon>` : nothing}
                 ${context.actions && context.creatable ? html`
-                    <sf-icon-button
+                    <sf-button-icon
                             size=${context.size}
                             appearance="outline"
                             scheme="on-surface"
@@ -87,7 +87,7 @@ function renderListToolbar(context) {
                             @click=${(e) => (state.createItems?.length
                                 ? context.component.openContextMenu(e, {type: 'bottom', menu: 'create'})
                                 : context.component.requestCreateIntent(null))}
-                    ></sf-icon-button>` : nothing}
+                    ></sf-button-icon>` : nothing}
             </div>
             ${active.length ? html`
                 <div class="sf-table-list-tags flex items-cross-center gap-1/3">
@@ -140,7 +140,7 @@ function renderToolbar(context) {
                             }}
                     ></sf-button>
                     ${context.filterTemplates ? html`
-                    <sf-icon-button
+                    <sf-button-icon
                             size=${context.size}
                             appearance="default"
                             scheme="primary"
@@ -155,7 +155,7 @@ function renderToolbar(context) {
                                     parent: true
                                 })
                             }}
-                    ></sf-icon-button>` : nothing}
+                    ></sf-button-icon>` : nothing}
                 </div>` : nothing}
                 ${activeFilterTags.map(([k, tag]) => {
                     const filterValue = filterValues?.[k] || {};
@@ -236,7 +236,7 @@ function renderToolbar(context) {
                         hint-icon="search"
                 >
           <span slot="right">
-                <sf-icon-button
+                <sf-button-icon
                         size=${context.size}
                         appearance="link"
                         scheme="on-surface"
@@ -250,7 +250,7 @@ function renderToolbar(context) {
                                 value: '',
                             });
                         }}
-                ></sf-icon-button>
+                ></sf-button-icon>
             
           </span>
                 </sf-input>
@@ -267,7 +267,7 @@ function renderToolbar(context) {
                                         @click=${() => context.component.requestCreateIntent(null)}
                                 ></sf-button>
                                 ${state.createItems?.length ? html`
-                                    <sf-icon-button
+                                    <sf-button-icon
                                             size=${context.size}
                                             appearance="outline"
                                             scheme="primary"
@@ -281,7 +281,7 @@ function renderToolbar(context) {
                                                     menu: 'create',
                                                 });
                                             }}
-                                    ></sf-icon-button>
+                                    ></sf-button-icon>
                                 ` : nothing}
                             </div>
                         `
@@ -293,7 +293,7 @@ function renderToolbar(context) {
                      no control, because an empty menu is a dead end. -->
                 ${context.settings && state.toolbarActions?.length
                         ? html`
-                            <sf-icon-button
+                            <sf-button-icon
                                     size=${context.size}
                                     appearance="outline"
                                     scheme="primary"
@@ -303,7 +303,7 @@ function renderToolbar(context) {
                                     @click=${e => {
                                         context.component.openContextMenu(e, { menu: 'toolbar-actions' });
                                     }}
-                            ></sf-icon-button>
+                            ></sf-button-icon>
                         `
                         : nothing}
             </div>

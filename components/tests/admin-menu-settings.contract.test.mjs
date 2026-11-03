@@ -7,7 +7,7 @@ const template = readFileSync(new URL("../src/smart/admin-menu/js/templates/defa
 // The words are lang/<locale>.json (standard 1.3.8 §11); js/words.js makes the
 // template's dictionary from them.
 const ru = JSON.parse(readFileSync(new URL("../src/smart/admin-menu/lang/ru.json", import.meta.url), "utf8")).runtime;
-const contextMenuTemplate = readFileSync(new URL("../src/smart/context-menu/js/templates/default.js", import.meta.url), "utf8");
+const contextMenuTemplate = readFileSync(new URL("../src/smart/menu-context/js/templates/default.js", import.meta.url), "utf8");
 
 test("admin menu supports backend-owned external persistence", () => {
     assert.match(source, /persistenceMode:\s*\{/);
@@ -77,7 +77,7 @@ test("context menu binds button labels and actions through the public button ABI
     assert.match(contextMenuTemplate, /item\?\.component === "sf-button"/);
     assert.match(contextMenuTemplate, /text=\$\{props\.text \|\| ""\}/);
     assert.match(contextMenuTemplate, /@click=\$\{typeof click === "function" \? click : nothing\}/);
-    assert.match(source, /this\.refs\.contextMenu\.value = portal\.querySelector\("sf-context-menu"\)/);
+    assert.match(source, /this\.refs\.contextMenu\.value = portal\.querySelector\("sf-menu-context"\)/);
 });
 
 test("divider settings share visibility semantics with ordinary items", () => {

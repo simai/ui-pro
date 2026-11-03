@@ -18,11 +18,11 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
-  'smart/smart/icon-button/js/icon-button.js', 'smart/smart/checkbox/js/checkbox.js',
+  'smart/smart/button-icon/js/button-icon.js', 'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/list-item/js/list-item.js', 'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
-  'smart/smart/close/js/close.js', 'smart/smart/toast/js/toast.js',
-  'smart/smart/context-menu/js/context-menu.js', 'smart/smart/tabs/js/tabs.js',
+  'smart/smart/button-close/js/button-close.js', 'smart/smart/toast/js/toast.js',
+  'smart/smart/menu-context/js/menu-context.js', 'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js', 'smart/smart/pagination/js/pagination.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js', 'smart/smart/data-view/js/data-view.js',
 ].map((p) => join(out, p));
@@ -168,7 +168,7 @@ try {
     await page.mouse.click(gear.x, gear.y);
     await page.waitForTimeout(500);
     const state = () => page.evaluate(() => {
-      const rows = [...document.querySelectorAll('sf-context-menu [data-column-key]')];
+      const rows = [...document.querySelectorAll('sf-menu-context [data-column-key]')];
       return {
         rows: rows.map((row) => ({
           key: row.dataset.columnKey, pinned: row.dataset.pinned,
@@ -177,24 +177,24 @@ try {
         })),
         // The one-tab title went (2026-10-05); the two tabs «Поля» and «Вид»
         // came (owner, 2026-10-14) and are the settings' own, counted apart.
-        tabs: document.querySelectorAll('sf-context-menu sf-tabs:not(.sf-context-menu-tabs)').length,
-        search: Boolean(document.querySelector('sf-context-menu [name="sf_table_column_search"]')),
+        tabs: document.querySelectorAll('sf-menu-context sf-tabs:not(.sf-context-menu-tabs)').length,
+        search: Boolean(document.querySelector('sf-menu-context [name="sf_table_column_search"]')),
         pinnedByTable: document.getElementById('t').getPinnedColumnKeys?.() ?? null,
       };
     });
     const before = await state();
-    const pin = await centre(page, `() => [...document.querySelectorAll('sf-context-menu [data-column-key]')].find((row) => row.dataset.columnKey === 'code')?.querySelector('[icon="push_pin"]')`);
+    const pin = await centre(page, `() => [...document.querySelectorAll('sf-menu-context [data-column-key]')].find((row) => row.dataset.columnKey === 'code')?.querySelector('[icon="push_pin"]')`);
     if (pin) await page.mouse.click(pin.x, pin.y);
     await page.waitForTimeout(500);
     const after = await state();
     // And the search over the names.
-    const field = await centre(page, `() => document.querySelector('sf-context-menu [name="sf_table_column_search"]')`);
+    const field = await centre(page, `() => document.querySelector('sf-menu-context [name="sf_table_column_search"]')`);
     let filtered = null;
     if (field) {
       await page.mouse.click(field.x, field.y);
       await page.keyboard.type('раздел');
       await page.waitForTimeout(400);
-      filtered = await page.evaluate(() => [...document.querySelectorAll('sf-context-menu [data-column-key]')].map((row) => row.dataset.columnKey));
+      filtered = await page.evaluate(() => [...document.querySelectorAll('sf-menu-context [data-column-key]')].map((row) => row.dataset.columnKey));
     }
     return {before, after, filtered};
   })();
@@ -246,9 +246,9 @@ try {
 
   // 4. The menus stay under their buttons.
   for (const [name, locate, setup] of [
-    ['create', `() => [...document.querySelectorAll('#t sf-icon-button')].find((one) => one.getAttribute('aria-label') === 'Дополнительные действия создания')`,
+    ['create', `() => [...document.querySelectorAll('#t sf-button-icon')].find((one) => one.getAttribute('aria-label') === 'Дополнительные действия создания')`,
       () => page.evaluate(() => document.getElementById('t').setCreateItems([{id: 'page', name: 'Запись'}, {id: 'folder', name: 'Раздел'}]))],
-    ['toolbar', `() => [...document.querySelectorAll('#t sf-icon-button')].find((one) => one.getAttribute('aria-label') === 'Действия с представлением')`,
+    ['toolbar', `() => [...document.querySelectorAll('#t sf-button-icon')].find((one) => one.getAttribute('aria-label') === 'Действия с представлением')`,
       () => page.evaluate(() => document.getElementById('t').setToolbarActions([{id: 'a', label: 'Настройки списка'}, {id: 'b', label: 'Удалённые элементы'}]))],
   ]) {
     await setup();
@@ -261,7 +261,7 @@ try {
       const node = new Function('return ' + source)()();
       const control = node?.querySelector('button') ?? node;
       const button = control.getBoundingClientRect();
-      const surface = document.querySelector('sf-context-menu .sf-context-menu');
+      const surface = document.querySelector('sf-menu-context .sf-context-menu');
       const box = surface?.getBoundingClientRect();
       return box ? {
         underButton: Math.round(box.top) >= Math.round(button.bottom) - 2,
@@ -281,7 +281,7 @@ try {
     window.refuse = true;
     const table = document.getElementById('t');
     const toolbar = table.querySelector('.sf-table-toolbar') ?? table.querySelector('[class*="toolbar"]');
-    const boxes = [...table.querySelectorAll('.sf-table-toolbar sf-button, .sf-table-toolbar sf-input, .sf-table-toolbar sf-icon-button')]
+    const boxes = [...table.querySelectorAll('.sf-table-toolbar sf-button, .sf-table-toolbar sf-input, .sf-table-toolbar sf-button-icon')]
       .map((one) => (one.querySelector('button, input') ?? one).getBoundingClientRect());
     table.requestActionIntent('publish', ['1']);
     await new Promise((done) => setTimeout(done, 700));

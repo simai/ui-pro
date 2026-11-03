@@ -385,7 +385,7 @@ class SfTable extends TableElement {
                     // surfaces of one row, and with the column's default
                     // visibility at most one red icon shows at a time. The
                     // status paints, the scheme stays the family it falls back
-                    // to (sf-icon-button: they cannot both paint it).
+                    // to (sf-button-icon: they cannot both paint it).
                     danger: true,
                     component: {
                         type: 'icon-button',
@@ -897,7 +897,7 @@ class SfTable extends TableElement {
             if (action) this.requestToolbarAction(action.id);
         };
         return html`
-            <sf-context-menu
+            <sf-menu-context
                     size=${this.size === "1/2" ? "1/2" : "1"}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'toolbar-actions'})}
@@ -909,8 +909,8 @@ class SfTable extends TableElement {
           "
                     data-context-main-menu
                     .entries=${entries}
-                    @sf-context-menu-select=${select}
-            ></sf-context-menu>
+                    @sf-menu-context-select=${select}
+            ></sf-menu-context>
         `;
     }
 
@@ -945,7 +945,7 @@ class SfTable extends TableElement {
             ]),
         ];
         return html`
-            <sf-context-menu
+            <sf-menu-context
                     size=${this.size === "1/2" ? "1/2" : "1"}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'list-sort'})}
@@ -957,8 +957,8 @@ class SfTable extends TableElement {
           "
                     data-context-main-menu
                     .entries=${items}
-                    @sf-context-menu-select=${select}
-            ></sf-context-menu>
+                    @sf-menu-context-select=${select}
+            ></sf-menu-context>
         `;
     }
 
@@ -972,7 +972,7 @@ class SfTable extends TableElement {
             if (item) this.requestCreateIntent(item.id);
         };
         return html`
-            <sf-context-menu
+            <sf-menu-context
                     size=${this.size === "1/2" ? "1/2" : "1"}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'create'})}
@@ -984,8 +984,8 @@ class SfTable extends TableElement {
           "
                     data-context-main-menu
                     .entries=${entries}
-                    @sf-context-menu-select=${select}
-            ></sf-context-menu>
+                    @sf-menu-context-select=${select}
+            ></sf-menu-context>
         `;
     }
 
@@ -1106,7 +1106,7 @@ class SfTable extends TableElement {
         if (!(target instanceof Element)) return false;
         return Boolean(target.closest(
             'td[data-key="select"], td[data-key="settings"], a[href], button, input, select, textarea,'
-            + ' [role="button"], [role="link"], sf-checkbox, sf-dropdown, sf-button, sf-icon-button',
+            + ' [role="button"], [role="link"], sf-checkbox, sf-dropdown, sf-button, sf-button-icon',
         ));
     }
 
@@ -3054,7 +3054,7 @@ class SfTable extends TableElement {
         } = data;
         const template = this.getSelectedFilterTemplate();
         return html`
-            <sf-context-menu
+            <sf-menu-context
                     size=${this.size === "1/2" ? "1/2" : "1"}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'filter-favorites'})}
@@ -3123,7 +3123,7 @@ class SfTable extends TableElement {
                             }}" root-class="flex-1" text="${this.text('applyText')}"></sf-button>
                 </div>
                 </div>
-            </sf-context-menu>
+            </sf-menu-context>
         `;
     }
 
@@ -3184,7 +3184,7 @@ class SfTable extends TableElement {
             }
         }
         return html`
-            <sf-context-menu
+            <sf-menu-context
                     size=${this.size === "1/2" ? "1/2" : "1"}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'row-settings'})}
@@ -3207,7 +3207,7 @@ class SfTable extends TableElement {
                             disabled: Boolean(props.disabled),
                         };
                     })}
-                    @sf-context-menu-select=${(event) => {
+                    @sf-menu-context-select=${(event) => {
                         const item = items[Number(event.detail?.id)];
                         const props = item?.props || item?.component?.props || {};
                         const handler = props["@click"] ?? props.onClick;
@@ -3216,7 +3216,7 @@ class SfTable extends TableElement {
                     }}
                     position="${position || "left"}"
             >
-            </sf-context-menu>
+            </sf-menu-context>
         `;
     }
 
@@ -3691,7 +3691,7 @@ class SfTable extends TableElement {
                      data-sf-sortable-item=${col.key}
                      data-pinned=${pinned ? "1" : "0"}>
                     ${handle
-                        ? html`<sf-icon-button
+                        ? html`<sf-button-icon
                                 size="1/2"
                                 appearance="link"
                                 scheme="on-surface"
@@ -3700,7 +3700,7 @@ class SfTable extends TableElement {
                                 data-sf-sortable-handle
                                 root-class="sf-table-column-move cursor-grab"
                                 aria-label=${`${this.text("columnMoveLabel", "column-move-label")}: ${col.label || col.key}`}
-                            ></sf-icon-button>`
+                            ></sf-button-icon>`
                         : nothing}
                     <span class="flex-1 min-w-0">${box}</span>
                     <!-- A pinned column's pin is filled and a loose one's is
@@ -3708,7 +3708,7 @@ class SfTable extends TableElement {
                          shows itself. Colour alone had to carry the state, and
                          the two schemes are close enough that a person reading
                          a list of twenty pins could not tell which were set. -->
-                    <sf-icon-button
+                    <sf-button-icon
                         size="1/2"
                         appearance="link"
                         scheme=${pinned ? "primary" : "on-surface"}
@@ -3718,7 +3718,7 @@ class SfTable extends TableElement {
                         aria-label=${pinned ? this.text("unpinColumnLabel", "unpin-column-label") : this.text("pinColumnLabel", "pin-column-label")}
                         aria-pressed=${pinned ? "true" : "false"}
                         @click=${() => this.toggleColumnPinned(col)}
-                    ></sf-icon-button>
+                    ></sf-button-icon>
                 </div>
             `;
         });
@@ -4277,7 +4277,7 @@ class SfTable extends TableElement {
                         <sf-input size=${this.size} ${ref(this.refs.renameInput)} root-class="flex-1"
                                   default-value="${col.label}"></sf-input>
                         <div class="flex items-cross-center flex-none">
-                            <sf-icon-button size=${this.size} segment="start" appearance="outline" scheme="on-surface" @click="${() => {
+                            <sf-button-icon size=${this.size} segment="start" appearance="outline" scheme="on-surface" @click="${() => {
                                 this.set((prevState) => ({
                                     filter: {
                                         ...(prevState.filter || {}),
@@ -4285,8 +4285,8 @@ class SfTable extends TableElement {
                                     },
                                 }));
                             }}"
-                                            icon="close"></sf-icon-button>
-                            <sf-icon-button size=${this.size} segment="end" icon="check" @click="${() => {
+                                            icon="close"></sf-button-icon>
+                            <sf-button-icon size=${this.size} segment="end" icon="check" @click="${() => {
                                 const name = this.refs.renameInput.value?.value;
                                 this.saveFilterTemplatePatch(col.key, {
                                     label: name,
@@ -4297,7 +4297,7 @@ class SfTable extends TableElement {
                                     saveInputValue: name,
                                 });
 
-                            }}"></sf-icon-button>
+                            }}"></sf-button-icon>
                         </div>
                     </div>`
             }
@@ -4312,7 +4312,7 @@ class SfTable extends TableElement {
                         data-pinned="${col.pinned ? "1" : "0"}"
                 >
                     ${!isActiveEdit ? html`
-                        <sf-icon-button size=${this.size}
+                        <sf-button-icon size=${this.size}
                                 id="${this.getInstanceId()}--template-move--${col.key}"
                                 appearance="link"
                                 data-move
@@ -4321,11 +4321,11 @@ class SfTable extends TableElement {
                                 aria-label=${`${this.text("templateMoveLabel")}: ${col.label}`}
                                 icon="drag_indicator"
                                 root-class="cursor-move"
-                        ></sf-icon-button>` : nothing}
+                        ></sf-button-icon>` : nothing}
                     ${component}
                     ${!isActiveEdit ? html`
                         <div class="flex items-cross-center m-inline-start-auto gap-1/3">
-                            <sf-icon-button
+                            <sf-button-icon
                                     appearance="link"
                                     data-keep
                                     size="1/3"
@@ -4339,8 +4339,8 @@ class SfTable extends TableElement {
                                             pinned: !col.pinned,
                                         });
                                     }}
-                            ></sf-icon-button>
-                            <sf-icon-button size=${this.size}
+                            ></sf-button-icon>
+                            <sf-button-icon size=${this.size}
                                     appearance="link"
                                     data-settings
                                     data-context-submenu-anchor="${col.key}"
@@ -4353,7 +4353,7 @@ class SfTable extends TableElement {
                                             template: col,
                                         });
                                     }}
-                            ></sf-icon-button>
+                            ></sf-button-icon>
                         </div>` : nothing}
                 </div>`;
         })
@@ -4363,7 +4363,7 @@ class SfTable extends TableElement {
         const columnGroups = this.splitItemsByColumns(colsData, menuColumnCount);
         let contextItems = `${this.text('templatesTabText')}|${this.text('fieldsTabText')}`;
         return html`
-            <sf-context-menu
+            <sf-menu-context
                     size=${this.size === "1/2" ? "1/2" : "1"}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'filter-settings'})}
@@ -4381,12 +4381,12 @@ class SfTable extends TableElement {
                     tabs=${contextItems}
                     active-tab=${this._filterTab === 'fields' ? '1' : '0'}
                     closable
-                    @sf-context-menu-tab=${(event) => {
+                    @sf-menu-context-tab=${(event) => {
                         event.stopPropagation();
                         this._filterTab = event.detail?.index === 1 ? 'fields' : 'templates';
                         this.requestComponentUpdate('filter-tab');
                     }}
-                    @sf-context-menu-close=${(event) => {
+                    @sf-menu-context-close=${(event) => {
                         event.stopPropagation();
                         this.closeContextMenu();
                     }}
@@ -4495,7 +4495,7 @@ class SfTable extends TableElement {
                                    text=${pendingConditions
                                        ? `${this.text("filterApplyText", "filter-apply-text")} (${pendingConditions})`
                                        : this.text("filterApplyText", "filter-apply-text")}></sf-button>
-            </sf-context-menu>
+            </sf-menu-context>
         `;
     }
 
@@ -4514,7 +4514,7 @@ class SfTable extends TableElement {
             },
         };
         return html`
-            <sf-context-menu
+            <sf-menu-context
                     size=${this.size === "1/2" ? "1/2" : "1"}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'tag-settings'})}
@@ -4572,7 +4572,7 @@ class SfTable extends TableElement {
                         }}" root-class="flex-1" text="${this.text('applyText')}"></sf-button>
                     </div>
                 </div>
-            </sf-context-menu>
+            </sf-menu-context>
         `;
     }
 
@@ -4649,7 +4649,7 @@ class SfTable extends TableElement {
         // bulk actions in the band under the table, so a third place to find
         // them taught nobody anything.
         return html`
-            <sf-context-menu
+            <sf-menu-context
                     size=${this.size === "1/2" ? "1/2" : "1"}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'table-settings'})}
@@ -4667,12 +4667,12 @@ class SfTable extends TableElement {
                     tabs=${`${this.text('settingsFieldsTab')}|${this.text('settingsViewTab')}`}
                     active-tab=${this._settingsTab === 'view' ? '1' : '0'}
                     closable
-                    @sf-context-menu-tab=${(event) => {
+                    @sf-menu-context-tab=${(event) => {
                         event.stopPropagation();
                         this._settingsTab = event.detail?.index === 1 ? 'view' : 'fields';
                         this.requestComponentUpdate('settings-tab');
                     }}
-                    @sf-context-menu-close=${(event) => {
+                    @sf-menu-context-close=${(event) => {
                         event.stopPropagation();
                         this.closeContextMenu();
                     }}
@@ -4719,7 +4719,7 @@ class SfTable extends TableElement {
                 <sf-button slot="footer" size=${this.size} appearance="outline" scheme="on-surface" root-class="flex-1"
                            text=${this._settingsTab === 'view' ? this.text('viewReset') : this.text('resetText')}
                            @click=${() => (this._settingsTab === 'view' ? this.resetTableView() : this.restoreColumnSettingsOnOpen())}></sf-button>
-            </sf-context-menu>
+            </sf-menu-context>
         `;
     }
 
@@ -4795,7 +4795,7 @@ class SfTable extends TableElement {
         let isDeleted = (temp || template).deleted;
         const isDefaultTemplate = (temp || template).default === true;
         return html`
-            <sf-context-menu
+            <sf-menu-context
                     size=${this.size === "1/2" ? "1/2" : "1"}
                     :key=${`${template.key || ''}-${x}-${y}`}
                     aria-label=${this.getContextMenuLabel({...data, type: 'filter-template-actions'})}
@@ -4818,7 +4818,7 @@ class SfTable extends TableElement {
                         {id: 'delete', text: isDeleted ? this.text('restoreText') : this.text('deleteActionText'),
                             icon: isDeleted ? 'restore_from_trash' : 'delete', danger: !isDeleted, keepOpen: true},
                     ]}
-                    @sf-context-menu-select=${(event) => {
+                    @sf-menu-context-select=${(event) => {
                         const id = event.detail?.id;
                         if (id === 'rename') {
                             this.set((prevState) => ({
@@ -4843,7 +4843,7 @@ class SfTable extends TableElement {
                         }
                     }}
             >
-            </sf-context-menu>
+            </sf-menu-context>
         `;
     }
 
@@ -4862,7 +4862,7 @@ class SfTable extends TableElement {
         // elements are asked for as it opens so they arrive with it.
         if (data?.open) {
             globalThis.SF?.Loader?.ensure?.(data.menu === 'tag-settings'
-                ? ["sf-datepicker", "sf-range-slider"]
+                ? ["sf-input-date", "sf-slider-range"]
                 : ["sf-sortable", "sf-radio", "sf-tabs"]);
         }
         if (!data?.open) {
@@ -4883,9 +4883,9 @@ class SfTable extends TableElement {
                     ${data.submenu?.open ? this.renderContextSubmenu(data.submenu) : nothing}
                     ${this.isList && ["filter-settings", "tag-settings"].includes(data.menu) ? html`
                         <div class="sf-table-sheet-close">
-                            <sf-icon-button size=${this.size} appearance="link" scheme="on-surface"
+                            <sf-button-icon size=${this.size} appearance="link" scheme="on-surface"
                                             icon="close" aria-label=${this.text('closeText')}
-                                            @click=${() => this.closeContextMenu()}></sf-icon-button>
+                                            @click=${() => this.closeContextMenu()}></sf-button-icon>
                         </div>` : nothing}
                 </div>
             `,
@@ -5840,7 +5840,7 @@ class SfTable extends TableElement {
         const inset = parseFloat(rootStyle.getPropertyValue('--sf-space-1/3')) || 0;
 
         const anchored = new Set();
-        portal.querySelectorAll('sf-context-menu').forEach((menu) => {
+        portal.querySelectorAll('sf-menu-context').forEach((menu) => {
             if (this.anchorContextMenu(menu, viewport, inset)) {
                 anchored.add(menu);
                 return;
@@ -6196,7 +6196,7 @@ class SfTable extends TableElement {
             return;
         }
 
-        // The opener is usually an sf-icon-button, whose host is display:contents
+        // The opener is usually an sf-button-icon, whose host is display:contents
         // and has no box at all: anchoring to it put the menu at the top left of
         // the viewport, which the clamp then pushed to the window's edge -- the
         // consumer saw it open far from its button, over the admin menu. The
@@ -6584,7 +6584,7 @@ class SfTable extends TableElement {
             : {id: action.id, text: action.name, icon: iconOf(action), danger: action.danger === true}));
         // The standard menu is a lazy relation of the table: fetched after the
         // page is ready, and asked for here if a press comes first.
-        await globalThis.SF?.Loader?.ensure?.(["sf-context-menu"]);
+        await globalThis.SF?.Loader?.ensure?.(["sf-menu-context"]);
         const menu = this.rowMenu();
         menu.setAttribute("aria-label", this.getContextMenuLabel({row, menu: "row-settings"}));
         menu.entries = entries;
@@ -6594,10 +6594,10 @@ class SfTable extends TableElement {
 
     rowMenu() {
         if (this._rowMenu?.isConnected) return this._rowMenu;
-        const menu = document.createElement("sf-context-menu");
+        const menu = document.createElement("sf-menu-context");
         menu.setAttribute("popup", "");
         menu.dataset.sfTableMenu = "row";
-        menu.addEventListener("sf-context-menu-select", (event) => {
+        menu.addEventListener("sf-menu-context-select", (event) => {
             const context = this._rowMenuContext;
             if (!context) return;
             const id = event.detail?.id;

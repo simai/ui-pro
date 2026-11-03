@@ -25,10 +25,10 @@ const styles = [
 ].map((p) => join(out, p));
 const base = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
-  'smart/smart/icon-button/js/icon-button.js', 'smart/smart/checkbox/js/checkbox.js',
+  'smart/smart/button-icon/js/button-icon.js', 'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/list-item/js/list-item.js', 'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
-  'smart/smart/close/js/close.js', 'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/button-close/js/button-close.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tag/js/tag.js', 'smart/smart/pagination/js/pagination.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
 ].map((p) => join(out, p));
@@ -65,7 +65,7 @@ const open = async ({withLate}) => {
   });
   await page.waitForTimeout(600);
   await page.evaluate(() => {
-    const host = [...document.querySelectorAll('#t sf-button, #t sf-icon-button')]
+    const host = [...document.querySelectorAll('#t sf-button, #t sf-button-icon')]
       .find((node) => node.getAttribute('text') === 'Фильтр');
     (host?.querySelector('button') ?? host)?.click();
   });
@@ -74,7 +74,7 @@ const open = async ({withLate}) => {
 };
 
 const look = (page) => page.evaluate(() => {
-  const menu = document.querySelector('sf-context-menu');
+  const menu = document.querySelector('sf-menu-context');
   if (!menu) return null;
   const rows = [...menu.querySelectorAll('[data-filter-template-key]')];
   const visible = (node) => node.getBoundingClientRect().height > 0;

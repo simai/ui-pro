@@ -2,7 +2,7 @@
   "$comment": "sf-data-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/data-view; every x-todo decided in x-decisions.",
   "id": "smart.data-view-composite",
   "tag": "sf-data-view",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "kind": "leaf",
   "family": "table",
   "settings": {
@@ -787,7 +787,7 @@
       "name": "cl-dropdown"
     },
     {
-      "name": "cl-icon-button"
+      "name": "cl-button-icon"
     }
   ],
   "templates": {
@@ -972,7 +972,8 @@
     "source-drift": "carried by hand: the estimated total «~N» (ui-pro 71ebff1) is the view's behaviour, not a member.",
     "docs": "docs.md, where the folder keeps it.",
     "loader-ensure": "version 1.6.5: the parts, the move dialog's elements and sf-table for the row-action catalogue are asked for through SF.Loader.ensure (core.runtime 1.19.0), not ensureSmartElementLoaded or a race of whenDefined against 3 s of its own (reuse audit 2026-11-02, finding 4). Needs core.runtime >= 1.19.0.",
-    "layer-stack-dialog": "version 1.7.0: the move dialog and the host's confirmation (confirm_required) are sf-modal, not a native <dialog> shown with showModal() (reuse audit 2026-11-02, findings 1 and 2): a modal layer of the one document stack, so a drawer or a modal opened over it or under it is ordered with it, Escape and a press outside close the top one only, focus returns by the stack's rule, the page lock is the stack's. The window is made in slot dialog and drawn in sf-modal's portal; open() asked with a signal answers when it closes (§19.4), accepted only through the apply button (sf-modal confirm()); Escape, the scrim, the close button and «Отмена» answer null as Escape and «Отмена» did. sf-modal, sf-button and sf-radio are asked for through SF.Loader.ensure before it opens; without sf-modal the view says unavailable and writes nothing. Visible: the shared scrim (black at 60) in place of the browser's light backdrop, the title in sf-modal's header with its close button, sf-modal's panel and footer. Needs core.runtime >= 1.19.0."
+    "layer-stack-dialog": "version 1.7.0: the move dialog and the host's confirmation (confirm_required) are sf-modal, not a native <dialog> shown with showModal() (reuse audit 2026-11-02, findings 1 and 2): a modal layer of the one document stack, so a drawer or a modal opened over it or under it is ordered with it, Escape and a press outside close the top one only, focus returns by the stack's rule, the page lock is the stack's. The window is made in slot dialog and drawn in sf-modal's portal; open() asked with a signal answers when it closes (§19.4), accepted only through the apply button (sf-modal confirm()); Escape, the scrim, the close button and «Отмена» answer null as Escape and «Отмена» did. sf-modal, sf-button and sf-radio are asked for through SF.Loader.ensure before it opens; without sf-modal the view says unavailable and writes nothing. Visible: the shared scrim (black at 60) in place of the browser's light backdrop, the title in sf-modal's header with its close button, sf-modal's panel and footer. Needs core.runtime >= 1.19.0.",
+    "framework-tag-renames": "version 1.7.1: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the bulk clear button is sf-button-icon. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0)."
   },
   "x-rule": {
     "$comment": [
@@ -1232,6 +1233,13 @@
           "to": "1.7.0",
           "changes": [
             "The move dialog and the confirmation are sf-modal on the layer stack, not a native <dialog>; needs core.runtime >= 1.19.0 and sf-modal on the page's pair. Visible: the shared scrim (black at 60) instead of the browser's backdrop, sf-modal's header with a close button and its footer. Same answers: applied only through the apply button. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.7.0",
+          "to": "1.7.1",
+          "changes": [
+            "Draws and finds the renamed Framework elements by their new tags (the bulk clear button is sf-button-icon); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
           ]
         }
       ]

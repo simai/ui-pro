@@ -371,7 +371,7 @@ class SfMailInspector extends MailInspectorElement {
     onKeydown(event) {
         if (event.key !== "Escape" || event.defaultPrevented) return;
         const target = event.target;
-        if (target.closest?.("sf-modal, .sf-modal, sf-dropdown, sf-context-menu, [role=\"listbox\"], [role=\"menu\"]")) return;
+        if (target.closest?.("sf-modal, .sf-modal, sf-dropdown, sf-menu-context, [role=\"listbox\"], [role=\"menu\"]")) return;
         if (document.documentElement.dataset.sfPopoverOpen || document.querySelector("sf-modal[open], [role=\"menu\"]:popover-open, [data-sf-sortable-state=\"dragging\"]")) return;
         const body = target.closest?.("[data-item-body]");
         const answer = this.levelUp();
@@ -403,7 +403,7 @@ class SfMailInspector extends MailInspectorElement {
     onToggleKeydown(path, index, event) {
         if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
             event.preventDefault();
-            this.openItemMenu(path, index, event.currentTarget.closest("[data-item]")?.querySelector("sf-icon-button"));
+            this.openItemMenu(path, index, event.currentTarget.closest("[data-item]")?.querySelector("sf-button-icon"));
             return;
         }
         if (!event.altKey || (event.key !== "ArrowUp" && event.key !== "ArrowDown")) return;
@@ -438,9 +438,9 @@ class SfMailInspector extends MailInspectorElement {
         if (!list || !menu) return;
         this.menuFor = {path, index};
         const native = anchor?.querySelector?.("button") ?? anchor;
-        // The Loader brings sf-context-menu when the page is ready (the rule
+        // The Loader brings sf-menu-context when the page is ready (the rule
         // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-context-menu").then(() => {
+        customElements.whenDefined("sf-menu-context").then(() => {
             menu.entries = this.menuEntries(list, index);
             menu.toggleFor(native);
         });
@@ -473,7 +473,7 @@ class SfMailInspector extends MailInspectorElement {
             } else if (field.kind === "switch") {
                 if (node.isChecked && node.isChecked() !== Boolean(field.value)) node.setChecked?.(Boolean(field.value));
             } else if (field.kind === "image") {
-                const well = node.matches("sf-image-field") ? node : node.querySelector("sf-image-field");
+                const well = node.matches("sf-input-image") ? node : node.querySelector("sf-input-image");
                 if (well && !this.attaching.has(path) && imageKey(well.value) !== imageKey(field.value)) well.value = field.value ?? null;
             }
         }

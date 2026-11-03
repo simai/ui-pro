@@ -25,10 +25,10 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
-  'smart/smart/icon-button/js/icon-button.js', 'smart/smart/checkbox/js/checkbox.js',
+  'smart/smart/button-icon/js/button-icon.js', 'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/list-item/js/list-item.js', 'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
-  'smart/smart/context-menu/js/context-menu.js', 'smart/smart/sortable/js/sortable.js',
+  'smart/smart/menu-context/js/menu-context.js', 'smart/smart/sortable/js/sortable.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
 ].map((p) => join(out, p));
 
@@ -59,7 +59,7 @@ try {
     });
     await page.waitForTimeout(500);
     const opened = await page.evaluate(() => {
-      const host = [...document.querySelectorAll('#t sf-button, #t sf-icon-button')]
+      const host = [...document.querySelectorAll('#t sf-button, #t sf-button-icon')]
         .find((node) => node.getAttribute('aria-label') === 'Настройки' || node.getAttribute('text') === 'Настройки');
       (host?.querySelector('button') ?? host)?.click();
       return Boolean(host);
@@ -67,12 +67,12 @@ try {
     if (!opened) throw new Error('no settings control');
     await page.waitForTimeout(700);
     const window = await page.evaluate(() => {
-      const surface = document.querySelector('sf-context-menu .sf-table-context-menu');
+      const surface = document.querySelector('sf-menu-context .sf-table-context-menu');
       if (!surface) return null;
       const footer = surface.querySelector('.sf-context-menu-footer');
       return {
         width: Math.round(surface.getBoundingClientRect().width),
-        size: surface.closest('sf-context-menu')?.getAttribute('size'),
+        size: surface.closest('sf-menu-context')?.getAttribute('size'),
         footer: Boolean(footer),
       };
     });
@@ -124,9 +124,9 @@ try {
         items: [{component: 'sf-button', props: {text: 'Опубликовать', scheme: 'on-surface', '@click': () => { window.chosen += 1; }}}],
       });
       await new Promise((done) => setTimeout(done, 400));
-      const rowMenu = document.querySelector('sf-context-menu[aria-label] .sf-context-menu-item');
+      const rowMenu = document.querySelector('sf-menu-context[aria-label] .sf-context-menu-item');
       const rowLabel = rowMenu?.querySelector('.sf-context-menu-item-label')?.textContent.trim() ?? null;
-      const linkButtons = document.querySelectorAll('sf-context-menu sf-button[appearance="link"]').length;
+      const linkButtons = document.querySelectorAll('sf-menu-context sf-button[appearance="link"]').length;
       rowMenu?.click();
       await new Promise((done) => setTimeout(done, 200));
       table.openContextMenu({currentTarget: anchor, target: anchor, preventDefault() {}, stopPropagation() {}}, {menu: 'filter-settings'});
@@ -134,7 +134,7 @@ try {
       table.openContextSubmenu({currentTarget: anchor, target: anchor, preventDefault() {}, stopPropagation() {}},
         {type: 'filter-template-actions', template: {key: 'mine', name: 'Мой'}});
       await new Promise((done) => setTimeout(done, 400));
-      const submenu = document.querySelector('sf-context-menu[data-context-submenu]');
+      const submenu = document.querySelector('sf-menu-context[data-context-submenu]');
       return {
         rowLabel, linkButtons, chosen: window.chosen,
         submenu: [...(submenu?.querySelectorAll('.sf-context-menu-item-label') ?? [])].map((node) => node.textContent.trim()),

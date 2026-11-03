@@ -18,7 +18,7 @@ SF.RuleLoader['cl-property-view'] = {
     // fetch, whatever else on the page may already have fetched it.
     { name: 'cl-icon' },
     { name: 'cl-button' },
-    { name: 'cl-icon-button' },
+    { name: 'cl-button-icon' },
     { name: 'cl-drawer' },
     { name: 'cl-tree' },
     { name: 'cl-tree-item' },
@@ -32,20 +32,20 @@ SF.RuleLoader['cl-property-view'] = {
     // The views are chosen, made, renamed and removed in the profile picker
     // (owner, 2026-10-14), drawn while the view is arranged.
     { name: 'cl-profile-picker', lazy: true },
-    // «Copy link» is sf-copy-button (owner, 2026-10-14).
-    { name: 'cl-copy-button' },
+    // «Copy link» is sf-button-copy (owner, 2026-10-14).
+    { name: 'cl-button-copy' },
     // A record that could not load says why in sf-empty-state.
     { name: 'cl-empty-state' },
     { name: 'cl-progress-scale' },
-    // A number with a range draws sf-range-slider, from the shared renderer set.
-    { name: 'cl-range-slider', lazy: true },
+    // A number with a range draws sf-slider-range, from the shared renderer set.
+    { name: 'cl-slider-range', lazy: true },
     { name: 'cl-file-preview' },
     { name: 'cl-file-upload', lazy: true },
     { name: 'cl-progress-bar', lazy: true },
     { name: 'cl-input', lazy: true },
-    { name: 'cl-textarea', lazy: true },
+    { name: 'cl-input-textarea', lazy: true },
     { name: 'cl-dropdown', lazy: true },
-    { name: 'cl-datepicker', lazy: true },
+    { name: 'cl-input-date', lazy: true },
     { name: 'cl-switch', lazy: true },
     { name: 'cl-checkbox', lazy: true },
     { name: 'cl-button-group', lazy: true },
@@ -56,13 +56,13 @@ SF.RuleLoader['cl-property-view'] = {
     // would render as undefined elements -- present in the DOM, inert to a
     // pointer, and indistinguishable from a feature that silently does nothing.
     { name: 'cl-sortable', lazy: true },
-    // A colour property draws sf-color, in a cell and in a card alike.
-    { name: 'cl-color' },
-    // A string whose variant is a phone draws sf-country-code. The rule fence
+    // A colour property draws sf-input-color, in a cell and in a card alike.
+    { name: 'cl-input-color' },
+    // A string whose variant is a phone draws sf-input-country. The rule fence
     // reads a component's own templates, and this element comes from the shared
     // renderer set instead -- so nothing would have caught its absence until a
     // page showed an element that never upgraded.
-    { name: 'cl-country-code' },
+    { name: 'cl-input-country' },
     // A field's hint beside its label is sf-help-mark, a button that opens the
     // words on a press. It was a glyph carrying them in a native title, which
     // needs a hover and left a touch device with no way to read the hint at all

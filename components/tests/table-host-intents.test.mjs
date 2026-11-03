@@ -52,7 +52,7 @@ test('create button and menu items emit a create intent with the chosen item', (
 
 test('toolbar wires the create button and renders the arrow only with items', () => {
     assert.match(template, /@click=\$\{\(\) => context\.component\.requestCreateIntent\(null\)\}/);
-    assert.match(template, /state\.createItems\?\.length \? html`\s*<sf-icon-button/);
+    assert.match(template, /state\.createItems\?\.length \? html`\s*<sf-button-icon/);
     assert.match(template, /menu: 'create'/);
 });
 

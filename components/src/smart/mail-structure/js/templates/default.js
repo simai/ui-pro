@@ -24,9 +24,9 @@ function renderRow(context, row) {
                 <span class="sf-mail-structure-title">${row.title}</span>
                 ${row.summary ? html`<span class="sf-mail-structure-summary">${row.summary}</span>` : nothing}
             </span>
-            <sf-icon-button class="sf-mail-structure-more" size="1/2" appearance="link" icon="more_horiz" tabindex="-1"
+            <sf-button-icon class="sf-mail-structure-more" size="1/2" appearance="link" icon="more_horiz" tabindex="-1"
                             aria-label=${row.actionsLabel} title=${row.actionsLabel}
-                            @click=${(event) => component.openMenu(row.id, event.currentTarget)}></sf-icon-button>
+                            @click=${(event) => component.openMenu(row.id, event.currentTarget)}></sf-button-icon>
         </div>
     `;
 }
@@ -70,11 +70,11 @@ export function renderMailStructureTemplate(context) {
                     <span class="sf-mail-structure-title">${context.addLabel}</span>
                 </button>`}
             <span class="sf-mail-structure-notice sr-only" role="status">${context.noticeText}</span>
-            <sf-context-menu class="sf-mail-structure-menu" popup
-                             @sf-context-menu-select=${(event) => {
+            <sf-menu-context class="sf-mail-structure-menu" popup
+                             @sf-menu-context-select=${(event) => {
                                  event.stopPropagation();
                                  component.onMenuSelect(event.detail);
-                             }}></sf-context-menu>
+                             }}></sf-menu-context>
         </div>
     `;
 }

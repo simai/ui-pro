@@ -1712,7 +1712,7 @@ class SfAdminMenu extends AdminMenuElement {
     openContextMenu(event, opts = {}) {
         const target = event.currentTarget instanceof Element
             ? event.currentTarget
-            : event.target?.closest?.("button, a[href], sf-icon-button") || event.target;
+            : event.target?.closest?.("button, a[href], sf-button-icon") || event.target;
         if (!(target instanceof HTMLElement)) return;
         event.preventDefault();
         event.stopPropagation();
@@ -1927,7 +1927,7 @@ class SfAdminMenu extends AdminMenuElement {
         const openingFocus = document.activeElement;
         render(
             html`
-                <sf-context-menu
+                <sf-menu-context
                         :key=${x + y}
                         style="
             position: fixed;
@@ -1940,11 +1940,11 @@ class SfAdminMenu extends AdminMenuElement {
                         aria-label=${this._contextReturnFocus?.getAttribute("aria-label") || this.translate("settingsTitle")}
                         position="${position || "left"}"
                 >
-                </sf-context-menu>
+                </sf-menu-context>
             `,
             portal,
         );
-        this.refs.contextMenu.value = portal.querySelector("sf-context-menu");
+        this.refs.contextMenu.value = portal.querySelector("sf-menu-context");
         const menu = this.refs.contextMenu.value;
         let focusPending = Boolean(this.contextTarget);
         this._contextReadyHandler = () => {

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.property-view",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -37,13 +37,11 @@
       "smart.avatar",
       "smart.badge",
       "smart.button",
+      "smart.button-copy",
       "smart.button-group",
+      "smart.button-icon",
       "smart.checkbox",
-      "smart.color",
-      "smart.copy-button",
-      "smart.country-code",
       "smart.data-view",
-      "smart.datepicker",
       "smart.drawer",
       "smart.dropdown",
       "smart.empty-state",
@@ -51,22 +49,24 @@
       "smart.file-upload",
       "smart.help-mark",
       "smart.icon",
-      "smart.icon-button",
       "smart.input",
+      "smart.input-color",
+      "smart.input-country",
+      "smart.input-date",
+      "smart.input-textarea",
       "smart.list-item",
       "smart.popover",
       "smart.profile-picker",
       "smart.progress-bar",
       "smart.progress-scale",
-      "smart.range-slider",
       "smart.reference-link",
+      "smart.slider-range",
       "smart.sortable",
       "smart.spinner",
       "smart.switch",
       "smart.table",
       "smart.tabs",
       "smart.tag",
-      "smart.textarea",
       "smart.tree",
       "smart.tree-item"
     ],
@@ -1417,6 +1417,13 @@
         "changes": [
           "The focus after arranging is found with the layer stack's FOCUSABLE; needs core.runtime >= 1.19.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
         ]
+      },
+      {
+        "from": "1.8.4",
+        "to": "1.8.5",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the editors are sf-input-date, sf-input-color, sf-input-country, sf-input-textarea, sf-slider-range and sf-button-copy, the buttons sf-button-icon, the standard menu sf-menu-context); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -1426,15 +1433,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/property-view/index.js",
-        "sha256": "1d25762b9f14ebaec048730fcdd677e3ce9370f3288c657c37effff3f47b9937"
+        "sha256": "df33f1ecf387613baec6844313e4604c1e1222b889bcef71b2a4425e9f6b0823"
       },
       {
         "path": "src/smart/property-view/js/templates/default.js",
-        "sha256": "d80f6247bfd1d7df50a35f24d29fffd2045638e5516791733b2bfe17a39b9ae6"
+        "sha256": "ee7dd47833317d99bed73dd909bc63b2c771a497a23ac3fa2692bcd97c913aa5"
       },
       {
         "path": "src/smart/property-view/js/templates/default.css",
-        "sha256": "1138b63d478ce5e7fc000b4e584230bff54da2dca0e1453ffa6876a6c19a3c2b"
+        "sha256": "c6b0bc5e9637df28e0be6f7d5e01bda55d441c92d718d400cd80f6b5889e8cbf"
       },
       {
         "path": "src/smart/property-view/js/datetime-value.js",
@@ -1442,7 +1449,7 @@
       },
       {
         "path": "src/smart/property-view/js/datetime-edit.js",
-        "sha256": "73aa9ecf895689e6f6456b09da7b896d8497ff5540fb8b38033ebdfe47f94ac8"
+        "sha256": "c4930791ef3047430f9954aa5fbaa87f1b50e416d2ef65c8629bde5dbd30dca1"
       },
       {
         "path": "src/smart/property-view/js/conditions.js",
@@ -1450,7 +1457,7 @@
       },
       {
         "path": "src/smart/property-view/rule.js",
-        "sha256": "1ef44cb1ced2ce312e8a805ce8d54e2b873c9e1d54a5b7aa20d278fac5c413c0"
+        "sha256": "3bd600914cc6133da75c22cf1ca38c96e522f5d10706dc6420f3073e3737dd40"
       },
       {
         "path": "src/core/contracts/ports/simai.property-view-port/1.4.0/port.json",
@@ -1458,7 +1465,7 @@
       },
       {
         "path": "src/smart/property-view/docs.md",
-        "sha256": "27a3aadb5e2cf44853e70814c3da5b95cb202ce391c23eec32e3722691cd07af"
+        "sha256": "9d1de67c8b02186276f1626943518717d4be1083936bee54d022c21f400eb0c0"
       }
     ],
     "generated_runtime": []

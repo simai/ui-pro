@@ -33,7 +33,7 @@ test('a wide panel is never wider than the window less the edge strip', () => {
 test('the edge strip is one control and the drawer step on each side', () => {
   assert.match(body(source, '    get edgeRoom() {'),
     /return `calc\(\$\{this\.edgeControlWidth\} \+ 2 \* var\(--sf-space-1\\\\\/2\)\)`;/u);
-  // The control's own width: an sf-icon-button is its text height and the
+  // The control's own width: an sf-button-icon is its text height and the
   // ladder's padding on both sides.
   assert.match(body(source, '    get edgeControlWidth() {'),
     /calc\(var\(--sf-text-height-\$\{step\}\) \+ 2 \* var\(--sf-ui-\$\{step\}--space-y-tightness-default\)\)/u);

@@ -2,7 +2,7 @@
   "$comment": "The source of sf-mail-canvas's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-mail by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
   "id": "smart.mail-canvas",
   "tag": "sf-mail-canvas",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -155,7 +155,7 @@
     "overlay-target": {
       "type": "string",
       "default": "",
-      "summary": "The id of an sf-composition-overlay the host placed elsewhere on the page, outside a contained ancestor (simai/ui-source#58). Empty places one in the element's own markup."
+      "summary": "The id of an sf-editor-overlay the host placed elsewhere on the page, outside a contained ancestor (simai/ui-source#58). Empty places one in the element's own markup."
     }
   },
   "values": {},
@@ -342,7 +342,7 @@
       "name": "cl-button-group"
     },
     {
-      "name": "cl-composition-overlay"
+      "name": "cl-editor-overlay"
     }
   ],
   "templates": {
@@ -373,11 +373,11 @@
       "Enter": "toolbar",
       "Escape": "clear"
     },
-    "x-keys": "the width switch, then the overlay's tree as one tab stop; the frame and the letter's links take no tab stop. The keys of the tree and the toolbar are sf-composition-overlay's, and work inside the frame after a press on it."
+    "x-keys": "the width switch, then the overlay's tree as one tab stop; the frame and the letter's links take no tab stop. The keys of the tree and the toolbar are sf-editor-overlay's, and work inside the frame after a press on it."
   },
   "host-states": {},
   "css-variables": {},
-  "x-summary": "The canvas of SIMAI Email Editor: a rendered letter in a frame that runs nothing, the width switch, the out-of-date and weight notes and sf-composition-overlay on top. The element knows no letter, no block manifest and no renderer: the host passes the HTML and the data about it, and hears what the person did.",
+  "x-summary": "The canvas of SIMAI Email Editor: a rendered letter in a frame that runs nothing, the width switch, the out-of-date and weight notes and sf-editor-overlay on top. The element knows no letter, no block manifest and no renderer: the host passes the HTML and the data about it, and hears what the person did.",
   "x-source": {
     "package": "ui-pro",
     "folder": "mail-canvas",
@@ -397,11 +397,12 @@
     "events: select, change, apply and move are vocabulary §5 verbs; hover, insert, edit and draw are verbs of this element. The overlay's change (a plain-string edit) is edit here, because change here is the width, under the plain native name.",
     "overlay: simai/ui-source#58 is the Framework's and open: under an ancestor with contain: layout (a docked sf-drawer's container) the overlay's fixed layer lands offset. The element does not hide that. It places the overlay in its own markup by default, and overlay-target binds one the host placed outside such an ancestor; docs.md says which is which.",
     "first paint: a printed frame shows the letter (sandbox and srcdoc as drawn) and the well holds its size, so nothing below moves when the letter is measured. The overlay's parts float where its code places them, so printed they are not shown; and its toolbar is not shown until placed, because sf-composition-overlay unhides it before the frame that places it and the gate measured the shift (a Framework behaviour, worked around in this element's sheet only).",
-    "version 1.1.0, owner's decision of 2026-10-31: the letter is patched block by block by its mark attribute and is not reloaded, a full write only when the head of the letter changes; the element's own overlay lies in the scroller, so its parts travel with the letter."
+    "version 1.1.0, owner's decision of 2026-10-31: the letter is patched block by block by its mark attribute and is not reloaded, a full write only when the head of the letter changes; the element's own overlay lies in the scroller, so its parts travel with the letter.",
+    "version 1.1.1: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the overlay is sf-editor-overlay (its sf-editor-overlay-* events); an overlay-target the host placed may still be the former sf-composition-overlay. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0)."
   ],
   "x-rule": {
     "$comment": [
-      "The canvas draws its width switch as sf-button-group and places sf-composition-overlay over the frame;",
+      "The canvas draws its width switch as sf-button-group and places sf-editor-overlay over the frame;",
       "a tag it renders is a tag it fetches. Both are drawn at once: the overlay is what makes the letter",
       "something to press on. The element waits for the overlay before it attaches the frame."
     ]
@@ -539,7 +540,15 @@
       "focus": "The width switch, then the overlay's tree. The frame and the letter's links take no tab stop. The frame and the layer are named in the page language."
     },
     "compatibility": {
-      "migrations": []
+      "migrations": [
+        {
+          "from": "1.1.0",
+          "to": "1.1.1",
+          "changes": [
+            "Draws and finds the renamed Framework elements by their new tags (the overlay is sf-editor-overlay (its sf-editor-overlay-* events); an overlay-target the host placed may still be the former sf-composition-overlay); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+          ]
+        }
+      ]
     }
   }
 }

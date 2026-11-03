@@ -29,11 +29,11 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
-  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/input/js/input.js', 'smart/smart/switch/js/switch.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/button-group/js/button-group.js',
-  'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tree/js/tree.js', 'smart/smart/tree-item/js/tree-item.js',
   'smart/smart/spinner/js/spinner.js', 'smart/smart/drawer/js/drawer.js',
   'smart/smart/field-renderers/js/field-renderers.js',
@@ -87,7 +87,7 @@ try {
   await page.waitForTimeout(1400);
 
   const unupgraded = await page.evaluate(() => ['sf-property-view', 'sf-drawer', 'sf-tree',
-    'sf-tree-item', 'sf-button', 'sf-icon-button', 'sf-button-group', 'sf-context-menu',
+    'sf-tree-item', 'sf-button', 'sf-button-icon', 'sf-button-group', 'sf-menu-context',
     'sf-switch', 'sf-input', 'sf-sortable'].filter((tag) => !customElements.get(tag)));
   if (unupgraded.length) {
     console.error(JSON.stringify({unupgraded}, null, 2));

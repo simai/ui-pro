@@ -6,7 +6,7 @@
 // renders is a tag it fetches. Code blocks go through SF.Highlight when the
 // page has it; the message does not bring it.
 // Among people an author is sf-avatar, or its class markup with a sign, the word
-// beside a name sf-badge and «⋯» sf-context-menu: only there, so lazily.
+// beside a name sf-badge and «⋯» sf-menu-context: only there, so lazily.
 SF.RuleLoader['cl-chat-message'] = {
   tags: ['sf-chat-message'],
   type: 'smart',
@@ -21,6 +21,6 @@ SF.RuleLoader['cl-chat-message'] = {
     { name: 'cl-change-confirm' },
     { name: 'cl-avatar', lazy: true },
     { name: 'cl-badge', lazy: true },
-    { name: 'cl-context-menu', lazy: true },
+    { name: 'cl-menu-context', lazy: true },
   ],
 };

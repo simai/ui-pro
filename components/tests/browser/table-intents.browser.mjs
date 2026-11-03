@@ -41,16 +41,16 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   const arrow = page.locator('sf-table#table [aria-label="Дополнительные действия создания"] button, sf-table#table button[aria-label="Дополнительные действия создания"]').first();
   await arrow.waitFor();
   await arrow.click();
-  const menuItem = page.locator('sf-context-menu[aria-label="Варианты создания"] button').filter({ hasText: 'Раздел' });
+  const menuItem = page.locator('sf-menu-context[aria-label="Варианты создания"] button').filter({ hasText: 'Раздел' });
   await menuItem.waitFor();
-  const menuBox = await page.locator('sf-context-menu[aria-label="Варианты создания"]').evaluate((node) => {
+  const menuBox = await page.locator('sf-menu-context[aria-label="Варианты создания"]').evaluate((node) => {
     const box = (node.querySelector('.sf-context-menu') || node.firstElementChild || node).getBoundingClientRect();
     return { left: box.left, right: box.right, width: document.documentElement.clientWidth };
   });
   check(menuBox.left >= 0 && menuBox.right <= menuBox.width + 1, `${tag}: create menu inside viewport`, menuBox);
   await menuItem.click();
   check(JSON.stringify(await events('sf-table-create-intent')) === '[{"item":null},{"item":"folder"}]', `${tag}: create menu intent`, await events('sf-table-create-intent'));
-  check(await page.locator('sf-context-menu[aria-label="Варианты создания"]').count() === 0, `${tag}: create menu closes`);
+  check(await page.locator('sf-menu-context[aria-label="Варианты создания"]').count() === 0, `${tag}: create menu closes`);
 
   // 2. Sort: header click cycles; aria-sort follows; keyboard works; rows keep order.
   const th = page.locator('sf-table#table th[data-key="title"]');
@@ -122,12 +122,12 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
 
   // 5. Badge options in the filter menu.
   await page.locator('sf-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
-  const filterMenu = page.locator('sf-context-menu[aria-label="Настройки фильтра"]');
+  const filterMenu = page.locator('sf-menu-context[aria-label="Настройки фильтра"]');
   await filterMenu.waitFor();
   const statusField = filterMenu.getByText('Статус', { exact: true }).first();
   if (await statusField.count()) await statusField.click().catch(() => {});
   await page.waitForTimeout(300);
-  let badges = await page.locator('sf-context-menu sf-badge').evaluateAll((nodes) => nodes.map((node) => {
+  let badges = await page.locator('sf-menu-context sf-badge').evaluateAll((nodes) => nodes.map((node) => {
     const box = node.querySelector('.sf-badge');
     const style = box ? getComputedStyle(box) : null;
     return { text: node.getAttribute('text'), scheme: node.getAttribute('scheme'), icon: node.getAttribute('icon'),
@@ -142,7 +142,7 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
     });
     await page.locator('sf-table#table sf-tag').filter({ hasText: 'Статус' }).first().click();
     await page.waitForTimeout(400);
-    badges = await page.locator('sf-context-menu sf-badge').evaluateAll((nodes) => nodes.map((node) => {
+    badges = await page.locator('sf-menu-context sf-badge').evaluateAll((nodes) => nodes.map((node) => {
       const box = node.querySelector('.sf-badge');
       const style = box ? getComputedStyle(box) : null;
       return { text: node.getAttribute('text'), scheme: node.getAttribute('scheme'), icon: node.getAttribute('icon'),
@@ -167,7 +167,7 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   const chip = page.locator('sf-table#table .sf-table-tags sf-tag .sf-tag').first();
   await chip.waitFor();
   await chip.click({ position: { x: 12, y: 8 } });
-  const tagMenu = page.locator('sf-context-menu[aria-label^="Настройка фильтра"] > .sf-context-menu');
+  const tagMenu = page.locator('sf-menu-context[aria-label^="Настройка фильтра"] > .sf-context-menu');
   await tagMenu.waitFor();
   await page.waitForTimeout(250);
   const chipBox = await chip.boundingBox();
@@ -189,13 +189,13 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   await page.keyboard.press('Escape');
   await page.waitForTimeout(300);
   check(await page.evaluate(() => document.activeElement?.classList.contains('sf-tag-action')), `${tag}: focus returns to the chip after Escape`);
-  const removeName = await page.locator('sf-table#table .sf-table-tags sf-tag sf-icon-button button').first().getAttribute('aria-label');
+  const removeName = await page.locator('sf-table#table .sf-table-tags sf-tag sf-button-icon button').first().getAttribute('aria-label');
   check(removeName === 'Удалить', `${tag}: chip keeps a separate remove action`, removeName);
 
   // Row menu opens beside its button with the tail towards it.
   const rowButton = page.locator('sf-table#table tbody tr').first().locator('td[data-key="settings"] button').first();
   await rowButton.click();
-  const rowMenu = page.locator('sf-context-menu[aria-label="Действия со строкой"]');
+  const rowMenu = page.locator('sf-menu-context[aria-label="Действия со строкой"]');
   await rowMenu.waitFor();
   await page.waitForTimeout(250);
   const buttonBox = await rowButton.boundingBox();
@@ -228,7 +228,7 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
     { key: 'old', label: 'Старый вид', data: { tags: {}, values: {} } },
   ]));
   await page.locator('sf-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
-  const templateMenu = page.locator('sf-context-menu[aria-label="Настройки фильтра"]');
+  const templateMenu = page.locator('sf-menu-context[aria-label="Настройки фильтра"]');
   await templateMenu.waitFor();
   const templatesTab = templateMenu.locator('sf-button').filter({ hasText: 'Шаблоны' }).locator('button').first();
   if (await templatesTab.count()) await templatesTab.click();
@@ -236,7 +236,7 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   const templateRow = templateMenu.locator('[data-context-submenu-anchor="old"]').first();
   await templateRow.waitFor();
   await templateRow.click();
-  const remove = page.locator('sf-context-menu[data-context-submenu] sf-button').filter({ hasText: 'Удалить' }).first();
+  const remove = page.locator('sf-menu-context[data-context-submenu] sf-button').filter({ hasText: 'Удалить' }).first();
   await remove.waitFor();
   await remove.click();
   await page.waitForTimeout(250);
@@ -290,7 +290,7 @@ await page.evaluate(() => document.getElementById('table').setTemplates([
 ]));
 await clearEvents();
 await page.locator('sf-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();
-const menu = page.locator('sf-context-menu[aria-label="Настройки фильтра"]');
+const menu = page.locator('sf-menu-context[aria-label="Настройки фильтра"]');
 await menu.waitFor();
 const tabs = await menu.locator('[role="tab"], button').allTextContents();
 const templatesTab = menu.locator('[role="tab"]').filter({ hasText: 'Шаблоны' });

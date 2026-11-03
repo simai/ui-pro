@@ -18,10 +18,10 @@ const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
   'smart/smart/icon/js/icon.js',
   'smart/smart/button/js/button.js',
-  'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/badge/js/badge.js',
   'smart/smart/input/js/input.js',
-  'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/admin-menu/js/admin-menu.js',
 ].map((p) => join(out, p));
 

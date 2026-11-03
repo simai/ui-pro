@@ -212,10 +212,10 @@
       "expect": {
         "name": "Решения"
       },
-      "x-first-paint": "The cells sf-table draws with other Smart elements (sf-reference-link, sf-file-preview, sf-color): their code comes with the table's, so the rows do not move when they arrive (stand 24: CLS 0.0145 at 1280).",
+      "x-first-paint": "The cells sf-table draws with other Smart elements (sf-reference-link, sf-file-preview, sf-input-color): their code comes with the table's, so the rows do not move when they arrive (stand 24: CLS 0.0145 at 1280).",
       "first-paint": {
         "max-bytes": 16384,
-        "why": "A data table at rest with its toolbar (search, settings, export), a selection column and two rows whose cells are three printed Smart elements each (sf-reference-link, sf-file-preview, sf-color)."
+        "why": "A data table at rest with its toolbar (search, settings, export), a selection column and two rows whose cells are three printed Smart elements each (sf-reference-link, sf-file-preview, sf-input-color)."
       }
     }
   ],

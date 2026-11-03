@@ -36,17 +36,17 @@ const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/badge/js/badge.js',
   'smart/smart/avatar/js/avatar.js', 'smart/smart/reference-link/js/reference-link.js',
   'smart/smart/input/js/input.js', 'smart/smart/tree/js/tree.js',
-  'smart/smart/tree-item/js/tree-item.js', 'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/tree-item/js/tree-item.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/button/js/button.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/drawer/js/drawer.js',
   'smart/smart/tag/js/tag.js',
-  'smart/smart/datepicker/js/datepicker.js', 'smart/smart/textarea/js/textarea.js',
+  'smart/smart/input-date/js/input-date.js', 'smart/smart/input-textarea/js/input-textarea.js',
   'smart/smart/switch/js/switch.js', 'smart/smart/button-group/js/button-group.js',
   'smart/smart/field-renderers/js/field-renderers.js',
   'smart/smart/sortable/js/sortable.js',
-  'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/popover/js/popover.js',
   'smart/smart/property-view/js/property-view.js',
 ].map((p) => join(out, p));
@@ -129,7 +129,7 @@ try {
 
   // A day picked in the calendar, the calendar closed with Esc, then Esc again.
   await make();
-  await page.click(`${field('ends')} sf-datepicker input`);
+  await page.click(`${field('ends')} sf-input-date input`);
   await page.waitForSelector('.sf-datepicker-day:not(.sf-datepicker-another-month):not([disabled])', {timeout: 3000});
   await page.click('.sf-datepicker-day:not(.sf-datepicker-another-month):not([disabled])');
   await page.waitForTimeout(250);

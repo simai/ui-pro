@@ -41,13 +41,13 @@ panel.sections = [
 | `kind` | Что это | Своё |
 |:---|:---|:---|
 | `text` | `sf-input` | `inputmode`, `inheritedValue`, `ariaLabel` |
-| `multiline` | `sf-textarea`, растёт от двух строк до двенадцати | `inheritedValue`, `ariaLabel` |
+| `multiline` | `sf-input-textarea`, растёт от двух строк до двенадцати | `inheritedValue`, `ariaLabel` |
 | `link` | `sf-input` для адреса | как у `text` |
 | `number` | `sf-input` с цифровой клавиатурой | как у `text`; `inputmode: 'decimal'` для цены |
 | `select` | `sf-dropdown` | `options: [{value, text}]`; `value: ''` — выбор «ничего» |
 | `switch` | `sf-switch` | `value` — логическое |
 | `group` | поля под одним именем, цена например | `rows: [[поле, поле], [поле]]`; ряд из двух стоит парой |
-| `image` | `sf-image-field` | `value: {value, label, mime, size, href}` или `null`, `accept`, `emptyText`, `ariaLabel`, `choices: [{value, text}]`, `chooseLabel`, `choosePlaceholder` |
+| `image` | `sf-input-image` | `value: {value, label, mime, size, href}` или `null`, `accept`, `emptyText`, `ariaLabel`, `choices: [{value, text}]`, `chooseLabel`, `choosePlaceholder` |
 | `items` | список на `sf-sortable` | `items: [{label, problem, fields}]`, `open`, `min`, `max` |
 
 `hint` — настоящий текст под полем: так значение из бренда слышит и читатель

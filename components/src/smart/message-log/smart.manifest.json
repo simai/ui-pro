@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "title": "Message log",
   "summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
   "kind": "composite",
@@ -27,7 +27,7 @@
   "composition": {
     "uses": [
       "smart.button",
-      "smart.icon-button"
+      "smart.button-icon"
     ],
     "public_parts": []
   },
@@ -777,6 +777,13 @@
         "changes": [
           "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.2.4",
+        "to": "1.2.5",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags («To the latest» is sf-button-icon); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -790,15 +797,15 @@
       },
       {
         "path": "src/smart/message-log/js/templates/default.js",
-        "sha256": "0ce8b526936d91f551d87f3bbbc56ed24ab8c9a22a8f05f8b7627579ac4cac64"
+        "sha256": "1104495b1484fe703624c0135aa26fe74c5d50c57d1fa5719c9bead1c1834b81"
       },
       {
         "path": "src/smart/message-log/js/templates/default.css",
-        "sha256": "a7e6dbeae24bd068d757f99f258d4862ef0867d0ab577f8f8ec47f5e9e8ec953"
+        "sha256": "c0405f27f37d45708e6dc39c69b1d5f860f293bf916aa795c52d442f23d4eec2"
       },
       {
         "path": "src/smart/message-log/rule.js",
-        "sha256": "469ed32251ad9ecd3876ebf85c8dd170239ff1803b4b278fbd243a204814fe88"
+        "sha256": "368a65d1eccd88ad51573e16ea22e9457e1ca5aa15891f1402cc247f1bea55fd"
       },
       {
         "path": "src/smart/message-log/docs.md",
@@ -806,7 +813,7 @@
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "30e619f18750f83a0c6d5214e853c310b15ea53890ed148b67fac7880ae27b97"
+        "sha256": "0b49adaef542625e33c30b4ed1fc83e8275aca48ead0aee1eb11a5fb7edffe8d"
       },
       {
         "path": "src/smart/message-log/aliases.json",

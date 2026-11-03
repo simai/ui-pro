@@ -24,16 +24,16 @@ const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
   'smart/smart/icon/js/icon.js',
   'smart/smart/button/js/button.js',
-  'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/list-item/js/list-item.js',
   'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/input/js/input.js',
   'smart/smart/spinner/js/spinner.js',
-  'smart/smart/close/js/close.js',
+  'smart/smart/button-close/js/button-close.js',
   'smart/smart/alert/js/alert.js',
   'smart/smart/toast/js/toast.js',
-  'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js',
@@ -136,7 +136,7 @@ try {
     const cellBox = cell.getBoundingClientRect();
     const style = one ? getComputedStyle(one) : null;
     return {
-      icons: cell.querySelectorAll('sf-icon-button').length,
+      icons: cell.querySelectorAll('sf-button-icon').length,
       tag: one?.tagName ?? null, label: one?.getAttribute('aria-label') ?? null,
       keys: one?.getAttribute('aria-keyshortcuts') ?? null,
       cursor: style?.cursor ?? null, width: box ? Math.round(box.width) : null,
@@ -371,7 +371,7 @@ try {
   const actions = await open();
   const toolbar = await actions.evaluate(async () => {
     const table = document.getElementById('t');
-    const control = () => [...document.querySelectorAll('#t .sf-table-head sf-icon-button, #t sf-icon-button')]
+    const control = () => [...document.querySelectorAll('#t .sf-table-head sf-button-icon, #t sf-button-icon')]
       .find((one) => one.getAttribute('aria-label') === 'Действия с представлением');
     const before = Boolean(control());
     window.toolbarEvents = [];
@@ -390,14 +390,14 @@ try {
     note({case: 'toolbar actions', got: toolbar, expected: 'no control without actions, a control with them'});
   }
   const chosen = await (async () => {
-    const at = await centre(actions, `() => [...document.querySelectorAll('#t sf-icon-button')].find((one) => one.getAttribute('aria-label') === 'Действия с представлением')`);
+    const at = await centre(actions, `() => [...document.querySelectorAll('#t sf-button-icon')].find((one) => one.getAttribute('aria-label') === 'Действия с представлением')`);
     if (!at) return {control: 'not hittable'};
     await actions.mouse.click(at.x, at.y);
     await actions.waitForTimeout(350);
     // The standard menu's rows; the label is the row's text.
-    const items = await actions.evaluate(() => [...document.querySelectorAll('sf-context-menu .sf-context-menu-item')]
+    const items = await actions.evaluate(() => [...document.querySelectorAll('sf-menu-context .sf-context-menu-item')]
       .map((one) => (one.querySelector('.sf-context-menu-item-label') ?? one).textContent.trim()));
-    const item = await centre(actions, `() => [...document.querySelectorAll('sf-context-menu .sf-context-menu-item')].find((one) => one.textContent.trim().endsWith('Удалённые элементы'))`);
+    const item = await centre(actions, `() => [...document.querySelectorAll('sf-menu-context .sf-context-menu-item')].find((one) => one.textContent.trim().endsWith('Удалённые элементы'))`);
     if (item) await actions.mouse.click(item.x, item.y);
     await actions.waitForTimeout(350);
     return {items, events: await actions.evaluate(() => window.toolbarEvents),
@@ -414,8 +414,8 @@ try {
   const slow = await open({delay: 1200});
   const firstClick = await (async () => {
     const find = `() => [...document.querySelectorAll('#t sf-button')].find((one) => (one.getAttribute('text') || '').includes('Фильтр'))`;
-    const gear = `() => document.querySelector('#t thead th[data-key="settings"] sf-icon-button, #t tbody th[data-key="settings"] sf-icon-button, #t [aria-label="Настройки"]')`;
-    const open = () => slow.evaluate(() => Boolean(document.querySelector('sf-context-menu')));
+    const gear = `() => document.querySelector('#t thead th[data-key="settings"] sf-button-icon, #t tbody th[data-key="settings"] sf-button-icon, #t [aria-label="Настройки"]')`;
+    const open = () => slow.evaluate(() => Boolean(document.querySelector('sf-menu-context')));
     const close = async () => {
       await slow.keyboard.press('Escape');
       await slow.waitForTimeout(250);
@@ -500,7 +500,7 @@ try {
   // table behind it is not drawn, so there is nothing to click yet.
   await late.waitForFunction(() => document.querySelectorAll('#t tbody:not([data-state]) tr').length > 1, null, {timeout: 6000});
   const afterLoad = await (async () => {
-    const menu = () => late.evaluate(() => Boolean(document.querySelector('sf-context-menu')));
+    const menu = () => late.evaluate(() => Boolean(document.querySelector('sf-menu-context')));
     const escape = async () => { await late.keyboard.press('Escape'); await late.waitForTimeout(200); };
     const result = {};
     for (const [name, locate] of [
@@ -542,12 +542,12 @@ try {
       ]);
       await new Promise((done) => setTimeout(done, 300));
     });
-    const at = await centre(tight, `() => [...document.querySelectorAll('#t sf-icon-button')].find((one) => one.getAttribute('aria-label') === 'Действия с представлением')`);
+    const at = await centre(tight, `() => [...document.querySelectorAll('#t sf-button-icon')].find((one) => one.getAttribute('aria-label') === 'Действия с представлением')`);
     if (!at) return {control: 'not hittable'};
     await tight.mouse.click(at.x, at.y);
     await tight.waitForTimeout(400);
     return tight.evaluate(() => {
-      const menu = document.querySelector('sf-context-menu');
+      const menu = document.querySelector('sf-menu-context');
       const surface = menu?.querySelector('.sf-context-menu') ?? menu;
       const content = menu?.querySelector('.sf-context-menu-content');
       // The standard menu's rows (2026-10-13); they were link buttons.
@@ -610,7 +610,7 @@ try {
     // The row's box and menu are class markup since standard 1.3.8 (§18.4);
     // a cell's own control is still an element.
     const cellElements = () => [...body().querySelectorAll(
-      'tr td input[data-sf-row-box], tr td button[data-sf-row-menu], tr td sf-checkbox, tr td sf-icon-button, tr td sf-button')];
+      'tr td input[data-sf-row-box], tr td button[data-sf-row-menu], tr td sf-checkbox, tr td sf-button-icon, tr td sf-button')];
     const before = cellElements();
     const open = await measure(() => table.requestActionIntent('view', ['1']));
     window.patchOnMutate = true;
@@ -700,7 +700,7 @@ try {
       selected: table.getSelectedRecordIds().map(String),
     };
     // The focus is in a cell's control, and a render happens under it.
-    const action = document.querySelector('#t tbody tr [data-key="settings"] button, #t tbody tr sf-icon-button button');
+    const action = document.querySelector('#t tbody tr [data-key="settings"] button, #t tbody tr sf-button-icon button');
     action?.focus();
     const focused = document.activeElement === action;
     view.updateRecord('4', {name: 'And again'});

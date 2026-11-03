@@ -159,9 +159,9 @@ class SfMailStructure extends MailStructureElement {
         if (!row || !menu) return;
         this.menuFor = row.id;
         const native = anchor?.querySelector?.("button") ?? anchor;
-        // The Loader brings sf-context-menu when the page is ready (the rule
+        // The Loader brings sf-menu-context when the page is ready (the rule
         // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-context-menu").then(() => {
+        customElements.whenDefined("sf-menu-context").then(() => {
             menu.entries = this.menuEntries(row);
             menu.toggleFor(native);
         });
@@ -181,7 +181,7 @@ class SfMailStructure extends MailStructureElement {
     }
 
     onRowClick(event, id) {
-        if (event.target.closest?.("sf-icon-button")) return;
+        if (event.target.closest?.("sf-button-icon")) return;
         this.select({id});
     }
 
@@ -218,7 +218,7 @@ class SfMailStructure extends MailStructureElement {
             this.focusRow(rows[Math.max(0, Math.min(rows.length - 1, to))]?.id);
         } else if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
             stopped();
-            this.openMenu(id, event.currentTarget.querySelector("sf-icon-button"));
+            this.openMenu(id, event.currentTarget.querySelector("sf-button-icon"));
         } else if (event.key === "Delete" || event.key === "Backspace") {
             stopped();
             this.delete({id});

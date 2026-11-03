@@ -18,7 +18,7 @@ test('the panel is a mode, and the pages that say nothing keep the row', async (
   assert.match(markup, /if \(context\.searchMode === "panel" && !context\.compact\) return nothing;/u, 'no row in panel mode');
   assert.match(
     markup,
-    /context\.searchMode === "panel" && !context\.compact\s*\?\s*html`<sf-icon-button\s*data-sf-admin-search-toggle/u,
+    /context\.searchMode === "panel" && !context\.compact\s*\?\s*html`<sf-button-icon\s*data-sf-admin-search-toggle/u,
     'the magnifier lives in the header instead',
   );
   // A collapsed menu shows the magnifier in the icon column and expands straight

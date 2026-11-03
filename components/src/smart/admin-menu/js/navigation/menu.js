@@ -1,5 +1,5 @@
 // The navigation's menus are the Framework's standard menu (owner,
-// 2026-10-12): one sf-context-menu beside the page, filled with the entries of
+// 2026-10-12): one sf-menu-context beside the page, filled with the entries of
 // whichever menu is asked for and opened for the control that asked. It lives
 // outside the navigation's own rendering, so a re-render of the columns does
 // not take an open menu away.
@@ -7,8 +7,8 @@
 // The standard menu is a lazy relation: fetched after the page is ready, so a
 // press that comes before it has arrived asks the Loader for it and waits.
 async function standardMenuDefined() {
-    await globalThis.SF?.Loader?.ensure?.(["sf-context-menu"]);
-    return Boolean(customElements.get("sf-context-menu"));
+    await globalThis.SF?.Loader?.ensure?.(["sf-menu-context"]);
+    return Boolean(customElements.get("sf-menu-context"));
 }
 
 export async function openMenu(controller, anchor, {label, entries, select, side = "block-end", align = "start", width = "content", search = null, onSearch = null, onClose = null}) {
@@ -16,14 +16,14 @@ export async function openMenu(controller, anchor, {label, entries, select, side
     if (!(await standardMenuDefined())) return null;
     let menu = controller._menu;
     if (!menu?.isConnected) {
-        menu = document.createElement("sf-context-menu");
+        menu = document.createElement("sf-menu-context");
         menu.setAttribute("popup", "");
         menu.dataset.sfAdminNavMenu = "";
-        menu.addEventListener("sf-context-menu-select", (event) => controller._menuSelect?.(event.detail?.id, event));
-        menu.addEventListener("sf-context-menu-search", (event) => controller._menuSearch?.(event.detail?.query ?? ""));
-        // Closed, not asked to close: sf-context-menu-close is the cancelable
+        menu.addEventListener("sf-menu-context-select", (event) => controller._menuSelect?.(event.detail?.id, event));
+        menu.addEventListener("sf-menu-context-search", (event) => controller._menuSearch?.(event.detail?.query ?? ""));
+        // Closed, not asked to close: sf-menu-context-close is the cancelable
         // request sent before an owned menu closes (SIMAI Framework 1.3.8 §19.3).
-        menu.addEventListener("sf-context-menu-closed", (event) => {
+        menu.addEventListener("sf-menu-context-closed", (event) => {
             if (event.target !== menu) return;
             const closed = controller._menuClose;
             controller._menuClose = null;

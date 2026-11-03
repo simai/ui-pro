@@ -56,8 +56,8 @@ async page => {
           '/smart/table/',
           '/smart/buttons/',
           '/smart/checkbox/',
-          '/smart/context-menu/',
-          '/smart/datepicker/',
+          '/smart/menu-context/',
+          '/smart/input-date/',
           '/smart/dropdown/',
           '/smart/icon-buttons/',
           '/smart/inputs/',
@@ -77,9 +77,9 @@ async page => {
         focusPreserved: document.activeElement?.getAttribute('aria-label') === 'Изменить ширину столбца: Имя',
       }));
       await page.getByRole('button', {name: 'Настройки таблицы'}).click();
-      await page.waitForFunction(() => document.querySelector('.sf-table-portal sf-context-menu'));
+      await page.waitForFunction(() => document.querySelector('.sf-table-portal sf-menu-context'));
       const overlay = await page.evaluate(() => {
-        const menu = document.querySelector('.sf-table-portal sf-context-menu');
+        const menu = document.querySelector('.sf-table-portal sf-menu-context');
         const surface = menu.querySelector('.sf-context-menu') || menu;
         const rect = surface.getBoundingClientRect();
         return {
@@ -92,7 +92,7 @@ async page => {
       await page.waitForTimeout(80);
       const escapeRestoresFocus = await page.evaluate(() =>
         document.activeElement?.getAttribute('aria-label') === 'Настройки таблицы' &&
-        !document.querySelector('.sf-table-portal sf-context-menu')
+        !document.querySelector('.sf-table-portal sf-menu-context')
       );
       const resizeDirectionCorrect = dir === 'rtl' ? after < before : after > before;
       const row = {theme, dir, before, after, resizeDirectionCorrect, escapeRestoresFocus, ...geometry, ...overlay};
@@ -133,13 +133,13 @@ async page => {
     tables[0].openContextMenu(fakeEvent(triggers[0]), {menu: 'table-settings'});
     tables[1].openContextMenu(fakeEvent(triggers[1]), {menu: 'table-settings'});
     await new Promise(resolve => setTimeout(resolve, 100));
-    const independent = document.querySelectorAll('.sf-table-portal').length === 2 && document.querySelectorAll('.sf-table-portal sf-context-menu').length === 2;
+    const independent = document.querySelectorAll('.sf-table-portal').length === 2 && document.querySelectorAll('.sf-table-portal sf-menu-context').length === 2;
     tables[0].remove();
     await new Promise(resolve => setTimeout(resolve, 80));
     return {
       independent,
       disposed: document.querySelectorAll('.sf-table-portal').length === 1,
-      survivorOpen: document.querySelectorAll('.sf-table-portal sf-context-menu').length === 1,
+      survivorOpen: document.querySelectorAll('.sf-table-portal sf-menu-context').length === 1,
     };
   });
   if (Object.values(lifecycle).some(value => value !== true)) failures.push({lifecycle});
@@ -149,13 +149,13 @@ async page => {
   await cdp.send('Emulation.setPageScaleFactor', {pageScaleFactor: 1});
   await load({width: 1280, height: 900});
   await page.getByRole('button', {name: 'Настройки таблицы'}).click();
-  await page.waitForFunction(() => document.querySelector('.sf-table-portal sf-context-menu'));
+  await page.waitForFunction(() => document.querySelector('.sf-table-portal sf-menu-context'));
   await cdp.send('Emulation.setPageScaleFactor', {pageScaleFactor: 2});
   await page.waitForFunction(() => visualViewport?.scale === 2);
   await page.waitForTimeout(150);
   const zoom = await page.evaluate(() => {
     const viewport = visualViewport;
-    const menu = document.querySelector('.sf-table-portal sf-context-menu');
+    const menu = document.querySelector('.sf-table-portal sf-menu-context');
     const rect = (menu.querySelector('.sf-context-menu') || menu).getBoundingClientRect();
     return {
       scale: viewport.scale,

@@ -12,8 +12,8 @@ test('Smart Table names every owned action and contextual surface', async () => 
 
   // Eight since round three: the toolbar's control opens the view's actions.
   // Nine since the compact list, whose sort is a menu (it has no column heads).
-  assert.equal((table.match(/<sf-context-menu/g) || []).length, 9);
-  assert.equal((table.match(/<sf-context-menu[\s\S]*?aria-label=/g) || []).length, 9);
+  assert.equal((table.match(/<sf-menu-context/g) || []).length, 9);
+  assert.equal((table.match(/<sf-menu-context[\s\S]*?aria-label=/g) || []).length, 9);
   assert.match(table, /getContextMenuLabel\(data = \{\}\)/);
   assert.match(template, /aria-label="Сохранить шаблон фильтра"/);
   assert.match(template, /aria-label=\$\{value\.length \? 'Очистить поиск' : 'Поиск'\}/);
@@ -77,8 +77,8 @@ test('Smart Table Loader rule declares every rendered Smart dependency', async (
   const rule = await read('src/smart/table/rule.js');
 
   for (const dependency of [
-    'cl-checkbox', 'cl-button', 'cl-icon-button', 'cl-input', 'cl-tag',
-    'cl-pagination', 'cl-spinner', 'cl-datepicker', 'cl-dropdown', 'cl-tabs', 'cl-context-menu',
+    'cl-checkbox', 'cl-button', 'cl-button-icon', 'cl-input', 'cl-tag',
+    'cl-pagination', 'cl-spinner', 'cl-input-date', 'cl-dropdown', 'cl-tabs', 'cl-menu-context',
   ]) {
     assert.match(rule, new RegExp(`name: ["']${dependency}["']`));
   }

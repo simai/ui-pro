@@ -20,17 +20,17 @@ const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/buttons/css/buttons.css',
   'component/component/icon-buttons/css/icon-buttons.css',
-  'smart/smart/copy-button/css/copy-button.css',
+  'smart/smart/button-copy/css/button-copy.css',
   'smart/smart/property-view/css/property-view.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
-  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
-  'smart/smart/close/js/close.js', 'smart/smart/drawer/js/drawer.js',
+  'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
+  'smart/smart/button-close/js/button-close.js', 'smart/smart/drawer/js/drawer.js',
   'smart/smart/modal/js/modal.js', 'smart/smart/popover/js/popover.js',
   'smart/smart/tree/js/tree.js', 'smart/smart/tree-item/js/tree-item.js',
   'smart/smart/avatar/js/avatar.js', 'smart/smart/badge/js/badge.js',
-  'smart/smart/copy-button/js/copy-button.js',
+  'smart/smart/button-copy/js/button-copy.js',
   'smart/smart/property-view/js/property-view.js',
 ].map((p) => join(out, p));
 

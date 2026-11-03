@@ -203,7 +203,7 @@ function renderFieldSettings(context, field, key) {
     return html`
         <sf-popover placement="bottom-end" width="16rem" label=${context.fieldSettingsText}
                     data-settings-for=${key}>
-            <sf-icon-button
+            <sf-button-icon
                     slot="trigger"
                     size="1/2"
                     appearance="link"
@@ -212,7 +212,7 @@ function renderFieldSettings(context, field, key) {
                     data-action="field-settings"
                     title=${context.fieldSettingsText}
                     aria-label=${context.fieldSettingsText}
-            ></sf-icon-button>
+            ></sf-button-icon>
             <div slot="content" class="flex flex-col gap-1 p-1">
                 <label class="sf-property-view-settings-row sf-property-view-settings-row--stacked flex flex-col gap-1/4">
                     <span class="sf-property-view-settings-label color-on-surface-variant">${context.fieldLabelText}</span>
@@ -297,7 +297,7 @@ function renderFieldActions(context, field, key) {
 
     return html`
         <div class="sf-property-view-field-actions flex items-cross-center gap-1/4">
-            <sf-icon-button
+            <sf-button-icon
                     size="1/2"
                     appearance="link"
                     scheme="secondary"
@@ -307,7 +307,7 @@ function renderFieldActions(context, field, key) {
                     title=${locked ? (context.layerDenied('shared') || context.hiddenText) : context.removeFieldText}
                     aria-label=${context.removeFieldText}
                     @click=${() => context.component.moveFieldToUnplaced(key)}
-            ></sf-icon-button>
+            ></sf-button-icon>
             ${renderFieldSettings(context, field, key)}
         </div>
     `;
@@ -339,7 +339,7 @@ function renderEntryName(context, kind, key, label, titleClass) {
                         @click=${() => context.component.startRenaming(kind, key)}
                 >${label}</button>
             </h3>
-            <sf-icon-button
+            <sf-button-icon
                     size="1/2"
                     appearance="link"
                     scheme="secondary"
@@ -348,7 +348,7 @@ function renderEntryName(context, kind, key, label, titleClass) {
                     title=${context.renameText}
                     aria-label=${context.renameText}
                     @click=${() => context.component.startRenaming(kind, key)}
-            ></sf-icon-button>
+            ></sf-button-icon>
             <span class="grow"></span>
         `;
     }
@@ -373,7 +373,7 @@ function renderEntryName(context, kind, key, label, titleClass) {
                         if (event.key === 'Escape') context.component.cancelRenaming();
                     }}
             ></sf-input>
-            <sf-icon-button
+            <sf-button-icon
                     size="1/2"
                     appearance="link"
                     scheme="on-surface"
@@ -382,8 +382,8 @@ function renderEntryName(context, kind, key, label, titleClass) {
                     title=${context.saveNameText}
                     aria-label=${context.saveNameText}
                     @click=${commit}
-            ></sf-icon-button>
-            <sf-icon-button
+            ></sf-button-icon>
+            <sf-button-icon
                     size="1/2"
                     appearance="link"
                     scheme="on-surface"
@@ -392,7 +392,7 @@ function renderEntryName(context, kind, key, label, titleClass) {
                     title=${context.cancelNameText}
                     aria-label=${context.cancelNameText}
                     @click=${() => context.component.cancelRenaming()}
-            ></sf-icon-button>
+            ></sf-button-icon>
         </span>
     `;
 }
@@ -572,7 +572,7 @@ function renderAddField(context, groupKey) {
                     context.component.toggleFieldInGroup(key, groupKey, values.includes(key));
                 }}
         >
-            <sf-icon-button
+            <sf-button-icon
                     slot="trigger"
                     size="1/2"
                     appearance="link"
@@ -581,7 +581,7 @@ function renderAddField(context, groupKey) {
                     data-action="add-field"
                     title=${context.addFieldText}
                     aria-label=${context.addFieldText}
-            ></sf-icon-button>
+            ></sf-button-icon>
         </sf-dropdown>
     `;
 }
@@ -633,7 +633,7 @@ function renderGroup(context, section, group) {
                         ? html`
                             <span class="flex items-cross-center gap-1/4">
                             ${renderAddField(context, groupKey)}
-                            <sf-icon-button
+                            <sf-button-icon
                                     size="1/2"
                                     appearance="link"
                                     scheme="secondary"
@@ -643,8 +643,8 @@ function renderGroup(context, section, group) {
                                     title=${context.moveUpText}
                                     aria-label=${context.moveUpText}
                                     @click=${() => context.component.moveGroupBy(groupKey, -1)}
-                            ></sf-icon-button>
-                            <sf-icon-button
+                            ></sf-button-icon>
+                            <sf-button-icon
                                     size="1/2"
                                     appearance="link"
                                     scheme="secondary"
@@ -654,8 +654,8 @@ function renderGroup(context, section, group) {
                                     title=${context.moveDownText}
                                     aria-label=${context.moveDownText}
                                     @click=${() => context.component.moveGroupBy(groupKey, 1)}
-                            ></sf-icon-button>
-                            <sf-icon-button
+                            ></sf-button-icon>
+                            <sf-button-icon
                                     size="1/2"
                                     appearance="link"
                                     scheme="secondary"
@@ -665,7 +665,7 @@ function renderGroup(context, section, group) {
                                     title=${groupLocked ? (context.layerDenied('shared') || context.hiddenText) : context.removeGroupText}
                                     aria-label=${context.removeGroupText}
                                     @click=${() => context.component.removeGroup(groupKey)}
-                            ></sf-icon-button>
+                            ></sf-button-icon>
                             </span>`
                         : nothing}
                 ${!configuring && !editing && context.mayEdit && !context.openAll && group.kind !== 'related' && group.editable !== false
@@ -724,14 +724,14 @@ function renderPhoneSectionList(context, sections) {
 function renderPhoneSectionHead(context) {
     return html`
         <div class="sf-property-view-phone-head flex items-cross-center gap-2">
-            <sf-icon-button
+            <sf-button-icon
                     size=${context.size}
                     appearance="link"
                     icon="arrow_back"
                     data-action="phone-back"
                     aria-label=${context.backLabel}
                     @click=${() => context.component.closePhoneSection()}
-            ></sf-icon-button>
+            ></sf-button-icon>
             <h2 class="sf-property-view-phone-title">${context.phoneSectionLabel}</h2>
         </div>
     `;
@@ -987,7 +987,7 @@ function renderActions(context, {panel = false} = {}) {
             ${hosted ? html`<div class="sf-property-view-host-footer flex flex-wrap items-cross-center gap-2">${context.hostSlot('footer')}</div>` : nothing}
             ${removable
                     ? html`
-                        <sf-icon-button
+                        <sf-button-icon
                                 appearance="link"
                                 status="error"
                                 size=${context.size}
@@ -996,7 +996,7 @@ function renderActions(context, {panel = false} = {}) {
                                 title=${context.deleteText}
                                 aria-label=${context.deleteText}
                                 @click=${() => context.component.deleteRecord()}
-                        ></sf-icon-button>`
+                        ></sf-button-icon>`
                     : nothing}
         </div>
     `;
@@ -1115,7 +1115,7 @@ function renderMenuControl(context) {
     // slotted elements stay in the page, hidden, and a row of the menu stands
     // for each -- a link row for a link, a press on the element for the rest.
     return html`
-        <sf-icon-button
+        <sf-button-icon
                 appearance="link"
                 scheme="on-surface"
                 size=${context.size}
@@ -1125,7 +1125,7 @@ function renderMenuControl(context) {
                 aria-expanded="false"
                 aria-label=${context.menuLabel}
                 @click=${(event) => context.component.openPanelMenu(event.currentTarget.querySelector('button') ?? event.currentTarget)}
-        ></sf-icon-button>
+        ></sf-button-icon>
         ${host ? html`<div class="sf-property-view-host-menu" data-host-menu hidden>${host}</div>` : nothing}
     `;
 }
@@ -1143,7 +1143,7 @@ function renderPanelHead(context) {
                      A record being created is not one yet and cannot be a
                      favourite: no star until it has an id (Larena storage
                      review, 2026-10-28). -->
-                ${context.recordId && context.mode !== 'create' ? html`<sf-icon-button
+                ${context.recordId && context.mode !== 'create' ? html`<sf-button-icon
                         appearance="link"
                         size=${context.size}
                         icon="star"
@@ -1152,7 +1152,7 @@ function renderPanelHead(context) {
                         aria-pressed=${context.favourite ? 'true' : 'false'}
                         aria-label=${context.favouriteLabel}
                         @click=${() => context.component.toggleFavourite()}
-                ></sf-icon-button>` : nothing}
+                ></sf-button-icon>` : nothing}
                 <span class="grow"></span>
                 ${context.hasHostSlot('actions') ? context.hostSlot('actions') : nothing}
                 ${renderMenuControl(context)}
@@ -1185,7 +1185,7 @@ function renderPanelControls(context) {
     return html`
         <div class="sf-property-view-edge flex ${panelFills(context) ? 'flex-row' : 'flex-col'} gap-1/2" slot="edge"
              aria-label=${context.closeLabel}>
-            <sf-icon-button
+            <sf-button-icon
                     appearance="tonal"
                     scheme="on-surface"
                     root-style=${EDGE_SURFACE}
@@ -1195,10 +1195,10 @@ function renderPanelControls(context) {
                     aria-label=${context.closeLabel}
                     title=${context.closeLabel}
                     @click=${() => context.component.closePanel('close')}
-            ></sf-icon-button>
+            ></sf-button-icon>
             ${context.address
                     ? html`
-                        <sf-copy-button
+                        <sf-button-copy
                                 appearance="tonal"
                                 root-style=${EDGE_SURFACE}
                                 size=${context.size}
@@ -1211,11 +1211,11 @@ function renderPanelControls(context) {
                                 .propertyView=${context.component}
                                 @sf-copy-button-copied=${() => context.component.announceAddressCopy(true)}
                                 @sf-copy-button-copy-failed=${() => context.component.announceAddressCopy(false)}
-                        ></sf-copy-button>`
+                        ></sf-button-copy>`
                     : nothing}
             ${context.canOpenFullPage
                     ? html`
-                        <sf-icon-button
+                        <sf-button-icon
                                 appearance="tonal"
                                 scheme="on-surface"
                                 root-style=${EDGE_SURFACE}
@@ -1225,7 +1225,7 @@ function renderPanelControls(context) {
                                 title=${context.openFullLabel}
                                 data-action="open-full"
                                 @click=${() => context.component.openFullPage()}
-                        ></sf-icon-button>`
+                        ></sf-button-icon>`
                     : nothing}
         </div>
     `;
@@ -1256,7 +1256,7 @@ function renderSectionBar(context, section, count) {
                     : html`<i class="sf-icon" aria-hidden="true">${section.icon ? String(section.icon) : 'folder'}</i>`}
             ${renderEntryName(context, 'section', String(section.key),
                     String(section.label ?? section.key), 'sf-property-view-section-title min-w-0')}
-            <sf-icon-button
+            <sf-button-icon
                     size="1/2"
                     appearance="link"
                     scheme="secondary"
@@ -1266,7 +1266,7 @@ function renderSectionBar(context, section, count) {
                     title=${context.removeSectionText}
                     aria-label=${context.removeSectionText}
                     @click=${() => context.component.removeSection(String(section.key))}
-            ></sf-icon-button>
+            ></sf-button-icon>
         </div>
     `;
 }
@@ -1306,7 +1306,7 @@ function renderSectionIcon(context, section) {
                 @change=${(event) => context.component.setSectionIcon(
                         String(section.key), event.detail?.value ?? '')}
         >
-            <sf-icon-button
+            <sf-button-icon
                     slot="trigger"
                     size="1/2"
                     appearance="link"
@@ -1315,7 +1315,7 @@ function renderSectionIcon(context, section) {
                     data-action="section-icon"
                     title=${context.sectionIconText}
                     aria-label=${context.sectionIconText}
-            ></sf-icon-button>
+            ></sf-button-icon>
         </sf-dropdown>
     `;
 }
@@ -1364,7 +1364,7 @@ function renderViewProfiles(context) {
                     <span class="sf-property-view-profile-scope color-on-surface-variant">
                         ${profile.shared ? context.sharedLayerText : context.personalLayerText}
                     </span>
-                    <sf-icon-button
+                    <sf-button-icon
                             size="1/2"
                             appearance="link"
                             scheme="secondary"
@@ -1376,7 +1376,7 @@ function renderViewProfiles(context) {
                                     : context.lastSharedViewText}
                             aria-label=${context.deleteViewText}
                             @click=${() => context.component.deleteViewProfile(profile.id)}
-                    ></sf-icon-button>
+                    ></sf-button-icon>
                 </div>
             `)}
             ${context.namingView ? renderNewViewName(context) : html`
@@ -1415,7 +1415,7 @@ function renderNewViewName(context) {
                         if (event.key === 'Escape') context.component.cancelNamingView();
                     }}
             ></sf-input>
-            <sf-icon-button
+            <sf-button-icon
                     size="1/2"
                     appearance="link"
                     scheme="on-surface"
@@ -1424,8 +1424,8 @@ function renderNewViewName(context) {
                     title=${context.saveNameText}
                     aria-label=${context.saveNameText}
                     @click=${commit}
-            ></sf-icon-button>
-            <sf-icon-button
+            ></sf-button-icon>
+            <sf-button-icon
                     size="1/2"
                     appearance="link"
                     scheme="on-surface"
@@ -1434,7 +1434,7 @@ function renderNewViewName(context) {
                     title=${context.cancelNameText}
                     aria-label=${context.cancelNameText}
                     @click=${() => context.component.cancelNamingView()}
-            ></sf-icon-button>
+            ></sf-button-icon>
         </span>
     `;
 }

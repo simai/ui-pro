@@ -22,9 +22,9 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
-  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
-  'smart/smart/context-menu/js/context-menu.js', 'smart/smart/list-item/js/list-item.js',
+  'smart/smart/menu-context/js/menu-context.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/pagination/js/pagination.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js', 'smart/smart/data-view/js/data-view.js',
 ].map((p) => join(out, p));
@@ -50,7 +50,7 @@ try {
   for (const style of styles) await page.addStyleTag({path: style});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'});
   await page.waitForFunction(() => Boolean(customElements.get('sf-data-view') && customElements.get('sf-table')
-    && customElements.get('sf-context-menu')));
+    && customElements.get('sf-menu-context')));
 
   await page.evaluate(() => {
     window.raised = [];
@@ -87,7 +87,7 @@ try {
   await button.click();
   await page.waitForTimeout(250);
   const opened = await page.evaluate(() => {
-    const menu = document.querySelector('sf-context-menu[data-sf-table-menu="row"]');
+    const menu = document.querySelector('sf-menu-context[data-sf-table-menu="row"]');
     const surface = menu?.querySelector('.sf-context-menu');
     const trigger = document.querySelector('#list tbody tr td button[data-sf-row-menu]');
     const box = surface?.getBoundingClientRect();
@@ -112,20 +112,20 @@ try {
   if (opened.expanded !== 'true') note({case: 'the button says the menu is open', got: opened.expanded});
 
   // Into the group: the members the record allows, and a choice raises it.
-  await page.locator('sf-context-menu[data-sf-table-menu="row"] [aria-haspopup="menu"]').click();
+  await page.locator('sf-menu-context[data-sf-table-menu="row"] [aria-haspopup="menu"]').click();
   await page.waitForTimeout(250);
-  const members = await page.evaluate(() => [...document.querySelectorAll('sf-context-menu:not([data-sf-table-menu]) .sf-context-menu-item-label')]
+  const members = await page.evaluate(() => [...document.querySelectorAll('sf-menu-context:not([data-sf-table-menu]) .sf-context-menu-item-label')]
     .map((node) => node.textContent.trim()));
   if (members.join() !== 'en') note({case: 'the submenu holds the members this record allows', got: members});
-  await page.locator('sf-context-menu:not([data-sf-table-menu]) .sf-context-menu-item').first().click();
+  await page.locator('sf-menu-context:not([data-sf-table-menu]) .sf-context-menu-item').first().click();
   await page.waitForTimeout(250);
   const after = await page.evaluate(() => ({
     raised: window.raised,
-    menus: document.querySelectorAll('sf-context-menu').length,
-    open: document.querySelector('sf-context-menu[data-sf-table-menu="row"]')?.isOpen ?? null,
+    menus: document.querySelectorAll('sf-menu-context').length,
+    open: document.querySelector('sf-menu-context[data-sf-table-menu="row"]')?.isOpen ?? null,
     // The row's menu button is the icon button's class markup since standard
     // 1.3.8 §18.4 (a cell that only shows a control is markup): data-sf-row-menu.
-    focus: document.activeElement?.closest?.('sf-icon-button')?.getAttribute('icon')
+    focus: document.activeElement?.closest?.('sf-button-icon')?.getAttribute('icon')
       ?? (document.activeElement?.hasAttribute?.('data-sf-row-menu') ? 'menu' : null)
       ?? document.activeElement?.tagName ?? null,
   }));

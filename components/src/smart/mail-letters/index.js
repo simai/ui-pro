@@ -152,9 +152,9 @@ class SfMailLetters extends MailLettersElement {
         if (!menu) return refused("unavailable");
         this.menuFor = String(id);
         const native = anchor?.querySelector?.("button") ?? anchor;
-        // The Loader brings sf-context-menu when the page is ready (the rule
+        // The Loader brings sf-menu-context when the page is ready (the rule
         // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-context-menu").then(() => {
+        customElements.whenDefined("sf-menu-context").then(() => {
             menu.entries = this.menuEntries();
             menu.toggleFor(native);
         });

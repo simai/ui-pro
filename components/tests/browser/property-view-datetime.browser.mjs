@@ -5,7 +5,7 @@
 // could not get a time and «15.11.2026 10:30» was saved as «15.11.2026»).
 // Measured on the built bytes with a host port that answers 1.12.0, a record
 // open all at once (mode edit), at both sizes of the view and at 360px:
-// - the day (sf-datepicker) and the time (sf-input, hh:mm) stand on one row,
+// - the day (sf-input-date) and the time (sf-input, hh:mm) stand on one row,
 //   at one height, each with its own accessible name;
 // - the stored value shows: 15.11.2026 and 10:30;
 // - an untouched datetime is not written;
@@ -39,17 +39,17 @@ const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/badge/js/badge.js',
   'smart/smart/avatar/js/avatar.js', 'smart/smart/reference-link/js/reference-link.js',
   'smart/smart/input/js/input.js', 'smart/smart/tree/js/tree.js',
-  'smart/smart/tree-item/js/tree-item.js', 'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/tree-item/js/tree-item.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/button/js/button.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/drawer/js/drawer.js',
   'smart/smart/tag/js/tag.js',
-  'smart/smart/datepicker/js/datepicker.js', 'smart/smart/textarea/js/textarea.js',
+  'smart/smart/input-date/js/input-date.js', 'smart/smart/input-textarea/js/input-textarea.js',
   'smart/smart/switch/js/switch.js', 'smart/smart/button-group/js/button-group.js',
   'smart/smart/field-renderers/js/field-renderers.js',
   'smart/smart/sortable/js/sortable.js',
-  'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/popover/js/popover.js',
   'smart/smart/property-view/js/property-view.js',
 ].map((p) => join(out, p));
@@ -102,7 +102,7 @@ try {
   }, size);
 
   const field = (key) => `sf-property-view [data-field="${key}"]`;
-  const dateInput = (key) => `${field(key)} sf-datepicker input`;
+  const dateInput = (key) => `${field(key)} sf-input-date input`;
   const timeInput = (key) => `${field(key)} .sf-property-view-datetime-time input`;
   const look = (key) => page.evaluate(({key}) => {
     const root = document.querySelector(`sf-property-view [data-field="${key}"]`);
@@ -112,7 +112,7 @@ try {
       const rect = frame?.getBoundingClientRect();
       return rect ? {top: Math.round(rect.top), height: Math.round(rect.height), width: Math.round(rect.width)} : null;
     };
-    const date = root.querySelector('sf-datepicker');
+    const date = root.querySelector('sf-input-date');
     const time = root.querySelector('.sf-property-view-datetime-time');
     return {
       row: Boolean(row),
@@ -161,7 +161,7 @@ try {
   const narrow = await page.evaluate(() => {
     const field = document.querySelector('sf-property-view [data-field="starts"]').getBoundingClientRect();
     const time = document.querySelector('sf-property-view [data-field="starts"] .sf-property-view-datetime-time-field').getBoundingClientRect();
-    const date = document.querySelector('sf-property-view [data-field="starts"] sf-datepicker .sf-input').getBoundingClientRect();
+    const date = document.querySelector('sf-property-view [data-field="starts"] sf-input-date .sf-input').getBoundingClientRect();
     return {fieldRight: Math.round(field.right), timeRight: Math.round(time.right), timeTop: Math.round(time.top), dateTop: Math.round(date.top),
       timeWidth: Math.round(time.width),
       // The footer bleeds into the gutter on purpose; what is measured is the row.

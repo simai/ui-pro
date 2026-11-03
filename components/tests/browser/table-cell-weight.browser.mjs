@@ -21,10 +21,10 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
-  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/input/js/input.js',
-  'smart/smart/spinner/js/spinner.js', 'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/spinner/js/spinner.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js', 'smart/smart/radio/js/radio.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js', 'smart/smart/empty-state/js/empty-state.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
@@ -77,7 +77,7 @@ try {
   if (weight.elements !== 0 || !weight.badges || !weight.tags || !weight.avatars) note({case: 'shown values are markup, not elements', got: weight});
   // The row's buttons are in the row a person is on, and follow the pointer.
   const actions = async () => page.evaluate(() => [...document.querySelectorAll('#t tbody tr[data-row-id]')]
-    .filter((row) => row.querySelector('td[data-key="actions"] sf-icon-button, td[data-key="actions"] .sf-icon-button')).map((row) => row.dataset.rowId));
+    .filter((row) => row.querySelector('td[data-key="actions"] sf-button-icon, td[data-key="actions"] .sf-icon-button')).map((row) => row.dataset.rowId));
   const idle = await actions();
   await page.hover('#t tbody tr[data-row-id]:nth-child(3) td[data-key="name"]');
   await page.waitForTimeout(250);

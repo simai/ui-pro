@@ -822,7 +822,7 @@ export function renderAdminMenuTemplate(context) {
             ${context.brand ? html`<span>${context.brand}</span>` : nothing}
           </div>
           ${context.searchMode === "panel" && !context.compact
-            ? html`<sf-icon-button
+            ? html`<sf-button-icon
                 data-sf-admin-search-toggle
                 root-class="sf-admin-menu-search-toggle"
                 appearance="link"
@@ -831,7 +831,7 @@ export function renderAdminMenuTemplate(context) {
                 title=${context.searchLabel}
                 aria-label=${context.searchLabel}
                 @click=${() => component.openSearchPanel()}
-              ></sf-icon-button>`
+              ></sf-button-icon>`
             : nothing}
         </div>
       `;
@@ -892,7 +892,7 @@ export function renderAdminMenuTemplate(context) {
         role="presentation"
       >
         ${showSettings
-          ? html` <sf-icon-button
+          ? html` <sf-button-icon
               id="${item.panelId}_move"
               appearance="link"
               data-move
@@ -900,7 +900,7 @@ export function renderAdminMenuTemplate(context) {
               aria-label="Set order"
               icon="drag_indicator"
               root-class="cursor-move"
-            ></sf-icon-button>`
+            ></sf-button-icon>`
           : nothing}
         <span
           class="sf-admin-menu-divider flex-1${showSettings
@@ -914,7 +914,7 @@ export function renderAdminMenuTemplate(context) {
           ></span>
         </span>
         ${showSettings
-          ? html` <sf-icon-button
+          ? html` <sf-button-icon
               id="${item.panelId}_settings"
               appearance="link"
               @click=${(event) =>
@@ -926,7 +926,7 @@ export function renderAdminMenuTemplate(context) {
               aria-label="Item Settings"
               root-class="absolute sf-admin-menu-item-settings"
               icon="more_vert"
-            ></sf-icon-button>`
+            ></sf-button-icon>`
           : nothing}
       </li>
     `;
@@ -966,7 +966,7 @@ export function renderAdminMenuTemplate(context) {
       >
         <!-- Продумать touch-action: none;-->
         ${showSettings
-          ? html` <sf-icon-button
+          ? html` <sf-button-icon
               id="${item.panelId}_move"
               appearance="link"
               data-move
@@ -974,13 +974,13 @@ export function renderAdminMenuTemplate(context) {
               aria-label="Set order"
               icon="drag_indicator"
               root-class="cursor-move"
-            ></sf-icon-button>`
+            ></sf-button-icon>`
           : nothing}
         ${item.children?.length
           ? renderMenuButton(item, itemClass, showSettings)
           : renderMenuLink(item, itemClass, showSettings)}
         ${showSettings
-          ? html` <sf-icon-button
+          ? html` <sf-button-icon
               id="${item.panelId}_settings"
               appearance="link"
               @click=${(event) =>
@@ -992,7 +992,7 @@ export function renderAdminMenuTemplate(context) {
               aria-label="Item Settings"
               root-class="absolute sf-admin-menu-item-settings"
               icon="more_vert"
-            ></sf-icon-button>`
+            ></sf-button-icon>`
           : nothing}
       </li>
     `;

@@ -2,7 +2,7 @@
   "$comment": "The source of sf-message-log's element plumbing (core/js/element-manifest.js). Taken from simai/ui-control control/smart-architecture/migration/out/message-log (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); standard simai.smart-component 1.3.8, vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.message-log",
   "tag": "sf-message-log",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "kind": "leaf",
   "family": "feed",
   "settings": {
@@ -468,7 +468,7 @@
       "name": "cl-button"
     },
     {
-      "name": "cl-icon-button"
+      "name": "cl-button-icon"
     },
     {
       "name": "sr-only/default"
@@ -588,12 +588,13 @@
     "examples: examples.json from the conversations a host shows (people, an assistant's reply growing, empty); probe.json drives the arrows and Home/End, the earlier request and its old name, a stream begun/chunk/completed, cancel, and the focus through a chunk (gate 16, gate 20).",
     "css-variables: the five hooks the sheet already had, as public variables in the Framework's form; --sf-message-log--* stay the internal layer.",
     "side-effects: none.",
-    "version 1.2.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3."
+    "version 1.2.1: the first paint is retaken on ui-source c020caa: no held copy of the JSON island, no icon-font state, closed surfaces printed closed, no size the code measured; an example may declare a fake host port for gate 24's phase 3.",
+    "version 1.2.5: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): «To the latest» is sf-button-icon. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0)."
   ],
   "x-rule": {
     "$comment": [
       "The log's frame draws two Smart controls -- «Show earlier messages» is an",
-      "sf-button, «To the latest» an sf-icon-button -- and a tag the log renders is a",
+      "sf-button, «To the latest» an sf-button-icon -- and a tag the log renders is a",
       "tag it fetches. The announcer is visually hidden with the Framework's sr-only",
       "utility, which a class scan can miss on a node that starts empty, so it comes",
       "with the component. What a message looks like is the host's renderer; a host",
@@ -868,6 +869,13 @@
           "to": "1.2.2",
           "changes": [
             "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.2.4",
+          "to": "1.2.5",
+          "changes": [
+            "Draws and finds the renamed Framework elements by their new tags («To the latest» is sf-button-icon); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
           ]
         }
       ]

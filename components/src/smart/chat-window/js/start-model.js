@@ -23,7 +23,7 @@ export function groupLimits(group) {
 /** Up to two initials of a name, for the plain avatar markup ('' for none): core's getInitials. */
 export const initialsOf = (name) => getInitials(name);
 
-/** A found person as sf-lookup's item: only the id and the name are read. */
+/** A found person as sf-input-lookup's item: only the id and the name are read. */
 export function personItem(person) {
   const name = String(person?.name ?? '');
   const initials = initialsOf(name);

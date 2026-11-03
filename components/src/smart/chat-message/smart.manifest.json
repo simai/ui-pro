@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -31,8 +31,8 @@
       "smart.avatar",
       "smart.badge",
       "smart.change-confirm",
-      "smart.context-menu",
-      "smart.icon"
+      "smart.icon",
+      "smart.menu-context"
     ],
     "public_parts": []
   },
@@ -609,6 +609,13 @@
         "changes": [
           "The picker's press elsewhere through the layer stack; needs core.runtime >= 1.19.0. No visible change. Nothing to change for a host on a pair from core.runtime 1.19.0 on."
         ]
+      },
+      {
+        "from": "1.5.2",
+        "to": "1.5.3",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the «⋯» menu is sf-menu-context); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -642,7 +649,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/social.js",
-        "sha256": "43bccad9d0d8db0eabb1d66abd42eecee736f259ea0c1abfe03aa3494f51ccdb"
+        "sha256": "e2dcf96c2c178d366d7f9ae32a98dc1eea59402be91bcf49475feb677aed3889"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
@@ -650,7 +657,7 @@
       },
       {
         "path": "src/smart/chat-message/rule.js",
-        "sha256": "65488668329b4c1bfef5156cd3fffcde4d72f1cdb6c283efabfa5980367da488"
+        "sha256": "bc15afa55c6c0aac82b54dd2606ea02207bfd50ad5935db0f53217268733d147"
       },
       {
         "path": "src/smart/chat-message/docs.md",
@@ -658,7 +665,7 @@
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "28da1c5d7cddde258d1becde250225419700168960a1f3cc1797fbc388ade9e9"
+        "sha256": "e69569e9ab5df98f89c9dc26067127133f336733c6e8032f99aa295ef11de7fc"
       },
       {
         "path": "src/smart/chat-message/aliases.json",

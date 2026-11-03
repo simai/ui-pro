@@ -8,7 +8,7 @@ import "./default.css";
 // With fewer than two interlocutors the button is a name: disabled, with no
 // aria-haspopup, aria-expanded or description, and the chevron hidden.
 // Otherwise it is a menu button, closed from the start (aria-expanded false);
-// sf-context-menu sets aria-expanded while it is open and puts it back after,
+// sf-menu-context sets aria-expanded while it is open and puts it back after,
 // and the template writes it again only when the button stops or starts being
 // a choice.
 //
@@ -28,15 +28,15 @@ export function renderChatInterlocutorTemplate(context) {
                     @click=${() => component.openMenu()}
             ><span class="sf-chat-interlocutor__title">${context.title}</span><sf-icon
                     icon="expand_more" size="1/2" aria-hidden="true"></sf-icon></button>
-            <sf-context-menu
+            <sf-menu-context
                     class="sf-chat-interlocutor__menu"
                     popup
                     aria-label=${context.menuLabel}
-                    @sf-context-menu-select=${(event) => {
+                    @sf-menu-context-select=${(event) => {
                         event.stopPropagation();
                         component.onMenuSelect(event.detail);
                     }}
-            ></sf-context-menu>
+            ></sf-menu-context>
             <span class="sf-chat-interlocutor__note sr-only" id=${context.noteId}>${context.note}</span>
         </div>
     `;

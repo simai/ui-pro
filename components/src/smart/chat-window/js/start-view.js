@@ -2,7 +2,7 @@
 // x-conversation-start, a form in the main area in place of the conversation,
 // as «Мои файлы» stand there (files-view.js).
 //
-// The people are found by the Framework's sf-lookup, whose provider asks the
+// The people are found by the Framework's sf-input-lookup, whose provider asks the
 // host (recipients.search); the title is sf-input and «Создать» sf-button, its
 // loading state is what a second press meets. What may be found and created is
 // the host's: the form only says what the host answered. A form lives as long
@@ -110,7 +110,7 @@ export class StartView {
       form.field.addEventListener('input', () => this.markName(''));
       nodes.push(form.field);
     }
-    const lookup = doc.createElement('sf-lookup');
+    const lookup = doc.createElement('sf-input-lookup');
     lookup.className = 'chat-start__people';
     for (const [name, value] of Object.entries({
       size, label: words(group ? 'start.members' : 'start.person'), placeholder: words('start.placeholder'),
@@ -146,7 +146,7 @@ export class StartView {
     this.body.replaceChildren(root);
     // Attributes go on at once; a property and the focus wait for the element,
     // as the Loader brings it when it is first used.
-    const tags = group ? ['sf-lookup', 'sf-input', 'sf-button'] : ['sf-lookup'];
+    const tags = group ? ['sf-input-lookup', 'sf-input', 'sf-button'] : ['sf-input-lookup'];
     defined(...tags).then(() => {
       if (this.form !== form) return;
       customElements.upgrade(root);
@@ -169,7 +169,7 @@ export class StartView {
     this.body.replaceChildren();
   }
 
-  // sf-lookup's provider. Its signal and its own count drop what is overtaken;
+  // sf-input-lookup's provider. Its signal and its own count drop what is overtaken;
   // the check here says only that nothing older moves the form's lines.
   async search(form, query, {signal} = {}) {
     const result = await this.win.request('recipients.search', {query});
@@ -190,7 +190,7 @@ export class StartView {
       form.denied = false;
       this.showLine(form, '');
     }
-    // «Показаны первые 20. Уточните запрос.»: sf-lookup's line under the rows.
+    // «Показаны первые 20. Уточните запрос.»: sf-input-lookup's line under the rows.
     if (!answer.truncated) return {items: answer.items};
     return {items: answer.items, notice: this.win.sfWord('start-truncated', {count: form.limits.search_max})};
   }

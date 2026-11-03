@@ -8,7 +8,7 @@
 // the search above the list the Framework's input markup; every glyph is a
 // Smart sf-icon. «Мои файлы» (x-my-files) draw the space used and an empty
 // or failed list only once the view is opened. The form of a new
-// conversation (x-conversation-start) is sf-lookup, sf-input and sf-button,
+// conversation (x-conversation-start) is sf-input-lookup, sf-input and sf-button,
 // and a group's members (x-members) the avatars' class markup, each only
 // once its view is opened.
 SF.RuleLoader['cl-chat-window'] = {
@@ -28,11 +28,11 @@ SF.RuleLoader['cl-chat-window'] = {
     { name: 'cl-chat-interlocutor' },
     { name: 'cl-chat-message' },
     { name: 'cl-change-confirm', lazy: true },
-    { name: 'cl-context-menu', lazy: true },
+    { name: 'cl-menu-context', lazy: true },
     { name: 'cl-progress-bar', lazy: true },
     { name: 'cl-empty-state', lazy: true },
     { name: 'avatars', lazy: true },
-    { name: 'cl-lookup', lazy: true },
+    { name: 'cl-input-lookup', lazy: true },
     { name: 'cl-input', lazy: true },
     { name: 'cl-button', lazy: true },
   ],

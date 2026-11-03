@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.10.1",
+  "version": "1.10.2",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -35,11 +35,11 @@
       "smart.chat-composer",
       "smart.chat-interlocutor",
       "smart.chat-message",
-      "smart.context-menu",
       "smart.empty-state",
       "smart.icon",
       "smart.input",
-      "smart.lookup",
+      "smart.input-lookup",
+      "smart.menu-context",
       "smart.message-log",
       "smart.progress-bar",
       "smart.thread-list"
@@ -2587,6 +2587,13 @@
         "changes": [
           "Day dividers, the midnight refresh and the file list's date through core's format helpers, initials through helpers/text getInitials; needs core.runtime >= 1.20.0. Visible: one hyphenated name gives the initials of its parts («Жан-Поль» → ЖП, was Ж). Nothing to change for a host on a pair from core.runtime 1.20.0 on."
         ]
+      },
+      {
+        "from": "1.10.1",
+        "to": "1.10.2",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the people are found with sf-input-lookup); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -2620,7 +2627,7 @@
       },
       {
         "path": "src/smart/chat-window/js/members-view.js",
-        "sha256": "63d4ef8ab4a5f014a978285d4fe1cb5d95455581ec49b3bce221b59e3c71bf18"
+        "sha256": "71f4fded39bfd39fa8d483280ec21afc3f83bad549b7cf34deed328d1252fe5c"
       },
       {
         "path": "src/smart/chat-window/js/members-model.js",
@@ -2628,11 +2635,11 @@
       },
       {
         "path": "src/smart/chat-window/js/start-view.js",
-        "sha256": "8ad2a4d9d47d22f811f25daa07e226ca4a8fc1d4cc11673b25e8ddd07f3eaa7b"
+        "sha256": "9255cf690df6841c9c02e0ba62d59ef66e2bb280e33bd97a57358ef134ed5669"
       },
       {
         "path": "src/smart/chat-window/js/start-model.js",
-        "sha256": "a113767b52b67678b56281cb889378f4769c5c74f51f41d5d0c9c10bd0d95de8"
+        "sha256": "9edcca977fc4de17fc22b929017e50b7cb8aec0457ae5ad05b70302b381faea8"
       },
       {
         "path": "src/smart/chat-window/js/templates/default.js",
@@ -2644,15 +2651,15 @@
       },
       {
         "path": "src/smart/chat-window/rule.js",
-        "sha256": "526cad0a04dbb7d7e6c6eeb7dbfef1951f1454876002c547f43670877b8c2493"
+        "sha256": "6b9d0dce3bf672d66d443230a275074bea01796371c13ef881a17c0d93eb2516"
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "575e596346c0811f996afd57fc7c2c6f5b9accbdbee8ddd120e45300d9f64837"
+        "sha256": "075c10f1d5908e764f3b34c975c2617a45e64a8c1a1f3f78e100f63e9b9c0e0e"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "a6c2a6de8ece77dfce5c347e998e1951f6dcb5f051ac1544611cff5037096b44"
+        "sha256": "9253434299882b1ec16a7230a90226d121064ed75cfbb75e2a1c5fce35107333"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

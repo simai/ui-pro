@@ -58,7 +58,7 @@ try {
   const chip = page.locator('sf-table#table .sf-table-tags sf-tag .sf-tag').first();
   await chip.click({position: {x: 12, y: 8}});
   await page.waitForFunction(() => document.getElementById('table').getFilterOptions({key: 'author', filter: {optionsSource: {type: 'endpoint', url: '/filter-options?scope_ref=scope%3Atest&structure_id=workbench.demo&field_key=author'}}}).some((item) => item.value === 'first'));
-  const menu = page.locator('sf-context-menu[aria-label^="Настройка фильтра"]');
+  const menu = page.locator('sf-menu-context[aria-label^="Настройка фильтра"]');
   if (!(await menu.textContent()).includes('Selected outside page')) throw new Error('off-page selected label absent');
   if (!(await menu.textContent()).includes('First page')) throw new Error('first page absent');
   await menu.locator('sf-button').filter({hasText: 'Загрузить ещё'}).locator('button').click();

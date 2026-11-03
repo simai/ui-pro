@@ -44,7 +44,7 @@ the host's. `sf-mail-structure` is the same editor's list of a letter's blocks, 
 
 `sf-chat-interlocutor` moved from `simai/ui-chat` under its own name (D31, owner's
 approval 2026-10-27): who a chat conversation is with, a thin element over the
-Framework's `sf-context-menu`. `sf-chat-composer` followed it (the question field
+Framework's `sf-menu-context`. `sf-chat-composer` followed it (the question field
 and its files; the pieces of the chat's shared core it drew on are its own modules
 now), then `sf-chat-message` (one message: an assistant's answer with its sources,
 rating, proposal and task brief, a person's question, and the template `person`

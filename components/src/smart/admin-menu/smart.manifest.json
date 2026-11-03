@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -33,12 +33,12 @@
       "component.inputs",
       "smart.badge",
       "smart.button",
-      "smart.context-menu",
+      "smart.button-icon",
       "smart.dropdown",
       "smart.empty-state",
       "smart.icon",
-      "smart.icon-button",
       "smart.input",
+      "smart.menu-context",
       "smart.profile-picker",
       "smart.resizer",
       "smart.sortable"
@@ -1269,6 +1269,13 @@
         "changes": [
           "The ⌘K palette joins the layer stack: Escape, Tab, the press on the scrim, the page lock, focus return and its height are the stack's, its scrim the shared --sf-scrim-* (black at 60, as before); needs core.runtime >= 1.19.0. New: the page no longer scrolls under the open palette, and Tab stays inside it. A page that tinted the palette through --sf-drawer-overlay-* sets --sf-scrim-color/--sf-scrim-opacity instead."
         ]
+      },
+      {
+        "from": "1.6.5",
+        "to": "1.6.6",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the navigation menu and the row menus are sf-menu-context, the icon buttons sf-button-icon); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -1278,11 +1285,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
-        "sha256": "f4368bb1225d8c748f7e522b7daab37a839cd73d85bb4e5a7d798e778190d1e2"
+        "sha256": "62a12fbe82415383f64ca6815803c396eb31fc21aeacb3718508fa8b4f6af0d9"
       },
       {
         "path": "src/smart/admin-menu/js/templates/default.js",
-        "sha256": "217361050bc6b383fb04b1bc92eeb048f3eb852609e206e092d3df846b7965ea"
+        "sha256": "94543b1cd038d079aee188267cb8c4b8666a9ceb659945a429ebff0d41f9666f"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
@@ -1290,7 +1297,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
-        "sha256": "17ba4f47797ad5f2d986a7ff5b37859f6a7ea73849163dc9bc0d8a980a3ae20c"
+        "sha256": "1ae48e1ef503d31a1f97bff0dfee98cf2aa33262a8762862539f599ac43bf5e1"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/palette.js",
@@ -1302,7 +1309,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/edit.js",
-        "sha256": "9a82358666fad3ba0aaa3437d5111c2d6f0adaa4f213acfcd8bff085f72a9cf2"
+        "sha256": "445fb875400f6f562d6c7550a8bfd95f41e740889a7009219af97f2acd0f08ca"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
@@ -1310,7 +1317,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",
-        "sha256": "198a694d19b0af43fd7cd830919ff12a31a4f34aaad9682f320a070464e5a04a"
+        "sha256": "c151a9365d331df0c384a39bc1111e430173a13357ec6923627a842cb247daa7"
       },
       {
         "path": "src/component/admin-menu/scss/_css__admin_menu.scss",
@@ -1318,7 +1325,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "4ed066ddbcc529e4fef4c2b61eb16dbc7ee43862bb86f69140f56cfa6572db5b"
+        "sha256": "b4825c0012f53d8c148997c599302d466846e2f21868871ea98a33c5d4d8e1f6"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

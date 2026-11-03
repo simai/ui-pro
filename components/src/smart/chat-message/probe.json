@@ -1021,7 +1021,7 @@
         {
           "user": "click:#q .sf-chat-tools__more",
           "wait": 300,
-          "check": "q.querySelector('sf-context-menu')?.entries?.map((one) => one.id).join() === 'edit,delete'"
+          "check": "q.querySelector('sf-menu-context')?.entries?.map((one) => one.id).join() === 'edit,delete'"
         }
       ]
     }

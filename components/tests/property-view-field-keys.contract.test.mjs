@@ -29,7 +29,7 @@ const notInThisPort = new Map([
   ['filter', 'the filter-row descriptor a data view builds for a column; a property-view field has no filter'],
   ['type', 'a legacy alias of propertyType, read as a fallback for older hosts; propertyType is the name this port declares'],
   ['dataType', 'a second legacy alias of propertyType, kept for the same reason and declared under neither name'],
-  // The stepper variant of a number field (sf-quantity, SIMAI Framework
+  // The stepper variant of a number field (sf-input-quantity, SIMAI Framework
   // ui-357568a20a7e) reads its bounds and step; property-view-port 1.14.0 does
   // not carry them, so a 1.14.0 host never sends them. They are to be declared
   // in the next port minor (1.15.0, held by the DEV thread).

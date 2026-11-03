@@ -131,7 +131,7 @@ const copy = (value) => {
 // The Framework speaks English by default and Russian on a Russian page, as
 // src/core/js/page-language states for every component. This composite
 // carried Russian defaults instead, so an English page drew a panel entirely
-// in Russian -- beside an sf-color inside it that followed the rule and said
+// in Russian -- beside an sf-input-color inside it that followed the rule and said
 // «inherited». A product still overrides any of these by attribute.
 // The words are the language files' (lang/<locale>.json, standard 1.3.8 §11),
 // read under the camelCase keys a product registers more languages by.
@@ -628,7 +628,7 @@ class SfPropertyView extends PropertyViewElement {
         return `min(${wanted}, calc(100vw - ${this.edgeRoom}))`;
     }
 
-    // One edge control: an sf-icon-button of the panel's size is its text
+    // One edge control: an sf-button-icon of the panel's size is its text
     // height and the ladder's padding on each side, the same sum the button
     // draws itself with (40px at size 1 on a desktop, 36px on a phone).
     get edgeControlWidth() {
@@ -1028,18 +1028,18 @@ class SfPropertyView extends PropertyViewElement {
 
     // ─── the standard menu (owner, 2026-10-12) ──────────────────────────────
     // The «⋯» and the view chooser open the Framework's standard menu: one
-    // sf-context-menu beside the page, filled for whichever control asked.
+    // sf-menu-context beside the page, filled for whichever control asked.
     async openStandardMenu(anchor, {label, entries, select, align = "end"}) {
         if (!(anchor instanceof Element)) return null;
         // The panel did not draw a menu before, so its rule does not fetch one;
         // the Loader is asked for it the first time it is wanted.
-        await globalThis.SF?.Loader?.ensure?.(["sf-context-menu"]);
+        await globalThis.SF?.Loader?.ensure?.(["sf-menu-context"]);
         let menu = this._standardMenu;
         if (!menu?.isConnected) {
-            menu = document.createElement("sf-context-menu");
+            menu = document.createElement("sf-menu-context");
             menu.setAttribute("popup", "");
             menu.dataset.sfPropertyViewMenu = "";
-            menu.addEventListener("sf-context-menu-select", (event) => this._standardMenuSelect?.(event.detail?.id));
+            menu.addEventListener("sf-menu-context-select", (event) => this._standardMenuSelect?.(event.detail?.id));
             (this.closest("dialog[open]") || document.body).append(menu);
             this._standardMenu = menu;
         }
@@ -2006,14 +2006,14 @@ class SfPropertyView extends PropertyViewElement {
         }
     }
 
-    // Copying is sf-copy-button's (owner, 2026-10-14): one implementation of
+    // Copying is sf-button-copy's (owner, 2026-10-14): one implementation of
     // the act, its tick and its spoken result, with the Framework's fallback
     // for a browser that refuses the clipboard. The view keeps only what it
     // says about it.
     // The control stands on the drawer's outer edge, which may be outside this
     // element, so it carries the view it belongs to.
     copyControl() {
-        return [...document.querySelectorAll('sf-copy-button[data-action="copy-link"]')]
+        return [...document.querySelectorAll('sf-button-copy[data-action="copy-link"]')]
             .find((control) => control.propertyView === this) ?? null;
     }
 

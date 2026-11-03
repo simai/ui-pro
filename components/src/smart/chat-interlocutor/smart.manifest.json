@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-interlocutor",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "title": "Chat interlocutor",
   "summary": "Who the conversation is with: the server's interlocutors in the Framework's context menu, the current one checked, and a choice of another reported for the host to start a new conversation with. One interlocutor is a name, not a choice.",
   "kind": "smart",
@@ -26,8 +26,8 @@
   "exported_parts": [],
   "composition": {
     "uses": [
-      "smart.context-menu",
-      "smart.icon"
+      "smart.icon",
+      "smart.menu-context"
     ],
     "public_parts": []
   },
@@ -249,7 +249,7 @@
       "Enter",
       "Space"
     ],
-    "focus": "A native button with aria-haspopup=menu and aria-expanded=false from the start, named «Помощник: <title>» and described (sr-only) by what a change does before the menu opens. The menu is the Framework's sf-context-menu with radio rows, the current one checked, and its own keys. Disabled, without aria-haspopup, aria-expanded or a description, with a single interlocutor."
+    "focus": "A native button with aria-haspopup=menu and aria-expanded=false from the start, named «Помощник: <title>» and described (sr-only) by what a change does before the menu opens. The menu is the Framework's sf-menu-context with radio rows, the current one checked, and its own keys. Disabled, without aria-haspopup, aria-expanded or a description, with a single interlocutor."
   },
   "presentation": {
     "themes": [
@@ -314,6 +314,13 @@
         "changes": [
           "The first-paint snapshot's sheets.json lists the utility sheets its markup uses (retaken on ui-source 5ba9399); no behaviour changed. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.0.3",
+        "to": "1.0.4",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the choice opens in sf-menu-context); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -323,11 +330,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-interlocutor/index.js",
-        "sha256": "404bcd50c8c1b8775fd2357864f33c2a3e38bd51d18afdb011e8da83b3b5aa38"
+        "sha256": "8d739bdc042ea25133df3b3e903d813585a3086534cc1e6641659a030e20b90e"
       },
       {
         "path": "src/smart/chat-interlocutor/js/templates/default.js",
-        "sha256": "e7e208fbc29f89f7f52c75d5112e3cd61f5db524b120715dc7cfb0a197aa397e"
+        "sha256": "052f1f09c793c5ee5e1314d6ec8699824acfceade82607fcba98b568c3aa0b91"
       },
       {
         "path": "src/smart/chat-interlocutor/js/templates/default.css",
@@ -335,15 +342,15 @@
       },
       {
         "path": "src/smart/chat-interlocutor/rule.js",
-        "sha256": "db190d8602375bc292ac6d26f313df48f35df9988c41f1a07b13df050748a40d"
+        "sha256": "4e1f1f4bcb0f74adf5e5676808fd2f2a25f877e5a2b45b54e6e910eb9c4db759"
       },
       {
         "path": "src/smart/chat-interlocutor/docs.md",
-        "sha256": "b72664b55df707d527a049d4b3717c792b552c22b12d93252fc4cccb9ffb8624"
+        "sha256": "8769bd2816fa6d957e5b80021ce6ab0ba9ff637c6127f0150f6b25690eaf2789"
       },
       {
         "path": "src/smart/chat-interlocutor/component.json",
-        "sha256": "5bc80fdecb790d8e1640078c46348d1adaa884430ce7567ffd28e2fbff695e94"
+        "sha256": "cf16ff689365cfaaf24284bdbe18cd8316027328af0419895a0441020d62aa6f"
       },
       {
         "path": "src/smart/chat-interlocutor/aliases.json",

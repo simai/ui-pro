@@ -308,10 +308,10 @@
             {
               "user": "click:#letters [data-letter=\"prj_3\"] button[data-action=\"more\"]",
               "wait": 600,
-              "check": "(() => { const items = [...document.querySelectorAll('#letters sf-context-menu [role=menuitem]')].map((item) => item.textContent.replace(/\\s+/gu, ' ').trim()); return items.length === 3 && /Копия/u.test(items[0]) && /Переименовать/u.test(items[1]) && /Удалить/u.test(items[2]); })()"
+              "check": "(() => { const items = [...document.querySelectorAll('#letters sf-menu-context [role=menuitem]')].map((item) => item.textContent.replace(/\\s+/gu, ' ').trim()); return items.length === 3 && /Копия/u.test(items[0]) && /Переименовать/u.test(items[1]) && /Удалить/u.test(items[2]); })()"
             },
             {
-              "script": "([...document.querySelectorAll('#letters sf-context-menu [role=menuitem]')].find((item) => /Переименовать/u.test(item.textContent)).click(), true)",
+              "script": "([...document.querySelectorAll('#letters sf-menu-context [role=menuitem]')].find((item) => /Переименовать/u.test(item.textContent)).click(), true)",
               "wait": 200,
               "expect": {
                 "events": [
@@ -330,7 +330,7 @@
               "wait": 600
             },
             {
-              "script": "([...document.querySelectorAll('#letters sf-context-menu [role=menuitem]')].find((item) => /Удалить/u.test(item.textContent)).click(), true)",
+              "script": "([...document.querySelectorAll('#letters sf-menu-context [role=menuitem]')].find((item) => /Удалить/u.test(item.textContent)).click(), true)",
               "wait": 200,
               "expect": {
                 "events": [
@@ -352,7 +352,7 @@
               "wait": 600
             },
             {
-              "script": "([...document.querySelectorAll('#letters sf-context-menu [role=menuitem]')].find((item) => /Копия/u.test(item.textContent)).click(), true)",
+              "script": "([...document.querySelectorAll('#letters sf-menu-context [role=menuitem]')].find((item) => /Копия/u.test(item.textContent)).click(), true)",
               "wait": 200,
               "expect": {
                 "events": [

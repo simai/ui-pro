@@ -12,7 +12,7 @@
 // (Mirai24 v1.1: the administrator's assistant gone into the personal one,
 // its old threads kept) is named by the word «Помощник», never by an empty line.
 //
-// It is a thin element over the Framework's sf-context-menu: radio rows, the
+// It is a thin element over the Framework's sf-menu-context: radio rows, the
 // current one checked, the person's own interlocutors first and the knowledge
 // bases' under their heading once both are there, and the menu's search from
 // eight of them.
@@ -147,9 +147,9 @@ class SfChatInterlocutor extends ChatInterlocutorElement {
             ? {placeholder: this.sfWord("search-placeholder"), empty: this.sfWord("search-empty-text")}
             : null;
         menu.entries = this.entries();
-        // The Loader brings sf-context-menu when the page is ready (the rule
+        // The Loader brings sf-menu-context when the page is ready (the rule
         // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-context-menu").then(() => menu.toggleFor(button));
+        customElements.whenDefined("sf-menu-context").then(() => menu.toggleFor(button));
         return applied();
     }
 

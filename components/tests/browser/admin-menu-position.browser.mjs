@@ -55,7 +55,7 @@ for (const width of [1280, 390]) {
         const surface = document.querySelector('.sf-context-menu'); const opener = document.getElementById('admin-opener').getBoundingClientRect();
         if (!surface) return null;
         const m = surface.getBoundingClientRect();
-        return { menu: { left: m.left, right: m.right, top: m.top, bottom: m.bottom }, opener: { left: opener.left, right: opener.right }, changes: window.__positionChanges, position: surface.closest('sf-context-menu')?.getAttribute('position') };
+        return { menu: { left: m.left, right: m.right, top: m.top, bottom: m.bottom }, opener: { left: opener.left, right: opener.right }, changes: window.__positionChanges, position: surface.closest('sf-menu-context')?.getAttribute('position') };
       });
       const label = `admin ${scenario} ${dir} ${width}`; observations.push({ label, state, warnings: warnings.slice() });
       check(state && inside(state.menu, width), `${label}: flyout stays inside the viewport`, state);

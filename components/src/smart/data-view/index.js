@@ -1489,7 +1489,7 @@ class SfDataView extends DataViewElement {
                 <sf-button data-sf-bulk="apply" size="1" appearance="default" scheme="primary"></sf-button>
                 <span class="sf-pagination-actions-separator" aria-hidden="true" data-sf-bulk="for-all-separator"></span>
                 <sf-checkbox data-sf-bulk="for-all"></sf-checkbox>
-                <sf-icon-button data-sf-bulk="clear" class="sf-pagination-actions-clear" size="1" appearance="link" scheme="on-surface" icon="close"></sf-icon-button>`;
+                <sf-button-icon data-sf-bulk="clear" class="sf-pagination-actions-clear" size="1" appearance="link" scheme="on-surface" icon="close"></sf-button-icon>`;
             band.querySelector('[data-sf-bulk="apply"]')
                 .addEventListener("click", () => this.applyBulkAction());
             band.querySelector('[data-sf-bulk="actions"]')

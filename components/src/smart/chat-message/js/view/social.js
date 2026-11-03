@@ -115,10 +115,10 @@ export function renderReplies(ctx, message, view = {}) {
 // «⋯»: edit and delete in the Framework's menu, made on the first press and
 // waiting for the element, which the Loader brings lazily (the rule).
 function openMore(ctx, message, holder, anchor, {edit, remove, discuss}) {
-  let menu = holder.querySelector('sf-context-menu');
+  let menu = holder.querySelector('sf-menu-context');
   if (!menu) {
-    menu = element(ctx, 'sf-context-menu', 'sf-chat-tools__menu', {popup: true, 'aria-label': ctx.words('people.actions')});
-    menu.addEventListener('sf-context-menu-select', (event) => {
+    menu = element(ctx, 'sf-menu-context', 'sf-chat-tools__menu', {popup: true, 'aria-label': ctx.words('people.actions')});
+    menu.addEventListener('sf-menu-context-select', (event) => {
       event.stopPropagation();
       const id = event.detail?.id ?? event.detail?.value;
       if (id === 'discuss') ctx.onAction?.('thread', {id: message.id});
@@ -132,7 +132,7 @@ function openMore(ctx, message, holder, anchor, {edit, remove, discuss}) {
     ...(edit ? [{id: 'edit', text: ctx.words('people.edit'), icon: 'edit'}] : []),
     ...(remove ? [{id: 'delete', text: ctx.words('people.delete'), icon: 'delete'}] : []),
   ];
-  ctx.document.defaultView.customElements.whenDefined('sf-context-menu').then(() => {
+  ctx.document.defaultView.customElements.whenDefined('sf-menu-context').then(() => {
     menu.entries = entries;
     menu.toggleFor(anchor);
   });

@@ -141,7 +141,7 @@
     // Last, and after the elements are defined. A module script runs in document
     // order, so this one placed above the component imports ran first and called
     // setHostPort on an element that was still an unknown tag.
-    await Promise.all(['sf-property-view', 'sf-data-view', 'sf-table', 'sf-button', 'sf-color', 'sf-country-code']
+    await Promise.all(['sf-property-view', 'sf-data-view', 'sf-table', 'sf-button', 'sf-input-color', 'sf-input-country']
       .map((tag) => customElements.whenDefined(tag)));
 
     // A lab reads its fixtures as they are on disk now, not as the browser

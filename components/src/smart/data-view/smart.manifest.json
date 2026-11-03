@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.data-view-composite",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -31,9 +31,9 @@
     "uses": [
       "component.icons",
       "smart.button",
+      "smart.button-icon",
       "smart.checkbox",
       "smart.dropdown",
-      "smart.icon-button",
       "smart.pagination",
       "smart.table",
       "smart.toast"
@@ -1429,6 +1429,13 @@
         "changes": [
           "The move dialog and the confirmation are sf-modal on the layer stack, not a native <dialog>; needs core.runtime >= 1.19.0 and sf-modal on the page's pair. Visible: the shared scrim (black at 60) instead of the browser's backdrop, sf-modal's header with a close button and its footer. Same answers: applied only through the apply button. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.7.0",
+        "to": "1.7.1",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the bulk clear button is sf-button-icon); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
       }
     ]
   },
@@ -1438,7 +1445,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/data-view/index.js",
-        "sha256": "c174f4d1e6da7a18bca8741530b69d7079cf76747bafe4f4eade07f11846df07"
+        "sha256": "6993eed814b3285d78f0557d61aa04a6b7a467210ff634538a0a42c069ac96ce"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",

@@ -40,21 +40,21 @@ const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/badge/js/badge.js',
   'smart/smart/avatar/js/avatar.js', 'smart/smart/reference-link/js/reference-link.js',
   'smart/smart/input/js/input.js', 'smart/smart/tree/js/tree.js',
-  'smart/smart/tree-item/js/tree-item.js', 'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/tree-item/js/tree-item.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/button/js/button.js',
   'smart/smart/progress-scale/js/progress-scale.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/drawer/js/drawer.js',
   'smart/smart/tag/js/tag.js',
-  'smart/smart/datepicker/js/datepicker.js', 'smart/smart/textarea/js/textarea.js',
+  'smart/smart/input-date/js/input-date.js', 'smart/smart/input-textarea/js/input-textarea.js',
   'smart/smart/switch/js/switch.js', 'smart/smart/button-group/js/button-group.js',
   'smart/smart/file-upload/js/file-upload.js', 'smart/smart/file-preview/js/file-preview.js',
   'smart/smart/progress-bar/js/progress-bar.js',
   'smart/smart/field-renderers/js/field-renderers.js',
   'smart/smart/sortable/js/sortable.js',
   // A related group composes a data view, which brings a table and a page row.
-  'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/pagination/js/pagination.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
@@ -81,7 +81,7 @@ try {
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><body style="margin:0"></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
   for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
-  await page.waitForFunction(() => Boolean(customElements.get('sf-property-view') && customElements.get('sf-context-menu')));
+  await page.waitForFunction(() => Boolean(customElements.get('sf-property-view') && customElements.get('sf-menu-context')));
 
   await page.evaluate(async () => {
     window.raised = [];
@@ -132,7 +132,7 @@ try {
   await press('[data-action="menu"]', true);
   await page.waitForTimeout(300);
   const menu = await page.evaluate(() => {
-    const surface = document.querySelector('sf-context-menu[data-sf-property-view-menu] > .sf-context-menu');
+    const surface = document.querySelector('sf-menu-context[data-sf-property-view-menu] > .sf-context-menu');
     return {
       top: surface?.matches(':popover-open') ?? false,
       labels: [...(surface?.querySelectorAll('.sf-context-menu-item-label') ?? [])].map((node) => node.textContent.trim()),
@@ -144,9 +144,9 @@ try {
   if (menu.labels[0] !== 'Вид' || menu.value !== 'Обычный') note({case: 'the views are a submenu that names the current one', got: menu});
   if (!menu.labels.includes('Настроить вид')) note({case: 'what belongs to the view is still in the menu', got: menu.labels});
 
-  await press('sf-context-menu[data-sf-property-view-menu] [aria-haspopup="menu"]');
+  await press('sf-menu-context[data-sf-property-view-menu] [aria-haspopup="menu"]');
   await page.waitForTimeout(300);
-  const views = await page.evaluate(() => [...document.querySelectorAll('sf-context-menu:not([data-sf-property-view-menu]) .sf-context-menu-item')]
+  const views = await page.evaluate(() => [...document.querySelectorAll('sf-menu-context:not([data-sf-property-view-menu]) .sf-context-menu-item')]
     .map((row) => ({
       label: row.querySelector('.sf-context-menu-item-label')?.textContent.trim(),
       caption: row.querySelector('.sf-context-menu-item-caption')?.textContent.trim(),
@@ -156,12 +156,12 @@ try {
   const expected = 'Обычный|Для всех|true|menuitemradio,Мой|Персональный|false|menuitemradio';
   const seen = views.map((row) => `${row.label}|${row.caption}|${row.checked}|${row.role}`).join(',');
   if (seen !== expected) note({case: 'each view is a radio row that says whose it is', got: views});
-  await press('sf-context-menu:not([data-sf-property-view-menu]) .sf-context-menu-item');
+  await press('sf-menu-context:not([data-sf-property-view-menu]) .sf-context-menu-item');
   await page.waitForTimeout(400);
   const chosen = await page.evaluate(() => ({
     raised: window.raised.filter((one) => one.intent === 'view.profile'),
     current: document.getElementById('view').viewProfile,
-    open: document.querySelector('sf-context-menu[data-sf-property-view-menu]')?.isOpen,
+    open: document.querySelector('sf-menu-context[data-sf-property-view-menu]')?.isOpen,
   }));
   if (chosen.raised.length !== 1 || chosen.raised[0].profile !== 'mine' || chosen.current !== 'mine' || chosen.open) {
     note({case: 'choosing a view raises view.profile and closes the menu', got: chosen});
@@ -330,7 +330,7 @@ try {
     const trigger = [...root.querySelectorAll('[data-action="menu"]')].pop();
     (trigger?.querySelector('button') ?? trigger)?.click();
     await new Promise((done) => setTimeout(done, 300));
-    const surface = document.querySelector('sf-context-menu[data-sf-property-view-menu] > .sf-context-menu');
+    const surface = document.querySelector('sf-menu-context[data-sf-property-view-menu] > .sf-context-menu');
     const rows = [...(surface?.querySelectorAll('.sf-context-menu-item') ?? [])];
     const result = {
       popover: Boolean(root.querySelector('sf-popover[role="menu"]')),

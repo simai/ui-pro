@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-inspector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Letter inspector",
   "summary": "The right panel of SIMAI Email Editor as a form drawn from data: a heading with its actions, the path of levels, tabs, accordion sections and every field the editor has. The host passes the form in the person's language, including each field's value, error, hint and placeholder; the element says what the person did and changes nothing. Typed text the host did not take survives a redraw, and a redraw never moves the focus or the caret out of the field being typed in.",
   "kind": "smart",
@@ -28,16 +28,16 @@
       "component.accordion",
       "smart.breadcrumbs",
       "smart.button",
-      "smart.context-menu",
+      "smart.button-icon",
       "smart.dropdown",
       "smart.icon",
-      "smart.icon-button",
-      "smart.image-field",
       "smart.input",
+      "smart.input-image",
+      "smart.input-textarea",
+      "smart.menu-context",
       "smart.sortable",
       "smart.switch",
-      "smart.tabs",
-      "smart.textarea"
+      "smart.tabs"
     ],
     "public_parts": []
   },
@@ -51,11 +51,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "heading": {
         "type": "string",
@@ -773,7 +775,15 @@
     "aliases": [],
     "deprecations": [],
     "replacement": null,
-    "migrations": []
+    "migrations": [
+      {
+        "from": "1.0.0",
+        "to": "1.0.1",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the fields are sf-input-textarea and sf-input-image, the buttons sf-button-icon, the item menu sf-menu-context); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
+      }
+    ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
@@ -781,11 +791,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/mail-inspector/index.js",
-        "sha256": "720496730856677ae7a3826654bad3416937175fb471c7cd126e98e5a96d1ec6"
+        "sha256": "a97dab6a9f6ef37d5c864f4ba664a9098cf9111feb27c4fcddde1db4bd097511"
       },
       {
         "path": "src/smart/mail-inspector/js/templates/default.js",
-        "sha256": "af28f28303de14497473d9ff2bf8ee597b2c79090ed30005512e8ac015daafd3"
+        "sha256": "4bdb41d8ace53d6e22edbefb14443d0b29f0ceee345b70c0fc7ffef3f4e1e1aa"
       },
       {
         "path": "src/smart/mail-inspector/js/templates/default.css",
@@ -793,15 +803,15 @@
       },
       {
         "path": "src/smart/mail-inspector/rule.js",
-        "sha256": "ffa5ae8096949861677d3a7e725916eed69ed9c9952fd682f814bb258bb57d77"
+        "sha256": "984e855c657de67eabbc8ca2babd7dd27eb9c25081328ea6ce5b1c2f714afbf5"
       },
       {
         "path": "src/smart/mail-inspector/docs.md",
-        "sha256": "0805a6fbbaa62ff25d3da231095db6e02218151cd7e2f7a90e6155a554948d3c"
+        "sha256": "8473f7fa36b80df3de882a036bae8177b33281cf4fece390ea779c7baa9aa398"
       },
       {
         "path": "src/smart/mail-inspector/component.json",
-        "sha256": "3b7c0fc4546d1ad3a2983819febd210a809b22a5367cff98ea09762f80c31266"
+        "sha256": "cdd53008a41c9435a4c6137dbd65c4b42659d1ba8c1ade98d1b8f85f7115418c"
       },
       {
         "path": "src/smart/mail-inspector/lang/en.json",

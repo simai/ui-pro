@@ -475,9 +475,9 @@ class SfThreadList extends ThreadListElement {
                 : {id: "archive", text: this.sfWord("archive-text"), icon: "archive"}]),
             ...this._actions.map((action) => ({id: `action:${action.id}`, text: action.text, ...(action.icon ? {icon: action.icon} : {})})),
         ];
-        // The Loader brings sf-context-menu when the page is ready (the rule
+        // The Loader brings sf-menu-context when the page is ready (the rule
         // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-context-menu").then(() => menu.toggleFor(anchor));
+        customElements.whenDefined("sf-menu-context").then(() => menu.toggleFor(anchor));
         return applied();
     }
 

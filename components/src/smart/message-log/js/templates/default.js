@@ -42,7 +42,7 @@ export function renderMessageLogTemplate(context) {
             </div>
             ${context.column}
             <div class="sf-message-log__jump" hidden>
-                <sf-icon-button
+                <sf-button-icon
                         appearance="surface"
                         scheme="on-surface"
                         size="1"
@@ -52,7 +52,7 @@ export function renderMessageLogTemplate(context) {
                         title=${context.latestLabel}
                         aria-label=${context.latestLabel}
                         @click=${() => component.scrollToLatest({focus: true})}
-                ></sf-icon-button>
+                ></sf-button-icon>
             </div>
             <div class="sf-message-log__announcer sr-only" aria-live="polite"></div>
         </div>

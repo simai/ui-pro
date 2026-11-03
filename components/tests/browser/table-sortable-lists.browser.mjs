@@ -22,10 +22,10 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
-  'smart/smart/icon-button/js/icon-button.js', 'smart/smart/checkbox/js/checkbox.js',
+  'smart/smart/button-icon/js/button-icon.js', 'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/list-item/js/list-item.js', 'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
-  'smart/smart/close/js/close.js', 'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/button-close/js/button-close.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/sortable/js/sortable.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
 ].map((p) => join(out, p));
@@ -71,7 +71,7 @@ const openWindow = async (page, label) => {
   const opened = await page.evaluate((name) => {
     // A control with visible text carries it in `text` and has no aria-label;
     // an icon-only one carries the name in aria-label. Match either.
-    const host = [...document.querySelectorAll('#t sf-button, #t sf-icon-button')]
+    const host = [...document.querySelectorAll('#t sf-button, #t sf-button-icon')]
       .find((node) => node.getAttribute('aria-label') === name || node.getAttribute('text') === name);
     const control = host?.querySelector('button') ?? host;
     control?.click();
@@ -79,7 +79,7 @@ const openWindow = async (page, label) => {
   }, label);
   if (!opened) throw new Error(`no control labelled ${label}`);
   await page.waitForTimeout(700);
-  const surface = await page.evaluate(() => Boolean(document.querySelector('sf-context-menu .sf-table-context-menu')));
+  const surface = await page.evaluate(() => Boolean(document.querySelector('sf-menu-context .sf-table-context-menu')));
   if (!surface) throw new Error(`the window ${label} did not open`);
 };
 
@@ -87,10 +87,10 @@ try {
   const page = await open(900);
   await openWindow(page, 'Настройки');
   await page.waitForTimeout(300);
-  const lists = await page.evaluate(() => [...document.querySelectorAll('sf-context-menu sf-sortable')]
+  const lists = await page.evaluate(() => [...document.querySelectorAll('sf-menu-context sf-sortable')]
     .map((list) => ({group: list.getAttribute('group'), rows: list.querySelectorAll('[data-sf-sortable-item]').length})));
-  const handle = page.locator('sf-context-menu [data-column-key="f2"] [data-sf-sortable-handle]').first();
-  const target = page.locator('sf-context-menu [data-column-key="f5"]').first();
+  const handle = page.locator('sf-menu-context [data-column-key="f2"] [data-sf-sortable-handle]').first();
+  const target = page.locator('sf-menu-context [data-column-key="f5"]').first();
   const from = await handle.boundingBox();
   const onto = await target.boundingBox();
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
@@ -98,7 +98,7 @@ try {
   await page.mouse.move(from.x + from.width / 2, from.y + 20, {steps: 4});
   await page.mouse.move(from.x + from.width / 2, onto.y + onto.height * 0.75, {steps: 10});
   const during = await page.evaluate(() => {
-    const holder = document.querySelector('sf-context-menu .sf-sortable-placeholder');
+    const holder = document.querySelector('sf-menu-context .sf-sortable-placeholder');
     const list = holder?.closest('sf-sortable');
     const order = list ? [...list.children].map((node) => (node === holder ? 'outline' : node.dataset.columnKey)).filter(Boolean) : [];
     return {silhouette: Boolean(holder), group: list?.getAttribute('group') ?? null, order};

@@ -347,7 +347,7 @@ export class MembersView {
     const warn = doc.createElement('p');
     warn.className = 'chat-members__warn';
     warn.textContent = this.words('members.add-warning');
-    const lookup = doc.createElement('sf-lookup');
+    const lookup = doc.createElement('sf-input-lookup');
     lookup.className = 'chat-members__people';
     const limits = groupLimits(this.win._data.limits?.group);
     for (const [name, value] of Object.entries({
@@ -365,7 +365,7 @@ export class MembersView {
     this.add.replaceChildren(warn, lookup, done);
     this.add.hidden = false;
     this.drawTools();
-    defined('sf-lookup').then(() => {
+    defined('sf-input-lookup').then(() => {
       if (!this.adding || !lookup.isConnected) return;
       customElements.upgrade(this.add);
       lookup.provider = (query, options) => this.search(query, options);
@@ -426,7 +426,7 @@ export class MembersView {
       if (intent !== 'member.add') this.strip = null;
       this.redraw(intent === 'member.add' ? null : () => this.moreOf(one?.id) ?? this.title);
       if (intent === 'member.add') {
-        const lookup = this.add.querySelector('sf-lookup');
+        const lookup = this.add.querySelector('sf-input-lookup');
         if (lookup) {
           lookup.value = null;
           lookup.exclude = excludeOf(this.members, this.win._data.me?.id);

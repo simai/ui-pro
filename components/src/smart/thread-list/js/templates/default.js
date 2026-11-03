@@ -163,14 +163,14 @@ export function renderThreadListTemplate(context) {
                     : nothing}
                 ${context.hasFooter ? html`<div class="sf-thread-list__extra">${context.footer}</div>` : nothing}
             </div>
-            <sf-context-menu
+            <sf-menu-context
                     class="sf-thread-list__menu"
                     popup
-                    @sf-context-menu-select=${(event) => {
+                    @sf-menu-context-select=${(event) => {
                         event.stopPropagation();
                         component.onMenu(event.detail);
                     }}
-            ></sf-context-menu>
+            ></sf-menu-context>
         </nav>
     `;
 }

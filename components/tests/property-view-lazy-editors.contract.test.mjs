@@ -14,13 +14,13 @@ vm.runInNewContext(readFileSync(resolve(root, 'src/smart/property-view/rule.js')
 const relations = new Map(SF.RuleLoader['cl-property-view'].relation.map((one) => [one.name, one.lazy === true]));
 
 test('sf-property-view relates its editors lazily and its reading parts eagerly', () => {
-  for (const name of ['cl-input', 'cl-textarea', 'cl-dropdown', 'cl-datepicker', 'cl-switch', 'cl-checkbox',
-    'cl-button-group', 'cl-range-slider', 'cl-file-upload', 'cl-progress-bar', 'cl-sortable', 'cl-popover',
+  for (const name of ['cl-input', 'cl-input-textarea', 'cl-dropdown', 'cl-input-date', 'cl-switch', 'cl-checkbox',
+    'cl-button-group', 'cl-slider-range', 'cl-file-upload', 'cl-progress-bar', 'cl-sortable', 'cl-popover',
     'cl-profile-picker', 'cl-data-view', 'cl-table']) {
     assert.equal(relations.get(name), true, `${name} is lazy`);
   }
   for (const name of ['icons', 'cl-icon', 'cl-button', 'cl-drawer', 'cl-tabs', 'cl-badge', 'cl-tag', 'cl-reference-link',
-    'cl-empty-state', 'cl-help-mark', 'cl-copy-button']) {
+    'cl-empty-state', 'cl-help-mark', 'cl-button-copy']) {
     assert.equal(relations.get(name), false, `${name} is fetched with the panel`);
   }
 });

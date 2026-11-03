@@ -1077,7 +1077,7 @@
   /* The gear's «Вид» tab: the standard menu's rows -- its row height and
      inset -- a quiet heading over the density, a separator before the reach. */
   /* The tabs and the way out are the Framework panel's head now
-     (sf-context-menu tabs, 2026-10-15). */
+     (sf-menu-context tabs, 2026-10-15). */
   .sf-table-view-settings .sf-table-settings-heading {
     padding-block-start: var(--sf-space-1\/4);
   }

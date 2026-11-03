@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-structure",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "Letter structure",
   "summary": "The structure of a letter in SIMAI Email Editor: the letter's settings, one row per block, and a way to add a block. A row chooses, moves, copies and removes its block; a point between rows asks for a new block there; the header and the footer stay pinned. The element holds no letter and changes none; it says what the person asked for.",
   "kind": "smart",
@@ -26,10 +26,10 @@
   "composition": {
     "uses": [
       "smart.button",
-      "smart.context-menu",
+      "smart.button-icon",
       "smart.empty-state",
       "smart.icon",
-      "smart.icon-button",
+      "smart.menu-context",
       "smart.sortable"
     ],
     "public_parts": []
@@ -44,11 +44,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "selected": {
         "type": "string",
@@ -422,7 +424,15 @@
     "aliases": [],
     "deprecations": [],
     "replacement": null,
-    "migrations": []
+    "migrations": [
+      {
+        "from": "1.0.0",
+        "to": "1.0.1",
+        "changes": [
+          "Draws and finds the renamed Framework elements by their new tags (the row's ⋯ is sf-button-icon, its menu sf-menu-context); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+        ]
+      }
+    ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
@@ -430,11 +440,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/mail-structure/index.js",
-        "sha256": "d5d799e751a0e11b7d6155ac3d967cefcc783143dd67ec5aef742c49e5e82868"
+        "sha256": "d9858481d2b74020a795177ae82d60221ace86cc18519660bc5e43dbd251b764"
       },
       {
         "path": "src/smart/mail-structure/js/templates/default.js",
-        "sha256": "344537312a2942313d8c1d7a843ac904301b408ce3fe88b450bcdccef1f39ced"
+        "sha256": "66411469c4d0b064931bc062e89d73567cfe494bbc02d41a64408f4bde51dbbd"
       },
       {
         "path": "src/smart/mail-structure/js/templates/default.css",
@@ -442,7 +452,7 @@
       },
       {
         "path": "src/smart/mail-structure/rule.js",
-        "sha256": "8743d75bce6ea8ea713cb26b91f33246db5ce602b8277d59e2824be421bd0b17"
+        "sha256": "c6cfd2f61f9a19f293a376b034c7883fc714d0b762a5991fd3226c5c107e7e67"
       },
       {
         "path": "src/smart/mail-structure/docs.md",
@@ -450,7 +460,7 @@
       },
       {
         "path": "src/smart/mail-structure/component.json",
-        "sha256": "ae4a93b2026c2217062d05b404abecff4155226b4d77db0923d64acd5c3712c0"
+        "sha256": "86c382c2b85f89ae3228ca45834e3d7edd4a5a98a5594109ca585f461eac75e8"
       },
       {
         "path": "src/smart/mail-structure/lang/en.json",

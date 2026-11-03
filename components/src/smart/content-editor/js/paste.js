@@ -1,5 +1,5 @@
 // A paste becomes blocks through the html@1 subset (composition/html-subset in
-// ui-source), the one rule sf-rich-text and content.html clean by: a word
+// ui-source), the one rule sf-input-rich and content.html clean by: a word
 // processor's or a site's markup keeps its paragraphs, headings, lists, quotes,
 // bold, italic and safe links, and loses its styles. Plain text is read the
 // same way, a blank line between paragraphs. Nothing here makes content.html.

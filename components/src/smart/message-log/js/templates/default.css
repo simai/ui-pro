@@ -111,7 +111,7 @@
     --sf-icon-button-background-color: var(--sf-elevation-2--surface);
   }
 
-  .sf-message-log__jump > sf-icon-button > button {
+  .sf-message-log__jump > sf-button-icon > button {
     box-shadow: var(--sf-elevation-2--shadow);
   }
 

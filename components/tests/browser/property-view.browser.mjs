@@ -30,7 +30,7 @@ const styles = [
   // pair -- the reason a consumer saw plain stacked text.
   'smart/smart/popover/css/popover.css',
   'component/component/icon-buttons/css/icon-buttons.css',
-  'smart/smart/copy-button/css/copy-button.css',
+  'smart/smart/button-copy/css/button-copy.css',
   'smart/smart/property-view/css/property-view.css',
   'smart/smart/sortable/css/sortable.css',
   'smart/smart/table/css/table.css', 'smart/smart/resizer/css/resizer.css',
@@ -40,27 +40,27 @@ const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/badge/js/badge.js',
   'smart/smart/avatar/js/avatar.js', 'smart/smart/reference-link/js/reference-link.js',
   'smart/smart/input/js/input.js', 'smart/smart/tree/js/tree.js',
-  'smart/smart/tree-item/js/tree-item.js', 'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/tree-item/js/tree-item.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/button/js/button.js',
   'smart/smart/progress-scale/js/progress-scale.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/drawer/js/drawer.js',
   'smart/smart/tag/js/tag.js',
-  'smart/smart/datepicker/js/datepicker.js', 'smart/smart/textarea/js/textarea.js',
+  'smart/smart/input-date/js/input-date.js', 'smart/smart/input-textarea/js/input-textarea.js',
   'smart/smart/switch/js/switch.js', 'smart/smart/button-group/js/button-group.js',
   'smart/smart/file-upload/js/file-upload.js', 'smart/smart/file-preview/js/file-preview.js',
   'smart/smart/progress-bar/js/progress-bar.js',
   'smart/smart/field-renderers/js/field-renderers.js',
   'smart/smart/sortable/js/sortable.js',
   // A related group composes a data view, which brings a table and a page row.
-  'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js',
   'smart/smart/pagination/js/pagination.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
   'smart/smart/data-view/js/data-view.js',
   'smart/smart/popover/js/popover.js',
-  'smart/smart/copy-button/js/copy-button.js',
+  'smart/smart/button-copy/js/button-copy.js',
   'smart/smart/property-view/js/property-view.js',
 ].map((p) => join(out, p));
 
@@ -95,10 +95,10 @@ try {
   await page.waitForTimeout(1400);
 
   const unupgraded = await page.evaluate(() => {
-    const tags = ['sf-property-view', 'sf-drawer', 'sf-input', 'sf-textarea', 'sf-dropdown',
-      'sf-datepicker', 'sf-switch', 'sf-button-group', 'sf-checkbox', 'sf-file-upload',
+    const tags = ['sf-property-view', 'sf-drawer', 'sf-input', 'sf-input-textarea', 'sf-dropdown',
+      'sf-input-date', 'sf-switch', 'sf-button-group', 'sf-checkbox', 'sf-file-upload',
       'sf-file-preview', 'sf-progress-bar', 'sf-progress-scale', 'sf-avatar', 'sf-badge',
-      'sf-tag', 'sf-reference-link', 'sf-tree', 'sf-tree-item', 'sf-button', 'sf-icon-button',
+      'sf-tag', 'sf-reference-link', 'sf-tree', 'sf-tree-item', 'sf-button', 'sf-button-icon',
       'sf-sortable', 'sf-data-view', 'sf-table', 'sf-pagination'];
     return tags.filter((tag) => !customElements.get(tag));
   });
@@ -299,7 +299,7 @@ try {
     // control must still show the day, and choosing another day must keep the
     // time the record already held -- writing it back without the clock looks
     // like it worked and quietly moves the value to midnight.
-    const timePicker = dateView.querySelector('[data-field="startsAt"] sf-datepicker');
+    const timePicker = dateView.querySelector('[data-field="startsAt"] sf-input-date');
     const timeHeld = timePicker?.value ?? null;
     const timeShown = dateView.querySelector('[data-field="startsAt"] input')?.value ?? null;
     timePicker?.dispatchEvent(new CustomEvent('change', {detail: {value: '2026-11-28'}}));
@@ -317,7 +317,7 @@ try {
         timeHeld,
         timeShown,
         timeWritten,
-        dateHeld: dateView.querySelector('[data-field="due"] sf-datepicker')?.value ?? null,
+        dateHeld: dateView.querySelector('[data-field="due"] sf-input-date')?.value ?? null,
         // A refused field has no candidates now or ever, so a retry cannot help
         // and an empty picker over a real value reads as the value being gone.
         refusedPicker: Boolean(owner?.querySelector('sf-dropdown')),

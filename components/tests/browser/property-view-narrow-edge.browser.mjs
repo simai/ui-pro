@@ -28,12 +28,12 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
-  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
-  'smart/smart/copy-button/js/copy-button.js',
+  'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
+  'smart/smart/button-copy/js/button-copy.js',
   'smart/smart/input/js/input.js', 'smart/smart/switch/js/switch.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/button-group/js/button-group.js',
-  'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tree/js/tree.js', 'smart/smart/tree-item/js/tree-item.js',
   'smart/smart/spinner/js/spinner.js', 'smart/smart/drawer/js/drawer.js',
   'smart/smart/field-renderers/js/field-renderers.js',
@@ -84,8 +84,8 @@ try {
     for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
     await page.waitForTimeout(1200);
 
-    const unupgraded = await page.evaluate(() => ['sf-property-view', 'sf-drawer', 'sf-icon-button',
-      'sf-copy-button'].filter((tag) => !customElements.get(tag)));
+    const unupgraded = await page.evaluate(() => ['sf-property-view', 'sf-drawer', 'sf-button-icon',
+      'sf-button-copy'].filter((tag) => !customElements.get(tag)));
     if (unupgraded.length) {
       throw new Error(`${unupgraded.join(', ')} not defined on the page: an unupgraded element has no `
         + 'behaviour, so every measurement of it is false in the same direction.');

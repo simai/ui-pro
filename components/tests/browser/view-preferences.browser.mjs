@@ -24,10 +24,10 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
-  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/input/js/input.js',
-  'smart/smart/spinner/js/spinner.js', 'smart/smart/context-menu/js/context-menu.js',
+  'smart/smart/spinner/js/spinner.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tabs/js/tabs.js', 'smart/smart/tag/js/tag.js', 'smart/smart/radio/js/radio.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/empty-state/js/empty-state.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js',
@@ -116,8 +116,8 @@ try {
     table.openContextMenu({currentTarget: anchor, target: anchor, preventDefault() {}, stopPropagation() {}}, {menu: 'table-settings'});
   });
   await viewed.waitForTimeout(600);
-  const tabs = await viewed.evaluate(() => [...document.querySelectorAll('sf-context-menu .sf-context-menu-tabs [role="tab"]')].map((tab) => tab.textContent.trim()));
-  await viewed.evaluate(() => [...document.querySelectorAll('sf-context-menu .sf-context-menu-tabs [role="tab"]')][1]?.click());
+  const tabs = await viewed.evaluate(() => [...document.querySelectorAll('sf-menu-context .sf-context-menu-tabs [role="tab"]')].map((tab) => tab.textContent.trim()));
+  await viewed.evaluate(() => [...document.querySelectorAll('sf-menu-context .sf-context-menu-tabs [role="tab"]')][1]?.click());
   await viewed.waitForTimeout(500);
   const pick = (selector) => viewed.evaluate((query) => {
     const host = document.querySelector(query);
@@ -146,7 +146,7 @@ try {
   if (tabs.join() !== 'Поля,Вид' || !panel) note({case: 'the gear has «Поля» and «Вид»', got: {tabs, panel}});
   // No hole under the tabs, and a way out on their row (owner, 2026-10-15).
   const head = await viewed.evaluate(() => {
-    const menu = document.querySelector('sf-context-menu');
+    const menu = document.querySelector('sf-menu-context');
     const tabs = menu?.querySelector('.sf-context-menu-head');
     const first = menu?.querySelector('[data-table-view-settings] > *');
     return {gap: tabs && first ? Math.round(first.getBoundingClientRect().top - tabs.getBoundingClientRect().bottom) : null,
@@ -156,9 +156,9 @@ try {
   if (head.gap === null || head.gap < 0 || head.gap > 16 || head.panels || !head.close) note({case: 'the tab row: no hole, no overlap, a close button', got: head});
   if (own.density !== 'compact' || !own.stripes || own.kept?.density !== 'compact' || own.kept?.stripes !== true) note({case: 'the view is set and kept for this table', got: own});
   if (everywhere.general?.lines !== true || !everywhere.lines) note({case: '«Для всех моих таблиц» keeps it for every table', got: everywhere});
-  await viewed.evaluate(() => document.querySelector('sf-context-menu .sf-context-menu-close button')?.click());
+  await viewed.evaluate(() => document.querySelector('sf-menu-context .sf-context-menu-close button')?.click());
   await viewed.waitForTimeout(300);
-  const closed = await viewed.evaluate(() => !document.querySelector('sf-context-menu .sf-context-menu-head'));
+  const closed = await viewed.evaluate(() => !document.querySelector('sf-menu-context .sf-context-menu-head'));
   if (!closed) note({case: 'the close button closes the window'});
   await viewed.close();
   console.log(JSON.stringify({arranged, kept, painted, firstQuery, hostedHeads, hostedQuery, tabs, own, everywhere, head}));

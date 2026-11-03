@@ -35,12 +35,12 @@ const styles = [
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
-  'smart/smart/button/js/button.js', 'smart/smart/icon-button/js/icon-button.js',
+  'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
-  'smart/smart/context-menu/js/context-menu.js', 'smart/smart/list-item/js/list-item.js',
+  'smart/smart/menu-context/js/menu-context.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/badge/js/badge.js',
   'smart/smart/tag/js/tag.js', 'smart/smart/avatar/js/avatar.js',
-  'smart/smart/color/js/color.js', 'smart/smart/reference-link/js/reference-link.js',
+  'smart/smart/input-color/js/input-color.js', 'smart/smart/reference-link/js/reference-link.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/table/js/table.js', 'smart/smart/data-view/js/data-view.js',
 ].map((p) => join(out, p));
 
@@ -165,7 +165,7 @@ try {
     failures.push({cell: 'public', said: 'a boolean column printed its stored value', measured});
   }
   // The two renderers that answer with markup.
-  if (!measured.accent?.tags.includes('sf-color')) {
+  if (!measured.accent?.tags.includes('sf-input-color')) {
     failures.push({cell: 'accent', said: 'a colour column drew nothing: the cell dropped the markup the renderer set returned', measured});
   }
   if (!measured.script?.text) {
