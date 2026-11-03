@@ -1790,10 +1790,14 @@ class SfChatWindow extends ChatWindowElement {
     // a quiet second line (U-06); with the usual one the row stays one line.
     // A pinned one is sf-chat-threads's own (1.3.0: pinned: true leads under
     // «Закреплённые» with its «Закреплён» line), so it is not said again here.
+    // The port speaks snake_case; sf-chat-threads takes its entry fields by
+    // their attribute names (updated-at since 1.7.0), so the date is renamed here.
     listed(conversation) {
         const others = (this._data.interlocutors || []).slice(1);
         const who = others.find((one) => one.id === conversation.interlocutor)?.title;
-        const entry = {...conversation, pinned: Boolean(conversation.pinned)};
+        const {updated_at: updatedAt, ...rest} = conversation;
+        const entry = {...rest, pinned: Boolean(conversation.pinned)};
+        if (entry["updated-at"] === undefined && updatedAt !== undefined) entry["updated-at"] = updatedAt;
         return who ? {...entry, caption: who} : entry;
     }
 
