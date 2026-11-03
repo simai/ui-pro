@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import {dirname, resolve} from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
-import {composeDateTime, normalizeTime, splitDateTime} from '../src/smart/view-properties/js/datetime-value.js';
+import {composeDateTime, normalizeTime, splitDateTime} from '../src/smart/field-renderers/datetime.js';
 
 // Larena acceptance, 2026-10-22: a «Дата и время» field edited only the day,
 // so a new record could not get a time and «15.11.2026 10:30» was saved as

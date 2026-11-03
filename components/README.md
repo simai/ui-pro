@@ -24,7 +24,6 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/admin-menu` | `sf-admin-menu` | `smart.admin-menu` |
 | `src/smart/message-log` | `sf-message-log` | `smart.message-log` |
 | `src/smart/chat-threads` | `sf-chat-threads` | `smart.chat-threads` |
-| `src/smart/confirm-change` | `sf-confirm-change` | `smart.confirm-change` |
 | `src/smart/chat-interlocutor` | `sf-chat-interlocutor` | `smart.chat-interlocutor` |
 | `src/smart/chat-composer` | `sf-chat-composer` | `smart.chat-composer` |
 | `src/smart/chat-message` | `sf-chat-message` | `smart.chat-message` |
@@ -37,14 +36,18 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/editor` | `sf-editor` | `smart.editor` |
 | `src/smart/editor-content` | `sf-editor-content` | `smart.editor-content` |
 
-Six of them took new tags on 2026-11-03 (rename plan R2): `sf-table`,
-`sf-data-view`, `sf-property-view`, `sf-content-editor`, `sf-thread-list` and
-`sf-change-confirm` are dated aliases of the tags above until 2027-01-01. Old
+Five of them took new tags on 2026-11-03 (rename plan R2): `sf-table`,
+`sf-data-view`, `sf-property-view`, `sf-content-editor` and `sf-thread-list`
+are dated aliases of the tags above until 2027-01-01. Old
 markup upgrades, the former bundle names are forwarded by the Loader and every
 event fires under its former name as well; the public CSS variables and class
 names keep the former name. Each component's docs say so under «Former tag».
 This needs the SIMAI Framework pair whose package reference lists the former
 tags (core.runtime 1.22.0).
+
+`sf-confirm-change` (former `sf-change-confirm`) moved to SIMAI Framework on
+2026-11-03 (duplication audit A-5) with the same tag, API and a continuing
+version (1.4.0); it needs the Framework pair with core.runtime 1.25.0.
 
 The three conversation components came from `simai/ui-chat` (`sf-chat-message-list`,
 `sf-chat-thread-list` and the proposal card) under neutral names (owner's decision

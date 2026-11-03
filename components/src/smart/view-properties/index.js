@@ -21,11 +21,15 @@ import manifest from "./component.json";
 import aliases from "./aliases.json";
 import en from "./lang/en.json";
 import ru from "./lang/ru.json";
-import {ICON_CHOICES} from "./js/icon-choices.js";
+// The glyphs are the Framework's choice list (core/js/icon-choices.js, core.runtime
+// 1.25.0; duplication audit 2026-11-03 A-1), shared with sf-admin-menu.
+import {ICON_CHOICES} from "../../core/js/icon-choices.js";
 import {pageText} from "../../core/js/page-language";
 import {FOCUSABLE} from "../../core/js/layer-stack";
 import {renderPropertyViewTemplate} from "./js/templates/default";
-import {composeDateTime, normalizeTime, splitDateTime} from "./js/datetime-value.js";
+// The day-and-time reading is the field renderers' (A-14): this view kept a
+// copy from before it was lifted into the Framework.
+import {composeDateTime, normalizeTime, splitDateTime} from "../field-renderers/datetime.js";
 import {fieldConditions} from "./js/conditions.js";
 
 // Every port version this composite accepts, in one place, the way sf-view
