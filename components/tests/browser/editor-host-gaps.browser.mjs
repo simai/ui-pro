@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-editor 1.0.3 on the built bytes: the defects the ui-editor host found
+// sf-editor 1.1.0 on the built bytes: the defects the ui-editor host found
 // with sf-editor 1.0.x (ui-editor docs/GAPS.md, G-22 and G-24 to G-38, the
 // one-editor scenarios of scripts/e2e-one-editor.mjs), each driven by a real
 // pointer and keyboard as the host's driver does:
@@ -244,7 +244,7 @@ try {
   await scenario('G-28', async () => {
     const tab = await open({defer: ['modal']});
     const defined = await tab.evaluate(() => Boolean(customElements.get('sf-modal')));
-    await tab.locator('#editor .sf-editor-bar-end sf-button button').last().click();
+    await tab.locator('#editor .sf-editor-output-open button').click();
     await settle(tab, 300);
     // The part arrives after the press, as the Loader fetches it on a page.
     await tab.addScriptTag({path: modules.find((path) => path.endsWith('/modal/js/modal.js')), type: 'module'});
@@ -256,7 +256,7 @@ try {
     check('G-28: the first press of Output opens the dialog while sf-modal is still on its way', !defined && shown.width > 0 && shown.text.includes('simai.composition.document'), {defined, ...shown});
     await tab.keyboard.press('Escape');
     await settle(tab, 300);
-    await tab.locator('#editor .sf-editor-bar-end sf-button button').last().click();
+    await tab.locator('#editor .sf-editor-output-open button').click();
     await settle(tab, 600);
     const again = await tab.evaluate(() => Math.round(document.querySelector('.sf-editor-output-body')?.getBoundingClientRect().width ?? 0));
     check('G-28: closed and pressed again, it opens again on one press', again > 0, again);
@@ -605,8 +605,10 @@ try {
   // ---------------------------------------------------------------- G-38
   await scenario('G-38', async () => {
     const host = {types: [SPLIT], words: {en: {'probe.split.name': 'Split hero', 'probe.split.text': 'Text', 'probe.split.media': 'Picture', 'probe.split.media_empty': 'Picture or video'}}};
-    // A section its hero fills: the section has no point of its own.
-    const HERO = page('hero', {main: [{id: 'x1', type: 'layout.section', slots: {default: [
+    // A section its hero fills: the section has no point of its own. Since
+    // layout.section 1.2.0 the type pads itself (parameter_defaults padding_y
+    // 8, width normal): this section sets both off, so the hero fills it.
+    const HERO = page('hero', {main: [{id: 'x1', type: 'layout.section', props: {padding_y: 0, width: 'full'}, slots: {default: [
       {id: 'hero', type: 'probe.split', slots: {default: [{id: 'hp', type: 'content.paragraph', data: {content: t('Hero text')}}], media: []}},
     ]}}]});
     const tab = await open({doc: HERO, host});

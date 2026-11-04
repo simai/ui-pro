@@ -5,13 +5,27 @@
 // nothing that fits is left out. Search covers names, keywords and the group
 // in both languages; Favourites and Recent sit on top. A variant's picture is
 // drawn from the variant itself (skeleton), never by hand.
+//
+// Since 1.1.0 (visual parity, 2026-11-04) the library is a list of sections,
+// each with the Framework's icon and word (CATALOGUE_GROUP_TABLE) and a count,
+// in the Framework's order (CATALOGUE_GROUPS); a product's own group follows.
 import Composition from "../../../core/js/composition/index.mjs";
+import {CATALOGUE_GROUPS, CATALOGUE_GROUP_TABLE} from "../../../core/js/composition/catalogue.mjs";
 import {isComposed} from "../../../core/js/composition/composed.mjs";
 import {childrenOf, isPlainObject} from "./tree.mjs";
 
 export const TABS = Object.freeze(["text", "blocks"]);
 const TEXT_FLOWS = new Set(["layout.area", "content.document", "content.quote", "content.alert", "content.details", "content.step", "content.tab", "content.card", "content.list-item", "content.grid", "content.media"]);
 const RECENT_LIMIT = 8;
+// A product group the Framework does not name (a type's own namespace) gets this icon.
+const OTHER_GROUP_ICON = "widgets";
+const OTHER_TYPE_ICON = "widgets";
+
+/** The word key of a catalogue group: the Framework's for its own groups, group-<id> for a product's. */
+export const groupWordKey = (group) => CATALOGUE_GROUP_TABLE[group]?.label_key ?? `group-${group}`;
+
+/** The icon of a catalogue group (a SIMAI Framework icon name). */
+export const groupIcon = (group) => CATALOGUE_GROUP_TABLE[group]?.icon ?? OTHER_GROUP_ICON;
 
 /** The word of a type with no label_key of its own: type-<type with dashes>, from the editor's lang files. */
 export const typeWordKey = (type) => `type-${String(type).replace(/[^a-z0-9]+/gu, "-")}`;
@@ -37,7 +51,7 @@ export function itemsFor(model, place, word = (key) => key) {
         const manifest = registry.types.get(entry.type);
         if (!model.rights.layout && manifest.category === "layout") continue;
         if (place ? !model.accepts(place.parent, place.slot, entry.type) || model.placeLock(place.parent) : !model.placeFor(entry.type)) continue;
-        const base = {type: entry.type, group: entry.group, tab: entry.tab, order: entry.order, keywords: entry.keywords ?? {}, site: isComposed(manifest)};
+        const base = {type: entry.type, group: entry.group, tab: entry.tab, order: entry.order, icon: entry.icon ?? groupIcon(entry.group) ?? OTHER_TYPE_ICON, keywords: entry.keywords ?? {}, site: isComposed(manifest), variants: entry.variants.length};
         const typeKey = entry.label_key ?? typeWordKey(entry.type);
         const typeLabel = word(typeKey);
         if (entry.variants.length) {
@@ -65,6 +79,28 @@ export function catalogueAt(model, place, {word = (key) => key, groups = []} = {
 }
 
 /**
+ * The library's sections: [{id, icon, labelKey, count, types: [{type, label,
+ * icon, site, items}]}], the Framework's groups in its order, then a
+ * product's own; a section with nothing is left out. A type with variants
+ * holds one item per variant, a type without one item; count is the types.
+ */
+export function sectionsOf(items) {
+    const order = [...CATALOGUE_GROUPS, ...new Set(items.map((item) => item.group))];
+    return [...new Set(order)].map((id) => {
+        const types = [];
+        for (const item of items.filter((entry) => entry.group === id)) {
+            let type = types.find((entry) => entry.type === item.type);
+            if (!type) {
+                type = {type: item.type, label: item.typeLabel, icon: item.icon, site: item.site, items: []};
+                types.push(type);
+            }
+            type.items.push(item);
+        }
+        return {id, icon: groupIcon(id), labelKey: groupWordKey(id), count: types.length, types};
+    }).filter((section) => section.count);
+}
+
+/**
  * Search across every tab and group: names, keywords and the group, in every
  * language given. `words(key)` gives a word in every language (the editor's
  * and the host's), so a block is found by its name in any of them.
@@ -75,8 +111,8 @@ export function searchItems(items, query, {word = (key) => key, words = () => []
     const parts = wanted.split(/\s+/u);
     return items.filter((item) => {
         const haystack = [
-            item.label, item.typeLabel, item.type, item.variant ?? "", word(`group-${item.group}`),
-            ...(item.labelKeys ?? []).flatMap((key) => words(key)), ...words(`group-${item.group}`),
+            item.label, item.typeLabel, item.type, item.variant ?? "", word(groupWordKey(item.group)),
+            ...(item.labelKeys ?? []).flatMap((key) => words(key)), ...words(groupWordKey(item.group)),
             ...locales.flatMap((locale) => item.keywords?.[locale] ?? []),
         ].join(" ").toLowerCase();
         return parts.every((part) => haystack.includes(part));
@@ -102,9 +138,13 @@ export function pick(items, keys) {
 }
 
 /**
- * A variant's picture as a skeleton: the variant's own tree, with text as
- * bars, a heading a thicker bar, a picture a tinted box, a button an accent
- * pill, the grid by its columns. [{kind, columns?, children?}]
+ * A variant's picture as a skeleton: the variant's own tree with its type's
+ * effective values (parameter_defaults under its own props), so two variants
+ * that differ look apart. Text is bars, a heading a thicker bar, a picture a
+ * tinted box, a button an accent pill (outlined when it is outlined), an icon
+ * or an icon button an accent dot, a badge a short pill, a section its
+ * background and width, a grid its columns, a spacer a gap.
+ * [{kind, columns?, look?, background?, width?, children?}]
  */
 export function skeletonOf(model, item) {
     const manifest = model.registry.types.get(item.type);
@@ -119,8 +159,22 @@ function columnsOf(value) {
     return 1;
 }
 
+/** What a node prints: its own props over its type's parameter defaults. */
+function propsOf(node, model) {
+    const manifest = model.registry.types.get(node.type);
+    return Composition.effectiveProps ? Composition.effectiveProps(node, manifest) : (node.props ?? {});
+}
+
+/** A row of `columns` cells holding the children, empty cells where a column has none. */
+function rowOf(columns, children, cell = {kind: "cell"}) {
+    const count = Math.max(1, Math.min(4, columns));
+    const cells = Array.from({length: count}, (_, index) => children[index] ?? cell);
+    return {kind: "row", columns: count, children: cells};
+}
+
 function shapeOf(node, model) {
     const children = childrenOf(node).map((child) => shapeOf(child.node, model));
+    const props = propsOf(node, model);
     switch (node.type) {
     case "content.heading": return {kind: "heading", level: node.data?.level ?? 2};
     case "content.paragraph":
@@ -131,10 +185,24 @@ function shapeOf(node, model) {
     case "content.divider": return {kind: "line"};
     case "content.code":
     case "content.table": return {kind: "box"};
-    case "layout.columns": return {kind: "row", columns: Math.min(4, children.length || columnsOf(node.props?.columns)), children};
+    case "content.card": return {kind: "card"};
+    case "element.button": return {kind: "button", look: props.appearance === "outline" ? "outline" : "fill", icon: Boolean(props.icon)};
+    case "element.button-icon":
+    case "element.icon": return {kind: "dot"};
+    case "element.badge": return {kind: "badge"};
+    case "layout.spacer": return {kind: "gap"};
+    case "layout.area": return {kind: "stack", children: children.length ? children : [{kind: "heading", level: 3}, {kind: "text"}, {kind: "text"}]};
+    case "layout.columns": return rowOf(children.length || columnsOf(props.columns), children);
+    case "layout.grid": return rowOf(columnsOf(props.columns), children.length ? children : [], {kind: "card"});
+    case "layout.section":
+    case "layout.container": {
+        const columns = columnsOf(props.columns);
+        const inner = columns > 1 ? [rowOf(columns, children)] : children.length ? children : [{kind: "box"}];
+        return {kind: "section", background: String(props.background ?? "none"), width: String(props.width ?? "full"), children: inner};
+    }
     default: {
-        if (/button/u.test(node.type)) return {kind: "button"};
-        const columns = columnsOf(node.props?.columns ?? node.props?.cols);
+        if (/button/u.test(node.type)) return {kind: "button", look: "fill"};
+        const columns = columnsOf(props.columns ?? props.cols);
         // A block with data draws its records as the variant lays them out:
         // cards in its columns, or one under another, below its own slots (an
         // intro heading). Variants that differ by their columns so look apart.

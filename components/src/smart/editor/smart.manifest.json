@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.editor",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "title": "Page editor",
   "summary": "The one block editor of the SIMAI page: layout and text in one Composition Document, edited by depth. A click on text types, a click beside it chooses the block, Esc goes up and Enter down. One catalogue (Text and Blocks, groups, variants with pictures, search, favourites, recent) serves the + between blocks, / in text and the library; blocks move by the grip with drop lines or Alt+arrows, and a drop beside a block splits it into columns. The parameter panel says where every value comes from (type, theme, variant, block, screen) and sets values per screen; the Data tab binds a block to a host source through the source port. The block builder makes and changes site blocks everywhere; the site template is a separate, explicit edit. Rights and theme come from the host. One undo history; output as JSON, HTML and Markdown.",
   "kind": "smart",
@@ -75,6 +75,16 @@
         "type": "string",
         "default": "",
         "description": "Where favourites and recent blocks are kept through SF.Preferences (sf-editor/<key>); empty keeps them for the session only."
+      },
+      "heading": {
+        "type": "string",
+        "default": "",
+        "description": "The name of the page being edited, shown at the start of the top bar (the host's page name)."
+      },
+      "caption": {
+        "type": "string",
+        "default": "",
+        "description": "A short line under the name: where the page lives or its state (the host's words)."
       },
       "label": {
         "type": "string",
@@ -489,15 +499,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/editor/index.js",
-        "sha256": "b7ce0cbc82f376165d5b228e8adabcd4ef93422389327398167d75d1bde14e0e"
+        "sha256": "a4bd1b78642fb0fa24ba3b6c0161bd98a7e8d18c28b45203db21d4a76bcbfba9"
       },
       {
         "path": "src/smart/editor/js/model.mjs",
-        "sha256": "cb08280b2cd9056d279d33050065a187d8875d45d3e3ba026e06b1495498ef95"
+        "sha256": "22473f95fa22648a1b399f16d47c956efdc8f11784cbc41882c664e21701b6ec"
       },
       {
         "path": "src/smart/editor/js/catalogue.mjs",
-        "sha256": "5bfa4000b152fcaa14f22b8ea4023e5b913671a876c63adcd259689d39dc7cfe"
+        "sha256": "cbde46229a0de6e2af5ea536d298cb17e6035d846383b31f73a514d3773e70a6"
       },
       {
         "path": "src/smart/editor/js/tree.mjs",
@@ -505,11 +515,11 @@
       },
       {
         "path": "src/smart/editor/js/templates/default.js",
-        "sha256": "f7176b4861edae1ee7867ac4111a8367baeadfde66d5ae968195b03a8d90233b"
+        "sha256": "74e2a5ff6294ca0c16b0eee26ce8c39ba9fd4e1f47a465c40acfaea160b9db55"
       },
       {
         "path": "src/smart/editor/js/templates/default.css",
-        "sha256": "12b3bbb4d8a618fb260a5711f391e4299908704cd1e011c7d657e79bcde106ba"
+        "sha256": "c44abfa5c9dfc50fa2a98bb575789dc4e239fde7973031380da58d03d640bc0e"
       },
       {
         "path": "src/smart/editor/rule.js",
@@ -517,19 +527,19 @@
       },
       {
         "path": "src/smart/editor/docs.md",
-        "sha256": "029c274976d1c53854384faa34d3b0044e056540bf8664803130eedae0419ef3"
+        "sha256": "a4645efda9de94dc1e8aa6f5e10367b064bf3f9ab9106f8f4b7f022e19a7f62e"
       },
       {
         "path": "src/smart/editor/component.json",
-        "sha256": "b68f8e94a84c468b678b9f59b289b559b56c474e9450a71db542283fe2ceded4"
+        "sha256": "295dc640e0112699689c0129ef7940907fbb1d23db6550414ecec4de134ec59b"
       },
       {
         "path": "src/smart/editor/lang/en.json",
-        "sha256": "5fd05e62120bf5571d9e2427aa06a5de11dddd22e0a78aac285d8004dc9d2297"
+        "sha256": "6453e637f4229a65368be7e288c54897baf7286c046b24fd7faa6e6d1b2da05a"
       },
       {
         "path": "src/smart/editor/lang/ru.json",
-        "sha256": "87ae6c6eab96c7256ac35354b0ab966d1a488f5e09968b05749791209c4af286"
+        "sha256": "ffe84f2be0ed5972432c6c4ba49f16845f30ef1bc4c18bb11cf1b5aedaabade6"
       }
     ],
     "generated_runtime": []

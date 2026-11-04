@@ -198,7 +198,8 @@ test("split into columns from the menu: the block goes left, the right column is
     valid(model);
     const html = Composition.render(model.toJSON(), {registry: model.registry});
     return html.then((result) => {
-        assert.match(result.html, /class="sf-composition-columns grid gap-4 md:grid-col-2"/u);
+        // The Framework prints the base (grid-col-1) once a wider screen differs (G-36).
+        assert.match(result.html, /class="sf-composition-columns grid gap-4 grid-col-1 md:grid-col-2"/u);
         model.undo();
         assert.deepEqual(ids(model.node("a1").slots.default), ["h1", "p1", "p2"]);
     });
@@ -230,8 +231,9 @@ test("parameters: origin type -> theme -> variant -> block -> screen, written mo
     assert.deepEqual([field.origin, field.value], ["theme", 2]);
     field = model.fields("s1", "xs").find((entry) => entry.key === "width");
     assert.deepEqual([field.origin, field.value], ["block", "normal"]);
+    // The type's effective value: layout.section's parameter_defaults (width normal), not the schema's bare default.
     field = model.fields("s2", "xs").find((entry) => entry.key === "width");
-    assert.deepEqual([field.origin, field.value], ["type", "full"]);
+    assert.deepEqual([field.origin, field.value], ["type", "normal"]);
     model.setParam("s1", "padding_y", 6, "lg");
     assert.deepEqual(model.node("s1").props.padding_y, {lg: 6}, "the phone keeps the theme");
     model.setParam("s1", "padding_y", 4, "xs");
@@ -296,7 +298,7 @@ test("G-36: a phone value equal to the type's default is printed when a wider sc
     // The canvas draws the phone as the site prints it.
     model.node(split.id).props.columns = {xs: 1, md: 2};
     const phone = model.canvasDocument("xs").document;
-    const drawn = (await Composition.render(phone, {registry: model.printRegistry})).html;
+    const drawn = (await Composition.render(phone, {registry: model.canvasRegistry})).html;
     assert.match(drawn, new RegExp(`class="sf-composition-columns grid gap-4 grid-col-1" data-sf-composition-id="${split.id}"`, "u"));
     // The Document is not changed by printing it.
     assert.deepEqual(model.node(split.id).props.columns, {xs: 1, md: 2});
@@ -475,7 +477,7 @@ test("outputs: JSON is the Document, HTML prints utilities, Markdown is the text
     assert.equal(markdown[0].markdown, "# Title\n\nHello **bold**[link](https://simai.io)\n\n- a");
     assert.equal(inlineToMarkdown([{type: "text", value: "a*b", marks: ["em"]}]), "*a\\*b*");
     const {html} = await model.toHTML();
-    assert.match(html, /<section data-sf-composition-id="s1"><div class="container m-inline-auto" data-sf-composition-part="frame">/u);
+    assert.match(html, /<section class="p-y-8" data-sf-composition-id="s1"><div class="container m-inline-auto" data-sf-composition-part="frame">/u, "the type's parameter_defaults print (padding_y 8)");
     assert.doesNotMatch(html, /style=/u, "no inline styles");
 });
 

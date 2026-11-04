@@ -299,7 +299,7 @@ try {
   check('the screen switch draws the phone width; a desktop value is not the phone\'s', phone.screen === 'phone' && phone.width <= 390 && phone.origin !== 'screen', phone);
 
   // 9. Output: JSON, HTML, Markdown.
-  await page.locator('#editor .sf-editor-bar-end sf-button button').last().click();
+  await page.locator('#editor .sf-editor-output-open button').click();
   await page.waitForTimeout(500);
   const output = await page.evaluate(() => ({
     text: document.querySelector('.sf-editor-output-text')?.textContent ?? '',

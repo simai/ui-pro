@@ -18,12 +18,12 @@
 import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import Composition, {EDITOR_FIELD_WORDS, EDITOR_WORDS_OWNER} from "../../core/js/composition/index.mjs";
-import {CATALOGUE_GROUPS} from "../../core/js/composition/catalogue.mjs";
+import {CATALOGUE_GROUPS, catalogueEntry} from "../../core/js/composition/catalogue.mjs";
 import {isComposed} from "../../core/js/composition/composed.mjs";
 import {readInlineDom, renderInlineDom, startInlineEdit, textOffset} from "../../core/js/composition/inline-editor.mjs";
 import {localeText, pageLocale} from "../../core/js/page-language.js";
 import {EditorModel, MAX_COLUMNS, ORIGINS, SCREENS, refusedClasses} from "./js/model.mjs";
-import {catalogueAt, itemKey, pick, pushRecent, searchItems, skeletonOf, toggleFavourite, typeWordKey} from "./js/catalogue.mjs";
+import {catalogueAt, groupIcon, groupWordKey, itemKey, pick, pushRecent, searchItems, sectionsOf, skeletonOf, toggleFavourite, typeWordKey} from "./js/catalogue.mjs";
 import {isPlainObject, locate} from "./js/tree.mjs";
 import {renderEditorTemplate} from "./js/templates/default.js";
 import manifest from "./component.json";
@@ -134,8 +134,6 @@ class SfEditor extends EditorElement {
         this.popQuery = "";
         this.popActive = 0;
         this.libraryQuery = "";
-        this.libraryTab = "";
-        this.libraryGroup = "";
         this.leftTab = "blocks";
         this.rightTab = "parameters";
         this.lockNote = null;
@@ -151,6 +149,11 @@ class SfEditor extends EditorElement {
         this.seen = {};
         this.pageLandmarks = false;
         this.dropped = null;
+        this.librarySection = "";
+        this.libraryClosed = new Set();
+        this.helpOpen = null;
+        this.codeCache = new Map();
+        this.hintSeen = false;
     }
 
     // ------------------------------------------------------------ inputs
@@ -219,6 +222,12 @@ class SfEditor extends EditorElement {
         if (hosted !== undefined) return format(hosted, vars);
         const site = this.builderWords?.[locale]?.[key];
         if (site !== undefined) return site;
+        // The Framework's words (sf.composition.*) are not the editor's own:
+        // asked there first, so the editor's dictionary does not warn of them.
+        if (String(key).startsWith("sf.")) {
+            const framework = localeText(EDITOR_FIELD_WORDS, key, locale, EDITOR_WORDS_OWNER);
+            if (framework !== key) return framework;
+        }
         const own = this.sfWord(key, vars ? {vars} : undefined);
         if (own !== key) return own;
         const field = localeText(EDITOR_FIELD_WORDS, key, locale, EDITOR_WORDS_OWNER);
@@ -254,6 +263,9 @@ class SfEditor extends EditorElement {
         this.finishSession(false);
         this.listening?.abort();
         this.listening = null;
+        this.toolbarObserver?.disconnect();
+        this.toolbarObserver = null;
+        this.watchedToolbar = null;
         super.onDisconnected?.();
     }
 
@@ -269,6 +281,7 @@ class SfEditor extends EditorElement {
         if (this.pageElement && !this.drawToken) this.redraw();
         else this.placeOverlays();
         this.wireSearch();
+        this.watchToolbar();
     }
 
     /** sf-input names its own input only: the catalogue's search is a combobox over the list, said on the native input. */
@@ -305,12 +318,13 @@ class SfEditor extends EditorElement {
         if (isPlainObject(stored)) {
             this.recent = Array.isArray(stored.recent) ? stored.recent.map(String) : [];
             this.favourites = Array.isArray(stored.favourites) ? stored.favourites.map(String) : [];
+            this.hintSeen = stored.hint_seen === true;
         }
     }
 
     writePreferences() {
         const key = this.preferencesKey ? `sf-editor/${this.preferencesKey}` : "";
-        if (key) globalThis.SF?.Preferences?.write?.(key, {recent: this.recent, favourites: this.favourites});
+        if (key) globalThis.SF?.Preferences?.write?.(key, {recent: this.recent, favourites: this.favourites, ...(this.hintSeen ? {hint_seen: true} : {})});
     }
 
     refresh() {
@@ -341,13 +355,14 @@ class SfEditor extends EditorElement {
         this.refresh();
         if (!page) return;
         const token = ++this.drawToken;
+        this.codeCache.clear();
         const typing = this.model.typing ? {...this.model.typing, at: this.session ? this.caretOffset() : "end"} : null;
         this.finishSession(false);
         const {document, hidden} = this.model.canvasDocument(this.breakpoint);
         let result;
         try {
             result = await Composition.render(document, {
-                registry: this.model.printRegistry,
+                registry: this.model.canvasRegistry,
                 preview: true,
                 resolveBinding: (binding, context) => this.previewBinding(binding, context),
             });
@@ -396,11 +411,18 @@ class SfEditor extends EditorElement {
                 const open = [...element.querySelectorAll(`[${ID}]`)].some((inner) => !this.model.lockOf(inner.getAttribute(ID)));
                 if (this.model.scopeOf(id) !== "frame" && !open && marked?.dataset.sfEditorLock !== lock) {
                     element.classList.add("sf-editor-locked");
-                    const mark = this.ownerDocument.createElement("sf-icon");
+                    // A chip in the part's corner: a span (an sf-icon's own
+                    // display would put it on a line of its own), the lock and
+                    // the word for why.
+                    const mark = this.ownerDocument.createElement("span");
                     mark.className = "sf-editor-lock-mark";
-                    mark.setAttribute("icon", "lock");
-                    mark.setAttribute("size", "1/2");
                     mark.setAttribute("aria-hidden", "true");
+                    const icon = this.ownerDocument.createElement("sf-icon");
+                    icon.setAttribute("icon", "lock");
+                    icon.setAttribute("size", "1/3");
+                    const words = this.ownerDocument.createElement("span");
+                    words.textContent = this.sfWord(`lock-mark-${lock}`);
+                    mark.append(icon, words);
                     element.append(mark);
                 }
             }
@@ -517,6 +539,91 @@ class SfEditor extends EditorElement {
                 });
             }
         }
+        this.placeToolbar(chosen, canvas, box);
+        this.placeHint(gutter, gutterTarget, canvas, box);
+    }
+
+    /**
+     * The chosen block's floating bar: above the block at its end edge, as
+     * the prototype has it; below the block when there is no room above (the
+     * first block of the page). Hidden while typing or dragging.
+     */
+    placeToolbar(chosen, canvas, box) {
+        const bar = this.querySelector(".sf-editor-toolbar");
+        if (!bar || !canvas || !box) return;
+        if (!chosen || this.drag || this.model.typing || bar.hidden) {
+            bar.style.visibility = "hidden";
+            return;
+        }
+        const rect = chosen.getBoundingClientRect();
+        const height = bar.offsetHeight;
+        const width = bar.offsetWidth;
+        const gap = 8;
+        const top = rect.top - box.top + canvas.scrollTop;
+        const room = rect.top - box.top;
+        const above = room >= height + gap;
+        const end = this.isRtl ? box.right - rect.left : rect.right - box.left;
+        const start = Math.max(4, Math.min(end + canvas.scrollLeft - width, canvas.clientWidth + canvas.scrollLeft - width - 4));
+        Object.assign(bar.style, {
+            visibility: "visible",
+            insetBlockStart: `${above ? top - height - gap : top + Math.min(rect.height, canvas.clientHeight) + gap}px`,
+            insetInlineStart: `${start}px`,
+        });
+        bar.dataset.side = above ? "above" : "below";
+    }
+
+    /** The floating bar's parts draw their buttons after it: it is placed again when its size changes. */
+    watchToolbar() {
+        const bar = this.querySelector(".sf-editor-toolbar");
+        if (!bar || bar === this.watchedToolbar || typeof ResizeObserver !== "function") return;
+        this.toolbarObserver?.disconnect();
+        this.watchedToolbar = bar;
+        this.toolbarObserver = new ResizeObserver(() => {
+            const canvas = this.canvasElement;
+            const box = canvas?.getBoundingClientRect();
+            this.placeToolbar(this.model.typing ? null : this.blockElement(this.model.selected), canvas, box);
+            const gutter = this.querySelector(".sf-editor-gutter");
+            if (canvas && box) this.placeHint(gutter, this.blockElement(this.gutterId), canvas, box);
+        });
+        this.toolbarObserver.observe(bar);
+    }
+
+    /** The first-use hint beside the gutter: until the person first uses the grip or +. */
+    placeHint(gutter, target, canvas, box) {
+        const hint = this.querySelector(".sf-editor-gutter-hint");
+        if (!hint) return;
+        const show = !this.hintSeen && gutter && !gutter.hidden && target && !this.drag;
+        hint.hidden = !show;
+        if (!show) return;
+        // Above the gutter, as the prototype has it; never over the gutter or
+        // the chosen block's floating bar: above the bar, below the gutter or
+        // below the bar, the first place that is free.
+        const rect = gutter.getBoundingClientRect();
+        const bar = this.querySelector(".sf-editor-toolbar");
+        const barRect = bar && !bar.hidden && bar.style.visibility === "visible" ? bar.getBoundingClientRect() : null;
+        const height = hint.offsetHeight;
+        const width = hint.offsetWidth;
+        const gap = 4;
+        const tops = [rect.top - height - gap, ...(barRect ? [barRect.top - height - gap] : []), rect.bottom + gap, ...(barRect ? [barRect.bottom + gap] : [])];
+        const left = this.isRtl ? rect.right - width : rect.left;
+        const meets = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+        const free = (top) => top >= box.top
+            && !meets({top, bottom: top + height, left, right: left + width}, rect)
+            && !(barRect && meets({top, bottom: top + height, left, right: left + width}, barRect));
+        const top = tops.find(free) ?? tops[0];
+        Object.assign(hint.style, {
+            insetBlockStart: `${Math.max(0, top - box.top + canvas.scrollTop)}px`,
+            insetInlineStart: `${Math.max(0, (this.isRtl ? box.right - rect.right : rect.left - box.left) + canvas.scrollLeft)}px`,
+        });
+    }
+
+    /** The grip or + was used: the first-use hint is not shown again. */
+    hintUsed() {
+        if (this.hintSeen) return;
+        this.hintSeen = true;
+        this.writePreferences();
+        const hint = this.querySelector(".sf-editor-gutter-hint");
+        if (hint) hint.hidden = true;
     }
 
     get isRtl() {
@@ -617,8 +724,54 @@ class SfEditor extends EditorElement {
         }
         event.preventDefault();
         const block = this.blockAt(raw);
+        // A site block's instance is closed: its texts are typed in place.
+        // A press on the chosen instance away from its texts types in the
+        // nearest one (G-40); the first press only chooses it.
+        if (block && block.id === this.model.selected && this.typeInInstance(block.id, {x: event.clientX, y: event.clientY})) return;
         this.choose(block?.id ?? null);
         this.canvasElement?.focus({preventScroll: true});
+    }
+
+    /** The drawn text parts of a site block's instance: the elements of its composed texts. */
+    instanceTexts(id) {
+        const node = this.model.node(id);
+        if (!node || !isComposed(this.model.manifestOf(node.type))) return [];
+        const element = this.blockElement(id);
+        if (!element) return [];
+        return [...element.querySelectorAll(`[${ID}^="${cssEscape(id)}:"]`)]
+            .filter((part) => TEXT_TAGS.has(this.model.textNode(part.getAttribute(ID))?.type));
+    }
+
+    /**
+     * Types in a text of a site block's instance (G-40): the one nearest a
+     * point, at the point when it is on the text and at its end otherwise;
+     * with no point, the first. The text is kept in the instance's
+     * data.texts, through drawing again and undo. False when it has none.
+     */
+    typeInInstance(id, point = null) {
+        const parts = this.instanceTexts(id);
+        if (!parts.length) return false;
+        let part = parts[0];
+        let on = false;
+        if (point) {
+            let best = Infinity;
+            for (const candidate of parts) {
+                const box = candidate.getBoundingClientRect();
+                const dx = Math.max(box.left - point.x, 0, point.x - box.right);
+                const dy = Math.max(box.top - point.y, 0, point.y - box.bottom);
+                const distance = Math.hypot(dx, dy);
+                if (distance < best) {
+                    best = distance;
+                    part = candidate;
+                    on = distance === 0;
+                }
+            }
+        }
+        const partId = part.getAttribute(ID);
+        if (!this.model.startTyping(partId).ok) return false;
+        this.activate(partId, on ? caretAt(this.ownerDocument, part, point.x, point.y) : "end");
+        this.announce(partId);
+        return true;
     }
 
     showLock(lock, event) {
@@ -758,8 +911,15 @@ class SfEditor extends EditorElement {
         if (event.defaultPrevented || event.isComposing) return;
         const mod = event.metaKey || event.ctrlKey;
         const key = event.key;
-        const inPanel = event.target.closest?.(".sf-editor-left, .sf-editor-right, .sf-editor-bar, .sf-editor-pop, sf-modal, .sf-editor-menu");
+        const inPanel = event.target.closest?.(".sf-editor-left, .sf-editor-right, .sf-editor-bar, .sf-editor-pop, sf-modal, .sf-editor-menu, .sf-editor-toolbar, .sf-editor-help-pop");
         if (this.pop && this.onCatalogueKey(event)) return;
+        if (this.helpOpen && key === "Escape") {
+            event.preventDefault();
+            this.helpOpen = null;
+            this.refresh();
+            this.querySelector(".sf-editor-help-open button")?.focus();
+            return;
+        }
         if (mod && key.toLowerCase() === "z" && !inPanel) {
             event.preventDefault();
             event.stopPropagation();
@@ -800,6 +960,8 @@ class SfEditor extends EditorElement {
                 this.activate(result.id, "end");
                 return;
             }
+            // Enter on a site block's instance goes into its first text (G-40).
+            if (result.reason === "closed" && this.typeInInstance(id)) return;
             this.choose(this.model.selected);
             return;
         }
@@ -951,10 +1113,24 @@ class SfEditor extends EditorElement {
         const box = element.getBoundingClientRect();
         const margin = 8;
         let {x, y} = this.pop;
+        let height = this.pop.height ?? null;
         if (x + box.width > view.innerWidth - margin) x = Math.max(margin, view.innerWidth - margin - box.width);
-        if (y + box.height > view.innerHeight - margin && this.pop.above - box.height >= margin) y = this.pop.above - box.height;
-        if (x === this.pop.x && y === this.pop.y) return;
-        this.pop = {...this.pop, x, y};
+        // Below the + when it fits, else above it; when neither fits, the
+        // larger room, the list capped to it and scrolled: every option can
+        // be reached (G-41).
+        const below = view.innerHeight - margin - this.pop.y;
+        const above = this.pop.above - margin;
+        if (box.height <= below) y = this.pop.y;
+        else if (box.height <= above) y = this.pop.above - box.height;
+        else if (below >= above) {
+            y = this.pop.y;
+            height = Math.floor(below);
+        } else {
+            height = Math.floor(above);
+            y = this.pop.above - height;
+        }
+        if (x === this.pop.x && y === this.pop.y && height === (this.pop.height ?? null)) return;
+        this.pop = {...this.pop, x, y, ...(height ? {height} : {})};
         this.refresh();
     }
 
@@ -1029,20 +1205,30 @@ class SfEditor extends EditorElement {
     // ------------------------------------------------------------ the gutter, the grip and drag
 
     /** The grip from the keyboard: Enter or Space opens its menu; Alt+arrows move. */
-    onGripKey(event) {
-        if (!this.gutterId) return;
+    onGripKey(event, id = this.gutterId) {
+        if (!id) return;
         if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             event.stopPropagation();
-            this.openGripMenu(this.gutterId, event.currentTarget);
+            this.hintUsed();
+            this.openGripMenu(id, event.currentTarget);
         } else if (event.altKey && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
             event.preventDefault();
             event.stopPropagation();
-            this.moveBy(this.gutterId, event.key === "ArrowUp" ? -1 : 1);
+            this.moveBy(id, event.key === "ArrowUp" ? -1 : 1);
         }
     }
 
+    /** The floating bar's grip: a press opens the chosen block's menu, a pull moves it. */
+    onToolbarGrip(event) {
+        const id = this.model.selected;
+        if (event.button !== 0 || !id) return;
+        this.hintUsed();
+        this.startDrag(event, {kind: "move", id});
+    }
+
     onPlus(event) {
+        this.hintUsed();
         const id = this.gutterId;
         const place = id ? this.model.placeAfter(id) : null;
         this.openCatalogue(event.currentTarget, place, "plus");
@@ -1051,6 +1237,7 @@ class SfEditor extends EditorElement {
     /** The grip: a press chooses the block and opens its menu; a pull moves it with drop lines. */
     onGripDown(event) {
         if (event.button !== 0 || !this.gutterId) return;
+        this.hintUsed();
         this.startDrag(event, {kind: "move", id: this.gutterId});
     }
 
@@ -1350,9 +1537,12 @@ class SfEditor extends EditorElement {
 
     /** The parameter form of the chosen block at the screen being edited. */
     formOf(id) {
+        // The Document keeps `hidden`; the panel asks the positive question,
+        // «show on this screen», with the value turned over (yes = not hidden).
         return this.model.fields(id, this.breakpoint).map((field) => ({
             ...field,
-            label: this.word(field.label_key),
+            ...(field.target === "hidden" && field.kind === "toggle" ? {shown: true} : {}),
+            label: field.target === "hidden" && field.kind === "toggle" ? this.sfWord("show-on-screen") : this.word(field.label_key),
             originLabel: this.sfWord(`origin-${field.origin}`),
             choiceLabels: (field.choices ?? []).map((choice) => ({value: String(choice), text: this.choiceWord(field, choice)})),
             screensLabel: field.screens.map((key) => this.sfWord(`screen-${Object.keys(SCREENS).find((name) => SCREENS[name] === key) ?? key}`)).join(", "),
@@ -1370,7 +1560,9 @@ class SfEditor extends EditorElement {
         const id = this.model.selected;
         const element = event.currentTarget;
         let value = event.detail?.value ?? element.value;
-        if (field.kind === "toggle") value = Boolean(event.detail?.checked ?? element.checked ?? element.querySelector?.("input")?.checked);
+        if (Array.isArray(value)) value = value[0];
+        if (field.kind === "toggle") value = value === true || value === "true" || (typeof value !== "string" && Boolean(event.detail?.checked ?? element.checked));
+        if (field.shown) value = !value;
         if (Array.isArray(value)) value = value[0];
         const result = this.model.setParam(id, field.key, value, this.breakpoint);
         if (!result.ok) this.say(this.sfWord(`refused-${result.reason}`));
@@ -1393,6 +1585,79 @@ class SfEditor extends EditorElement {
     setScreen(name) {
         if (!SCREENS[name]) return;
         this.screen = name;
+    }
+
+    setRightTab(tab) {
+        this.rightTab = tab;
+        this.refresh();
+    }
+
+    /**
+     * The chosen block as code: its node in the Document (JSON), or as the
+     * site prints it (HTML: the whole page printed, the block's element cut
+     * out of it). Worked out once per drawing; null while it is printed.
+     */
+    codeOf(id, format) {
+        const key = `${format}:${id}`;
+        if (this.codeCache.has(key)) return this.codeCache.get(key);
+        if (format === "json") {
+            const node = locate(this.model.toJSON?.().root ?? this.model.doc.root, id)?.node ?? this.model.node(id);
+            const text = JSON.stringify(node ?? null, null, 2);
+            this.codeCache.set(key, text);
+            return text;
+        }
+        this.codeCache.set(key, null);
+        const port = this.sourcePort();
+        Promise.resolve(this.model.toHTML({resolveBinding: port ? port.resolveBinding : undefined})).then((result) => {
+            const parsed = new DOMParser().parseFromString(`<body>${result?.html ?? ""}</body>`, "text/html");
+            const element = parsed.body.querySelector(`[${ID}="${cssEscape(id)}"]`);
+            return element ? prettyHtml(element.outerHTML) : this.sfWord("html-none");
+        }, () => this.sfWord("html-none")).then((text) => {
+            this.codeCache.set(key, text);
+            this.refresh();
+        });
+        return null;
+    }
+
+    /** The help popover under its button in the bar. */
+    toggleHelp(event) {
+        if (this.helpOpen) {
+            this.helpOpen = null;
+            this.refresh();
+            return;
+        }
+        const rect = boxOf(event.currentTarget) ?? {bottom: 0, right: 0};
+        const view = this.ownerDocument.defaultView;
+        this.helpOpen = {y: rect.bottom + 4, x: Math.max(8, (view?.innerWidth ?? rect.right) - rect.right)};
+        this.refresh();
+    }
+
+    /** The theme button: the site's theme settings when the host gave them, else the page panel that names the theme. */
+    showTheme() {
+        const url = this.main.theme?.settings_url;
+        if (url) {
+            this.ownerDocument.defaultView?.open(url, "_top");
+            return;
+        }
+        this.choose(null);
+    }
+
+    /** Opens a library section in place («» closes it, back to the list of sections). */
+    openSection(id) {
+        this.librarySection = id;
+        this.refresh();
+        requestAnimationFrame(() => this.querySelector(id ? ".sf-editor-back button" : `.sf-editor-section-row[data-section] sf-button button`)?.focus({preventScroll: true}));
+    }
+
+    toggleVariants(type) {
+        if (this.libraryClosed.has(type)) this.libraryClosed.delete(type);
+        else this.libraryClosed.add(type);
+        this.refresh();
+    }
+
+    /** The groups a site block may be filed under: the Framework's, in its order. */
+    builderGroups() {
+        return [...CATALOGUE_GROUPS];
     }
 
     // ------------------------------------------------------------ data
@@ -1539,7 +1804,11 @@ class SfEditor extends EditorElement {
         const data = selected && !lock ? model.dataOf(selected.id) : {bindings: [], runtime: []};
         const libraryAt = this.catalogue(null);
         const libraryItems = this.libraryQuery ? searchItems(libraryAt.items, this.libraryQuery, {word: (key) => this.word(key), words: (key) => this.wordsOf(key)}) : libraryAt.items;
-        const libraryTab = libraryAt.tabs.some((tab) => tab.id === this.libraryTab) ? this.libraryTab : libraryAt.tab;
+        const sections = sectionsOf(libraryAt.items);
+        const section = sections.some((entry) => entry.id === this.librarySection) ? this.librarySection : "";
+        const entry = typeManifest ? catalogueEntry(typeManifest) : null;
+        const manifestGroup = entry?.group;
+        const at = selected ? locate(model.doc.root, selected.id) : null;
         return {
             model,
             selected,
@@ -1551,17 +1820,22 @@ class SfEditor extends EditorElement {
             form: selected && !lock ? this.formOf(selected.id) : [],
             modifiers: selected ? model.modifiersOf(selected.id).join(" ") : "",
             library: {
-                tabs: libraryAt.tabs,
-                tab: libraryTab,
-                items: libraryItems,
+                sections,
+                section,
+                found: this.libraryQuery ? sectionsOf(libraryItems) : [],
                 favourites: pick(libraryAt.items, this.favourites),
                 recent: pick(libraryAt.items, this.recent),
             },
+            typeIcon: selected ? entry?.icon ?? (manifestGroup ? groupIcon(manifestGroup) : "widgets") : "",
+            sectionLabel: manifestGroup ? this.word(groupWordKey(manifestGroup)) : "",
+            position: at?.parent ? {first: at.index === 0, last: at.index >= at.parent.slots[at.slot].length - 1} : null,
             pop: this.pop ? {...this.pop, items: this.popItems(), tabs: this.catalogue(this.pop.place).tabs} : null,
             screens: SCREEN_ORDER.map((name) => ({value: name, label: this.sfWord(`screen-${name}`), icon: SCREEN_ICONS[name], "icon-only": true})),
             states: STATES.map((value) => ({value, label: this.sfWord(`state-${value}`)})),
             origins: ORIGINS,
             hasTemplate: this.main.hasRegions(),
+            heading: this.getAttribute("heading") || "",
+            caption: this.getAttribute("caption") || "",
             landmarks: Boolean(this.pageLandmarks),
             tree: this.treeOf(model.doc.root, 0),
         };

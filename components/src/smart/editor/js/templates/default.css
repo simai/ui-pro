@@ -1,16 +1,27 @@
 @layer sf.components {
-  /* sf-editor, the one block editor: a bar, the library and structure on
-     the left, the page in the middle drawn by the Framework's renderers,
-     the parameter and data panel on the right. What only editing draws
-     (hover and chosen frames, the gutter, the drop line, locks) is quiet
-     until it is needed. Every value is a Framework token; every size is a
-     step of the one ladder (the parts take size 1/2, small controls 1/3);
-     logical properties keep RTL; reduced motion turns motion off. */
+  /* sf-editor, the one block editor: one bar, the library and structure on
+     the left, the page in the middle as a sheet on a quiet background drawn
+     by the Framework's renderers, the parameter and data panel on the right.
+     What only editing draws (hover and chosen frames, the floating bar, the
+     gutter, the drop line, locks) is quiet until it is needed.
+
+     Every value is a Framework token; every size is a step of the one
+     ladder (the parts take size 1/2, small controls 1/3). The editor's own
+     words take the dense roles of the accepted prototype: text 14/20
+     (size 1/2), labels, hints, notes and keys 12/16 (size 1/3); the page on
+     the sheet keeps the site's own text. Logical properties keep RTL;
+     reduced motion turns motion off. */
   .sf-editor {
-    --sf-editor-panel: calc(var(--sf-space-7) * 4);
+    /* The panels: 256 and 304 at every width (the prototype's 280 and 320
+       less a ladder step), so the sheet keeps at least the prototype's 792
+       at 1440. */
+    --sf-editor-left: calc(var(--sf-space-7) * 4);
+    --sf-editor-right: calc(var(--sf-space-7) * 4 + var(--sf-space-6));
     --sf-editor-gutter-button: var(--sf-ui-1\/3--control-height);
     --sf-editor-accent: var(--sf-primary);
     --sf-editor-motion: var(--sf-duration-fast);
+    --sf-editor-small: var(--sf-text--size-1\/3);
+    --sf-editor-small-height: var(--sf-text--height-1\/3);
     /* The room the gutter (+ and grip) takes beside a block, and its gap. */
     --sf-editor-gutter-room: calc(var(--sf-editor-gutter-button) * 2 + var(--sf-space-1\/4) + var(--sf-space-1\/2));
     display: grid;
@@ -20,44 +31,86 @@
     color: var(--sf-on-surface);
     background: var(--sf-surface-0);
     font-family: var(--sf-text--family);
-    font-size: var(--sf-text--size-1);
-    line-height: var(--sf-text--height-1);
+    font-size: var(--sf-text--size-1\/2);
+    line-height: var(--sf-text--height-1\/2);
   }
 
-  /* The bar wraps on a narrow screen (a phone, 400 % zoom): the page never
-     scrolls sideways because of it. */
-  .sf-editor-bar,
-  .sf-editor-builder-bar {
-    display: flex;
-    flex-wrap: wrap;
+  /* One bar row: the start (a host's own controls, undo, redo, the
+     template), the screens in the centre, the end (a host's own controls,
+     help, output, the theme). It wraps on a narrow screen (a phone, 400 %
+     zoom): the page never scrolls sideways because of it. */
+  .sf-editor-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    gap: var(--sf-space-1\/2);
-    padding: var(--sf-space-1\/2) var(--sf-space-1);
+    gap: var(--sf-space-1\/4);
+    min-block-size: var(--sf-space-6);
+    padding: var(--sf-space-1\/4) var(--sf-space-1\/3);
     border-block-end: var(--sf-border--width) solid var(--sf-outline-variant);
+    background: var(--sf-surface-0);
   }
 
   .sf-editor-bar-start,
-  .sf-editor-bar-end {
+  .sf-editor-bar-end,
+  .sf-editor-slot {
     display: flex;
-    flex: 1 1 0;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--sf-space-1\/2);
-    min-inline-size: min(100%, max-content);
+    gap: var(--sf-space-1\/4);
+    min-inline-size: 0;
   }
 
   .sf-editor-bar-end {
     justify-content: flex-end;
   }
 
+  /* The page's name and caption at the start of the bar, as the prototype. */
+  .sf-editor-title {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    padding-inline: var(--sf-space-1\/4);
+  }
+
+  .sf-editor-title-name {
+    overflow: hidden;
+    color: var(--sf-on-surface);
+    font-size: var(--sf-text--size-1\/2);
+    line-height: var(--sf-text--height-1\/2);
+    font-weight: var(--sf-font-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-editor-title-caption {
+    overflow: hidden;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* sf-button-group's host is display: contents: its group is the grid item. */
+  .sf-editor-screens > * {
+    justify-self: center;
+  }
+
   .sf-editor-builder-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/3) var(--sf-space-1);
+    border-block-end: var(--sf-border--width) solid var(--sf-outline-variant);
     background: var(--sf-primary-container);
     color: var(--sf-on-primary-container);
   }
 
   .sf-editor-builder-note {
     color: inherit;
-    opacity: 0.8;
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
   }
 
   .sf-editor-spacer {
@@ -70,7 +123,8 @@
     border-radius: var(--sf-radius-1);
     background: var(--sf-warning-container);
     color: var(--sf-on-warning-container);
-    font-size: var(--sf-text--size-1);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
     font-weight: var(--sf-font-weight-medium);
     white-space: nowrap;
   }
@@ -80,16 +134,36 @@
     color: var(--sf-on-secondary-container);
   }
 
-  .sf-editor-theme {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sf-space-1\/4);
-    color: var(--sf-on-surface-variant);
+  .sf-editor-help-pop {
+    position: fixed;
+    z-index: var(--sf-z-index-8);
+    inline-size: calc(var(--sf-space-7) * 4 + var(--sf-space-6));
+    padding: var(--sf-space-1\/2) var(--sf-space-1);
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-elevation-2--surface);
+    box-shadow: var(--sf-elevation-2--shadow);
+    /* Dimmed ink on the raised surface keeps 4.5:1 in the dark theme. */
+    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
+  }
+
+  .sf-editor-help-title {
+    margin: 0 0 var(--sf-space-1\/3);
+    font-size: var(--sf-text--size-1\/2);
+    line-height: var(--sf-text--height-1\/2);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-editor-help-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+    margin: 0;
+    padding-inline-start: var(--sf-space-1);
   }
 
   .sf-editor-body {
     display: grid;
-    grid-template-columns: var(--sf-editor-panel) minmax(0, 1fr) var(--sf-editor-panel);
+    grid-template-columns: var(--sf-editor-left) minmax(0, 1fr) var(--sf-editor-right);
     min-block-size: 0;
   }
 
@@ -99,16 +173,21 @@
     flex-direction: column;
     gap: var(--sf-space-1\/2);
     min-block-size: 0;
-    padding: var(--sf-space-1\/2) var(--sf-space-1);
+    min-inline-size: 0;
     overflow: auto;
-    background: var(--sf-surface-1);
+    background: var(--sf-surface-0);
   }
 
   .sf-editor-left {
     border-inline-end: var(--sf-border--width) solid var(--sf-outline-variant);
   }
 
+  .sf-editor-left > sf-tabs {
+    padding-inline: var(--sf-space-1\/3);
+  }
+
   .sf-editor-right {
+    padding: var(--sf-space-1\/2) var(--sf-space-1);
     border-inline-start: var(--sf-border--width) solid var(--sf-outline-variant);
   }
 
@@ -116,98 +195,279 @@
     display: flex;
     flex-direction: column;
     gap: var(--sf-space-1\/2);
+    padding: 0 var(--sf-space-1\/3) var(--sf-space-1\/2);
   }
 
-  .sf-editor-panel-title {
-    margin: 0;
-    font-size: var(--sf-text--size-2);
-    line-height: var(--sf-text--height-1);
+  /* Headings of a list or a group of fields: 12/16, on-surface-variant,
+     with the section's icon. */
+  .sf-editor-heading,
+  .sf-editor-group h3,
+  .sf-editor-mapping h4 {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    margin: var(--sf-space-1\/2) 0 0;
+    padding-inline: var(--sf-space-1\/3);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
     font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-editor-right .sf-editor-heading,
+  .sf-editor-right .sf-editor-group h3 {
+    padding-inline: 0;
   }
 
   .sf-editor-group {
     display: flex;
     flex-direction: column;
-    gap: var(--sf-space-1\/3);
-  }
-
-  .sf-editor-group h3,
-  .sf-editor-mapping h4 {
-    margin: var(--sf-space-1\/3) 0 0;
-    color: var(--sf-on-surface-variant);
-    font-size: var(--sf-text--size-1);
-    font-weight: var(--sf-font-weight-medium);
+    gap: var(--sf-space-1\/4);
   }
 
   .sf-editor-group p {
     margin: 0;
   }
 
-  .sf-editor-quiet {
+  .sf-editor-quiet,
+  .sf-editor-hint,
+  .sf-editor-note {
+    margin: 0;
     color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+  }
+
+  .sf-editor-library-hint {
+    padding-inline: var(--sf-space-1\/3);
+  }
+
+  .sf-editor-note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sf-space-1\/3);
+  }
+
+  /* The panel's tabs are a bar only (the panel draws below them): the empty
+     tab panels take no room. sf-tabs has no public variable for it yet. */
+  .sf-editor-right-tabs {
+    --sf-tabs-main-container--padding-top: 0;
+    --sf-tabs-main-container--padding-bottom: 0;
+  }
+
+  /* Quiet cards of the parameter panel: which sets apply on top, the notes
+     at the end. 12/16 on-surface-variant on a container fill, no border. */
+  .sf-editor-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sf-space-1\/3);
+    margin: 0;
+    padding: var(--sf-space-1\/4) var(--sf-space-1\/3);
+    border-radius: var(--sf-radius-1\/2);
+    background: var(--sf-surface-container);
+    /* Dimmed ink on a container fill: the container's text role (4.5:1 dark). */
+    --sf-on-surface-variant: var(--sf-on-surface-container--variant);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+  }
+
+  .sf-editor-card > sf-icon > * {
+    margin-block-start: calc((var(--sf-editor-small-height) - 1em) / 2);
   }
 
   .sf-editor-error {
     margin: 0;
     color: var(--sf-error);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
   }
 
   .sf-editor-link {
     color: var(--sf-primary);
   }
 
-  /* The library: a card per variant, its picture drawn from its own tree. */
-  .sf-editor-items {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--sf-space-1\/3);
+  /* The library: rows of 36 (an icon, the name, a count or a star), the
+     sections that open in place, a type's variants as cards. */
+  .sf-editor-items,
+  .sf-editor-sections,
+  .sf-editor-variants {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .sf-editor-item {
+  .sf-editor-item,
+  .sf-editor-section-row,
+  .sf-editor-back {
     position: relative;
     display: flex;
-    flex-direction: column;
-    gap: var(--sf-space-1\/4);
-    padding: var(--sf-space-1\/3);
-    border: var(--sf-border--width) solid var(--sf-outline-variant);
-    border-radius: var(--sf-radius-2);
-    background: var(--sf-surface-0);
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    min-block-size: calc(var(--sf-ui-1\/2--control-height) + var(--sf-space-1\/4));
+    padding-inline: var(--sf-space-1\/3) var(--sf-space-1\/4);
+    border-radius: var(--sf-radius-1);
+    color: var(--sf-on-surface);
+  }
+
+  .sf-editor-item {
     cursor: grab;
     touch-action: none;
     user-select: none;
   }
 
-  .sf-editor-item:hover {
-    border-color: var(--sf-outline);
+  .sf-editor-section-row {
+    cursor: pointer;
   }
 
-  .sf-editor-item .sf-editor-tag {
+  .sf-editor-item:hover,
+  .sf-editor-section-row:hover {
+    background: var(--sf-surface-transparent-hover);
+  }
+
+  .sf-editor-item-icon,
+  .sf-editor-section-row > sf-icon:first-child {
+    flex: none;
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-editor-item-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  /* A name never spills out of its row: it ends with an ellipsis. */
+  .sf-editor-item-name,
+  .sf-editor-section-name {
+    display: contents;
+  }
+
+  .sf-editor-item-name > button,
+  .sf-editor-section-name > button,
+  .sf-editor-back sf-button > button {
+    justify-content: flex-start;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    padding-inline: 0;
+    text-align: start;
+  }
+
+  .sf-editor-section-name > button {
+    flex: 1 1 auto;
+  }
+
+  .sf-editor-item-name > button *,
+  .sf-editor-section-name > button * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-editor-item-note,
+  .sf-editor-count {
+    overflow: hidden;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-editor-item-note {
+    margin-block-start: calc(var(--sf-space-1\/4) * -1);
+    padding-block-end: var(--sf-space-1\/4);
+  }
+
+  .sf-editor-count {
+    flex: none;
+    margin-inline-start: auto;
+  }
+
+  .sf-editor-chevron {
+    flex: none;
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-editor-chevron:dir(rtl) > * {
+    transform: scaleX(-1);
+  }
+
+  .sf-editor-back {
+    border-block-end: var(--sf-border--width) solid var(--sf-outline-variant);
+    border-radius: 0;
+    margin-block-end: var(--sf-space-1\/4);
+  }
+
+  /* The star shows on a row's hover or focus, and when the block is a favourite. */
+  .sf-editor-star > button {
+    opacity: 0;
+  }
+
+  .sf-editor-item:hover .sf-editor-star > button,
+  .sf-editor-star > button:focus-visible,
+  .sf-editor-star[data-on="true"] > button {
+    opacity: 1;
+  }
+
+  .sf-editor-variants {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sf-space-1\/3);
+    padding: var(--sf-space-1\/4) var(--sf-space-1\/3) var(--sf-space-1\/2);
+  }
+
+  .sf-editor-variant {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sf-space-1\/4);
+    min-block-size: 0;
+    padding: 0;
+  }
+
+  .sf-editor-variant:hover {
+    background: transparent;
+  }
+
+  .sf-editor-variant:hover .sf-editor-preview {
+    border-color: var(--sf-editor-accent);
+  }
+
+  .sf-editor-variant .sf-editor-item-name > button * {
+    font-size: var(--sf-editor-small);
+  }
+
+  /* «Make your own block»: a quiet link under the search, not a box. */
+  .sf-editor-make > button {
     align-self: flex-start;
+    margin-inline: var(--sf-space-1\/4);
   }
 
-  .sf-editor-star {
-    position: absolute;
-    inset-block-start: var(--sf-space-1\/4);
-    inset-inline-end: var(--sf-space-1\/4);
+  .sf-editor-empty-list {
+    padding-inline: var(--sf-space-1\/3);
   }
 
+  /* A variant's picture, drawn from its own tree. */
   .sf-editor-preview {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: var(--sf-space-1\/4);
-    block-size: calc(var(--sf-space-7) * 1.25);
+    block-size: calc(var(--sf-space-6) + var(--sf-space-1\/3));
     padding: var(--sf-space-1\/3);
     overflow: hidden;
+    border: var(--sf-border--width) solid var(--sf-outline-variant);
     border-radius: var(--sf-radius-1);
-    background: var(--sf-surface-container);
+    background: var(--sf-surface-1);
     pointer-events: none;
   }
 
   .sf-editor-preview--small {
-    inline-size: calc(var(--sf-space-7) * 1.25);
+    inline-size: calc(var(--sf-space-6) + var(--sf-space-1\/3));
     block-size: var(--sf-ui-1\/2--control-height);
     flex: none;
     padding: var(--sf-space-1\/4);
@@ -225,18 +485,84 @@
     gap: var(--sf-space-1\/4);
   }
 
-  .sf-editor-shape-card {
+  .sf-editor-shape-card,
+  .sf-editor-shape-cell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/4);
+    min-block-size: var(--sf-space-1);
+    padding: var(--sf-space-1\/4);
+    border-radius: var(--sf-radius-1\/2);
+    background: var(--sf-surface-container);
+  }
+
+  .sf-editor-shape-section {
+    padding: var(--sf-space-1\/4);
+    border-radius: var(--sf-radius-1\/2);
+  }
+
+  .sf-editor-shape-section[data-background="container"] { background: var(--sf-surface-container); }
+  .sf-editor-shape-section[data-background="primary"] { background: var(--sf-primary-container); }
+  .sf-editor-shape-section[data-width="narrow"] > .sf-editor-shape-box { margin-inline: 20%; }
+
+  .sf-editor-shape-box {
     display: flex;
     flex-direction: column;
     gap: var(--sf-space-1\/4);
   }
 
-  .sf-editor-shape-accent {
-    --sf-skeleton--color: var(--sf-editor-accent);
+  .sf-editor-shape-line {
+    block-size: var(--sf-border--width);
+    background: var(--sf-outline);
   }
 
-  .sf-editor-make {
-    margin-block-start: var(--sf-space-1\/2);
+  .sf-editor-shape-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    align-self: flex-start;
+  }
+
+  .sf-editor-shape-pill {
+    display: block;
+    inline-size: var(--sf-space-5);
+    block-size: var(--sf-space-1\/2);
+    border-radius: var(--sf-radius-2);
+    background: var(--sf-editor-accent);
+  }
+
+  .sf-editor-shape-button[data-look="outline"] .sf-editor-shape-pill {
+    border: var(--sf-border--width) solid var(--sf-editor-accent);
+    background: transparent;
+  }
+
+  .sf-editor-shape-pill--short {
+    inline-size: var(--sf-space-2);
+    background: var(--sf-secondary-container);
+  }
+
+  .sf-editor-shape-dot {
+    display: block;
+    inline-size: var(--sf-space-1\/2);
+    block-size: var(--sf-space-1\/2);
+    border-radius: 50%;
+    background: var(--sf-editor-accent);
+  }
+
+  .sf-editor-shape-dot--large {
+    align-self: center;
+    inline-size: var(--sf-space-2);
+    block-size: var(--sf-space-2);
+  }
+
+  .sf-editor-shape-gap {
+    display: block;
+    block-size: var(--sf-space-1);
+    border-block: var(--sf-border--width) dashed var(--sf-outline);
+  }
+
+  .sf-editor-shape-accent {
+    --sf-skeleton--color: var(--sf-editor-accent);
   }
 
   .sf-editor-tree {
@@ -249,7 +575,7 @@
     padding-inline-start: calc(var(--sf-space-1\/2) * var(--sf-editor-depth, 0));
   }
 
-  /* The page. */
+  /* The page: a sheet with a soft shadow on a quiet background. */
   .sf-editor-stage {
     display: grid;
     grid-template-rows: minmax(0, 1fr) auto;
@@ -262,9 +588,9 @@
   .sf-editor-canvas {
     position: relative;
     overflow: auto;
-    padding-block: var(--sf-space-2) var(--sf-space-7);
-    padding-inline: max(var(--sf-space-2), var(--sf-editor-gutter-room)) var(--sf-space-2);
-    background: var(--sf-surface-container);
+    padding-block: var(--sf-space-3) var(--sf-space-8);
+    padding-inline: max(var(--sf-space-3), var(--sf-editor-gutter-room)) var(--sf-space-2);
+    background: var(--sf-surface-1);
     outline: 0;
   }
 
@@ -274,7 +600,9 @@
   }
 
   .sf-editor-frame {
+    inline-size: min(100%, calc(var(--sf-space-7) * 16 + var(--sf-space-1)));
     margin-inline: auto;
+    border-radius: var(--sf-radius-1\/2);
     background: var(--sf-surface-0);
     box-shadow: var(--sf-elevation-1--shadow);
     transition: inline-size var(--sf-editor-motion) var(--sf-ease-move);
@@ -286,6 +614,8 @@
   .sf-editor-page {
     position: relative;
     min-block-size: calc(var(--sf-space-7) * 4);
+    overflow: hidden;
+    border-radius: inherit;
   }
 
   .sf-editor-page .sf-editor-node[contenteditable] {
@@ -303,7 +633,8 @@
     cursor: text;
   }
 
-  /* A part the author may not change: dimmed with a lock; the reason is shown on a press. */
+  /* A part the author may not change: dimmed, with a lock chip in its
+     corner; the reason is shown on a press. */
   .sf-editor-page .sf-editor-locked {
     position: relative;
     opacity: 0.55;
@@ -312,9 +643,21 @@
 
   .sf-editor-page .sf-editor-lock-mark {
     position: absolute;
-    inset-block-start: var(--sf-space-1\/4);
-    inset-inline-end: var(--sf-space-1\/4);
-    color: var(--sf-on-surface-variant);
+    z-index: 1;
+    inset-block-start: var(--sf-space-1\/3);
+    inset-inline-end: var(--sf-space-1\/3);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    margin: 0;
+    padding: 0 var(--sf-space-1\/3);
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-surface-container);
+    color: var(--sf-on-surface);
+    font-family: var(--sf-text--family);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    font-weight: var(--sf-font-weight-medium);
     pointer-events: none;
   }
 
@@ -339,6 +682,9 @@
     border: var(--sf-border--width) dashed var(--sf-outline);
     border-radius: var(--sf-radius-1);
     color: var(--sf-on-surface-variant);
+    font-family: var(--sf-text--family);
+    font-size: var(--sf-text--size-1\/2);
+    line-height: var(--sf-text--height-1\/2);
     cursor: pointer;
   }
 
@@ -352,11 +698,11 @@
   .sf-editor-drop {
     position: absolute;
     pointer-events: none;
-    border-radius: var(--sf-radius-1);
+    border-radius: var(--sf-radius-1\/2);
   }
 
   .sf-editor-hover {
-    outline: var(--sf-border--width) solid var(--sf-outline);
+    outline: var(--sf-border--width) dashed var(--sf-outline);
   }
 
   .sf-editor-chosen {
@@ -381,9 +727,80 @@
     transition: inset-block-start var(--sf-editor-motion) var(--sf-ease-move);
   }
 
-  .sf-editor-grip {
+  .sf-editor-grip,
+  .sf-editor-toolbar-grip {
     cursor: grab;
     touch-action: none;
+  }
+
+  /* Over the floating bar where the two meet, as in the prototype. */
+  .sf-editor-gutter-hint {
+    position: absolute;
+    z-index: 5;
+    white-space: nowrap;
+    padding: var(--sf-space-1\/4) var(--sf-space-1\/3);
+    border-radius: var(--sf-radius-1\/2);
+    background: var(--sf-surface-inverse);
+    color: var(--sf-on-surface-inverse);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    pointer-events: none;
+  }
+
+  .sf-editor-gutter-hint[hidden] {
+    display: none;
+  }
+
+  /* The chosen block's floating bar: where it stands, the grip, up, down,
+     duplicate, more. */
+  .sf-editor-toolbar {
+    position: absolute;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    padding: var(--sf-space-1\/4);
+    border: var(--sf-border--width) solid var(--sf-outline-variant);
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-elevation-2--surface);
+    box-shadow: var(--sf-elevation-2--shadow);
+    /* Dimmed ink on the raised surface keeps 4.5:1 in the dark theme. */
+    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    white-space: nowrap;
+  }
+
+  .sf-editor-toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+  }
+
+  .sf-editor-toolbar[hidden] {
+    display: none;
+  }
+
+  .sf-editor-crumbs {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    padding-inline: var(--sf-space-1\/3);
+    margin-inline-end: var(--sf-space-1\/4);
+    border-inline-end: var(--sf-border--width) solid var(--sf-outline-variant);
+    color: var(--sf-on-surface-variant);
+  }
+
+  /* Steps of a path: a step of the ladder apart, not a button's width. */
+  .sf-editor-crumbs > sf-button,
+  .sf-editor-path > sf-button {
+    --sf-button-padding-inline: var(--sf-space-1\/4);
+  }
+
+  .sf-editor-crumb-here {
+    padding-inline-end: var(--sf-space-1\/3);
+    color: var(--sf-on-surface);
+    font-weight: var(--sf-font-weight-medium);
   }
 
   .sf-editor-dragging,
@@ -392,89 +809,234 @@
     user-select: none;
   }
 
+  /* The status bar: 32 high, 12/16, the path at the start, the keys at the end. */
   .sf-editor-path {
     display: flex;
     align-items: center;
     gap: var(--sf-space-1\/4);
     min-inline-size: 0;
-    padding: var(--sf-space-1\/4) var(--sf-space-1);
+    min-block-size: var(--sf-ui-1\/2--control-height);
+    padding: 0 var(--sf-space-1\/2);
     overflow-x: auto;
     border-block-start: var(--sf-border--width) solid var(--sf-outline-variant);
-    background: var(--sf-surface-1);
+    background: var(--sf-surface-0);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
     white-space: nowrap;
   }
 
-  .sf-editor-path-sep:dir(rtl) {
+  .sf-editor-path-sep {
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-editor-path-here > button {
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-editor-keys {
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-editor-path-sep:dir(rtl) > * {
     transform: scaleX(-1);
   }
 
   .sf-editor-keys {
-    font-size: var(--sf-text--size-1);
-  }
-
-  /* The parameters: each field says where its value comes from. */
-  .sf-editor-screen-line {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sf-space-1\/3);
     color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
   }
 
-  .sf-editor-fields {
+  /* The parameter panel: the block's icon, name and section; the tabs;
+     fields under Content, Layout and More. */
+  .sf-editor-panel-head {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: var(--sf-space-1\/2);
   }
 
-  .sf-editor-field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sf-space-1\/4);
+  .sf-editor-panel-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--sf-ui-1\/2--control-height);
+    block-size: var(--sf-ui-1\/2--control-height);
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-primary-container);
+    color: var(--sf-on-primary-container);
   }
 
-  .sf-editor-field-meta {
+  .sf-editor-panel-names {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .sf-editor-panel-title {
+    margin: 0;
+    overflow: hidden;
+    font-size: var(--sf-text--size-1\/2);
+    line-height: var(--sf-text--height-1\/2);
+    font-weight: var(--sf-font-weight-bold);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-editor-panel-sub {
+    margin: 0;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+  }
+
+  .sf-editor-empty-state {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sf-space-1\/3);
+    margin: 0;
+    padding: var(--sf-space-1\/2);
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-surface-1);
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-editor-facts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/2);
+    margin: 0;
+  }
+
+  .sf-editor-facts dt {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-editor-facts dd {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .sf-editor-fields {
+    gap: var(--sf-space-1);
+    padding-block-end: var(--sf-space-1\/2);
+    border-block-end: var(--sf-border--width) solid var(--sf-outline-variant);
+  }
+
+  .sf-editor-fields:last-of-type {
+    border-block-end: 0;
+  }
+
+  /* The prototype's rhythm: label 12/16, 8 to the control, 16 between fields. */
+  .sf-editor-field,
+  .sf-editor-modifiers-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+  }
+
+  /* The light segmented switch of the prototype (plate="raised"): a quiet
+     track, the chosen segment a raised surface, never a primary fill. */
+  .sf-editor-control.sf-editor-switch-row {
+    display: flex;
     align-items: center;
     gap: var(--sf-space-1\/3);
   }
 
-  /* On a container the text takes on-surface: on-surface-variant falls under
-     4.5:1 on it in the dark theme. */
-  .sf-editor-origin {
-    padding-inline: var(--sf-space-1\/3);
-    border-radius: var(--sf-radius-1);
-    background: var(--sf-surface-container);
-    color: var(--sf-on-surface);
-    font-size: var(--sf-text--size-1);
+  /* Start and end turn with the writing direction. */
+  .sf-editor-field[data-key="align"]:dir(rtl) .sf-button-group-segment .sf-icon {
+    transform: scaleX(-1);
   }
 
-  .sf-editor-origin[data-origin="theme"] { background: var(--sf-info-container); color: var(--sf-on-info-container); }
-  .sf-editor-origin[data-origin="variant"] { background: var(--sf-secondary-container); color: var(--sf-on-secondary-container); }
-  .sf-editor-origin[data-origin="block"] { background: var(--sf-primary-container); color: var(--sf-on-primary-container); }
-  .sf-editor-origin[data-origin="screen"] { background: var(--sf-success-container); color: var(--sf-on-success-container); }
-
-  .sf-editor-utility {
-    font-family: var(--sf-mono);
-    color: var(--sf-on-surface-variant);
+  /* The hosts are display: contents: their drawn roots are the row's items. */
+  .sf-editor-switch-row > sf-button-group > * {
+    flex: 1 1 auto;
+    min-inline-size: 0;
   }
 
-  .sf-editor-origins {
+  .sf-editor-switch-row > sf-dropdown > * {
+    flex: none;
+    inline-size: calc(var(--sf-ui-1\/2--control-height) * 3);
+  }
+
+
+  .sf-editor-field-head {
     display: flex;
-    flex-direction: column;
-    gap: var(--sf-space-1\/4);
-    margin: var(--sf-space-1\/2) 0 0;
-    color: var(--sf-on-surface-variant);
-  }
-
-  .sf-editor-origins > div {
-    display: flex;
+    align-items: center;
     gap: var(--sf-space-1\/3);
+    min-block-size: var(--sf-ui-1\/3--control-height);
   }
 
-  .sf-editor-origins dd {
-    margin: 0;
+  .sf-editor-field-label {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    color: var(--sf-on-surface);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    font-weight: var(--sf-font-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-editor-field-screen {
+    flex: none;
+    color: var(--sf-on-surface-variant);
+  }
+
+  /* Where a value comes from: a dot of the origin's colour and its word,
+     12/16 on-surface-variant (on-surface on a container keeps 4.5:1 in the
+     dark theme). */
+  .sf-editor-origin {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    white-space: nowrap;
+  }
+
+  .sf-editor-origin-dot {
+    inline-size: calc(var(--sf-space-1\/4) + var(--sf-space-1\/4) / 2);
+    block-size: calc(var(--sf-space-1\/4) + var(--sf-space-1\/4) / 2);
+    border-radius: 50%;
+    background: var(--sf-outline);
+  }
+
+  .sf-editor-origin[data-origin="theme"] .sf-editor-origin-dot { background: var(--sf-info); }
+  .sf-editor-origin[data-origin="variant"] .sf-editor-origin-dot { background: var(--sf-secondary); }
+  .sf-editor-origin[data-origin="block"] .sf-editor-origin-dot { background: var(--sf-primary); }
+  .sf-editor-origin[data-origin="screen"] .sf-editor-origin-dot { background: var(--sf-success); }
+
+  .sf-editor-origin[data-own="true"] {
+    color: var(--sf-on-surface);
+  }
+
+  .sf-editor-reset {
+    flex: none;
+  }
+
+  .sf-editor-control {
+    display: block;
+  }
+
+  /* The Framework binding under a field: small monospace, left to right. */
+  .sf-editor-utility {
+    overflow: hidden;
+    color: var(--sf-on-surface-variant);
+    font-family: var(--sf-mono);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    direction: ltr;
+    text-align: start;
   }
 
   .sf-editor-locked-note {
@@ -488,12 +1050,18 @@
     color: var(--sf-on-warning-container);
   }
 
-  .sf-editor-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sf-space-1\/3);
-    margin-block-start: auto;
-    padding-block-start: var(--sf-space-1\/2);
+  .sf-editor-code {
+    max-block-size: 60vh;
+    margin: 0;
+    padding: var(--sf-space-1\/2);
+    overflow: auto;
+    border-radius: var(--sf-radius-1);
+    background: var(--sf-surface-1);
+    font-family: var(--sf-mono);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    white-space: pre;
+    direction: ltr;
   }
 
   /* The catalogue at a place (+, /): one list, the tab the place opens on. */
@@ -505,16 +1073,19 @@
     gap: var(--sf-space-1\/3);
     inline-size: calc(var(--sf-space-7) * 5);
     max-block-size: min(60vh, calc(var(--sf-space-7) * 8));
-    padding: var(--sf-space-1\/2);
-    border-radius: var(--sf-radius-2);
+    padding: var(--sf-space-1\/3);
+    border-radius: var(--sf-radius-1);
     background: var(--sf-elevation-2--surface);
     box-shadow: var(--sf-elevation-2--shadow);
+    /* Dimmed ink on the raised surface keeps 4.5:1 in the dark theme. */
+    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
   }
 
   .sf-editor-pop-list {
     display: flex;
     flex-direction: column;
-    gap: var(--sf-space-1\/4);
+    gap: 0;
+    min-block-size: 0;
     margin: 0;
     padding: 0;
     overflow: auto;
@@ -540,13 +1111,17 @@
   .sf-editor-option-name {
     flex: 1 1 auto;
     min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   /* The type or group beside an option: on the raised surface of the list
      on-surface-variant falls under 4.5:1 in the dark theme. */
   .sf-editor-option-note {
     color: var(--sf-on-surface);
-    font-size: var(--sf-text--size-1);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
     white-space: nowrap;
   }
 
@@ -561,6 +1136,8 @@
     border-radius: var(--sf-radius-1);
     background: var(--sf-elevation-2--surface);
     box-shadow: var(--sf-elevation-2--shadow);
+    /* Dimmed ink on the raised surface keeps 4.5:1 in the dark theme. */
+    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
   }
 
   .sf-editor-top {
@@ -583,7 +1160,8 @@
     border-radius: var(--sf-radius-1);
     background: var(--sf-surface-container);
     font-family: var(--sf-mono);
-    font-size: var(--sf-text--size-1);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
     white-space: pre;
     direction: ltr;
   }
@@ -598,7 +1176,8 @@
     white-space: nowrap;
   }
 
-  /* A narrow window: the panels stack under the page. */
+  /* A narrow window: the panels stack under the page; the bar wraps, the
+     screens on a row of their own. */
   @media (max-width: 959px) {
     .sf-editor-body {
       grid-template-columns: minmax(0, 1fr);
@@ -608,6 +1187,27 @@
     .sf-editor-right {
       border: 0;
       max-block-size: 50vh;
+    }
+
+    .sf-editor-canvas {
+      padding-inline-end: var(--sf-space-1\/2);
+    }
+  }
+
+  @media (max-width: 599px) {
+    .sf-editor-bar {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .sf-editor-screens > * {
+      grid-row: 2;
+      grid-column: 1 / -1;
+    }
+
+    /* The floating bar keeps the chosen block's own name only. */
+    .sf-editor-crumbs > sf-button > button,
+    .sf-editor-crumbs > .sf-editor-path-sep > * {
+      display: none;
     }
   }
 

@@ -1,12 +1,22 @@
 import {html, nothing} from "lit";
 import {repeat} from "lit/directives/repeat.js";
 import "./default.css";
+import {groupWordKey} from "../catalogue.mjs";
 
 // The editor's frame: the bar (screens, undo, the template, output), the
 // library and the structure on the left, the page in the middle with what
 // only editing draws over it (the hover and chosen frames, the gutter with
 // + and the grip, the drop line), the parameter and data panel on the right,
-// and the path of the chosen block under the page. The page itself is drawn
+// and the path of the chosen block under the page.
+//
+// 1.1.0 (visual parity with the accepted prototype, 2026-11-04): one bar row
+// (undo and redo, the screens in the centre, help, output and the theme as
+// icon buttons, the host's own controls in the slots start and actions);
+// the library as sections with icons and counts that open in place; the
+// page as a sheet on a quiet background; a frame and a floating bar over
+// the chosen block; the parameter panel with the block's icon, name and
+// section, tabs Parameters / JSON / HTML, fields under Content, Layout and
+// More, each with where its value comes from and its Framework binding. The page itself is drawn
 // by the Framework's renderers into .sf-editor-page (index.js redraw), so
 // Lit leaves that element's children alone; so it does the status line's,
 // which index.js say() writes.
@@ -60,15 +70,18 @@ export function renderEditorTemplate(component) {
                                             @pointerdown=${(event) => component.onGripDown(event)}
                                             @keydown=${(event) => component.onGripKey(event)}></sf-button-icon>
                         </div>
+                        <div class="sf-editor-gutter-hint" aria-hidden="true" hidden>${w("gutter-hint")}</div>
+                        ${toolbar(component, view, w)}
                     </div>
                     ${pathBar(component, view, w)}
                 </div>
                 ${right(component, view, w)}
             </div>
             ${view.pop ? popover(component, view, w) : nothing}
+            ${component.helpOpen ? helpPop(component, w) : nothing}
             ${component.lockNote ? html`<div class="sf-editor-lock-note" role="status"
                     style=${`inset-block-start:${component.lockNote.y + 12}px;inset-inline-start:${component.lockNote.x}px`}>
-                <sf-icon icon="lock" size="1/2"></sf-icon><span>${component.lockNote.text}</span></div>` : nothing}
+                <sf-icon icon="lock" size="1/3"></sf-icon><span>${component.lockNote.text}</span></div>` : nothing}
             <sf-menu-context class="sf-editor-menu" size="1/2" @sf-menu-context-select=${(event) => component.onMenuSelect(event)}></sf-menu-context>
             <sf-editor-inline></sf-editor-inline>
             ${component.outputView ? outputModal(component, w) : nothing}
@@ -76,43 +89,68 @@ export function renderEditorTemplate(component) {
     `;
 }
 
+/** A host's own controls in a slot of the bar (the page list toggle, the language switch): one row, not two. */
+function slotted(component, name) {
+    return component.hasSlotContent?.(name) ? html`<div class="sf-editor-slot" data-slot=${name}>${component.getSlotContent(name)}</div>` : nothing;
+}
+
 function bar(component, view, w) {
     const model = view.model;
     const template = view.hasTemplate && component.main.rights.template && !component.builder;
+    const theme = component.main.theme;
+    const themeName = theme?.label ?? theme?.name ?? "";
     return html`
         <div class="sf-editor-bar" role="toolbar" aria-label=${w("bar-label")}>
             <div class="sf-editor-bar-start">
-                <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface" icon="undo" aria-label=${w("undo-label")} title=${`${w("undo-label")} (⌘Z)`}
+                ${slotted(component, "start")}
+                ${view.heading ? html`<span class="sf-editor-title"><strong class="sf-editor-title-name">${view.heading}</strong>${view.caption ? html`<span class="sf-editor-title-caption">${view.caption}</span>` : nothing}</span>` : nothing}
+                <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="undo" aria-label=${w("undo-label")} title=${`${w("undo-label")} (⌘Z)`}
                                 ?disabled=${!model.canUndo} @click=${() => component.history("undo")}></sf-button-icon>
-                <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface" icon="redo" aria-label=${w("redo-label")} title=${`${w("redo-label")} (⇧⌘Z)`}
+                <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="redo" aria-label=${w("redo-label")} title=${`${w("redo-label")} (⇧⌘Z)`}
                                 ?disabled=${!model.canRedo} @click=${() => component.history("redo")}></sf-button-icon>
-                ${template ? html`<sf-button size="1/2" appearance=${model.templateEditing ? "tonal" : "outline"} scheme=${model.templateEditing ? "primary" : "on-surface"}
-                        icon-start=${model.templateEditing ? "check" : "web"} text=${w(model.templateEditing ? "template-done" : "template-edit")}
+                ${template ? html`<sf-button class="sf-editor-template-toggle" size="1/3" appearance=${model.templateEditing ? "tonal" : "link"} scheme=${model.templateEditing ? "primary" : "on-surface-variant"}
+                        icon-start=${model.templateEditing ? "check" : ""} text=${w(model.templateEditing ? "template-done" : "template-edit")}
                         @click=${() => component.toggleTemplate(!model.templateEditing)}></sf-button>` : nothing}
                 ${model.templateEditing ? html`<span class="sf-editor-badge">${w("template-badge")}</span>` : nothing}
             </div>
-            <sf-button-group class="sf-editor-screens" size="1/2" appearance="segmented" aria-label=${w("screen-label")}
+            <sf-button-group class="sf-editor-screens" size="1/2" appearance="segmented" plate="raised" aria-label=${w("screen-label")}
                              .items=${view.screens} .value=${component.screenName}
                              @change=${(event) => {
                                  event.stopPropagation();
                                  component.setScreen(event.detail?.value ?? event.currentTarget.value);
                              }}></sf-button-group>
             <div class="sf-editor-bar-end">
-                ${component.main.theme?.name || component.main.theme?.label ? html`<span class="sf-editor-theme" title=${w("theme-read-only")}>
-                    <sf-icon icon="palette" size="1/2"></sf-icon>${component.main.theme.label ?? component.main.theme.name}</span>` : nothing}
-                <sf-button size="1/2" appearance="outline" scheme="on-surface" icon-start="code" text=${w("output-open")}
-                           @click=${() => component.openOutput("json")}></sf-button>
+                ${slotted(component, "actions")}
+                <sf-button-icon class="sf-editor-help-open" size="1/2" appearance="ghost" scheme="on-surface-variant" icon="help"
+                                aria-label=${w("help-label")} title=${w("help-label")} aria-haspopup="dialog" aria-expanded=${component.helpOpen ? "true" : "false"}
+                                @click=${(event) => component.toggleHelp(event)}></sf-button-icon>
+                <sf-button-icon class="sf-editor-output-open" size="1/2" appearance="ghost" scheme="on-surface-variant" icon="data_object"
+                                aria-label=${w("output-open")} title=${w("output-open")} aria-haspopup="dialog"
+                                @click=${() => component.openOutput("json")}></sf-button-icon>
+                ${themeName ? html`<sf-button-icon class="sf-editor-theme-open" size="1/2" appearance="ghost" scheme="on-surface-variant" icon="palette"
+                                aria-label=${w("theme-label", {name: themeName})} title=${`${w("theme-label", {name: themeName})}. ${w("theme-read-only")}`}
+                                @click=${() => component.showTheme()}></sf-button-icon>` : nothing}
             </div>
+        </div>
+    `;
+}
+
+function helpPop(component, w) {
+    return html`
+        <div class="sf-editor-help-pop" role="dialog" aria-label=${w("help-label")} style=${`inset-block-start:${component.helpOpen.y}px;inset-inline-end:${component.helpOpen.x}px`}>
+            <h2 class="sf-editor-help-title">${w("help-title")}</h2>
+            <ol class="sf-editor-help-list">
+                ${["help-1", "help-2", "help-3", "help-4"].map((key) => html`<li>${w(key)}</li>`)}
+            </ol>
         </div>
     `;
 }
 
 function builderBar(component, w) {
     const builder = component.builder;
-    const groups = ["marketing", "page-parts", "structure", "media", "data", "text", "forms"];
     return html`
         <div class="sf-editor-builder-bar" role="region" aria-label=${w("builder-label")}>
-            <sf-icon icon="dashboard_customize" size="1/2"></sf-icon>
+            <sf-icon icon="dashboard_customize" size="1/3"></sf-icon>
             <strong>${w(builder.editing ? "builder-editing" : "builder-new")}</strong>
             <sf-input size="1/2" label=${w("builder-name")} .value=${builder.name ?? ""} ?readonly=${builder.editing}
                       @input=${(event) => {
@@ -120,7 +158,7 @@ function builderBar(component, w) {
                           builder.name = String(event.currentTarget.value ?? "");
                           component.refresh();
                       }}></sf-input>
-            <sf-dropdown size="1/2" label=${w("builder-group")} .options=${groups.map((id) => ({value: id, text: component.word(`group-${id}`)}))}
+            <sf-dropdown size="1/2" label=${w("builder-group")} .options=${component.builderGroups().map((id) => ({value: id, text: component.word(groupWordKey(id))}))}
                          .value=${builder.catalogue?.group ?? "marketing"}
                          @change=${(event) => {
                              event.stopPropagation();
@@ -157,12 +195,20 @@ function left(component, view, w) {
     `;
 }
 
+const heading = (icon, text, id = undefined) => html`<h3 class="sf-editor-heading" id=${id ?? nothing}><sf-icon icon=${icon} size="1/3" aria-hidden="true"></sf-icon><span>${text}</span></h3>`;
+
+/**
+ * The library: a search; Favourites and Recent; the sections, each with its
+ * icon, word and count, opening in place with «Back»; a type with variants
+ * shows them as cards with a picture drawn from each variant's tree. A
+ * search lists what it found under the section each belongs to.
+ */
 function library(component, view, w) {
     const lib = view.library;
     const searching = Boolean(component.libraryQuery);
-    const tab = lib.tabs.find((entry) => entry.id === lib.tab);
+    const open = !searching && lib.section ? lib.sections.find((section) => section.id === lib.section) : null;
     return html`
-        <sf-input class="sf-editor-search" size="1/2" input-type="search" icon-start="search" placeholder=${w("search-placeholder")}
+        <sf-input class="sf-editor-search" size="1/2" appearance="filled" input-type="search" icon-start="search" placeholder=${w("search-placeholder")}
                   aria-label=${w("search-placeholder")} .value=${component.libraryQuery}
                   @input=${(event) => {
                       event.stopPropagation();
@@ -170,67 +216,126 @@ function library(component, view, w) {
                       component.refresh();
                   }}></sf-input>
         ${searching ? html`
-            <section class="sf-editor-group" aria-label=${w("search-results")}>
-                ${lib.items.length ? items(component, lib.items, w) : html`<p class="sf-editor-quiet">${w("nothing-found")}</p>`}
+            <div class="sf-editor-found" role="region" aria-label=${w("search-results")}>
+                ${lib.found.length ? lib.found.map((section) => html`
+                    <section class="sf-editor-group" aria-labelledby=${`sf-editor-h-found-${section.id}`}>
+                        ${heading(section.icon, component.word(section.labelKey), `sf-editor-h-found-${section.id}`)}
+                        ${rows(component, section.types.flatMap((type) => type.items), w, {note: (item) => (item.variant ? item.typeLabel : "")})}
+                    </section>`) : html`<p class="sf-editor-quiet">${w("nothing-found")}</p>`}
+            </div>` : open ? html`
+            <section class="sf-editor-group sf-editor-open-section" aria-labelledby="sf-editor-h-open">
+                <div class="sf-editor-back">
+                    <sf-button size="1/2" appearance="link" scheme="on-surface" icon-start="arrow_back" text-position="start" text=${component.word(open.labelKey)}
+                               aria-label=${`${w("back")}: ${component.word(open.labelKey)}`}
+                               @click=${() => component.openSection("")}></sf-button>
+                </div>
+                <h3 id="sf-editor-h-open" class="sf-editor-visually-hidden">${component.word(open.labelKey)}</h3>
+                ${open.types.map((type) => typeEntry(component, type, w))}
             </section>` : html`
-            ${lib.favourites.length ? html`<section class="sf-editor-group"><h3>${w("favourites")}</h3>${items(component, lib.favourites, w)}</section>` : nothing}
-            ${lib.recent.length ? html`<section class="sf-editor-group"><h3>${w("recent")}</h3>${items(component, lib.recent, w)}</section>` : nothing}
-            ${lib.tabs.length > 1 ? html`
-                <sf-button-group class="sf-editor-kinds" size="1/2" appearance="segmented" full-width aria-label=${w("catalogue-tabs")}
-                                 .items=${lib.tabs.map((entry) => ({value: entry.id, label: w(`tab-${entry.id}`), count: String(entry.count)}))}
-                                 .value=${lib.tab}
-                                 @change=${(event) => {
-                                     event.stopPropagation();
-                                     component.libraryTab = String(event.detail?.value ?? event.currentTarget.value);
-                                     component.refresh();
-                                 }}></sf-button-group>` : nothing}
-            ${tab ? tab.groups.map((group) => html`
-                <section class="sf-editor-group"><h3>${component.word(`group-${group.id}`)}</h3>${items(component, group.items, w)}</section>`) : html`<p class="sf-editor-quiet">${w("nothing-fits")}</p>`}
+            <section class="sf-editor-group" aria-labelledby="sf-editor-h-favourites">${heading("star", w("favourites"), "sf-editor-h-favourites")}${lib.favourites.length ? rows(component, lib.favourites, w) : html`<p class="sf-editor-hint sf-editor-empty-list">${w("favourites-empty")}</p>`}</section>
+            ${lib.recent.length ? html`<section class="sf-editor-group" aria-labelledby="sf-editor-h-recent">${heading("history", w("recent"), "sf-editor-h-recent")}${rows(component, lib.recent, w)}</section>` : nothing}
+            ${component.main.rights.builder && !component.builder ? html`
+                <sf-button class="sf-editor-make" size="1/3" appearance="link" scheme="on-surface-variant" icon-start="add"
+                           text=${w("builder-start")} @click=${() => component.openBuilder({from: null})}></sf-button>` : nothing}
+            <section class="sf-editor-group" aria-labelledby="sf-editor-h-sections">
+                ${heading("category", w("sections"), "sf-editor-h-sections")}
+                ${lib.sections.length ? html`<ul class="sf-editor-sections" role="list">${lib.sections.map((section) => html`
+                    <li class="sf-editor-section-row" data-section=${section.id} @click=${(event) => {
+                        if (event.target.closest?.("sf-button")) return;
+                        component.openSection(section.id);
+                    }}>
+                        <sf-icon icon=${section.icon} size="1/2" aria-hidden="true"></sf-icon>
+                        <sf-button class="sf-editor-section-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text=${component.word(section.labelKey)}
+                                   aria-label=${w("section-open", {name: component.word(section.labelKey), count: String(section.count)})}
+                                   @click=${() => component.openSection(section.id)}></sf-button>
+                        <span class="sf-editor-count" aria-hidden="true">${section.count}</span>
+                        <sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true"></sf-icon>
+                    </li>`)}</ul>` : html`<p class="sf-editor-quiet">${w("nothing-fits")}</p>`}
+            </section>
         `}
-        ${component.main.rights.builder && !component.builder ? html`
-            <sf-button class="sf-editor-make" size="1/2" appearance="outline" scheme="on-surface" icon-start="dashboard_customize" full-width
-                       text=${w("builder-start")} @click=${() => component.openBuilder({from: null})}></sf-button>` : nothing}
+        <p class="sf-editor-hint sf-editor-library-hint">${w("item-drag-hint")}</p>
     `;
 }
 
-function items(component, list, w) {
+/** A type in an open section: its row, and under it its variants as cards (open unless the person closed them). */
+function typeEntry(component, type, w) {
+    const variants = type.items.filter((item) => item.variant);
+    if (!variants.length) return rows(component, type.items, w);
+    const closed = component.libraryClosed.has(type.type);
+    const first = variants[0];
+    return html`
+        ${rows(component, [{...first, label: type.label, variant: first.variant}], w, {
+            note: () => w("variants-count", {count: String(variants.length)}),
+            toggle: {open: !closed, onToggle: () => component.toggleVariants(type.type)},
+            favourite: false,
+        })}
+        ${closed ? nothing : html`<ul class="sf-editor-variants" role="list" aria-label=${type.label}>${repeat(variants, (item) => item.variant, (item) => html`
+            <li class="sf-editor-item sf-editor-variant" data-item=${`${item.type}#${item.variant}`} title=${w("item-drag-hint")}
+                @pointerdown=${(event) => component.onLibraryDown(event, item)}>
+                <div class="sf-editor-preview" aria-hidden="true">${skeleton(component.skeleton(item))}</div>
+                <sf-button class="sf-editor-item-name" size="1/3" appearance="link" scheme="on-surface" text-position="start" text=${item.label}
+                           @click=${(event) => {
+                               if (event.detail === 0) component.insertChoice({type: item.type, variant: item.variant}, null, item);
+                           }}></sf-button>
+            </li>`)}</ul>`}
+    `;
+}
+
+/** Library rows: the type's icon, its name (a press inserts it), a note, the star. */
+function rows(component, list, w, {note = (item) => (item.variant ? item.typeLabel : ""), toggle = null, favourite = true} = {}) {
     return html`<ul class="sf-editor-items" role="list">${repeat(list, (item) => `${item.type}#${item.variant ?? ""}`, (item) => {
         const key = `${item.type}${item.variant ? `#${item.variant}` : ""}`;
-        const favourite = component.favourites.includes(key);
+        const starred = component.favourites.includes(key);
+        const said = [note(item), item.site ? w("site-block") : ""].filter(Boolean).join(" · ");
         return html`
             <li class="sf-editor-item" data-item=${key} title=${w("item-drag-hint")}
                 @pointerdown=${(event) => {
                     if (event.target.closest?.("sf-button-icon")) return;
                     component.onLibraryDown(event, item);
                 }}>
-                <div class="sf-editor-preview" aria-hidden="true">${skeleton(component.skeleton(item))}</div>
-                <sf-button class="sf-editor-item-name" size="1/2" appearance="link" scheme="on-surface" text=${item.label}
-                           @click=${(event) => {
-                               if (event.detail === 0) component.insertChoice({type: item.type, ...(item.variant ? {variant: item.variant} : {})}, null, item);
-                           }}></sf-button>
-                ${item.site ? html`<span class="sf-editor-tag">${w("site-block")}</span>` : nothing}
-                <sf-button-icon class="sf-editor-star" size="1/3" appearance="ghost" scheme=${favourite ? "primary" : "on-surface-variant"} icon="star"
-                                ?filled=${favourite} aria-pressed=${favourite ? "true" : "false"}
-                                aria-label=${w(favourite ? "unfavourite" : "favourite", {name: item.label})}
-                                @click=${() => component.favourite(item)}></sf-button-icon>
+                <sf-icon class="sf-editor-item-icon" icon=${item.icon ?? "widgets"} size="1/2" aria-hidden="true"></sf-icon>
+                <span class="sf-editor-item-text">
+                    <sf-button class="sf-editor-item-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text=${item.label}
+                               @click=${(event) => {
+                                   if (event.detail === 0) component.insertChoice({type: item.type, ...(item.variant ? {variant: item.variant} : {})}, null, item);
+                               }}></sf-button>
+                    ${said ? html`<span class="sf-editor-item-note">${said}</span>` : nothing}
+                </span>
+                ${favourite ? html`<sf-button-icon class="sf-editor-star" size="1/3" appearance="ghost" scheme="on-surface-variant" icon="star"
+                                ?filled=${starred} data-on=${starred ? "true" : "false"} aria-pressed=${starred ? "true" : "false"}
+                                aria-label=${w(starred ? "unfavourite" : "favourite", {name: item.label})}
+                                @click=${() => component.favourite(item)}></sf-button-icon>` : nothing}
+                ${toggle ? html`<sf-button-icon class="sf-editor-variants-toggle" size="1/3" appearance="ghost" scheme="on-surface-variant" icon=${toggle.open ? "expand_less" : "expand_more"}
+                                aria-expanded=${toggle.open ? "true" : "false"} aria-label=${w("variants-label", {name: item.label})}
+                                @click=${() => toggle.onToggle()}></sf-button-icon>` : nothing}
             </li>`;
     })}</ul>`;
 }
 
-/** A variant's picture from its own tree: Framework skeleton bars and boxes. */
+/**
+ * A variant's picture from its own tree (skeletonOf): Framework skeleton
+ * bars and boxes; a section draws its background and width, a grid its
+ * columns, a button an accent pill (outlined when it is), an icon a dot, a
+ * spacer a gap.
+ */
 function skeleton(shapes) {
     const draw = (shape) => {
         switch (shape.kind) {
-        case "heading": return html`<sf-skeleton kind="text" size="1/2" width=${shape.level <= 2 ? "70%" : "50%"} height="10px" animation="none"></sf-skeleton>`;
-        case "text": return html`<sf-skeleton kind="text" size="1/3" width="90%" height="5px" animation="none"></sf-skeleton>`;
+        case "heading": return html`<sf-skeleton kind="text" size="1/2" width=${shape.level <= 1 ? "75%" : shape.level === 2 ? "60%" : "45%"} height=${shape.level <= 2 ? "8px" : "6px"} animation="none"></sf-skeleton>`;
+        case "text": return html`<sf-skeleton kind="text" size="1/3" width="90%" height="4px" animation="none"></sf-skeleton>`;
         case "list": return html`<div class="sf-editor-shape-stack">${(shape.children.length ? shape.children : [{kind: "text"}, {kind: "text"}]).slice(0, 3).map(draw)}</div>`;
-        case "picture": return html`<sf-skeleton kind="rounded" width="100%" height="28px" animation="none"></sf-skeleton>`;
-        case "line": return html`<sf-skeleton kind="text" width="100%" height="1px" animation="none"></sf-skeleton>`;
-        case "button": return html`<sf-skeleton kind="rounded" width="36px" height="10px" animation="none" class="sf-editor-shape-accent"></sf-skeleton>`;
-        case "card": return html`<div class="sf-editor-shape-card"><sf-skeleton kind="rounded" width="100%" height="16px" animation="none"></sf-skeleton><sf-skeleton kind="text" width="80%" height="5px" animation="none"></sf-skeleton></div>`;
+        case "picture": return html`<sf-skeleton kind="rounded" width="100%" height="20px" animation="none" class="sf-editor-shape-accent"></sf-skeleton>`;
+        case "line": return html`<span class="sf-editor-shape-line"></span>`;
+        case "button": return html`<span class="sf-editor-shape-button" data-look=${shape.look ?? "fill"}><span class="sf-editor-shape-pill"></span>${shape.icon ? html`<span class="sf-editor-shape-dot"></span>` : nothing}</span>`;
+        case "dot": return html`<span class="sf-editor-shape-dot sf-editor-shape-dot--large"></span>`;
+        case "badge": return html`<span class="sf-editor-shape-pill sf-editor-shape-pill--short"></span>`;
+        case "gap": return html`<span class="sf-editor-shape-gap"></span>`;
+        case "cell": return html`<span class="sf-editor-shape-cell"></span>`;
+        case "card": return html`<div class="sf-editor-shape-card"><sf-skeleton kind="rounded" width="100%" height="12px" animation="none" class="sf-editor-shape-accent"></sf-skeleton><sf-skeleton kind="text" width="80%" height="4px" animation="none"></sf-skeleton></div>`;
         case "row": return html`<div class="sf-editor-shape-row" style=${`--sf-editor-shape-columns:${Math.max(1, shape.columns)}`}>${shape.children.slice(0, 4).map(draw)}</div>`;
         case "stack": return html`<div class="sf-editor-shape-stack">${shape.children.slice(0, 5).map(draw)}</div>`;
-        default: return html`<sf-skeleton kind="rounded" width="100%" height="18px" animation="none"></sf-skeleton>`;
+        case "section": return html`<div class="sf-editor-shape-section" data-background=${shape.background} data-width=${shape.width}><div class="sf-editor-shape-box">${shape.children.slice(0, 4).map(draw)}</div></div>`;
+        default: return html`<sf-skeleton kind="rounded" width="100%" height="14px" animation="none"></sf-skeleton>`;
         }
     };
     return shapes.map(draw);
@@ -242,9 +347,40 @@ function structure(component, view, w) {
         <li role="treeitem" aria-level=${row.depth + 1} aria-selected=${row.id === view.model.selected ? "true" : "false"}
             class="sf-editor-tree-row" style=${`--sf-editor-depth:${row.depth}`}>
             <sf-button size="1/2" appearance=${row.id === view.model.selected ? "tonal" : "link"} scheme="on-surface"
-                       icon-start=${row.lock ? "lock" : ""} text=${row.excerpt ? `${row.label} · ${row.excerpt}` : row.label}
+                       icon-start=${row.icon} icon-end=${row.lock ? "lock" : ""} text=${row.excerpt ? `${row.label} · ${row.excerpt}` : row.label}
                        @click=${() => component.choose(row.id)}></sf-button>
         </li>`)}</ul>`;
+}
+
+// ------------------------------------------------------------ the floating bar over the chosen block
+
+/** The chosen block's bar: where it stands (the last three steps of its path), the grip, up, down, duplicate, more. */
+function toolbar(component, view, w) {
+    const node = view.selected;
+    const show = node && !view.lock && !view.model.typing && !component.drag;
+    const crumbs = node ? view.path.filter((entry) => view.model.choosable(entry)).slice(-3) : [];
+    const at = node ? view.position : null;
+    return html`
+        <div class="sf-editor-toolbar" role="region" aria-label=${w("toolbar-label")} ?hidden=${!show}>
+            ${show ? html`<div class="sf-editor-toolbar-row" role="toolbar" aria-label=${w("toolbar-label")}>
+                <span class="sf-editor-crumbs">${crumbs.map((entry, index) => index === crumbs.length - 1
+                    ? html`<strong class="sf-editor-crumb-here">${component.typeLabel(entry.type)}</strong>`
+                    : html`<sf-button size="1/3" appearance="link" scheme="on-surface-variant" text=${component.typeLabel(entry.type)} @click=${() => component.choose(entry.id)}></sf-button>
+                        <sf-icon class="sf-editor-path-sep" icon="chevron_right" size="1/3" aria-hidden="true"></sf-icon>`)}</span>
+                <sf-button-icon class="sf-editor-toolbar-grip" size="1/3" appearance="ghost" scheme="on-surface-variant" icon="drag_indicator"
+                                aria-label=${w("grip-label")} title=${w("grip-label")} aria-haspopup="menu"
+                                @pointerdown=${(event) => component.onToolbarGrip(event)}
+                                @keydown=${(event) => component.onGripKey(event, node.id)}></sf-button-icon>
+                <sf-button-icon size="1/3" appearance="ghost" scheme="on-surface-variant" icon="arrow_upward" aria-label=${w("menu-up")} title=${`${w("menu-up")} (Alt+↑)`}
+                                ?disabled=${!at || at.first} @click=${() => component.moveBy(node.id, -1)}></sf-button-icon>
+                <sf-button-icon size="1/3" appearance="ghost" scheme="on-surface-variant" icon="arrow_downward" aria-label=${w("menu-down")} title=${`${w("menu-down")} (Alt+↓)`}
+                                ?disabled=${!at || at.last} @click=${() => component.moveBy(node.id, 1)}></sf-button-icon>
+                <sf-button-icon size="1/3" appearance="ghost" scheme="on-surface-variant" icon="content_copy" aria-label=${w("menu-duplicate")} title=${`${w("menu-duplicate")} (⌘D)`}
+                                @click=${() => component.run(component.model.duplicate(node.id), "duplicated-text")}></sf-button-icon>
+                <sf-button-icon class="sf-editor-toolbar-more" size="1/3" appearance="ghost" scheme="on-surface-variant" icon="more_horiz" aria-label=${w("menu-more")} title=${w("menu-more")} aria-haspopup="menu"
+                                @click=${(event) => component.openGripMenu(node.id, event.currentTarget)}></sf-button-icon></div>` : nothing}
+        </div>
+    `;
 }
 
 // ------------------------------------------------------------ the path
@@ -255,84 +391,131 @@ function pathBar(component, view, w) {
             <sf-button size="1/3" appearance="link" scheme="on-surface-variant" text=${w("path-page")} @click=${() => component.choose(null)}></sf-button>
             ${view.path.filter((node) => view.model.choosable(node)).map((node) => html`
                 <sf-icon icon="chevron_right" size="1/3" class="sf-editor-path-sep" aria-hidden="true"></sf-icon>
-                <sf-button size="1/3" appearance="link" scheme=${node.id === view.model.selected ? "primary" : "on-surface-variant"}
+                <sf-button size="1/3" appearance="link" scheme="on-surface-variant" class=${node.id === view.model.selected ? "sf-editor-path-here" : ""}
                            text=${component.typeLabel(node.type)} aria-current=${node.id === view.model.selected ? "true" : "false"}
                            @click=${() => component.choose(node.id)}></sf-button>`)}
             <span class="sf-editor-spacer"></span>
-            <span class="sf-editor-quiet sf-editor-keys">${w(view.model.typing ? "keys-typing" : view.selected ? "keys-chosen" : "keys-page")}</span>
+            <span class="sf-editor-keys">${w(view.model.typing ? "keys-typing" : view.selected ? "keys-chosen" : "keys-page")}</span>
         </nav>
     `;
 }
 
 // ------------------------------------------------------------ the right panel
 
+/** The panel's head: the block's (or the page's) icon, its name and the section it belongs to. */
+function panelHead(icon, title, sub) {
+    return html`
+        <div class="sf-editor-panel-head">
+            <span class="sf-editor-panel-icon" aria-hidden="true"><sf-icon icon=${icon} size="1/2"></sf-icon></span>
+            <div class="sf-editor-panel-names">
+                <h2 class="sf-editor-panel-title">${title}</h2>
+                ${sub ? html`<p class="sf-editor-panel-sub">${sub}</p>` : nothing}
+            </div>
+        </div>
+    `;
+}
+
 function right(component, view, w) {
-    const model = view.model;
     if (!view.selected) {
         const theme = component.main.theme;
         return html`
             <aside class="sf-editor-right" aria-label=${w("right-label")}>
-                <h2 class="sf-editor-panel-title">${w(component.builder ? "builder-label" : "page-title")}</h2>
-                <p class="sf-editor-quiet">${w("nothing-chosen")}</p>
-                ${theme ? html`
-                    <section class="sf-editor-group">
-                        <h3>${w("theme-title")}</h3>
-                        <p>${theme.label ?? theme.name ?? ""}</p>
-                        <p class="sf-editor-quiet">${w("theme-read-only")}</p>
-                        ${theme.settings_url ? html`<a class="sf-editor-link" href=${theme.settings_url} target="_top">${w("theme-settings")}</a>` : nothing}
-                    </section>` : nothing}
-                ${view.hasTemplate && !component.builder ? html`
-                    <section class="sf-editor-group">
-                        <h3>${w("template-title")}</h3>
-                        <p class="sf-editor-quiet">${w(component.main.rights.template ? "template-help" : "template-no-rights")}</p>
-                    </section>` : nothing}
+                ${panelHead(component.builder ? "dashboard_customize" : "article", w(component.builder ? "builder-label" : "page-title"), "")}
+                <p class="sf-editor-empty-state"><sf-icon icon="arrow_selector_tool" size="1/3" aria-hidden="true"></sf-icon><span>${w("nothing-chosen")}</span></p>
+                <dl class="sf-editor-facts">
+                    ${theme ? html`
+                        <div><dt>${w("theme-title")}</dt><dd><span>${theme.label ?? theme.name ?? ""}</span><span class="sf-editor-hint">${w("theme-read-only")}</span>
+                            ${theme.settings_url ? html`<a class="sf-editor-link" href=${theme.settings_url} target="_top">${w("theme-settings")}</a>` : nothing}</dd></div>` : nothing}
+                    ${view.hasTemplate && !component.builder ? html`
+                        <div><dt>${w("template-title")}</dt><dd class="sf-editor-hint">${w(component.main.rights.template ? "template-help" : "template-no-rights")}</dd></div>` : nothing}
+                </dl>
             </aside>`;
     }
-    const tabs = [{id: "parameters", label: w("tab-parameters")}, ...(view.hasData ? [{id: "data", label: w("tab-data")}] : [])];
-    const tab = view.hasData && component.rightTab === "data" ? "data" : "parameters";
+    const tabs = [
+        {id: "parameters", label: w("tab-parameters")},
+        ...(view.hasData ? [{id: "data", label: w("tab-data")}] : []),
+        {id: "json", label: w("tab-json")},
+        {id: "html", label: w("tab-html")},
+    ];
+    const tab = tabs.some((entry) => entry.id === component.rightTab) ? component.rightTab : "parameters";
+    const sub = [view.sectionLabel, view.typeManifest?.composed ? w("site-block") : "", view.lock ? w("locked") : ""].filter(Boolean).join(" · ");
     return html`
         <aside class="sf-editor-right" aria-label=${w("right-label")}>
-            <h2 class="sf-editor-panel-title">${component.typeLabel(view.selected.type)}</h2>
-            ${view.lock ? html`
-                <p class="sf-editor-locked-note" role="note"><sf-icon icon="lock" size="1/2"></sf-icon>${component.lockText(view.lock)}</p>
+            ${panelHead(view.typeIcon, component.typeLabel(view.selected.type), sub)}
+            <sf-tabs class="sf-editor-right-tabs" type="underline" size="1/2" .items=${tabs} active-index=${Math.max(0, tabs.findIndex((entry) => entry.id === tab))}
+                     @sf-tabs-change=${(event) => {
+                         event.stopPropagation();
+                         component.setRightTab(String(event.detail?.selected ?? "parameters"));
+                     }}></sf-tabs>
+            ${tab === "json" ? codeView(component, view, "json", w) : tab === "html" ? codeView(component, view, "html", w) : view.lock ? html`
+                <p class="sf-editor-locked-note" role="note"><sf-icon icon="lock" size="1/3"></sf-icon>${component.lockText(view.lock)}</p>
                 ${view.lock === "template" && component.main.rights.template ? html`<sf-button size="1/2" appearance="outline" scheme="on-surface" text=${w("template-edit")}
-                        @click=${() => component.toggleTemplate(true)}></sf-button>` : nothing}` : html`
-                ${tabs.length > 1 ? html`<sf-tabs type="underline" size="1/2" .items=${tabs} active-index=${tab === "data" ? 1 : 0}
-                         @sf-tabs-change=${(event) => {
-                             event.stopPropagation();
-                             component.rightTab = event.detail?.selected === "data" ? "data" : "parameters";
-                             component.refresh();
-                         }}></sf-tabs>` : nothing}
-                ${tab === "data" ? dataPanel(component, view, w) : parameters(component, view, w)}
-                ${blockActions(component, view, w)}
-            `}
+                        @click=${() => component.toggleTemplate(true)}></sf-button>` : nothing}` : tab === "data" ? dataPanel(component, view, w) : parameters(component, view, w)}
         </aside>
     `;
 }
 
-function parameters(component, view, w) {
-    const screen = component.screenName;
+/** The chosen block as the Document holds it (JSON) or as the site prints it (HTML). */
+function codeView(component, view, format, w) {
+    const text = component.codeOf(view.selected.id, format);
     return html`
-        <div class="sf-editor-screen-line">
-            <span>${w("editing-for")}</span>
-            <sf-button-group size="1/3" appearance="segmented" aria-label=${w("screen-label")} .items=${view.screens} .value=${screen}
-                             @change=${(event) => {
-                                 event.stopPropagation();
-                                 component.setScreen(event.detail?.value ?? event.currentTarget.value);
-                             }}></sf-button-group>
-        </div>
-        ${view.form.length ? html`<div class="sf-editor-fields">${view.form.map((field) => fieldRow(component, field, w))}</div>` : html`<p class="sf-editor-quiet">${w("no-parameters")}</p>`}
-        ${component.main.rights.layout ? html`
-            <section class="sf-editor-group">
-                <sf-input size="1/2" label=${w("modifiers-label")} hint=${w("modifiers-hint")} .value=${view.modifiers}
-                          @change=${(event) => component.onModifiers(event)}></sf-input>
-                ${component.dropped?.id === view.selected.id ? component.dropped.groups.map((group) => html`<p class="sf-editor-error" role="alert">${w(REFUSED[group.reason] ?? "modifiers-dropped", {classes: group.classes.join(" ")})}</p>`) : nothing}
-            </section>` : nothing}
-        <dl class="sf-editor-origins" aria-label=${w("origins-label")}>
-            ${view.origins.map((origin) => html`<div><dt><span class="sf-editor-origin" data-origin=${origin}>${w(`origin-${origin}`)}</span></dt><dd>${w(`origin-${origin}-help`)}</dd></div>`)}
-        </dl>
+        <pre class="sf-editor-code" tabindex="0" aria-label=${w(`tab-${format}`)}>${text ?? "…"}</pre>
+        <p class="sf-editor-hint">${w(`${format}-note`)}</p>
     `;
 }
+
+const SECTIONS = ["content", "layout", "extra"];
+
+function parameters(component, view, w) {
+    const bySection = Object.fromEntries(SECTIONS.map((id) => [id, view.form.filter((field) => field.section === id)]));
+    const modifiers = component.main.rights.layout;
+    if (!view.form.length && !modifiers) return html`<p class="sf-editor-hint">${w("no-parameters")}</p>`;
+    const sets = [...new Set(view.form.map((field) => /^sf\.composition\.set_([a-z_]+)\./u.exec(String(field.label_key ?? ""))?.[1]).filter(Boolean))];
+    return html`
+        <p class="sf-editor-card sf-editor-sets"><sf-icon icon="link" size="1/3" aria-hidden="true"></sf-icon><span>${sets.length
+            ? w("sets-note", {sets: sets.map((set) => w(`set-${set.replace(/_/gu, "-")}`)).join(" · ")})
+            : w("sets-none")}</span></p>
+        ${SECTIONS.map((id) => (bySection[id].length || (id === "extra" && modifiers)) ? html`
+            <section class="sf-editor-group sf-editor-fields" aria-labelledby=${`sf-editor-h-${id}`}>
+                <h3 class="sf-editor-heading" id=${`sf-editor-h-${id}`}>${w(`section-${id}`)}</h3>
+                ${bySection[id].map((field) => fieldRow(component, field, w))}
+                ${id === "extra" && modifiers ? modifiersRow(component, view, w) : nothing}
+            </section>` : nothing)}
+        ${view.form.some((field) => field.responsive) ? html`<p class="sf-editor-card"><sf-icon icon="devices" size="1/3" aria-hidden="true"></sf-icon><span>${w("screens-note", {screen: w(`screen-${component.screenName}`)})}</span></p>` : nothing}
+        <p class="sf-editor-card sf-editor-origins" aria-label=${w("origins-label")}>${w("origins-note")}</p>
+    `;
+}
+
+function modifiersRow(component, view, w) {
+    return html`
+        <div class="sf-editor-modifiers-row">
+            <div class="sf-editor-field-head"><span class="sf-editor-field-label">${w("modifiers-label")}</span></div>
+            <sf-input class="sf-editor-modifiers" size="1/2" aria-label=${w("modifiers-label")} placeholder=${w("modifiers-placeholder")} .value=${view.modifiers}
+                      @change=${(event) => component.onModifiers(event)}></sf-input>
+            <span class="sf-editor-hint">${w("modifiers-hint")}</span>
+            ${component.dropped?.id === view.selected.id ? component.dropped.groups.map((group) => html`<p class="sf-editor-error" role="alert">${w(REFUSED[group.reason] ?? "modifiers-dropped", {classes: group.classes.join(" ")})}</p>`) : nothing}
+        </div>
+    `;
+}
+
+/** A short choice draws as a segmented switch, as the prototype does; a long one as a list. */
+const segmented = (field) => field.choiceLabels.length >= 2 && field.choiceLabels.length <= 3 && field.choiceLabels.every((choice) => String(choice.text).length <= 12);
+
+/** A whole number of at most six steps (a heading's level) draws as a segmented switch too. */
+const steps = (field) => (field.kind === "integer" && Number.isInteger(field.min) && Number.isInteger(field.max) && field.max > field.min && field.max - field.min <= 5
+    ? Array.from({length: field.max - field.min + 1}, (_, index) => ({value: String(field.min + index), label: field.target === "level" ? `H${field.min + index}` : String(field.min + index)}))
+    : null);
+
+const ALIGN_ICONS = {start: "format_align_left", center: "format_align_center", end: "format_align_right"};
+
+/** The light segmented look of the prototype: a quiet track, the chosen segment a raised surface, not a primary fill. */
+const segmentedSwitch = (field, items, value, component, extra = nothing) => html`
+    <div class="sf-editor-control sf-editor-switch-row">
+        <sf-button-group class="sf-editor-segmented" size="1/2" appearance="segmented" plate="raised" full-width aria-label=${field.label}
+                         .items=${items} .value=${String(value)}
+                         @change=${(event) => component.onField(event, field)}></sf-button-group>
+        ${extra}
+    </div>`;
 
 function fieldRow(component, field, w) {
     const id = `sf-editor-field-${field.key}`;
@@ -341,26 +524,45 @@ function fieldRow(component, field, w) {
     const value = field.value === undefined || field.value === null ? "" : field.value;
     let control;
     if (field.kind === "toggle") {
-        control = html`<sf-switch size="1/2" label=${field.label} .checked=${Boolean(field.value)} @change=${(event) => component.onField(event, field)}></sf-switch>`;
+        control = segmentedSwitch(field, [{value: "false", label: w("no")}, {value: "true", label: w("yes")}], (field.shown ? !field.value : field.value) ? "true" : "false", component);
+    } else if (steps(field)) {
+        // The first three steps as a switch, the rest behind «More» (a heading: H1–H3, then H4–H6).
+        const all = steps(field);
+        const shown = all.slice(0, 3);
+        const rest = all.slice(3);
+        const inRest = rest.some((item) => item.value === String(value));
+        control = segmentedSwitch(field, shown, inRest ? "" : value, component, rest.length ? html`
+            <sf-dropdown class="sf-editor-more-steps" size="1/2" aria-label=${w("more-steps", {name: field.label})} placeholder=${w("more")}
+                         .options=${rest.map((item) => ({value: item.value, text: item.label}))} .value=${inRest ? String(value) : ""}
+                         @change=${(event) => component.onField(event, field)}></sf-dropdown>` : nothing);
+    } else if (field.choiceLabels.length && segmented(field)) {
+        // Alignment draws as the prototype's three icons; the words stay their names.
+        const icon = field.target === "align" ? ALIGN_ICONS : null;
+        control = segmentedSwitch(field, field.choiceLabels.map((choice) => (icon?.[choice.value]
+            ? {value: choice.value, label: choice.text, icon: icon[choice.value], "icon-only": true}
+            : {value: choice.value, label: choice.text})), value, component);
     } else if (field.choiceLabels.length) {
-        control = html`<sf-dropdown size="1/2" label=${field.label} .options=${field.choiceLabels} .value=${String(value)}
+        control = html`<sf-dropdown class="sf-editor-control" size="1/2" aria-label=${field.label} .options=${field.choiceLabels} .value=${String(value)}
                                     @change=${(event) => component.onField(event, field)}></sf-dropdown>`;
     } else {
         const numeric = field.kind === "number" || field.kind === "integer";
-        control = html`<sf-input size="1/2" label=${field.label} inputmode=${numeric ? "numeric" : ""} .value=${String(value)}
-                                 hint=${field.min !== undefined || field.max !== undefined ? w("range-hint", {min: String(field.min ?? ""), max: String(field.max ?? "")}) : ""}
+        control = html`<sf-input class="sf-editor-control" size="1/2" aria-label=${field.label} inputmode=${numeric ? "numeric" : ""} .value=${String(value)}
                                  @change=${(event) => component.onField(event, field)}></sf-input>`;
     }
+    const own = field.origin === "block" || field.origin === "screen";
     return html`
         <div class="sf-editor-field" id=${id} data-key=${field.key} data-origin=${field.origin}>
-            ${control}
-            <div class="sf-editor-field-meta">
-                <span class="sf-editor-origin" data-origin=${field.origin} title=${w(`origin-${field.origin}-help`)}>${field.originLabel}</span>
-                ${field.responsive && field.screens.length ? html`<span class="sf-editor-quiet">${w("set-for", {screens: field.screensLabel})}</span>` : nothing}
-                ${field.utility ? html`<code class="sf-editor-utility" title=${w("utility-help")}>${field.utility}</code>` : nothing}
-                ${field.set ? html`<sf-button size="1/3" appearance="link" scheme="on-surface-variant" text=${w("reset")}
+            <div class="sf-editor-field-head">
+                <span class="sf-editor-field-label">${field.label}</span>
+                ${field.responsive ? html`<sf-icon class="sf-editor-field-screen" icon=${SCREEN_ICON[component.screenName]} size="1/3" title=${w("per-screen")} aria-label=${w("per-screen")}></sf-icon>` : nothing}
+                <span class="sf-editor-origin" data-origin=${field.origin} data-own=${own ? "true" : "false"} title=${w(`origin-${field.origin}-help`)}><span class="sf-editor-origin-dot" aria-hidden="true"></span>${field.originLabel}</span>
+                ${field.set ? html`<sf-button class="sf-editor-reset" size="1/3" appearance="link" scheme="on-surface-variant" text=${w("reset")}
                         aria-label=${w("reset-field", {name: field.label})} @click=${() => component.onReset(field)}></sf-button>` : nothing}
             </div>
+            ${control}
+            ${(field.min !== undefined || field.max !== undefined) && !steps(field) ? html`<span class="sf-editor-hint">${w("range-hint", {min: String(field.min ?? ""), max: String(field.max ?? "")})}</span>` : nothing}
+            ${field.responsive && field.screens.length ? html`<span class="sf-editor-hint">${w("set-for", {screens: field.screensLabel})}</span>` : nothing}
+            ${field.utility ? html`<code class="sf-editor-utility" title=${w("utility-help")}>${w("binding", {classes: field.utility})}</code>` : nothing}
             ${builder ? html`<sf-switch size="1/2" class="sf-editor-expose" label=${w("expose")} .checked=${Boolean(exposed)}
                     @change=${(event) => {
                         event.stopPropagation();
@@ -369,6 +571,8 @@ function fieldRow(component, field, w) {
         </div>
     `;
 }
+
+const SCREEN_ICON = {desktop: "desktop_windows", tablet: "tablet_mac", phone: "smartphone"};
 
 function dataPanel(component, view, w) {
     const id = view.selected.id;
@@ -417,29 +621,10 @@ function dataPanel(component, view, w) {
         ${view.data.bindings.length ? html`
             <section class="sf-editor-group">
                 <h3>${w("data-states")}</h3>
-                <sf-button-group size="1/3" appearance="segmented" .items=${view.states} .value=${state}
+                <sf-button-group size="1/3" appearance="segmented" plate="raised" .items=${view.states} .value=${state}
                                  aria-label=${w("data-states")} @change=${(event) => component.onState(event)}></sf-button-group>
                 <p class="sf-editor-quiet">${w("data-states-help")}</p>
             </section>` : nothing}
-    `;
-}
-
-function blockActions(component, view, w) {
-    const node = view.selected;
-    const rights = component.model.rights;
-    return html`
-        <div class="sf-editor-actions">
-            <sf-button size="1/2" appearance="outline" scheme="on-surface" icon-start="content_copy" text=${w("menu-duplicate")}
-                       @click=${() => component.run(component.model.duplicate(node.id), "duplicated-text")}></sf-button>
-            ${rights.layout ? html`<sf-button size="1/2" appearance="outline" scheme="on-surface" icon-start="view_column"
-                       text=${w(node.type === "layout.columns" ? "menu-add-column" : "menu-columns")}
-                       @click=${() => component.run(node.type === "layout.columns" ? component.model.addColumn(node.id) : component.model.splitColumns(node.id), "columns-text")}></sf-button>` : nothing}
-            ${rights.builder && !component.builder ? html`<sf-button size="1/2" appearance="outline" scheme="on-surface" icon-start="dashboard_customize"
-                       text=${w(view.typeManifest?.composed ? "menu-change-block" : "menu-make-block")}
-                       @click=${() => component.openBuilder({from: node.id})}></sf-button>` : nothing}
-            <sf-button size="1/2" appearance="outline" scheme="on-surface" status="error" icon-start="delete" text=${w("menu-remove")}
-                       @click=${() => component.run(component.model.remove(node.id), "removed-text")}></sf-button>
-        </div>
     `;
 }
 
@@ -450,7 +635,7 @@ function popover(component, view, w) {
     const list = pop.items;
     return html`
         <div class="sf-editor-pop" role="dialog" aria-label=${w(pop.mode === "slash" ? "slash-label" : "catalogue-label")}
-             style=${`inset-block-start:${pop.y}px;inset-inline-start:${pop.x}px`}>
+             style=${`inset-block-start:${pop.y}px;inset-inline-start:${pop.x}px${pop.height ? `;max-block-size:${pop.height}px` : ""}`}>
             ${pop.mode === "slash" ? html`<p class="sf-editor-quiet">${component.popQuery ? w("slash-filter", {query: component.popQuery}) : w("slash-hint")}</p>` : html`
                 <sf-input size="1/2" input-type="search" icon-start="search" placeholder=${w("search-placeholder")} aria-label=${w("search-placeholder")}
                           .value=${component.popQuery}
@@ -461,7 +646,7 @@ function popover(component, view, w) {
                               component.refresh();
                           }}></sf-input>`}
             ${!component.popQuery && pop.tabs.length > 1 ? html`
-                <sf-button-group size="1/3" appearance="segmented" full-width .items=${pop.tabs.map((entry) => ({value: entry.id, label: w(`tab-${entry.id}`)}))}
+                <sf-button-group size="1/3" appearance="segmented" plate="raised" full-width .items=${pop.tabs.map((entry) => ({value: entry.id, label: w(`tab-${entry.id}`)}))}
                                  .value=${pop.tab} aria-label=${w("catalogue-tabs")}
                                  @change=${(event) => {
                                      event.stopPropagation();
@@ -482,7 +667,7 @@ function popover(component, view, w) {
                         @click=${() => component.chooseItem(item)}>
                         <div class="sf-editor-preview sf-editor-preview--small" aria-hidden="true">${skeleton(component.skeleton(item))}</div>
                         <span class="sf-editor-option-name" data-label=${item.label}>${item.label}</span>
-                        <span class="sf-editor-quiet sf-editor-option-note">${item.variant ? item.typeLabel : component.word(`group-${item.group}`)}</span>
+                        <span class="sf-editor-quiet sf-editor-option-note">${item.variant ? item.typeLabel : component.word(groupWordKey(item.group))}</span>
                     </li>`) : html`<li class="sf-editor-quiet" role="presentation">${w("nothing-fits")}</li>`}
             </ul>
         </div>

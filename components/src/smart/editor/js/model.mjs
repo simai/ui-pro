@@ -98,7 +98,7 @@ export class EditorModel {
         } catch {
             this.registry = Composition.extendRegistry([], this.renderers);
         }
-        this.printRegistry = printingRegistry(this.registry);
+        this.canvasRegistry = canvasRegistry(this.registry);
     }
 
     setTypes({types, siteBlocks, renderers, editorManifests} = {}) {
@@ -675,7 +675,7 @@ export class EditorModel {
         case "content.tabs": return {id, type, slots: {tabs: [{id: this.next(), type: "content.tab", data: {label: "1"}, slots: {default: [paragraph()]}}]}};
         case "content.grid": return {id, type, slots: {default: [paragraph(), paragraph()]}};
         case "layout.area": return {id, type, slots: {default: [paragraph()]}};
-        case "layout.section": return {id, type, props: {width: "normal"}, slots: {default: [{id: this.next(), type: "layout.area", slots: {default: [paragraph()]}}]}};
+        case "layout.section": return {id, type, slots: {default: [{id: this.next(), type: "layout.area", slots: {default: [paragraph()]}}]}};
         case "layout.columns": return {id, type, props: {columns: {xs: 1, md: 2}}, slots: {columns: [this.blank("layout.area"), this.blank("layout.area")]}};
         default: {
             const manifest = this.manifestOf(type);
@@ -1050,8 +1050,12 @@ export class EditorModel {
         const responsive = field.plane === "props" && isResponsive(schema);
         // What the type draws without a value is its schema's default; the
         // editor field's default is only what the form offers first.
-        const typeDefault = schema && "default" in schema ? schema.default : undefined;
-        const theme = field.plane === "props" ? this.themeValue(node.type, field.target) : undefined;
+        // Since core.runtime 1.26.0 a type may print values unset
+        // (parameter_defaults): that is the type's value here, per screen.
+        const defaults = field.plane === "props" && isPlainObject(manifest?.parameter_defaults) ? manifest.parameter_defaults : {};
+        const typeDefault = Object.hasOwn(defaults, field.target) ? atScreen(defaults[field.target], schema, responsive, screen) : schema && "default" in schema ? schema.default : undefined;
+        const themed = field.plane === "props" ? this.themeValue(node.type, field.target) : undefined;
+        const theme = themed === undefined ? undefined : atScreen(themed, schema, responsive, screen);
         const variant = this.variantOf(node);
         const variantValue = field.plane === "props" ? variant?.props?.[field.target] : variant?.data?.[field.target];
         const plane = node[field.plane];
@@ -1092,6 +1096,7 @@ export class EditorModel {
             set: own !== undefined,
             screens,
             utility: describeUtility(schema),
+            section: fieldSection(field, schema),
         };
     }
 
@@ -1367,17 +1372,14 @@ export class EditorModel {
         walk(doc.root, (node) => {
             const manifest = this.manifestOf(node.type);
             const properties = manifest?.props_schema?.properties ?? {};
+            const defaults = isPlainObject(manifest?.parameter_defaults) ? manifest.parameter_defaults : {};
             for (const [key, schema] of Object.entries(properties)) {
                 const theme = this.themeValue(node.type, key);
                 const has = isPlainObject(node.props) && Object.hasOwn(node.props, key);
-                if (!has && theme === undefined) continue;
-                // What the site prints at this screen (printedValue), so the
-                // canvas draws the phone's grid-col-1 where the site does.
-                const raw = printedValue(has ? node.props[key] : theme, schema);
-                if (raw === undefined) {
-                    if (has) delete node.props[key];
-                    continue;
-                }
+                // What the type prints unset (parameter_defaults) is drawn too:
+                // flattened to this screen, as the block's own value is.
+                const raw = has ? node.props[key] : theme !== undefined ? theme : defaults[key];
+                if (raw === undefined) continue;
                 const value = isResponsive(schema) && isBreakpointValue(raw) ? valuesByBreakpoint(raw, schema)[screen] : raw;
                 node.props ??= {};
                 if (value === undefined) delete node.props[key];
@@ -1406,33 +1408,10 @@ export class EditorModel {
         return doc;
     }
 
-    /**
-     * The themed Document as it is printed: each responsive value with its
-     * phone value spelled out wherever a wider screen differs from it, and
-     * left out where every screen keeps the type's default (printedValue).
-     * Rendered with printRegistry, which prints the phone value even when it
-     * is the type's default.
-     */
-    printedDocument() {
-        const doc = this.themedDocument();
-        walk(doc.root, (node) => {
-            if (!isPlainObject(node.props)) return;
-            const properties = this.manifestOf(node.type)?.props_schema?.properties ?? {};
-            for (const [key, schema] of Object.entries(properties)) {
-                if (!Object.hasOwn(node.props, key)) continue;
-                const value = printedValue(node.props[key], schema);
-                if (value === undefined) delete node.props[key];
-                else node.props[key] = value;
-            }
-            if (!Object.keys(node.props).length) delete node.props;
-        });
-        return doc;
-    }
-
     /** The HTML a site prints: SIMAI Framework utilities, mobile first; unknown own modifiers left out. */
     async toHTML({resolveBinding, utilityRules} = {}) {
-        const result = await Composition.render(this.printedDocument(), {
-            registry: this.printRegistry,
+        const result = await Composition.render(this.themedDocument(), {
+            registry: this.registry,
             ...(resolveBinding ? {resolveBinding} : {}),
             options: utilityRules ? {utilityRules} : {},
         });
@@ -1475,32 +1454,15 @@ export function slugify(value) {
 const TRANSLIT = {а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "e", ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "h", ц: "c", ч: "ch", ш: "sh", щ: "sch", ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya"};
 
 /**
- * A responsive value as the site prints it, mobile first (G-36). The
- * Framework's utilities print nothing at the phone for a value equal to the
- * type's default, so columns {xs: 1, md: 2} printed md:grid-col-2 alone and a
- * phone got the grid's implicit auto column instead of grid-col-1. Here the
- * phone value is spelled out (the default where the value sets none) whenever
- * a wider screen differs from it; a value that keeps the type's default on
- * every screen prints nothing (undefined). Anything else is returned as it is.
+ * The registry the canvas draws with. The canvas shows one screen in a
+ * window of another width, so each block's values are flattened to that
+ * screen (canvasDocument) and must print whatever they are: a responsive
+ * utility parameter has no default here, so the phone's one column of a
+ * split prints grid-col-1 even in a wide window. What a site prints (the
+ * output) uses the Framework's registry as it is: since core.runtime 1.26.0
+ * it prints the phone's value once a wider screen differs (G-36).
  */
-export function printedValue(value, schema) {
-    if (!isResponsive(schema) || !isPlainObject(schema) || !("default" in schema) || value === undefined) return value;
-    const values = valuesByBreakpoint(value, schema);
-    const base = values[UTILITY_BREAKPOINTS[0]];
-    const differs = UTILITY_BREAKPOINTS.some((breakpoint) => !same(values[breakpoint], base));
-    if (!differs) return same(base, schema.default) ? undefined : value;
-    if (!isBreakpointValue(value)) return value;
-    return {[UTILITY_BREAKPOINTS[0]]: clone(base), ...value};
-}
-
-/**
- * The registry the editor renders with: the same types, but a responsive
- * utility parameter has no default, so the Framework prints its phone value
- * even when it is the default. printedValue has already left out the values
- * that keep the default everywhere, so only a phone value a wider screen
- * changes from reaches the page (grid-col-1 md:grid-col-2).
- */
-function printingRegistry(registry) {
+function canvasRegistry(registry) {
     const types = new Map();
     for (const [type, manifest] of registry.types) {
         const properties = manifest?.props_schema?.properties;
@@ -1517,6 +1479,28 @@ function printingRegistry(registry) {
         types.set(type, {...manifest, props_schema: {...manifest.props_schema, properties: own}});
     }
     return {...registry, types};
+}
+
+/**
+ * The heading a field stands under in the panel: content (what the block
+ * says and is), layout (the Framework's layout utilities: width, space,
+ * grid, alignment, background) or extra (visibility per screen and what
+ * the editor manifest marks advanced).
+ */
+export function fieldSection(field, schema) {
+    const set = /^sf\.composition\.set_([a-z_]+)\./u.exec(String(field.label_key ?? ""))?.[1];
+    if (set === "visibility" || field.target === "hidden") return "extra";
+    // A block's own content (its data: a heading's level) stays under Content
+    // even when its manifest files it as advanced; advanced props go to More.
+    if (field.plane === "data") return "content";
+    if (field.group === "advanced") return "extra";
+    if (field.plane === "props" && (set || schema?.["x-simai-utility"])) return "layout";
+    return "content";
+}
+
+/** A value at a screen: a responsive value per breakpoint gives that screen's, anything else itself. */
+function atScreen(value, schema, responsive, screen) {
+    return responsive && isBreakpointValue(value) ? valuesByBreakpoint(value, schema)[screen] : value;
 }
 
 /** What a parameter is bound to in the Framework, for the line under its control: the utility it prints. */
