@@ -10,9 +10,9 @@ import test from "node:test";
 import Composition from "../src/core/js/composition/index.mjs";
 import {EditorModel, VARIANT_EXTENSION, inlineToMarkdown, refusedClasses} from "../src/smart/editor/js/model.mjs";
 import {catalogueAt, itemKey, pick, pushRecent, searchItems, skeletonOf, tabForPlace, toggleFavourite} from "../src/smart/editor/js/catalogue.mjs";
-import cardsType from "../kits/block/examples/sample-cards/type.json" with {type: "json"};
-import cardsEditor from "../kits/block/examples/sample-cards/editor.json" with {type: "json"};
-import renderCards from "../kits/block/examples/sample-cards/renderer.mjs";
+import cardsType from "../src/core/kits/block/sample-cards/type.json" with {type: "json"};
+import cardsEditor from "../src/core/kits/block/sample-cards/editor.json" with {type: "json"};
+import renderCards from "../src/core/kits/block/sample-cards/renderer.mjs";
 
 const t = (value) => [{type: "text", value}];
 const DOC = {schema: "simai.composition.document", schema_version: 1};
