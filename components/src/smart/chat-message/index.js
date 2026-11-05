@@ -374,6 +374,25 @@ class SfChatMessage extends ChatMessageElement {
         pending?.(result);
     }
 
+    /**
+     * Bring a card's field into view and give it the focus (1.7.0): what a
+     * document lacks names it by the card (form_block) and the field's key.
+     * Answers whether the card is on this message.
+     */
+    focusField(blockId, key) {
+        const entry = this._blocks.get(String(blockId ?? ""));
+        if (!entry?.node?.isConnected) return false;
+        const reduce = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        const field = key == null ? null : entry.view.querySelector(`.sf-property-view-field[data-field="${CSS.escape(String(key))}"]`);
+        (field ?? entry.node).scrollIntoView({block: "center", behavior: reduce ? "auto" : "smooth"});
+        if (!field) return true;
+        field.setAttribute("data-sought", "");
+        setTimeout(() => field.removeAttribute("data-sought"), 1600);
+        const control = field.querySelector("input:not([type=hidden]):not([disabled]), textarea:not([disabled]), select:not([disabled]), [contenteditable=true], button:not([disabled]), [tabindex]:not([tabindex='-1'])");
+        control?.focus({preventScroll: true});
+        return true;
+    }
+
     // --- what a person does -------------------------------------------------
 
     /** The view's 0.3 actions as the element's events. */
@@ -414,6 +433,12 @@ class SfChatMessage extends ChatMessageElement {
             // answer goes back to the view (false: taken).
             case "preview":
                 return this.sfEmit("open", {id, kind: "preview", source: detail.source}, {cancelable: true});
+            // A document's strip (x-blocks, 1.7.0): the host opens its panel.
+            case "document":
+                return this.sfEmit("open", {id, kind: "document", document: detail.document}, {cancelable: true});
+            case "field":
+                this.focusField(detail.block, detail.field);
+                return;
             case "copy":
                 this.sfEmit("copied", {id, done: Boolean(detail.done)});
                 return;

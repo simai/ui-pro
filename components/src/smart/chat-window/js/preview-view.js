@@ -24,8 +24,16 @@
 // text. A PDF is the browser's viewer in a frame of the same origin (at its
 // {page}); anything else is offered in a new tab. sf-file-preview (the Framework's file row: an icon,
 // a name, download and remove) shows no content, so it is not used here.
+//
+// A document (1.12.0, x-blocks; BLOCKS.md §3) is shown here too: the
+// engine's page from preview_url in a frame of the same origin that runs
+// nothing (sandbox without scripts; the host's CSP allows its own styles
+// only), so it reads as the paper it is. What is still to fill in is the
+// engine's <mark data-field>; a press on one brings the form card's field
+// (the window's focusDocumentField). A new revision of the open document
+// reloads the frame where it was read.
 import {iconButton, iconNode, text, textButton} from '../../chat-message/js/view/message.js';
-import {previewTarget} from '../../chat-message/js/view/proposed.js';
+import {previewTarget, sameOriginHref} from '../../chat-message/js/view/proposed.js';
 
 let views = 0;
 
@@ -103,6 +111,83 @@ export class PreviewView {
     return this;
   }
 
+  /** Where the open document's frame was read, or null. */
+  frameScroll() {
+    try { return this.frame?.contentWindow?.scrollY ?? null; } catch { return null; }
+  }
+
+  // The document's page: the engine's own look, nothing run. Downloads above it.
+  loadDocument() {
+    const target = this.source;
+    const ticket = ++this.loading;
+    const doc = this.ctx.document;
+    const keep = this.keepScroll;
+    this.body.setAttribute('aria-busy', 'true');
+    const parts = [];
+    if (target.downloads.length || target.missing.length) {
+      const bar = doc.createElement('div');
+      bar.className = 'chat-preview__bar';
+      if (target.missing.length) bar.append(text(this.ctx, 'p', 'chat-preview__hint', this.words('document.hint')));
+      for (const one of target.downloads) {
+        const link = doc.createElement('a');
+        link.className = 'sf-button sf-button--size-1/2 sf-button--outline sf-button--primary flex items-cross-center content-main-center chat-preview__download';
+        link.href = one.href;
+        link.setAttribute('download', '');
+        link.dataset.format = one.format;
+        link.append(iconNode(this.ctx, 'download', '', '1'), text(this.ctx, 'span', 'sf-button-text-container', one.label));
+        bar.append(link);
+      }
+      parts.push(bar);
+    }
+    const frame = doc.createElement('iframe');
+    frame.className = 'chat-preview__frame chat-preview__frame--document';
+    frame.title = target.title || this.words('document.untitled');
+    // Its own origin, so its marks can be pressed; never its scripts.
+    frame.setAttribute('sandbox', 'allow-same-origin');
+    frame.setAttribute('referrerpolicy', 'same-origin');
+    frame.addEventListener('load', () => {
+      if (ticket !== this.loading || !this.open) return;
+      this.body.setAttribute('aria-busy', 'false');
+      this.wireMarks(frame, target);
+      if (keep) { try { frame.contentWindow.scrollTo(0, keep); } catch { /* a page that is not ours */ } }
+    }, { once: true });
+    frame.src = target.preview_url;
+    parts.push(frame);
+    this.frame = frame;
+    this.body.replaceChildren(...parts);
+    this.say(this.words('document.opened', { title: this.title.textContent }));
+  }
+
+  // The engine's <mark data-field>: what is still to fill in, each a press
+  // (and a key) that brings the form card's field.
+  wireMarks(frame, target) {
+    let inner = null;
+    try { inner = frame.contentDocument; } catch { inner = null; }
+    if (!inner?.body) return;
+    const style = inner.createElement('style');
+    style.textContent = 'mark[data-field]{cursor:pointer}mark[data-field]:hover{box-shadow:0 0 0 2px #e0b400}mark[data-field]:focus-visible{outline:2px solid #1a5fd0;outline-offset:2px}';
+    inner.head?.append(style);
+    const labels = new Map(target.missing.map((one) => [one.field, one]));
+    for (const mark of inner.querySelectorAll('mark[data-field]')) {
+      const key = mark.getAttribute('data-field');
+      if (!key) continue;
+      const known = labels.get(key);
+      mark.tabIndex = 0;
+      mark.setAttribute('role', 'button');
+      mark.title = this.words('document.fillField', { label: known?.label || mark.textContent.trim() });
+    }
+    const go = (event) => {
+      const mark = event.target?.closest?.('mark[data-field]');
+      if (!mark) return;
+      if (event.type === 'keydown' && event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      const key = mark.getAttribute('data-field');
+      this.win.focusDocumentField(target, labels.get(key)?.block ?? target.form_block, key);
+    };
+    inner.addEventListener('click', go);
+    inner.addEventListener('keydown', go);
+  }
+
   say(value) {
     this.status.textContent = '';
     requestAnimationFrame(() => { this.status.textContent = value; });
@@ -111,6 +196,7 @@ export class PreviewView {
   /** The source as the panel shows it, or null for one it may not load. */
   targetOf(source) {
     if (!source || typeof source !== 'object') return null;
+    if (source.kind === 'document') return documentTarget(source, this.ctx.document);
     return previewTarget(source, {
       n: source.n ?? null, kind: source.kind || '', title: source.title || source.name || '', href: source.href || null,
     }, this.ctx.document);
@@ -118,7 +204,17 @@ export class PreviewView {
 
   /** Draw the source's head and load what it shows. */
   show(target) {
+    const same = target.kind === 'document' && this.source?.kind === 'document' && this.source.document_id === target.document_id;
+    this.keepScroll = same ? this.frameScroll() : null;
     this.source = target;
+    this.root.classList.toggle('chat-preview--document', target.kind === 'document');
+    if (target.kind === 'document') {
+      this.title.textContent = target.title || this.words('document.untitled');
+      this.meta.textContent = documentMeta(this.words, target);
+      this.meta.hidden = !this.meta.textContent;
+      this.tab.href = target.preview_url;
+      return this.loadDocument();
+    }
     this.title.textContent = target.title || this.words('preview.untitled');
     const kind = target.kind && ['base', 'my_base', 'web', 'file'].includes(target.kind) ? this.words(`preview.kind.${target.kind}`) : '';
     this.meta.textContent = [target.n != null ? this.words('preview.number', { n: target.n }) : '', kind].filter(Boolean).join(' · ');
@@ -247,6 +343,8 @@ export class PreviewView {
   clear() {
     this.loading++;
     this.source = null;
+    this.frame = null;
+    this.root.classList.remove('chat-preview--document');
     this.body.replaceChildren();
     this.title.textContent = '';
     this.meta.textContent = '';
@@ -309,3 +407,40 @@ export function takeSentinels(root, doc) {
   }
   return from !== null && to !== null && to > from ? { from, to } : null;
 }
+
+// --- a document's target (1.12.0) ------------------------------------------
+
+const DOC_STATES = new Set(['draft', 'ready', 'saved']);
+const line = (value) => (typeof value === 'string' ? value.trim() : '');
+
+/** A document (the message's documentOf, with its message) as the panel shows it, or null. */
+export function documentTarget(source, documentRef) {
+  const url = sameOrigin(source.preview_url, documentRef);
+  if (!url || !line(String(source.document_id ?? ''))) return null;
+  return {
+    kind: 'document',
+    id: String(source.id ?? source.document_id),
+    message_id: source.message_id == null ? null : String(source.message_id),
+    document_id: String(source.document_id),
+    title: line(source.title),
+    revision: source.revision ?? null,
+    state: DOC_STATES.has(source.state) ? source.state : 'draft',
+    preview_url: url,
+    form_block: source.form_block == null ? null : String(source.form_block),
+    downloads: (Array.isArray(source.downloads) ? source.downloads : [])
+      .map((one) => ({ format: line(one?.format), label: line(one?.label) || line(one?.format).toUpperCase(), href: sameOrigin(one?.href ?? one?.url, documentRef) }))
+      .filter((one) => one.href && one.label),
+    missing: (Array.isArray(source.missing) ? source.missing : [])
+      .filter((one) => line(one?.field))
+      .map((one) => ({ field: line(one.field), label: line(one.label) || line(one.field), block: one.block == null ? null : String(one.block) })),
+  };
+}
+
+/** «Черновик · 2 поля не заполнены» */
+export function documentMeta(words, target) {
+  const state = words(`document.${target.state}`);
+  const missing = target.missing.length ? words('document.missing', { count: target.missing.length, n: target.missing.length }) : '';
+  return [state, missing].filter(Boolean).join(' · ');
+}
+
+const sameOrigin = (value, documentRef) => sameOriginHref(value, documentRef);

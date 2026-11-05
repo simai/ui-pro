@@ -555,6 +555,33 @@
     border: 0;
   }
 
+  /* A document (1.12.0): the engine's page fills the panel edge to edge. */
+  .chat-preview--document .chat-preview__body {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .chat-preview__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-space-1\/3) var(--sf-space-1\/2);
+    padding: var(--sf-space-1\/3) var(--sf-space-1\/2);
+    border-block-end: 1px solid var(--sf-outline-variant);
+  }
+
+  .chat-preview__hint {
+    flex: 1 1 14em;
+    margin: 0;
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-label-medium--size);
+    line-height: var(--sf-label-medium--height);
+  }
+
+  .chat-preview__download { text-decoration: none; margin-inline-start: auto; }
+
+  .chat-preview__frame--document { min-block-size: 0; }
+
   @media (forced-colors: active) {
     .chat-preview__mark { background: Mark; color: MarkText; }
   }

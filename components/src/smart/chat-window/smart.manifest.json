@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -1407,7 +1407,7 @@
   },
   "events": {
     "sf-chat-window-open": {
-      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. Or a group's members asked for (1.4.0, x-members members.list {conversation_id}, kind members; no former name). The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01. Or a message's discussion (x-threads thread.open, kind thread).",
+      "summary": "A conversation opened from the list (port conversation.open {conversation_id}, kind conversation), the archive or the current list shown (x-archive-view conversations.view {archived}, kind list), or «Мои файлы» asked for (x-my-files files.list, kind files), or a source's preview about to open beside the conversation (1.2.0: kind preview, intent preview.open, payload {source}; the window's own, nothing is raised to the host; cancel it to keep the preview closed, and the footnote then opens the sources list). Was chat-port:open, chat-window:view, chat-window:files. Or a group's members asked for (1.4.0, x-members members.list {conversation_id}, kind members; no former name). The 0.3 chat-port:open, chat-window:view, chat-window:files {request_id, ...payload} follow it until 2026-12-01. Or a message's discussion (x-threads thread.open, kind thread). A document about to open in the same panel (1.12.0, x-blocks): kind document, intent document.open, payload {document}.",
       "payload": {
         "type": "object",
         "required": [
@@ -2608,16 +2608,23 @@
         "changes": [
           "x-blocks: an answer's cards (message.blocks of kind card) are drawn and saved in place; the host answers block.submit. Additive: without the capability nothing changes."
         ]
+      },
+      {
+        "from": "1.11.0",
+        "to": "1.12.0",
+        "changes": [
+          "x-blocks: a document (message.blocks of kind document) opens in the preview panel from its preview_url, in a frame that runs nothing; a place still to fill in brings the form card's field (focusDocumentField); a new revision of the open document reloads it where it was read. block.submit's result may carry the whole message, which replaces the drawn one. Additive."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "8dc443c9e030c8a879f81a9d921db9a5f3ba0733",
+    "source_revision": "a83916795ff3c7fcb3743d0c02dcdf1f1657e76f",
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "16737ac7c6831e1bb1f0bec849c577e15f8139939a2fae3925e5120585a7531f"
+        "sha256": "f14f6f324f994d8a366e06b86ce70a2700e731ad0dd793d04c12fe65345893d2"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2633,7 +2640,7 @@
       },
       {
         "path": "src/smart/chat-window/js/preview-view.js",
-        "sha256": "34650605ac6ba15f057d411502207bcbc8a3ca867e791da673b84ba417adb612"
+        "sha256": "9aef05457379a1c58567d99e95c97971a297b564c3772a548b13d4e5f8ebaf18"
       },
       {
         "path": "src/smart/chat-window/js/people.js",
@@ -2661,7 +2668,7 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "194bfd84044943df59281bd404bde1ff6b7f8bbc83fc5c612b4767b13e77b510"
+        "sha256": "e38b3c53aabd51970905671eb4eba0236ab9eb73cfa26195b37667c8244e847a"
       },
       {
         "path": "src/smart/chat-window/rule.js",
@@ -2669,11 +2676,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "1a8cb82fe7739e8bbc83319db104c63f883100139d4b73b2050238b7532f7bde"
+        "sha256": "34f727cbcb5e027d51ccabdeafb787ab998e7d179218d0bd204ddd23b0bd6ad1"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "13aefee9ef298964e879a9a18b8c486dde6b7abb16220995ae695f2172334648"
+        "sha256": "9fbfd94fd3aa76baa35a28b9c11dff3ad873d90258029a4d0a308777ccf2ad51"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2681,11 +2688,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "a25b9a7138fccdabbb7df8371ad44468dd5e073809213b8c2996c65db4c50124"
+        "sha256": "63241a90c9b2a2783749293b425499940f0c2769c45b830858a47f4524de693e"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "07657e82a34d567078cbf8c42e37525519f71f36246e45a33f34bc77f3b4edcd"
+        "sha256": "e16e72d663b62e1c177a60f380118335651c64b5924349c9697cbfc6ec2c3504"
       }
     ],
     "generated_runtime": []

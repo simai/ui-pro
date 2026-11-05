@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-message",
   "tag": "sf-chat-message",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -121,7 +121,8 @@
           "values": [
             "preview",
             "quote",
-            "thread"
+            "thread",
+            "document"
           ]
         },
         "source": {
@@ -133,11 +134,16 @@
           "type": "id",
           "optional": true,
           "summary": "kind quote: the id of the message the quote leads to."
+        },
+        "document": {
+          "type": "object",
+          "optional": true,
+          "summary": "kind document (1.7.0): {id, document_id, title, revision, state, preview_url, downloads [{format, label, href}], form_block, missing [{field, label, block}], checks}, as js/blocks.js documentOf reads the block; addresses are the page's own."
         }
       },
       "cancelable": true,
-      "x-summary": "A source's footnote or title, or an answer's file «Просмотр», asks for its preview (API.md v1.3, proposed: preview_url): {id, kind: preview, source}. A host that shows it (sf-chat-window's panel) cancels the event; not cancelled, a footnote opens the sources list on its source as before and a file opens its preview in a new tab. Without preview_url nothing is asked (1.1.0). A press on a quote (1.4.0): {id, kind: quote, target}; a host that shows the original cancels it. A message's discussion (1.5.0, sf-chat-window's x-threads): «Обсудить» in «⋯» or «N ответов» under the message, {id, kind: thread}; the host opens the discussion and cancels it.",
-      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}. A message's discussion asked for: {id, kind: thread}."
+      "x-summary": "A source's footnote or title, or an answer's file «Просмотр», asks for its preview (API.md v1.3, proposed: preview_url): {id, kind: preview, source}. A host that shows it (sf-chat-window's panel) cancels the event; not cancelled, a footnote opens the sources list on its source as before and a file opens its preview in a new tab. Without preview_url nothing is asked (1.1.0). A press on a quote (1.4.0): {id, kind: quote, target}; a host that shows the original cancels it. A message's discussion (1.5.0, sf-chat-window's x-threads): «Обсудить» in «⋯» or «N ответов» under the message, {id, kind: thread}; the host opens the discussion and cancels it. A document's «Открыть» (1.7.0, x-blocks): {id, kind: document, document}; a host that shows it cancels it, otherwise its preview opens in a new tab.",
+      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}. A message's discussion asked for: {id, kind: thread}. A document's «Открыть»: {id, kind: document, document}."
     },
     "copied": {
       "carries": {
@@ -708,6 +714,13 @@
           "changes": [
             "An answer's cards (x-blocks; Mirai24 API v1.4, BLOCKS.md §2): message.blocks of kind card drawn under the answer as sf-view-properties in full, view or edit, with the block's own «Сохранить» and «Не сейчас»; a save or cancel is sf-chat-message-submit {kind: block}, answered through settleBlock. features.blocks is off unless given, so a host without it draws as before."
           ]
+        },
+        {
+          "from": "1.6.0",
+          "to": "1.7.0",
+          "changes": [
+            "x-blocks: a document is drawn as a strip under the answer (name, what is left to fill in, «Открыть», downloads); open {kind: document} asks the host's panel; a missing field brings the form card's field (focusField). A saved card with the host's «Изменить» stays editable. Additive."
+          ]
         }
       ]
     },
@@ -725,6 +738,28 @@
         ],
         "returns": {
           "type": "null"
+        }
+      },
+      "focusField": {
+        "summary": "Bring a card's field into view with the focus (x-blocks, 1.7.0): what a document lacks names it by the card's block id and the field's key. Answers whether the card is on this message.",
+        "arguments": [
+          {
+            "name": "blockId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "returns": {
+          "type": "boolean"
         }
       },
       "settleBlock": {

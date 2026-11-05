@@ -159,7 +159,20 @@
     "block-closed": "Карточка больше не принимает ввод",
     "block-conflict": "Запись изменилась: проверьте значения и сохраните ещё раз",
     "block-failed": "Не удалось сохранить. Попробуйте ещё раз",
-    "block-busy": "Сохранение уже идёт"
+    "block-busy": "Сохранение уже идёт",
+    "document-draft": "Черновик",
+    "document-fill": "Заполнить:",
+    "document-missing": {
+      "one": "{n} поле не заполнено",
+      "few": "{n} поля не заполнены",
+      "many": "{n} полей не заполнено",
+      "other": "{n} поля не заполнено"
+    },
+    "document-more": "и ещё {n}",
+    "document-open": "Открыть",
+    "document-ready": "Всё заполнено",
+    "document-saved": "Сохранён в документах",
+    "document-untitled": "Документ"
   },
   "events": {
     "drafted": {

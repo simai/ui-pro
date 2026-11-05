@@ -109,7 +109,7 @@
 | `display.document` | документ без пузыря на всю колонку, копирование и оценка видны всегда. `display.showAuthor: false` — без знака и имени (один на один). |
 | `display.canReact`, `canReply` | кнопки «Реакция» и «Ответить»; у `person` «Изменить» и «Удалить» тогда уходят в «⋯». Без обоих — прежние две кнопки. |
 | `display.replies`, `canDiscuss` | 1.5.0: «N ответов» под сообщением (число больше нуля) и «Обсудить» в «⋯»; оба — `open {id, kind: thread}`. Без них сообщение прежнее. |
-| `message.blocks`, `features.blocks` | 1.6.0: карточки ответа (`kind: card`) как `sf-view-properties` прямо в ответе; сохранение и отмена — `submit {id, kind: block, block_id, action, revision, values}`, ответ окна — метод `settleBlock(blockId, result)`. Без `features.blocks` блоки не рисуются. |
+| `message.blocks`, `features.blocks` | 1.6.0: карточки ответа (`kind: card`) как `sf-view-properties` прямо в ответе; сохранение и отмена — `submit {id, kind: block, block_id, action, revision, values}`, ответ окна — метод `settleBlock(blockId, result)`. Без `features.blocks` блоки не рисуются. 1.7.0: документ (`kind: document`) — плашка под ответом с «Открыть» (`open {kind: document, document}`), скачиваниями и списком «Заполнить:», который ведёт к полю анкеты (`focusField(blockId, key)`). |
 | `display.reacting` | эмодзи в пути: пилюля ждёт, второго нажатия нет. |
 | `display.picker` | открыт выбор из шести; закрытие и открытие — `toggle {kind: react, open, quiet?}`. |
 | `display.replyLoaded: false`, `replyDeleted` | оригинала нет в ленте: подсказка, ничего не двигается; он удалён: «Сообщение удалено». |
@@ -232,5 +232,7 @@ Escape — отмена; вопрос об удалении ставит фок�
 1.5.0: обсуждение сообщения (`sf-chat-window`, `x-threads`): `display.replies` и `display.canDiscuss`, событие `open {kind: thread}`. Без этих полей сообщение прежнее.
 
 1.6.0: карточка записи в ответе (`x-blocks`): `message.blocks`, `features.blocks`, событие `submit {kind: block}`, метод `settleBlock`. Без `features.blocks` сообщение прежнее.
+
+1.7.0: документ в ответе (`x-blocks`): плашка блока `kind: document`, событие `open {kind: document}`, метод `focusField`; сохранённая карточка с «Изменить» хоста остаётся доступной для правки.
 
 1.4.1: инициалы приглушённым тоном по имени (`tone="auto"`, sf-avatar 1.2.0).
