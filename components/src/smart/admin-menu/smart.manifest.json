@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.6.8",
+  "version": "1.7.0",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -288,6 +288,10 @@
       "recent-results": {
         "type": "array",
         "default": []
+      },
+      "first-answer": {
+        "type": "object",
+        "description": "The host's first navigation.load answer printed with the page (the data-sf-settings island). With source port the menu is drawn from it at once, with no skeleton; the port answers behind it."
       }
     },
     "additionalProperties": false
@@ -1283,6 +1287,15 @@
         "changes": [
           "The icon choices of the edit panel are read from the view properties folder, view-properties since rename plan R2 (was property-view). No visible change."
         ]
+      },
+      {
+        "from": "1.6.8",
+        "to": "1.7.0",
+        "changes": [
+          "The second column follows the page: it shows the page's object menu (navigation.context) or the root that holds the page's row, and is closed on a page that has neither; it no longer shows the root left open on another page. A root clicked in the first column is shown until a page is opened. Whether the column is open is kept once for the person, not per site.",
+          "navigation.load carries `page`, the page's path and query, and is asked again after a region swap; a host answers `context`, the object menu of that page, or leaves it out.",
+          "New setting first-answer: a server prints the first navigation.load answer in the menu's data-sf-settings island and the menu is drawn from it at once, without a skeleton; the port answers behind it."
+        ]
       }
     ]
   },
@@ -1292,7 +1305,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
-        "sha256": "62a12fbe82415383f64ca6815803c396eb31fc21aeacb3718508fa8b4f6af0d9"
+        "sha256": "accf3d9c948fabcc511382f9e0c1c27644a821b05faed5cebb158021ceed6629"
       },
       {
         "path": "src/smart/admin-menu/js/templates/default.js",
@@ -1300,11 +1313,11 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
-        "sha256": "16f81f101e94a0177c4149d52dc9fd1db1b3ce18fad93bc2eac10ad18fb8fd6e"
+        "sha256": "a1379f829cc1fc503d24f80b528734fe1da820991785a1e2c61f10120acf5718"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
-        "sha256": "1ae48e1ef503d31a1f97bff0dfee98cf2aa33262a8762862539f599ac43bf5e1"
+        "sha256": "3801c2154c94cd43b00dfcb8e5074b961c9b74432c528630dd784fa6d38db35b"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/palette.js",
@@ -1320,7 +1333,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
-        "sha256": "4a7353d40e89bc6d8c0d9b9397543986a48dc0f56ba699a1f39e9957e65046db"
+        "sha256": "bb74c66140ac61ff1146297791ba5277e0bedb1ad8ea9127652fedac8e806bf5"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",
@@ -1332,7 +1345,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "55c2134e54fbbb380100e72f5d66fb15ee9705f2bc7f8c3a7e4f575a190f46d0"
+        "sha256": "f27d6dc7fb83738e50161a1d7710ce52b0d8bd6ff2283dd7572cbb55566b8a0a"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",
@@ -1340,11 +1353,11 @@
       },
       {
         "path": "src/smart/admin-menu/lang/en.json",
-        "sha256": "d0ac7d8b4c74c9f793d002bb1a155d33981fcac768c4aed8e98698487d6f7035"
+        "sha256": "c38a89e9e8af685469222342e493e7b2c6d7bac291d92a29720d1f24e561da96"
       },
       {
         "path": "src/smart/admin-menu/lang/ru.json",
-        "sha256": "95f6f6f5bf6861d3495d329c38a52d7e4678a3bffcae03ce8e43501ea0321197"
+        "sha256": "1d614841239a5cee9f71962ea483437260df40e1000660a771c2bc1b31ea77e2"
       },
       {
         "path": "src/smart/admin-menu/js/words.js",

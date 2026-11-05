@@ -326,9 +326,16 @@ class SfAdminMenu extends AdminMenuElement {
         // Reconnected after a move: the port is kept, the controller that
         // listened on the document is not.
         if (this.hostPort && !this._navigation) this._navigation = new NavigationController(this, this.hostPort);
+        // The host's first answer printed with the page (first-answer): the
+        // menu is drawn from it at once, with no skeleton, before any port;
+        // the port, when it comes, answers behind it.
+        if (!this._navigation && this._firstAnswer && this.getAttribute("source") === "port") {
+            this._navigation = new NavigationController(this, null);
+        }
         if (this._navigation) {
+            this._takeFirstAnswer();
             super.connectedCallback();
-            this._navigation.load("connected");
+            if (this._navigation.port) this._navigation.load("connected");
             return;
         }
         // Entries from the port the host has not connected yet: the menu is
@@ -2347,6 +2354,31 @@ class SfAdminMenu extends AdminMenuElement {
         });
     }
 
+    // The host's first answer printed with the page (setting first-answer, in
+    // the element's data-sf-settings island): navigation.load's applied data,
+    // optionally with `capabilities` (the port's, known before the port) and
+    // `context` (the object menu of this page). Drawn at once, as if the host
+    // had answered; the port's answer to navigation.load replaces it. Taken
+    // once: a later answer is the port's.
+    get firstAnswer() { return this._firstAnswer ?? null; }
+
+    set firstAnswer(data) {
+        this._firstAnswer = data && typeof data === "object" && !Array.isArray(data) && Array.isArray(data.items)
+            ? JSON.parse(JSON.stringify(data))
+            : null;
+        // Set after the menu connected: drawn now, if nothing has answered.
+        if (!this.isConnected || !this._firstAnswer || this.getAttribute("source") !== "port") return;
+        if (!this._navigation) this._navigation = new NavigationController(this, this.hostPort ?? null);
+        if (this._takeFirstAnswer()) this.requestComponentUpdate("navigation-first-answer");
+    }
+
+    _takeFirstAnswer() {
+        const data = this._firstAnswer;
+        if (!data || !this._navigation) return false;
+        this._firstAnswer = null;
+        return this._navigation.acceptFirstAnswer(data);
+    }
+
     get awaitsNavigationPort() {
         return !this._navigation && this.getAttribute("source") === "port";
     }
@@ -2470,8 +2502,16 @@ class SfAdminMenu extends AdminMenuElement {
             );
         }
         const wasConnected = this.isConnected;
-        this._navigation?.dispose();
         this.hostPort = host;
+        // Drawn from the page's first answer and waiting for its port: the
+        // same menu takes it and asks the host, keeping where the person is.
+        if (this._navigation && !this._navigation.port) {
+            this._navigation.port = host;
+            if (wasConnected && !this._answeringRequest) this._navigation.load("host-connected");
+            this.requestComponentUpdate("navigation-port");
+            return;
+        }
+        this._navigation?.dispose();
         this._navigation = new NavigationController(this, host);
         // A port given after connecting replaces the `items` menu that was
         // drawn meanwhile; its listeners go with it.

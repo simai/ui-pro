@@ -9,8 +9,11 @@
 //   heading, focus on it; the menu stays the same element;
 // - the menu's current row follows the address, on Back too;
 // - a link inside the region goes the same way;
-// - an open second column follows the page to another root, and a closed
-//   one stays closed (Larena, 2026-10-16).
+// - the menu asks the host again after each swap, with the page's address
+//   (navigation.load `page`), and the host answers the row that page is;
+// - the second column follows the page to another root -- a root clicked
+//   before is not kept -- and a closed one stays closed (Larena, 2026-10-16;
+//   owner, 2026-11-05).
 import {resolve, join} from 'node:path';
 import {existsSync, readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
@@ -71,6 +74,8 @@ await context.route('http://probe.test/**', (route) => {
     <main id="larena-admin-content" style="flex:1"><!--larena-region:content-->${entry.html}<!--/larena-region:content--></main></div><script src="/distr/core/js/core.js"></script></body></html>`});
 });
 
+// The row each page is, as a host that is told the page answers it.
+const CURRENT = {'/admin/cms': 'cms', '/admin/files': 'files', '/admin/settings/sites': 'sites', '/admin/notifications': null};
 const NAVIGATION = {
   answer: 'applied', revision: '1', current: 'cms',
   items: [
@@ -96,18 +101,23 @@ try {
   await page.waitForFunction(() => window.SF?.RegionNavigation, null, {timeout: 8000});
   for (const path of modules.filter((one) => !one.endsWith('core/core/js/core.js'))) await page.addScriptTag({path, type: 'module'}).catch(() => {});
   await page.waitForFunction(() => customElements.get('sf-admin-menu'), null, {timeout: 8000});
-  await page.evaluate((navigation) => {
+  await page.evaluate(([navigation, current]) => {
     window.__marker = 'same document';
     window.__menu = document.getElementById('m');
+    window.__pages = [];
     window.__menu.setHostPort({
       port: 'simai.admin-navigation-port', version: '1.0.0', capabilities: [],
       async raise(intent, payload) {
-        if (intent === 'navigation.load') return structuredClone(navigation);
+        if (intent === 'navigation.load') {
+          window.__pages.push(payload.page);
+          const path = new URL(payload.page ?? '/', location.href).pathname;
+          return structuredClone({...navigation, current: path in current ? current[path] : navigation.current});
+        }
         if (intent === 'item.open') return {answer: 'applied', href: payload.href};
         return {answer: 'applied'};
       },
     });
-  }, NAVIGATION);
+  }, [NAVIGATION, CURRENT]);
   await page.waitForTimeout(900);
   const look = () => page.evaluate(() => {
     const current = document.querySelector('#m .sf-admin-nav-row[aria-current="page"]');
@@ -147,12 +157,20 @@ try {
     marked: document.querySelector('#m .sf-admin-nav-bottom a.sf-admin-nav-row[aria-current="page"]')?.textContent.includes('Уведомления') ?? false}));
   if (notices.path !== '/admin/notifications' || notices.marker !== 'same document' || notices.heading !== 'Уведомления' || !notices.marked) note({case: '«Уведомления» goes by region and is marked', got: notices});
   if (regionRequests.length !== 4) note({case: 'one region request per move', got: regionRequests});
-  // The second column: open on «Данные», then a page of «Настройки».
+  const asked = await page.evaluate(() => window.__pages.slice());
+  if (!asked.includes('/admin/files') || !asked.includes('/admin/notifications')) note({case: 'each swap asks the menu again with the page\'s address', got: asked});
+  // The second column: «Данные» clicked open on a page of «Данные», then a
+  // page of «Настройки»; and closed by the person, then another page.
   const column = async (open) => {
-    await page.evaluate((key) => { const nav = window.__menu._navigation; nav.openRoot = key; nav.update('root'); }, open);
+    await page.evaluate((key) => {
+      const nav = window.__menu._navigation;
+      nav.openRoot = key;
+      nav.setColumnOpen(Boolean(key));
+      nav.update('root');
+    }, open);
     await page.evaluate(() => window.SF.RegionNavigation.navigate('/admin/settings/sites'));
     await page.waitForTimeout(600);
-    const shown = await page.evaluate(() => window.__menu._navigation.openRoot);
+    const shown = await page.evaluate(() => window.__menu._navigation.shownColumn());
     await page.evaluate(() => window.SF.RegionNavigation.navigate('/admin/cms'));
     await page.waitForTimeout(600);
     return shown;
@@ -160,7 +178,7 @@ try {
   const followed = await column('data');
   const stayedClosed = await column(null);
   if (followed !== 'settings' || stayedClosed !== null) note({case: 'an open column follows the page to its root; a closed one stays closed', got: {followed, stayedClosed}});
-  console.log(JSON.stringify({first, files, back, linked, regionRequests, followed, stayedClosed}));
+  console.log(JSON.stringify({first, files, back, linked, regionRequests, asked, followed, stayedClosed}));
 } finally {
   await browser.close();
 }

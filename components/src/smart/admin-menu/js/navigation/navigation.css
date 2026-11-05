@@ -113,6 +113,25 @@
     }
   }
 
+  /* A menu the server printed drawn (first-answer, snapshot data-wide="true"):
+     on a phone, before the code, it is the screen the code will show -- the
+     object menu when the page has one, else the first column -- the whole
+     width, so the box does not change when the code adopts it. */
+  @media not all and (min-width: 48rem) {
+    .sf-admin-nav[data-sf-static][data-wide="true"] {
+      inline-size: 100%;
+    }
+    .sf-admin-nav[data-sf-static][data-wide="true"] > .sf-admin-nav-first,
+    .sf-admin-nav[data-sf-static][data-wide="true"] > .sf-admin-nav-second {
+      inline-size: 100%;
+      border-inline-end: 0;
+    }
+    .sf-admin-nav[data-sf-static][data-wide="true"]:has(> .sf-admin-nav-second[data-object="true"]) > .sf-admin-nav-first,
+    .sf-admin-nav[data-sf-static][data-wide="true"]:not(:has(> .sf-admin-nav-second[data-object="true"])) > .sf-admin-nav-second {
+      display: none;
+    }
+  }
+
   /* On a phone each column is a whole screen. */
   .sf-admin-nav[data-wide="false"] {
     inline-size: 100%;
@@ -575,6 +594,42 @@
      worth noticing, so the two cannot be mistaken for each other. */
   .sf-admin-nav-second-caption[data-install="true"] {
     color: var(--sf-tertiary);
+  }
+
+  /* ─── the object menu (navigation.context) ──────────────────────────────── */
+
+  /* «← Все сайты» is a row of the column: the scroll box's inset around it and
+     the rows' own geometry, so its arrow stands on the axis of the rows' icons
+     under it. */
+  .sf-admin-nav-back {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    padding: var(--sf-admin-menu-padding, var(--sf-a4));
+    padding-block-end: 0;
+  }
+
+  .sf-admin-nav-back .sf-admin-nav-row-label {
+    font-weight: var(--sf-font-weight-regular);
+    color: var(--sf-on-surface-variant);
+  }
+
+  /* Under the object's title, its status and subtitle on one line: the status
+     is read whole, the subtitle gives way («…»). */
+  .sf-admin-nav-second-line {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    min-inline-size: 0;
+  }
+
+  .sf-admin-nav-second-line > .sf-admin-nav-second-caption {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+  }
+
+  .sf-admin-nav-show-column {
+    flex: none;
   }
 
   .sf-admin-nav-find {

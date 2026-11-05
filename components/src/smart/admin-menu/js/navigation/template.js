@@ -12,8 +12,11 @@ import {renderEditBanner, renderEditRoots, renderEditRows} from "./edit";
 //
 // First column: the site, the site's roots, the install apart from them, the
 // favourites, and at the bottom only «who am I» -- notifications and the person.
-// Second column: the open root's rows. There is no third: the page is the
-// third, in the host's own area (assignment, section 3).
+// Second column: what is about where the person is -- the menu of the object
+// the page shows (navigation.context), else the rows of the root that holds
+// the page -- or a root the person clicked, until they open a page. There is
+// no third: the page is the third, in the host's own area (assignment,
+// section 3), and never more than two menus are on screen (owner, 2026-11-05).
 
 const icon = (name, rootClass = "flex-none") => (name
     ? html`<sf-icon root-class=${rootClass} aria-hidden="true" icon=${name}></sf-icon>`
@@ -157,6 +160,7 @@ function renderBottom(context) {
         ${notifications ? renderNotifications(context, notifications) : nothing}
         <div class="sf-admin-nav-person-row">
             ${renderPersonButton(context)}
+            ${renderShowColumn(context)}
             ${renderCollapse(context)}
         </div>
     </div>`;
@@ -173,6 +177,18 @@ function renderCollapse(context) {
         aria-label=${compact ? text("expand") : text("collapse")}
         title=${compact ? text("expand") : text("collapse")}
         @click=${() => controller.toggleCompact()}></sf-button-icon>`;
+}
+
+// The second column closed by the person, on a page that has something for
+// it: a small button beside the fold opens it again on what the page has --
+// its object menu or its root. A root with no rows of its own and no object
+// menu has nothing to open, so nothing is drawn.
+function renderShowColumn(context) {
+    const {text, columnClosed, controller} = context;
+    if (!columnClosed) return nothing;
+    return html`<sf-button-icon class="sf-admin-nav-show-column" size="1/2" appearance="ghost" scheme="on-surface"
+        icon="left_panel_open" aria-label=${text("showColumn")} title=${text("showColumn")}
+        @click=${() => controller.showColumn()}></sf-button-icon>`;
 }
 
 // The columns are widened and narrowed by their edges (owner, 2026-10-14),
@@ -249,8 +265,75 @@ function renderRow(context, row, depth = 0) {
         .map((child) => renderRow(context, child, depth + 1))}</div>` : nothing}`;
 }
 
+// A row of the object menu: an ordinary link with its glyph, its name and,
+// when the host gives one, its badge on the right as a row's attention is.
+// No star and no ⋯: the object menu is the page's, not the person's.
+function renderObjectRow(context, item, current) {
+    const {controller} = context;
+    const badge = item.badge && typeof item.badge === "object" && item.badge.text
+        ? {attention: {tone: item.badge.status || "", label: String(item.badge.text)}}
+        : {};
+    return html`<div class="sf-admin-nav-item" data-depth="0">
+        <a class="sf-admin-nav-row" href=${item.href ?? "#"}
+            aria-current=${item.key === current ? "page" : nothing}
+            data-current=${item.key === current ? "true" : nothing}
+            @click=${(event) => controller.openObjectRow(item, event)}>
+            ${icon(item.icon, "sf-admin-nav-row-icon")}
+            <span class="sf-admin-nav-row-label">${item.label}</span>
+        </a>
+        ${attention(badge)}
+    </div>`;
+}
+
+// The object menu (navigation.context): «← back» to the list it came from,
+// the object's title, under it its status and subtitle, then its groups of
+// rows. The title has the column's whole width: a status beside it cut a
+// site's name to «demo-o…».
+// On a phone it is the screen the menu opens on, with a button to the first
+// screen beside the title.
+function renderObjectColumn(context, menu) {
+    const {controller, text, wide} = context;
+    const status = menu.status
+        ? html`<sf-badge class="sf-admin-nav-attention sf-admin-nav-object-status" appearance="tonal" size="1/3"
+            status=${menu.status.status || ""} text=${menu.status.text}></sf-badge>`
+        : nothing;
+    return html`<div class="sf-admin-nav-second" data-object="true" aria-label=${menu.title || nothing}>
+        ${menu.back ? html`<div class="sf-admin-nav-back">
+            <a class="sf-admin-nav-row" href=${menu.back.href}
+                @click=${(event) => controller.openObjectRow(menu.back, event, {back: true})}>
+                ${icon("arrow_back", "sf-admin-nav-row-icon")}
+                <span class="sf-admin-nav-row-label">${menu.back.label || text("back")}</span>
+            </a>
+        </div>` : nothing}
+        <div class="sf-admin-nav-second-head">
+            ${wide ? nothing : html`<sf-button-icon size="1/2" appearance="ghost" scheme="on-surface"
+                icon="menu" aria-label=${text("allSections")} title=${text("allSections")}
+                @click=${() => controller.back()}></sf-button-icon>`}
+            <div class="sf-admin-nav-second-title">
+                <span class="sf-admin-nav-second-label">${menu.title}</span>
+                ${menu.status || menu.subtitle ? html`<span class="sf-admin-nav-second-line">
+                    ${status}
+                    ${menu.subtitle ? html`<span class="sf-admin-nav-second-caption">${menu.subtitle}</span>` : nothing}
+                </span>` : nothing}
+            </div>
+            ${wide ? html`<sf-button-icon size="1/2" appearance="ghost" scheme="on-surface"
+                icon="left_panel_close" aria-label=${text("hideColumn")} title=${text("hideColumn")}
+                @click=${() => controller.hideColumn()}></sf-button-icon>` : nothing}
+        </div>
+        <div class="sf-admin-nav-scroll">
+            ${menu.groups.map((group, index) => html`
+                ${group.label
+                    ? html`<div class="sf-admin-nav-heading">${group.label}</div>`
+                    : index > 0 ? html`<hr class="sf-admin-nav-divider">` : nothing}
+                ${group.items.map((item) => renderObjectRow(context, item, menu.current))}`)}
+        </div>
+        ${renderResizer(context, "second")}
+    </div>`;
+}
+
 function renderSecondColumn(context) {
     const {controller, navigation, text, openRoot, filter, wide} = context;
+    if (context.objectMenu) return renderObjectColumn(context, context.objectMenu);
     if (!openRoot) return nothing;
     const install = openRoot.level === "install";
     const rows = controller.rowsOf(openRoot);

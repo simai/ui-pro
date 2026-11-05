@@ -23,13 +23,22 @@ test('the profile menu and the site switcher open as wide as their button', asyn
   assert.doesNotMatch(styles, /--sf-context-menu--min-inline-size: var\(--sf-f8\)/u);
 });
 
-test('on a wide screen the first answer opens the root that holds the current row', async () => {
+test('the second column follows the page, and whether it is open is the person\'s one choice', async () => {
+  // Owner, 2026-11-05 (Larena Panel audit): the second column is about where
+  // the person is -- the page's object menu, else the root that holds the
+  // page, else nothing; never the root left open on another page. Whether it
+  // is open is kept once for the person (2026-10-13: the menu must not jump).
   const controller = await read('src/smart/admin-menu/js/navigation/controller.js');
-  const accept = controller.match(/\n    accept\(answer, sequence\) \{([\s\S]*?)\n    \}\n/u)?.[1] ?? '';
-  assert.match(accept, /if \(first && this\.wide && !this\.openRoot && !answer\.person\?\.compact\)/u,
-    'only on the first answer, so a root the person closed stays closed on a re-read');
-  assert.match(accept, /this\.holdsCurrent\(root\)/u);
-  assert.match(accept, /root\.key !== answer\.current/u, 'a root that is itself the page has no column to open');
+  const shown = controller.match(/\n    shownColumn\(\) \{([\s\S]*?)\n    \}\n/u)?.[1] ?? '';
+  assert.match(shown, /if \(this\.wide && \(this\.compact \|\| !this\.columnOpen\)\) return null;/u, 'a closed column stays closed on every page');
+  assert.match(shown, /if \(this\.objectMenu\(\)\) return OBJECT_MENU;/u, 'the object menu comes before the root');
+  assert.match(shown, /return this\.pageRoot\(\)\?\.key \?\? null;/u, 'no page root: no column, never a foreign one');
+  const pageRoot = controller.match(/\n    pageRoot\(\) \{([\s\S]*?)\n    \}\n/u)?.[1] ?? '';
+  assert.match(pageRoot, /this\.holdsCurrent\(root\)/u);
+  assert.match(pageRoot, /root\.key !== current/u, 'a root that is itself the page has no column to open');
+  assert.match(pageRoot, /\(root\.children \?\? \[\]\)\.length > 0/u);
+  assert.doesNotMatch(controller, /rememberRoot|rememberedRoot|followCurrentRoot/u, 'no per-site memory of an open root');
+  assert.match(controller, /this\.keepPreference\(\{second: this\.columnOpen\}\)/u);
 });
 
 test('the theme is a row with a submenu, and the columns are widened by their edges', async () => {

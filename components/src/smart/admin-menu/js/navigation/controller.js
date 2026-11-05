@@ -10,10 +10,21 @@
 // goes when Larena has switched (owner, 2026-10-11).
 //
 // The host owns everything a person sees here -- sites, rows, profiles,
-// favourites, the person -- and this controller owns only where the person is:
-// which root is open, which section is unfolded, what they typed into «Найти в
-// разделе», whether the menu is on its rail. Every change leaves through the
-// port, and nothing the host said is kept past the next answer.
+// favourites, the person, the menu of the object a page shows -- and this
+// controller owns only where the person is: which root they are looking at,
+// which section is unfolded, what they typed into «Найти в разделе», whether
+// the second column is open and whether the menu is on its rail. Every change
+// leaves through the port, and nothing the host said is kept past the next
+// answer.
+//
+// Never more than two menus on screen, and the second is about where the
+// person is (owner, 2026-11-05, after the Larena Panel audit): the second
+// column shows the menu of the object the page shows (the answer's
+// `context`), else the root that holds the page's row, else nothing -- never
+// a root the person left open on another page. A root clicked in the first
+// column is shown until a page is opened; then the column follows the page
+// again. Whether the column is open at all is the person's one choice, kept
+// across pages (owner, 2026-10-13: the menu must not jump open or closed).
 import {closeMenu, openMenu, removeMenu, updateMenu} from "./menu";
 import {getInitials} from "../../../helpers/text";
 import {pageText} from "../../../../core/js/page-language";
@@ -60,6 +71,8 @@ export const NAVIGATION_TEXT = wordsOf({
     collapse: "collapse",
     expand: "expand",
     hideColumn: "hide-column",
+    showColumn: "show-column",
+    allSections: "all-sections",
     back: "back",
     allSites: "all-sites",
     findInSection: "find-in-section",
@@ -165,6 +178,52 @@ const preferences = () => globalThis.SF?.Preferences || BundledPreferences;
 const MENU_PREFERENCE = "sf-admin-menu/main";
 const FAVOURITES_ROOT = "sf:favourites";
 
+// The key the second column is shown under when it holds the page's object
+// menu (navigation.context) rather than a root of the tree.
+export const OBJECT_MENU = "sf:context";
+
+// The page's address as the host is told it (navigation.load `page`): the
+// path and the query, without the origin.
+function pageAddress(url = globalThis.location?.href) {
+    try {
+        const address = new URL(url, globalThis.location?.href);
+        return `${address.pathname}${address.search}`;
+    } catch {
+        return null;
+    }
+}
+
+// The menu of the object a page shows (navigation.context), or null: a title
+// and groups of rows, each row a link. Anything else the host sent is not a
+// menu and is not drawn.
+export function objectMenuOf(navigation) {
+    const context = navigation?.context;
+    if (!context || typeof context !== "object" || Array.isArray(context) || !Array.isArray(context.groups)) return null;
+    const groups = context.groups
+        .filter((group) => group && typeof group === "object" && Array.isArray(group.items))
+        .map((group) => ({
+            label: typeof group.label === "string" && group.label ? group.label : null,
+            items: group.items.filter((item) => item && typeof item === "object" && item.key && item.label),
+        }))
+        .filter((group) => group.items.length);
+    const back = context.back && typeof context.back === "object" && context.back.href
+        ? {label: String(context.back.label ?? ""), href: String(context.back.href)}
+        : null;
+    const status = typeof context.status === "string" && context.status
+        ? {text: context.status, status: null}
+        : context.status && typeof context.status === "object" && context.status.text
+            ? {text: String(context.status.text), status: context.status.status ? String(context.status.status) : null}
+            : null;
+    return {
+        title: String(context.title ?? ""),
+        subtitle: typeof context.subtitle === "string" && context.subtitle ? context.subtitle : null,
+        status,
+        back,
+        groups,
+        current: typeof context.current === "string" && context.current ? context.current : null,
+    };
+}
+
 // Larena's region contract (larena/admin, 2026-10-15): the shell's revision in
 // <meta name="larena-shell-revision">, the content region in
 // main#larena-admin-content, asked for with X-Larena-Region: content. Only
@@ -190,7 +249,12 @@ export class NavigationController {
         this.navigation = null;
         this.status = "loading";
         this.message = "";
+        // A root the person clicked in the first column, shown in the second
+        // until they open a page (and the root being edited in the edit mode).
         this.openRoot = null;
+        // Whether the second column is open: the person's one choice, on
+        // every page and every site (SF.Preferences, `second`).
+        this.columnOpen = this.keptColumnOpen();
         this.unfolded = new Set();
         this.filter = "";
         // Folded as the person left it, from the first paint: the host's answer
@@ -249,7 +313,13 @@ export class NavigationController {
         // the page is Larena's shell -- its revision in the head, its content
         // region in the body -- and keeps its current row on the address the
         // region went to, since the shell around it is not drawn again.
-        this._onRegionLoad = (event) => this.followAddress(event.detail?.url);
+        // The new page may show another object, or none: the host is asked for
+        // the menu again with its address, and its answer brings the page's
+        // object menu or takes it away.
+        this._onRegionLoad = (event) => {
+            this.followAddress(event.detail?.url);
+            if (this.port) this.load("requested", null, pageAddress(event.detail?.url));
+        };
         document.addEventListener("sf-region-load", this._onRegionLoad);
         enableRegionNavigation();
     }
@@ -285,32 +355,83 @@ export class NavigationController {
         // from the address, not from a row of the tree.
         // The row the page names (setting current) is not moved by the address.
         if (!this.element.pageCurrent && best && best.key !== this.navigation?.current) this.navigation = {...this.navigation, current: best.key};
-        this.followCurrentRoot();
+        // A row of the object menu at this address is current at once; the
+        // host's answer to the new page confirms it or takes the menu away.
+        const context = this.navigation?.context;
+        if (context && Array.isArray(context.groups)) {
+            let found = null;
+            for (const group of context.groups) {
+                for (const item of group?.items ?? []) {
+                    let target = null;
+                    try {
+                        target = item?.href ? new URL(item.href, globalThis.location.href).pathname : null;
+                    } catch {
+                        target = null;
+                    }
+                    if (target && (path === target || path.startsWith(`${target.replace(/\/$/u, "")}/`))
+                        && (!found || target.length > found.length)) found = {key: item.key, length: target.length};
+                }
+            }
+            if (found && found.key !== context.current) this.navigation = {...this.navigation, context: {...context, current: found.key}};
+        }
+        this.pageOpened();
         this.update("address");
     }
 
     // The page named the row it is on (setting current, stand 24 A1): it is
-    // current, and an open second column follows it as it follows the address.
+    // current, and the second column follows it as it follows the address.
     followPageCurrent() {
         const key = this.element.pageCurrent;
         if (!this.navigation || !key || key === this.navigation.current) return;
         this.navigation = {...this.navigation, current: key};
-        this.followCurrentRoot();
+        this.pageOpened();
         this.update("current");
     }
 
-    // An open second column shows the root that holds the page: on a page of
-    // «Настройки» it still showed «Данные», the root left open on another page
-    // (Larena, 2026-10-16). It switches; it never opens or closes by itself --
-    // a column the person closed stays closed (owner, 2026-10-13: the menu
-    // must not jump).
-    followCurrentRoot() {
-        if (!this.wide || !this.openRoot) return;
-        const holder = this.roots().find((root) => this.holdsCurrent(root)
-            && root.key !== this.navigation?.current && (root.children ?? []).length > 0);
-        if (!holder || holder.key === this.openRoot) return;
-        this.openRoot = holder.key;
-        this.rememberRoot(holder.key);
+    // A page was opened: a root the person was only looking at gives the
+    // column back to the page (owner, 2026-11-05). The edit mode keeps the
+    // root it edits.
+    pageOpened() {
+        if (this.edit?.on) return;
+        this.openRoot = null;
+        this.filter = "";
+        if (!this.wide) this.screen = this.objectMenu() ? "second" : "first";
+    }
+
+    // The root that holds the page's row and has rows of its own: the one the
+    // second column shows on this page when the page has no object menu.
+    // A root that is itself the page (no rows) has no column: the column is
+    // closed there, never another root's (owner, 2026-11-05).
+    pageRoot() {
+        const current = this.navigation?.current;
+        return this.roots().find((root) => root.kind === "root" && this.holdsCurrent(root)
+            && root.key !== current && (root.children ?? []).length > 0) ?? null;
+    }
+
+    // The page's object menu (navigation.context), drawn as it came; not in
+    // the edit mode, which edits the tree.
+    objectMenu() {
+        return this.edit?.on ? null : objectMenuOf(this.navigation);
+    }
+
+    // What the second column holds: the root the person clicked (or edits),
+    // else -- when the column is open and the menu is not on its rail -- the
+    // page's object menu, else the page's root; null: no second column.
+    // On a phone the second screen holds the same, whatever the column's
+    // choice on a wide screen.
+    shownColumn() {
+        if (this.openRoot) return this.openRoot;
+        if (this.edit?.on) return null;
+        if (this.wide && (this.compact || !this.columnOpen)) return null;
+        if (this.objectMenu()) return OBJECT_MENU;
+        return this.pageRoot()?.key ?? null;
+    }
+
+    // What the second column would hold if it were open: the button that
+    // opens it is drawn only when there is something to open.
+    pageColumn() {
+        if (this.objectMenu()) return OBJECT_MENU;
+        return this.pageRoot()?.key ?? null;
     }
 
     dispose() {
@@ -349,8 +470,22 @@ export class NavigationController {
         else input.removeAttribute("aria-activedescendant");
     }
 
+    // The port's capabilities; before the port, the ones the page printed
+    // with its first answer (first-answer.capabilities), so the first draw is
+    // the final one.
     offers(capability) {
-        return Boolean(this.port?.capabilities?.includes?.(capability));
+        const capabilities = this.port?.capabilities ?? this.printedCapabilities;
+        return Boolean(capabilities?.includes?.(capability));
+    }
+
+    // The host's first answer printed with the page (setting first-answer):
+    // drawn at once, as if the host had answered, with no skeleton; the port's
+    // answer to navigation.load replaces it. Taken only before any answer.
+    acceptFirstAnswer(data) {
+        if (this.navigation || !data || typeof data !== "object" || !Array.isArray(data.items)) return false;
+        if (Array.isArray(data.capabilities)) this.printedCapabilities = data.capabilities.map(String);
+        this.accept({...data, answer: "applied"}, this.sequence);
+        return true;
     }
 
     // A host that throws is a host that did not answer; a person sees the same
@@ -364,6 +499,9 @@ export class NavigationController {
         // until it has a verb here.
         const [verb, kind, fields] = INTENT_VERBS[intent] ?? ["refresh", String(intent).split(".")[0], () => ({})];
         this.element.sfEmit(verb, {kind, ...fields(payload ?? {}), intent, payload: copy(payload)});
+        // Drawn from the page's first answer before the host connected its
+        // port: there is no one to ask yet.
+        if (!this.port) return {answer: "unavailable", reason: "no-port"};
         try {
             const answer = await this.port.raise(intent, copy(payload), {});
             return answer && typeof answer === "object" ? answer : {answer: "unavailable"};
@@ -375,11 +513,13 @@ export class NavigationController {
     // The menu as the host sees it. An answer to an older request than the last
     // one sent is dropped by its echoed sequence: switching sites twice quickly
     // must not end on the first site's rows.
-    async load(reason = "connected", site = null) {
+    // `page` is the page's address (path and query): the host answers the
+    // menu of the object that page shows (navigation.context) or none.
+    async load(reason = "connected", site = null, page = pageAddress()) {
         const sequence = ++this.sequence;
         if (!this.navigation) this.status = "loading";
         this.update("loading");
-        const answer = await this.raise("navigation.load", {reason, site, sequence});
+        const answer = await this.raise("navigation.load", {reason, site, sequence, page});
         this.accept(answer, sequence);
     }
 
@@ -388,30 +528,20 @@ export class NavigationController {
             const echoed = answer.echo?.sequence ?? sequence;
             if (echoed !== null && echoed < this.sequence) return;
             const first = !this.navigation;
+            const before = this.navigation?.current ?? null;
             // The row the page says it is on wins over the host's (stand 24 A1).
             const pageCurrent = this.element.pageCurrent;
-            this.navigation = pageCurrent ? {...answer, current: pageCurrent} : answer;
+            // An answer without `context` takes the object menu away: the page
+            // the menu was read for shows no object (a soft swap's answer).
+            const {answer: _outcome, ...data} = answer;
+            this.navigation = pageCurrent ? {...data, current: pageCurrent} : data;
             if (first) this.applyPersonPreferences(answer.person);
-            // On a wide screen the menu opens where the page is: the root that
-            // holds the current row shows its column, as a person who came
-            // through it last left it. Only on the first answer -- a root the
-            // person closed stays closed when the menu is read again.
-            // The second column is shown as the person left it, on every page:
-            // opened by the page it moved -- open on one page, closed on the
-            // next, open again on a record reached through a link -- and that
-            // was the menu jumping (owner, 2026-10-13). Only a person who never
-            // chose is shown the root that holds the page.
-            if (first && this.wide && !this.openRoot && !answer.person?.compact) {
-                const remembered = this.rememberedRoot();
-                if (remembered !== undefined) {
-                    this.openRoot = remembered && this.roots().some((root) => root.key === remembered) ? remembered : null;
-                    this.followCurrentRoot();
-                } else {
-                    const holder = this.roots().find((root) => this.holdsCurrent(root)
-                        && root.key !== answer.current && (root.children ?? []).length > 0);
-                    if (holder) this.openRoot = holder.key;
-                }
-            }
+            // The second column follows the page (owner, 2026-11-05): nothing
+            // to choose here but what the page is. A root the person was
+            // looking at stays only while the page is the same one.
+            if (!first && this.navigation.current !== before) this.pageOpened();
+            // On a phone the menu opens on the page's object menu when it has one.
+            if (first && !this.wide) this.screen = this.objectMenu() ? "second" : "first";
             this.status = "ready";
             this.message = "";
             this.compact = typeof answer.person?.compact === "boolean"
@@ -419,10 +549,13 @@ export class NavigationController {
                 : this.preference.compact === true;
             // An open root the new menu does not hold closes rather than showing
             // an empty column under a heading that no longer exists.
-            if (this.openRoot && !this.roots().some((root) => root.key === this.openRoot)) {
+            if (this.openRoot && this.openRoot !== FAVOURITES_ROOT && !this.roots().some((root) => root.key === this.openRoot)) {
                 this.openRoot = null;
                 this.screen = "first";
             }
+            // A phone on the second screen with nothing left to show there
+            // goes back to the first.
+            if (!this.wide && this.screen === "second" && !this.shownColumn()) this.screen = "first";
         } else if (!this.navigation) {
             this.status = answer.answer === "refused" ? "refused" : "unavailable";
             this.message = answer.reason || "";
@@ -531,35 +664,66 @@ export class NavigationController {
 
     // ─── what a person does ──────────────────────────────────────────────────
 
+    // A root of the first column was clicked. The one the column shows closes
+    // the column (the person's choice, kept on every page); the page's own
+    // root opens the column on it; another root is shown until a page is
+    // opened. On a phone it is the second screen.
     openRootColumn(key) {
-        if (this.openRoot === key && this.wide) {
+        if (this.edit?.on) {
+            this.openRoot = this.openRoot === key && this.wide ? null : key;
+            this.filter = "";
+            if (!this.wide && this.openRoot) this.screen = "second";
+            this.update("root");
+            return;
+        }
+        if (!this.wide) {
+            this.openRoot = key === this.pageRoot()?.key && !this.objectMenu() ? null : key;
+            this.filter = "";
+            this.screen = "second";
+            this.update("root");
+            return;
+        }
+        const shown = this.shownColumn();
+        const pageRoot = this.pageRoot()?.key ?? null;
+        if (shown === key || (shown === OBJECT_MENU && this.holdsCurrent(this.rootByKey(key) ?? {}) && !this.openRoot)) {
             this.openRoot = null;
+            if (!this.compact) this.setColumnOpen(false);
+        } else if (key === pageRoot && !this.objectMenu() && !this.compact) {
+            this.openRoot = null;
+            this.setColumnOpen(true);
         } else {
             this.openRoot = key;
-            this.filter = "";
-            if (!this.wide) this.screen = "second";
+            if (!this.compact) this.setColumnOpen(true);
         }
-        if (this.wide) this.rememberRoot(this.openRoot);
+        this.filter = "";
         this.update("root");
     }
 
+    // The column's «hide» on a wide screen: closed on every page from now on,
+    // until the person opens it again.
     hideColumn() {
         this.openRoot = null;
         this.screen = "first";
-        if (this.wide) this.rememberRoot(null);
+        if (this.wide) this.setColumnOpen(false);
         this.update("root");
     }
 
-    // Which root's column the person left open, per site, in this browser:
-    // undefined when they never chose, "" when they closed it. A preference of
-    // the person's view rather than the host's data, so it is the browser's.
-    rootMemoryKey() {
-        return `sf-admin-menu:open-root:${this.navigation?.site?.current?.key ?? ""}`;
+    // «Show the column» in the first column, while the column is closed and
+    // the page has something for it: the page's object menu or its root.
+    showColumn() {
+        this.openRoot = null;
+        this.setColumnOpen(true);
+        this.update("root");
     }
 
-    // The menu's view preference (SF.Preferences, owner 2026-10-14): the
-    // root left open per site and whether the menu is folded to its rail, kept
-    // for the person with every other view preference.
+    setColumnOpen(open) {
+        this.columnOpen = Boolean(open);
+        this.keepPreference({second: this.columnOpen});
+    }
+
+    // The menu's view preference (SF.Preferences, owner 2026-10-14): whether
+    // the second column is open and whether the menu is folded to its rail,
+    // kept for the person with every other view preference.
     get preference() {
         return preferences()?.read(MENU_PREFERENCE) ?? {};
     }
@@ -568,31 +732,19 @@ export class NavigationController {
         preferences()?.write(MENU_PREFERENCE, {...this.preference, v: 1, ...patch});
     }
 
-    rememberedRoot() {
-        const roots = this.preference.openRoots ?? {};
-        const site = this.navigation?.site?.current?.key ?? "";
-        if (Object.prototype.hasOwnProperty.call(roots, site)) return roots[site] ?? "";
-        // What this browser kept before the standard, taken over once.
-        try {
-            const legacy = globalThis.localStorage?.getItem(this.rootMemoryKey());
-            if (legacy !== null && legacy !== undefined) {
-                this.rememberRoot(legacy);
-                globalThis.localStorage?.removeItem(this.rootMemoryKey());
-                return legacy;
-            }
-        } catch {
-            // nothing kept
-        }
-        return undefined;
-    }
-
-    rememberRoot(key) {
-        const site = this.navigation?.site?.current?.key ?? "";
-        this.keepPreference({openRoots: {...(this.preference.openRoots ?? {}), [site]: key ?? ""}});
+    // Open unless the person closed it. Before 1.7.0 the menu kept the root
+    // left open per site (openRoots), "" for a closed column: a person who
+    // had closed it everywhere they went finds it closed.
+    keptColumnOpen() {
+        const kept = this.preference;
+        if (typeof kept.second === "boolean") return kept.second;
+        const former = kept.openRoots && typeof kept.openRoots === "object" ? Object.values(kept.openRoots) : [];
+        return !(former.length && former.every((value) => value === ""));
     }
 
     back() {
         this.screen = "first";
+        if (!this.edit?.on) this.openRoot = null;
         this.update("screen");
     }
 
@@ -613,6 +765,9 @@ export class NavigationController {
     async openRow(row, event) {
         if (event && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return;
         if (row.kind === "link") return;
+        // Drawn from the page's first answer, before the port: a page row is
+        // the link it is, and the browser follows it.
+        if (!this.port && row.kind !== "root" && row.kind !== "section") return;
         event?.preventDefault?.();
         if (row.kind === "root") {
             this.openRootColumn(row.key);
@@ -625,6 +780,7 @@ export class NavigationController {
         const answer = await this.raise("item.open", {key: row.key, href: row.href ?? null});
         if (answer.answer === "applied") {
             this.navigation = {...this.navigation, current: row.key};
+            this.pageOpened();
             if (!this.wide) this.screen = "first";
             this.update("open");
             const href = answer.href ?? row.href ?? null;
@@ -634,6 +790,29 @@ export class NavigationController {
             const region = Boolean(href && globalThis.SF?.RegionNavigation?.enabled);
             this.element.sfEmit("navigate", {id: row.key, key: row.key, href, region});
             if (region) globalThis.SF.RegionNavigation.navigate(new URL(href, globalThis.location.href).href);
+        }
+    }
+
+    // A row of the object menu, or its «back»: an ordinary link, the page's
+    // and not the tree's -- no port intent, no favourite, nothing to edit. A
+    // middle or modified click opens a tab as any link does; a plain click
+    // goes by region when the shell has it, else the browser follows the
+    // link. `navigate` tells a host listener either way.
+    openObjectRow(item, event, {back = false} = {}) {
+        if (event && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return;
+        const href = item?.href ?? null;
+        if (!href) return;
+        const region = Boolean(globalThis.SF?.RegionNavigation?.enabled);
+        if (!back && this.navigation?.context) {
+            this.navigation = {...this.navigation, context: {...this.navigation.context, current: item.key}};
+            if (!this.wide) this.screen = "second";
+            this.update("open");
+        }
+        const key = back ? "sf:context-back" : item.key;
+        this.element.sfEmit("navigate", {id: key, key, href, region});
+        if (region) {
+            event?.preventDefault?.();
+            globalThis.SF.RegionNavigation.navigate(new URL(href, globalThis.location.href).href);
         }
     }
 
@@ -853,6 +1032,8 @@ export class NavigationController {
     stopEdit() {
         closeMenu(this);
         this.edit = {on: false, renaming: null, adding: null, rowMenu: null, profiles: false, naming: null, message: ""};
+        // The column goes back to the page once the edit is done.
+        this.openRoot = null;
         this.update("edit");
     }
 
@@ -1293,6 +1474,11 @@ export class NavigationController {
         else if (event.key === "Enter") { event.preventDefault(); this.choosePalette(); }
     }
 
+    shownRoot() {
+        const key = this.shownColumn();
+        return key && key !== OBJECT_MENU ? this.rootByKey(key) : null;
+    }
+
     context() {
         return {
             controller: this,
@@ -1303,7 +1489,12 @@ export class NavigationController {
             wide: this.wide,
             compact: this.compact && this.wide,
             screen: this.screen,
-            openRoot: this.openRoot ? this.rootByKey(this.openRoot) : null,
+            openRoot: this.shownRoot(),
+            objectMenu: this.shownColumn() === OBJECT_MENU ? this.objectMenu() : null,
+            // The button that opens a closed column: drawn when the column is
+            // closed on a wide screen and the page has something for it.
+            columnClosed: Boolean(this.wide && !this.compact && !this.edit?.on && !this.columnOpen
+                && !this.openRoot && this.pageColumn()),
             filter: this.filter,
             sites: this.sites,
             palette: this.palette,

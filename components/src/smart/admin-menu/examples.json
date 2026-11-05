@@ -176,6 +176,127 @@
       },
       "parent": "<div class=\"flex\" style=\"block-size: 40rem\"></div>",
       "x-first-paint": "The menu's region, as an admin shell gives it a column the page's height: the menu fills it before and after the host answers, and its rows scroll inside."
+    },
+    {
+      "name": "object-menu",
+      "title": "Меню объекта из первого ответа страницы",
+      "settings": {
+        "source": "port",
+        "first-answer": {
+          "revision": "1",
+          "current": "sites",
+          "items": [
+            {
+              "key": "sites",
+              "kind": "page",
+              "level": "site",
+              "label": "Сайты",
+              "icon": "web",
+              "href": "/panel/sites"
+            },
+            {
+              "key": "server",
+              "kind": "root",
+              "level": "site",
+              "label": "Сервер",
+              "icon": "dns",
+              "children": [
+                {
+                  "key": "server.services",
+                  "kind": "page",
+                  "level": "site",
+                  "label": "Службы",
+                  "icon": "settings_applications",
+                  "href": "/panel/server/services"
+                }
+              ]
+            }
+          ],
+          "context": {
+            "title": "demo-owned.test",
+            "subtitle": "PHP 8.3",
+            "status": {
+              "text": "Работает",
+              "status": "success"
+            },
+            "back": {
+              "label": "Все сайты",
+              "href": "/panel/sites"
+            },
+            "groups": [
+              {
+                "label": null,
+                "items": [
+                  {
+                    "key": "site.overview",
+                    "label": "Обзор",
+                    "href": "/panel/sites/demo",
+                    "icon": "dashboard"
+                  },
+                  {
+                    "key": "site.files",
+                    "label": "Файлы",
+                    "href": "/panel/sites/demo/files",
+                    "icon": "folder"
+                  },
+                  {
+                    "key": "site.backups",
+                    "label": "Резервные копии",
+                    "href": "/panel/sites/demo/backups",
+                    "icon": "backup",
+                    "badge": {
+                      "text": "1",
+                      "status": "error"
+                    }
+                  }
+                ]
+              },
+              {
+                "label": "Дополнительно",
+                "items": [
+                  {
+                    "key": "site.php",
+                    "label": "PHP и веб-сервер",
+                    "href": "/panel/sites/demo/php",
+                    "icon": "code"
+                  }
+                ]
+              }
+            ],
+            "current": "site.overview"
+          },
+          "site": {
+            "current": {
+              "key": "main",
+              "label": "Larena Panel"
+            },
+            "count": 1
+          },
+          "person": {
+            "name": "Administrator",
+            "language": "ru",
+            "languages": [
+              {
+                "code": "ru",
+                "native": "Русский",
+                "english": "Russian"
+              }
+            ]
+          }
+        }
+      },
+      "host": {
+        "aria-label": "Меню"
+      },
+      "expect": {
+        "name": "Меню"
+      },
+      "parent": "<div class=\"flex\" style=\"block-size: 40rem\"></div>",
+      "first-paint": {
+        "max-bytes": 12288,
+        "why": "the first paint is the drawn menu itself -- both columns, the site's menu with its rows -- and the printed answer it was drawn from, so it holds what a skeleton would only stand for"
+      },
+      "x-first-paint": "A site card printed with its first answer: the menu is drawn from it at once -- the first column and the site's own menu with «← Все сайты», its title, status and rows -- with no skeleton and no port (1.7.0)."
     }
   ],
   "pages": [
