@@ -257,7 +257,7 @@ try {
     await tab.locator('#editor .sf-editor-pop sf-input input').fill('button');
     await settle(tab, 300);
     pop = await popState(tab);
-    const found = pop?.items.filter((item) => item.item.startsWith('element.button')) ?? [];
+    const found = pop?.items.filter((item) => item.item === 'element.button#plain') ?? [];
     check('G-20: a search lists each block once, naming its section', pop?.listing === 'found' && found.length === 1 && found[0].note.length > 0, pop);
     await tab.keyboard.press('Escape');
     await settle(tab, 200);
@@ -284,7 +284,8 @@ try {
     await settle(slash, 300);
     pop = await popState(slash);
     check('G-20: / opens Text first, with «Back» to the sections', pop?.listing === 'section' && pop.section === 'text' && pop.back, pop && {listing: pop.listing, section: pop.section, back: pop.back});
-    check('G-20: Text starts with the paragraph', pop?.items[0]?.item === 'content.paragraph', pop?.items.slice(0, 3));
+    const kinds = pop?.items.map((item) => (/from|из раздела/u.test(item.sub) ? 'borrowed' : 'own')) ?? [];
+    check('G-20: Text lists its own blocks first (heading, paragraph, list …), the button from Elements after them', kinds[0] === 'own' && kinds.lastIndexOf('own') < kinds.indexOf('borrowed') && pop.items.some((item) => item.item === 'content.paragraph'), pop?.items.map((item) => item.item));
     await slash.keyboard.press('Escape');
     check('G-20: no page errors (/)', slash.errors.length === 0, slash.errors.slice(0, 3));
     await slash.close();
@@ -345,7 +346,7 @@ try {
       const id = await tab.evaluate(() => {
         const editor = document.getElementById('editor');
         const made = editor.model.insert({type: 'layout.section', variant: 'accent'}, editor.model.placeAfter('s2'));
-        editor.refresh();
+        editor.redraw();
         return made.id;
       });
       await settle(tab, 500);
@@ -376,7 +377,8 @@ try {
       const editor = document.getElementById('editor');
       const section = editor.model.insert({type: 'layout.section'}, editor.model.placeAfter('s2'));
       const made = editor.model.insert({type: 'layout.grid', variant: 'cards-3'}, editor.model.placeInside(section.id));
-      editor.refresh();
+      editor.setScreen('phone');
+      editor.redraw();
       return made.ok === false ? null : made.id;
     });
     await settle(tab, 500);
@@ -386,7 +388,7 @@ try {
       return {screen: editor.screenName, grids: grids.map((grid) => ({classes: grid.className, tracks: getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length}))};
     }, id);
     const html = await tab.evaluate(async () => (await document.getElementById('editor').model.toHTML()).html);
-    check('grid-390: the phone shows the grid\'s three columns, as the prototype', seen.grids.length > 0 && seen.grids.some((grid) => grid.tracks === 3), seen);
+    check('grid-390: the phone screen shows the grid\'s three columns, as the prototype', seen.screen === 'phone' && seen.grids.length > 0 && seen.grids.every((grid) => grid.tracks === 3), seen);
     check('grid-390: the printed grid keeps grid-col-3 with no phone rule', /class="grid grid-col-3 gap-5"/u.test(html) && !/grid-col-1/u.test(html), html.match(/class="grid[^"]*"/gu));
     check('grid-390: the page does not scroll sideways', await tab.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), null);
     check('grid-390: no page errors', tab.errors.length === 0, tab.errors.slice(0, 3));

@@ -553,7 +553,7 @@
       },
       {
         "path": "src/smart/editor/js/catalogue.mjs",
-        "sha256": "d83beba55543b82a80299953eafd6852f9ef5695fe0d0cf7d5bdbb606fb10b0b"
+        "sha256": "8057322fd1c3b69ee577a6c67e886b4cf9591d42a812fc5effce625ec872b8d8"
       },
       {
         "path": "src/smart/editor/js/tree.mjs",

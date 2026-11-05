@@ -102,7 +102,10 @@ export function sectionsOf(items, {own = false} = {}) {
     const order = [...CATALOGUE_GROUPS, ...new Set(items.flatMap(groupsOf))];
     return [...new Set(order)].map((id) => {
         const types = [];
-        for (const item of items.filter((entry) => groupsOf(entry).includes(id))) {
+        // A section's own blocks first, then those that also stand in it
+        // (also_in), as the prototype lists the button last in Text.
+        const here = items.filter((entry) => groupsOf(entry).includes(id));
+        for (const item of [...here.filter((entry) => entry.group === id), ...here.filter((entry) => entry.group !== id)]) {
             let type = types.find((entry) => entry.type === item.type);
             if (!type) {
                 type = {type: item.type, label: item.typeLabel, icon: item.icon, site: item.site, items: []};
