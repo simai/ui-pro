@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "1.2.5",
+  "version": "2.0.0",
   "title": "Message log",
-  "summary": "A conversation as a scrolling column of messages the host draws: keeps the reading position while history is prepended, follows the bottom only when the reader is there, groups runs of one author and announces what is new once.",
+  "summary": "Dated alias of SIMAI Framework's sf-list-feed (until 2027-01-01): the feed under its former tag, with the former names (messages, setMessages, prependMessages, renderMessage, announceMessage, sf-message-log-* events) still answered.",
   "kind": "composite",
   "reuse_mode": "whole",
   "lifecycle": "experimental",
@@ -26,8 +26,7 @@
   "exported_parts": [],
   "composition": {
     "uses": [
-      "smart.button",
-      "smart.button-icon"
+      "smart.list-feed"
     ],
     "public_parts": []
   },
@@ -567,8 +566,7 @@
           }
         },
         "additionalProperties": true
-      },
-      "canonical": true
+      }
     },
     "sf-message-log-begun": {
       "summary": "A growing message arrived (vocabulary §5.2).",
@@ -647,11 +645,10 @@
       }
     },
     "sf-message-log-load-earlier": {
-      "summary": "Dated alias of sf-message-log-load-more until 2026-12-01 (detail-adds).",
+      "summary": "Dated alias of sf-list-feed-load-more until 2026-12-01 (detail-adds).",
       "payload": {
         "type": "object"
-      },
-      "alias_of": "sf-message-log-load-more"
+      }
     }
   },
   "state": {
@@ -784,6 +781,15 @@
         "changes": [
           "Draws and finds the renamed Framework elements by their new tags («To the latest» is sf-button-icon); the rule relations name cl-<new>. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
         ]
+      },
+      {
+        "from": "1.2.5",
+        "to": "2.0.0",
+        "changes": [
+          "sf-message-log is a dated alias of SIMAI Framework's sf-list-feed until 2027-01-01: write <sf-list-feed>, items, setItems, prependItems, renderItem, announceItem and listen to sf-list-feed-*. The former names keep working until then and each use is noted in SF.deprecations; the first <sf-message-log> on a page is named once on the console.",
+          "The markup and the internal variables are the feed's: a page that styles .sf-message-log, .sf-message-log__* or sets --sf-message-log--* moves to .sf-list-feed, .sf-list-feed__* and --sf-list-feed--*. The public --sf-message-log-* variables still work.",
+          "Needs a SIMAI Framework pair with sf-list-feed (ui-62b1d9b6dc8d or later)."
+        ]
       }
     ]
   },
@@ -793,31 +799,27 @@
     "source_artifacts": [
       {
         "path": "src/smart/message-log/index.js",
-        "sha256": "41f4f4acaad9c01bcb5167d2d4ac4258dadb44abe8a81b6a55748efdedd82004"
-      },
-      {
-        "path": "src/smart/message-log/js/templates/default.js",
-        "sha256": "1104495b1484fe703624c0135aa26fe74c5d50c57d1fa5719c9bead1c1834b81"
+        "sha256": "088103d64032254b4401cf5882bd7b88616f3d3e5e70e3229ffec740828ff90f"
       },
       {
         "path": "src/smart/message-log/js/templates/default.css",
-        "sha256": "c0405f27f37d45708e6dc39c69b1d5f860f293bf916aa795c52d442f23d4eec2"
+        "sha256": "329312c97a7f75fc8f1bb5f419aa6dfe4a3c50db82c43a5bf1115b3bca0ea6bc"
       },
       {
         "path": "src/smart/message-log/rule.js",
-        "sha256": "368a65d1eccd88ad51573e16ea22e9457e1ca5aa15891f1402cc247f1bea55fd"
+        "sha256": "6c2dd20d340320d421c542e89ae92d81e19368b131d3649d1b280b2448444777"
       },
       {
         "path": "src/smart/message-log/docs.md",
-        "sha256": "6465214dcdcedbbae2be72626310958398cb12a35fee46de218c6a0964cf7687"
+        "sha256": "69584d7b69ad18b9a31d254043b315d489fbb2d8b32c8b6161763d1e84fb686a"
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "0b49adaef542625e33c30b4ed1fc83e8275aca48ead0aee1eb11a5fb7edffe8d"
+        "sha256": "d9331e2b11325b14a54145ffc17db2f8f6899f4c2aaa89740b4e6d073f98cccc"
       },
       {
         "path": "src/smart/message-log/aliases.json",
-        "sha256": "bcd954b76fb52d7b51e837fefc96ea567ca7defa40b0bcea7d9eca12cd1a9667"
+        "sha256": "ff9dc22f4dec8aef91b37008e9adf69b67b29f91957072c8abdc9b8ef7e4dc66"
       },
       {
         "path": "src/smart/message-log/lang/en.json",

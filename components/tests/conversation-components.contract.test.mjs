@@ -27,8 +27,10 @@ const evaluateRule = (text) => {
   return JSON.parse(JSON.stringify(sandbox.SF.RuleLoader));
 };
 
+// sf-message-log left this list in 2.0.0: it is a dated alias of SIMAI
+// Framework's sf-list-feed (sets split plan 2026-11-05 §3 S2), held by
+// tests/message-log-alias.contract.test.mjs.
 const COMPONENTS = {
-  'message-log': {element: 'sf-message-log', id: 'smart.message-log', dictionary: 'MESSAGE_LOG_TEXT'},
   'chat-threads': {element: 'sf-chat-threads', id: 'smart.chat-threads', dictionary: 'THREAD_LIST_TEXT'},
 };
 
@@ -289,17 +291,4 @@ test('the manifests hash the files they name, and name their own folder', () => 
     assert.deepEqual(paths, named.sort(), `${name}: provenance`);
     assert.equal(manifest.provenance.source_repository, 'simai/ui-pro');
   }
-});
-
-test('the message log draws a message through the host, as text when the host does not', () => {
-  const source = read('src/smart/message-log/index.js');
-  // The host's renderer is a property, and a string it returns is a text node.
-  assert.match(source, /set renderMessage\(value\)/u);
-  assert.match(source, /content instanceof Node \? content : this\.ownerDocument\.createTextNode/u);
-  // The default renderer writes text only.
-  assert.match(source, /bubble\.textContent = String\(message\.text \?\? ""\)/u);
-  // Authors are data: runs are consecutive messages of one author and side.
-  assert.match(source, /authorOf\(other\) === authorOf\(item\.message\)/u);
-  // The column is one stable node: lit places it and never diffs the items.
-  assert.match(read('src/smart/message-log/js/templates/default.js'), /\$\{context\.column\}/u);
 });
