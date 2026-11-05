@@ -2,7 +2,7 @@
   "$comment": "sf-table from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/table (convert-1.3.8.mjs over ui-pro 9cbe061); every x-todo decided in x-decisions.",
   "id": "smart.view-table",
   "tag": "sf-view-table",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "kind": "leaf",
   "family": "table",
   "settings": {
@@ -1441,7 +1441,8 @@
     "docs": "docs/docs.md, where the folder keeps it.",
     "loader-ensure": "version 1.13.5: the windows' portal is read by the Loader as the page (SF.Loader.watch, core.runtime 1.19.0), so the lazy elements a window draws need no list by name; the window's elements, sf-resizer, sf-sortable and the row menu's sf-context-menu are asked for through SF.Loader.ensure, not ensureSmartElementLoaded or a race of whenDefined against 3 s of its own (reuse audit 2026-11-02, finding 4). Needs core.runtime >= 1.19.0: over an older Loader the calls are no-ops and the table falls back as before where it checks customElements.get.",
     "framework-tag-renames": "version 1.13.6: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the row and column menus are sf-menu-context (its sf-menu-context-* events), the icon buttons sf-button-icon, the typed cells and editors sf-input-color, sf-input-country, sf-input-date and sf-slider-range; a component type that names a former tag (a host's {type: 'icon-button'}) draws the element under its current tag (canonicalTag of the Smart base). The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0).",
-    "tag-rename": "version 1.14.0: the tag is sf-view-table (naming decision 2026-11-02: sf-[set]-<block>[-<variant>]; rename plan R2); the folder view-table, the id smart.view-table and the bundle cl-view-table follow it. sf-table stays a dated alias until 2027-01-01: a subclass the Smart base defines beside the new tag, listed in the package rule, in sheets as :is(sf-view-table, sf-table), its events named after the tag followed by their former names (ui-source change journal tag-sf-table-to-sf-view-table, path-smart-table-to-view-table)."
+    "tag-rename": "version 1.14.0: the tag is sf-view-table (naming decision 2026-11-02: sf-[set]-<block>[-<variant>]; rename plan R2); the folder view-table, the id smart.view-table and the bundle cl-view-table follow it. sf-table stays a dated alias until 2027-01-01: a subclass the Smart base defines beside the new tag, listed in the package rule, in sheets as :is(sf-view-table, sf-table), its events named after the tag followed by their former names (ui-source change journal tag-sf-table-to-sf-view-table, path-smart-table-to-view-table).",
+    "cell-formats": "version 1.15.0: four cells read as what they hold (the Fields page and Larena, 2026-11-05). A date, date and time or time of day the host did not format (formatFieldValue) reads in the page's language through SIMAI Framework's format-date (js/format-value.js); the host's text still wins. Formatted text (html) is its text on the row's one line, never its markup, on both the class-markup path and the full renderer (field-renderers/html.js htmlText). Several files are each their name with their kind's icon, wrapping and folding into «+N» as several tags do; a column of documents drew nothing. The settings column is drawn only when it has something to open: the gear (settings-menu), a row menu with actions, or row reordering; a list with none of them had a column of «≡» that opened an empty menu."
   },
   "x-registry": {
     "kind": "composite",
@@ -2175,6 +2176,13 @@
           "to": "1.14.0",
           "changes": [
             "The tag is sf-view-table (rename plan R2, naming decision 2026-11-02: sf-[set]-<block>); the folder view-table, the id smart.view-table and the bundle cl-view-table follow it (were table, smart.data-view, cl-table). sf-table stays a dated alias until 2027-01-01: old markup upgrades as this element, the Loader forwards cl-table, and every event fires under its former name as well, with the same detail. Public CSS variables and classes keep their names. Needs the SIMAI Framework pair whose package reference lists the former tag (core.runtime 1.22.0). Nothing to change for a host until 2027-01-01; new markup writes sf-view-table."
+          ]
+        },
+        {
+          "from": "1.14.0",
+          "to": "1.15.0",
+          "changes": [
+            "A date, date and time or time the host does not format reads in the page's language («2 нояб. 2026 г.», «15 нояб. 2026 г., 10:30», «09:30») instead of as stored; a host's formatFieldValue still wins. An html cell shows its text, not its markup; a cell of several files shows each file's name with its icon. The settings column is left out when it would open nothing (no settings-menu, no row actions, no row-reorder). Nothing to change for a host; a host that relied on stored dates in cells formats them in formatFieldValue."
           ]
         }
       ]

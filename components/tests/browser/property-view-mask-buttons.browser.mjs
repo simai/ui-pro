@@ -220,10 +220,13 @@ try {
       await retype('title', 'Василёк');
       await leave();
 
+      // The fax was stored empty, typed in and cleared again: back to what is
+      // stored is no change (view-properties 1.10.0), so it is not sent. A
+      // cleared optional field saving null is measured below, on the phone.
       const saved = await saveBy(mode);
       const values = saved.raised[0]?.payload.values ?? {};
       check(at(`one ${intent} carries each value as the contract says`), saved.answer === 'applied' && saved.raised.length === 1
-        && saved.raised[0].intent === intent && values.phone === '+7 (912) 345-67-00' && values.fax === null && values.inn === ''
+        && saved.raised[0].intent === intent && values.phone === '+7 (912) 345-67-00' && !('fax' in values) && values.inn === ''
         && values.kind === null && values.tier === 2 && values.title === 'Василёк'
         && !('locked' in values) && !('off' in values) && !('shown' in values) && !('status' in values), saved);
     }

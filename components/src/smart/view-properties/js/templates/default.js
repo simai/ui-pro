@@ -1,7 +1,6 @@
 import {html, nothing} from 'lit';
 import "./default.css";
 import {renderViewField, renderEditField} from '../../../field-renderers/index.js';
-import {renderDateTimeEdit} from '../datetime-edit.js';
 
 // The arrangement, drawn in the component's own light DOM. Not in a shadow root:
 // the field controls are Smart elements whose stylesheets are document-level, and
@@ -34,13 +33,12 @@ function renderFieldValue(context, field, editing, {disabled = false} = {}) {
             }
             : {}),
     };
-    // A datetime is edited as a day and a time (../datetime-edit.js): the
-    // shared set's control edits the day alone. A readonly one is shown, as the
-    // set shows every readonly field.
-    const type = field.propertyType || field.type || field.dataType;
-    const content = editing && type === 'datetime' && field.readonly !== true
-        ? renderDateTimeEdit(context, field, context.changed.has(key) ? context.changed.get(key) : field.value)
-        : editing
+    // A datetime and a time of day are the renderer set's: sf-input-date in
+    // mode datetime and time, one control each (SIMAI Framework duplication
+    // audit A-14). This view drew its own pair -- the day in a datepicker and
+    // the time in a masked field -- which cut the day short in a half-width
+    // field and held half-typed entries of its own.
+    const content = editing
         ? renderEditField(
             field,
             context.changed.has(key) ? context.changed.get(key) : field.value,
@@ -49,7 +47,7 @@ function renderFieldValue(context, field, editing, {disabled = false} = {}) {
             // draws disabled apart from read-only (a choice as buttons).
             {size: context.size, ...(disabled ? {disabled: true} : {})},
         )
-        : renderViewField(field, field.value, context.hostPort, {size: context.size});
+        : renderViewField(field, field.value, context.viewHost, {size: context.size});
 
     const reference = ['record', 'relation', 'user'].includes(field.propertyType || field.type)
         && field.value && typeof field.value === 'object';
@@ -75,7 +73,7 @@ function renderFieldValue(context, field, editing, {disabled = false} = {}) {
     // consumer read it as the value having been lost. Fall back to the view, so
     // the value is shown and plainly not editable yet.
     if (editing && (content === null || typeof content === 'undefined' || content === nothing)) {
-        const shown = renderViewField(field, field.value, context.hostPort, {size: context.size});
+        const shown = renderViewField(field, field.value, context.viewHost, {size: context.size});
         if (shown !== null && typeof shown !== 'undefined' && shown !== nothing) {
             return html`<span class="sf-property-view-readonly color-on-surface-variant" data-readonly="true">${shown}</span>`;
         }

@@ -101,18 +101,19 @@ focus is what the mark opens.
 
 ## Date and time fields
 
-A `datetime` field is edited as a day and a time on one row: `sf-input-date`
-for the day and `sf-input`, masked to hh:mm, for the time, both at the view's
-size and each named for assistive technology («Начало: дата», «Начало: время»).
-The value is the host's text in the site's time zone, read as ISO 8601 (a day, or
-a day and a time after `T` or a space, with optional seconds, fraction and zone)
-and written back as ISO 8601 with a time: a changed day keeps the record's
-clock and zone, a typed time is `hh:mm:00` with the record's zone, and a new value
-has no zone. An untouched field is not written, and a field brought back to what
-it held writes nothing either. Clearing both clears the value. A day without a
-time, a time without a day or a time that is not hh:mm is said under the field
-like a host's error, and the save waits until it is put right. A `readonly`
-datetime is shown, not edited.
+A `date`, `datetime` or `time` field is edited with the renderer set's
+`sf-input-date` in its mode: a datetime is one control, the calendar with the
+time row under it, typed as «15.11.2026 10:30»; a time is the time row alone.
+The value is the host's text, read as ISO 8601 and written back as ISO 8601
+with a time: a changed day keeps the record's clock and zone, a changed time
+keeps the zone, and a new value has no zone. An untouched field is not written,
+and a field brought back to what it held writes nothing either. The control
+writes only whole values. A `readonly` datetime is shown, not edited.
+
+Shown, a date the host does not format (`formatFieldValue`) reads in the page's
+language through SIMAI Framework's `format-date`, as `sf-view-table`'s cells
+read it: «2 нояб. 2026 г.», «15 нояб. 2026 г., 10:30», «09:30». The host's own
+text still wins.
 
 ## Lookup fields
 
@@ -240,9 +241,9 @@ A panel never closes itself: the cross, Esc and «Отменить» each raise
 `sf-view-properties-close` (`reason` `close`, `escape` or `cancelled`) with
 `unsaved_fields`, and whether to ask «Закрыть? Введённое не будет сохранено.»
 is the host's decision. The count is the same on every way out: the changed
-fields, plus every entry that is not a value yet (a day picked for a datetime
-whose time is still empty). A field still holding the focus reports first, so
-a time typed and not yet left is counted. «Отменить» keeps what was entered
+fields, plus every entry a control reports as not a value yet (a masked text
+not filled in). A field still holding the focus reports first, so an entry
+typed and not yet left is counted. «Отменить» keeps what was entered
 until the host removes the panel, so a «no» to the host's question loses
 nothing.
 

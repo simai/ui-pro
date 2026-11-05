@@ -1058,7 +1058,7 @@ export function renderTableTemplate(context) {
         // three lines tall in a list of one-line rows (owner, 2026-10-13).
         if (LONG_TEXT_TYPES.has(column.propertyType ?? column.property_type ?? column.type)
                 && (typeof value === "string" || typeof value === "number")) {
-            const text = String(value);
+            const text = context.component?.cellText?.(column, value) ?? String(value);
             return html`<span class="sf-table-cell-clip" title=${text}>${text}</span>`;
         }
 

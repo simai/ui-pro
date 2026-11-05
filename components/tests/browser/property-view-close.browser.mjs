@@ -7,7 +7,8 @@
 //   closes the panel -- it discarded them first and then reported nothing;
 // - a day picked in the calendar for a datetime whose time is still empty is
 //   counted, so Esc after the calendar closed does not lose it silently;
-// - a time typed and left focused is counted when Esc is pressed in it;
+// - a date and time typed and left focused is counted when Esc is pressed in
+//   it (one sf-input-date in mode datetime since 1.10.0);
 // - an untouched form still reports nothing unsaved.
 // Measured on the built bytes, a record open in a panel (mode edit, port 1.12.0).
 import {resolve, join} from 'node:path';
@@ -143,17 +144,19 @@ try {
     note({case: 'a day picked in the calendar is counted when Esc closes', got: results.pickedDay});
   }
 
-  // A time typed and left focused, then Esc in the field.
+  // A date and time typed and left focused, then Esc in the field. Since
+  // 1.10.0 a datetime is one sf-input-date (mode datetime): the whole value is
+  // typed in its one field.
   await make();
-  await page.focus(`${field('starts')} .sf-property-view-datetime-time input`);
-  await page.fill(`${field('starts')} .sf-property-view-datetime-time input`, '');
-  await page.keyboard.type('1805', {delay: 10});
+  await page.focus(`${field('starts')} sf-input-date input`);
+  await page.fill(`${field('starts')} sf-input-date input`, '');
+  await page.keyboard.type('15.11.2026 18:05', {delay: 10});
   await page.keyboard.press('Escape');
   await page.waitForTimeout(250);
   results.focusedTime = await closes();
   const lastTime = results.focusedTime.at(-1);
   if (!lastTime || lastTime.reason !== 'escape' || lastTime.unsaved !== 1) {
-    note({case: 'a time typed and still focused is counted when Esc closes', got: results.focusedTime});
+    note({case: 'a date and time typed and still focused is counted when Esc closes', got: results.focusedTime});
   }
 
   console.log(JSON.stringify(results));

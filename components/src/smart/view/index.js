@@ -61,6 +61,17 @@ const COLUMN_PRESENTATION = {
 
 // The sentence a host answer carries for a person (port answer `message`):
 // a non-empty string, trimmed; anything else is no message.
+// A chrome part the host turned off on its own table (selectable="false",
+// settings="false") stays off. The view writes these attributes on every
+// projection, so what the table carried before the view first touched it is
+// kept aside, as data-sf-host-row-actions is, and read from there.
+function hostWroteOff(table, name) {
+    if (!table) return false;
+    const marker = `data-sf-host-${name}`;
+    if (!table.hasAttribute?.(marker)) table.setAttribute?.(marker, table.getAttribute?.(name) ?? "");
+    return table.getAttribute?.(marker) === "false";
+}
+
 function hostMessage(answer) {
     return typeof answer?.message === "string" ? answer.message.trim() : "";
 }
@@ -845,8 +856,8 @@ class SfDataView extends DataViewElement {
         // asks), the chrome columns, and a table or the compact list.
         const toolbar = table ? table.getAttribute("toolbar") !== "false" : this.renders("toolbar");
         const ownToolbar = Boolean(table) && this.renders("toolbar") && Boolean(this.querySelector(':scope > [slot="toolbar"]'));
-        const select = this.renders("select");
-        const settings = this.renders("settings");
+        const select = this.renders("select") && !hostWroteOff(table, "selectable");
+        const settings = this.renders("settings") && !hostWroteOff(table, "settings");
         const layout = table?.getAttribute("layout") || (this.renders("toolbar") ? "auto" : "table");
         skeleton.setAttribute("data-layout", ["auto", "table", "list"].includes(layout) ? layout : "table");
         const columns = this.expectedColumns;
@@ -1928,7 +1939,13 @@ class SfDataView extends DataViewElement {
             if (refused) table.setAttribute("toolbar", "false");
             else if (authorToolbar) table.setAttribute("toolbar", authorToolbar);
             else table.removeAttribute?.("toolbar");
-            table.setAttribute("selectable", this.renders("select") && !refused ? "true" : "false");
+            // The row boxes and the gear column are the view's chrome, unless the
+            // host wrote them off on its table: what the table carried before the
+            // view first touched it is the host's word, as for row-actions below.
+            // A table written selectable="false" came back selectable="true" and
+            // drew a box in every row of a list that has no bulk actions (Larena,
+            // the sites list, 2026-11-05).
+            table.setAttribute("selectable", this.renders("select") && !refused && !hostWroteOff(table, "selectable") ? "true" : "false");
             // A page's list becomes the compact list on a narrow container; an
             // embedded one (no toolbar) stays a table, and a layout the host
             // wrote on its table is the host's.
@@ -1940,7 +1957,7 @@ class SfDataView extends DataViewElement {
             }
             table.setAttribute("size", this.size);
             this._tableScrollMode(table);
-            table.setAttribute("settings", this.renders("settings") ? "true" : "false");
+            table.setAttribute("settings", this.renders("settings") && !hostWroteOff(table, "settings") ? "true" : "false");
             // The column settings, without the column: it also carries each
             // row's menu, which is the host's row-actions, not this.
             table.setAttribute("settings-menu", this.hostOffers("personal-column-settings") ? "true" : "false");

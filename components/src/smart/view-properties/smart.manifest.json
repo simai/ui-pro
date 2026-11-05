@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1525,6 +1525,13 @@
         "changes": [
           "The tag is sf-view-properties (rename plan R2, naming decision 2026-11-02: sf-[set]-<block>); the folder view-properties, the id smart.view-properties and the bundle cl-view-properties follow it (were property-view, smart.property-view, cl-property-view). sf-property-view stays a dated alias until 2027-01-01: old markup upgrades as this element, the Loader forwards cl-property-view, and every event fires under its former name as well, with the same detail. Public CSS variables and classes keep their names. Needs the SIMAI Framework pair whose package reference lists the former tag (core.runtime 1.22.0). Nothing to change for a host until 2027-01-01; new markup writes sf-view-properties."
         ]
+      },
+      {
+        "from": "1.9.1",
+        "to": "1.10.0",
+        "changes": [
+          "A datetime or time field is one sf-input-date (mode datetime or time) instead of a day and a masked time field; the value written is the same ISO 8601. Dates the host does not format read in the page's language. A colour palette wraps in a half-width field. A closed panel shows no close button or shadow over the page. An entry put back to the stored value is not written. Nothing to change for a host; a host that read the pair's names («<label>: дата», «<label>: время») finds one control named by the label."
+        ]
       }
     ]
   },
@@ -1534,19 +1541,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-properties/index.js",
-        "sha256": "5c0ed2a12394b79e9dc74c240178391748b53d1ce0f3c0ec848502f7b6a1a63c"
+        "sha256": "94e290610bfe9056fbbc8e7f2856d73ab23f69a132ec6d3b04669c7c52766c2a"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
-        "sha256": "a387f3651919e5675e916601ecc18def8ef7bd9dc45ef4553c5211d9adff3b42"
+        "sha256": "9aaa4a7143ef16617609a2461ccaa5edbfdd5e6277f111dd83ced3d1736a9a24"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.css",
-        "sha256": "2c808b433cdaaf80718bd9bc6f46d82550963897c45363df3ec3b003ff518459"
-      },
-      {
-        "path": "src/smart/view-properties/js/datetime-edit.js",
-        "sha256": "2edcd0a30a00f2decc4a8bd51507dbe4b265e089435694e169ca4fc20d3cf8d5"
+        "sha256": "070ec7d9a02a683ce6dffa8631dd3c2722a5158dbb4e58541d9945312561ad21"
       },
       {
         "path": "src/smart/view-properties/js/conditions.js",
@@ -1562,7 +1565,7 @@
       },
       {
         "path": "src/smart/view-properties/docs.md",
-        "sha256": "74cb713282c237d033c233d0b31f2def6bd5e4fc4211fc666b7d909711b11ce2"
+        "sha256": "335230ca6ea373effddc4737765befd00b0098e214794f483f35562ede7de708"
       }
     ],
     "generated_runtime": []

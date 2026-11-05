@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2462,6 +2462,13 @@
         "changes": [
           "The tag is sf-view-table (rename plan R2, naming decision 2026-11-02: sf-[set]-<block>); the folder view-table, the id smart.view-table and the bundle cl-view-table follow it (were table, smart.data-view, cl-table). sf-table stays a dated alias until 2027-01-01: old markup upgrades as this element, the Loader forwards cl-table, and every event fires under its former name as well, with the same detail. Public CSS variables and classes keep their names. Needs the SIMAI Framework pair whose package reference lists the former tag (core.runtime 1.22.0). Nothing to change for a host until 2027-01-01; new markup writes sf-view-table."
         ]
+      },
+      {
+        "from": "1.14.0",
+        "to": "1.15.0",
+        "changes": [
+          "A date, date and time or time the host does not format reads in the page's language («2 нояб. 2026 г.», «15 нояб. 2026 г., 10:30», «09:30») instead of as stored; a host's formatFieldValue still wins. An html cell shows its text, not its markup; a cell of several files shows each file's name with its icon. The settings column is left out when it would open nothing (no settings-menu, no row actions, no row-reorder). Nothing to change for a host; a host that relied on stored dates in cells formats them in formatFieldValue."
+        ]
       }
     ]
   },
@@ -2471,11 +2478,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-table/index.js",
-        "sha256": "cc95e31cec7bc72e422a54f542aed031fc42ddcfc7cf45859cc051268a940164"
+        "sha256": "249039b637346c7c9ab8a6178a61874e29adce6c07fded6268941392a4da1ca4"
       },
       {
         "path": "src/smart/view-table/js/templates/default.js",
-        "sha256": "f88719d901dacb8e9a0fa871cfd0b3cfbce4a3787bda9563ad1e21448c4a1eae"
+        "sha256": "95186847f8e6b8ef90ea4f874a9438a928111a168ada858002471eac085e6c59"
       },
       {
         "path": "src/smart/view-table/js/templates/default.css",
@@ -2491,7 +2498,7 @@
       },
       {
         "path": "src/smart/view-table/docs/smart-table-guide.md",
-        "sha256": "82f56abc7ea89f3edc583d9c90e9ba25f228b7f138ab6f73f0f9cfd0ee48bef2"
+        "sha256": "69978180760960841c2148efe9f405d1459cbe159786ddf4fbf32b26d6da9094"
       },
       {
         "path": "src/smart/pagination/index.js",

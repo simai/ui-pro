@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -1514,6 +1514,13 @@
         "changes": [
           "The tag is sf-view (rename plan R2, naming decision 2026-11-02: sf-[set]-<block>); the folder view, the id smart.view and the bundle cl-view follow it (were data-view, smart.data-view-composite, cl-data-view). sf-data-view stays a dated alias until 2027-01-01: old markup upgrades as this element, the Loader forwards cl-data-view, and every event fires under its former name as well, with the same detail. Public CSS variables and classes keep their names; the opaque instance_id of the state and answer events reads sf-view-<n> (was sf-data-view-<n>). Needs the SIMAI Framework pair whose package reference lists the former tag (core.runtime 1.22.0). Nothing to change for a host until 2027-01-01; new markup writes sf-view."
         ]
+      },
+      {
+        "from": "1.8.0",
+        "to": "1.8.1",
+        "changes": [
+          "A table the host wrote selectable=\"false\" or settings=\"false\" on keeps it inside the view (no row boxes, no settings column); before, the view's chrome overwrote both. Nothing to change for a host; a host that wanted the view's boxes on such a table removes its own attribute."
+        ]
       }
     ]
   },
@@ -1523,7 +1530,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view/index.js",
-        "sha256": "fcca52de23f5886f409ffbb094f6366f3ede02becf489e74be93f7fd3c868009"
+        "sha256": "1ea30c79b3935c00ede4d82f563699baba315e833488c63ddbc7c2f3462a7a36"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",
@@ -1531,7 +1538,7 @@
       },
       {
         "path": "src/smart/view/docs.md",
-        "sha256": "a4860987dd01a14478c460552643b26357657a3d923523784df9bec200359a1c"
+        "sha256": "6fbe4b18a496ce87e6c65f0bab96e1aa657718929a0b29796ef5c0232ceb4fd5"
       },
       {
         "path": "tests/fixtures/data-view-composite-lab.html",

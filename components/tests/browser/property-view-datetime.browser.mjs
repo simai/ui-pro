@@ -3,16 +3,19 @@
 // A datetime field is edited as a day and a time (Larena acceptance on
 // larena.test, 2026-10-22: «Дата и время» edited only the day, so a new record
 // could not get a time and «15.11.2026 10:30» was saved as «15.11.2026»).
-// Measured on the built bytes with a host port that answers 1.12.0, a record
-// open all at once (mode edit), at both sizes of the view and at 360px:
-// - the day (sf-input-date) and the time (sf-input, hh:mm) stand on one row,
-//   at one height, each with its own accessible name;
-// - the stored value shows: 15.11.2026 and 10:30;
+// Since 1.10.0 the editor is the renderer set's sf-input-date in mode datetime
+// (and mode time for a time of day): one control, the calendar with the time
+// row under it, typed as «15.11.2026 10:30». Measured on the built bytes with
+// a host port that answers 1.12.0, a record open all at once (mode edit), at
+// both sizes of the view and at 360px:
+// - one sf-input-date per field, in its mode, named by the field's label, and
+//   no pair of the view's own;
+// - the stored value shows: «15.11.2026 10:30», and «09:30» for a time;
 // - an untouched datetime is not written;
-// - a day without a time is said under the field and stops the save; the time
-//   typed as 0930 makes 09:30 and the value is ISO 8601 with the time;
-// - a changed time keeps the record's zone; clearing both writes null;
-// - a time that is not one (25:00) is said under the field.
+// - a new value typed whole is ISO 8601 with the time; a text that is not a
+//   whole value writes nothing;
+// - a changed time keeps the record's zone; a time of day brought back to
+//   what it held writes nothing; clearing writes null; a time of day is written as hh:mm.
 import {resolve, join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {chromium} from 'playwright';
@@ -85,6 +88,7 @@ try {
           {key: 'title', label: 'Название', propertyType: 'string', value: 'Встреча'},
           {key: 'starts', label: 'Начало', propertyType: 'datetime', value: '2026-11-15T10:30:15+03:00'},
           {key: 'ends', label: 'Окончание', propertyType: 'datetime', value: null},
+          {key: 'remind', label: 'Напоминание', propertyType: 'time', value: '09:30'},
         ]},
       ]}],
     };
@@ -102,27 +106,18 @@ try {
   }, size);
 
   const field = (key) => `sf-view-properties [data-field="${key}"]`;
-  const dateInput = (key) => `${field(key)} sf-input-date input`;
-  const timeInput = (key) => `${field(key)} .sf-property-view-datetime-time input`;
+  const input = (key) => `${field(key)} sf-input-date input`;
   const look = (key) => page.evaluate(({key}) => {
     const root = document.querySelector(`sf-view-properties [data-field="${key}"]`);
-    const row = root.querySelector('.sf-property-view-datetime');
-    const box = (element) => {
-      const frame = element?.querySelector('.sf-input') ?? element;
-      const rect = frame?.getBoundingClientRect();
-      return rect ? {top: Math.round(rect.top), height: Math.round(rect.height), width: Math.round(rect.width)} : null;
-    };
-    const date = root.querySelector('sf-input-date');
-    const time = root.querySelector('.sf-property-view-datetime-time');
+    const controls = [...root.querySelectorAll('sf-input-date')];
+    const frame = root.querySelector('sf-input-date .sf-input')?.getBoundingClientRect();
     return {
-      row: Boolean(row),
-      date: box(date), time: box(time),
-      dateLabel: date?.querySelector('input')?.getAttribute('aria-label') ?? null,
-      timeLabel: time?.querySelector('input')?.getAttribute('aria-label') ?? null,
-      dateValue: date?.querySelector('input')?.value ?? null,
-      timeValue: time?.querySelector('input')?.value ?? null,
-      error: root.querySelector('.sf-property-view-field-error')?.textContent.trim() ?? null,
-      rawInputs: root.querySelectorAll('input[type="time"]').length,
+      modes: controls.map((control) => control.getAttribute('mode')),
+      label: controls[0]?.getAttribute('aria-label') ?? null,
+      value: root.querySelector('sf-input-date input')?.value ?? null,
+      pair: root.querySelectorAll('.sf-property-view-datetime, .sf-property-view-datetime-time').length,
+      rawInputs: root.querySelectorAll('input[type="time"], input[type="datetime-local"]').length,
+      height: frame ? Math.round(frame.height) : null,
     };
   }, {key});
   const saves = () => page.evaluate(async () => {
@@ -131,9 +126,9 @@ try {
     return {answer: answer?.answer ?? null, reason: answer?.reason ?? null,
       values: window.raised.filter((one) => one.intent === 'record.save').map((one) => one.payload.values)};
   });
-  // Focused, not clicked: a click on the day opens the calendar and the keys
-  // would go to its grid. The text is replaced, typed key by key (the mask
-  // reads keys), and Tab leaves the field, which is when it says it changed.
+  // Focused, not clicked: a click opens the calendar and the keys would go to
+  // its grid. The text is replaced, typed key by key (the mask reads keys),
+  // and Tab leaves the field, which is when it says it changed.
   const typeInto = async (selector, text) => {
     await page.focus(selector);
     await page.fill(selector, '');
@@ -146,30 +141,26 @@ try {
   for (const size of ['1', '1/2']) {
     await make(size);
     const shown = await look('starts');
-    results[`shown ${size}`] = shown;
-    if (!shown.row || !shown.date || !shown.time || shown.date.top !== shown.time.top || shown.date.height !== shown.time.height
-        || shown.time.width >= shown.date.width || shown.rawInputs) {
-      note({case: `one row, one height (size ${size})`, got: shown});
-    }
-    if (shown.dateLabel !== 'Начало: дата' || shown.timeLabel !== 'Начало: время') note({case: `accessible names (size ${size})`, got: shown});
-    if (shown.dateValue !== '15.11.2026' || shown.timeValue !== '10:30') note({case: `the stored value shows (size ${size})`, got: shown});
+    const time = await look('remind');
+    const title = await page.evaluate(() => Math.round(document.querySelector('sf-view-properties [data-field="title"] .sf-input')?.getBoundingClientRect().height ?? 0));
+    results[`shown ${size}`] = {shown, time, title};
+    if (JSON.stringify(shown.modes) !== '["datetime"]' || shown.pair || shown.rawInputs) note({case: `one control (size ${size})`, got: shown});
+    if (JSON.stringify(time.modes) !== '["time"]') note({case: `a time of day is sf-input-date in time mode (size ${size})`, got: time});
+    if (shown.label !== 'Начало') note({case: `named by its label (size ${size})`, got: shown});
+    if (shown.value !== '15.11.2026 10:30' || time.value !== '09:30') note({case: `the stored value shows (size ${size})`, got: {shown, time}});
+    if (shown.height !== title) note({case: `one height with the other fields (size ${size})`, got: {shown, title}});
   }
 
-  // Narrow: the row stays inside its field, the time keeps its width.
+  // Narrow: the control stays inside its field.
   await page.setViewportSize({width: 360, height: 800});
   await make('1');
   const narrow = await page.evaluate(() => {
     const field = document.querySelector('sf-view-properties [data-field="starts"]').getBoundingClientRect();
-    const time = document.querySelector('sf-view-properties [data-field="starts"] .sf-property-view-datetime-time-field').getBoundingClientRect();
-    const date = document.querySelector('sf-view-properties [data-field="starts"] sf-input-date .sf-input').getBoundingClientRect();
-    return {fieldRight: Math.round(field.right), timeRight: Math.round(time.right), timeTop: Math.round(time.top), dateTop: Math.round(date.top),
-      timeWidth: Math.round(time.width),
-      // The footer bleeds into the gutter on purpose; what is measured is the row.
-      rowRight: Math.round(Math.max(...[...document.querySelectorAll('sf-view-properties [data-field="starts"] .sf-property-view-datetime *')]
-        .map((element) => element.getBoundingClientRect().right)))};
+    const control = document.querySelector('sf-view-properties [data-field="starts"] sf-input-date .sf-input').getBoundingClientRect();
+    return {fieldRight: Math.round(field.right), controlRight: Math.round(control.right)};
   });
   results.narrow = narrow;
-  if (narrow.timeRight > narrow.fieldRight || narrow.timeTop !== narrow.dateTop || narrow.rowRight > narrow.fieldRight) note({case: 'narrow', got: narrow});
+  if (narrow.controlRight > narrow.fieldRight) note({case: 'narrow', got: narrow});
   await page.setViewportSize({width: 1100, height: 900});
 
   // Untouched: only the field the person changed is written.
@@ -177,54 +168,56 @@ try {
   await page.evaluate(() => document.getElementById('view').changeField({key: 'title'}, 'Совещание'));
   const untouched = await saves();
   results.untouched = untouched;
-  if (untouched.values.length !== 1 || 'starts' in untouched.values[0] || 'ends' in untouched.values[0]) note({case: 'an untouched datetime is not written', got: untouched});
-
-  // A new value: a day, then the time.
-  await make('1');
-  await typeInto(dateInput('ends'), '20.11.2026');
-  const dayOnly = await look('ends');
-  const blocked = await saves();
-  results.dayOnly = {dayOnly, blocked};
-  if (dayOnly.error !== 'Укажите время' || blocked.answer !== 'refused' || blocked.values.length) note({case: 'a day without a time', got: {dayOnly, blocked}});
-  await typeInto(timeInput('ends'), '0930');
-  const both = await look('ends');
-  const written = await saves();
-  results.both = {both, written};
-  if (both.error !== null || both.timeValue !== '09:30' || written.values.length !== 1 || written.values[0].ends !== '2026-11-20T09:30:00' || 'starts' in written.values[0]) {
-    note({case: 'a new day and time', got: {both, written}});
+  if (untouched.values.length !== 1 || 'starts' in untouched.values[0] || 'ends' in untouched.values[0] || 'remind' in untouched.values[0]) {
+    note({case: 'an untouched datetime is not written', got: untouched});
   }
+
+  // A new value typed whole.
+  await make('1');
+  await typeInto(input('ends'), '20.11.2026 09:30');
+  const written = await saves();
+  results.written = written;
+  if (written.values.length !== 1 || written.values[0].ends !== '2026-11-20T09:30:00' || 'starts' in written.values[0]) note({case: 'a new day and time', got: written});
+
+  // A day alone is not a whole value: nothing is written for it.
+  await make('1');
+  await typeInto(input('ends'), '20.11.2026');
+  await page.evaluate(() => document.getElementById('view').changeField({key: 'title'}, 'Совещание'));
+  const partial = await saves();
+  results.partial = partial;
+  if (partial.values.length !== 1 || 'ends' in partial.values[0]) note({case: 'a day without a time writes nothing', got: partial});
 
   // A changed time keeps the record's zone.
   await make('1');
-  await typeInto(timeInput('starts'), '18:05');
+  await typeInto(input('starts'), '15.11.2026 18:05');
   const retimed = await saves();
   results.retimed = retimed;
   if (retimed.values[0]?.starts !== '2026-11-15T18:05:00+03:00') note({case: 'a changed time', got: retimed});
 
-  // Back to what it was writes nothing.
+  // Back to what it was writes nothing (a time of day stored to the minute;
+  // a datetime stored with seconds is written to the minute once its time is
+  // typed, which is the renderer set's round trip).
   await make('1');
-  await typeInto(timeInput('starts'), '18:05');
-  await typeInto(timeInput('starts'), '10:30');
+  await typeInto(input('remind'), '10:15');
+  await typeInto(input('remind'), '09:30');
   await page.evaluate(() => document.getElementById('view').changeField({key: 'title'}, 'Совещание'));
   const restored = await saves();
   results.restored = restored;
-  if ('starts' in (restored.values[0] ?? {})) note({case: 'back to the stored time', got: restored});
+  if ('remind' in (restored.values[0] ?? {})) note({case: 'back to the stored time', got: restored});
 
-  // Clearing both.
+  // Clearing.
   await make('1');
-  await typeInto(dateInput('starts'), '');
-  await typeInto(timeInput('starts'), '');
+  await typeInto(input('starts'), '');
   const cleared = await saves();
   results.cleared = cleared;
-  if (cleared.values[0]?.starts !== null) note({case: 'clearing both', got: cleared});
+  if (cleared.values[0]?.starts !== null) note({case: 'clearing', got: cleared});
 
-  // A time that is not one.
+  // A time of day.
   await make('1');
-  await typeInto(timeInput('starts'), '25:00');
-  const wrong = await look('starts');
-  const wrongSave = await saves();
-  results.wrong = {wrong, wrongSave};
-  if (!wrong.error?.startsWith('Укажите время в виде чч:мм') || wrongSave.answer !== 'refused' || wrongSave.values.length) note({case: 'a time that is not one', got: {wrong, wrongSave}});
+  await typeInto(input('remind'), '10:15');
+  const timed = await saves();
+  results.timed = timed;
+  if (timed.values[0]?.remind !== '10:15') note({case: 'a time of day', got: timed});
 
   console.log(JSON.stringify(results));
 } finally {

@@ -302,7 +302,9 @@ try {
     const timePicker = dateView.querySelector('[data-field="startsAt"] sf-input-date');
     const timeHeld = timePicker?.value ?? null;
     const timeShown = dateView.querySelector('[data-field="startsAt"] input')?.value ?? null;
-    timePicker?.dispatchEvent(new CustomEvent('change', {detail: {value: '2026-11-28'}}));
+    // Since 1.10.0 the control is sf-input-date in mode datetime: it holds the
+    // day and the time, and its change carries both («YYYY-MM-DDThh:mm»).
+    timePicker?.dispatchEvent(new CustomEvent('change', {detail: {value: '2026-11-28T13:26'}}));
     await new Promise((done) => setTimeout(done, 200));
     // `changed` is a Map, so a property read off it is always undefined --
     // which would report the clock as dropped whatever the code did.
@@ -1696,7 +1698,7 @@ try {
 
     // The three from the second stand run.
     const edited = measured.edits ?? {};
-    if (edited.timeHeld !== '2026-11-27' || !edited.timeShown) {
+    if (!String(edited.timeHeld ?? '').startsWith('2026-11-27') || !edited.timeShown) {
       note({case: 'a datetime field shows the day it holds',
         got: {held: edited.timeHeld, shown: edited.timeShown},
         expected: "2026-11-27 held and something shown -- the date control parses an anchored ISO date, so a value carrying a clock falls through to a loose digit scan and renders nothing"});
@@ -1704,7 +1706,7 @@ try {
     if (edited.timeWritten !== '2026-11-28T13:26:00') {
       note({case: 'editing the day of a datetime keeps the clock',
         got: edited.timeWritten,
-        expected: "2026-11-28T13:26:00 -- the control returns a day, so the time the record held has to be put back, or the value silently moves to midnight"});
+        expected: "2026-11-28T13:26:00 -- a new day with the time the record held, never a value moved to midnight"});
     }
     if (edited.dateHeld !== '2027-01-13' || !edited.dateShown) {
       note({case: "a date editor takes the value while the view reads the host's text",

@@ -467,29 +467,20 @@
     display: flex;
   }
 
-  /* A datetime is a day and a time on one row (js/datetime-edit.js): the day
-     as wide as a date field is anywhere in the view, the time as wide as
-     «00:00» in its own font, so it follows the field's size step with the
-     datepicker. Both are the same size on the ladder, so they stand at one
-     height. The row does not wrap: a time under its day reads as a second
-     field. */
-  .sf-property-view-datetime {
-    display: flex;
-    align-items: center;
-    gap: var(--sf-space-2);
+  /* A colour with a palette wraps inside its field: the chip, the code, the
+     swatches and the reset stood on one unwrapping line of 463px in a
+     half-width field of 266, and the swatches ran over the field beside it
+     (the Fields page, 2026-11-05). sf-input-color's painted root is the flex
+     item (the host is display: contents); its row wraps, and the swatches wrap
+     among themselves on a line of their own when they have to. */
+  .sf-property-view-field-value .sf-color {
+    flex-wrap: wrap;
     max-inline-size: 100%;
     min-inline-size: 0;
   }
 
-  /* Both hosts are display: contents, so the flex items are what they draw:
-     the datepicker's wrap and the time field's root (its root-class). */
-  .sf-property-view-datetime > sf-input-date > .sf-datepicker-wrap {
-    flex: 0 1 auto;
-    min-inline-size: 0;
-  }
-
-  .sf-property-view-datetime .sf-property-view-datetime-time-field {
-    flex: 0 0 6.5em;
+  .sf-property-view-field-value .sf-color-swatches {
+    flex-wrap: wrap;
     min-inline-size: 0;
   }
 
@@ -910,6 +901,18 @@
      the panel. */
   .sf-property-view-edge sf-button-icon button {
     border-radius: 50%;
+  }
+  /* Closed is nothing drawn. sf-drawer slides a closed panel past the window's
+     edge, and its edge strip -- this panel's close and copy-link -- stays where
+     it stood, so a closed panel left its round close button over the page, and
+     the panel's shadow along the window's edge (2026-11-05). The strip goes at
+     once; the panel when its slide out is over, so the close still moves. */
+  .sf-drawer:not(.is-open) .sf-drawer-edge:has(> .sf-property-view-edge) {
+    visibility: hidden;
+  }
+  .sf-drawer:not(.is-open) .sf-drawer-panel:has(.sf-property-view-panel) {
+    visibility: hidden;
+    transition: transform var(--sf-duration-normal) var(--sf-ease-exit), visibility 0s linear var(--sf-duration-normal);
   }
   /* A panel filling the screen has the strip inside it, in a row along its top
      at the drawer's inline step (space-1). The head starts its line after the

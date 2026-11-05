@@ -29,8 +29,8 @@ import {FOCUSABLE} from "../../core/js/layer-stack";
 import {renderPropertyViewTemplate} from "./js/templates/default";
 // The day-and-time reading is the field renderers' (A-14): this view kept a
 // copy from before it was lifted into the Framework.
-import {composeDateTime, normalizeTime, splitDateTime} from "../field-renderers/datetime.js";
 import {fieldConditions} from "./js/conditions.js";
+import {formatDateValue} from "../view-table/js/format-value.js";
 
 // Every port version this composite accepts, in one place, the way sf-view
 // keeps its list -- a guard naming a narrower set than the published versions is
@@ -295,12 +295,9 @@ class SfPropertyView extends PropertyViewElement {
         this.editing = null;
         this.changed = new Map();
         this.errors = new Map();
-        // What a person has entered into a field that is not a value yet: a
-        // datetime's day and time, held until both make one (inputDrafts), and
-        // what is wrong with an entry that cannot be written (inputErrors).
-        // The view's own, so a host's refusal does not replace them; a save
-        // waits until they are put right.
-        this.inputDrafts = new Map();
+        // What is wrong with an entry a field control reports it cannot write
+        // yet (inputErrors). The view's own, so a host's refusal does not
+        // replace them; a save waits until they are put right.
         this.inputErrors = new Map();
         // The keys of inputErrors a field control reported itself (port 1.16.0:
         // a masked string that does not fill its mask, through the renderer
@@ -1455,6 +1452,28 @@ class SfPropertyView extends PropertyViewElement {
         return Object.fromEntries([...this.changed].filter(([key]) => !hidden.has(key)));
     }
 
+    // The host as the renderer set reads a field shown: its formatFieldValue
+    // first, and for a date it did not format, the date in the page's language
+    // (format-date), as sf-view-table's cells read it. A date stood in the card
+    // as stored -- «2026-11-02» -- unless the host formatted it (2026-11-05).
+    get viewHost() {
+        const host = this.hostPort ?? null;
+        if (this._viewHost?.host === host) return this._viewHost.view;
+        // Everything else the host offers the renderer set (its words, say) is
+        // reached through it unchanged.
+        const view = Object.create(host && typeof host === "object" ? host : null);
+        Object.assign(view, {
+            formatFieldValue: (field, value) => {
+                const own = host?.formatFieldValue?.(field, value);
+                if (typeof own === "string") return own;
+                const type = field?.propertyType ?? field?.property_type ?? field?.type ?? field?.dataType;
+                return formatDateValue(type, value, this) || undefined;
+            },
+        });
+        this._viewHost = {host, view};
+        return view;
+    }
+
     templateContext() {
         const props = this.getPropsContext();
 
@@ -1462,6 +1481,7 @@ class SfPropertyView extends PropertyViewElement {
             ...props,
             component: this,
             hostPort: this.hostPort,
+            viewHost: this.viewHost,
             size: this.size,
             mode: this.mode,
             mayEdit: this.mayEdit,
@@ -1498,11 +1518,6 @@ class SfPropertyView extends PropertyViewElement {
             // is wrong beside it and each message under its field.
             inputsInvalid: this.inputErrors.size > 0,
             controlErrors: this.controlErrors,
-            dateTimeText: {
-                dateLabel: pageText(PROPERTY_VIEW_TEXT, "dateTimeDateLabel", this),
-                timeLabel: pageText(PROPERTY_VIEW_TEXT, "dateTimeTimeLabel", this),
-                placeholder: pageText(PROPERTY_VIEW_TEXT, "timePlaceholderText", this),
-            },
             canPickRecords: this.canPickRecords,
             canUploadFiles: this.canUploadFiles,
             // The base captures the host's slot content in connectedCallback,
@@ -1978,9 +1993,9 @@ class SfPropertyView extends PropertyViewElement {
     }
 
     // What would be lost by closing: every changed field, and every entry that
-    // is not a value yet -- a day picked for a datetime whose time is still
-    // empty is work the person did, though there is nothing to save (Larena
-    // acceptance, 2026-10-22: Esc after picking a day closed without asking).
+    // is not a value yet -- a masked text not filled in is work the person did,
+    // though there is nothing to save (Larena acceptance, 2026-10-22: Esc after
+    // an entry closed without asking).
     get unsavedFields() {
         return new Set([...this.changed.keys(), ...this.inputErrors.keys()]).size;
     }
@@ -2172,7 +2187,12 @@ class SfPropertyView extends PropertyViewElement {
     // not an empty value that would clear what the host keeps.
     changeField(field, value) {
         const key = String(field.key ?? "");
-        if (value === undefined) this.changed.delete(key);
+        // Back to what the record holds is no change. A control is drawn with
+        // the change it made, so it compares a later entry with that and not
+        // with the record: a time put back to the stored one was written.
+        const stored = Object.hasOwn(field ?? {}, "value") && value !== undefined
+            && JSON.stringify(value) === JSON.stringify(field.value ?? null);
+        if (value === undefined || stored) this.changed.delete(key);
         else this.changed.set(key, value);
         this.errors.delete(key);
         // A confirmation described the save as it stood; an entry changed after
@@ -2182,40 +2202,7 @@ class SfPropertyView extends PropertyViewElement {
         return this;
     }
 
-    // A datetime's day or time, as the person entered it (js/datetime-edit.js).
-    // The two make one value; until they do, the entry is held as a draft and
-    // what is missing is said under the field, as a host's error would be.
-    dateTimeDraft(key) {
-        return this.inputDrafts.get(String(key)) ?? null;
-    }
-
-    changeDateTime(field, value, part, text) {
-        const key = String(field.key ?? "");
-        // What the record holds, and what the controls show now: the draft,
-        // or the value the field is drawn with (a change not yet saved).
-        const original = splitDateTime(field.value);
-        const current = this.inputDrafts.get(key) ?? splitDateTime(value);
-        // A time that reads as one is kept as hh:mm, so «0930» typed without
-        // the mask shows as 09:30; anything else stays as typed, to be put right.
-        const typed = String(text ?? "");
-        const draft = {...current, [part]: part === "time" ? normalizeTime(typed) ?? typed : typed};
-        this.inputDrafts.set(key, draft);
-        const result = composeDateTime(original, draft);
-        if (result.error) {
-            this.changed.delete(key);
-            this.errors.delete(key);
-            this.inputErrors.set(key, pageText(PROPERTY_VIEW_TEXT, `${result.error}Text`, this));
-            this.requestComponentUpdate("errors");
-            return this;
-        }
-        this.inputErrors.delete(key);
-        // Back to what the record holds is no change: nothing is written.
-        const same = result.value === null ? original.known && !original.date : result.value === original.raw;
-        return this.changeField(field, same ? undefined : result.value);
-    }
-
     _clearInputs() {
-        this.inputDrafts.clear();
         this.inputErrors.clear();
         this.controlErrors.clear();
     }
@@ -2224,8 +2211,7 @@ class SfPropertyView extends PropertyViewElement {
     // consumer simai.main): a masked string that does not fill its mask. The
     // renderer set tells the host through setFieldError(field, message) on
     // every keystroke, and null once the text is complete or cleared. Such an
-    // entry is held where a datetime's half-entered pair is held, in
-    // inputErrors, so the same rule stops both saves -- group.save and
+    // entry is held in inputErrors, so the same rule stops both saves -- group.save and
     // record.save («Изменить всё») -- and Save is drawn disabled while any field
     // of the surface is incomplete. Each field is its own key, so one masked
     // field completed does not release another still incomplete. What was typed

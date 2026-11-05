@@ -33,8 +33,13 @@ const modules = [
 ].map((p) => join(out, p));
 
 const TWO = 'Длинное название записи, которое занимает две строки';
+// The records offer an action, so each row has a menu and the list draws its
+// whole chrome: since sf-view-table 1.15.0 a settings column with nothing to
+// open (no column settings, no row actions) is not drawn, and the published
+// box is the box of a list with its chrome.
 const answer = {
-  records: [1, 2, 3, 4].map((n) => ({id: String(n), revision: 'r', title: n === 3 ? TWO : `Запись ${n}`, state: 'Опубликована'})),
+  records: [1, 2, 3, 4].map((n) => ({id: String(n), revision: 'r', title: n === 3 ? TWO : `Запись ${n}`, state: 'Опубликована', actions: ['archive']})),
+  row_actions: [{id: 'archive', label: 'В архив'}],
   total: 4, echo: {page: 1, per_page: 20}, columns: [{key: 'title', label: 'Название', width: 180}, {key: 'state', label: 'Состояние'}],
 };
 const view = (size) => `<div style="width:1000px;margin-block-end:40px"><sf-view id="v${size === '1/2' ? 'half' : 'one'}" aria-label="Список" size="${size}" chrome="toolbar select settings">

@@ -8,6 +8,8 @@ import ru from "./lang/ru.json";
 import {renderTableTemplate, columnStyle} from "./js/templates/default";
 import {optionBadgeProps} from "../helpers/option-badge.js";
 import {renderCellField, renderFilterField} from "../field-renderers/index.js";
+import {htmlText} from "../field-renderers/html.js";
+import {DATE_TYPES, formatDateValue} from "./js/format-value.js";
 import {html, nothing, render} from "lit";
 import {ref} from "lit/directives/ref.js";
 import {pageText} from "../../core/js/page-language";
@@ -1420,7 +1422,7 @@ class SfTable extends TableElement {
         if (value === null || typeof value === "undefined") return {kind: "empty"};
         if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") return null;
         if (LONG_TEXT_CELL_TYPES.has(column.propertyType ?? column.property_type ?? column.type) && typeof value !== "boolean") {
-            const text = String(value);
+            const text = this.cellText(column, value);
             return {kind: "text", className: "sf-table-cell-clip", text, title: text};
         }
         const typed = this.getTypedCellValue(column, value);
@@ -2881,13 +2883,26 @@ class SfTable extends TableElement {
         return !(column.colWidth ?? column.width ?? column.size ?? column.min_width ?? column.minWidth);
     }
 
+    // The settings column carries two things: the gear in its head, which
+    // opens the column settings (settings-menu), and the ≡ in each row, which
+    // opens the row's menu of actions. With neither -- no column settings, no
+    // row actions to list, no rows to put in order -- it is an empty column
+    // of buttons that open nothing, and it is not drawn (Larena, the sites
+    // list, 2026-11-05: a «≡» column beside every row of a list without
+    // actions).
+    settingsColumnHasUse(props = this.getPropsContext()) {
+        if (props.settingsMenu !== false) return true;
+        if (props.rowReorder === true) return true;
+        return (this.ACTIONS_SETTINGS_ROW ?? []).length > 0;
+    }
+
     getSystemColumns() {
         const columns = [];
         const props = this.getPropsContext();
         if (props.selectable) {
             columns.push(this.getSelectColumn());
         }
-        if (props.settings) {
+        if (props.settings && this.settingsColumnHasUse(props)) {
             columns.push(this.TABLE_SETTINGS_COLUMN);
         }
         if (props.actions && props.rowActions && this.state.actionActive) {
@@ -4118,7 +4133,30 @@ class SfTable extends TableElement {
         // «2026-09-25T07:12:00+03:00» in a row, and a consumer had no way to
         // change the second. The set still refuses to guess a format; this only
         // lets the host say one (admin polygon, 2026-10-10).
-        return renderCellField(column, value, this.cellHost ?? null);
+        const host = this.cellHost ?? null;
+        const type = column.propertyType ?? column.property_type ?? column.type;
+        // Several files are one value each, as several choices are tags: the
+        // renderer set reads a file and not a list of them, so a column of
+        // documents drew nothing at all (the Fields page, 2026-11-05). Each is
+        // its name with its kind's icon, and what does not fit folds into «+N».
+        if (type === "file" && Array.isArray(value)) {
+            const files = value.map((file) => renderCellField(column, file, host)).filter((item) => item !== null && item !== undefined);
+            return files.length ? files : null;
+        }
+        const rendered = renderCellField(column, value, host);
+        if (rendered !== null && rendered !== undefined) return rendered;
+        // A date the host did not format reads in the page's language rather
+        // than as stored (format-date); the host's formatFieldValue still wins.
+        if (DATE_TYPES.has(type)) return formatDateValue(type, value, this) || null;
+        return null;
+    }
+
+    // The text a long-text cell shows on its one line: formatted text is its
+    // text, not its markup -- «<p>Этапы: <strong>дизайн</strong>…» stood in
+    // the row as written (the Fields page, 2026-11-05).
+    cellText(column = {}, value) {
+        const type = column.propertyType ?? column.property_type ?? column.type;
+        return type === "html" ? htmlText(value) : String(value);
     }
 
     // The filter controls were the Framework's only type-aware rendering, and
