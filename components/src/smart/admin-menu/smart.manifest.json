@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -1297,6 +1297,13 @@
           "navigation.load carries `page`, the page's path and query, and is asked again after a region swap; a host answers `context`, the object menu of that page, or leaves it out.",
           "New setting first-answer: a server prints the first navigation.load answer in the menu's data-sf-settings island and the menu is drawn from it at once, without a skeleton; the port answers behind it."
         ]
+      },
+      {
+        "from": "1.7.0",
+        "to": "1.7.1",
+        "changes": [
+          "The caption «Общее для всех сайтов» under a section of the install level is drawn only when the host offers the site switch (capabilities include site-switch). Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1318,7 +1325,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
-        "sha256": "3801c2154c94cd43b00dfcb8e5074b961c9b74432c528630dd784fa6d38db35b"
+        "sha256": "8785ee603b4b029e795f47bef445743d8db403d1df5c4a722df23e40b5d707ab"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/palette.js",
@@ -1346,7 +1353,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "e34550a34b5b399a87245ab57285e417f87314edc635c2c3cd83ca4cf00d994b"
+        "sha256": "539e10a2ffc5098c636ce941fa9c5fc0285d627ae1d9d5f3c8bf9845cd717ed6"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

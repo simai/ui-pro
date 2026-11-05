@@ -336,6 +336,12 @@ function renderSecondColumn(context) {
     if (context.objectMenu) return renderObjectColumn(context, context.objectMenu);
     if (!openRoot) return nothing;
     const install = openRoot.level === "install";
+    // «Общее для всех сайтов» says the section is not the current site's, which
+    // only means something where the menu switches sites (IA-07, Larena Panel
+    // audit 2026-11-05): a host with one site has no other site to share with.
+    const caption = install
+        ? (controller.canSwitchSite() ? text("allSites") : "")
+        : navigation?.site?.current?.label ?? "";
     const rows = controller.rowsOf(openRoot);
     return html`<div class="sf-admin-nav-second" aria-label=${openRoot.label}>
         <div class="sf-admin-nav-second-head">
@@ -343,9 +349,8 @@ function renderSecondColumn(context) {
                 icon="arrow_back" aria-label=${text("back")} @click=${() => controller.back()}></sf-button-icon>`}
             <div class="sf-admin-nav-second-title">
                 <span class="sf-admin-nav-second-label">${openRoot.label}</span>
-                <span class="sf-admin-nav-second-caption" data-install=${install ? "true" : nothing}>${install
-                    ? text("allSites")
-                    : navigation?.site?.current?.label ?? ""}</span>
+                ${caption ? html`<span class="sf-admin-nav-second-caption"
+                    data-install=${install ? "true" : nothing}>${caption}</span>` : nothing}
             </div>
             ${wide ? html`<sf-button-icon size="1/2" appearance="ghost" scheme="on-surface"
                 icon="left_panel_close" aria-label=${text("hideColumn")} title=${text("hideColumn")}
