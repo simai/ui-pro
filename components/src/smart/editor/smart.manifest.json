@@ -545,7 +545,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/editor/index.js",
-        "sha256": "3b36b50987f643d5099ae88b20981c894d785f6d6a50465a4669996cb9cafe88"
+        "sha256": "0a70a8701ecc798f2326dce0d48a197fcb4960df611a99be5c04e9c137ac3b76"
       },
       {
         "path": "src/smart/editor/js/model.mjs",

@@ -1095,9 +1095,11 @@ class SfEditor extends EditorElement {
         // no box: the catalogue stands by the button it draws (G-37).
         const rect = boxOf(anchor) ?? {left: 0, right: 0, bottom: 0, top: 0};
         // The one list of sections (1.2.0): between blocks the + opens on the
-        // sections, in a text flow and for / on Text, when the place takes some.
+        // sections, in a text flow and for / on Text, when the place takes some;
+        // a place that takes one section only (a named place of media) opens it.
         const wanted = sectionForPlace(this.model, place, mode);
-        const section = wanted && sectionsOf(this.catalogue(place).items).some((entry) => entry.id === wanted) ? wanted : "";
+        const fitting = sectionsOf(this.catalogue(place).items);
+        const section = wanted && fitting.some((entry) => entry.id === wanted) ? wanted : fitting.length === 1 ? fitting[0].id : "";
         this.pop = {mode, place, slashId, x: rect.left, y: rect.bottom + 4, above: rect.top - 4, section};
         this.popQuery = "";
         this.popActive = 0;

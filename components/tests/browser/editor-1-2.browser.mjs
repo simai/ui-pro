@@ -205,6 +205,13 @@ const EMPTY_LINE = page('empty', {main: [{id: 'w1', type: 'layout.section', prop
     {id: 'we', type: 'content.paragraph', data: {content: []}},
   ]}},
 ]}}]});
+// The section's accent variant with a heading and a line in it.
+const ACCENT = page('accent', {main: [{id: 'ac', type: 'layout.section', props: {background: 'accent'}, extensions: {'simai.composition:variant': {id: 'accent'}}, slots: {default: [
+  {id: 'aa', type: 'layout.area', slots: {default: [
+    {id: 'ah', type: 'content.heading', data: {level: 2, content: t('Ready to start?')}},
+    {id: 'ap', type: 'content.paragraph', data: {content: t('Leave a request and we call you back.')}},
+  ]}},
+]}}]});
 const popState = (tab) => tab.evaluate(() => {
   const pop = document.querySelector('#editor .sf-editor-pop');
   if (!pop) return null;
@@ -342,13 +349,8 @@ try {
   // ---------------------------------------------------------------- accent
   await scenario('accent', async () => {
     for (const theme of ['light', 'dark']) {
-      const tab = await open({theme});
-      const id = await tab.evaluate(() => {
-        const editor = document.getElementById('editor');
-        const made = editor.model.insert({type: 'layout.section', variant: 'accent'}, editor.model.placeAfter('s2'));
-        editor.redraw();
-        return made.id;
-      });
+      const tab = await open({theme, doc: ACCENT});
+      const id = 'ac';
       await settle(tab, 500);
       const seen = await tab.evaluate((id) => {
         const section = document.querySelector(`#editor .sf-editor-page [data-sf-composition-id="${id}"]`);
@@ -384,7 +386,8 @@ try {
     await settle(tab, 500);
     const seen = await tab.evaluate((id) => {
       const editor = document.getElementById('editor');
-      const grids = id ? [...document.querySelectorAll(`#editor .sf-editor-page [data-sf-composition-id="${id}"]`)].filter((node) => node.classList.contains('grid')) : [];
+      const block = id ? document.querySelector(`#editor .sf-editor-page [data-sf-composition-id="${id}"]`) : null;
+      const grids = block ? [block, ...block.querySelectorAll('.grid')].filter((node) => node.classList.contains('grid')) : [];
       return {screen: editor.screenName, grids: grids.map((grid) => ({classes: grid.className, tracks: getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length}))};
     }, id);
     const html = await tab.evaluate(async () => (await document.getElementById('editor').model.toHTML()).html);
