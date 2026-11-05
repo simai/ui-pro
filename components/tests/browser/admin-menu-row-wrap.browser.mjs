@@ -7,8 +7,9 @@
 // the first column, a row of a root in the second column and a row of an
 // object menu with a badge:
 //   - no row name is cut: its words are all on screen (no overflow);
-//   - a long name is two lines, and its row is one text line taller than a
-//     one-line row -- which keeps its height (icon-size-2 + 2 * a6);
+//   - «Программы и обновления» is two lines in the second column, a longer
+//     name as many as it needs; a row is a text line taller per added line,
+//     and a one-line row keeps its height (icon-size-2 + 2 * a6);
 //   - the glyph, the chevron and the badge stand on the middle of the first
 //     line, within a pixel.
 // With --shots it also writes the screenshots (light and dark).
@@ -161,8 +162,12 @@ const judge = (where, {rows, single}) => {
       if (row[part] !== null && Math.abs(row[part]) > 1) note({case: `${where}: «${row.text}» ${part} on the middle of the first line`, got: row});
     }
   }
+  // Larena's own name is two lines in the second column; a longer one takes
+  // as many as it needs, each a text line of the ladder.
+  const larena = rows.filter((row) => row.text === LARENA && row.column === 'second');
+  if (!larena.length || larena.some((row) => row.lines !== 2)) note({case: `${where}: «${LARENA}» takes two lines`, got: larena});
   const long = rows.filter((row) => row.text === LONG);
-  if (!long.length || long.some((row) => row.lines !== 2)) note({case: `${where}: the long name takes two lines`, got: long});
+  if (!long.length || long.some((row) => row.lines < 2)) note({case: `${where}: a longer name wraps too`, got: long});
   const short = rows.filter((row) => ['Обзор', 'PHP', 'Сайты'].includes(row.text));
   if (short.some((row) => row.lines !== 1 || Math.abs(row.height - single) > 0.5)) note({case: `${where}: a one-line row keeps its height`, got: short});
 };
