@@ -585,8 +585,8 @@
   },
   "port": {
     "id": "simai.admin-navigation-port",
-    "version": "1.0.0",
-    "contract": "src/core/contracts/ports/simai.admin-navigation-port/1.0.0/port.json"
+    "version": "1.1.0",
+    "contract": "src/core/contracts/ports/simai.admin-navigation-port/1.1.0/port.json"
   },
   "relations": [
     {
@@ -946,7 +946,7 @@
     "version 1.6.6: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the navigation menu and the row menus are sf-menu-context, the icon buttons sf-button-icon. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0).",
     "version 1.6.7: the edit panel imports its icon choices from src/smart/view-properties (rename plan R2 moved the folder); a package build failed on the former path.",
     "version 1.6.8: the row glyph chooser takes SIMAI Framework's choice list (core/js/icon-choices.js, core.runtime 1.25.0; duplication audit 2026-11-03 A-1) instead of importing sf-view-properties' file. Behaviour unchanged.",
-    "version 1.7.0 (owner 2026-11-05, after the Larena Panel UX audit; Larena request msg-955aa941487545d68f4a): never more than two menus on screen, and the second column is about where the person is. It shows the page's object menu (navigation.context: title, subtitle, status, back, groups of link rows, current), else the root that holds the page's row, else nothing -- never a root left open on another page (the per-site openRoots memory is gone). A root clicked in the first column is shown until a page is opened; then the column follows the page again. Whether the column is open is the person's one choice on every page and site (SF.Preferences sf-admin-menu/main `second`; a person who had closed it everywhere under openRoots finds it closed), which keeps the 2026-10-13 rule that the menu does not jump open or closed; a closed column with something to show gets a «Показать колонку» button beside the fold. navigation.load carries the page's address as `page` (path and query) and is asked again after a region swap, whose answer replaces or removes the object menu. The object menu's rows are ordinary links: no port intent, no favourite, not in the edit mode; a plain click goes by region when the shell has it and tells `navigate` {id, key, href, region}. On a phone it is the screen the menu opens on, with its back link at the top. New setting first-answer: the first navigation.load answer printed in the data-sf-settings island, drawn at once without a skeleton or a port. Port fields `page` (payload) and `context` (data) are additions the port contract simai.admin-navigation-port 1.0.0 in ui-source does not list yet (its schemas are closed): a host that validates them strictly needs the contract's next minor."
+    "version 1.7.0 (owner 2026-11-05, after the Larena Panel UX audit; Larena request msg-955aa941487545d68f4a): never more than two menus on screen, and the second column is about where the person is. It shows the page's object menu (navigation.context: title, subtitle, status, back, groups of link rows, current), else the root that holds the page's row, else nothing -- never a root left open on another page (the per-site openRoots memory is gone). A root clicked in the first column is shown until a page is opened; then the column follows the page again. Whether the column is open is the person's one choice on every page and site (SF.Preferences sf-admin-menu/main `second`; a person who had closed it everywhere under openRoots finds it closed), which keeps the 2026-10-13 rule that the menu does not jump open or closed; a closed column with something to show gets a «Показать колонку» button beside the fold. navigation.load carries the page's address as `page` (path and query) and is asked again after a region swap, whose answer replaces or removes the object menu. The object menu's rows are ordinary links: no port intent, no favourite, not in the edit mode; a plain click goes by region when the shell has it and tells `navigate` {id, key, href, region}. On a phone it is the screen the menu opens on, with its back link at the top. New setting first-answer: the first navigation.load answer printed in the data-sf-settings island, drawn at once without a skeleton or a port. Port fields `page` (payload) and `context` (data) are simai.admin-navigation-port 1.1.0 (ui-source), which the menu declares; it still takes a 1.0.0 host, which sends no `context` and ignores `page`. A long row name takes a second line instead of an ellipsis, in both columns and in the object menu (Larena Panel audit, 2026-11-05: «Программы и обновления»): the row grows by one text line, its glyph, chevron and badge stay on the middle of the first line, and a one-line row keeps its height."
   ],
   "x-registry": {
     "kind": "composite",
@@ -1045,11 +1045,12 @@
       },
       "host_port": {
         "port": "simai.admin-navigation-port",
-        "version": "1.0.0",
-        "path": "src/core/contracts/ports/simai.admin-navigation-port/1.0.0/port.json",
-        "sha256": "467091d6c2e61b9956551cfe532ef9508ef994fa685582edfeb34882aa3c178c",
+        "version": "1.1.0",
+        "path": "src/core/contracts/ports/simai.admin-navigation-port/1.1.0/port.json",
+        "sha256": "6280add7a969ea06ff92183b95bc845f2d3ffc0d959f742ca81b96e22623a324",
         "supported_versions": [
-          "1.0.0"
+          "1.0.0",
+          "1.1.0"
         ]
       }
     },

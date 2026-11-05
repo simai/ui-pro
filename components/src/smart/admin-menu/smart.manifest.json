@@ -122,11 +122,12 @@
       },
       "host_port": {
         "port": "simai.admin-navigation-port",
-        "version": "1.0.0",
-        "path": "src/core/contracts/ports/simai.admin-navigation-port/1.0.0/port.json",
-        "sha256": "467091d6c2e61b9956551cfe532ef9508ef994fa685582edfeb34882aa3c178c",
+        "version": "1.1.0",
+        "path": "src/core/contracts/ports/simai.admin-navigation-port/1.1.0/port.json",
+        "sha256": "6280add7a969ea06ff92183b95bc845f2d3ffc0d959f742ca81b96e22623a324",
         "supported_versions": [
-          "1.0.0"
+          "1.0.0",
+          "1.1.0"
         ]
       }
     }
@@ -1313,7 +1314,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
-        "sha256": "a1379f829cc1fc503d24f80b528734fe1da820991785a1e2c61f10120acf5718"
+        "sha256": "b3fe40330fa65eeb630ff183ef2ff4666c7e1bff49367ba70d835b056314cf04"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
@@ -1333,7 +1334,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/controller.js",
-        "sha256": "bb74c66140ac61ff1146297791ba5277e0bedb1ad8ea9127652fedac8e806bf5"
+        "sha256": "cb8488e888531d36f19ff5eb62eff4faba6655df624d2115d841f00c0fb7e000"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/menu.js",
@@ -1345,7 +1346,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "f27d6dc7fb83738e50161a1d7710ce52b0d8bd6ff2283dd7572cbb55566b8a0a"
+        "sha256": "e34550a34b5b399a87245ab57285e417f87314edc635c2c3cd83ca4cf00d994b"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

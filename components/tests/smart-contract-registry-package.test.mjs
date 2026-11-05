@@ -25,7 +25,9 @@ test("the package composites are generated into the searchable registry beside t
   // the one block editor (owner 2026-11-03), make 84. sf-confirm-change moved to
   // the Framework with the new sf-confirm (block confirm, stage 1 of the
   // component sets, 2026-11-03): 68 free and 17 of the package make 85.
-  assert.equal(registry.entries.length, 85);
+  // sf-alert-bar, sf-list and sf-list-feed (wave 2, ui-62b1d9b6dc8d): 71 free
+  // and 17 of the package make 88.
+  assert.equal(registry.entries.length, 88);
   assert.ok(registry.entries.some((entry) => entry.id === "smart.confirm-change"), "sf-confirm-change, now the Framework's");
   for (const id of ["smart.admin-menu", "smart.view-table", "smart.view", "smart.view-properties",
     "smart.message-log", "smart.chat-threads", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",

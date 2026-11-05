@@ -36,7 +36,7 @@ export const NAVIGATION_PORT = "simai.admin-navigation-port";
 
 // Every port version this shell accepts, in one place, the way sf-view and
 // sf-view-properties keep theirs.
-export const SUPPORTED_NAVIGATION_VERSIONS = ["1.0.0"];
+export const SUPPORTED_NAVIGATION_VERSIONS = ["1.0.0", "1.1.0"];
 
 // The width at which two columns become two screens. The same query
 // sf-view-properties and sf-drawer switch on, written the same way, so a reader
