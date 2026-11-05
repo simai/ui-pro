@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import Composition from "../src/core/js/composition/index.mjs";
 import {EditorModel, VARIANT_EXTENSION, inlineToMarkdown, refusedClasses} from "../src/smart/editor/js/model.mjs";
-import {catalogueAt, itemKey, pick, pushRecent, searchItems, skeletonOf, tabForPlace, toggleFavourite} from "../src/smart/editor/js/catalogue.mjs";
+import {catalogueAt, itemKey, pick, pushRecent, searchItems, sectionForPlace, sectionsOf, skeletonOf, tabForPlace, toggleFavourite} from "../src/smart/editor/js/catalogue.mjs";
 import cardsType from "../src/core/kits/block/sample-cards/type.json" with {type: "json"};
 import cardsEditor from "../src/core/kits/block/sample-cards/editor.json" with {type: "json"};
 import renderCards from "../src/core/kits/block/sample-cards/renderer.mjs";
@@ -545,4 +545,69 @@ test("G-29: refused classes are grouped by reason, by name", () => {
     ]);
     assert.deepEqual(refusedClasses([]), []);
     assert.deepEqual(refusedClasses(undefined), []);
+});
+
+test("1.2.0 G-20: + and / list the library's sections; a type stands in each of its groups, a search names it once", () => {
+    const model = editor();
+    const word = (key) => key;
+    const between = catalogueAt(model, model.placeAfter("s1"), {word});
+    const sections = sectionsOf(between.items);
+    const ids = sections.map((section) => section.id);
+    for (const id of ["text", "media", "forms"]) assert.ok(ids.includes(id), `section ${id}`);
+    const button = between.items.find((item) => item.type === "element.button");
+    assert.ok(button, "a button can stand between sections");
+    assert.deepEqual(button.groups.slice(1), ["text"], "the button is also in Text (catalogue.also_in)");
+    const inText = sections.find((section) => section.id === "text").types.map((type) => type.type);
+    assert.ok(inText.includes("element.button"), "the button is listed under Text too");
+    assert.equal(sections.find((section) => section.id === "text").count, sections.find((section) => section.id === "text").types.length, "the count is the types it lists");
+    const forms = sections.find((section) => section.id === "forms").types.map((type) => type.type);
+    for (const type of ["form.form", "form.input", "form.textarea", "form.checkbox", "form.switch", "form.select", "form.button-submit"]) assert.ok(forms.includes(type), type);
+    const found = sectionsOf(searchItems(between.items, "button", {word}), {own: true}).flatMap((section) => section.types.map((type) => type.type));
+    assert.equal(found.filter((type) => type === "element.button").length, 1, "found once");
+    assert.equal(sectionForPlace(model, model.placeAfter("p1"), "slash"), "text", "/ opens Text first");
+    assert.equal(sectionForPlace(model, model.placeAfter("s1"), "plus"), "", "+ between sections opens the list of sections");
+});
+
+test("1.2.0 G-21: reset after a change returns the variant's value, then the type's", () => {
+    const model = editor();
+    const made = model.insert({type: "layout.section", variant: "accent"}, model.placeAfter("s1"));
+    assert.equal(made.ok, true, JSON.stringify(made));
+    let field = model.fields(made.id, "xs").find((entry) => entry.key === "background");
+    assert.deepEqual([field.origin, field.value], ["variant", "accent"]);
+    model.setParam(made.id, "background", "primary");
+    field = model.fields(made.id, "xs").find((entry) => entry.key === "background");
+    assert.deepEqual([field.origin, field.value], ["block", "primary"]);
+    assert.equal(field.resetTo, "accent", "the reset returns to the variant's value");
+    model.setParam(made.id, "background", "accent");
+    field = model.fields(made.id, "xs").find((entry) => entry.key === "background");
+    assert.deepEqual([field.origin, field.value], ["variant", "accent"], "set back by hand, the variant's value is kept, not dropped");
+    model.setParam(made.id, "background", "primary");
+    model.resetParam(made.id, "background");
+    field = model.fields(made.id, "xs").find((entry) => entry.key === "background");
+    assert.deepEqual([field.origin, field.value], ["variant", "accent"], "back to the variant's value");
+    model.resetParam(made.id, "background");
+    field = model.fields(made.id, "xs").find((entry) => entry.key === "background");
+    assert.equal(field.origin, "type", "a second reset leaves the type's value");
+    valid(model);
+});
+
+test("1.2.0 G-42: a site block's instance takes only its exposed parameters, no own classes", () => {
+    const model = editor();
+    const builder = model.startBuilder({from: "s1"}).builder;
+    builder.exposed = [{key: "background", path: "s1", target: "props.background"}];
+    const saved = model.saveBuilder(builder, {name: "Promo"});
+    assert.equal(saved.ok, true, JSON.stringify(saved.diagnostics));
+    const instance = model.node("mn").slots.default[0];
+    assert.deepEqual(model.fields(instance.id, "xs").map((field) => field.key), ["background"]);
+    assert.equal(model.setModifiers(instance.id, "m-t-2").reason, "closed");
+});
+
+test("1.2.0: the accent section and the grid that holds three columns on the phone", async () => {
+    const model = editor();
+    const made = model.insert({type: "layout.section", variant: "accent"}, model.placeAfter("s1"));
+    const html = (await model.toHTML()).html;
+    assert.match(html, new RegExp(`<section class="bg-primary color-on-primary[^"]*" data-sf-composition-id="${made.id}"`, "u"));
+    const grid = model.insert({type: "layout.grid"}, model.placeInside(made.id));
+    assert.equal(grid.ok, true, JSON.stringify(grid));
+    assert.match((await model.toHTML()).html, /class="grid grid-col-3 gap-5"/u);
 });

@@ -230,7 +230,7 @@ function library(component, view, w) {
                                @click=${() => component.openSection("")}></sf-button>
                 </div>
                 <h3 id="sf-editor-h-open" class="sf-editor-visually-hidden">${component.word(open.labelKey)}</h3>
-                ${open.types.map((type) => typeEntry(component, type, w))}
+                ${open.types.map((type) => typeEntry(component, type, w, type.items[0]?.group !== open.id ? w("from-section", {name: component.word(groupWordKey(type.items[0].group))}) : ""))}
             </section>` : html`
             <section class="sf-editor-group" aria-labelledby="sf-editor-h-favourites">${heading("star", w("favourites"), "sf-editor-h-favourites")}${lib.favourites.length ? rows(component, lib.favourites, w) : html`<p class="sf-editor-hint sf-editor-empty-list">${w("favourites-empty")}</p>`}</section>
             ${lib.recent.length ? html`<section class="sf-editor-group" aria-labelledby="sf-editor-h-recent">${heading("history", w("recent"), "sf-editor-h-recent")}${rows(component, lib.recent, w)}</section>` : nothing}
@@ -258,14 +258,14 @@ function library(component, view, w) {
 }
 
 /** A type in an open section: its row, and under it its variants as cards (open unless the person closed them). */
-function typeEntry(component, type, w) {
+function typeEntry(component, type, w, from = "") {
     const variants = type.items.filter((item) => item.variant);
-    if (!variants.length) return rows(component, type.items, w);
+    if (!variants.length) return rows(component, type.items, w, from ? {note: () => from} : undefined);
     const closed = component.libraryClosed.has(type.type);
     const first = variants[0];
     return html`
         ${rows(component, [{...first, label: type.label, variant: first.variant}], w, {
-            note: () => w("variants-count", {count: String(variants.length)}),
+            note: () => [w("variants-count", {count: String(variants.length)}), from].filter(Boolean).join(" · "),
             toggle: {open: !closed, onToggle: () => component.toggleVariants(type.type)},
             favourite: false,
         })}
@@ -330,6 +330,7 @@ function skeleton(shapes) {
         case "dot": return html`<span class="sf-editor-shape-dot sf-editor-shape-dot--large"></span>`;
         case "badge": return html`<span class="sf-editor-shape-pill sf-editor-shape-pill--short"></span>`;
         case "gap": return html`<span class="sf-editor-shape-gap"></span>`;
+        case "field": return html`<span class="sf-editor-shape-field" ?data-tall=${shape.tall}></span>`;
         case "cell": return html`<span class="sf-editor-shape-cell"></span>`;
         case "card": return html`<div class="sf-editor-shape-card"><sf-skeleton kind="rounded" width="100%" height="12px" animation="none" class="sf-editor-shape-accent"></sf-skeleton><sf-skeleton kind="text" width="80%" height="4px" animation="none"></sf-skeleton></div>`;
         case "row": return html`<div class="sf-editor-shape-row" style=${`--sf-editor-shape-columns:${Math.max(1, shape.columns)}`}>${shape.children.slice(0, 4).map(draw)}</div>`;
@@ -416,6 +417,7 @@ function panelHead(icon, title, sub) {
 }
 
 function right(component, view, w) {
+    if (!view.selected && !component.builder && (view.page || component.hasSlotContent?.("page"))) return pagePanel(component, view, w);
     if (!view.selected) {
         const theme = component.main.theme;
         return html`
@@ -455,6 +457,67 @@ function right(component, view, w) {
     `;
 }
 
+/**
+ * Nothing chosen, and the host gave the page's settings (page-settings) or
+ * markup in the slot page (1.2.0, the prototype's page panel): name and
+ * address, the site template, the theme with the way to its settings,
+ * publishing and history. The editor keeps none of it; every change and press
+ * goes out as page-change or page-action and the host sets page-settings again.
+ */
+function pagePanel(component, view, w) {
+    const page = view.page ?? {};
+    const theme = page.theme ?? component.main.theme;
+    const template = page.template;
+    const options = Array.isArray(template?.options) ? template.options.map((option) => ({value: String(option.value), text: String(option.text ?? option.label ?? option.value)})) : [];
+    const change = (key) => (event) => {
+        event.stopPropagation();
+        const value = event.detail?.value ?? event.currentTarget.value ?? "";
+        component.sfEmit("page-change", {key, value: String(Array.isArray(value) ? value[0] ?? "" : value)});
+    };
+    const action = (name) => () => component.sfEmit("page-action", {action: name});
+    const history = page.history;
+    return html`
+        <aside class="sf-editor-right" aria-label=${w("right-label")}>
+            ${panelHead("article", page.name || w("page-title"), page.status ?? "")}
+            <div class="sf-editor-page">
+                ${"name" in page ? html`<sf-input class="sf-editor-page-field" data-key="name" size="1/2" label=${w("page-name")} .value=${String(page.name ?? "")}
+                        @change=${change("name")}></sf-input>` : nothing}
+                ${"address" in page ? html`<sf-input class="sf-editor-page-field" data-key="address" size="1/2" label=${w("page-address")} .value=${String(page.address ?? "")}
+                        @change=${change("address")}></sf-input>` : nothing}
+                ${template ? html`
+                    <div class="sf-editor-page-field" data-key="template">
+                        ${options.length ? html`<sf-dropdown size="1/2" label=${w("template-title")} .options=${options} .value=${String(template.value ?? "")}
+                                @change=${change("template")}></sf-dropdown>` : html`
+                            <span class="sf-editor-page-label">${w("template-title")}</span><span class="sf-editor-page-value">${template.label ?? template.value ?? ""}</span>`}
+                        <span class="sf-editor-hint">${template.note ?? w(component.main.rights.template ? "template-help" : "template-no-rights")}</span>
+                    </div>` : nothing}
+                ${theme ? html`
+                    <div class="sf-editor-page-field" data-key="theme">
+                        <span class="sf-editor-page-label">${w("page-theme")}</span>
+                        <div class="sf-editor-page-row">
+                            <span class="sf-editor-page-value">${theme.label ?? theme.name ?? ""}</span>
+                            ${theme.settings_url ? html`<a class="sf-editor-page-link" href=${theme.settings_url} target="_top">${w("theme-settings")}<sf-icon icon="open_in_new" size="1/3" aria-hidden="true"></sf-icon></a>` : nothing}
+                        </div>
+                        <span class="sf-editor-hint">${w("theme-read-only")}</span>
+                    </div>` : nothing}
+                ${page.publish || history ? html`
+                    <div class="sf-editor-page-field" data-key="publish">
+                        <span class="sf-editor-page-label">${w("page-publishing")}</span>
+                        <div class="sf-editor-page-row">
+                            ${page.publish ? html`<sf-button size="1/2" scheme="primary" text=${page.publish.label ?? w("page-publish")}
+                                    ?disabled=${Boolean(page.publish.disabled)} @click=${action("publish")}></sf-button>` : nothing}
+                            ${history ? html`<sf-button size="1/2" appearance="outline" scheme="on-surface" icon-start="history"
+                                    text=${history.label ?? (Number.isFinite(history.count) ? w("page-history", {count: String(history.count)}) : w("page-history-plain"))}
+                                    @click=${action("history")}></sf-button>` : nothing}
+                        </div>
+                        ${page.publish?.note ? html`<span class="sf-editor-hint">${page.publish.note}</span>` : nothing}
+                    </div>` : nothing}
+                ${slotted(component, "page")}
+                <p class="sf-editor-card"><sf-icon icon="arrow_selector_tool" size="1/3" aria-hidden="true"></sf-icon><span>${w("page-hint")}</span></p>
+            </div>
+        </aside>`;
+}
+
 /** The chosen block as the Document holds it (JSON) or as the site prints it (HTML). */
 function codeView(component, view, format, w) {
     const text = component.codeOf(view.selected.id, format);
@@ -468,7 +531,10 @@ const SECTIONS = ["content", "layout", "extra"];
 
 function parameters(component, view, w) {
     const bySection = Object.fromEntries(SECTIONS.map((id) => [id, view.form.filter((field) => field.section === id)]));
-    const modifiers = component.main.rights.layout;
+    // A site block's instance shows its author the exposed parameters only
+    // (1.2.0, the ui-editor host's G-42): no own classes, nothing else.
+    const instance = Boolean(view.typeManifest?.composed);
+    const modifiers = component.main.rights.layout && !instance;
     if (!view.form.length && !modifiers) return html`<p class="sf-editor-hint">${w("no-parameters")}</p>`;
     const sets = [...new Set(view.form.map((field) => /^sf\.composition\.set_([a-z_]+)\./u.exec(String(field.label_key ?? ""))?.[1]).filter(Boolean))];
     return html`
@@ -633,11 +699,27 @@ function dataPanel(component, view, w) {
 function popover(component, view, w) {
     const pop = view.pop;
     const list = pop.items;
+    // The one list of sections (1.2.0): the sections with their icons and
+    // counts, a section opened in place with «Back», or what a search found,
+    // each block naming its section.
+    const listing = component.popQuery ? "found" : pop.section ? "section" : "sections";
+    const open = listing === "section" ? pop.sections.find((section) => section.id === pop.section) : null;
+    const openName = open ? component.word(open.labelKey) : "";
+    const option = (index, attributes, content) => html`
+        <li role="option" id=${`sf-editor-pop-${index}`} aria-selected=${index === component.popActive ? "true" : "false"}
+            class=${index === component.popActive ? "is-active" : ""} data-item=${attributes.item ?? nothing} data-section=${attributes.section ?? nothing}
+            @pointerenter=${() => {
+                if (component.popActive === index) return;
+                component.popActive = index;
+                component.refresh();
+            }}
+            @mousedown=${(event) => event.preventDefault()}
+            @click=${attributes.click}>${content}</li>`;
     return html`
-        <div class="sf-editor-pop" role="dialog" aria-label=${w(pop.mode === "slash" ? "slash-label" : "catalogue-label")}
+        <div class="sf-editor-pop" role="dialog" aria-label=${w(pop.mode === "slash" ? "slash-label" : "catalogue-label")} data-listing=${listing} data-section=${pop.section || ""}
              style=${`inset-block-start:${pop.y}px;inset-inline-start:${pop.x}px${pop.height ? `;max-block-size:${pop.height}px` : ""}`}>
             ${pop.mode === "slash" ? html`<p class="sf-editor-quiet">${component.popQuery ? w("slash-filter", {query: component.popQuery}) : w("slash-hint")}</p>` : html`
-                <sf-input size="1/2" input-type="search" icon-start="search" placeholder=${w("search-placeholder")} aria-label=${w("search-placeholder")}
+                <sf-input size="1/2" appearance="filled" input-type="search" icon-start="search" placeholder=${w("search-placeholder")} aria-label=${w("search-placeholder")}
                           .value=${component.popQuery}
                           @input=${(event) => {
                               event.stopPropagation();
@@ -645,30 +727,31 @@ function popover(component, view, w) {
                               component.popActive = 0;
                               component.refresh();
                           }}></sf-input>`}
-            ${!component.popQuery && pop.tabs.length > 1 ? html`
-                <sf-button-group size="1/3" appearance="segmented" plate="raised" full-width .items=${pop.tabs.map((entry) => ({value: entry.id, label: w(`tab-${entry.id}`)}))}
-                                 .value=${pop.tab} aria-label=${w("catalogue-tabs")}
-                                 @change=${(event) => {
-                                     event.stopPropagation();
-                                     component.pop = {...component.pop, tab: String(event.detail?.value ?? event.currentTarget.value)};
-                                     component.popActive = 0;
-                                     component.refresh();
-                                 }}></sf-button-group>` : nothing}
-            <ul id="sf-editor-pop-list" class="sf-editor-pop-list" role="listbox" tabindex="0" aria-label=${w("catalogue-label")}>
-                ${list.length ? list.map((item, index) => html`
-                    <li role="option" id=${`sf-editor-pop-${index}`} aria-selected=${index === component.popActive ? "true" : "false"}
-                        class=${index === component.popActive ? "is-active" : ""} data-item=${`${item.type}${item.variant ? `#${item.variant}` : ""}`}
-                        @pointerenter=${() => {
-                            if (component.popActive === index) return;
-                            component.popActive = index;
-                            component.refresh();
-                        }}
-                        @mousedown=${(event) => event.preventDefault()}
-                        @click=${() => component.chooseItem(item)}>
+            ${open ? html`
+                <div class="sf-editor-back sf-editor-pop-back">
+                    <sf-button size="1/2" appearance="link" scheme="on-surface" icon-start="arrow_back" text-position="start" text=${openName}
+                               aria-label=${`${w("back")}: ${openName}`} @mousedown=${(event) => event.preventDefault()}
+                               @click=${() => component.openPopSection("")}></sf-button>
+                </div>` : nothing}
+            <ul id="sf-editor-pop-list" class="sf-editor-pop-list" role="listbox" tabindex="0" aria-label=${open ? openName : w("catalogue-label")}>
+                ${listing === "sections" ? (pop.sections.length ? pop.sections.map((section, index) => option(index, {section: section.id, click: () => component.openPopSection(section.id)}, html`
+                    <sf-icon class="sf-editor-option-icon" icon=${section.icon} size="1/2" aria-hidden="true"></sf-icon>
+                    <span class="sf-editor-option-name" data-label=${component.word(section.labelKey)}>${component.word(section.labelKey)}</span>
+                    <span class="sf-editor-count" aria-label=${w("section-count", {count: String(section.count)})}>${section.count}</span>
+                    <sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true"></sf-icon>`))
+                    : html`<li class="sf-editor-quiet" role="presentation">${w("nothing-fits")}</li>`)
+                : list.length ? list.map((item, index) => {
+                    // In an open section every block names it; one that stands
+                    // there from another section says which (also_in).
+                    const from = open && item.group !== open.id ? w("from-section", {name: component.word(groupWordKey(item.group))}) : "";
+                    return option(index, {item: `${item.type}${item.variant ? `#${item.variant}` : ""}`, click: () => component.chooseItem(item)}, html`
                         <div class="sf-editor-preview sf-editor-preview--small" aria-hidden="true">${skeleton(component.skeleton(item))}</div>
-                        <span class="sf-editor-option-name" data-label=${item.label}>${item.label}</span>
-                        <span class="sf-editor-quiet sf-editor-option-note">${item.variant ? item.typeLabel : component.word(groupWordKey(item.group))}</span>
-                    </li>`) : html`<li class="sf-editor-quiet" role="presentation">${w("nothing-fits")}</li>`}
+                        <span class="sf-editor-option-text">
+                            <span class="sf-editor-option-name" data-label=${item.label}>${item.label}</span>
+                            ${item.variant || from ? html`<span class="sf-editor-option-sub">${[item.variant ? item.typeLabel : "", from].filter(Boolean).join(" · ")}</span>` : nothing}
+                        </span>
+                        <span class="sf-editor-quiet sf-editor-option-note">${open ? openName : component.word(groupWordKey(item.group))}</span>`);
+                }) : html`<li class="sf-editor-quiet" role="presentation">${w(component.popQuery ? "nothing-found" : "nothing-fits")}</li>`}
             </ul>
         </div>
     `;

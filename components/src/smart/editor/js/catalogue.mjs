@@ -9,6 +9,12 @@
 // Since 1.1.0 (visual parity, 2026-11-04) the library is a list of sections,
 // each with the Framework's icon and word (CATALOGUE_GROUP_TABLE) and a count,
 // in the Framework's order (CATALOGUE_GROUPS); a product's own group follows.
+//
+// Since 1.2.0 (the ui-editor host's G-20, 2026-11-04) the + and / catalogue
+// are that same list of sections (no Text/Blocks tabs): the + between
+// sections opens on the sections, the + in a text flow and / on Text. A type
+// stands in its own section and in each also_in section (core.runtime
+// 1.27.0), counted in each; a search lists it once, under its own section.
 import Composition from "../../../core/js/composition/index.mjs";
 import {CATALOGUE_GROUPS, CATALOGUE_GROUP_TABLE} from "../../../core/js/composition/catalogue.mjs";
 import {isComposed} from "../../../core/js/composition/composed.mjs";
@@ -51,7 +57,7 @@ export function itemsFor(model, place, word = (key) => key) {
         const manifest = registry.types.get(entry.type);
         if (!model.rights.layout && manifest.category === "layout") continue;
         if (place ? !model.accepts(place.parent, place.slot, entry.type) || model.placeLock(place.parent) : !model.placeFor(entry.type)) continue;
-        const base = {type: entry.type, group: entry.group, tab: entry.tab, order: entry.order, icon: entry.icon ?? groupIcon(entry.group) ?? OTHER_TYPE_ICON, keywords: entry.keywords ?? {}, site: isComposed(manifest), variants: entry.variants.length};
+        const base = {type: entry.type, group: entry.group, groups: [entry.group, ...(entry.also_in ?? [])], tab: entry.tab, order: entry.order, icon: entry.icon ?? groupIcon(entry.group) ?? OTHER_TYPE_ICON, keywords: entry.keywords ?? {}, site: isComposed(manifest), variants: entry.variants.length};
         const typeKey = entry.label_key ?? typeWordKey(entry.type);
         const typeLabel = word(typeKey);
         if (entry.variants.length) {
@@ -78,17 +84,25 @@ export function catalogueAt(model, place, {word = (key) => key, groups = []} = {
     return {tab, tabs, items};
 }
 
+/** The section a place opens on: Text inside a text flow and for /, the list of sections between blocks. */
+export function sectionForPlace(model, place, mode = "plus") {
+    return mode === "slash" || tabForPlace(model, place) === "text" ? "text" : "";
+}
+
 /**
  * The library's sections: [{id, icon, labelKey, count, types: [{type, label,
  * icon, site, items}]}], the Framework's groups in its order, then a
  * product's own; a section with nothing is left out. A type with variants
  * holds one item per variant, a type without one item; count is the types.
+ * A type stands in each of its groups (also_in), unless `own` (a search):
+ * then under its own group only, so it is named once.
  */
-export function sectionsOf(items) {
-    const order = [...CATALOGUE_GROUPS, ...new Set(items.map((item) => item.group))];
+export function sectionsOf(items, {own = false} = {}) {
+    const groupsOf = (item) => (own || !Array.isArray(item.groups) ? [item.group] : item.groups);
+    const order = [...CATALOGUE_GROUPS, ...new Set(items.flatMap(groupsOf))];
     return [...new Set(order)].map((id) => {
         const types = [];
-        for (const item of items.filter((entry) => entry.group === id)) {
+        for (const item of items.filter((entry) => groupsOf(entry).includes(id))) {
             let type = types.find((entry) => entry.type === item.type);
             if (!type) {
                 type = {type: item.type, label: item.typeLabel, icon: item.icon, site: item.site, items: []};
@@ -191,6 +205,12 @@ function shapeOf(node, model) {
     case "element.icon": return {kind: "dot"};
     case "element.badge": return {kind: "badge"};
     case "layout.spacer": return {kind: "gap"};
+    case "form.input":
+    case "form.select": return {kind: "field"};
+    case "form.textarea": return {kind: "field", tall: true};
+    case "form.checkbox":
+    case "form.switch": return {kind: "text"};
+    case "form.form": return {kind: "stack", children: children.length ? children : [{kind: "field"}, {kind: "field"}, {kind: "button", look: "fill"}]};
     case "layout.area": return {kind: "stack", children: children.length ? children : [{kind: "heading", level: 3}, {kind: "text"}, {kind: "text"}]};
     case "layout.columns": return rowOf(children.length || columnsOf(props.columns), children);
     case "layout.grid": return rowOf(columnsOf(props.columns), children.length ? children : [], {kind: "card"});

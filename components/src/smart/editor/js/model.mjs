@@ -1060,8 +1060,16 @@ export class EditorModel {
         const variantValue = field.plane === "props" ? variant?.props?.[field.target] : variant?.data?.[field.target];
         const plane = node[field.plane];
         const own = isPlainObject(plane) && Object.hasOwn(plane, field.target) ? plane[field.target] : undefined;
-        const inherited = theme !== undefined ? theme : typeDefault;
-        let value = inherited !== undefined ? inherited : field.default;
+        // What a reset returns to follows the origin chain the dot shows: a
+        // block made from a variant goes back to the variant's value, then to
+        // the theme's, then to the type's (1.2.0, the ui-editor host's G-21).
+        const variantAt = variantValue === undefined ? undefined : atScreen(variantValue, schema, responsive, screen);
+        const above = theme !== undefined ? theme : typeDefault;
+        // `inherited` is what writing leaves unwritten (the theme's or the
+        // type's); `resetTo` is what the reset shows it returns to.
+        const inherited = above;
+        const resetTo = own !== undefined && variantValue !== undefined && !same(own, variantValue) && variantAt !== undefined ? variantAt : above;
+        let value = above !== undefined ? above : field.default;
         let origin = theme !== undefined ? "theme" : "type";
         if (own !== undefined) {
             if (responsive && isBreakpointValue(own)) {
@@ -1093,6 +1101,7 @@ export class EditorModel {
             value: value ?? null,
             origin,
             inherited: inherited ?? null,
+            resetTo: resetTo ?? null,
             set: own !== undefined,
             screens,
             utility: describeUtility(schema),
@@ -1125,7 +1134,14 @@ export class EditorModel {
         return done();
     }
 
-    /** «Reset to inherited»: the value of this screen (or the block's own value on the phone) is taken out. */
+    /**
+     * «Reset to inherited», one step along the origin chain the dot shows: a
+     * value set here on a block made from a variant goes back to the
+     * variant's value (this screen's, when it differs by screen); the
+     * variant's value, or one set on a block with no variant, is taken out,
+     * so the theme's or the type's stands. The value of this screen (or the
+     * block's own on the phone) is what is reset.
+     */
     resetParam(id, key, screen = "xs") {
         const node = this.node(id);
         if (!node) return refused("unknown");
@@ -1136,6 +1152,19 @@ export class EditorModel {
         this.remember();
         const plane = node[field.plane];
         const own = plane[field.target];
+        const variant = this.variantOf(node);
+        const variantValue = field.plane === "props" ? variant?.props?.[field.target] : variant?.data?.[field.target];
+        if (variantValue !== undefined && !same(own, variantValue)) {
+            if (field.responsive && isBreakpointValue(own) && screen !== "xs") {
+                // This screen goes back to the variant's value there.
+                const wanted = isBreakpointValue(variantValue) ? variantValue[screen] : undefined;
+                if (wanted === undefined) delete own[screen];
+                else own[screen] = clone(wanted);
+                if (same(own, variantValue) || (isBreakpointValue(variantValue) === false && Object.keys(own).length === 1 && same(own.xs, variantValue))) plane[field.target] = clone(variantValue);
+            } else plane[field.target] = clone(variantValue);
+            this.changed("parameter", {id: node.id, key});
+            return done();
+        }
         if (field.responsive && isBreakpointValue(own) && screen !== "xs") {
             delete own[screen];
             const left = Object.keys(own);
@@ -1161,6 +1190,8 @@ export class EditorModel {
         if (!node) return refused("unknown");
         const lock = this.lockOf(node.id);
         if (lock) return refused(lock);
+        // A site block's instance takes only its exposed parameters (G-42).
+        if (isComposed(this.manifestOf(node.type))) return refused("closed");
         const list = [...new Set((Array.isArray(classes) ? classes : String(classes ?? "").split(/\s+/u)).map((value) => String(value).trim()).filter(Boolean))];
         const checked = Composition.checkModifiers(list, rules ? {rules} : {});
         if (same(list, this.modifiersOf(id))) return done({dropped: checked.dropped});

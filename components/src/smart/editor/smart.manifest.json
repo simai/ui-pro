@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.editor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Page editor",
   "summary": "The one block editor of the SIMAI page: layout and text in one Composition Document, edited by depth. A click on text types, a click beside it chooses the block, Esc goes up and Enter down. One catalogue (Text and Blocks, groups, variants with pictures, search, favourites, recent) serves the + between blocks, / in text and the library; blocks move by the grip with drop lines or Alt+arrows, and a drop beside a block splits it into columns. The parameter panel says where every value comes from (type, theme, variant, block, screen) and sets values per screen; the Data tab binds a block to a host source through the source port. The block builder makes and changes site blocks everywhere; the site template is a separate, explicit edit. Rights and theme come from the host. One undo history; output as JSON, HTML and Markdown.",
   "kind": "smart",
@@ -132,6 +132,11 @@
         "type": "object",
         "default": null,
         "description": "The site's theme: its defaults are a level of where a value comes from, its attributes are put on the drawn page. The editor never changes it; settings_url links to where it is changed."
+      },
+      "page-settings": {
+        "type": "object",
+        "default": null,
+        "description": "The page's own settings, shown in the parameter panel while no block is chosen: its name and address (editable), its site template (a list when options are given), its theme with a link to where it is changed, publishing and history. The editor stores nothing: a change and a press come out as page-change and page-action; the host saves and sets this again. Without it (and with nothing in the slot page) the panel shows a short note."
       }
     },
     "additionalProperties": false
@@ -383,6 +388,47 @@
         },
         "additionalProperties": true
       }
+    },
+    "sf-editor-page-change": {
+      "summary": "A page setting changed: {key: name | address | template, value}. Save it and set page-settings again.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "key",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "enum": [
+              "name",
+              "address",
+              "template"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "sf-editor-page-action": {
+      "summary": "Publish or history was pressed: {action: publish | history}. The host acts.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "enum": [
+              "publish",
+              "history"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
     }
   },
   "state": {
@@ -499,15 +545,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/editor/index.js",
-        "sha256": "a4bd1b78642fb0fa24ba3b6c0161bd98a7e8d18c28b45203db21d4a76bcbfba9"
+        "sha256": "3b36b50987f643d5099ae88b20981c894d785f6d6a50465a4669996cb9cafe88"
       },
       {
         "path": "src/smart/editor/js/model.mjs",
-        "sha256": "22473f95fa22648a1b399f16d47c956efdc8f11784cbc41882c664e21701b6ec"
+        "sha256": "a122ac47f15d5fc6da0d7efef8bdfcb6cc4723691a63e670552b9bcc21e0e28c"
       },
       {
         "path": "src/smart/editor/js/catalogue.mjs",
-        "sha256": "cbde46229a0de6e2af5ea536d298cb17e6035d846383b31f73a514d3773e70a6"
+        "sha256": "d83beba55543b82a80299953eafd6852f9ef5695fe0d0cf7d5bdbb606fb10b0b"
       },
       {
         "path": "src/smart/editor/js/tree.mjs",
@@ -515,11 +561,11 @@
       },
       {
         "path": "src/smart/editor/js/templates/default.js",
-        "sha256": "74e2a5ff6294ca0c16b0eee26ce8c39ba9fd4e1f47a465c40acfaea160b9db55"
+        "sha256": "79d4c433805a0e1acbc50570a03199022d748fb337af6e69155c928588cf5ae0"
       },
       {
         "path": "src/smart/editor/js/templates/default.css",
-        "sha256": "c44abfa5c9dfc50fa2a98bb575789dc4e239fde7973031380da58d03d640bc0e"
+        "sha256": "8062ae07ca5bfce2322eb53ebcd5e6727899661708c5a1e37c94855ceae896a5"
       },
       {
         "path": "src/smart/editor/rule.js",
@@ -527,19 +573,19 @@
       },
       {
         "path": "src/smart/editor/docs.md",
-        "sha256": "a4645efda9de94dc1e8aa6f5e10367b064bf3f9ab9106f8f4b7f022e19a7f62e"
+        "sha256": "32bfda6a72a9e340c758c7bcf465620ad4035bcedd4d54026af74f128706a9ed"
       },
       {
         "path": "src/smart/editor/component.json",
-        "sha256": "295dc640e0112699689c0129ef7940907fbb1d23db6550414ecec4de134ec59b"
+        "sha256": "0120370e6b91e2170b1b04f2509a5b01028a9a1cc98a1b2b5947992ed4b6468b"
       },
       {
         "path": "src/smart/editor/lang/en.json",
-        "sha256": "6453e637f4229a65368be7e288c54897baf7286c046b24fd7faa6e6d1b2da05a"
+        "sha256": "e5e74b6c243f633b9324837326cc9878b068ee6bcfd41d13f5284a2159ac7e3e"
       },
       {
         "path": "src/smart/editor/lang/ru.json",
-        "sha256": "ffe84f2be0ed5972432c6c4ba49f16845f30ef1bc4c18bb11cf1b5aedaabade6"
+        "sha256": "a9135130e8fbf852ede1dd0561d27f72775e57e892e4333048af0ba6ef54b70a"
       }
     ],
     "generated_runtime": []

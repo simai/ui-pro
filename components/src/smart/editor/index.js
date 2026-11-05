@@ -23,7 +23,7 @@ import {isComposed} from "../../core/js/composition/composed.mjs";
 import {readInlineDom, renderInlineDom, startInlineEdit, textOffset} from "../../core/js/composition/inline-editor.mjs";
 import {localeText, pageLocale} from "../../core/js/page-language.js";
 import {EditorModel, MAX_COLUMNS, ORIGINS, SCREENS, refusedClasses} from "./js/model.mjs";
-import {catalogueAt, groupIcon, groupWordKey, itemKey, pick, pushRecent, searchItems, sectionsOf, skeletonOf, toggleFavourite, typeWordKey} from "./js/catalogue.mjs";
+import {catalogueAt, groupIcon, groupWordKey, itemKey, pick, pushRecent, searchItems, sectionForPlace, sectionsOf, skeletonOf, toggleFavourite, typeWordKey} from "./js/catalogue.mjs";
 import {isPlainObject, locate} from "./js/tree.mjs";
 import {renderEditorTemplate} from "./js/templates/default.js";
 import manifest from "./component.json";
@@ -113,7 +113,7 @@ const EditorElement = elementFromManifest(manifest, {
 class SfEditor extends EditorElement {
     constructor() {
         super();
-        for (const name of ["document", "types", "editorManifests", "siteBlocks", "words", "rights", "theme", "renderers"]) {
+        for (const name of ["document", "types", "editorManifests", "siteBlocks", "words", "rights", "theme", "renderers", "pageSettings"]) {
             if (Object.prototype.hasOwnProperty.call(this, name)) {
                 const early = this[name];
                 delete this[name];
@@ -1094,8 +1094,11 @@ class SfEditor extends EditorElement {
         // The + is an sf-button-icon, whose host is display: contents and has
         // no box: the catalogue stands by the button it draws (G-37).
         const rect = boxOf(anchor) ?? {left: 0, right: 0, bottom: 0, top: 0};
-        const at = this.catalogue(place);
-        this.pop = {mode, place, slashId, x: rect.left, y: rect.bottom + 4, above: rect.top - 4, tab: at.tab};
+        // The one list of sections (1.2.0): between blocks the + opens on the
+        // sections, in a text flow and for / on Text, when the place takes some.
+        const wanted = sectionForPlace(this.model, place, mode);
+        const section = wanted && sectionsOf(this.catalogue(place).items).some((entry) => entry.id === wanted) ? wanted : "";
+        this.pop = {mode, place, slashId, x: rect.left, y: rect.bottom + 4, above: rect.top - 4, section};
         this.popQuery = "";
         this.popActive = 0;
         this.refresh();
@@ -1140,15 +1143,49 @@ class SfEditor extends EditorElement {
         this.refresh();
     }
 
+    /** The sections the catalogue's place takes, as the library lists them. */
+    popSections() {
+        return this.pop ? sectionsOf(this.catalogue(this.pop.place).items) : [];
+    }
+
+    /**
+     * What the catalogue lists: with a search, what it found in every
+     * section, each block once under its own section, Text first; in an open
+     * section, its blocks (a type there from another section too); else
+     * nothing, the list of sections stands.
+     */
     popItems() {
         if (!this.pop) return [];
         const at = this.catalogue(this.pop.place);
-        if (this.popQuery) return searchItems(at.items, this.popQuery, {word: (key) => this.word(key), words: (key) => this.wordsOf(key)});
-        return at.items.filter((item) => item.tab === this.pop.tab);
+        if (this.popQuery) {
+            const found = searchItems(at.items, this.popQuery, {word: (key) => this.word(key), words: (key) => this.wordsOf(key)});
+            return sectionsOf(found, {own: true}).flatMap((section) => section.types.flatMap((type) => type.items));
+        }
+        if (!this.pop.section) return [];
+        return sectionsOf(at.items).find((section) => section.id === this.pop.section)?.types.flatMap((type) => type.items) ?? [];
+    }
+
+    /** The options the keys move over: the sections, or the blocks. */
+    popOptions() {
+        if (!this.pop) return [];
+        if (this.popQuery || this.pop.section) return this.popItems();
+        return this.popSections().map((section) => ({section: section.id}));
+    }
+
+    /** Opens a section of the catalogue in place («» goes back to the sections). */
+    openPopSection(id) {
+        if (!this.pop) return;
+        this.pop = {...this.pop, section: id};
+        this.popActive = 0;
+        this.refresh();
+        requestAnimationFrame(() => {
+            this.keepPopInView();
+            if (this.pop?.mode !== "slash") this.querySelector(".sf-editor-pop sf-input input")?.focus();
+        });
     }
 
     onCatalogueKey(event) {
-        const items = this.popItems();
+        const items = this.popOptions();
         if (event.key === "Escape") {
             event.preventDefault();
             event.stopPropagation();
@@ -1165,7 +1202,23 @@ class SfEditor extends EditorElement {
         if (event.key === "Enter" && items[this.popActive]) {
             event.preventDefault();
             event.stopPropagation();
-            this.chooseItem(items[this.popActive]);
+            const option = items[this.popActive];
+            if (option.section) this.openPopSection(option.section);
+            else this.chooseItem(option);
+            return true;
+        }
+        // Back to the sections: ← or Backspace in an empty search (the + only:
+        // with / those keys edit the text).
+        if (this.pop.mode !== "slash" && this.pop.section && !this.popQuery && (event.key === "ArrowLeft" || event.key === "Backspace")) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.openPopSection("");
+            return true;
+        }
+        if (this.pop.mode !== "slash" && !this.popQuery && !this.pop.section && event.key === "ArrowRight" && items[this.popActive]?.section) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.openPopSection(items[this.popActive].section);
             return true;
         }
         return false;
@@ -1777,6 +1830,11 @@ class SfEditor extends EditorElement {
         this.addEventListener("click", (event) => {
             if (this.pageElement?.contains(event.target) && event.target.closest?.("a")) event.preventDefault();
         }, {...signal, capture: true});
+        // A form drawn on the page (form.form, 1.2.0) is never sent from the
+        // editor: its submit button chooses the block, as any element does.
+        this.addEventListener("submit", (event) => {
+            if (this.pageElement?.contains(event.target)) event.preventDefault();
+        }, {...signal, capture: true});
         const relayout = () => requestAnimationFrame(() => {
             this.placeOverlays();
             this.placeDropLine();
@@ -1822,20 +1880,21 @@ class SfEditor extends EditorElement {
             library: {
                 sections,
                 section,
-                found: this.libraryQuery ? sectionsOf(libraryItems) : [],
+                found: this.libraryQuery ? sectionsOf(libraryItems, {own: true}) : [],
                 favourites: pick(libraryAt.items, this.favourites),
                 recent: pick(libraryAt.items, this.recent),
             },
             typeIcon: selected ? entry?.icon ?? (manifestGroup ? groupIcon(manifestGroup) : "widgets") : "",
             sectionLabel: manifestGroup ? this.word(groupWordKey(manifestGroup)) : "",
             position: at?.parent ? {first: at.index === 0, last: at.index >= at.parent.slots[at.slot].length - 1} : null,
-            pop: this.pop ? {...this.pop, items: this.popItems(), tabs: this.catalogue(this.pop.place).tabs} : null,
+            pop: this.pop ? {...this.pop, items: this.popItems(), sections: this.popSections()} : null,
             screens: SCREEN_ORDER.map((name) => ({value: name, label: this.sfWord(`screen-${name}`), icon: SCREEN_ICONS[name], "icon-only": true})),
             states: STATES.map((value) => ({value, label: this.sfWord(`state-${value}`)})),
             origins: ORIGINS,
             hasTemplate: this.main.hasRegions(),
             heading: this.getAttribute("heading") || "",
             caption: this.getAttribute("caption") || "",
+            page: this.pageSettings && typeof this.pageSettings === "object" && !Array.isArray(this.pageSettings) ? this.pageSettings : null,
             landmarks: Boolean(this.pageLandmarks),
             tree: this.treeOf(model.doc.root, 0),
         };

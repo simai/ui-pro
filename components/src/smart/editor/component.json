@@ -2,7 +2,7 @@
   "$comment": "The source of sf-editor's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Part B of the owner's one-block-editor decision of 2026-11-03 (ui-control control/ui-editor/UNIFIED-BLOCK-EDITOR.md, control/decisions/2026-11-03-one-editor-part-a.md), on the Part A contracts of SIMAI Framework pair ui-a2ca21f06e0c. Written by hand in the 1.4 form on the shape of sf-editor-content; x-decisions says how each point was decided.",
   "id": "smart.editor",
   "tag": "sf-editor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -85,6 +85,12 @@
       "default": "",
       "summary": "A short line under the name: where the page lives or its state (the host's words)."
     },
+    "page-settings": {
+      "type": "object",
+      "default": null,
+      "x-markup": "a property: {name, address, status, template: {value, label, options: [{value, text}], note}, theme: {label, settings_url}, publish: {label, disabled, note}, history: {count, label}}; every key optional, read only.",
+      "summary": "The page's own settings, shown in the parameter panel while no block is chosen: its name and address (editable), its site template (a list when options are given), its theme with a link to where it is changed, publishing and history. The editor stores nothing: a change and a press come out as page-change and page-action; the host saves and sets this again. Without it (and with nothing in the slot page) the panel shows a short note."
+    },
     "label": {
       "type": "string",
       "default-from": "runtime.label",
@@ -124,6 +130,36 @@
       "own-verb": true,
       "x-summary": "The block builder saved a site block: the composed type manifest (a new type, or the next minor version), its words, and the instances moved to it (upgradeComposed). The host keeps it in its site blocks; a port with saveBlock(manifest, words) is called too.",
       "summary": "A site block was saved: {manifest, words, changes}. Keep the manifest in site-blocks."
+    },
+    "page-change": {
+      "carries": {
+        "key": {
+          "type": "enum",
+          "values": [
+            "name",
+            "address",
+            "template"
+          ]
+        },
+        "value": "string"
+      },
+      "own-verb": true,
+      "x-summary": "A page setting was changed in the panel shown while no block is chosen (page-settings): the page's name, its address or its site template. The editor keeps nothing; the host saves it and sets page-settings again.",
+      "summary": "A page setting changed: {key: name | address | template, value}. Save it and set page-settings again."
+    },
+    "page-action": {
+      "carries": {
+        "action": {
+          "type": "enum",
+          "values": [
+            "publish",
+            "history"
+          ]
+        }
+      },
+      "own-verb": true,
+      "x-summary": "A press in the page settings: publish the page, or open its history (page-settings publish and history). The host does it.",
+      "summary": "Publish or history was pressed: {action: publish | history}. The host acts."
     }
   },
   "actions": {
@@ -292,7 +328,8 @@
   },
   "slots": {
     "start": {},
-    "actions": {}
+    "actions": {},
+    "page": {}
   },
   "keyboard": {
     "host": {

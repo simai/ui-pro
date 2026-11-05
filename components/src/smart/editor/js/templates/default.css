@@ -503,6 +503,10 @@
 
   .sf-editor-shape-section[data-background="container"] { background: var(--sf-surface-container); }
   .sf-editor-shape-section[data-background="primary"] { background: var(--sf-primary-container); }
+  /* The accent (layout.section 1.3.0): the primary role's own fill, as the canvas draws it. */
+  .sf-editor-shape-section[data-background="accent"] { background: var(--sf-editor-accent); }
+  .sf-editor-shape-section[data-background="accent"] .sf-editor-shape-pill,
+  .sf-editor-shape-section[data-background="accent"] .sf-editor-shape-dot { background: var(--sf-on-primary); }
   .sf-editor-shape-section[data-width="narrow"] > .sf-editor-shape-box { margin-inline: 20%; }
 
   .sf-editor-shape-box {
@@ -552,6 +556,18 @@
   .sf-editor-shape-dot--large {
     align-self: center;
     inline-size: var(--sf-space-2);
+    block-size: var(--sf-space-2);
+  }
+
+  /* A form field: an outlined box (a taller one for a text area). */
+  .sf-editor-shape-field {
+    display: block;
+    block-size: var(--sf-space-1);
+    border: var(--sf-border--width) solid var(--sf-outline);
+    border-radius: var(--sf-radius-1\/2);
+  }
+
+  .sf-editor-shape-field[data-tall] {
     block-size: var(--sf-space-2);
   }
 
@@ -901,6 +917,48 @@
     color: var(--sf-on-surface-variant);
   }
 
+  /* The page's own settings while nothing is chosen (1.2.0): fields of the
+     parameter panel's rhythm, a label of 12/16, a row for the theme and the
+     publishing buttons, the quiet hint card at the end. */
+  .sf-editor-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1);
+  }
+
+  .sf-editor-page-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+  }
+
+  .sf-editor-page-label {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-editor-page-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sf-space-1\/3);
+    min-block-size: var(--sf-ui-1\/2--control-height);
+  }
+
+  .sf-editor-page-value {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  .sf-editor-page-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    color: var(--sf-primary);
+  }
+
   .sf-editor-facts {
     display: flex;
     flex-direction: column;
@@ -1064,7 +1122,8 @@
     direction: ltr;
   }
 
-  /* The catalogue at a place (+, /): one list, the tab the place opens on. */
+  /* The catalogue at a place (+, /): the library's one list of sections
+     (1.2.0), opened on the section the place takes first. */
   .sf-editor-pop {
     position: fixed;
     z-index: var(--sf-z-index-8);
@@ -1114,6 +1173,39 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  /* A section row of the catalogue: its icon, name, count and chevron, as
+     the library draws it; a block row: its picture, name and, under it, its
+     type (a variant) or the section it comes from. */
+  .sf-editor-pop-list > li[data-section] {
+    min-block-size: calc(var(--sf-ui-1\/2--control-height) + var(--sf-space-1\/4));
+    padding-inline: var(--sf-space-1\/3) var(--sf-space-1\/4);
+  }
+
+  .sf-editor-option-icon {
+    flex: none;
+    color: var(--sf-on-surface-variant);
+  }
+
+  .sf-editor-option-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  .sf-editor-option-sub {
+    overflow: hidden;
+    color: var(--sf-on-surface);
+    font-size: var(--sf-editor-small);
+    line-height: var(--sf-editor-small-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sf-editor-pop-back {
+    flex: none;
   }
 
   /* The type or group beside an option: on the raised surface of the list
