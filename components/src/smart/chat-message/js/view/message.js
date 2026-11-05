@@ -35,7 +35,8 @@
 //   enhanceCode?: (pre) => void,         SF.Highlight on a Framework page
 //   renderProposal?: (proposal, {disabled}) => Node,
 //                                        sf-confirm-change (index.js)
-//   features?: {feedback, proposals, memory, brief}   brief (v1.2) is off unless given
+//   features?: {feedback, proposals, memory, brief, blocks}   brief (v1.2) and blocks (x-blocks) are off unless given
+//   renderBlock?: (message, block, {disabled}) => Node   a card block (chat-message index.js placeBlock)
 // }
 import {render} from 'lit';
 // Core's sanitizer, SF.sanitizeHtml and SF.safeHref (src/core/js/sanitize.js,
@@ -50,6 +51,7 @@ import {formatDate as formatCoreDate} from '../../../../core/js/format.js';
 import {copyText} from '../../../../core/js/clipboard.js';
 import {attachmentState, renderAttachment as attachmentChip} from '../../../chat-composer/js/templates/parts.js';
 import {deliverablesOf, previewTarget, stepsOf, timeOf} from './proposed.js';
+import {documentOf} from '../blocks.js';
 import {renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderReplies, renderTools, whenPlaced} from './social.js';
 
 export const safeHref = (value) => globalThis.SF.safeHref(value);
@@ -621,6 +623,84 @@ export function renderDeliverables(ctx, message, idPrefix = 'chat') {
   return root;
 }
 
+// --- sf-chat-document (x-blocks, 1.7.0; BLOCKS.md §3) ----------------------
+
+const MISSING_SHOWN = 6;
+
+/** «2 поля не заполнены», or the document's state when nothing is missing. */
+export function documentStatus(ctx, doc) {
+  if (doc.missing.length) return ctx.words('document.missing', { count: doc.missing.length, n: doc.missing.length });
+  return ctx.words(`document.${doc.state}`);
+}
+
+/**
+ * A document the answer made, as a strip under it: its name, what is left
+ * to fill in, «Открыть» (the host's panel, through ctx.onAction('document');
+ * without a host, its preview in a new tab) and its downloads. A missing
+ * field is a press that brings the form card's field (ctx.onAction('field')).
+ * @returns {HTMLElement|null}
+ */
+export function renderDocument(ctx, message, block, idPrefix = 'chat') {
+  const doc = documentOf(block, ctx.document);
+  if (!doc) return null;
+  const nameId = `${idPrefix}-document-${doc.id}`.replace(/[^\w-]/gu, '-');
+  const root = element(ctx, 'section', 'sf-chat-document', {
+    'aria-labelledby': nameId, 'data-block-id': doc.id, 'data-document-id': doc.document_id, 'data-state': doc.state,
+  });
+  const row = element(ctx, 'div', 'sf-chat-document__row');
+  const icon = element(ctx, 'span', 'sf-chat-document__icon', { 'aria-hidden': 'true' });
+  icon.append(iconNode(ctx, 'description', '', '2'));
+  const body = element(ctx, 'span', 'sf-chat-document__body');
+  body.append(
+    text(ctx, 'span', 'sf-chat-document__name', doc.title || ctx.words('document.untitled'), { id: nameId, title: doc.title || null }),
+    text(ctx, 'span', `sf-chat-document__status${doc.missing.length ? ' sf-chat-document__status--missing' : ''}`, documentStatus(ctx, doc)),
+  );
+  const actions = element(ctx, 'span', 'sf-chat-document__actions');
+  if (doc.preview_url) {
+    const open = textButton(ctx, { label: ctx.words('document.open'), appearance: 'outline', scheme: 'primary', size: '1/2', className: 'sf-chat-document__open' });
+    open.setAttribute('aria-describedby', nameId);
+    open.addEventListener('click', () => {
+      if (ctx.onAction?.('document', { id: message.id, document: doc, opener: open }) === false) return;
+      ctx.document.defaultView?.open(doc.preview_url, '_blank', 'noopener');
+    });
+    actions.append(open);
+  }
+  for (const one of doc.downloads) {
+    const link = element(ctx, 'a', 'sf-button sf-button--size-1/2 sf-button--outline sf-button--primary flex items-cross-center content-main-center sf-chat-document__download', {
+      href: one.href, download: '', 'aria-describedby': nameId, 'data-format': one.format,
+    });
+    link.append(iconNode(ctx, 'download', '', '1'), text(ctx, 'span', 'sf-button-text-container', one.label));
+    actions.append(link);
+  }
+  row.append(icon, body);
+  if (actions.childNodes.length) row.append(actions);
+  root.append(row);
+
+  if (doc.missing.length) {
+    const fill = element(ctx, 'p', 'sf-chat-document__missing');
+    fill.append(text(ctx, 'span', 'sf-chat-document__missing-label', ctx.words('document.fill')));
+    doc.missing.slice(0, MISSING_SHOWN).forEach((one, index) => {
+      if (index) fill.append(text(ctx, 'span', 'sf-chat-document__sep', ' · ', { 'aria-hidden': 'true' }));
+      const field = text(ctx, 'button', 'sf-chat-document__field', one.label, { type: 'button', 'data-field': one.field });
+      field.addEventListener('click', () => ctx.onAction?.('field', { id: message.id, block: one.block, field: one.field }));
+      fill.append(field);
+    });
+    const more = doc.missing.length - MISSING_SHOWN;
+    if (more > 0) fill.append(ctx.document.createTextNode(' '), text(ctx, 'span', 'sf-chat-document__more', ctx.words('document.more', { n: more })));
+    root.append(fill);
+  }
+  if (doc.checks.length) {
+    const list = element(ctx, 'ul', 'sf-chat-document__checks');
+    for (const check of doc.checks) {
+      const item = element(ctx, 'li', `sf-chat-document__check sf-chat-document__check--${check.level}`);
+      item.append(iconNode(ctx, check.level === 'error' ? 'error' : 'warning', 'sf-chat-document__check-icon', '1'), text(ctx, 'span', '', check.message));
+      list.append(item);
+    }
+    root.append(list);
+  }
+  return root;
+}
+
 // A preview is the host's (the window's panel): the message asks, and a host
 // that shows it says so by cancelling the element's open event (onAction
 // answers false). Nobody took it: a source opens in the list (`fallback`), a
@@ -816,7 +896,7 @@ export function renderMessage(ctx, message, view = {}) {
   if (message.role === 'user') return renderUser(ctx, message, view);
   // The brief is offered only by a surface that says so (the staff window,
   // x-brief): the widget and the embed draw an answer without it.
-  const features = { feedback: true, proposals: true, memory: true, brief: false, ...(ctx.features || {}) };
+  const features = { feedback: true, proposals: true, memory: true, brief: false, blocks: false, ...(ctx.features || {}) };
   const idPrefix = `m-${String(message.id).replace(/[^\w-]/g, '')}`;
   // Among people (display.document, 1.4.0): a document without a bubble, on the
   // full column, with all this template's parts; it says who speaks unless the
@@ -931,6 +1011,16 @@ export function renderMessage(ctx, message, view = {}) {
   }
   if (features.proposals && message.proposal && ctx.renderProposal) {
     body.append(ctx.renderProposal(message.proposal, { disabled: Boolean(view.busy) }));
+  }
+  // An answer's cards (x-blocks): each a record, shown or edited in place.
+  if (features.blocks && Array.isArray(message.blocks) && ctx.renderBlock) {
+    for (const block of message.blocks) {
+      if (block?.kind === 'card' && block.record) body.append(ctx.renderBlock(message, block, { disabled: Boolean(view.busy) }));
+      if (block?.kind === 'document') {
+        const strip = renderDocument(ctx, message, block, idPrefix);
+        if (strip) body.append(strip);
+      }
+    }
   }
   if (brief) body.append(renderBrief(ctx, message, brief, view, idPrefix));
   // What the answer made (v1.3 attachments), under it.

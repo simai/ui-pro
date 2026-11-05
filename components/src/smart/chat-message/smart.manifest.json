@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.5.5",
+  "version": "1.7.0",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -32,7 +32,8 @@
       "smart.badge",
       "smart.confirm-change",
       "smart.icon",
-      "smart.menu-context"
+      "smart.menu-context",
+      "smart.view-properties"
     ],
     "public_parts": []
   },
@@ -120,6 +121,50 @@
         {
           "name": "options",
           "required": false,
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "focusField": {
+      "summary": "Bring a card's field into view with the focus (x-blocks, 1.7.0): what a document lacks names it by the card's block id and the field's key. Answers whether the card is on this message.",
+      "arguments": [
+        {
+          "name": "blockId",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "key",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      }
+    },
+    "settleBlock": {
+      "summary": "The host's answer to a card's submit (x-blocks, 1.6.0): applied {block}, conflict, or refused with errors by field, reason closed (the card loses its buttons) or the host's message. The window calls it; the card shows the answer.",
+      "arguments": [
+        {
+          "name": "blockId",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "result",
+          "required": true,
           "schema": {
             "type": "object"
           }
@@ -255,7 +300,7 @@
       }
     },
     "sf-chat-message-open": {
-      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}. A message's discussion asked for: {id, kind: thread}.",
+      "summary": "A source or an answer's file asks for its preview: {id, kind: preview, source}. A host that shows it cancels the event; otherwise the footnote opens the sources list (a file, a new tab). A press on a quote: {id, kind: quote, target}. A message's discussion asked for: {id, kind: thread}. A document's «Открыть»: {id, kind: document, document}.",
       "payload": {
         "type": "object",
         "required": [
@@ -268,7 +313,8 @@
             "enum": [
               "preview",
               "quote",
-              "thread"
+              "thread",
+              "document"
             ]
           },
           "source": {
@@ -277,6 +323,10 @@
           },
           "target": {
             "description": "kind quote: the id of the message the quote leads to."
+          },
+          "document": {
+            "type": "object",
+            "description": "kind document (1.7.0): {id, document_id, title, revision, state, preview_url, downloads [{format, label, href}], form_block, missing [{field, label, block}], checks}, as js/blocks.js documentOf reads the block; addresses are the page's own."
           }
         },
         "additionalProperties": true
@@ -300,17 +350,35 @@
       }
     },
     "sf-chat-message-submit": {
-      "summary": "A brief's answer goes out as a message (vocabulary §5 submit; API.md v1.2): an option, the person's own words, several answers joined by «; » with «—» for a skipped one, or the card's «Да». The 0.3 sf-chat-action {action: brief-answer} follows it until 2026-12-01.",
+      "summary": "A brief's answer goes out as a message (vocabulary §5 submit; API.md v1.2): an option, the person's own words, several answers joined by «; » with «—» for a skipped one, or the card's «Да». The 0.3 sf-chat-action {action: brief-answer} follows it until 2026-12-01. Or a card's save or cancel (1.6.0, x-blocks): {id, kind: block, block_id, action, revision, values}, values the changed fields only, a number field's as a string; the window answers through settleBlock.",
       "payload": {
         "type": "object",
         "required": [
           "id",
-          "text"
+          "text",
+          "kind",
+          "block_id",
+          "action",
+          "revision",
+          "values"
         ],
         "properties": {
           "id": {},
           "text": {
             "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "block_id": {},
+          "action": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "values": {
+            "type": "object"
           }
         },
         "additionalProperties": true
@@ -623,16 +691,30 @@
         "changes": [
           "Draws a proposal as sf-confirm-change (was sf-change-confirm); the rule relation names cl-confirm-change. Needs the SIMAI Framework pair with the R2 tag aliases (core.runtime 1.22.0). No visible change."
         ]
+      },
+      {
+        "from": "1.5.5",
+        "to": "1.6.0",
+        "changes": [
+          "An answer's cards (x-blocks; Mirai24 API v1.4, BLOCKS.md §2): message.blocks of kind card drawn under the answer as sf-view-properties in full, view or edit, with the block's own «Сохранить» and «Не сейчас»; a save or cancel is sf-chat-message-submit {kind: block}, answered through settleBlock. features.blocks is off unless given, so a host without it draws as before."
+        ]
+      },
+      {
+        "from": "1.6.0",
+        "to": "1.7.0",
+        "changes": [
+          "x-blocks: a document is drawn as a strip under the answer (name, what is left to fill in, «Открыть», downloads); open {kind: document} asks the host's panel; a missing field brings the form card's field (focusField). A saved card with the host's «Изменить» stays editable. Additive."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "a5ac53753d95b49e2e70078c94fd89ccd3045993",
+    "source_revision": "bb895919cf9ce423e78f064845b90c4a19de11c5",
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
-        "sha256": "c3c6e9c2122e2996441a3b96af5bc3841b2972156bd209e1c6c4c10b1b86bc3c"
+        "sha256": "f7c76dcf7e9ea4ffed1dbeec3025a6d4f3ae2614c6c923d8382788282717f2cd"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.js",
@@ -644,7 +726,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
-        "sha256": "f3793694bcbf4d68626aa6ffa24d83afd7083c4b9fe8594f73b332ec6abdf995"
+        "sha256": "1c7ca72d4d9420302e64aa04506dfdcd2b4598f2e865641efa49fac51224531f"
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
@@ -660,19 +742,19 @@
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
-        "sha256": "512654766d494ef98d83b15557e2607ac28c7b16756f90502c260779ff21b8f4"
+        "sha256": "680aa0041621d5e62d43b2a489f4c5678b6fdf23e1511427e966af30d9d582ad"
       },
       {
         "path": "src/smart/chat-message/rule.js",
-        "sha256": "eb4e9e82e867fa870aa874f534b6edb0cad5155275c830bb3035d895a4a6e919"
+        "sha256": "90893f5212999745164827779d00d5d5a5e451f95c0d49a59557c3f629807337"
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "a0a784f58a945ed48c23b7e62e0ff30e113639be681a7460498c3e8f9acbffb1"
+        "sha256": "6ce797993fc9d6b110c152f34b4bce1b716ced737fc9c268cd9ff879e0c3359e"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "dd29ebea28c60e32c5ad18c7c32373b1891bcd9aa8f346b94c468583bb1b5c33"
+        "sha256": "ce6b154925e0e78d40523da06acd4c99482d8cd4b43b50eafcf5223f6a5493b8"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
@@ -680,11 +762,11 @@
       },
       {
         "path": "src/smart/chat-message/lang/en.json",
-        "sha256": "06f326a8d5df99ed21d364af38a090c1a2ea2a94549e9d26cd264a8b1b166e70"
+        "sha256": "86f43c7eda76879b415fe8eb7f523e22eff099509cd0630b39152b447ab74d20"
       },
       {
         "path": "src/smart/chat-message/lang/ru.json",
-        "sha256": "b940ee12f11bb1e2dac7e415c19b131d1ba376bd211a0094e3a2d3d4ed61a4d1"
+        "sha256": "df50f78675a67343cb9a9ee072664bc85b13b73a89a78f48533c30237f2ae2be"
       }
     ],
     "generated_runtime": []

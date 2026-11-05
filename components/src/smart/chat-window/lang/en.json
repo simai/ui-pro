@@ -198,7 +198,18 @@
     "threads-unpin": "Unpin",
     "threads-unpinned": "Conversation unpinned",
     "threads-yesterday": "Yesterday",
-    "you": "You"
+    "you": "You",
+    "document-draft": "Draft",
+    "document-fill-field": "Fill in: {label}",
+    "document-hint": "What is still to fill in is marked yellow. Press it to go to the form's field.",
+    "document-missing": {
+      "one": "{n} field to fill in",
+      "other": "{n} fields to fill in"
+    },
+    "document-opened": "Document opened: {title}",
+    "document-ready": "Everything is filled in",
+    "document-saved": "Saved to documents",
+    "document-untitled": "Document"
   },
   "events": {
     "pin": {

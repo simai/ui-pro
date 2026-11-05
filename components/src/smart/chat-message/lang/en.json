@@ -150,7 +150,25 @@
     "verification-verified": "Checked against the sources",
     "verification-verified-short": "Checked",
     "verification-verified-tail": " against the sources",
-    "you": "You"
+    "you": "You",
+    "block-applied": "Saved",
+    "block-cancelled": "Cancelled",
+    "block-stale": "The record changed elsewhere",
+    "block-closed": "This card no longer takes input",
+    "block-conflict": "The record changed: check the values and save again",
+    "block-failed": "Could not save. Try again",
+    "block-busy": "Already saving",
+    "document-draft": "Draft",
+    "document-fill": "Fill in:",
+    "document-missing": {
+      "one": "{n} field to fill in",
+      "other": "{n} fields to fill in"
+    },
+    "document-more": "and {n} more",
+    "document-open": "Open",
+    "document-ready": "Everything is filled in",
+    "document-saved": "Saved to documents",
+    "document-untitled": "Document"
   },
   "events": {
     "drafted": {

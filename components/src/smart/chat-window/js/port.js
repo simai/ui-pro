@@ -94,12 +94,18 @@ export const EXTENSION_INTENTS = {
   // discusses it and answers {conversation_id}; the window opens it as any other.
   // How many answers a message has comes with the message (thread.replies).
   'thread.open': {verb: 'open', kind: 'thread', capability: 'x-threads', former: null},
+  // A block of an answer (1.11.0, Mirai24 API v1.4 BLOCKS.md): a card's save or
+  // cancel, {conversation_id, message_id, block_id, action, revision, values}.
+  // The host answers applied (with the block as it now is), conflict (the
+  // block's current values), or refused with a reason: invalid (errors by
+  // field), closed (the card no longer takes input) or the host's own words.
+  'block.submit': {verb: 'submit', kind: 'block', capability: 'x-blocks', former: null},
 };
 
 // x-brief (API.md v1.2) has no intent of its own: a host that declares it
 // gives an assistant message its `brief`, and the window draws it; the answer
 // goes out as an ordinary message.send.
-export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief', 'x-conversation-start', 'x-members', 'x-members-manage', 'x-reactions', 'x-reply', 'x-threads'];
+export const EXTENSION_CAPABILITIES = ['x-archive-view', 'x-conversations-paging', 'x-conversations-search', 'x-conversation-pin', 'x-early-upload', 'x-my-files', 'x-brief', 'x-conversation-start', 'x-members', 'x-members-manage', 'x-reactions', 'x-reply', 'x-threads', 'x-blocks'];
 
 /** Data a host with the window's capabilities sets beside the port's. */
 export const EXTENSION_DATA = ['conversation_list', 'composer_files', 'my_files'];

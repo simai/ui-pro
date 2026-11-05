@@ -202,7 +202,20 @@
     "threads-unpin": "Открепить",
     "threads-unpinned": "Разговор откреплён",
     "threads-yesterday": "Вчера",
-    "you": "Вы"
+    "you": "Вы",
+    "document-draft": "Черновик",
+    "document-fill-field": "Заполнить: {label}",
+    "document-hint": "Жёлтым отмечено то, что ещё не заполнено. Нажмите — откроется поле анкеты.",
+    "document-missing": {
+      "one": "{n} поле не заполнено",
+      "few": "{n} поля не заполнены",
+      "many": "{n} полей не заполнено",
+      "other": "{n} поля не заполнено"
+    },
+    "document-opened": "Открыт документ: {title}",
+    "document-ready": "Всё заполнено",
+    "document-saved": "Сохранён в документах",
+    "document-untitled": "Документ"
   },
   "events": {
     "pin": {
