@@ -5,7 +5,7 @@ import "./default.css";
 // the field under it), built once by the element as plain DOM and placed
 // here as one node. Lit never diffs inside it: the log keeps its scroll while
 // history is prepended, the field keeps its caret, and the parts the shell
-// holds (sf-chat-threads, sf-message-log, sf-chat-composer,
+// holds (sf-chat-threads, sf-list-feed, sf-chat-composer,
 // sf-chat-interlocutor) keep their nodes.
 export function renderChatWindowTemplate(context) {
     return html`${context.node ?? nothing}`;

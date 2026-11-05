@@ -41,7 +41,7 @@ export function messageCharsOf(limits, {people = false} = {}) {
  * can_delete and the window's capabilities (`edit`, `remove`) allow, edit and
  * delete. `acting` is an edit or a delete of this page on its way ({action,
  * state, clientKey, body}); the host's own local (a send not yet stored) is
- * read when there is none. `author`, `own` and `text` are what sf-message-log
+ * read when there is none. `author`, `own` and `text` are what sf-list-feed
  * and the window's announcer read.
  */
 export function toPersonView(message, {edit = false, remove = false, acting = null, reactions = false, reply = false} = {}) {
@@ -57,7 +57,7 @@ export function toPersonView(message, {edit = false, remove = false, acting = nu
         template: "person",
         author: `person:${author.id ?? ""}`,
         own: author.own === true,
-        pending: false,
+        growing: false,
         text: deleted ? "" : (message.body ?? ""),
         body: deleted ? "" : (message.body ?? ""),
         authorName: author.name ?? "",

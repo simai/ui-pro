@@ -3,15 +3,16 @@
 // (template `person`). It came from simai/ui-chat (D31: components live in the
 // Framework or in ui-pro, owner 2026-10-26; the move approved 2026-10-27),
 // where sf-chat-message showed one message by itself and the chat window drew
-// the same view inside its sf-message-log.
+// the same view inside its sf-message-log (SIMAI Framework's sf-list-feed
+// since chat-window 1.13.0).
 //
 // The view is plain DOM (js/view/message.js, js/view/person.js), built once
 // per change of the message, its display or the features, and handed to Lit
 // as one node: a list that keeps its scroll while history is prepended, an
 // open «why» card and a brief's typed answer need nodes that stay put, and
 // the site widget, which has no Framework runtime, calls the same view
-// directly. A window places the element in sf-message-log through the log's
-// renderMessage hook; the log stays chat-agnostic.
+// directly. A window places the element in sf-list-feed through the feed's
+// renderItem hook; the feed stays chat-agnostic.
 //
 // From its component.json (standard simai.smart-component 1.3.9 §3, §4, §8,
 // §11): the settings are properties made by core/js/element-manifest.js, its

@@ -15,7 +15,7 @@
 С 1.4.0 шаблон `default` с `display.document` рисует ИИ среди людей (ниже); отдельного
 третьего шаблона нет: у такого сообщения все части ответа, и повторять их незачем.
 
-Окно чата ставит `sf-chat-message` в ленту `sf-message-log` через её `renderMessage`;
+Окно чата ставит `sf-chat-message` в ленту `sf-list-feed` SIMAI Framework через её `renderItem`;
 сама лента о чате ничего не знает. Страница, которой нужно одно сообщение (превью),
 ставит элемент сама.
 
@@ -137,7 +137,7 @@
 В ленте окна:
 
 ```js
-log.renderMessage = (message, {view}) => {
+feed.renderItem = (message, {view}) => {
   const node = document.createElement('sf-chat-message');
   node.features = features;
   node.display = view ?? {};

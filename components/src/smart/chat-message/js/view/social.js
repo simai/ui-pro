@@ -229,7 +229,7 @@ export function renderPicker(ctx, message, view = {}) {
       },
     });
     // Opened at the top of the feed it would be cut off: it stands under the tools.
-    const scroller = picker.closest('.sf-message-log');
+    const scroller = picker.closest('.sf-list-feed');
     const top = scroller ? scroller.getBoundingClientRect().top : 0;
     if (picker.getBoundingClientRect().top < top) picker.classList.add('sf-chat-picker--below');
     buttons[0].focus({preventScroll: true});

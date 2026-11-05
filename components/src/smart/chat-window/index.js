@@ -6,12 +6,12 @@
 //
 // It is a leaf with a declared port, as sf-view and sf-view-properties
 // are (component.json, x-decisions shape): it composes sf-chat-threads,
-// sf-message-log and sf-confirm-change (this package's conversation parts)
+// SIMAI Framework's sf-list-feed and this package's sf-confirm-change
 // with the chat's own sf-chat-composer, sf-chat-interlocutor and
 // sf-chat-message, by tag -- the Loader brings each (rule.js) -- and gives
-// them the chat's meaning through their public hooks: the log draws a
-// message as an sf-chat-message (renderMessage) and says of it what the
-// window decides (announceMessage); a proposal is the message's
+// them the chat's meaning through their public hooks: the feed draws a
+// message as an sf-chat-message (renderItem) and says of it what the
+// window decides (announceItem); a proposal is the message's
 // sf-confirm-change, answered here. It never talks to a server.
 //
 // The host's side. The port is handed with connect-port {port} (the base
@@ -156,7 +156,7 @@ const HIGHLIGHT_CURRENT = "sf-chat-window-found-current";
 // window but its events; sf-chat-threads is brought when its panel is shown
 // (a hidden side panel on a phone, ui-0edd49be08f8) and filled whenever it
 // is defined.
-const PARTS = ["sf-message-log", "sf-chat-message", "sf-chat-composer", "sf-chat-interlocutor"];
+const PARTS = ["sf-list-feed", "sf-chat-message", "sf-chat-composer", "sf-chat-interlocutor"];
 
 /**
  * A port message as sf-chat-message draws it (API.md's shape, which the view
@@ -173,12 +173,12 @@ export function toView(message, {people = false, edit = false, remove = false, a
     const view = {
         id: keyOf(message),
         role: assistant ? "assistant" : "user",
-        // What sf-message-log reads: who wrote it (two authors, so a question
+        // What sf-list-feed reads: who wrote it (two authors, so a question
         // and its answer are two runs), whether it is the person's own (the
         // log follows the bottom for it), and whether it is still written.
         author: assistant ? "assistant" : "user",
         own: !assistant,
-        pending: assistant && PENDING.has(message.status),
+        growing: assistant && PENDING.has(message.status),
         text: message.body ?? "",
         // A file the host names a download address for downloads from it.
         // An answer's files (API.md v1.3, proposed) may add their type and
@@ -681,7 +681,7 @@ class SfChatWindow extends ChatWindowElement {
         const threadBack = textButton(this.ctx, {label: words("thread.back"), appearance: "link", scheme: "primary", icon: "arrow_back", className: "chat-shell__thread-back"});
         const threadRoot = element("blockquote", "chat-shell__thread-root");
         threadBar.append(threadBack, threadRoot);
-        const list = element("sf-message-log", "chat-shell__list");
+        const list = element("sf-list-feed", "chat-shell__list");
         const files = this._files.build(this._headingTag);
         const preview = this._preview.build(this._headingTag);
         const composerBox = element("div", "chat-shell__composer", {id: "chat-composer", tabindex: "-1"});
@@ -1014,8 +1014,8 @@ class SfChatWindow extends ChatWindowElement {
         const {list, composer, interlocutor} = this._parts;
         for (const part of [list, composer, interlocutor]) customElements.upgrade(part);
         composer.queue = !this.noQueue;
-        list.renderMessage = (message, context) => this.drawMessage(message, context);
-        list.announceMessage = (message, context) => this.sayOf(message, context);
+        list.renderItem = (message, context) => this.drawMessage(message, context);
+        list.announceItem = (message, context) => this.sayOf(message, context);
         // Once per page; SF.language may have come after the shell was built.
         registerPartWords({ru, en});
         this._partsReady = true;
@@ -1091,7 +1091,7 @@ class SfChatWindow extends ChatWindowElement {
         threads.addEventListener("sf-chat-threads-toggle", (event) => this.showList(event.detail.archived));
         threads.addEventListener("sf-chat-threads-load-more", () => this.more());
         interlocutor.addEventListener("sf-chat-interlocutor-select", (event) => this.choose(event.detail.id));
-        list.addEventListener("sf-message-log-load-more", (event) => this.older(event.detail.before));
+        list.addEventListener("sf-list-feed-load-more", (event) => this.older(event.detail.before));
         // A proposal's answer, from its card. Not taken (a send in flight):
         // the event is cancelled and the card is open again.
         list.addEventListener("sf-confirm-change-answer", (event) => {
@@ -1683,7 +1683,7 @@ class SfChatWindow extends ChatWindowElement {
             return;
         }
         // Nothing earlier came (all known already): the list may ask again.
-        if (!this._prepended && this._data.conversation?.id === conversation.id) list.prependMessages([], {hasMore: Boolean(this._data.history?.has_older)});
+        if (!this._prepended && this._data.conversation?.id === conversation.id) list.prependItems([], {hasMore: Boolean(this._data.history?.has_older)});
     }
 
     focusListHead() {
@@ -2115,7 +2115,7 @@ class SfChatWindow extends ChatWindowElement {
     // --- the log's hooks ---------------------------------------------------
 
     /**
-     * sf-message-log's renderMessage: the message's sf-chat-message, one
+     * sf-list-feed's renderItem: the message's sf-chat-message, one
      * per message and kept across redraws, so a proposal's pressed card and
      * an open «why» card stay what they are; given the message, what the
      * window knows of it (display) and what the surface offers (features).
@@ -2137,7 +2137,7 @@ class SfChatWindow extends ChatWindowElement {
     }
 
     /**
-     * sf-message-log's announceMessage: what is said of a message, once per
+     * sf-list-feed's announceItem: what is said of a message, once per
      * change of words. While an answer is awaited, each new stage and a
      * stopped or delayed wait (Q-03); when it is done, «Ответ готов» before
      * the answer and «Ответ с оговоркой» before a partial one; a refusal, a
@@ -2222,7 +2222,7 @@ class SfChatWindow extends ChatWindowElement {
             this._drawn.clear();
             this._waiting = false;
             for (const message of messages) this._shown.set(keyOf(message), {message, viewKey: viewKeyOf(this.viewOf(message))});
-            list.setMessages(messages.map((message) => this.placed(message)), {hasMore});
+            list.setItems(messages.map((message) => this.placed(message)), {hasMore});
             this.messagesDrawn();
             if (unread) this.revealUnread();
             return;
@@ -2244,7 +2244,7 @@ class SfChatWindow extends ChatWindowElement {
             // A day's divider moves with what came (1.5.0): what is read stays put.
             if (this.has("people") && this.daysOf().size) this.holdReading();
             for (const message of earlier) this._shown.set(keyOf(message), {message, viewKey: viewKeyOf(this.viewOf(message))});
-            list.prependMessages(earlier.map((message) => this.placed(message)), {hasMore});
+            list.prependItems(earlier.map((message) => this.placed(message)), {hasMore});
             this._prepended = true;
         } else if (changed.has("history")) {
             list.setHasMore(hasMore);
@@ -2262,7 +2262,7 @@ class SfChatWindow extends ChatWindowElement {
         if (unread) this.revealUnread();
     }
 
-    // setMessages and prependMessages take bare messages; the window's own
+    // setItems and prependItems take bare messages; the window's own
     // knowledge of one (a repeat, a stopped wait) is given to the list after.
     placed(message) {
         const view = this.viewOf(message);
@@ -2607,7 +2607,7 @@ class SfChatWindow extends ChatWindowElement {
     // and is marked for a moment; reduced motion, without the scroll's movement.
     showQuoted(target) {
         const {list} = this.parts;
-        const item = list.querySelector(`.sf-message-log__item[data-id="${CSS.escape(String(target))}"]`);
+        const item = list.querySelector(`.sf-list-feed__item[data-id="${CSS.escape(String(target))}"]`);
         const article = item?.querySelector("article");
         if (!article) return;
         const still = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -2657,7 +2657,7 @@ class SfChatWindow extends ChatWindowElement {
         const scroller = list.scroller;
         if (!scroller) return;
         const top = scroller.getBoundingClientRect().top;
-        const item = [...list.querySelectorAll(".sf-message-log__item")].find((one) => one.getBoundingClientRect().bottom > top);
+        const item = [...list.querySelectorAll(".sf-list-feed__item")].find((one) => one.getBoundingClientRect().bottom > top);
         if (!item) return;
         // The message's own node, not its item: a divider inside the item may
         // be what goes, and it is drawn anew each time.
@@ -2872,7 +2872,7 @@ class SfChatWindow extends ChatWindowElement {
         const entry = this._editing.get(key);
         if (!entry) return;
         entry.fromField = true;
-        const item = () => list.querySelector(`.sf-message-log__item[data-id="${CSS.escape(key)}"]`);
+        const item = () => list.querySelector(`.sf-list-feed__item[data-id="${CSS.escape(key)}"]`);
         this.afterDraw(() => item()?.querySelector(".sf-chat-person__edit-field"), (field) => {
             // An editor already open has no reason to take the focus by itself.
             field?.focus({preventScroll: true});
@@ -3024,7 +3024,7 @@ class SfChatWindow extends ChatWindowElement {
     redrawPerson(key, selector = null, {reveal = false} = {}) {
         const {list} = this.parts;
         const doc = this.ownerDocument;
-        const item = () => list.querySelector(`.sf-message-log__item[data-id="${CSS.escape(String(key))}"]`);
+        const item = () => list.querySelector(`.sf-list-feed__item[data-id="${CSS.escape(String(key))}"]`);
         const before = item()?.querySelector("article") ?? null;
         const hadFocus = list.contains(doc.activeElement) || doc.activeElement === doc.body || !doc.activeElement;
         this.syncMessages(new Set(["messages"]));
@@ -3166,7 +3166,7 @@ class SfChatWindow extends ChatWindowElement {
         await this.openConversation(parent);
         if (this.inThread || root === null) return;
         const {list} = this.parts;
-        this.afterDraw(() => list.querySelector(`.sf-message-log__item[data-id="${CSS.escape(String(root))}"] article`), (node) => {
+        this.afterDraw(() => list.querySelector(`.sf-list-feed__item[data-id="${CSS.escape(String(root))}"] article`), (node) => {
             if (node) this.showQuoted(root);
         });
     }

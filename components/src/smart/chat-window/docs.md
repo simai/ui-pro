@@ -5,11 +5,12 @@
 `simai/ui-chat` (решение владельца D31: компоненты живут только в SIMAI Framework
 или ui-pro; перенос одобрен 2026-10-27) последним из четырёх компонентов чата.
 
-Окно собрано из частей по тегу: `sf-chat-threads` и `sf-message-log` (пакет
-`larena`), `sf-chat-composer`, `sf-chat-interlocutor` и `sf-chat-message` (шаги
-3–5). Сообщение в ленте рисует `sf-chat-message` (окно ставит его через
-`renderMessage` ленты), предложение — его карточка `sf-confirm-change`, что
-сказать читателю экрана, решает окно (`announceMessage`). Загрузчик приносит
+Окно собрано из частей по тегу: лента `sf-list-feed` (SIMAI Framework; до 1.13.0 —
+`sf-message-log` этого пакета), `sf-chat-threads`, `sf-chat-composer`,
+`sf-chat-interlocutor` и `sf-chat-message`. Сообщение в ленте рисует
+`sf-chat-message` (окно ставит его через `renderItem` ленты), предложение — его
+карточка `sf-confirm-change`, что сказать читателю экрана, решает окно
+(`announceItem`). Загрузчик приносит
 части сам (`rule.js`).
 
 Окно в сеть не ходит (кроме чтения просмотра источника, ниже). Хост даёт ему данные и отвечает на его намерения. Права,
@@ -518,7 +519,7 @@ false`), поэтому ответ уходит своим намерением 
 
 Окно слушает новые имена частей: `sf-chat-threads-open`, `-apply`, `-restore`,
 `-toggle`, `-load-more`, `-create`, `-rename`, `-archive`;
-`sf-message-log-load-more`; `sf-confirm-change-answer`;
+`sf-list-feed-load-more`; `sf-confirm-change-answer`;
 `sf-chat-composer-submit`, `-stop`, `-attach`, `-detach`;
 `sf-chat-interlocutor-select`; `sf-chat-message-retry`, `-check`, `-rate`,
 `-cancel {kind: rate}`, `-toggle {kind: sources | steps}`, `-submit`, `-open {kind:

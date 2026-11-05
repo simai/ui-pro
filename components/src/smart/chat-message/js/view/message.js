@@ -6,7 +6,7 @@
 // can still call renderMessage directly from a pinned ui-pro revision.
 //
 // sf-chat-message projects it (index.js); a chat window draws it inside
-// sf-message-log through the log's renderMessage hook. Controls are the
+// sf-list-feed through the feed's renderItem hook. Controls are the
 // Framework's plain markup (sf-button, sf-icon-button, sf-input); a file chip
 // is sf-chat-composer's (js/templates/parts.js), with the download link and
 // the «Файл недоступен» check added here for a sent file.

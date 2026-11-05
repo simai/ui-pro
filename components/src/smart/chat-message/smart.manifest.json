@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -705,6 +705,13 @@
         "changes": [
           "x-blocks: a document is drawn as a strip under the answer (name, what is left to fill in, «Открыть», downloads); open {kind: document} asks the host's panel; a missing field brings the form card's field (focusField). A saved card with the host's «Изменить» stays editable. Additive."
         ]
+      },
+      {
+        "from": "1.7.0",
+        "to": "1.7.1",
+        "changes": [
+          "The reaction picker stays under the top of SIMAI Framework's sf-list-feed (the conversation of chat-window 1.13.0, and of sf-message-log, its dated alias). No visible change."
+        ]
       }
     ]
   },
@@ -714,7 +721,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
-        "sha256": "f7c76dcf7e9ea4ffed1dbeec3025a6d4f3ae2614c6c923d8382788282717f2cd"
+        "sha256": "c3e60b560b9406c3a001cdfa0235ff12c5a324de3898037fa798d8448b352189"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.js",
@@ -726,7 +733,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
-        "sha256": "1c7ca72d4d9420302e64aa04506dfdcd2b4598f2e865641efa49fac51224531f"
+        "sha256": "d74814ba590d7a9c6500df5977710ffd810efc5e84d28c4cdeb4a2338aa3635f"
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
@@ -738,7 +745,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/social.js",
-        "sha256": "e2dcf96c2c178d366d7f9ae32a98dc1eea59402be91bcf49475feb677aed3889"
+        "sha256": "a784b525e1ebca7a6ef9e0442cba5eb42e2e1b18fed99dd2f3a01506d4a6b1f2"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
@@ -750,11 +757,11 @@
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "6ce797993fc9d6b110c152f34b4bce1b716ced737fc9c268cd9ff879e0c3359e"
+        "sha256": "df566fdc9b790b12f1717d0392d4ca0d8fc39d6cf4e733d125f95365472c36e5"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "ce6b154925e0e78d40523da06acd4c99482d8cd4b43b50eafcf5223f6a5493b8"
+        "sha256": "3c8967491a4aabb588f29be3caa4782d7e981e94a63f4fb464471f7dc83cb9aa"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
@@ -772,9 +779,9 @@
     "generated_runtime": []
   },
   "ai_guidance": {
-    "use_when": "Use sf-chat-message for one chat message: a window places it in sf-message-log through the log's renderMessage hook; a page that shows one message (a preview) places it alone. The template person draws a conversation between people.",
+    "use_when": "Use sf-chat-message for one chat message: a window places it in sf-list-feed (SIMAI Framework) through the feed's renderItem hook; a page that shows one message (a preview) places it alone. The template person draws a conversation between people.",
     "do_not": [
-      "Do not stack sf-chat-message elements into a conversation yourself; sf-message-log keeps the reading position and the announcements",
+      "Do not stack sf-chat-message elements into a conversation yourself; sf-list-feed keeps the reading position and the announcements",
       "Do not put trusted markup into message.html; it is sanitized, and only the allow-list survives",
       "Do not decide a proposal in the message; answer sf-change-confirm-answer in the window"
     ],

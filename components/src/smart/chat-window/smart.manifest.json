@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -40,8 +40,8 @@
       "smart.icon",
       "smart.input",
       "smart.input-lookup",
+      "smart.list-feed",
       "smart.menu-context",
-      "smart.message-log",
       "smart.progress-bar"
     ],
     "public_parts": [],
@@ -2615,6 +2615,13 @@
         "changes": [
           "x-blocks: a document (message.blocks of kind document) opens in the preview panel from its preview_url, in a frame that runs nothing; a place still to fill in brings the form card's field (focusDocumentField); a new revision of the open document reloads it where it was read. block.submit's result may carry the whole message, which replaces the drawn one. Additive."
         ]
+      },
+      {
+        "from": "1.12.0",
+        "to": "1.13.0",
+        "changes": [
+          "The conversation is SIMAI Framework's sf-list-feed (sf-message-log is now its dated alias): the window places <sf-list-feed>, hears sf-list-feed-load-more and draws through renderItem and announceItem. No visible change. A page that styled .sf-message-log, .sf-message-log__item or set --sf-message-log--* inside the window moves to .sf-list-feed, .sf-list-feed__item and --sf-list-feed--*. Needs a SIMAI Framework pair with sf-list-feed (ui-62b1d9b6dc8d or later)."
+        ]
       }
     ]
   },
@@ -2624,7 +2631,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "f14f6f324f994d8a366e06b86ce70a2700e731ad0dd793d04c12fe65345893d2"
+        "sha256": "d6651a98cc7b49db65c2631831a1143ed3f7e454a531792fd43ef8830f1fe018"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2636,7 +2643,7 @@
       },
       {
         "path": "src/smart/chat-window/js/part-words.js",
-        "sha256": "7d20728f4eb6ba564495ff746f482b35a07339202de4543cc7632d3bc3ecdb51"
+        "sha256": "f207f24591ddf2577fe53f2decce1e816e5e90fb5c6f0178c8042e62fa1fc0be"
       },
       {
         "path": "src/smart/chat-window/js/preview-view.js",
@@ -2644,7 +2651,7 @@
       },
       {
         "path": "src/smart/chat-window/js/people.js",
-        "sha256": "6b51b76ffc5e87ef5a30d3d985db783dc4be40a51859fdb2eab09cb45be9e508"
+        "sha256": "67c9d08f8ea60bee421f7e6a16ae25fe7fca55b898cdc1786d6f68027a8df828"
       },
       {
         "path": "src/smart/chat-window/js/members-view.js",
@@ -2664,23 +2671,23 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.js",
-        "sha256": "e6082a0b3f69cfdf78746de8e3327d652a369b9ed633b78144b89d8a895c31f3"
+        "sha256": "897c1a50992ceaf9906535324230e487cf9a4a1d9ed7d4c893aeff2ade092013"
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "e38b3c53aabd51970905671eb4eba0236ab9eb73cfa26195b37667c8244e847a"
+        "sha256": "530677b9bd1660bd47283170cf9d4d4b79166858ff16c5c63f632ad03e571ba2"
       },
       {
         "path": "src/smart/chat-window/rule.js",
-        "sha256": "dd78c8184159e3119bc80ee2ae842dfb85f779bf0feff56efbc639a5c8cf97af"
+        "sha256": "abefaf758bc7ac20e2ea296e9d4df5faab9c2bb5bc897c49263aea48e5b31a5d"
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "34f727cbcb5e027d51ccabdeafb787ab998e7d179218d0bd204ddd23b0bd6ad1"
+        "sha256": "74f48ca201129c16b49e2f8c0bd9f9f8d0625bea9e55c9103438942018c0f4a9"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "9fbfd94fd3aa76baa35a28b9c11dff3ad873d90258029a4d0a308777ccf2ad51"
+        "sha256": "62c610016e3d881b4763bce80f18856be362ba581d9380c5e04ea7b3abd797cb"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

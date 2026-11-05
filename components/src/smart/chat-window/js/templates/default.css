@@ -2,7 +2,7 @@
   /* sf-chat-window: the window's own nodes -- its shell (the conversations
      beside the conversation, the field under it), the search above the list,
      the greeting, the passing line, «Мои файлы» -- and how it tunes the parts
-     it places (sf-message-log, sf-chat-threads) through their public
+     it places (sf-list-feed, sf-chat-threads) through their public
      variables. Moved from simai/ui-chat (ui-chat 07bc988): chat-core's
      smart.css, less the composer's and the interlocutor's rules, which went
      with them, and the staff page's layout of the window's nodes
@@ -184,7 +184,7 @@
   /* An empty conversation: greeting, field and suggestions meet in the middle. */
   .chat-shell--empty .chat-shell__main { justify-content: center; }
   .chat-shell--empty .chat-shell__header { position: absolute; inset-inline: 0; inset-block-start: 0; }
-  .chat-shell--empty .sf-message-log { flex: 0 0 auto; overflow: visible; }
+  .chat-shell--empty .sf-list-feed { flex: 0 0 auto; overflow: visible; }
   .chat-shell--empty .chat-shell__composer { padding-block-end: 12vh; }
 
   /* Between people the header says who this is. Before the views' rules: they hide it the same way. */
@@ -201,7 +201,7 @@
      conversation's place -- its log, field, title and whom it is with step
      aside; the header with the page's buttons stays. The log's host is
      display: contents (the Smart base's own style), so its root goes. */
-  .chat-shell--files .chat-shell__list > .sf-message-log,
+  .chat-shell--files .chat-shell__list > .sf-list-feed,
   .chat-shell--files .chat-shell__composer,
   .chat-shell--files .chat-shell__header .sf-chat-interlocutor,
   .chat-shell--files .chat-shell__thread-title { display: none; }
@@ -210,12 +210,12 @@
      the page's help. Important: this sheet is in a layer, and a page's own
      unlayered layout of these nodes (staff.css: .chat-shell__composer {display:
      flex}) would otherwise win. The window also makes them inert (syncViews). */
-  .chat-shell--start .chat-shell__list > .sf-message-log,
+  .chat-shell--start .chat-shell__list > .sf-list-feed,
   .chat-shell--start .chat-shell__composer,
   .chat-shell--start .chat-shell__find,
   .chat-shell--start .chat-shell__header .sf-chat-interlocutor,
   .chat-shell--start .chat-shell__thread-title,
-  .chat-shell--members .chat-shell__list > .sf-message-log,
+  .chat-shell--members .chat-shell__list > .sf-list-feed,
   .chat-shell--members .chat-shell__composer,
   .chat-shell--members .chat-shell__find,
   .chat-shell--members .chat-shell__header .sf-chat-interlocutor,
@@ -344,20 +344,20 @@
 
   /* --- the package's parts in the window ------------------------------ */
 
-  /* sf-message-log and sf-chat-threads (component package larena) carry their
+  /* sf-list-feed (SIMAI Framework) and sf-chat-threads (this package) carry their
      own layout; the window only tunes them through their public variables
      to the chat's grammar (SPEC §3), so the conversation reads as it did when
      the list was the chat's own: the chat's reading column, and a question
      with its answer as one turn. The log groups by author, so one author's
      messages in a row are a run and an answer after a question starts a new
      one; the chat's rhythm is the other way round. */
-  .chat-shell .sf-message-log {
-    --sf-message-log--column: var(--sf-chat-window--column);
-    --sf-message-log--gap-run: var(--sf-chat-window--gap-turn);
-    --sf-message-log--gap-turn: var(--sf-chat-window--gap-turn);
+  .chat-shell .sf-list-feed {
+    --sf-list-feed--column: var(--sf-chat-window--column);
+    --sf-list-feed--gap-run: var(--sf-chat-window--gap-turn);
+    --sf-list-feed--gap-turn: var(--sf-chat-window--gap-turn);
   }
 
-  .chat-shell .sf-message-log__item--own + .sf-message-log__item:not(.sf-message-log__item--own) {
+  .chat-shell .sf-list-feed__item--own + .sf-list-feed__item:not(.sf-list-feed__item--own) {
     margin-block-start: var(--sf-chat-window--gap-related);
   }
 
@@ -366,7 +366,7 @@
   .chat-shell .sf-thread-list__link { padding-block: var(--sf-space-1\/3); }
 
   /* The chat's messages draw their own alignment and width. */
-  .chat-shell .sf-message-log__item--own { align-items: stretch; }
+  .chat-shell .sf-list-feed__item--own { align-items: stretch; }
 
   /* A proposal's two answers are touch-sized where the pointer is a finger,
      as every other control in a message is (D-09). */
@@ -379,7 +379,7 @@
 
   /* --- greeting -------------------------------------------------------- */
 
-  .chat-shell .sf-message-log__empty {
+  .chat-shell .sf-list-feed__empty {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;

@@ -83,7 +83,7 @@ test('roles have words, an unknown one none; only groups and channels have membe
 
 test('the intents are the window\'s own and the port does not change', () => {
   const window = json('chat-window', 'component.json');
-  assert.equal(window.version, '1.12.0');
+  assert.equal(window.version, '1.13.0');
   assert.deepEqual(window['x-port'].supports, ['1.0.0']);
   for (const [intent, capability] of [['recipients.search', 'x-conversation-start'], ['conversation.start', 'x-conversation-start'], ['members.list', 'x-members']]) {
     assert.equal(EXTENSION_INTENTS[intent].capability, capability);
@@ -102,7 +102,7 @@ test('the intents are the window\'s own and the port does not change', () => {
 test('the window itself hides the conversation under the form and the members, over a page\'s unlayered layout', () => {
   const css = readFileSync(join(root, 'src', 'smart', 'chat-window', 'js', 'templates', 'default.css'), 'utf8');
   for (const view of ['start', 'members']) {
-    for (const part of ['.chat-shell__list > .sf-message-log', '.chat-shell__composer', '.chat-shell__find', '.chat-shell__header .sf-chat-interlocutor', '.chat-shell__thread-title']) {
+    for (const part of ['.chat-shell__list > .sf-list-feed', '.chat-shell__composer', '.chat-shell__find', '.chat-shell__header .sf-chat-interlocutor', '.chat-shell__thread-title']) {
       assert.ok(css.includes(`.chat-shell--${view} ${part}`), `${view}: ${part}`);
     }
   }
