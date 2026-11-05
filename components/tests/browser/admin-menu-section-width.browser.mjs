@@ -7,7 +7,9 @@
 // it had reserved. Measured on the built bytes over a navigation port, at
 // 1280 px: two sections whose rows have short and long labels give the same
 // menu box, equal to the published two-column width; a section without an
-// open root gives the published one-column width; a long label ends in «…»;
+// open root gives the published one-column width; a long label wraps whole
+// onto more lines and is never cut (1.7.0, Larena Panel audit 2026-11-05; it
+// ended in «…» before);
 // a width the person set with the handle is kept.
 import {resolve, join} from 'node:path';
 import {chromium} from 'playwright';
@@ -80,7 +82,8 @@ const measure = async (current, {kept = null} = {}) => {
     return {
       nav: box('.sf-admin-nav'), first: box('.sf-admin-nav-first'), second: box('.sf-admin-nav-second'),
       main: Math.round(document.querySelector('main').getBoundingClientRect().left * 10) / 10,
-      ellipsis: label ? (label.scrollWidth > label.clientWidth && getComputedStyle(label).textOverflow === 'ellipsis') : null,
+      cut: label ? (label.scrollWidth > label.clientWidth + 1 || getComputedStyle(label).textOverflow === 'ellipsis') : null,
+      lines: label ? Math.round(label.getBoundingClientRect().height / parseFloat(getComputedStyle(label).lineHeight)) : null,
       published: {one: px('--sf-admin-menu-one-column-inline-size'), two: px('--sf-admin-menu-two-columns-inline-size'),
         compactOne: px('--sf-admin-menu-compact-one-column-inline-size'), compactTwo: px('--sf-admin-menu-compact-two-columns-inline-size')},
     };
@@ -97,7 +100,7 @@ try {
   if (!(short.published.two > 0) || Math.abs(short.nav - short.published.two) > 0.5) failures.push(`the two-column box is not the published width: ${JSON.stringify(short)}`);
   if (!(home.published.one > 0) || Math.abs(home.nav - home.published.one) > 0.5) failures.push(`the one-column box is not the published width: ${JSON.stringify(home)}`);
   if (!(short.published.compactOne > 0 && short.published.compactTwo > short.published.compactOne)) failures.push(`the compact widths are not published: ${JSON.stringify(short.published)}`);
-  if (long.ellipsis !== true) failures.push(`a long label does not end in «…»: ${JSON.stringify(long)}`);
+  if (long.cut !== false || !(long.lines >= 2)) failures.push(`a long label is cut instead of wrapping: ${JSON.stringify(long)}`);
   // The width the person set, as the host keeps it for them.
   const resized = await measure('b', {kept: 300});
   if (Math.abs(resized.second - 300) > 0.5) failures.push(`the width the person set is not kept: ${JSON.stringify(resized)}`);
@@ -111,4 +114,4 @@ if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
 }
-console.log('admin-menu: the same box in every section, the published widths, «…» for a long label, the person\'s width kept');
+console.log('admin-menu: the same box in every section, the published widths, a long label wrapped whole, the person\'s width kept');
