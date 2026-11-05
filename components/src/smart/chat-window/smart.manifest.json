@@ -2631,7 +2631,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "d6651a98cc7b49db65c2631831a1143ed3f7e454a531792fd43ef8830f1fe018"
+        "sha256": "0aa16767258d1c2702b46fab0db4bab1a87578d92976492be733d233c65fda09"
       },
       {
         "path": "src/smart/chat-window/js/port.js",

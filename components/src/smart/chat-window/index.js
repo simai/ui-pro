@@ -2234,7 +2234,7 @@ class SfChatWindow extends ChatWindowElement {
         const keys = new Set(messages.map(keyOf));
         for (const key of [...this._shown.keys()]) {
             if (keys.has(key)) continue;
-            list.remove(key);
+            list.detach({id: key});
             this._shown.delete(key);
             this._drawn.delete(key);
         }
@@ -2247,7 +2247,7 @@ class SfChatWindow extends ChatWindowElement {
             list.prependItems(earlier.map((message) => this.placed(message)), {hasMore});
             this._prepended = true;
         } else if (changed.has("history")) {
-            list.setHasMore(hasMore);
+            list.hasMore = hasMore;
         }
         for (const message of messages.slice(Math.max(first, 0))) {
             const key = keyOf(message);
