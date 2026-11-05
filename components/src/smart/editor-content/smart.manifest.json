@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.editor-content",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "title": "Content editor",
   "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "kind": "smart",
@@ -66,6 +66,21 @@
         "enum": [
           "popover",
           "host"
+        ]
+      },
+      "embed": {
+        "type": "boolean",
+        "default": false,
+        "description": "The editor stands in a host's box (a layout's outlet) as that box's text: no sheet of its own (no reading width, no padding), the text from the box's edge, the gutter outside the box in the host's margin (68px beside a box of 640px and wider, 36px beside a narrower one), the blocks in the rendered page's content rhythm (the text space between blocks, the section space before a heading). Opening it moves no line of the rendered page."
+      },
+      "title-field": {
+        "type": "string",
+        "default": "auto",
+        "description": "Whether the page's title field is drawn: auto shows it on a sheet and hides it embedded; shown and hidden decide it. A hidden title keeps the Document's data.title as it is.",
+        "enum": [
+          "auto",
+          "shown",
+          "hidden"
         ]
       },
       "label": {
@@ -507,6 +522,13 @@
         "changes": [
           "The tag is sf-editor-content (rename plan R2, naming decision 2026-11-02: sf-[set]-<block>); the folder editor-content, the id smart.editor-content and the bundle cl-editor-content follow it (were content-editor, smart.content-editor, cl-content-editor). sf-content-editor stays a dated alias until 2027-01-01: old markup upgrades as this element, the Loader forwards cl-content-editor, and every event fires under its former name as well, with the same detail. Public CSS variables and classes keep their names. Needs the SIMAI Framework pair whose package reference lists the former tag (core.runtime 1.22.0). Nothing to change for a host until 2027-01-01; new markup writes sf-editor-content."
         ]
+      },
+      {
+        "from": "1.3.0",
+        "to": "1.4.0",
+        "changes": [
+          "New settings embed and title-field (G-15): embedded, the editor stands in a host's box as its text, with no sheet of its own, the gutter in the host's margin and the rendered page's content rhythm; the title field is optional (auto hides it embedded). Nothing changes for a host that sets neither. A host that embeds the editor removes its own overrides of the sheet's padding, width and background and keeps room for the gutter in its margin."
+        ]
       }
     ]
   },
@@ -516,7 +538,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/editor-content/index.js",
-        "sha256": "a978559bb87726279f4bceca83debe87cfdb0c4ff9de90eb08f5216f30a0a5dc"
+        "sha256": "e8aeb7c4052278761e56de13ee390c486adaa823dec674fe581c958ee881168e"
       },
       {
         "path": "src/smart/editor-content/js/model.js",
@@ -536,11 +558,11 @@
       },
       {
         "path": "src/smart/editor-content/js/templates/default.js",
-        "sha256": "c0e01364d2d1c0799678282885e2aed017e1f98430870108e9543fd654c39990"
+        "sha256": "05b6788ecfcab6212558d4d316d4e56b4222ac00b5a90e385de3cbf5e813aae4"
       },
       {
         "path": "src/smart/editor-content/js/templates/default.css",
-        "sha256": "d22719de6388fad435a404dc9315fc0e2af4917fc74b4f4d5dcfdaeab8595867"
+        "sha256": "5cfc2e818a6cf6bfdd8dc3e211b73879bf9cc9ee59827c053f211109ac80364f"
       },
       {
         "path": "src/smart/editor-content/rule.js",
@@ -548,11 +570,11 @@
       },
       {
         "path": "src/smart/editor-content/docs.md",
-        "sha256": "86dcef192ed4d4f79dc1d38b645ab6a72a344a73f32b94ad71dcc337d98bb82d"
+        "sha256": "14326e4393b7c4a9da9318c738ef43dd1692d9acb0065b5da30af26465cb7ea0"
       },
       {
         "path": "src/smart/editor-content/component.json",
-        "sha256": "45e45f6e53be23d7590185caade0ed5bb40d088d9f1a0c73c7f20944b11f7222"
+        "sha256": "6e90cf6c4d3dcbface21d9903cc51fe4f47be9aa9f79cc850eca006215c79b0c"
       },
       {
         "path": "src/smart/editor-content/lang/en.json",

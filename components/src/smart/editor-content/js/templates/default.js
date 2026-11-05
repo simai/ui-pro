@@ -1,7 +1,8 @@
-import {html} from "lit";
+import {html, nothing} from "lit";
 import "./default.css";
 
-// The sheet: the page's title (a textbox, which a heading may not be), then
+// The sheet (or, embedded, the host's box: data-embed): the page's title (a
+// textbox, which a heading may not be; title-field may hide it), then
 // its blocks (drawn by the element itself, js/view.js, because
 // sf-editor-inline owns a field while it is typed in), the gutter in the
 // margin beside the block under the pointer or the caret, the line a pulled
@@ -13,10 +14,12 @@ export function renderContentEditorTemplate(context) {
     const {component} = context;
     return html`
         <div class=${["sf-content-editor", context.rootClass].filter(Boolean).join(" ")}
+             data-embed=${context.embed ? "true" : nothing}
              @input=${(event) => component.onInner(event)} @change=${(event) => component.onInner(event)}>
             <div class="sf-content-editor-sheet">
                 <div class="sf-content-editor-title" contenteditable="plaintext-only" role="textbox" spellcheck="true"
-                     aria-label=${context.titleLabel} data-placeholder=${context.titlePlaceholder}></div>
+                     aria-label=${context.titleLabel} data-placeholder=${context.titlePlaceholder}
+                     ?hidden=${!context.titleShown}></div>
                 <div class="sf-content-editor-blocks" role="group" tabindex="-1" aria-label=${context.label}></div>
                 <div class="sf-content-editor-gutter">
                     <sf-button-icon class="sf-content-editor-plus" size="1/3" appearance="link" icon="add"

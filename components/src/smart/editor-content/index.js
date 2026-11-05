@@ -343,6 +343,23 @@ class SfContentEditor extends ContentEditorElement {
         return this.querySelector(".sf-content-editor-menu");
     }
 
+    /**
+     * Whether the page's title field is drawn (title-field): shown or hidden as
+     * set; auto shows it on a sheet and hides it embedded, where the host's box
+     * is the text and the host draws the page's title, if any, itself. A hidden
+     * title keeps the Document's data.title as it is.
+     */
+    titleShown() {
+        if (this.titleField === "shown") return true;
+        if (this.titleField === "hidden") return false;
+        return !this.embed;
+    }
+
+    /** The title field when it is drawn, else null: the fields ↑ and ↓ and Tab go through. */
+    titleElement() {
+        return this.titleShown() ? this.querySelector(".sf-content-editor-title") : null;
+    }
+
     viewContext() {
         return {
             doc: this.ownerDocument,
@@ -448,7 +465,7 @@ class SfContentEditor extends ContentEditorElement {
 
     /** One field of the sheet is its tab stop: the one last typed in, else the first. */
     updateTabStop() {
-        const all = [this.querySelector(".sf-content-editor-title"), ...fieldsIn(this.blocksElement ?? this)].filter(Boolean);
+        const all = [this.titleElement(), ...fieldsIn(this.blocksElement ?? this)].filter(Boolean);
         const stop = all.find((element) => element === this.lastField && element.isConnected) ?? all[0];
         for (const element of all) element.tabIndex = element === stop ? 0 : -1;
     }
@@ -669,7 +686,7 @@ class SfContentEditor extends ContentEditorElement {
         this.picked = [];
         this.drawAll();
         if (step.focus) {
-            const element = step.focus.title ? this.querySelector(".sf-content-editor-title") : this.fieldElement(step.focus);
+            const element = step.focus.title ? this.titleElement() : this.fieldElement(step.focus);
             if (element) this.activate(element, step.focus.at);
         } else if (step.picked?.length) this.pick(step.picked.filter((id) => locate(this.doc.root, id)));
         this.changed("history");
@@ -1482,7 +1499,7 @@ class SfContentEditor extends ContentEditorElement {
             return;
         }
         if ((event.key === "ArrowUp" || event.key === "ArrowDown") && !event.shiftKey && this.onEdge(element, event.key === "ArrowUp")) {
-            const all = [this.querySelector(".sf-content-editor-title"), ...fieldsIn(this.blocksElement)].filter(Boolean);
+            const all = [this.titleElement(), ...fieldsIn(this.blocksElement)].filter(Boolean);
             const next = all[all.indexOf(element) + (event.key === "ArrowUp" ? -1 : 1)];
             if (next) {
                 stop();
@@ -1513,7 +1530,7 @@ class SfContentEditor extends ContentEditorElement {
             return;
         }
         if ((event.key === "ArrowUp" || event.key === "ArrowDown") && !event.shiftKey && this.onEdge(element, event.key === "ArrowUp")) {
-            const all = [this.querySelector(".sf-content-editor-title"), ...fieldsIn(this.blocksElement)].filter(Boolean);
+            const all = [this.titleElement(), ...fieldsIn(this.blocksElement)].filter(Boolean);
             const next = all[all.indexOf(element) + (event.key === "ArrowUp" ? -1 : 1)];
             if (next) {
                 stop();
@@ -1961,7 +1978,7 @@ class SfContentEditor extends ContentEditorElement {
             }
             for (const solid of block.querySelectorAll(".sf-content-editor-frame, .sf-content-editor-divider, .sf-content-editor-opaque, .sf-content-editor-zone, .sf-content-editor-file-row, img")) boxes.push(solid.getBoundingClientRect());
         }
-        const title = this.querySelector(".sf-content-editor-title");
+        const title = this.titleElement();
         if (title) {
             const range = this.ownerDocument.createRange();
             range.selectNodeContents(title);
@@ -2378,6 +2395,13 @@ class SfContentEditor extends ContentEditorElement {
     afterUpdate(...rest) {
         super.afterUpdate?.(...rest);
         this.adopt();
+        // The title field came or went (embed, title-field): the tab stop is
+        // one of the fields that are drawn.
+        const titled = this.titleShown();
+        if (titled !== this.titledSeen) {
+            this.titledSeen = titled;
+            this.updateTabStop();
+        }
         // New sources from the host: the pictures are drawn from them again.
         if (this.sources !== this.sourcesSeen) {
             const first = this.sourcesSeen === undefined;
@@ -2405,6 +2429,8 @@ class SfContentEditor extends ContentEditorElement {
             quickLabel: this.sfWord("params-label"),
             noticeText: this.notice,
             rootClass: this.getRootClass?.() ?? "",
+            embed: Boolean(this.embed),
+            titleShown: this.titleShown(),
         };
     }
 

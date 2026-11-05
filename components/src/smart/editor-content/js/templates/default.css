@@ -726,6 +726,47 @@
     }
   }
 
+  /* Embedded (embed, G-15): the editor stands in a host's box -- a layout's
+     outlet -- as that box's text, so opening it moves nothing. No sheet: no
+     reading width, no padding, the text from the box's own edge; the gutter
+     stands outside the box, in the host's margin (68px beside a box of 640px
+     and wider, 36px beside a narrower one); the blocks keep the content
+     rhythm of the rendered page (simai.vertical-sizing: the text space after
+     each block, as a p's margin; the section space before a heading of level
+     2 to 6, as an h2's; the title's text space after it). A block's highlight
+     still reaches past its text: its padding is taken back by its margins, so
+     it moves no line. */
+  .sf-content-editor[data-embed] .sf-content-editor-sheet {
+    --sf-content-editor-margin: 0px;
+    max-inline-size: none;
+    margin-inline: 0;
+    padding: 0;
+  }
+
+  .sf-content-editor[data-embed] .sf-content-editor-title {
+    margin: 0 0 var(--sf-content--space-text);
+  }
+
+  .sf-content-editor[data-embed] .sf-content-editor-blocks {
+    gap: 0;
+  }
+
+  .sf-content-editor[data-embed] .sf-content-editor-blocks > .sf-content-editor-block {
+    margin-block: calc(var(--sf-space-1\/4) * -1) calc(var(--sf-content--space-text) - var(--sf-space-1\/4));
+  }
+
+  .sf-content-editor[data-embed] .sf-content-editor-blocks > .sf-content-editor-block:has(> :is(.sf-content-editor-heading--2, .sf-content-editor-heading--3, .sf-content-editor-heading--4, .sf-content-editor-heading--5, .sf-content-editor-heading--6)) {
+    margin-block-start: calc(var(--sf-content--space-section) - var(--sf-content--space-text) - var(--sf-space-1\/4));
+  }
+
+  .sf-content-editor[data-embed] .sf-content-editor-blocks > .sf-content-editor-block > .sf-content-editor-heading {
+    margin-block-start: 0;
+  }
+
+  .sf-content-editor[data-embed] .sf-content-editor-drop {
+    inset-inline: 0;
+  }
+
   @media (max-width: 720px) {
     .sf-content-editor-grid,
     .sf-content-editor-media {

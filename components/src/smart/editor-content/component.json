@@ -2,7 +2,7 @@
   "$comment": "The source of sf-content-editor's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-editor by the owner's decision of 2026-11-01 (the text editor starts once the content types are out); behaviour per ui-editor prototypes/content-editor.html and the content standard, sections 6, 7 and 9. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
   "id": "smart.editor-content",
   "tag": "sf-editor-content",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -42,6 +42,21 @@
       "default": null,
       "x-markup": "a property: {<stored src>: <address to show it from>}; a host that keeps files by reference (an IndexedDB key, a storage id) sets it.",
       "summary": "Where a picture's or file's stored value is shown from: a map of the value a host answered with to an address the browser loads."
+    },
+    "embed": {
+      "type": "boolean",
+      "default": false,
+      "summary": "The editor stands in a host's box (a layout's outlet) as that box's text: no sheet of its own (no reading width, no padding), the text from the box's edge, the gutter outside the box in the host's margin (68px beside a box of 640px and wider, 36px beside a narrower one), the blocks in the rendered page's content rhythm (the text space between blocks, the section space before a heading). Opening it moves no line of the rendered page."
+    },
+    "title-field": {
+      "type": "enum",
+      "values": [
+        "auto",
+        "shown",
+        "hidden"
+      ],
+      "default": "auto",
+      "summary": "Whether the page's title field is drawn: auto shows it on a sheet and hides it embedded; shown and hidden decide it. A hidden title keeps the Document's data.title as it is."
     },
     "label": {
       "type": "string",
@@ -364,7 +379,8 @@
     "parameters (owner, 2026-11-01): three places. The content is typed in the block; a choice of two to six options is a quick toggle over the chosen block (six, so a picture's ratios are one); the rest is the host's panel (parameters: host, the params event and set-parameter) or an sf-popover from the quick toolbar. The form is the type's composition-editor-manifest, a host's own first; a value equal to its default is not written. The floating form and the quiet button on each block are gone.",
     "pictures (owner, 2026-11-01): an empty picture is a drop zone the width of the text (sf-file-upload), with «Link» for an address. A file dropped anywhere makes a picture at the drop line, a pasted one at the caret; it shows at once from an object URL, goes to the host in the file event, and the host answers with answer-file {value, href} or {reason}. sources maps a stored value to where it is shown from. A file block (content.file, 1.2.0) is the same drop zone for any file; any file that is not an image dropped on the page makes one; it draws sf-download-file's row, its name typed in place, its address in the parameters.",
     "version 1.2.4: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the gutter is sf-button-icon, the block menu sf-menu-context, inline fields are edited through sf-editor-inline (its sf-editor-inline-* events). The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0).",
-    "version 1.3.0: the tag is sf-editor-content (naming decision 2026-11-02: sf-[set]-<block>[-<variant>]; rename plan R2); the folder editor-content, the id smart.editor-content and the bundle cl-editor-content follow it. sf-content-editor stays a dated alias until 2027-01-01: a subclass the Smart base defines beside the new tag, listed in the package rule, in sheets as :is(sf-editor-content, sf-content-editor), its events named after the tag followed by their former names (ui-source change journal tag-sf-content-editor-to-sf-editor-content, path-smart-content-editor-to-editor-content)."
+    "version 1.3.0: the tag is sf-editor-content (naming decision 2026-11-02: sf-[set]-<block>[-<variant>]; rename plan R2); the folder editor-content, the id smart.editor-content and the bundle cl-editor-content follow it. sf-content-editor stays a dated alias until 2027-01-01: a subclass the Smart base defines beside the new tag, listed in the package rule, in sheets as :is(sf-editor-content, sf-content-editor), its events named after the tag followed by their former names (ui-source change journal tag-sf-content-editor-to-sf-editor-content, path-smart-content-editor-to-editor-content).",
+    "version 1.4.0 (G-15, owner request msg-dd87f2741a7b48448d5c; ui-control control/ui-editor/CONTENT-IN-LAYOUT-GAPS.md): in a layout's outlet the editor drew its own sheet, so on opening the text moved right by the gutter's margin and down by the sheet's padding and the title, and the outlet grew by a third. New settings embed (boolean) and title-field (auto | shown | hidden). Embedded, the sheet has no reading width and no padding; --sf-content-editor-margin is 0, so the gutter's own formula puts it outside the box, in the host's margin; the top-level blocks take the Framework's content rhythm (simai.vertical-sizing: --sf-content--space-text between blocks, --sf-content--space-section before a heading of level 2 to 6, the title's text space after it) instead of the sheet's quarter step, and a block's highlight padding is taken back by an equal negative margin, so it moves no line. The title field is hidden embedded unless title-field says shown; a hidden title is out of ↑, ↓ and Tab and keeps data.title. The rendered page's own spacing for figures, dividers and notes (no margin) is not copied: the rhythm is the contract's."
   ],
   "x-rule": {
     "$comment": [
@@ -514,6 +530,13 @@
           "to": "1.3.0",
           "changes": [
             "The tag is sf-editor-content (rename plan R2, naming decision 2026-11-02: sf-[set]-<block>); the folder editor-content, the id smart.editor-content and the bundle cl-editor-content follow it (were content-editor, smart.content-editor, cl-content-editor). sf-content-editor stays a dated alias until 2027-01-01: old markup upgrades as this element, the Loader forwards cl-content-editor, and every event fires under its former name as well, with the same detail. Public CSS variables and classes keep their names. Needs the SIMAI Framework pair whose package reference lists the former tag (core.runtime 1.22.0). Nothing to change for a host until 2027-01-01; new markup writes sf-editor-content."
+          ]
+        },
+        {
+          "from": "1.3.0",
+          "to": "1.4.0",
+          "changes": [
+            "New settings embed and title-field (G-15): embedded, the editor stands in a host's box as its text, with no sheet of its own, the gutter in the host's margin and the rendered page's content rhythm; the title field is optional (auto hides it embedded). Nothing changes for a host that sets neither. A host that embeds the editor removes its own overrides of the sheet's padding, width and background and keeps room for the gutter in its margin."
           ]
         }
       ]
