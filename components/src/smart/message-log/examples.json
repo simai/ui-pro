@@ -156,29 +156,29 @@
           "covers": "keyboard.row ArrowUp focus:prev, ArrowDown focus:next, Home focus:first, End focus:last, accessibility.name runtime.region-label",
           "steps": [
             {
-              "script": "(document.querySelector('#log').focusItem(document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]')), true)",
+              "script": "(document.querySelector('#log').focusItem(document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m2\"]')), true)",
               "wait": 60,
-              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]').querySelector('article') && document.querySelector('#log').querySelector('[role=region]').getAttribute('aria-label') === 'Переписка'"
+              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m2\"]').querySelector('article') && document.querySelector('#log').querySelector('[role=region]').getAttribute('aria-label') === 'Переписка'"
             },
             {
               "user": "keyboard:ArrowUp",
               "wait": 60,
-              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article')"
+              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m1\"]').querySelector('article')"
             },
             {
               "user": "keyboard:End",
               "wait": 60,
-              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m3\"]').querySelector('article')"
+              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m3\"]').querySelector('article')"
             },
             {
               "user": "keyboard:Home",
               "wait": 60,
-              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article')"
+              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m1\"]').querySelector('article')"
             },
             {
               "user": "keyboard:ArrowDown",
               "wait": 60,
-              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]').querySelector('article')"
+              "check": "document.activeElement === document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m2\"]').querySelector('article')"
             }
           ]
         },
@@ -188,7 +188,7 @@
           "covers": "events.load-more, aliases sf-message-log-load-earlier, actions.request-earlier, earlier-failed",
           "steps": [
             {
-              "script": "(document.querySelector('#log').focusItem(document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]')), true)",
+              "script": "(document.querySelector('#log').focusItem(document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m1\"]')), true)",
               "wait": 60
             },
             {
@@ -214,7 +214,7 @@
                 "journal": [
                   {
                     "from": "sf-message-log-load-earlier",
-                    "to": "sf-message-log-load-more",
+                    "to": "sf-list-feed-load-more",
                     "since": "2026-10-27",
                     "remove_after": "2026-12-01"
                   }
@@ -252,7 +252,7 @@
                   "reason": "prevented"
                 }
               },
-              "check": "!document.querySelector('#log').querySelector('.sf-message-log__earlier button').disabled"
+              "check": "!document.querySelector('#log').querySelector('.sf-list-feed__earlier button').disabled"
             }
           ]
         },
@@ -278,10 +278,10 @@
                   }
                 ]
               },
-              "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]').getAttribute('aria-busy') === 'true'"
+              "check": "document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"g1\"]').getAttribute('aria-busy') === 'true'"
             },
             {
-              "script": "(window.__item = document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]'), window.__copy = document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]').querySelector('.copy'), window.__copy.focus(), window.__others = [...document.querySelector('#log').querySelectorAll('.sf-message-log__item:not([data-id=\"g1\"]) article')], true)",
+              "script": "(window.__item = document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"g1\"]'), window.__copy = document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"g1\"]').querySelector('.copy'), window.__copy.focus(), window.__others = [...document.querySelector('#log').querySelectorAll('.sf-list-feed__item:not([data-id=\"g1\"]) article')], true)",
               "wait": 60
             },
             {
@@ -298,7 +298,7 @@
                   }
                 ]
               },
-              "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]') === window.__item && document.activeElement === window.__copy && document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]').querySelector('article').firstChild.data === 'Чтобы вернуть товар,' && window.__others.every((node) => node.isConnected)"
+              "check": "document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"g1\"]') === window.__item && document.activeElement === window.__copy && document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"g1\"]').querySelector('article').firstChild.data === 'Чтобы вернуть товар,' && window.__others.every((node) => node.isConnected)"
             },
             {
               "script": "(document.querySelector('#log').upsert({id: 'g1', author: 'assistant', 'author-name': 'Ассистент', text: 'Чтобы вернуть товар, откройте заказ.', revision: '4', growing: false}), true)",
@@ -317,7 +317,7 @@
                   }
                 ]
               },
-              "check": "!document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g1\"]').hasAttribute('aria-busy') && document.activeElement === window.__copy"
+              "check": "!document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"g1\"]').hasAttribute('aria-busy') && document.activeElement === window.__copy"
             }
           ]
         },
@@ -359,7 +359,7 @@
                   }
                 ]
               },
-              "check": "!document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g2\"]').hasAttribute('aria-busy')"
+              "check": "!document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"g2\"]').hasAttribute('aria-busy')"
             },
             {
               "script": "document.querySelector('#log').upsert({id: 'g2', author: 'assistant', 'author-name': 'Ассистент', text: 'Сейчас расскажу', revision: '2', growing: true})",
@@ -383,7 +383,7 @@
                   }
                 ]
               },
-              "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"g2\"]').querySelector('article').firstChild.data === 'Сейчас'"
+              "check": "document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"g2\"]').querySelector('article').firstChild.data === 'Сейчас'"
             },
             {
               "action": {
@@ -453,19 +453,19 @@
           "covers": "settings.messages entries, settings.changes (§18.4)",
           "steps": [
             {
-              "script": "(window.__m1 = document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]'), document.querySelector('#log').messages = [{id: 'm1', author: 'anna', 'author-name': 'Анна', text: 'Добрый день!!'}, {id: 'm3', author: 'me', own: true, text: 'Да, отправил утром.'}], true)",
+              "script": "(window.__m1 = document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m1\"]'), document.querySelector('#log').messages = [{id: 'm1', author: 'anna', 'author-name': 'Анна', text: 'Добрый день!!'}, {id: 'm3', author: 'me', own: true, text: 'Да, отправил утром.'}], true)",
               "wait": 120,
-              "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]') === window.__m1 && document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article').firstChild.data === 'Добрый день!!' && !document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]') && document.querySelector('#log').messages.length === 2"
+              "check": "document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m1\"]') === window.__m1 && document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m1\"]').querySelector('article').firstChild.data === 'Добрый день!!' && !document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m2\"]') && document.querySelector('#log').messages.length === 2"
             },
             {
               "script": "(document.querySelector('#log').setAttribute('changes', 'revision'), document.querySelector('#log').messages = [{id: 'm1', revision: '7', text: 'А'}, {id: 'm3', own: true, text: 'Да, отправил утром.'}], document.querySelector('#log').messages = [{id: 'm1', revision: '7', text: 'Б'}, {id: 'm3', own: true, text: 'Да, отправил утром.'}], true)",
               "wait": 120,
-              "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article').firstChild.data === 'А'"
+              "check": "document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m1\"]').querySelector('article').firstChild.data === 'А'"
             },
             {
               "script": "(document.querySelector('#log').messages = [{id: 'm1', revision: '8', text: 'Б'}, {id: 'm3', own: true, text: 'Да, отправил утром.'}], true)",
               "wait": 120,
-              "check": "document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m1\"]').querySelector('article').firstChild.data === 'Б'"
+              "check": "document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m1\"]').querySelector('article').firstChild.data === 'Б'"
             }
           ]
         },
@@ -490,7 +490,7 @@
                   }
                 ]
               },
-              "check": "!document.querySelector('#log').querySelector('.sf-message-log__item[data-id=\"m2\"]') && document.querySelector('#log').isConnected"
+              "check": "!document.querySelector('#log').querySelector('.sf-list-feed__item[data-id=\"m2\"]') && document.querySelector('#log').isConnected"
             },
             {
               "action": {

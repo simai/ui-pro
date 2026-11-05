@@ -799,7 +799,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/message-log/index.js",
-        "sha256": "088103d64032254b4401cf5882bd7b88616f3d3e5e70e3229ffec740828ff90f"
+        "sha256": "2bc4ea55cb163e61b478053f7a7682db33cc1ff27e42a261447187fe3efbd1f6"
       },
       {
         "path": "src/smart/message-log/js/templates/default.css",
@@ -811,11 +811,11 @@
       },
       {
         "path": "src/smart/message-log/docs.md",
-        "sha256": "69584d7b69ad18b9a31d254043b315d489fbb2d8b32c8b6161763d1e84fb686a"
+        "sha256": "4b5b29997b7e70315dd061ab0f98ed4889677ae3cbfd7b955c45c96a07f64101"
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "d9331e2b11325b14a54145ffc17db2f8f6899f4c2aaa89740b4e6d073f98cccc"
+        "sha256": "c927bb83ce9fa7a9ca474d669fd8b7f0bcf9ca6b4abbd43bb5d11c446b50b7af"
       },
       {
         "path": "src/smart/message-log/aliases.json",

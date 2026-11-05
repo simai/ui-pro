@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
-// sf-message-log as the feed of a streamed reply, on the built bytes: stand 23
+// sf-message-log as the feed of a streamed reply, on the built bytes. Since
+// 2.0.0 the element is a dated alias of SIMAI Framework's sf-list-feed (until
+// 2027-01-01): this drives it by its former names and holds that each former
+// fact (sf-message-log-*) goes with the feed's (sf-list-feed-*). Stand 23
 // b's stream scenario (ui-control control/smart-architecture/stands/23-red-team/b/stream)
 // with the log's own interface instead of the stand's adapter (standard
 // simai.smart-component 1.3.8 §10.8, §18.4; vocabulary 1.1.5 §5.2).
@@ -20,7 +23,8 @@
 // - the focus stays on the reply's button through every part;
 // - the stop ends the stream cancelled within 100 ms and nothing written after
 //   it is drawn; the reply's busy mark goes;
-// - the facts are begun once, chunk per part, cancelled once, nothing else;
+// - the facts are begun once, chunk per part, cancelled once, nothing else,
+//   under the former names and the feed's alike;
 // - a host that keeps the revision while the body grows still streams under
 //   changes: content (the default), and is seen to lose its parts under
 //   changes: revision -- why content is the default.
@@ -32,12 +36,13 @@ if (!process.argv[2]) throw new Error('Build output root is required');
 const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css', 'component/component/buttons/css/buttons.css',
-  'component/component/icon-buttons/css/icon-buttons.css', 'smart/smart/message-log/css/message-log.css',
+  'component/component/icon-buttons/css/icon-buttons.css', 'smart/smart/list-feed/css/list-feed.css',
+  'smart/smart/message-log/css/message-log.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
-  'smart/smart/message-log/js/message-log.js',
+  'smart/smart/list-feed/js/list-feed.js', 'smart/smart/message-log/js/message-log.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
 if (absent.length) throw new Error(`${absent.length} build asset(s) not found under ${out}: ${absent.join(', ')}`);
@@ -73,8 +78,10 @@ try {
       return node;
     };
     const facts = [];
+    const feedFacts = [];
     for (const fact of ['begun', 'chunk', 'completed', 'failed', 'cancelled']) {
       log.addEventListener(`sf-message-log-${fact}`, (event) => facts.push({fact, id: event.detail.id, t: performance.now()}));
+      log.addEventListener(`sf-list-feed-${fact}`, (event) => feedFacts.push(`${fact}:${event.detail.id}`));
     }
     const conversation = [
       {id: 'q0', author: 'me', own: true, text: 'Здравствуйте', revision: '1'},
@@ -85,12 +92,12 @@ try {
     await new Promise((done) => setTimeout(done, 200));
 
     // Every change inside the column, by the entry it belongs to, per part.
-    const column = log.querySelector('.sf-message-log__column');
+    const column = log.querySelector('.sf-list-feed__column');
     const observer = new MutationObserver(() => {});
     observer.observe(column, {subtree: true, childList: true, characterData: true, attributes: true});
     const touched = (records) => [...new Set(records.map((record) => {
       const node = record.target.nodeType === 1 ? record.target : record.target.parentElement;
-      return node?.closest?.('.sf-message-log__item')?.dataset.id ?? (record.target === column ? '(column)' : '(other)');
+      return node?.closest?.('.sf-list-feed__item')?.dataset.id ?? (record.target === column ? '(column)' : '(other)');
     }))];
 
     const reply = {id: 'r1', author: 'ai', 'author-name': 'Ассистент', text: '', growing: true, revision: 1};
@@ -148,6 +155,7 @@ try {
       textKept: stoppedAt === null || item.textContent === textAtStop,
       busyAfter: item.getAttribute('aria-busy'),
       facts: facts.reduce((all, one) => ({...all, [one.fact]: (all[one.fact] ?? 0) + 1}), {}),
+      pairedWithFeed: JSON.stringify(facts.map((one) => `${one.fact}:${one.id}`)) === JSON.stringify(feedFacts),
     };
   }, {changes, revision, stopAt, focusAt, parts, every});
 
@@ -161,12 +169,14 @@ try {
   if (a.drawnAfterStop !== 0 || !a.textKept) note({case: 'nothing written after the stop is drawn', got: a});
   if (a.busyAfter !== null) note({case: 'the stopped reply is not busy', got: a.busyAfter});
   if (JSON.stringify(a.facts) !== JSON.stringify({begun: 1, chunk: a.written, cancelled: 1})) note({case: 'begun once, a chunk per part, cancelled once', got: a.facts});
+  if (!a.pairedWithFeed) note({case: "A: each former fact goes with the feed's", got: a.facts});
 
   // B: the whole reply, a host that keeps the revision; content compares (the default).
   const b = await scenario({revision: false, stopAt: Infinity, focusAt: 8});
   console.log(JSON.stringify({run: 'B content', ...b, perPartEntries: undefined}));
   if (b.drawn !== b.parts || !b.oneEntryPerPart || !b.focusKept) note({case: 'a host that keeps the revision streams under changes: content', got: b});
   if (JSON.stringify(b.facts) !== JSON.stringify({begun: 1, chunk: b.parts - 1, completed: 1})) note({case: 'begun, a chunk per growing part, completed', got: b.facts});
+  if (!b.pairedWithFeed) note({case: "B: each former fact goes with the feed's", got: b.facts});
 
   // C: the same host under changes: revision loses every part but the end.
   const c = await scenario({changes: 'revision', revision: false, stopAt: Infinity, focusAt: 8});

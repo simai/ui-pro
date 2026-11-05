@@ -11,7 +11,8 @@
 //     the five former public variables (--sf-message-log-*) still feed them
 //     (js/templates/default.css);
 //   - the former names keep working: messages, setMessages and
-//     prependMessages, renderMessage and announceMessage, the entry fields
+//     prependMessages, renderMessage and announceMessage, setHasMore and
+//     isNearBottom, the entry fields
 //     pending and author_name (1.0 spellings, until 2026-12-01), remove(id);
 //     every event the feed sends (sf-list-feed-load-more, -begun, -chunk,
 //     -completed, -failed, -cancelled) also goes out under its former name
@@ -150,6 +151,19 @@ function defineMessageLog(Feed) {
         prependMessages(messages = [], options = {}) {
             former("action", "prependMessages", "prependItems");
             return this.prependItems(entriesOf(messages), options);
+        }
+
+        // 1.x's own methods the feed does not keep: the has-more setting, and
+        // isAtLatest under its internal name.
+        setHasMore(value) {
+            former("action", "setHasMore", "has-more");
+            this.hasMore = Boolean(value);
+            return {outcome: "applied"};
+        }
+
+        isNearBottom() {
+            former("action", "isNearBottom", "isAtLatest");
+            return this.isAtLatest();
         }
 
         upsert(message, ...rest) {

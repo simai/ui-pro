@@ -39,6 +39,8 @@
 | `sf-message-log-completed` | `sf-list-feed-completed` |
 | `sf-message-log-failed` | `sf-list-feed-failed` |
 | `sf-message-log-cancelled` | `sf-list-feed-cancelled` |
+| `setHasMore(value)` | the `has-more` setting (`hasMore`) |
+| `isNearBottom()` | `isAtLatest()` |
 | `cl-message-log` | `cl-list-feed` |
 | `--sf-message-log-column-width` | `--sf-list-feed-column-width` |
 | `--sf-message-log-inset` | `--sf-list-feed-inset` |

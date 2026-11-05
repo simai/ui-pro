@@ -60,6 +60,9 @@ test('the former properties and methods are answered under the feed\'s names', (
   }
   assert.match(source, /setMessages\(messages = \[\], options = \{\}\) \{\s*former\("action", "setMessages", "setItems"\);\s*return this\.setItems\(entriesOf\(messages\), options\)/u);
   assert.match(source, /prependMessages\(messages = \[\], options = \{\}\) \{\s*former\("action", "prependMessages", "prependItems"\);\s*return this\.prependItems\(entriesOf\(messages\), options\)/u);
+  // 1.x's own methods the feed does not keep (sf-chat-window 1.12 called setHasMore).
+  assert.match(source, /setHasMore\(value\) \{\s*former\("action", "setHasMore", "has-more"\);\s*this\.hasMore = Boolean\(value\)/u);
+  assert.match(source, /isNearBottom\(\) \{\s*former\("action", "isNearBottom", "isAtLatest"\);\s*return this\.isAtLatest\(\)/u);
   // remove(id) is 1.0's detach; remove() stays the browser's.
   assert.match(source, /if \(!args\.length\) return super\.remove\(\)/u);
   // The 1.0 entry fields keep their earlier dates.
@@ -128,7 +131,7 @@ test('the former public variables feed the feed\'s, and the sheet sets nothing e
 test('the docs name every former name with the one that replaces it', () => {
   const docs = read(`${folder}/docs.md`);
   for (const name of ['sf-list-feed', 'messages', 'items', 'setMessages', 'setItems', 'prependMessages', 'prependItems',
-    'renderMessage', 'renderItem', 'announceMessage', 'announceItem', 'cl-list-feed', 'sf-message-log-load-earlier',
+    'renderMessage', 'renderItem', 'announceMessage', 'announceItem', 'setHasMore', 'isNearBottom', 'isAtLatest', 'cl-list-feed', 'sf-message-log-load-earlier',
     ...VERBS.flatMap((verb) => [`sf-message-log-${verb}`, `sf-list-feed-${verb}`])]) {
     assert.match(docs, new RegExp(`\`${name}(\\(|\`)`, 'u'), `docs.md names ${name}`);
   }
