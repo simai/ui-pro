@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.5.5",
+  "version": "1.6.0",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -32,7 +32,8 @@
       "smart.badge",
       "smart.confirm-change",
       "smart.icon",
-      "smart.menu-context"
+      "smart.menu-context",
+      "smart.view-properties"
     ],
     "public_parts": []
   },
@@ -120,6 +121,28 @@
         {
           "name": "options",
           "required": false,
+          "schema": {
+            "type": "object"
+          }
+        }
+      ],
+      "returns": {
+        "type": "null"
+      }
+    },
+    "settleBlock": {
+      "summary": "The host's answer to a card's submit (x-blocks, 1.6.0): applied {block}, conflict, or refused with errors by field, reason closed (the card loses its buttons) or the host's message. The window calls it; the card shows the answer.",
+      "arguments": [
+        {
+          "name": "blockId",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "result",
+          "required": true,
           "schema": {
             "type": "object"
           }
@@ -300,17 +323,35 @@
       }
     },
     "sf-chat-message-submit": {
-      "summary": "A brief's answer goes out as a message (vocabulary §5 submit; API.md v1.2): an option, the person's own words, several answers joined by «; » with «—» for a skipped one, or the card's «Да». The 0.3 sf-chat-action {action: brief-answer} follows it until 2026-12-01.",
+      "summary": "A brief's answer goes out as a message (vocabulary §5 submit; API.md v1.2): an option, the person's own words, several answers joined by «; » with «—» for a skipped one, or the card's «Да». The 0.3 sf-chat-action {action: brief-answer} follows it until 2026-12-01. Or a card's save or cancel (1.6.0, x-blocks): {id, kind: block, block_id, action, revision, values}, values the changed fields only, a number field's as a string; the window answers through settleBlock.",
       "payload": {
         "type": "object",
         "required": [
           "id",
-          "text"
+          "text",
+          "kind",
+          "block_id",
+          "action",
+          "revision",
+          "values"
         ],
         "properties": {
           "id": {},
           "text": {
             "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "block_id": {},
+          "action": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "values": {
+            "type": "object"
           }
         },
         "additionalProperties": true
@@ -623,6 +664,13 @@
         "changes": [
           "Draws a proposal as sf-confirm-change (was sf-change-confirm); the rule relation names cl-confirm-change. Needs the SIMAI Framework pair with the R2 tag aliases (core.runtime 1.22.0). No visible change."
         ]
+      },
+      {
+        "from": "1.5.5",
+        "to": "1.6.0",
+        "changes": [
+          "An answer's cards (x-blocks; Mirai24 API v1.4, BLOCKS.md §2): message.blocks of kind card drawn under the answer as sf-view-properties in full, view or edit, with the block's own «Сохранить» and «Не сейчас»; a save or cancel is sf-chat-message-submit {kind: block}, answered through settleBlock. features.blocks is off unless given, so a host without it draws as before."
+        ]
       }
     ]
   },
@@ -632,7 +680,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
-        "sha256": "c3c6e9c2122e2996441a3b96af5bc3841b2972156bd209e1c6c4c10b1b86bc3c"
+        "sha256": "f2bbeb903356af566f9acece3a18f2272278de07a004f241b990c4bf9b431fba"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.js",
@@ -644,7 +692,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
-        "sha256": "f3793694bcbf4d68626aa6ffa24d83afd7083c4b9fe8594f73b332ec6abdf995"
+        "sha256": "f7a34ebd0b7f32009a2a102a5a53de1179a1459ea13f1c69e4f0f2b78cd8e1cf"
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
@@ -660,19 +708,19 @@
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
-        "sha256": "512654766d494ef98d83b15557e2607ac28c7b16756f90502c260779ff21b8f4"
+        "sha256": "dc9342df040fc962aa5c64aec2789d9450d84081990be42b2cf47ad8daf23004"
       },
       {
         "path": "src/smart/chat-message/rule.js",
-        "sha256": "eb4e9e82e867fa870aa874f534b6edb0cad5155275c830bb3035d895a4a6e919"
+        "sha256": "90893f5212999745164827779d00d5d5a5e451f95c0d49a59557c3f629807337"
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "a0a784f58a945ed48c23b7e62e0ff30e113639be681a7460498c3e8f9acbffb1"
+        "sha256": "bcdc14c3143b8e4f4724d4c688dec4c238e5e87e6f00f0ce3c34e729c97623e2"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "dd29ebea28c60e32c5ad18c7c32373b1891bcd9aa8f346b94c468583bb1b5c33"
+        "sha256": "36005702082683dd7e3b7f648bca1e7f87f0796faa0d6c4825e405f7aa649ae3"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
@@ -680,11 +728,11 @@
       },
       {
         "path": "src/smart/chat-message/lang/en.json",
-        "sha256": "06f326a8d5df99ed21d364af38a090c1a2ea2a94549e9d26cd264a8b1b166e70"
+        "sha256": "21b1f7341a96f51fc12f679d27be1e699874c668b05d0049ee123dfeb1af3e76"
       },
       {
         "path": "src/smart/chat-message/lang/ru.json",
-        "sha256": "b940ee12f11bb1e2dac7e415c19b131d1ba376bd211a0094e3a2d3d4ed61a4d1"
+        "sha256": "7a72da3496bd8288a49832d97d81a8be1c9ef4007473eb888668f552803e2b4b"
       }
     ],
     "generated_runtime": []

@@ -2,15 +2,15 @@
   "$comment": "The source of sf-chat-window's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-window (smart.manifest.json 0.3.1, ui-chat 07bc988) by the D31 move, step 6 (owner yes 2026-10-27), with files-view.js, port.js, chat-core's larena.js words and smart.css, and the staff page's layout of the window's nodes; written by hand on the shape of sf-chat-interlocutor, sf-chat-composer and sf-chat-message (steps 3-5), since migration/convert-1.3.8.mjs takes only the pinned 66. x-decisions says how each point was decided.",
   "id": "smart.chat-window",
   "tag": "sf-chat-window",
-  "version": "1.10.5",
+  "version": "1.11.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
     "capabilities": {
       "type": "string",
       "default": "",
-      "x-markup": "the port's capabilities the host offers (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read) and the window's own (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply, x-threads), space-separated; a connected port's capabilities count as well. What is not offered is not shown. The property also takes a list (0.3).",
-      "summary": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply, x-threads). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+      "x-markup": "the port's capabilities the host offers (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read) and the window's own (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply, x-threads, x-blocks), space-separated; a connected port's capabilities count as well. What is not offered is not shown. The property also takes a list (0.3).",
+      "summary": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply, x-threads, x-blocks). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
     },
     "landmark": {
       "type": "enum",
@@ -193,8 +193,8 @@
         }
       },
       "cancelable": true,
-      "x-summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. A send that answers a message (1.6.0, x-reply) is message.reply, kind reply: the same payload plus reply_to_id (the port's message.send takes no extra field); no former name.",
-      "summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. The 0.3 chat-port:send {request_id, ...payload} follows it until 2026-12-01. A send that answers a message (x-reply) is message.reply, kind reply, the same payload plus reply_to_id."
+      "x-summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. A send that answers a message (1.6.0, x-reply) is message.reply, kind reply: the same payload plus reply_to_id (the port's message.send takes no extra field); no former name. A card's save or cancel (1.11.0, x-blocks) is block.submit, kind block {conversation_id, message_id, block_id, action, revision, values}; no former name.",
+      "summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. The 0.3 chat-port:send {request_id, ...payload} follows it until 2026-12-01. A send that answers a message (x-reply) is message.reply, kind reply, the same payload plus reply_to_id. A card's save or cancel (1.11.0, x-blocks) is block.submit, kind block {conversation_id, message_id, block_id, action, revision, values}; no former name."
     },
     "retry": {
       "carries": {
@@ -1329,7 +1329,8 @@
       "x-members-manage",
       "x-reactions",
       "x-reply",
-      "x-threads"
+      "x-threads",
+      "x-blocks"
     ],
     "own-data": [
       "conversation_list",
@@ -1392,7 +1393,8 @@
     "x-threads (1.10.0): the window's own; simai.chat-port 1.0 does not change. A discussion is a conversation of its own (type thread, parent_id, root): the host answers thread.open with its conversation_id and the window opens it with conversation.open, so the feed, the field, the draft, edit and delete are the port's as for any conversation. How many answers a message has comes with it (message.thread.replies): no request per message. Inside a discussion there is no «Обсудить» (they do not nest), no members (the roster is the parent's) and the title is «Обсуждение»: the root's text is not a title, and the root may be deleted. The list keeps the parent selected; «В чат» opens the parent and brings the discussed message into view.",
     "version 1.10.1: days and initials are core's (core.runtime 1.20.0; reuse audit 2026-11-02, findings 7 and 10). The day dividers between people (js/people.js dayWord) are formatRelativeDay with weekday false, so they say today, yesterday or the date as before and the window's words people.today and people.yesterday still win; the midnight refresh waits msUntilNextDay; the file list's date is formatDate (the exact date, its year only when it is not this one). A found person's and a member's initials (js/start-model.js initialsOf) are getInitials of helpers/text.js; an empty name still gives '' and the avatar is left out. Visible: one hyphenated name reads as its parts («Жан-Поль» → ЖП, was Ж) and a preposition after the first word is skipped. Needs core.runtime >= 1.20.0.",
     "version 1.10.2: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the people are found with sf-input-lookup. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0).",
-    "version 1.10.3: the conversation list and the proposal card are found, created and heard by their new tags, sf-chat-threads and sf-confirm-change (rename plan R2); lookups that must also find old markup ask tagSelector of the Smart base."
+    "version 1.10.3: the conversation list and the proposal card are found, created and heard by their new tags, sf-chat-threads and sf-confirm-change (rename plan R2); lookups that must also find old markup ask tagSelector of the Smart base.",
+    "x-blocks (1.11.0): the window's own; simai.chat-port 1.0 does not change. An answer's blocks (Mirai24 API v1.4 BLOCKS.md) come with the message; the message draws a card with sf-view-properties and is its record host, so no record port reaches the window's host. A save or cancel is the window's block.submit {conversation_id, message_id, block_id, action, revision, values}; the host answers applied with the block as it now is (the window puts it in the message's place), conflict, or refused with errors by field, reason closed (the card loses its buttons) or its own message. revision is the host's opaque mark, only passed back. The document block (§3) and the canvas come later."
   ],
   "x-rule": {
     "$comment": [
@@ -1803,6 +1805,13 @@
           "to": "1.10.3",
           "changes": [
             "Places and hears the renamed package parts by their new tags: the list is sf-chat-threads (its sf-chat-threads-* events), a proposal sf-confirm-change (sf-confirm-change-answer); the rule relations name cl-chat-threads and cl-confirm-change. Needs the SIMAI Framework pair with the R2 tag aliases (core.runtime 1.22.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
+          ]
+        },
+        {
+          "from": "1.10.5",
+          "to": "1.11.0",
+          "changes": [
+            "x-blocks: an answer's cards (message.blocks of kind card) are drawn and saved in place; the host answers block.submit. Additive: without the capability nothing changes."
           ]
         }
       ]

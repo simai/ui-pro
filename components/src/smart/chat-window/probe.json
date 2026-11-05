@@ -1969,6 +1969,28 @@
           "check": "window.w.conversation?.id === 7 && window.w.querySelector('.chat-shell__thread-bar').hidden && String(window.of('conversation.open').at(-1)[1].conversation_id) === '7' && !!window.item(41)"
         }
       ]
+    },
+    {
+      "id": "p48-blocks",
+      "title": "1.11.0 x-blocks: without it an answer's card is not drawn; with it the card is sf-view-properties in the answer, edited in place with the block's own words; «Не сейчас» raises block.submit {action: cancel} once, and the block the host answers takes the old one's place, read, with «Отменено»",
+      "covers": "capabilities.x-blocks, intents.block.submit, compatibility.1.11.0",
+      "steps": [
+        {
+          "script": "(await Promise.all(['sf-chat-window','sf-message-log','sf-chat-message','sf-chat-composer','sf-chat-interlocutor'].map((t) => customElements.whenDefined(t))), window.w = document.querySelector('#w'), window.calls = [], window.answers = {}, window.of = (intent) => window.calls.filter((one) => one[0] === intent), window.w.connectPort({port: 'simai.chat-port', version: '1.0.0', raise: async (intent, payload) => { window.calls.push([intent, payload]); const given = window.answers[intent]; const answer = typeof given === 'function' ? await given(payload) : given; return answer ?? {answer: 'applied'}; }}), window.block = {id: 'blk_1', kind: 'card', mode: 'edit', title: 'ООО «Пример»', subtitle: 'Контрагент', state: 'open', record: {source: 'companies', record_id: 'cmp_1', revision: 'r1', sections: [{key: 'requisites', label: 'Реквизиты', groups: [{key: 'main', label: null, fields: [{key: 'inn', label: 'ИНН', propertyType: 'string', value: '7707083893', mask: '0000000000'}, {key: 'staff', label: 'Сотрудников', propertyType: 'integer', value: '12'}]}]}]}, actions: [{id: 'save', label: 'Сохранить'}, {id: 'cancel', label: 'Не сейчас'}]}, window.chat = {conversation: {id: 3, title: 'Компания', type: 'assistant', can_send: true}, messages: [{id: 1, kind: 'person', author: {id: 'me', own: true}, body: 'Заполни компанию'}, {id: 2, kind: 'assistant', author: {id: 'a', name: 'Помощник'}, body: 'Проверьте и сохраните.', html: '<p>Проверьте и сохраните.</p>', status: 'completed', blocks: [window.block]}], history: {has_older: false}, feed_state: 'ready'}, window.w.setAttribute('capabilities', 'assistant'), window.w.setData({me: {id: 'me', name: 'Анна'}, conversations: [{id: 3, title: 'Компания'}], ...window.chat, limits: {}}), true)",
+          "wait": 900,
+          "check": "!!window.w.querySelector('.sf-chat-message--assistant') && !window.w.querySelector('.sf-chat-block')"
+        },
+        {
+          "script": "(window.w.setAttribute('capabilities', 'assistant x-blocks'), window.w.setData({messages: window.chat.messages.map((one) => ({...one}))}), true)",
+          "wait": 2500,
+          "check": "!!window.w.querySelector('.sf-chat-block sf-view-properties[mode=\"edit\"]') && window.w.querySelector('.sf-chat-block__title').textContent === 'ООО «Пример»' && window.w.querySelector('.sf-chat-block sf-view-properties').getAttribute('cancel-text') === 'Не сейчас' && !!window.w.querySelector('.sf-chat-block [data-field=\"inn\"]')"
+        },
+        {
+          "script": "(window.answers['block.submit'] = {answer: 'applied', block: {...window.block, state: 'cancelled', mode: 'view', actions: []}}, window.w.querySelector('.sf-chat-block [data-action=\"cancel\"]').click(), true)",
+          "wait": 1500,
+          "check": "window.of('block.submit').length === 1 && window.of('block.submit')[0][1].action === 'cancel' && window.of('block.submit')[0][1].block_id === 'blk_1' && window.of('block.submit')[0][1].message_id === 2 && window.of('block.submit')[0][1].conversation_id === 3 && /Отменено/.test(window.w.querySelector('.sf-chat-block__state')?.textContent ?? '') && !!window.w.querySelector('.sf-chat-block sf-view-properties[mode=\"view\"]')"
+        }
+      ]
     }
   ]
 }

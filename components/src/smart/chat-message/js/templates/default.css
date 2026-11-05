@@ -1611,6 +1611,47 @@
 
   /* «3 ответа» (1.5.0): a quiet link under the message into its discussion,
      at least a control's height so a finger finds it. */
+  /* An answer's card (x-blocks): a record shown or edited in place. Its
+     frame is sf-view-properties' own group; the card adds only the heading. */
+  .sf-chat-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sf-space-1\/3);
+    min-inline-size: 0;
+    max-inline-size: var(--sf-chat-message--greeting-max);
+    margin: var(--sf-chat-message--gap-tight) 0 0;
+  }
+
+  .sf-chat-block__head {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-inline-size: 0;
+  }
+
+  .sf-chat-block__title {
+    margin: 0;
+    font-size: var(--sf-chat-message--ui-size);
+    line-height: var(--sf-chat-message--ui-height);
+    font-weight: var(--sf-font-weight-medium);
+    color: var(--sf-chat-message--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .sf-chat-block__subtitle,
+  .sf-chat-block__state {
+    margin: 0;
+    font-size: var(--sf-chat-message--meta-size);
+    line-height: var(--sf-chat-message--meta-height);
+    color: var(--sf-chat-message--ink-muted);
+  }
+
+  .sf-chat-block sf-view-properties { display: block; min-inline-size: 0; }
+
+  /* The bar under the fields runs out to a page's padding, which a message
+     does not have: here it keeps to the card's width. */
+  .sf-chat-block .sf-property-view-actions { margin-inline: 0; }
+
   .sf-chat-replies {
     display: inline-flex;
     align-self: flex-start;

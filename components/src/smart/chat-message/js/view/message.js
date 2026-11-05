@@ -35,7 +35,8 @@
 //   enhanceCode?: (pre) => void,         SF.Highlight on a Framework page
 //   renderProposal?: (proposal, {disabled}) => Node,
 //                                        sf-confirm-change (index.js)
-//   features?: {feedback, proposals, memory, brief}   brief (v1.2) is off unless given
+//   features?: {feedback, proposals, memory, brief, blocks}   brief (v1.2) and blocks (x-blocks) are off unless given
+//   renderBlock?: (message, block, {disabled}) => Node   a card block (chat-message index.js placeBlock)
 // }
 import {render} from 'lit';
 // Core's sanitizer, SF.sanitizeHtml and SF.safeHref (src/core/js/sanitize.js,
@@ -816,7 +817,7 @@ export function renderMessage(ctx, message, view = {}) {
   if (message.role === 'user') return renderUser(ctx, message, view);
   // The brief is offered only by a surface that says so (the staff window,
   // x-brief): the widget and the embed draw an answer without it.
-  const features = { feedback: true, proposals: true, memory: true, brief: false, ...(ctx.features || {}) };
+  const features = { feedback: true, proposals: true, memory: true, brief: false, blocks: false, ...(ctx.features || {}) };
   const idPrefix = `m-${String(message.id).replace(/[^\w-]/g, '')}`;
   // Among people (display.document, 1.4.0): a document without a bubble, on the
   // full column, with all this template's parts; it says who speaks unless the
@@ -931,6 +932,12 @@ export function renderMessage(ctx, message, view = {}) {
   }
   if (features.proposals && message.proposal && ctx.renderProposal) {
     body.append(ctx.renderProposal(message.proposal, { disabled: Boolean(view.busy) }));
+  }
+  // An answer's cards (x-blocks): each a record, shown or edited in place.
+  if (features.blocks && Array.isArray(message.blocks) && ctx.renderBlock) {
+    for (const block of message.blocks) {
+      if (block?.kind === 'card' && block.record) body.append(ctx.renderBlock(message, block, { disabled: Boolean(view.busy) }));
+    }
   }
   if (brief) body.append(renderBrief(ctx, message, brief, view, idPrefix));
   // What the answer made (v1.3 attachments), under it.

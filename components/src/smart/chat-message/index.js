@@ -26,6 +26,7 @@ import {renderChatMessageTemplate} from "./js/templates/default.js";
 import {renderChatPersonTemplate} from "./js/templates/person.js";
 import {disposeRendering, renderMessage, resumeRendering} from "./js/view/message.js";
 import {renderPersonMessage} from "./js/view/person.js";
+import {actionLabel, answerOf, modeOf, recordOf, valuesOut} from "./js/blocks.js";
 import manifest from "./component.json";
 import aliases from "./aliases.json";
 import en from "./lang/en.json";
@@ -36,7 +37,11 @@ export const wordName = (key) => String(key).replace(/[._]/gu, "-").replace(/[A-
 
 // What the message offers unless the host says otherwise; the brief (API.md
 // v1.2) only where a surface asks for it.
-export const DEFAULT_FEATURES = Object.freeze({feedback: true, proposals: true, memory: true, brief: false});
+export const DEFAULT_FEATURES = Object.freeze({feedback: true, proposals: true, memory: true, brief: false, blocks: false});
+
+// The record port version the card's host speaks (sf-view-properties): the
+// mask of a string field (field.mask) and the conditions of when (1.14.0+).
+const BLOCK_PORT_VERSION = "1.16.0";
 
 // API.md's proposal states, as sf-confirm-change's.
 const PROPOSAL_STATE = {presented: "open", applied: "accepted", rejected: "declined", expired: "expired"};
@@ -79,6 +84,11 @@ class SfChatMessage extends ChatMessageElement {
         // One sf-confirm-change per proposal code, kept across redraws, so a
         // card just pressed stays pending until the verdict comes.
         this._cards = new Map();
+        // One card per block id ({node, block, closed, pending}), kept across
+        // redraws so what a person typed survives an answer that changes nothing
+        // visible; a block the host closed (409 closed) stays closed here.
+        this._blocks = new Map();
+        this._settling = new Map(); // block id -> the save's resolve, until the window answers
         // A value set as a property before the element was defined is an own
         // property that would hide the accessor; it is taken through it.
         for (const name of ["message", "display", "features"]) {
@@ -181,6 +191,7 @@ class SfChatMessage extends ChatMessageElement {
             onAction: (action, detail) => this.onViewAction(action, detail ?? {}),
             features: {...DEFAULT_FEATURES, ...features},
             renderProposal: (proposal, options) => this.placeProposal(proposal, options),
+            renderBlock: (message, block, options) => this.placeBlock(message, block, options),
         };
     }
 
@@ -220,6 +231,147 @@ class SfChatMessage extends ChatMessageElement {
         }
         card.toggleAttribute("disabled", Boolean(disabled));
         return card;
+    }
+
+    /**
+     * A card block (x-blocks) as sf-view-properties, placed in full on the
+     * answer: «Сохранить» and «Не сейчас» are the block's actions, a save goes
+     * out as sf-chat-message-submit {kind: block}, and the window's answer
+     * comes back through settleBlock. A card no longer open is shown, not edited.
+     */
+    placeBlock(message, block, {disabled = false} = {}) {
+        const key = String(block.id);
+        const kept = this._blocks.get(key);
+        const closed = Boolean(kept?.closed);
+        const mode = modeOf(block, {closed});
+        const shape = `${mode}|${block.state}|${message.id}`;
+        if (kept && kept.shape === shape) {
+            kept.block = block;
+            kept.view.inert = Boolean(disabled) && mode !== "view";
+            return kept.node;
+        }
+        const documentRef = this.ownerDocument;
+        const node = documentRef.createElement("section");
+        node.className = "sf-chat-block sf-chat-block--card";
+        node.dataset.blockId = key;
+        node.dataset.state = String(block.state ?? "");
+        // A card taking input waits while the window is busy (chat-window syncBusy).
+        if (mode !== "view") node.dataset.live = "";
+        const headingId = `${this.id || "sf-chat-message"}-block-${key}`.replace(/[^\w-]/gu, "-");
+        if (block.title || block.subtitle) {
+            const head = documentRef.createElement("header");
+            head.className = "sf-chat-block__head";
+            if (block.title) {
+                const title = documentRef.createElement("h2");
+                title.className = "sf-chat-block__title";
+                title.id = headingId;
+                title.textContent = block.title;
+                head.append(title);
+                node.setAttribute("aria-labelledby", headingId);
+            }
+            if (block.subtitle) {
+                const subtitle = documentRef.createElement("p");
+                subtitle.className = "sf-chat-block__subtitle";
+                subtitle.textContent = block.subtitle;
+                head.append(subtitle);
+            }
+            node.append(head);
+        }
+        const outcome = {applied: "block.applied", cancelled: "block.cancelled", stale: "block.stale"}[block.state];
+        if (outcome || closed) {
+            const line = documentRef.createElement("p");
+            line.className = "sf-chat-block__state";
+            line.setAttribute("role", "status");
+            line.textContent = this.viewContext().words(closed && !outcome ? "block.closed" : outcome);
+            node.append(line);
+        }
+        const view = documentRef.createElement("sf-view-properties");
+        view.setAttribute("full", "");
+        view.setAttribute("size", "1/2");
+        view.setAttribute("mode", mode);
+        view.setAttribute("record-id", key);
+        if (block.record?.source) view.setAttribute("collection", String(block.record.source));
+        const save = actionLabel(block, "save");
+        const cancel = actionLabel(block, "cancel");
+        const edit = actionLabel(block, "edit");
+        if (save) view.setAttribute("save-text", save);
+        if (cancel) view.setAttribute("cancel-text", cancel);
+        if (edit) view.setAttribute("edit-text", edit);
+        view.inert = Boolean(disabled) && mode !== "view";
+        const entry = {node, view, block, closed, shape};
+        view.setHostPort?.(this.blockPort(entry));
+        // Before the Loader defines sf-view-properties the port waits on the node.
+        if (!view.setHostPort) customElements.whenDefined?.(view.localName).then(() => view.setHostPort(this.blockPort(entry)));
+        view.addEventListener("sf-view-properties-cancel", () => {
+            if (actionLabel(entry.block, "cancel")) this.submitBlock(entry, "cancel", {});
+        });
+        node.append(view);
+        this._blocks.set(key, entry);
+        return node;
+    }
+
+    blockPort(entry) {
+        return {
+            version: BLOCK_PORT_VERSION,
+            capabilities: [],
+            raise: async (intent, payload = {}) => {
+                const options = {closed: entry.closed};
+                if (intent === "record.load") {
+                    this.defineFieldsOf(entry.view);
+                    return {answer: "applied", record: recordOf(entry.block, options)};
+                }
+                if (intent === "record.save" || intent === "group.save") return this.submitBlock(entry, "save", payload.values ?? {});
+                return {answer: "unavailable", reason: "unknown-intent"};
+            },
+        };
+    }
+
+    // The record component draws its controls (sf-input, sf-button-group...)
+    // after its read, and the Loader does not always see them inside a message
+    // just placed: whatever is still undefined there is asked for by tag.
+    defineFieldsOf(view) {
+        const ask = () => {
+            const loader = globalThis.SF?.Loader;
+            if (!loader?.ensureSmartElementLoaded || !view.isConnected) return;
+            const tags = new Set([...view.querySelectorAll(":not(:defined)")].map((node) => node.localName).filter((tag) => tag.startsWith("sf-")));
+            for (const tag of tags) loader.ensureSmartElementLoaded(tag);
+        };
+        const frame = globalThis.requestAnimationFrame ?? ((fn) => setTimeout(fn, 16));
+        frame(() => frame(ask));
+        view.addEventListener("sf-view-properties-state", () => frame(ask));
+    }
+
+    // A save or cancel of a card: the event the window answers with
+    // block.submit; the promise settles when the window calls settleBlock.
+    submitBlock(entry, action, values) {
+        const block = entry.block;
+        const id = this.message?.id ?? null;
+        const words = this.viewContext().words;
+        const key = String(block.id);
+        if (this._settling.has(key)) return Promise.resolve({answer: "refused", message: words("block.busy")});
+        return new Promise((resolve) => {
+            this._settling.set(key, (result) => resolve(answerOf(result, this._blocks.get(key)?.block ?? block, words)));
+            const allowed = this.sfEmit("submit", {
+                id, kind: "block", block_id: block.id, action,
+                revision: block.record?.revision ?? null,
+                values: valuesOut(block, values),
+            }, {cancelable: true});
+            if (!allowed) this.settleBlock(block.id, {answer: "refused", reason: "prevented"});
+        });
+    }
+
+    /** The window's answer to a card's block.submit; a closed card loses its buttons. */
+    settleBlock(blockId, result) {
+        const key = String(blockId);
+        const entry = this._blocks.get(key);
+        if (entry && result?.answer === "refused" && result.reason === "closed" && !entry.closed) {
+            entry.closed = true;
+            entry.shape = "";
+            this.requestComponentUpdate("message");
+        }
+        const pending = this._settling.get(key);
+        this._settling.delete(key);
+        pending?.(result);
     }
 
     // --- what a person does -------------------------------------------------

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.10.5",
+  "version": "1.11.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -139,7 +139,7 @@
       "capabilities": {
         "type": "string",
         "default": "",
-        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply, x-threads). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
+        "description": "The port capabilities the host offers, space-separated (assistant, people, files, edit, delete, feedback, proposals, conversation-create, conversation-manage, interlocutors, read), and the window extensions (x-archive-view, x-conversations-paging, x-conversations-search, x-conversation-pin, x-early-upload, x-my-files, x-brief, x-conversation-start, x-members, x-members-manage, x-reactions, x-reply, x-threads, x-blocks). What is not declared is not offered, and its intent is answered unavailable without an event. The property also takes an array."
       },
       "landmark": {
         "type": "string",
@@ -1467,7 +1467,7 @@
       "canonical": true
     },
     "sf-chat-window-submit": {
-      "summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. The 0.3 chat-port:send {request_id, ...payload} follows it until 2026-12-01. A send that answers a message (x-reply) is message.reply, kind reply, the same payload plus reply_to_id.",
+      "summary": "A message sent (port message.send {conversation_id, body, files, client_key, interlocutor}): the field's, a suggestion, a brief's answer or a question asked again. Was chat-port:send. The 0.3 chat-port:send {request_id, ...payload} follows it until 2026-12-01. A send that answers a message (x-reply) is message.reply, kind reply, the same payload plus reply_to_id. A card's save or cancel (1.11.0, x-blocks) is block.submit, kind block {conversation_id, message_id, block_id, action, revision, values}; no former name.",
       "payload": {
         "type": "object",
         "required": [
@@ -2601,6 +2601,13 @@
         "changes": [
           "Places and hears the renamed package parts by their new tags: the list is sf-chat-threads (its sf-chat-threads-* events), a proposal sf-confirm-change (sf-confirm-change-answer); the rule relations name cl-chat-threads and cl-confirm-change. Needs the SIMAI Framework pair with the R2 tag aliases (core.runtime 1.22.0). No visible change. Nothing to change for a host on that pair; a host that writes the former tags keeps working until 2027-01-01."
         ]
+      },
+      {
+        "from": "1.10.5",
+        "to": "1.11.0",
+        "changes": [
+          "x-blocks: an answer's cards (message.blocks of kind card) are drawn and saved in place; the host answers block.submit. Additive: without the capability nothing changes."
+        ]
       }
     ]
   },
@@ -2610,11 +2617,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "d7fdf735d953c19ee48dc899bb55b79a2023bce0639e973d362d6c4a8c0ca52e"
+        "sha256": "16737ac7c6831e1bb1f0bec849c577e15f8139939a2fae3925e5120585a7531f"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
-        "sha256": "3f8e404f4ae8980a8f2787658798a5a3972698bedb18f8abdc046425ef8b248c"
+        "sha256": "aa0113bd1b4e994f1ae881f854a8d938b202c8171b2300db16798399d1511fb0"
       },
       {
         "path": "src/smart/chat-window/js/files-view.js",
@@ -2662,11 +2669,11 @@
       },
       {
         "path": "src/smart/chat-window/docs.md",
-        "sha256": "a8712db8359cc15f8b547e8f6218edeb51658ba3a257b1ec3b28255208a411d5"
+        "sha256": "1a8cb82fe7739e8bbc83319db104c63f883100139d4b73b2050238b7532f7bde"
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "647abe7cdbcfb8d2196185aa41906be051bfb7eee3fa593000e6b8e1538fa5d1"
+        "sha256": "13aefee9ef298964e879a9a18b8c486dde6b7abb16220995ae695f2172334648"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

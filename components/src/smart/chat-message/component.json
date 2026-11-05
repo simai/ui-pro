@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-message",
   "tag": "sf-chat-message",
-  "version": "1.5.5",
+  "version": "1.6.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -151,11 +151,16 @@
     "submit": {
       "carries": {
         "id": "id",
-        "text": "string"
+        "text": "string",
+        "kind": "string",
+        "block_id": "id",
+        "action": "string",
+        "revision": "string",
+        "values": "object"
       },
       "cancelable": true,
-      "x-summary": "A brief's answer goes out as a message (vocabulary §5 submit; API.md v1.2): an option, the person's own words, several answers joined by «; » with «—» for a skipped one, or the card's «Да».",
-      "summary": "A brief's answer goes out as a message (vocabulary §5 submit; API.md v1.2): an option, the person's own words, several answers joined by «; » with «—» for a skipped one, or the card's «Да». The 0.3 sf-chat-action {action: brief-answer} follows it until 2026-12-01."
+      "x-summary": "A brief's answer goes out as a message (vocabulary §5 submit; API.md v1.2): an option, the person's own words, several answers joined by «; » with «—» for a skipped one, or the card's «Да». Or a card's save or cancel (1.6.0, x-blocks): {id, kind: block, block_id, action, revision, values}, values the changed fields only, a number field's as a string; the window answers through settleBlock.",
+      "summary": "A brief's answer goes out as a message (vocabulary §5 submit; API.md v1.2): an option, the person's own words, several answers joined by «; » with «—» for a skipped one, or the card's «Да». The 0.3 sf-chat-action {action: brief-answer} follows it until 2026-12-01. Or a card's save or cancel (1.6.0, x-blocks): {id, kind: block, block_id, action, revision, values}, values the changed fields only, a number field's as a string; the window answers through settleBlock."
     },
     "save": {
       "carries": {
@@ -224,6 +229,10 @@
     },
     {
       "name": "cl-confirm-change"
+    },
+    {
+      "name": "cl-view-properties",
+      "lazy": true
     },
     {
       "name": "cl-avatar",
@@ -692,6 +701,13 @@
           "changes": [
             "Draws a proposal as sf-confirm-change (was sf-change-confirm); the rule relation names cl-confirm-change. Needs the SIMAI Framework pair with the R2 tag aliases (core.runtime 1.22.0). No visible change."
           ]
+        },
+        {
+          "from": "1.5.5",
+          "to": "1.6.0",
+          "changes": [
+            "An answer's cards (x-blocks; Mirai24 API v1.4, BLOCKS.md §2): message.blocks of kind card drawn under the answer as sf-view-properties in full, view or edit, with the block's own «Сохранить» and «Не сейчас»; a save or cancel is sf-chat-message-submit {kind: block}, answered through settleBlock. features.blocks is off unless given, so a host without it draws as before."
+          ]
         }
       ]
     },
@@ -702,6 +718,28 @@
           {
             "name": "options",
             "required": false,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "returns": {
+          "type": "null"
+        }
+      },
+      "settleBlock": {
+        "summary": "The host's answer to a card's submit (x-blocks, 1.6.0): applied {block}, conflict, or refused with errors by field, reason closed (the card loses its buttons) or the host's message. The window calls it; the card shows the answer.",
+        "arguments": [
+          {
+            "name": "blockId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "result",
+            "required": true,
             "schema": {
               "type": "object"
             }
