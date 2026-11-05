@@ -12,7 +12,7 @@
 //     (js/templates/default.css);
 //   - the former names keep working: messages, setMessages and
 //     prependMessages, renderMessage and announceMessage, setHasMore and
-//     isNearBottom, the entry fields
+//     isNearBottom, the server's island {"messages": [...]}, the entry fields
 //     pending and author_name (1.0 spellings, until 2026-12-01), remove(id);
 //     every event the feed sends (sf-list-feed-load-more, -begun, -chunk,
 //     -completed, -failed, -cancelled) also goes out under its former name
@@ -109,6 +109,26 @@ function defineMessageLog(Feed) {
 
         sfWord(key, {count, vars} = {}) {
             return pageWord(WORDS, key, this, {component: TAG, source: "en", count, vars});
+        }
+
+        // A server printed 1.x's island, {"messages": [...]}: the feed reads
+        // {"items": [...]}. The island is read once, before the first render.
+        sfReadIsland() {
+            const island = Array.from(this.children ?? []).find((child) => child.localName === "script"
+                && child.hasAttribute("data-sf-settings") && /^application\/json$/iu.test(child.type));
+            if (island) {
+                try {
+                    const data = JSON.parse(island.textContent || "{}");
+                    if (data && typeof data === "object" && !Array.isArray(data) && "messages" in data) {
+                        former("setting", "messages", "items");
+                        const {messages, ...rest} = data;
+                        island.textContent = JSON.stringify("items" in rest ? rest : {...rest, items: entriesOf(messages)});
+                    }
+                } catch {
+                    // Not JSON: the feed says so.
+                }
+            }
+            return super.sfReadIsland?.();
         }
 
         connectedCallback() {

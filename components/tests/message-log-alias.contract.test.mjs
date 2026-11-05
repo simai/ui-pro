@@ -63,6 +63,8 @@ test('the former properties and methods are answered under the feed\'s names', (
   // 1.x's own methods the feed does not keep (sf-chat-window 1.12 called setHasMore).
   assert.match(source, /setHasMore\(value\) \{\s*former\("action", "setHasMore", "has-more"\);\s*this\.hasMore = Boolean\(value\)/u);
   assert.match(source, /isNearBottom\(\) \{\s*former\("action", "isNearBottom", "isAtLatest"\);\s*return this\.isAtLatest\(\)/u);
+  // A server's 1.x island {"messages": [...]} is read as the feed's items.
+  assert.match(source, /sfReadIsland\(\) \{[\s\S]*?"messages" in data[\s\S]*?items: entriesOf\(messages\)[\s\S]*?return super\.sfReadIsland\?\.\(\);/u);
   // remove(id) is 1.0's detach; remove() stays the browser's.
   assert.match(source, /if \(!args\.length\) return super\.remove\(\)/u);
   // The 1.0 entry fields keep their earlier dates.

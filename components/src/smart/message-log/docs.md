@@ -29,6 +29,7 @@
 |:---|:---|
 | `<sf-message-log>` | `<sf-list-feed>` |
 | `messages` | `items` |
+| `<script type="application/json" data-sf-settings>{"messages": […]}</script>` | the same island with `items` |
 | `setMessages(messages, {hasMore})` | `setItems(items, {hasMore})` |
 | `prependMessages(messages, {hasMore})` | `prependItems(items, {hasMore})` |
 | `renderMessage(message, context)` | `renderItem(entry, context)`; the context carries `feed` instead of `log` |
