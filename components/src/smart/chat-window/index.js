@@ -582,7 +582,8 @@ class SfChatWindow extends ChatWindowElement {
             this._ctx = {
                 document: documentRef,
                 get locale() { return pageLocale(self); },
-                words: (key, values = {}) => this.sfWord(wordName(key), {vars: values}),
+                // A count picks the word's number form (document-missing: «2 поля»).
+                words: (key, values = {}) => this.sfWord(wordName(key), values.count == null ? {vars: values} : {vars: values, count: values.count}),
                 icon(name, {size = ""} = {}) {
                     const icon = documentRef.createElement("sf-icon");
                     icon.setAttribute("icon", name);
@@ -1126,7 +1127,10 @@ class SfChatWindow extends ChatWindowElement {
                 this.askAgain(id);
             }
         });
-        list.addEventListener("sf-chat-message-submit", (event) => this.answerBrief(event.detail.id, event.detail.text));
+        list.addEventListener("sf-chat-message-submit", (event) => {
+            if (event.detail.kind === "block") this.submitBlock(event.detail);
+            else this.answerBrief(event.detail.id, event.detail.text);
+        });
         list.addEventListener("sf-chat-message-save", (event) => this.saveEdit(event.detail.id, event.detail.values?.body));
         list.addEventListener("sf-chat-message-delete", (event) => this.deleteMessage(event.detail.ids?.[0]));
         // The last message seen at the bottom is reported read (scroll does
@@ -1177,9 +1181,11 @@ class SfChatWindow extends ChatWindowElement {
                 this.openThread(event.detail.id);
                 return;
             }
-            if (event.detail?.kind !== "preview") return;
+            if (event.detail?.kind !== "preview" && event.detail?.kind !== "document") return;
             const pressed = this._pressed && event.target.contains(this._pressed) ? this._pressed : null;
-            if (this.openPreview(event.detail.source, {opener: pressed ?? this.ownerDocument.activeElement})) event.preventDefault();
+            // A document (x-blocks, 1.12.0) opens in the same panel, with its message.
+            const source = event.detail.kind === "document" ? {...event.detail.document, kind: "document", message_id: event.detail.id} : event.detail.source;
+            if (this.openPreview(source, {opener: pressed ?? this.ownerDocument.activeElement})) event.preventDefault();
         });
         // A message drew itself (sf-chat-message renders a frame after it is
         // given its message): the last answer and the waiting controls follow.
@@ -1539,6 +1545,44 @@ class SfChatWindow extends ChatWindowElement {
         this.showResult(result, () => this.decide(code, decision));
     }
 
+    // A card's save or cancel (x-blocks, 1.11.0): the host's answer goes back
+    // to the message, which shows it on the card; a block the host sends back
+    // takes the old one's place, so the card shows what the record now holds.
+    async submitBlock({id, block_id: blockId, action, revision = null, values = {}}) {
+        const message = this._data.messages?.find((one) => keyOf(one) === String(id));
+        const drawn = this._drawn.get(String(id));
+        if (!message) {
+            drawn?.settleBlock(blockId, {answer: "unavailable", reason: "not-found"});
+            return;
+        }
+        const result = await this.request("block.submit", {
+            conversation_id: this._data.conversation?.id ?? message.conversation_id ?? null,
+            message_id: message.id, block_id: blockId, action, revision, values,
+        });
+        // A document's form (1.12.0) comes back with its whole answer: the
+        // document block in it has the new revision.
+        if (result?.message?.id != null && String(result.message.id) === String(message.id)) this.replaceMessage(result.message);
+        else if (result?.block && String(result.block.id) === String(blockId)) this.replaceBlock(message, result.block);
+        drawn?.settleBlock(blockId, result ?? {answer: "unavailable"});
+    }
+
+    replaceMessage(next) {
+        const messages = this._data.messages || [];
+        const at = messages.findIndex((one) => one.id != null && String(one.id) === String(next.id));
+        if (at < 0) return;
+        this._data.messages = [...messages.slice(0, at), next, ...messages.slice(at + 1)];
+        this.syncMessages(new Set(["messages"]));
+    }
+
+    replaceBlock(message, block) {
+        const messages = this._data.messages;
+        const at = messages.indexOf(message);
+        if (at < 0) return;
+        const next = {...message, blocks: (message.blocks || []).map((one) => (String(one.id) === String(block.id) ? block : one))};
+        this._data.messages = [...messages.slice(0, at), next, ...messages.slice(at + 1)];
+        this.syncMessages(new Set(["messages"]));
+    }
+
     cardOf(code) {
         return this.parts.list.querySelector(`${tagSelector("sf-confirm-change")}[change-id="${CSS.escape(String(code))}"]`);
     }
@@ -1889,6 +1933,7 @@ class SfChatWindow extends ChatWindowElement {
             proposals: this.has("proposals") && Boolean(caps ? caps.proposals : true),
             memory: Boolean(caps ? caps.memory : true),
             brief: this.has("x-brief"),
+            blocks: this.has("x-blocks"),
         };
         if (JSON.stringify(features) !== JSON.stringify(this._features)) {
             this._features = features;
@@ -2154,6 +2199,7 @@ class SfChatWindow extends ChatWindowElement {
      */
     syncMessages(changed) {
         const {list} = this.parts;
+        this.followDocument();
         const data = this._data;
         const listKey = data.conversation ? `c:${data.conversation.id}` : this.draftKey;
         const feed = data.feed_state;
@@ -2375,6 +2421,8 @@ class SfChatWindow extends ChatWindowElement {
         // not over. Nor a brief: its fieldset waits with the field.
         for (const card of list.querySelectorAll(tagSelector("sf-confirm-change"))) card.toggleAttribute("disabled", busy);
         for (const brief of list.querySelectorAll("fieldset.sf-chat-brief[data-live]")) brief.disabled = busy;
+        // A card's input waits with the field as well (x-blocks).
+        for (const card of list.querySelectorAll(".sf-chat-block[data-live] > sf-view-properties")) card.inert = busy;
         if (this._waiting && !waiting && this._sending === 0) composer.focus({preventScroll: true});
         this._waiting = waiting;
         // The queue: back in a conversation whose answer is still awaited, it
@@ -2400,6 +2448,13 @@ class SfChatWindow extends ChatWindowElement {
 
     /** The message as the log is given it: toView, between people with the window's state. */
     drawable(message) {
+        const view = this.drawnView(message);
+        // An answer's blocks (x-blocks, 1.11.0): a record's card, drawn by the message.
+        if (view.role === "assistant" && this.has("x-blocks") && Array.isArray(message.blocks) && message.blocks.length) view.blocks = message.blocks;
+        return view;
+    }
+
+    drawnView(message) {
         if (!this.has("people")) return toView(message);
         return toView(message, {
             people: true, edit: this.has("edit"), remove: this.has("delete"), acting: this._acting.get(keyOf(message)) ?? null,
@@ -3328,8 +3383,11 @@ class SfChatWindow extends ChatWindowElement {
         const target = view?.targetOf(source);
         if (!target) return false;
         const requestId = `chat-window-${++requests}`;
+        const asDocument = target.kind === "document";
         const allowed = this.sfEmit("open", {
-            requestId, "request-id": requestId, intent: "preview.open", kind: "preview", payload: {source: target},
+            requestId, "request-id": requestId,
+            intent: asDocument ? "document.open" : "preview.open", kind: asDocument ? "document" : "preview",
+            payload: asDocument ? {document: target} : {source: target},
         }, {cancelable: true});
         if (!allowed) return false;
         const active = this.ownerDocument.activeElement;
@@ -3352,6 +3410,38 @@ class SfChatWindow extends ChatWindowElement {
         view.show(target);
         view.title.focus({preventScroll: true});
         return true;
+    }
+
+    /**
+     * A document's place still to fill in (1.12.0): the form card's field on
+     * the answer, brought into view with the focus. On a narrow window the
+     * panel covers the conversation, so it steps aside first.
+     */
+    focusDocumentField(target, blockId, field) {
+        if (blockId == null) return false;
+        if (this.panelDrawer) this.closePreview({focus: false});
+        // The card is on the document's answer; failing that, the latest that has it.
+        const own = target?.message_id == null ? null : this._drawn.get(target.message_id);
+        const others = [...this._drawn.values()].filter((one) => one !== own).reverse();
+        return [own, ...others].some((one) => one?.isConnected && one.focusField?.(blockId, field) === true);
+    }
+
+    // The open document follows its answer: a new revision (the form saved)
+    // shows the new page where it was read; a document gone closes nothing.
+    followDocument() {
+        const view = this._preview;
+        if (!view?.open || view.source?.kind !== "document") return;
+        const current = view.source;
+        for (const message of this._data.messages || []) {
+            for (const block of message.blocks || []) {
+                if (block?.kind !== "document" || String(block.document_id) !== current.document_id) continue;
+                const next = view.targetOf({...block, kind: "document", message_id: message.id, downloads: (block.downloads || []).map((one) => ({...one, href: one.url}))});
+                if (!next) return;
+                const changed = next.revision !== current.revision || next.preview_url !== current.preview_url || next.state !== current.state || next.missing.length !== current.missing.length;
+                if (changed) view.show(next);
+                return;
+            }
+        }
     }
 
     /** Close it; `focus` returns the focus to what opened it (else the field). */
