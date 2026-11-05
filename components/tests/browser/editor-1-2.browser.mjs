@@ -12,7 +12,11 @@
 //   «Extra classes»;
 // - accent: the section's accent variant draws on the primary colour with
 //   on-primary text, at 4.5:1 or more, light and dark;
-// - the grid keeps three columns on a phone (390), as the prototype;
+// - the grid keeps three columns on a phone (390), as the prototype; three
+//   titled cards there keep the prototype's 16 px semibold title, every line
+//   inside its card, the titles apart;
+// - on the accent a primary button inverts and an outlined one takes the
+//   on-primary edge, 3:1 off the fill;
 // - nothing chosen: the page's settings the host gives (name, address, site
 //   template, theme link, publishing, history) and the slot page; a short
 //   note when the host gives nothing.
@@ -23,7 +27,7 @@ import {chromium} from 'playwright';
 if (!process.argv[2]) throw new Error('Build output root is required');
 const out = resolve(process.argv[2]);
 const parts = ['icon', 'button', 'button-icon', 'button-group', 'tabs', 'input', 'dropdown', 'switch', 'skeleton', 'menu-context', 'modal', 'editor-inline'];
-const sheets = ['buttons', 'icon-buttons', 'button-group', 'inputs', 'dropdown', 'switch', 'skeleton', 'modal', 'menu', 'context-menu', 'tabs', 'tab', 'icons']
+const sheets = ['card', 'buttons', 'icon-buttons', 'button-group', 'inputs', 'dropdown', 'switch', 'skeleton', 'modal', 'menu', 'context-menu', 'tabs', 'tab', 'icons']
   .map((name) => `component/component/${name}/css/${name}.css`).filter((path) => existsSync(join(out, path)));
 const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css', ...sheets,
@@ -210,7 +214,17 @@ const ACCENT = page('accent', {main: [{id: 'ac', type: 'layout.section', props: 
   {id: 'aa', type: 'layout.area', slots: {default: [
     {id: 'ah', type: 'content.heading', data: {level: 2, content: t('Ready to start?')}},
     {id: 'ap', type: 'content.paragraph', data: {content: t('Leave a request and we call you back.')}},
+    {id: 'ab', type: 'element.button', data: {text: 'Leave a request'}},
+    {id: 'ao', type: 'element.button', data: {text: 'More'}, props: {appearance: 'outline'}},
   ]}},
+]}}]});
+const TITLED = page('titled', {main: [{id: 'ts', type: 'layout.section', slots: {default: [
+  {id: 'tg', type: 'layout.grid', slots: {default: [['Быстро', 'Страница собирается за минуты.'], ['Понятно', 'Короткое описание преимущества.'], ['Надёжно', 'Автор не сломает макет.']].map(([title, line], index) => ({
+    id: `tc${index + 1}`, type: 'content.card', slots: {default: [
+      {id: `tc${index + 1}-h`, type: 'content.heading', data: {level: 3, content: t(title)}},
+      {id: `tc${index + 1}-p`, type: 'content.paragraph', data: {content: t(line)}},
+    ]},
+  }))}},
 ]}}]});
 const popState = (tab) => tab.evaluate(() => {
   const pop = document.querySelector('#editor .sf-editor-pop');
@@ -367,6 +381,22 @@ try {
       check(`accent (${theme}): its text is on-primary`, seen.text === seen.onPrimary, seen);
       const ratio = (await contrastOf(tab, `#editor .sf-editor-page [data-sf-composition-id="${id}"] :is(h1, h2, h3, p)`));
       check(`accent (${theme}): its text reads at 4.5:1 or more`, ratio.length > 0 && Math.min(...ratio) >= 4.5, ratio);
+      const buttons = await tab.evaluate(() => {
+        const look = (id) => {
+          const inner = document.querySelector(`#editor .sf-editor-page [data-sf-composition-id="${id}"] .sf-button`);
+          if (!inner) return null;
+          const s = getComputedStyle(inner);
+          return {background: s.backgroundColor, border: s.borderTopColor, borderWidth: parseFloat(s.borderTopWidth), ink: getComputedStyle(inner.querySelector('.sf-button-text-container')).color};
+        };
+        return {section: getComputedStyle(document.querySelector('#editor .sf-editor-page [data-sf-composition-id="ac"]')).backgroundColor, button: look('ab'), outline: look('ao')};
+      });
+      const rgb = (value) => (value.match(/[\d.]+/gu) ?? []).map(Number);
+      const lum = ([r, g, b]) => [r, g, b].map((v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }).reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i], 0);
+      const contrast = (x, y) => { const [p, q] = [lum(rgb(x)), lum(rgb(y))].sort((u, v) => v - u); return Math.round(((p + 0.05) / (q + 0.05)) * 100) / 100; };
+      const plate = buttons.button ? contrast(buttons.button.background, buttons.section) : 0;
+      check(`accent (${theme}): a primary button inverts, its plate at 3:1 or more off the fill, its words at 4.5:1`, plate >= 3 && contrast(buttons.button.ink, buttons.button.background) >= 4.5, {plate, buttons});
+      const edge = buttons.outline ? contrast(buttons.outline.border, buttons.section) : 0;
+      check(`accent (${theme}): an outlined button's edge at 3:1, its words at 4.5:1 on the fill`, edge >= 3 && buttons.outline.borderWidth > 0 && contrast(buttons.outline.ink, buttons.section) >= 4.5, {edge, buttons});
       check(`accent (${theme}): no page errors`, tab.errors.length === 0, tab.errors.slice(0, 3));
       await tab.close();
     }
@@ -396,6 +426,29 @@ try {
     check('grid-390: the page does not scroll sideways', await tab.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), null);
     check('grid-390: no page errors', tab.errors.length === 0, tab.errors.slice(0, 3));
     await tab.close();
+    // Three titled cards on the phone screen: the prototype's title, every line inside its card, no titles meeting.
+    const cards = await open({viewport: {width: 390, height: 844}, lang: 'ru', doc: TITLED});
+    await cards.evaluate(() => { const editor = document.getElementById('editor'); editor.setScreen('phone'); editor.redraw(); });
+    await settle(cards, 600);
+    const titled = await cards.evaluate(() => [1, 2, 3].map((n) => {
+      const node = (id) => document.querySelector(`#editor .sf-editor-page [data-sf-composition-id="${id}"]`);
+      const card = node(`tc${n}`).getBoundingClientRect();
+      const lines = [node(`tc${n}-h`), node(`tc${n}-p`)].map((element) => {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const rects = [...range.getClientRects()];
+        return {left: Math.min(...rects.map((rect) => rect.left)), right: Math.max(...rects.map((rect) => rect.right)), scroll: element.scrollWidth - element.clientWidth};
+      });
+      const heading = node(`tc${n}-h`);
+      const style = getComputedStyle(heading);
+      const at = heading.getBoundingClientRect();
+      return {card: {left: card.left, right: card.right}, lines, size: parseFloat(style.fontSize), weight: Number(style.fontWeight), title: {left: at.left, right: at.right}};
+    }));
+    check('cards-390: a heading in a card is its title, 16 px semibold', titled.every((card) => Math.abs(card.size - 16) <= 0.5 && card.weight >= 600 && card.weight < 700), titled.map((card) => [card.size, card.weight]));
+    check('cards-390: no line leaves its card', titled.every((card) => card.lines.every((line) => line.left >= card.card.left - 0.5 && line.right <= card.card.right + 0.5 && line.scroll <= 0)), titled);
+    check('cards-390: the titles do not overlap', titled.every((card, index) => index === 0 || card.title.left >= titled[index - 1].title.right), titled.map((card) => card.title));
+    check('cards-390: no page errors', cards.errors.length === 0, cards.errors.slice(0, 3));
+    await cards.close();
   });
 
   // ---------------------------------------------------------------- page settings
