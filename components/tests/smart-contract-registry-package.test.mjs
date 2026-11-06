@@ -26,8 +26,9 @@ test("the package composites are generated into the searchable registry beside t
   // the Framework with the new sf-confirm (block confirm, stage 1 of the
   // component sets, 2026-11-03): 68 free and 17 of the package make 85.
   // sf-alert-bar, sf-list and sf-list-feed (wave 2, ui-62b1d9b6dc8d): 71 free
-  // and 17 of the package make 88.
-  assert.equal(registry.entries.length, 88);
+  // and 17 of the package make 88. sf-language (ui-1ec283e856cd): 72 free and
+  // 17 of the package make 89.
+  assert.equal(registry.entries.length, 89);
   assert.ok(registry.entries.some((entry) => entry.id === "smart.confirm-change"), "sf-confirm-change, now the Framework's");
   for (const id of ["smart.admin-menu", "smart.view-table", "smart.view", "smart.view-properties",
     "smart.message-log", "smart.chat-threads", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
@@ -74,9 +75,9 @@ test("CLI discovers and describes the whole data view", () => {
 
 test("CLI discovers, describes and verifies the whole composite", () => {
   const listed = JSON.parse(run("list", "--kind", "smart", "--capability", "navigation"));
-  // The free sf-contents, sf-menu, sf-pager, sf-search and sf-header-site
-  // (site navigation) and the package's admin menu.
-  assert.deepEqual(listed.map(({id}) => id), ["smart.admin-menu", "smart.contents", "smart.header-site", "smart.menu", "smart.pager", "smart.search"]);
+  // The free sf-contents, sf-menu, sf-pager, sf-search, sf-header-site and
+  // sf-language (site navigation) and the package's admin menu.
+  assert.deepEqual(listed.map(({id}) => id), ["smart.admin-menu", "smart.contents", "smart.header-site", "smart.language", "smart.menu", "smart.pager", "smart.search"]);
   const packet = JSON.parse(run("describe", "smart.admin-menu", "--format", "ai"));
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-admin-menu");
