@@ -64,7 +64,7 @@ test('a datetime and a time are the renderer set\'s sf-input-date, not a pair of
   // SIMAI Framework duplication audit A-14: sf-input-date has mode datetime
   // and time, and the renderer set draws them; the view's own pair (a
   // datepicker and a masked time field) is gone, with its drafts and words.
-  const template = read('src/smart/view-properties/js/templates/default.js');
+  const template = (read('src/smart/view-properties/js/templates/default.js') + read('src/smart/view-properties/js/field-value.js'));
   assert.doesNotMatch(template, /renderDateTimeEdit|datetime-edit/u);
   assert.match(template, /const content = editing\n\s+\? renderEditField\(/u);
   assert.equal(existsSync(resolve(root, 'src/smart/view-properties/js/datetime-edit.js')), false);

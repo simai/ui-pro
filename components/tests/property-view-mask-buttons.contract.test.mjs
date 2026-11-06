@@ -15,7 +15,7 @@ import vm from 'node:vm';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
 const view = read('src/smart/view-properties/index.js');
-const template = read('src/smart/view-properties/js/templates/default.js');
+const template = (read('src/smart/view-properties/js/templates/default.js') + read('src/smart/view-properties/js/field-value.js'));
 const body = (source, start, end = '\n    }\n') => {
   const at = source.indexOf(start);
   assert.ok(at >= 0, start);

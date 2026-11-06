@@ -21,6 +21,7 @@ const sources = [
   'src/smart/field-renderers/index.js',
   'src/smart/view-properties/index.js',
   'src/smart/view-properties/js/templates/default.js',
+  'src/smart/view-properties/js/field-value.js',
 ];
 
 // Keys a property-view host never sends, each with the reason it is not part of

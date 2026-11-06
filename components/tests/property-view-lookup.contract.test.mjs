@@ -32,6 +32,6 @@ test('a lookup is paged unless its list came inline', () => {
 });
 
 test('a lookup opens nothing in view: it is not a reference to a record', () => {
-  const template = read('src/smart/view-properties/js/templates/default.js');
+  const template = (read('src/smart/view-properties/js/templates/default.js') + read('src/smart/view-properties/js/field-value.js'));
   assert.match(template, /const reference = \['record', 'relation', 'user'\]\.includes\(field\.propertyType \|\| field\.type\)/u);
 });

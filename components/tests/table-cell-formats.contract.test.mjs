@@ -17,7 +17,9 @@ const read = (path) => readFileSync(resolve(root, path), 'utf8');
 const table = read('src/smart/view-table/index.js');
 const template = read('src/smart/view-table/js/templates/default.js');
 const card = read('src/smart/view-properties/index.js');
-const cardTemplate = read('src/smart/view-properties/js/templates/default.js');
+// The record component's field value lives in js/field-value.js (shared with
+// sf-view-flow); the card's template is both files.
+const cardTemplate = read('src/smart/view-properties/js/templates/default.js') + read('src/smart/view-properties/js/field-value.js');
 const en = (options) => new Intl.DateTimeFormat('en', options);
 
 test('a day is that day on the reader\'s calendar, not UTC midnight', () => {
