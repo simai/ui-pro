@@ -13,13 +13,26 @@
 
 
 </div>
-<div class="sf-thread-list__scroller" aria-busy="false">
+<div class="sf-thread-list__scroller">
+<sf-list class="sf-thread-list__rows" heading-level="2" label="Разговоры" group-by="day" empty-text="Разговоров пока нет" selected renamable style="display: contents;">
+<div class="sf-list sf-list__frame sf-list--size-1 sf-list--empty" role="group" aria-label="Разговоры" aria-busy="false" data-sf-static>
 
-<div class="sf-thread-list__groups">
+<div class="sf-list__body" data-sf-list hidden></div>
+<div class="sf-list__empty"><sf-empty-state kind="no-data" size="1/2" heading="Разговоров пока нет" style="display: contents;">
+<div class="sf-empty-state sf-empty-state--size-1-2 sf-empty-state--no-data" data-sf-static>
+<span aria-hidden="true" class="sf-featured-icon sf-featured-icon--size-1 sf-featured-icon--neutral sf-featured-icon--soft sf-empty-state-icon"><i class="sf-icon">inbox</i></span>
+<h3 class="sf-empty-state-title">Разговоров пока нет</h3>
+<p class="sf-empty-state-text">Они появятся здесь, когда их добавят</p>
 
 </div>
-<p class="sf-thread-list__status">Разговоров пока нет</p>
-<div class="sf-thread-list__sentinel" aria-hidden="true"></div>
+</sf-empty-state></div>
+<div class="sf-list__next" hidden></div>
+<sf-menu-context class="sf-list__menu" popup style="display: contents;">
+<div class="sf-context-menu flex" role="menu" data-sf-static></div>
+</sf-menu-context>
+</div>
+</sf-list>
+<p class="sf-thread-list__status" role="status" hidden></p>
 </div>
 <div class="sf-thread-list__footer">
 
@@ -30,8 +43,5 @@
 
 
 </div>
-<sf-menu-context class="sf-thread-list__menu" popup style="display: contents;">
-<div class="sf-context-menu flex" role="menu" data-sf-static></div>
-</sf-menu-context>
 </nav>
 </sf-chat-threads>

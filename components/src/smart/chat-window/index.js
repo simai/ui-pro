@@ -1077,11 +1077,11 @@ class SfChatWindow extends ChatWindowElement {
         // before the list's own handlers), so each row offers the one that
         // applies.
         threads.addEventListener("click", (event) => {
-            const more = event.target.closest?.(".sf-thread-list__more");
-            if (more) this.rowActions(more.closest(".sf-thread-list__item")?.dataset.id);
+            const more = event.target.closest?.(".sf-list__actions");
+            if (more) this.rowActions(more.closest(".sf-list__row")?.dataset.id);
         }, true);
         threads.addEventListener("keydown", (event) => {
-            if ((event.key === "F10" && event.shiftKey) || event.key === "ContextMenu") this.rowActions(event.target.closest?.(".sf-thread-list__link")?.dataset.id);
+            if ((event.key === "F10" && event.shiftKey) || event.key === "ContextMenu") this.rowActions(event.target.closest?.(".sf-list__row")?.dataset.id);
         }, true);
         threads.addEventListener("sf-chat-threads-apply", (event) => {
             const {id, action} = event.detail;
@@ -1514,6 +1514,11 @@ class SfChatWindow extends ChatWindowElement {
             : [];
     }
 
+    // A conversation's row in the list: sf-list's row, the one Tab stop of it.
+    threadRow(id) {
+        return this.parts.threads.querySelector(`.sf-list__row[data-id="${CSS.escape(String(id))}"] .sf-list-item[data-sf-list-roving]`);
+    }
+
     async pin(id, pinned) {
         const result = await this.request("conversation.pin", {conversation_id: id, pinned});
         if (result.answer !== "applied") {
@@ -1521,7 +1526,7 @@ class SfChatWindow extends ChatWindowElement {
             return;
         }
         this.notify(this.words(pinned ? "threads.pinned" : "threads.unpinned"));
-        this.afterDraw(() => this.parts.threads.querySelector(`.sf-thread-list__link[data-id="${CSS.escape(String(id))}"]`), (row) => this.refocus(row));
+        this.afterDraw(() => this.threadRow(id), (row) => this.refocus(row));
     }
 
     // «Подтвердить» or «Отменить» on a proposal: the host sends exactly its
@@ -1646,7 +1651,7 @@ class SfChatWindow extends ChatWindowElement {
         if (wasArchive && !this._data.conversation_list?.archived) this.focusListHead();
         this.notify(this.words("threads.restored"));
         // The list draws the restored row a frame after it is given it.
-        this.afterDraw(() => this.parts.threads.querySelector(`.sf-thread-list__link[data-id="${CSS.escape(String(id))}"]`), (row) => this.refocus(row));
+        this.afterDraw(() => this.threadRow(id), (row) => this.refocus(row));
     }
 
     async showList(archived) {
@@ -1832,8 +1837,8 @@ class SfChatWindow extends ChatWindowElement {
 
     // A conversation with another assistant than the first one names it on
     // a quiet second line (U-06); with the usual one the row stays one line.
-    // A pinned one is sf-chat-threads's own (1.3.0: pinned: true leads under
-    // «Закреплённые» with its «Закреплён» line), so it is not said again here.
+    // A pinned one is sf-chat-threads's own (pinned: true leads under
+    // «Закреплённые»), so it is not said again here.
     // The port speaks snake_case; sf-chat-threads takes its entry fields by
     // their attribute names (updated-at since 1.7.0), so the date is renamed here.
     listed(conversation) {

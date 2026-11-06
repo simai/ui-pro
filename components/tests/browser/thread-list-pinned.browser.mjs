@@ -2,8 +2,8 @@
 // Usage: node this-file /absolute/path/to/output
 // sf-chat-threads (owner, 2026-10-28, q-a49e2045c1), on the built bytes:
 // - pinned conversations (pinned: true, Mirai24 API v1.1) lead under their own
-//   heading «Закреплённые», each with a quiet «Закреплён» line; the days follow
-//   with the rest; without groups the pinned ones simply lead; pinning is the
+//   heading «Закреплённые» (sf-list's, since 2.0.0); the days follow with the
+//   rest; without groups the pinned ones simply lead; pinning is the
 //   host's action: the row menu offers what the host gave and reports it;
 import {resolve, join} from 'node:path';
 import {existsSync} from 'node:fs';
@@ -14,13 +14,15 @@ const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/badges/css/badges.css', 'component/component/avatars/css/avatars.css',
-  'component/component/context-menu/css/context-menu.css',
+  'component/component/context-menu/css/context-menu.css', 'component/component/icon-buttons/css/icon-buttons.css',
+  'component/component/skeleton/css/skeleton.css', 'component/component/dropdown/css/dropdown.css', 'smart/smart/list/css/list.css',
   'smart/smart/chat-threads/css/chat-threads.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js',
-  'smart/smart/menu-context/js/menu-context.js',
+  'smart/smart/menu-context/js/menu-context.js', 'smart/smart/button/js/button.js',
+  'smart/smart/empty-state/js/empty-state.js', 'smart/smart/list-item/js/list-item.js', 'smart/smart/list/js/list.js',
   'smart/smart/chat-threads/js/chat-threads.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -66,30 +68,28 @@ try {
   await make(desk.page);
   const grouped = await desk.page.evaluate(() => {
     const list = document.getElementById('list');
-    return [...list.querySelectorAll('.sf-thread-list__group')].map((group) => ({
+    return [...list.querySelectorAll('.sf-list__group')].map((group) => ({
       key: group.dataset.group,
-      heading: group.querySelector('.sf-thread-list__heading')?.textContent.trim(),
-      ids: [...group.querySelectorAll('.sf-thread-list__item')].map((item) => item.dataset.id),
-      marks: [...group.querySelectorAll('.sf-thread-list__item')].map((item) => item.querySelector('.sf-thread-list__pinned')?.textContent.trim() ?? null),
+      heading: group.querySelector('.sf-list__heading')?.textContent.trim(),
+      ids: [...group.querySelectorAll('.sf-list__row')].map((item) => item.dataset.id),
     }));
   });
   const first = grouped[0];
   if (!first || first.key !== 'pinned' || first.heading !== 'Закреплённые' || first.ids.join() !== 'p1,p2') {
     failures.push(`the pinned ones do not lead under «Закреплённые»: ${JSON.stringify(grouped)}`);
   }
-  if (first && first.marks.some((mark) => mark !== 'Закреплён')) failures.push(`a pinned row has no «Закреплён» line: ${JSON.stringify(first)}`);
   const rest = grouped.slice(1);
-  if (rest.some((group) => group.ids.some((id) => id.startsWith('p'))) || rest.flatMap((group) => group.marks).some(Boolean)) {
-    failures.push(`a pinned conversation is also under a day, or an unpinned one is marked: ${JSON.stringify(rest)}`);
+  if (rest.some((group) => group.ids.some((id) => id.startsWith('p')))) {
+    failures.push(`a pinned conversation is also under a day: ${JSON.stringify(rest)}`);
   }
   // Without groups the pinned ones lead.
   await make(desk.page, {'group-by': 'none'});
-  const flat = await desk.page.evaluate(() => [...document.querySelectorAll('#list .sf-thread-list__item')].map((item) => item.dataset.id));
+  const flat = await desk.page.evaluate(() => [...document.querySelectorAll('#list .sf-list__row')].map((item) => item.dataset.id));
   if (flat.slice(0, 2).join() !== 'p1,p2') failures.push(`without groups the pinned ones do not lead: ${flat.join()}`);
   // Pinning is the host's: the menu offers its action and reports the row.
   await make(desk.page);
-  await desk.page.hover('#list .sf-thread-list__item[data-id="b"]');
-  await desk.page.click('#list .sf-thread-list__item[data-id="b"] .sf-thread-list__more');
+  await desk.page.hover('#list .sf-list__row[data-id="b"]');
+  await desk.page.click('#list .sf-list__row[data-id="b"] .sf-list__actions');
   await desk.page.waitForTimeout(250);
   const pin = desk.page.locator('text=Закрепить').first();
   if (await pin.count()) {
@@ -112,4 +112,4 @@ if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
 }
-console.log('thread-list: pinned conversations lead under their own heading with a quiet mark; pinning is the host\'s action');
+console.log('thread-list: pinned conversations lead under their own heading; pinning is the host\'s action');

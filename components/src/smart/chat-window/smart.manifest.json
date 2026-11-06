@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -2622,6 +2622,13 @@
         "changes": [
           "The conversation is SIMAI Framework's sf-list-feed (sf-message-log is now its dated alias): the window places <sf-list-feed>, hears sf-list-feed-load-more and draws through renderItem and announceItem. No visible change. A page that styled .sf-message-log, .sf-message-log__item or set --sf-message-log--* inside the window moves to .sf-list-feed, .sf-list-feed__item and --sf-list-feed--*. Needs a SIMAI Framework pair with sf-list-feed (ui-62b1d9b6dc8d or later)."
         ]
+      },
+      {
+        "from": "1.13.0",
+        "to": "1.14.0",
+        "changes": [
+          "sf-chat-threads 2.0.0: the list's rows are the Framework's sf-list. The window finds a row by .sf-list__row[data-id] and its «⋯» by .sf-list__actions (per-row Pin or Unpin, the focus after pinning, restoring and archiving); its words for a row's rename and menu (threads-rename, threads-rename-label, threads-actions), the day headings (threads-today, threads-yesterday, threads-earlier) and threads-loading are gone: the rows speak sf-list's. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -2631,7 +2638,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "0aa16767258d1c2702b46fab0db4bab1a87578d92976492be733d233c65fda09"
+        "sha256": "51266665aa0868bd9817062a50583c4cefc45abca9fb9440a6ae1dedd1a18ab1"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2643,7 +2650,7 @@
       },
       {
         "path": "src/smart/chat-window/js/part-words.js",
-        "sha256": "f207f24591ddf2577fe53f2decce1e816e5e90fb5c6f0178c8042e62fa1fc0be"
+        "sha256": "5534fd3ebfa71785e139adceedad81b399928de64263048460622bd23dc1b1b7"
       },
       {
         "path": "src/smart/chat-window/js/preview-view.js",
@@ -2687,7 +2694,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "62c610016e3d881b4763bce80f18856be362ba581d9380c5e04ea7b3abd797cb"
+        "sha256": "fe5a3084d33241ec44c14434873a6498a23d952d23ef478d17c6c02a222c2778"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
@@ -2695,11 +2702,11 @@
       },
       {
         "path": "src/smart/chat-window/lang/en.json",
-        "sha256": "63241a90c9b2a2783749293b425499940f0c2769c45b830858a47f4524de693e"
+        "sha256": "91dd4835d3feb7e58d08a5bd137c065487c968fb74133818da2599b91ddcae36"
       },
       {
         "path": "src/smart/chat-window/lang/ru.json",
-        "sha256": "e16e72d663b62e1c177a60f380118335651c64b5924349c9697cbfc6ec2c3504"
+        "sha256": "076cce20780e9efda75bf08ac9c45bf4e318a3bc283f2221d93efd02ae14934f"
       }
     ],
     "generated_runtime": []
