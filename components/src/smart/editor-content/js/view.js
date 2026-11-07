@@ -9,7 +9,7 @@
 // sf-editor-inline while it is typed in, and that session owns its children.
 // Text from the Document is set as text and inline content through
 // renderInlineDom, never as markup.
-import {fileNameFromAddress, fileSizeUnits, formatFileSize} from "../../../core/js/composition/file-size.mjs";
+import {fileIcon, fileNameFromAddress, fileSizeUnits, formatFileSize} from "../../../core/js/composition/file-size.mjs";
 import {renderInlineDom} from "../../../core/js/composition/inline-editor.mjs";
 import {ALERT_ICONS} from "./catalog.js";
 import {FIELDS, FLOWS, ITEMS, KNOWN, inlineOf} from "./model.js";
@@ -221,21 +221,6 @@ function figure(context, node) {
     element.append(picture(context, node, node.props?.ratio, node.props?.fit), field(context, "figcaption", node, "caption", {placeholder: "caption-placeholder", label: "caption-label", className: "sf-content-editor-caption"}));
     return element;
 }
-
-// The icon of a file's kind by its media type: the Composition renderer's
-// table for content.file (composition/index.mjs, fileIcon), which it does not
-// export.
-const FILE_ICONS = [
-    [/^application\/pdf$/u, "picture_as_pdf"],
-    [/^image\//u, "image"],
-    [/^video\//u, "movie"],
-    [/^audio\//u, "audio_file"],
-    [/^application\/(?:zip|x-zip-compressed|x-7z-compressed|x-rar-compressed|vnd\.rar|x-tar|gzip|x-gzip)$/u, "folder_zip"],
-    [/^(?:text\/csv|application\/vnd\.ms-excel|application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.[a-z.]+|application\/vnd\.oasis\.opendocument\.spreadsheet)$/u, "table_chart"],
-    [/^(?:application\/vnd\.ms-powerpoint|application\/vnd\.openxmlformats-officedocument\.presentationml\.[a-z.]+|application\/vnd\.oasis\.opendocument\.presentation)$/u, "slideshow"],
-    [/^(?:text\/|application\/msword$|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.[a-z.]+$|application\/vnd\.oasis\.opendocument\.text$|application\/rtf$)/u, "description"],
-];
-const fileIcon = (mime) => FILE_ICONS.find(([pattern]) => typeof mime === "string" && pattern.test(mime))?.[1] ?? "download";
 
 // A file to download: sf-file-download's row as the page draws it (the icon
 // of its kind, its name, its size), the name typed in place. An empty one is

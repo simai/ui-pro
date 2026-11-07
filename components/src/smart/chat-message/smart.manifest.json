@@ -768,7 +768,7 @@
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "6779b422060e89aaf4c4a5e4491ab44d2dec486e22fcf040bff81bd2d721b849"
+        "sha256": "54315a2d2468586c9e780a6d58428f696ec33049459aca2e128cb56585eda54c"
       },
       {
         "path": "src/smart/chat-message/aliases.json",
