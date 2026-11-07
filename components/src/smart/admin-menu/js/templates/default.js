@@ -164,6 +164,8 @@ function badgeShows(item) {
   return Boolean(counterOf(item.badge));
 }
 
+// A counter in a menu row is dense: it keeps the size's own narrow side room
+// (sf-badge tight / sf-badge--tight, Framework sf-badge 1.3.0).
 function renderCounter(item, compact) {
   const counter = counterOf(item.badge);
   if (!counter) return nothing;
@@ -172,13 +174,14 @@ function renderCounter(item, compact) {
       class="sf-admin-menu-item-counter"
       aria-hidden="true"
       size="1/3"
+      tight
       appearance="main"
       status="error"
       text="${String(item.badge).trim()}"
     ></sf-badge>`;
   }
   return html`<span
-    class="sf-badge sf-badge--main sf-badge--error sf-badge--size-1/3 sf-admin-menu-item-counter inline-flex flex-nowrap justify-center items-center${counter.dot ? " sf-badge--dot" : ""}"
+    class="sf-badge sf-badge--main sf-badge--error sf-badge--size-1/3 sf-admin-menu-item-counter sf-badge--tight inline-flex flex-nowrap justify-center items-center${counter.dot ? " sf-badge--dot" : ""}"
     aria-hidden="true"
     title=${counter.phrase}
   >${counter.text}</span>`;
@@ -196,6 +199,7 @@ function renderBadge(item) {
 
   return html` <sf-badge
     size="1/3"
+    tight
     appearance="main"
     status="error"
     text="${item.badge}"

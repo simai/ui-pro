@@ -186,6 +186,9 @@ class SfChatMessage extends ChatMessageElement {
                 badge.setAttribute("size", "1/3");
                 badge.setAttribute("appearance", "outline");
                 badge.setAttribute("scheme", "on-surface");
+                // Beside a name in a dense row: the size's own narrow side
+                // room (sf-badge tight, Framework sf-badge 1.3.0).
+                badge.setAttribute("tight", "");
                 badge.className = "sf-chat-message__word";
                 return badge;
             },
