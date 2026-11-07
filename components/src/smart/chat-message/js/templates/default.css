@@ -219,13 +219,9 @@
     color: var(--sf-chat-message--ink-muted);
   }
 
-  .sf-chat-markup :not(pre) > code:not([class*='sf-']) {
-    padding-inline: var(--sf-space-1\/4);
-    border-radius: var(--sf-radius--ui);
-    background: var(--sf-chat-message--fill);
-    font-family: var(--sf-mono);
-    font-size: 0.875em;
-  }
+  /* Inline code in the answer takes the Framework's own plate (core base
+     layer, tokens.typography 1.1.0: surface container, --sf-space-1/4,
+     --sf-radius--ui, .875em, mono), as in any running text. */
 
   /* A plain <pre>; one the Framework's Highlight has taken (.sf-highlight)
      carries its own surface, colours and copy header. */

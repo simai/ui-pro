@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -712,6 +712,13 @@
         "changes": [
           "The reaction picker stays under the top of SIMAI Framework's sf-list-feed (the conversation of chat-window 1.13.0, and of sf-message-log, its dated alias). No visible change."
         ]
+      },
+      {
+        "from": "1.7.1",
+        "to": "1.7.2",
+        "changes": [
+          "Inline code in an answer's markup takes SIMAI Framework's plate for code in running text (tokens.typography 1.1.0, the pair ui-c4d39d528148 and later): the message's own rule is gone. The same surface container, padding, radius, size and mono face; code in a block, in the highlighter or with an sf- class is untouched. Needs the SIMAI Framework pair with tokens.typography >= 1.1.0."
+        ]
       }
     ]
   },
@@ -749,7 +756,7 @@
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
-        "sha256": "680aa0041621d5e62d43b2a489f4c5678b6fdf23e1511427e966af30d9d582ad"
+        "sha256": "58140b737d5f5c211d6ff5e146222546ff4dca7cdb6df86cd84c437b1c4e015d"
       },
       {
         "path": "src/smart/chat-message/rule.js",
