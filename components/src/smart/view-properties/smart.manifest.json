@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.10.1",
+  "version": "1.11.0",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1532,6 +1532,13 @@
         "changes": [
           "A datetime or time field is one sf-input-date (mode datetime or time) instead of a day and a masked time field; the value written is the same ISO 8601. Dates the host does not format read in the page's language. A colour palette wraps in a half-width field. A closed panel shows no close button or shadow over the page. An entry put back to the stored value is not written. Nothing to change for a host; a host that read the pair's names («<label>: дата», «<label>: время») finds one control named by the label."
         ]
+      },
+      {
+        "from": "1.10.1",
+        "to": "1.11.0",
+        "changes": [
+          "The set draws five property types itself, from Framework controls: money {amount, currency} (an amount with the currency's sign, or a currency choice; minor digits by ISO 4217), percent (a decimal with %), items (rows over the field's columns: typed cells, computed cells worked out live, totals, rows added, removed and moved, min and max rows, a card a row where the field is narrow), compound (a fixed set of parts, one value object) and ru.requisites (ИНН, КПП, ОГРН, БИК, accounts, checked part by part and together). Every number is a decimal string, never a float. An entry that is not a value yet holds both saves, as an incomplete masked string does. The settings they read (currency, columns, minRows, maxRows, parts) are due in simai.property-view-port 1.18.0. Nothing changes for a host that sends none of these types."
+        ]
       }
     ]
   },
@@ -1557,7 +1564,31 @@
       },
       {
         "path": "src/smart/view-properties/js/field-value.js",
-        "sha256": "18194d28683ab6dc3f876cd4f39928745017b5e03f2abd310876c079ffe74188"
+        "sha256": "aa04dbf2f3f8a979966af613c82e2bcffa13020371a5884f88728f50c1145b8e"
+      },
+      {
+        "path": "src/smart/view-properties/js/requisites.js",
+        "sha256": "66ebd2f8c9428feea6e36a18ec3c2eae62278d5ee8d9e8d4d5a562ab5a819bcf"
+      },
+      {
+        "path": "src/smart/view-properties/js/decimal.js",
+        "sha256": "02c0ee50c08423cca425834fc3a6b8f717313764af36b3cd890c08d0643e7abc"
+      },
+      {
+        "path": "src/smart/view-properties/js/rows.js",
+        "sha256": "80eacb056aa8fd40682697fd89f1d8eabe1ae3646dda8ecf164d595ea8abef5c"
+      },
+      {
+        "path": "src/smart/view-properties/js/money.js",
+        "sha256": "8e7ba7bab391daf9f28e403bee2a3e3f2fd2ad1ec11742421fceff0d18b0c188"
+      },
+      {
+        "path": "src/smart/view-properties/js/set-fields.css",
+        "sha256": "dc40d576e3fec0d8b0ae598c415149d85b8d5fc000e15aaa578093cae6545bff"
+      },
+      {
+        "path": "src/smart/view-properties/js/set-fields.js",
+        "sha256": "f2b67678f0c498b2355cb5b1233ab903ca8cb089c05244e09c760e049e89c815"
       },
       {
         "path": "src/smart/view-properties/rule.js",
@@ -1569,7 +1600,7 @@
       },
       {
         "path": "src/smart/view-properties/docs.md",
-        "sha256": "335230ca6ea373effddc4737765befd00b0098e214794f483f35562ede7de708"
+        "sha256": "e66515f627d9a8515807d01dd7d6d3c172f5da4e7aab6ef0cb53a9b02c51052d"
       }
     ],
     "generated_runtime": []

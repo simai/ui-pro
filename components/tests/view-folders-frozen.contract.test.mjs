@@ -2,9 +2,9 @@
 // the duplicate-shipping window).
 //
 // sf-view, sf-view-table and sf-view-properties moved to the view set: their
-// source is simai/ui-view, released as view-f529c2354b0d (@simai-studio/view
-// 1.2.0, ui-view tag view-f529c2354b0d, package/src/smart/<folder>; earlier
-// releases view-4d7070623fe1 and view-9c963d217188). Until the next pro bundle takes them from that
+// source is simai/ui-view, released as view-cd0d82aeb756 (@simai-studio/view
+// 1.3.0, ui-view tag view-cd0d82aeb756, package/src/smart/<folder>; earlier
+// releases view-4d7070623fe1, view-9c963d217188 and view-f529c2354b0d). Until the next pro bundle takes them from that
 // release, ui-pro still ships its own copies of the three folders, and they
 // must stay the release's tree exactly: a change made here would ship in pro
 // and not in view, and the next bundle would silently drop it.
@@ -25,12 +25,12 @@ import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
 
-// view-f529c2354b0d: `git -C ui-view rev-parse view-f529c2354b0d:package/src/smart/<folder>`.
-const RELEASE = 'view-f529c2354b0d';
+// view-cd0d82aeb756: `git -C ui-view rev-parse view-cd0d82aeb756:package/src/smart/<folder>`.
+const RELEASE = 'view-cd0d82aeb756';
 const FROZEN = {
   'view': '452e654a13152b36310c3cd3d04e19feae415b8b',
   'view-table': '9c7e0e7855cabbf2f9bc8964a1497ba08badc623',
-  'view-properties': '1cbe70c0ee7763d6011e91d01a73d418cc41ef61',
+  'view-properties': 'bb741ecce5cab6238f4cc0cbafe0e1340b762faf',
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

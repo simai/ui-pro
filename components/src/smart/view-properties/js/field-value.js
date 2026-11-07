@@ -1,5 +1,6 @@
 import {html, nothing} from 'lit';
 import {renderViewField, renderEditField} from '../../field-renderers/index.js';
+import {renderSetField} from './set-fields.js';
 
 // One field's value, shown or edited, drawn by the SIMAI Framework field
 // renderers. Moved out of the record component's template (sf-view-properties
@@ -40,6 +41,18 @@ export function renderFieldValue(context, field, editing, {disabled = false} = {
             }
             : {}),
     };
+    // Money, a percent, rows and the compound fields are the set's own
+    // (js/set-fields.js, Larena addendum of 2026-11-03): drawn from Framework
+    // controls, with the edit host above, before the Framework renderers are
+    // asked for a type they do not draw.
+    const own = renderSetField(field, context.changed.has(key) && editing ? context.changed.get(key) : field.value, editing, editHost,
+        {node: context.component, size: context.size, viewHost: context.viewHost, disabled});
+    if (own !== null) {
+        return own === nothing
+            ? html`<span class="sf-property-view-empty color-on-surface-variant">${context.emptyText}</span>`
+            : own;
+    }
+
     // A datetime and a time of day are the renderer set's: sf-input-date in
     // mode datetime and time, one control each (SIMAI Framework duplication
     // audit A-14). This view drew its own pair -- the day in a datepicker and

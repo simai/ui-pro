@@ -173,6 +173,54 @@ choice and lets nothing be pressed; one its condition turns off
  "value": "person"}
 ```
 
+## Money, percent, rows and requisites
+
+Since 1.11.0 the set draws five property types itself, from SIMAI Framework
+controls (Larena property types standard, notes of 2026-11-03). Every number
+is a decimal string, never a float, read and written as such; arithmetic is on
+digits. An entry that is not a value yet -- not a number, more digits after
+the point than the currency has, a ИНН whose control digits do not match --
+holds both saves as an incomplete masked string does, and the control says
+what is wrong under itself once the person leaves it. The settings below are
+due in simai.property-view-port 1.18.0.
+
+- `money`: `{"amount": "1500.50", "currency": "RUB"}`. A field with
+  `currency` fixes it: the sign stands in the input and a bare amount is read
+  too. Without it the person chooses a currency beside the amount. Digits
+  after the point follow ISO 4217 (RUB 2, JPY 0, KWD 3); more is refused,
+  never rounded. Read as «1 500,50 ₽». `min` and `max` bound the amount.
+- `percent`: `"12.5"` is 12.5 %, never the share. A % in the input; `min`
+  and `max` default to 0 and 100. Read as «12,5 %».
+- `items`: rows over `columns`, each `{key, label, type, settings, required,
+  compute, total}` (`propertyType` is read as well as `type`; settings may
+  stand beside the keys). A cell is drawn by its type: string, text, integer,
+  number, percent, money, choice, date, boolean. `compute: {op: "multiply",
+  of: [keys]}` makes a read-only cell worked out live (a percent counts as its
+  share; rounded half away from zero to the currency's minor units or the
+  column's `scale`, 2 by default) and written last in its row; the server is
+  the authority. `total: "sum"` puts the sum under the column. Rows are added,
+  moved and removed within `minRows` and `maxRows`. Where the field is narrow
+  (a phone, a half-width field) each row is a card. The value is the list of
+  rows; an empty cell is no key.
+- `compound`: `parts`, a list of field descriptors with one value object; each
+  part is drawn by its own type and an empty part is no key.
+- `ru.requisites`: `{inn, kpp, ogrn, bik, account, corr_account}`, the parts
+  the field names in `parts` (all six when none). Each is checked and the ones
+  that go together together: the ИНН's control digits, a КПП only with an
+  organisation's ИНН, ОГРН 13 digits for an organisation and ОГРНИП 15 for a
+  person, a БИК from 04, the accounts by the Bank of Russia key with the БИК.
+  Read as «ИНН 7707083893, КПП 773601001».
+
+```json
+{"key": "items", "label": "Позиции", "propertyType": "items", "width": "full", "minRows": 1, "maxRows": 50,
+ "columns": [
+   {"key": "name", "label": "Наименование", "type": "string", "required": true},
+   {"key": "qty", "label": "Кол-во", "type": "number"},
+   {"key": "price", "label": "Цена", "type": "money", "settings": {"currency": "RUB"}},
+   {"key": "sum", "label": "Сумма", "type": "money", "compute": {"op": "multiply", "of": ["qty", "price"]}, "total": "sum"}],
+ "value": [{"name": "Ручка", "qty": "3", "price": {"amount": "33.33", "currency": "RUB"}, "sum": {"amount": "99.99", "currency": "RUB"}}]}
+```
+
 ## Reading one group at a time
 
 A host on port 1.15.0 that announces the capability `group-load` is read a

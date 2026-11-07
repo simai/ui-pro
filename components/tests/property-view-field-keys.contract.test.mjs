@@ -22,6 +22,9 @@ const sources = [
   'src/smart/view-properties/index.js',
   'src/smart/view-properties/js/templates/default.js',
   'src/smart/view-properties/js/field-value.js',
+  'src/smart/view-properties/js/set-fields.js',
+  'src/smart/view-properties/js/money.js',
+  'src/smart/view-properties/js/rows.js',
 ];
 
 // Keys a property-view host never sends, each with the reason it is not part of
@@ -38,6 +41,15 @@ const notInThisPort = new Map([
   ['max', 'the stepper variant\'s upper bound; not in port 1.14.0, due in 1.15.0'],
   ['step', 'the stepper variant\'s step; not in port 1.14.0, due in 1.15.0'],
   ['precision', 'the stepper variant\'s decimals; not in port 1.14.0, due in 1.15.0'],
+  // The property types the set draws itself (js/set-fields.js; Larena addendum
+  // of 2026-11-03): their settings are read now and are to be declared in the
+  // next port minor, simai.property-view-port 1.18.0, ordered from the SIMAI
+  // Framework dispatcher with this change. A 1.17.0 host does not send them.
+  ['currency', 'a money field\'s fixed ISO 4217 currency; not in port 1.17.0, due in 1.18.0'],
+  ['columns', 'the columns of a rows (items) field; not in port 1.17.0, due in 1.18.0'],
+  ['minRows', 'the fewest rows an items field holds; not in port 1.17.0, due in 1.18.0'],
+  ['maxRows', 'the most rows an items field holds; not in port 1.17.0, due in 1.18.0'],
+  ['parts', 'the parts of a compound or ru.requisites field; not in port 1.17.0, due in 1.18.0'],
 ]);
 
 const portPath = json('src/smart/view-properties/smart.manifest.json')
