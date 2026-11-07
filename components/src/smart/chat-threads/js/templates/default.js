@@ -97,7 +97,7 @@ const row = (context, thread) => {
                                      activity=${activity}></sf-badge>`
                     : nothing}
                 ${unread
-                    ? html`<sf-badge class="sf-thread-list__unread" size="1/3" scheme="primary"
+                    ? html`<sf-badge class="sf-thread-list__unread" size="1/3" scheme="primary" tight
                                      text=${unread > 99 ? "99+" : String(unread)}
                                      aria-label=${context.unreadLabel(unread)}></sf-badge>`
                     : nothing}

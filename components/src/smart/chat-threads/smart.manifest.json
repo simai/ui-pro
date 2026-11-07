@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-threads",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "title": "Thread list",
   "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "kind": "composite",
@@ -1020,7 +1020,7 @@
       },
       {
         "path": "src/smart/chat-threads/js/templates/default.js",
-        "sha256": "6c536928076ab883cd9a79a22427b9c63a5823c044fb45b5bb8c6c0483390f07"
+        "sha256": "cf6df53de299f5d7acf5b8044cebec7744776cd7360a4e2db60453299d1dfd3e"
       },
       {
         "path": "src/smart/chat-threads/js/templates/default.css",
@@ -1036,7 +1036,7 @@
       },
       {
         "path": "src/smart/chat-threads/component.json",
-        "sha256": "35cf828ca3202fad4784294fdfb60ec9a2b24379b5a22694c639a69671c7b1bf"
+        "sha256": "5080c519bf65ad69dcd26c3ab0378c075f6b3648784e3dffadf53c91e62283df"
       },
       {
         "path": "src/smart/chat-threads/aliases.json",
