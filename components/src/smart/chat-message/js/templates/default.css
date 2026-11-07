@@ -267,7 +267,14 @@
 
   .sf-chat-markup :is(th, td):first-child { padding-inline-start: 0; }
 
-  .sf-chat-markup td code { background: none; padding: 0; }
+  /* Inline code keeps the Framework's plate in a table cell too. The core
+     rule keeps a name on one line (white-space: nowrap, R024); a bubble is
+     narrow, so here a long name wraps inside the plate instead of pushing
+     the message wider than its column. */
+  .sf-chat-markup :not(pre) > code:not([class*='sf-']) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 
   /* The pill sits on the line's middle, not raised as a superscript: a
      raised one reads as a speck, and the full stop after it drifts (D-07). */
