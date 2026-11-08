@@ -1,121 +1,16 @@
 import {html, nothing} from "lit";
-import {repeat} from "lit/directives/repeat.js";
 import "./default.css";
 
 // The list, drawn in the component's light DOM: a navigation with a head (the
-// way to start a conversation, or the way back from the archive), the scrolling
-// rows, a foot (the archive, and whatever the host puts in the `footer` slot),
-// and one context menu shared by every row.
+// way to start a conversation, or the way back from the archive), the rows, a
+// foot (the archive, and whatever the host puts in the `footer` slot).
 //
-// A row is one native button -- the conversation -- and, when the host lets
-// the person manage it, a «⋯» beside it. The «⋯» is not a Tab stop of its own
-// (tabindex -1): a list of forty conversations would be eighty stops. It is
-// reached from its row with Shift+F10 or the menu key, and by pointer.
-//
-// The rows are keyed by id, so a conversation that moves to the top keeps its
-// node and a redraw does not take focus from the row a person is on.
-
-const ACTIVITIES = new Set(["running", "waiting", "done", "stopped", "failed"]);
-
-// A conversation's sign (1.6.0): shape square is a group or a channel, a
-// collective; icon is a sign instead of initials (a channel, an agent, a bot).
-// sf-avatar has no setting for a glyph of the host's choosing, so a sign is its
-// class markup, as sf-chat-window's members draw theirs, with the same size and
-// shape. No avatar given draws nothing: an AI-only list keeps no empty column.
-const SHAPES = new Set(["circle", "square"]);
-
-const avatarOf = (avatar, title = "") => {
-    const shape = SHAPES.has(avatar.shape) ? avatar.shape : "circle";
-    const icon = typeof avatar.icon === "string" ? avatar.icon.trim() : "";
-    if (icon && !avatar["image-url"]) {
-        return html`<span class="sf-thread-list__avatar sf-avatar sf-avatar--size-1/2 sf-avatar--placeholder ${shape === "square" ? "sf-avatar--square" : ""} inline-flex flex-none items-cross-center content-main-center overflow-hidden" aria-hidden="true"><sf-icon icon=${icon} size="1" aria-hidden="true"></sf-icon></span>`;
-    }
-    return html`<sf-avatar class="sf-thread-list__avatar" size="1/2" aria-hidden="true" tone="auto" aria-label=${title} shape=${shape === "square" ? "square" : nothing}
-                           image-url=${avatar["image-url"] ?? ""} text=${avatar.text ?? ""}></sf-avatar>`;
-};
-
-const row = (context, thread) => {
-    const {component} = context;
-    const title = String(thread.title ?? "") || context.untitledText;
-    const caption = thread.caption ? String(thread.caption) : "";
-    const unread = Number(thread.unread) > 0 ? Math.floor(Number(thread.unread)) : 0;
-    const current = thread.id === context.selected;
-    const avatar = thread.avatar && typeof thread.avatar === "object" ? thread.avatar : null;
-    const pinned = thread.pinned === true;
-    // Only the words the badge knows: an unknown one draws no mark rather than
-    // a badge with no state.
-    const activity = ACTIVITIES.has(thread.activity) ? thread.activity : "";
-
-    if (context.editing === thread.id) {
-        return html`
-            <li class="sf-thread-list__item sf-thread-list__item--editing" data-id=${thread.id}>
-                <input
-                        class="sf-thread-list__rename"
-                        .value=${title === context.untitledText ? "" : title}
-                        maxlength=${context.titleLimit}
-                        aria-label=${context.renameLabel}
-                        @keydown=${(event) => {
-                            if (event.key === "Enter") {
-                                event.preventDefault();
-                                component.finishRename(true, event.currentTarget);
-                            }
-                            if (event.key === "Escape") {
-                                // The Escape is the field's: a panel around the
-                                // list must not close on it as well.
-                                event.preventDefault();
-                                event.stopPropagation();
-                                component.finishRename(false, event.currentTarget);
-                            }
-                        }}
-                        @blur=${(event) => component.finishRename(true, event.currentTarget)}
-                />
-            </li>
-        `;
-    }
-
-    return html`
-        <li class="sf-thread-list__item ${current ? "sf-thread-list__item--current" : ""} ${unread ? "sf-thread-list__item--unread" : ""}"
-            data-id=${thread.id}>
-            <button
-                    type="button"
-                    class="sf-thread-list__link"
-                    data-id=${thread.id}
-                    tabindex=${thread.id === context.tabStop ? "0" : "-1"}
-                    aria-current=${current ? "page" : nothing}
-                    aria-keyshortcuts=${context.manage ? "Shift+F10 F2" : nothing}
-                    title=${caption ? `${title} · ${caption}` : title}
-                    @click=${() => component.open(thread.id)}
-            >
-                ${avatar ? avatarOf(avatar, title) : nothing}
-                <span class="sf-thread-list__text">
-                    <span class="sf-thread-list__title">${title}</span>
-                    ${caption ? html`<span class="sf-thread-list__caption">${caption}</span>` : nothing}
-                    ${pinned ? html`<span class="sf-thread-list__pinned">${context.pinnedText}</span>` : nothing}
-                </span>
-                ${activity
-                    ? html`<sf-badge class="sf-thread-list__activity" size="1/3" appearance="tonal" compact
-                                     activity=${activity}></sf-badge>`
-                    : nothing}
-                ${unread
-                    ? html`<sf-badge class="sf-thread-list__unread" size="1/3" scheme="primary" tight
-                                     text=${unread > 99 ? "99+" : String(unread)}
-                                     aria-label=${context.unreadLabel(unread)}></sf-badge>`
-                    : nothing}
-            </button>
-            ${context.manage
-                ? html`<button
-                        type="button"
-                        class="sf-thread-list__more"
-                        tabindex="-1"
-                        aria-haspopup="menu"
-                        aria-label=${context.actionsLabel(title)}
-                        title=${context.actionsLabel(title)}
-                        @click=${(event) => component.openMenu(thread.id, event.currentTarget)}
-                ><sf-icon icon="more_horiz" size="1" aria-hidden="true"></sf-icon></button>`
-                : nothing}
-        </li>
-    `;
-};
+// The rows are the Framework's sf-list (since 2.0.0): its rows, groups by day,
+// pinned ones first, one Tab stop, renaming, the row's menu and the next page
+// are the list's. What stays here is what a list of conversations has around
+// its rows: starting one, the archive and the way back, a sentence under the
+// rows (in their place when there are none), the footer. The rows reach sf-list from the
+// component after a draw (index.js afterRender), as a page.
 
 const command = (icon, label, action, onClick, hidden = false) => html`
     <button type="button" class="sf-thread-list__command" data-action=${action} ?hidden=${hidden} @click=${onClick}>
@@ -135,27 +30,25 @@ export function renderThreadListTemplate(context) {
                 ${command("arrow_back", context.backText, "back", () => component.showArchive(false), !context.archived)}
                 ${context.archived ? html`<h2 class="sf-thread-list__heading-view">${context.archiveView}</h2>` : nothing}
             </div>
-            <div class="sf-thread-list__scroller" aria-busy=${context.loading ? "true" : "false"}>
-                ${context.loading
-                    ? html`<div class="sf-thread-list__skeleton" aria-hidden="true"><span></span><span></span><span></span></div>
-                           <p class="sr-only" role="status">${context.loadingText}</p>`
-                    : nothing}
-                <div class="sf-thread-list__groups" @keydown=${(event) => component.onKey(event)}>
-                    ${repeat(context.groups, (group) => group.key, (group) => context.grouped
-                        ? html`
-                            <section class="sf-thread-list__group" data-group=${group.key}>
-                                <h2 class="sf-thread-list__heading">${group.heading}</h2>
-                                <ul class="sf-thread-list__list" aria-label=${group.heading}>
-                                    ${repeat(group.threads, (thread) => thread.id, (thread) => row(context, thread))}
-                                </ul>
-                            </section>`
-                        : html`
-                            <ul class="sf-thread-list__list" aria-label=${context.label}>
-                                ${repeat(group.threads, (thread) => thread.id, (thread) => row(context, thread))}
-                            </ul>`)}
-                </div>
-                <p class="sf-thread-list__status" ?hidden=${!context.status || context.loading}>${context.status}</p>
-                <div class="sf-thread-list__sentinel" aria-hidden="true"></div>
+            <div class="sf-thread-list__scroller">
+                <sf-list
+                        class="sf-thread-list__rows"
+                        ?hidden=${Boolean(context.status) && context.empty}
+                        label=${context.label}
+                        group-by=${context.grouped ? "day" : "none"}
+                        heading-level="2"
+                        empty-text=${context.emptyText}
+                        selected=${context.selected}
+                        ?renamable=${context.manage}
+                        ?has-more=${context.hasMore}
+                        ?loading=${context.loading}
+                        .actions=${context.rowActions}
+                        @sf-list-open=${(event) => component.onListOpen(event)}
+                        @sf-list-rename=${(event) => component.onListRename(event)}
+                        @sf-list-apply=${(event) => component.onListApply(event)}
+                        @sf-list-load-more=${(event) => component.onListMore(event)}
+                ></sf-list>
+                <p class="sf-thread-list__status" role="status" ?hidden=${!context.status || context.loading}>${context.status}</p>
             </div>
             <div class="sf-thread-list__footer" ?hidden=${!(context.canArchive && !context.archived) && !context.hasFooter}>
                 ${context.canArchive && !context.archived
@@ -163,14 +56,6 @@ export function renderThreadListTemplate(context) {
                     : nothing}
                 ${context.hasFooter ? html`<div class="sf-thread-list__extra">${context.footer}</div>` : nothing}
             </div>
-            <sf-menu-context
-                    class="sf-thread-list__menu"
-                    popup
-                    @sf-menu-context-select=${(event) => {
-                        event.stopPropagation();
-                        component.onMenu(event.detail);
-                    }}
-            ></sf-menu-context>
         </nav>
     `;
 }

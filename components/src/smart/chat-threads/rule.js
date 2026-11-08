@@ -1,10 +1,8 @@
 // Generated from component.json by scripts/generate-component-files.mjs; do not edit.
-// The list draws its glyphs as sf-icon, an unread count as sf-badge and a
-// conversation's picture as sf-avatar; a tag it renders is a tag it fetches. A
-// row's actions open in sf-menu-context on a press, so the menu is fetched after
-// the page is ready, and the list waits for the element before opening it. The
-// loading sentence is visually hidden with the sr-only utility, which a class
-// scan can miss on a node drawn later, so it comes with the component.
+// The head's and foot's commands draw their glyphs as sf-icon; the rows are the
+// Framework's sf-list (since 2.0.0), which brings its own parts: sf-list-item, the
+// avatar, the badges, the empty state and the row menu. A tag it renders is a tag
+// it fetches.
 SF.RuleLoader['cl-chat-threads'] = {
   tags: ['sf-chat-threads', 'sf-thread-list'],
   type: 'smart',
@@ -13,9 +11,6 @@ SF.RuleLoader['cl-chat-threads'] = {
   css: true,
   relation: [
     { name: 'cl-icon' },
-    { name: 'cl-badge' },
-    { name: 'cl-avatar' },
-    { name: 'cl-menu-context', lazy: true },
-    { name: 'sr-only/default' },
+    { name: 'cl-list' },
   ],
 };

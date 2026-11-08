@@ -6,29 +6,23 @@
 //
 // What a conversation is stays with the host. A thread is data: an id, a title,
 // when it last changed, and optionally a caption (who it is with, the last
-// message), an unread count and an avatar. The list draws exactly that and
-// interprets none of it; which assistant a conversation is with, or whether
-// a caption is a preview of the last message, is the host's sentence.
+// message), an unread count, where the work in it is, and an avatar. The list
+// draws exactly that and interprets none of it.
 //
-// It owns the arrangement and nothing else:
-//   - grouping by the day of the last change in the person's own time zone
-//     («Today», «Yesterday», «Earlier»), or no grouping (group-by="none");
-//   - which row is open (`selected`), told by more than a tint;
-//   - one Tab stop for the whole list, arrows between rows;
-//   - renaming in place, and the row's actions in the Framework's menu;
-//   - asking for the next page when its end comes into view.
-// It never fetches anything: every request leaves as an event.
-//
-// Keyboard: arrows, Home and End move between conversations, Enter opens, F2
-// renames, Shift+F10 or the menu key opens the row's actions.
+// 2.0.0 (owner, 2026-11-06, q-3b313e2246): the rows are the Framework's
+// sf-list 1.1. A thread becomes its item -- title the text, caption the
+// supporting line, updated-at the date, unread the count, activity a badge,
+// avatar and pinned as they are -- and the list's events become this list's.
+// The groups by day, the pinned ones first, one Tab stop and the arrows,
+// renaming in place, the row's menu and the next page are sf-list's. What stays
+// here is what is around the rows: starting a conversation, the archive and
+// the way back, a sentence in place of the rows, the footer.
 //
 // With `archived` it shows the archive instead: a way back, no «New
 // conversation», «Restore» instead of «Archive». Which list it holds is the
 // host's call. `no-create` takes «New conversation» away, `no-manage` a row's
 // actions and `no-archive` the archive: what a host does not offer is not shown.
-// `create-commands` (1.5.0) stand in for the one «New conversation»: several
-// ways to start (a dialogue, a group), each its own row-like command, and a press
-// says which: create {kind: id}. Without them nothing changes.
+// `create-commands` (1.5.0) stand in for the one «New conversation».
 //
 // From its component.json (standard simai.smart-component 1.3.8 §3, §4, §8,
 // §11, §18): the settings are attributes and properties made by
@@ -39,21 +33,21 @@
 import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {noteDeprecated} from "../../core/js/deprecations";
-import {calendarDayOffset, msUntilNextDay} from "../../core/js/format.js";
 import {renderThreadListTemplate} from "./js/templates/default.js";
 import manifest from "./component.json";
 import aliases from "./aliases.json";
 import en from "./lang/en.json";
 import ru from "./lang/ru.json";
 
-// A pinned conversation leads, under its own heading, before the days
-// (Mirai24 API v1.1: `pinned` on an entry; owner, 2026-10-28).
-const GROUPS = ["pinned", "today", "yesterday", "earlier"];
 // A title longer than this is not a title; the field stops there, as the
 // server that stores it most likely does.
 const TITLE_LIMIT = 120;
-// The next page is asked for this far before the end of the list is in view.
-const MORE_MARGIN = "200px";
+
+// Where the work in a conversation is, as a badge of the row: its word and
+// the tone of the Framework's status set (sf-badge's own activity marks).
+const ACTIVITY_TONES = {running: "neutral", waiting: "warning", done: "success", stopped: "neutral", failed: "error"};
+// The host's own row actions, apart from the list's own archive and restore.
+const OWN = "host:";
 
 const applied = () => ({outcome: "applied"});
 const refused = (reason) => ({outcome: "refused", reason});
@@ -109,6 +103,7 @@ const byUpdated = (a, b) => {
     return (Number.isFinite(right) ? right : -Infinity) - (Number.isFinite(left) ? left : -Infinity);
 };
 
+
 class SfThreadList extends ThreadListElement {
     static get props() {
         return {...super.props, templateName: {attribute: "template", default: "default"}};
@@ -119,13 +114,10 @@ class SfThreadList extends ThreadListElement {
         this._threads = [];
         this._actions = [];
         this._createCommands = [];
-        this._loadingMore = false;
-        this._editing = null;
-        this._tabStop = null;
-        this._restoreFocus = false;
-        this._menuFor = null;
-        this._observer = null;
-        this._observed = null;
+        // The rows given to sf-list: written to it after a draw, as a page
+        // (setItems ends its page request), once per change.
+        this._version = 0;
+        this._given = -1;
         // A value set as a property before the element was defined is an own
         // property that would hide the accessor; it is taken through it.
         for (const name of ["threads", "actions", "createCommands"]) {
@@ -163,12 +155,13 @@ class SfThreadList extends ThreadListElement {
         this._threads = (Array.isArray(value) ? value : [])
             .filter((thread) => thread && thread.id != null && Boolean(thread.archived) === archived)
             .map(normalThread);
+        this._version += 1;
         this.requestComponentUpdate("threads");
     }
 
     /**
      * Row actions of the host's own, after «Rename» and «Archive»: [{id, text,
-     * icon?}]. Chosen, one leaves as sf-thread-list-apply {action, scope: entry, ids}.
+     * icon?}]. Chosen, one leaves as sf-chat-threads-apply {action, scope: entry, ids}.
      */
     get actions() {
         return this._actions.map((action) => ({...action}));
@@ -176,13 +169,18 @@ class SfThreadList extends ThreadListElement {
 
     set actions(value) {
         this._actions = Array.isArray(value)
-            ? value.filter((action) => action && action.id && action.text).map((action) => ({...action}))
+            ? value.filter((action) => action && action.id && action.text).map((action) => ({...action, id: String(action.id)}))
             : [];
+        // The menu is built when it opens: a host that sets its actions just
+        // before (sf-chat-window's «Pin» or «Unpin» for that row) is heard.
+        const list = this.list;
+        if (list) list.actions = this.rowActions();
+        this.requestComponentUpdate("actions");
     }
 
     /**
      * The commands in the head in place of «New conversation»: [{id, text,
-     * icon?}]. Pressed, one leaves as sf-thread-list-create {kind: id}.
+     * icon?}]. Pressed, one leaves as sf-chat-threads-create {kind: id}.
      */
     get createCommands() {
         return this._createCommands.map((command) => ({...command}));
@@ -195,13 +193,17 @@ class SfThreadList extends ThreadListElement {
         this.requestComponentUpdate("create-commands");
     }
 
+    /** The rows: the Framework's sf-list inside the navigation. */
+    get list() {
+        return this.querySelector(":scope > .sf-thread-list > .sf-thread-list__scroller > .sf-thread-list__rows");
+    }
+
     // ── actions (§4.4) ───────────────────────────────────────────────────────
 
     /** The whole list and whether more follows, together; ends a page request. */
     setThreads(first = [], second = {}) {
         const {threads, hasMore} = pageArguments(first, second);
         this.threads = threads;
-        this._loadingMore = false;
         if (this.loading) this.loading = false;
         this.hasMore = hasMore;
         return applied();
@@ -245,59 +247,60 @@ class SfThreadList extends ThreadListElement {
 
     /** The next page could not be loaded: reaching the end asks again. */
     moreFailed() {
-        this._loadingMore = false;
+        this.list?.moreFailed?.();
         return applied();
+    }
+
+    /** Rename in place, as F2 does. */
+    rename(params) {
+        const id = String(params?.id ?? params ?? "");
+        if (this.getProp("noManage")) return refused("no-manage");
+        if (!this._threads.some((thread) => thread.id === id)) return refused("unknown");
+        return this.list?.rename?.(id) ?? refused("unknown");
+    }
+
+    /** Open the row's actions, as the «⋯» button and Shift+F10 do. */
+    openMenu(params, anchor = null) {
+        const id = String(params?.id ?? params ?? "");
+        if (this.getProp("noManage")) return refused("no-manage");
+        if (!this._threads.some((thread) => thread.id === id)) return refused("unknown");
+        return this.list?.openMenu?.(id, anchor) ?? refused("unknown");
     }
 
     // ── what is drawn ────────────────────────────────────────────────────────
 
-    // Calendar days in the reader's time zone (core's calendarDayOffset); an
-    // unreadable date is NaN and falls through to "earlier".
-    groupOf(thread, today) {
-        if (thread.pinned === true) return "pinned";
-        const offset = calendarDayOffset(thread["updated-at"], {now: today});
-        return offset === 0 ? "today" : offset === -1 ? "yesterday" : "earlier";
+    // The row's menu after the list's own «Rename»: Archive or Restore, then
+    // the host's own.
+    rowActions() {
+        if (this.getProp("noManage")) return [];
+        return [
+            ...(this.getProp("noArchive") ? [] : [this.archived
+                ? {id: "restore", text: this.sfWord("unarchive-text"), icon: "unarchive"}
+                : {id: "archive", text: this.sfWord("archive-text"), icon: "archive"}]),
+            ...this._actions.map((action) => ({id: `${OWN}${action.id}`, text: action.text, ...(action.icon ? {icon: action.icon} : {})})),
+        ];
     }
 
-    // «Сегодня» said yesterday is wrong by morning: at the reader's midnight
-    // the groups are drawn again (as sf-chat-window's day dividers are).
-    watchDay() {
-        clearTimeout(this._dayTimer);
-        this._dayTimer = 0;
-        if (!this.isConnected) return;
-        this._dayTimer = setTimeout(() => {
-            this.watchDay();
-            this.requestComponentUpdate("day");
-        }, msUntilNextDay() + 1000);
-    }
-
-    groups() {
-        // Without groups the pinned ones still lead, in their own order.
-        if (this.getProp("groupBy") === "none") {
-            const pinned = this._threads.filter((thread) => thread.pinned === true);
-            return [{key: "all", heading: "", threads: [...pinned, ...this._threads.filter((thread) => thread.pinned !== true)]}];
-        }
-        const today = new Date();
-        const byGroup = new Map(GROUPS.map((key) => [key, []]));
-        for (const thread of this._threads) byGroup.get(this.groupOf(thread, today)).push(thread);
-        return GROUPS.filter((key) => byGroup.get(key).length)
-            .map((key) => ({key, heading: this.sfWord(key), threads: byGroup.get(key)}));
-    }
-
-    // Exactly one conversation is in the Tab order: the one last moved to, else
-    // the open one, else the first.
-    tabStop() {
-        const ids = this._threads.map((thread) => thread.id);
-        if (this._tabStop && ids.includes(this._tabStop)) return this._tabStop;
-        if (this.selected && ids.includes(this.selected)) return this.selected;
-        return ids[0] ?? null;
+    // A thread as sf-list's item. Only the activity words the badge knows
+    // draw a mark: an unknown one draws none rather than a badge with no state.
+    itemOf(thread) {
+        const unread = Number(thread.unread) > 0 ? Math.floor(Number(thread.unread)) : 0;
+        const tone = ACTIVITY_TONES[thread.activity];
+        const avatar = thread.avatar && typeof thread.avatar === "object" ? thread.avatar : null;
+        return {
+            id: thread.id,
+            text: String(thread.title ?? ""),
+            ...(thread.caption ? {supporting: String(thread.caption)} : {}),
+            ...(thread["updated-at"] ? {date: thread["updated-at"]} : {}),
+            ...(thread.pinned === true ? {pinned: true} : {}),
+            ...(avatar ? {avatar} : {}),
+            ...(unread ? {count: unread} : {}),
+            ...(tone ? {badge: {text: this.sfWord(`activity-${thread.activity}`), tone}} : {}),
+        };
     }
 
     templateContext() {
         const archived = this.archived;
-        const manage = !this.getProp("noManage");
-        const loading = this.loading;
-        const empty = !loading && this._threads.length === 0;
         return {
             component: this,
             // The setting's own words win; without them the word follows what
@@ -307,26 +310,20 @@ class SfThreadList extends ThreadListElement {
             canCreate: !archived && !this.getProp("noCreate"),
             createCommands: this._createCommands,
             canArchive: !this.getProp("noArchive"),
-            manage,
-            loading,
-            loadingText: this.sfWord("loading-text"),
-            groups: this.groups(),
+            manage: !this.getProp("noManage"),
+            loading: this.loading,
+            hasMore: this.hasMore,
             grouped: this.getProp("groupBy") !== "none",
-            selected: this.selected,
-            tabStop: this.tabStop(),
-            editing: this._editing,
-            status: this.status || (empty ? this.sfWord(archived ? "archive-empty-text" : "empty-text") : ""),
+            selected: this.selected ?? "",
+            rowActions: this.rowActions(),
+            status: this.status,
+            empty: this._threads.length === 0,
+            emptyText: this.sfWord(archived ? "archive-empty-text" : "empty-text"),
             createText: this.sfWord("create-text"),
             backText: this.sfWord("back-text"),
             archiveView: this.sfWord("archive-view"),
-            renameLabel: this.sfWord("rename-label"),
-            untitledText: this.sfWord("untitled-text"),
-            pinnedText: this.sfWord("pinned-text"),
-            actionsLabel: (title) => this.text("actions-label", {title}),
-            unreadLabel: (count) => this.text("unread-label", {count}),
             hasFooter: this.hasSlotContent("footer"),
             footer: this.hasSlotContent("footer") ? this.getSlotContent("footer") : null,
-            titleLimit: TITLE_LIMIT,
         };
     }
 
@@ -334,77 +331,17 @@ class SfThreadList extends ThreadListElement {
         return renderThreadListTemplate(this.templateContext());
     }
 
+    // The rows go to sf-list as a page once they change: setItems ends the
+    // list's own page request, as setThreads ends this one. Before sf-list is
+    // defined they are its property, taken when it upgrades.
     afterRender(changed) {
         super.afterRender?.(changed);
-        this.observeEnd();
-        if (this._editing) {
-            const input = this.querySelector(".sf-thread-list__rename");
-            if (input && !input.dataset.focused) {
-                input.dataset.focused = "true";
-                input.focus();
-                input.select();
-            }
-            return;
-        }
-        if (this._restoreFocus) {
-            this._restoreFocus = false;
-            this.linkFor(this.tabStop())?.focus();
-        }
-    }
-
-    // has-more turning on while the end is already in view is a request for
-    // the next page: the end is watched again, and a watch that starts on a
-    // visible end reports it at once.
-    attributeChangedCallback(name, previous, next) {
-        super.attributeChangedCallback?.(name, previous, next);
-        if (name === "has-more" && next !== null && previous === null) {
-            this._observer?.disconnect();
-            this._observed = null;
-            this.requestComponentUpdate("has-more");
-        }
-    }
-
-    onConnected() {
-        super.onConnected?.();
-        this.watchDay();
-    }
-
-    onDisconnected() {
-        this._observer?.disconnect();
-        this._observer = null;
-        this._observed = null;
-        clearTimeout(this._dayTimer);
-        this._dayTimer = 0;
-        super.onDisconnected?.();
-    }
-
-    // The end of the list asks for the next page when it comes within reach of
-    // the scroller, never from a scroll handler that fires sixty times a second.
-    observeEnd() {
-        const scroller = this.querySelector(".sf-thread-list__scroller");
-        const sentinel = this.querySelector(".sf-thread-list__sentinel");
-        if (!scroller || !sentinel || this._observed === sentinel || typeof IntersectionObserver !== "function") return;
-        this._observer?.disconnect();
-        this._observer = new IntersectionObserver((entries) => {
-            if (entries.some((entry) => entry.isIntersecting)) this.requestMore();
-        }, {root: scroller, rootMargin: MORE_MARGIN});
-        this._observer.observe(sentinel);
-        this._observed = sentinel;
-    }
-
-    requestMore() {
-        if (this._loadingMore || this.loading || !this.hasMore) return;
-        this._loadingMore = true;
-        this.sfEmit("load-more", {direction: "after"});
-    }
-
-    links() {
-        return [...this.querySelectorAll(".sf-thread-list__link")];
-    }
-
-    linkFor(id) {
-        if (!id) return null;
-        return this.links().find((link) => link.dataset.id === id) ?? null;
+        const list = this.list;
+        if (!list || this._given === this._version) return;
+        this._given = this._version;
+        const items = this._threads.map((thread) => this.itemOf(thread));
+        if (typeof list.setItems === "function") list.setItems(items, {hasMore: this.hasMore});
+        else list.items = items;
     }
 
     // ── what a person does ───────────────────────────────────────────────────
@@ -416,108 +353,48 @@ class SfThreadList extends ThreadListElement {
     // A press asks for the conversation (selected is controlled, §4.3): the
     // host opens it and writes selected back.
     open(id) {
-        this._tabStop = id;
-        this.sfEmit("open", {id});
+        this.sfEmit("open", {id: String(id)});
     }
 
     showArchive(archived) {
         this.sfEmit("toggle", {archived: Boolean(archived)});
     }
 
-    onKey(event) {
-        const link = event.target.closest?.(".sf-thread-list__link");
-        if (!link) return;
-        const links = this.links();
-        const at = links.indexOf(link);
-        let next = null;
-        if (event.key === "ArrowDown") next = links[Math.min(at + 1, links.length - 1)];
-        if (event.key === "ArrowUp") next = links[Math.max(at - 1, 0)];
-        if (event.key === "Home") next = links[0];
-        if (event.key === "End") next = links.at(-1);
-        if (next) {
-            event.preventDefault();
-            this.moveTabStop(next);
-            return;
-        }
-        if (this.getProp("noManage")) return;
-        if (event.key === "F2") {
-            event.preventDefault();
-            this.rename(link.dataset.id);
-            return;
-        }
-        if ((event.key === "F10" && event.shiftKey) || event.key === "ContextMenu") {
-            event.preventDefault();
-            this.openMenu(link.dataset.id, link.closest(".sf-thread-list__item")?.querySelector(".sf-thread-list__more") ?? link);
-        }
+    // sf-list's events are this list's own: they stop at it and leave as
+    // sf-chat-threads-*, the names a host listens to.
+    onListOpen(event) {
+        event.stopPropagation();
+        this.open(event.detail?.id);
     }
 
-    moveTabStop(link) {
-        this._tabStop = link.dataset.id;
-        for (const one of this.links()) one.tabIndex = one === link ? 0 : -1;
-        link.focus();
-    }
-
-    /** Open the row's actions, as the «⋯» button and Shift+F10 do. */
-    openMenu(params, anchorGiven = null) {
-        const id = String(params?.id ?? params ?? "");
+    // Shown at once; the host that cannot keep it says so by upserting the
+    // conversation with its old title. A title stops at TITLE_LIMIT.
+    onListRename(event) {
+        event.stopPropagation();
+        const id = String(event.detail?.id ?? "");
         const thread = this._threads.find((one) => one.id === id);
-        const menu = this.querySelector(".sf-thread-list__menu");
-        if (this.getProp("noManage")) return refused("no-manage");
-        if (!thread || !menu) return refused("unknown");
-        const item = [...this.querySelectorAll(".sf-thread-list__item")].find((one) => one.dataset.id === id);
-        const anchor = anchorGiven instanceof Element ? anchorGiven : item?.querySelector(".sf-thread-list__more") ?? item ?? this;
-        this._menuFor = id;
-        menu.setAttribute("aria-label", this.text("actions-label", {title: thread.title || this.sfWord("untitled-text")}));
-        menu.entries = [
-            {id: "rename", text: this.sfWord("rename-text"), icon: "edit", shortcut: "F2"},
-            ...(this.getProp("noArchive") ? [] : [this.archived
-                ? {id: "unarchive", text: this.sfWord("unarchive-text"), icon: "unarchive"}
-                : {id: "archive", text: this.sfWord("archive-text"), icon: "archive"}]),
-            ...this._actions.map((action) => ({id: `action:${action.id}`, text: action.text, ...(action.icon ? {icon: action.icon} : {})})),
-        ];
-        // The Loader brings sf-menu-context when the page is ready (the rule
-        // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-menu-context").then(() => menu.toggleFor(anchor));
-        return applied();
+        const title = String(event.detail?.text ?? "").trim().slice(0, TITLE_LIMIT);
+        if (!thread || !title) return;
+        if (title !== event.detail.text) this.list?.upsert?.({...this.itemOf(thread), text: title});
+        thread.title = title;
+        this.sfEmit("rename", {id, title});
     }
 
-    onMenu(detail = {}) {
-        const id = this._menuFor;
-        const choice = String(detail.id ?? detail.entry?.id ?? "");
-        if (!id || !choice) return;
-        if (choice === "rename") setTimeout(() => this.rename(id), 0);
-        // Vocabulary §5: archive and restore take ids; a row's own action is
-        // apply {action, scope: entry, ids} (§18.3). id stays for the 1.0 names.
-        else if (choice === "archive") this.sfEmit("archive", {ids: [id], id});
-        else if (choice === "unarchive") this.sfEmit("restore", {ids: [id], id});
-        else if (choice.startsWith("action:")) this.sfEmit("apply", {action: choice.slice("action:".length), scope: "entry", ids: [id], id});
+    // Vocabulary §5: archive and restore take ids; a row's own action is
+    // apply {action, scope: entry, ids} (§18.3). id stays for the 1.0 names.
+    onListApply(event) {
+        event.stopPropagation();
+        const id = String(event.detail?.ids?.[0] ?? "");
+        const action = String(event.detail?.action ?? "");
+        if (!id || !action) return;
+        if (action === "archive") this.sfEmit("archive", {ids: [id], id});
+        else if (action === "restore") this.sfEmit("restore", {ids: [id], id});
+        else if (action.startsWith(OWN)) this.sfEmit("apply", {action: action.slice(OWN.length), scope: "entry", ids: [id], id});
     }
 
-    /** Rename in place: Enter keeps, Escape gives up, leaving the field keeps. */
-    rename(params) {
-        const id = String(params?.id ?? params ?? "");
-        if (this.getProp("noManage")) return refused("no-manage");
-        if (!this._threads.some((thread) => thread.id === id)) return refused("unknown");
-        this._editing = id;
-        this.requestComponentUpdate("rename");
-        return applied();
-    }
-
-    finishRename(keep, input) {
-        const id = this._editing;
-        if (!id) return;
-        this._editing = null;
-        const thread = this._threads.find((one) => one.id === id);
-        const title = String(input?.value ?? "").trim().slice(0, TITLE_LIMIT);
-        this._tabStop = id;
-        this._restoreFocus = true;
-        if (keep && thread && title && title !== thread.title) {
-            // Shown at once; the host that cannot keep it says so by upserting
-            // the conversation with its old title.
-            thread.title = title;
-            this.sfEmit("rename", {id, title});
-        }
-        this.requestComponentUpdate("rename");
+    onListMore(event) {
+        event.stopPropagation();
+        this.sfEmit("load-more", {direction: "after"});
     }
 }
 

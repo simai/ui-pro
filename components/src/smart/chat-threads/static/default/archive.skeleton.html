@@ -13,37 +13,42 @@
 
 <h2 class="sf-thread-list__heading-view"><span class="sf-first-paint-bar" aria-hidden="true">Архив</span></h2>
 </div>
-<div class="sf-thread-list__scroller" aria-busy="false">
+<div class="sf-thread-list__scroller">
+<sf-list class="sf-thread-list__rows" heading-level="2" label="Архив" group-by="day" empty-text="В архиве пусто" selected renamable style="display: contents;">
+<div class="sf-list sf-list__frame sf-list--size-1 " role="group" aria-label="Архив" aria-busy="false" data-sf-static aria-hidden="true">
 
-<div class="sf-thread-list__groups">
+<div class="sf-list__body" data-sf-list>
 
-<section class="sf-thread-list__group" data-group="earlier">
-<h2 class="sf-thread-list__heading"><span class="sf-first-paint-bar" aria-hidden="true">Раньше</span></h2>
-<ul class="sf-thread-list__list" aria-label="Раньше">
+<section class="sf-list__group" data-group="day:-56">
+<div class="sf-list__heading" role="heading" aria-level="2" id="sf-chat-threads-archive-1"><span class="sf-first-paint-bar" aria-hidden="true">1 сентября</span></div>
 
-<li class="sf-thread-list__item  " data-id="t9">
-<button type="button" class="sf-thread-list__link" data-id="t9" tabindex="0" aria-keyshortcuts="Shift+F10 F2" title="Старый проект">
+<ul class="sf-list__rows" aria-labelledby="sf-chat-threads-archive-1">
 
-<span class="sf-thread-list__text">
-<span class="sf-thread-list__title"><span class="sf-first-paint-bar" aria-hidden="true">Старый проект</span></span>
+<li class="sf-list__row " data-id="t9">
+<sf-list-item interactive kind="text" size="1" value="t9" text="Старый проект" style="display: contents;">
+<div class="sf-list-item flex items-cross-center sf-list-item--text sf-list-item--size-1 sf-list-item--interactive" data-sf-list-roving tabindex="0" data-sf-static aria-hidden="true">
 
-
-</span>
-
-
-</button>
-<button type="button" class="sf-thread-list__more" tabindex="-1" aria-haspopup="menu" aria-label="Действия с «Старый проект»" title="Действия с «Старый проект»"><sf-icon icon="more_horiz" size="1" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
+<div class="sf-list-item-wrap flex flex-1">
+ <div class="sf-list-item-container"><span class="sf-first-paint-bar" aria-hidden="true">Старый проект</span></div> <span slot="trailing" class="sf-list__meta"></span>
+</div>
+</div>
+</sf-list-item>
+<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Старый проект" title="Действия: Старый проект"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
 </li>
 
 </ul>
+
 </section>
 </div>
-<p class="sf-thread-list__status" hidden></p>
-<div class="sf-thread-list__sentinel" aria-hidden="true"></div>
-</div>
-<div class="sf-thread-list__footer" hidden></div>
-<sf-menu-context class="sf-thread-list__menu" popup style="display: contents;">
+
+<div class="sf-list__next" hidden></div>
+<sf-menu-context class="sf-list__menu" popup style="display: contents;">
 <div class="sf-context-menu flex" role="menu" data-sf-static aria-hidden="true"></div>
 </sf-menu-context>
+</div>
+</sf-list>
+<p class="sf-thread-list__status" role="status" hidden></p>
+</div>
+<div class="sf-thread-list__footer" hidden></div>
 </nav>
 </sf-chat-threads>

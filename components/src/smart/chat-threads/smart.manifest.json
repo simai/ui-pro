@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-threads",
-  "version": "1.7.2",
+  "version": "2.0.0",
   "title": "Thread list",
   "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "kind": "composite",
@@ -26,10 +26,8 @@
   "exported_parts": [],
   "composition": {
     "uses": [
-      "smart.avatar",
-      "smart.badge",
       "smart.icon",
-      "smart.menu-context"
+      "smart.list"
     ],
     "public_parts": []
   },
@@ -80,7 +78,7 @@
       "group-by": {
         "type": "string",
         "default": "day",
-        "description": "day: Today, Yesterday, Earlier by updated_at in the reader's time zone. none: one list.",
+        "description": "day: Today, Yesterday, the weekday, the date by updated-at in the reader's time zone (sf-list). none: one list.",
         "enum": [
           "day",
           "none"
@@ -180,7 +178,7 @@
             "stopped",
             "failed"
           ],
-          "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+          "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
         },
         "unread": {
           "type": "integer",
@@ -308,7 +306,7 @@
                     "stopped",
                     "failed"
                   ],
-                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
                 },
                 "unread": {
                   "type": "integer",
@@ -388,7 +386,7 @@
                     "stopped",
                     "failed"
                   ],
-                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
                 },
                 "unread": {
                   "type": "integer",
@@ -466,7 +464,7 @@
                   "stopped",
                   "failed"
                 ],
-                "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
               },
               "unread": {
                 "type": "integer",
@@ -1007,36 +1005,53 @@
         "changes": [
           "The tag is sf-chat-threads (rename plan R2, naming decision 2026-11-02: sf-[set]-<block>); the folder chat-threads, the id smart.chat-threads and the bundle cl-chat-threads follow it (were thread-list, smart.thread-list, cl-thread-list). sf-thread-list stays a dated alias until 2027-01-01: old markup upgrades as this element, the Loader forwards cl-thread-list, and every event fires under its former name as well, with the same detail. Public CSS variables and classes keep their names. Needs the SIMAI Framework pair whose package reference lists the former tag (core.runtime 1.22.0). Nothing to change for a host until 2027-01-01; new markup writes sf-chat-threads."
         ]
+      },
+      {
+        "from": "1.7.0",
+        "to": "1.7.1",
+        "changes": [
+          "A look: a row's unread count keeps the tight side room of sf-badge 1.3.0 (tight). Nothing for a host to change."
+        ]
+      },
+      {
+        "from": "1.7.1",
+        "to": "2.0.0",
+        "changes": [
+          "The rows are the Framework's sf-list 1.1.0 (owner, 2026-11-06, q-3b313e2246): a thread becomes its item -- title the text, caption the supporting line, updated-at the date, unread the count, activity a tonal badge with its word, avatar and pinned as they are. Settings, actions, events and their details do not change; a host's code keeps working.",
+          "What a host sees: the day groups are sf-list's (formatRelativeDay: «Сегодня», «Вчера», the weekday, the date) instead of «Today», «Yesterday», «Earlier»; a pinned row has no «Закреплён» line of its own (the «Закреплённые» heading stays, and without groups the pinned ones lead with no heading); a running conversation's badge has no spinner; «Show more» stands under a list with a next page; the words of a row (Rename, New name, the actions' label, Untitled, Loading) are sf-list's, and the words today, yesterday, earlier, pinned, pinned-text, unread-label, rename-label, rename-text, actions-label, untitled-text and loading-text left this component's lang/.",
+          "The rows' markup is sf-list's: .sf-list__row[data-id] with sf-list-item, «⋯» .sf-list__actions; the classes .sf-thread-list__item, __link, __title, __caption, __pinned, __avatar, __unread, __activity, __more, __group, __heading, __list, __skeleton and __sentinel are gone. A page that styled or queried them moves to sf-list's (sf-chat-window 1.14.0 has). The head, foot, commands and status keep their .sf-thread-list__* classes and the public CSS variables keep their names: radius, hover and current reach the rows as sf-list's variables.",
+          "Needs the SIMAI Framework pair with sf-list 1.1.1 (ui-2a671352d67b or later): its count and badge keep the tight room of sf-badge 1.3.0."
+        ]
       }
     ]
   },
   "provenance": {
     "source_repository": "simai/ui-pro",
-    "source_revision": "a5ac53753d95b49e2e70078c94fd89ccd3045993",
+    "source_revision": "a06ad1d291c2084c83242b29d28caee454504bd3",
     "source_artifacts": [
       {
         "path": "src/smart/chat-threads/index.js",
-        "sha256": "f8edb5ced46c93e1bfce6145ddf096094e88d66ce8e9c0931a1806e1ab3e236e"
+        "sha256": "801a3842784bbda26313976de8b7cab25ad46e66661fc74d39f36081becaf58e"
       },
       {
         "path": "src/smart/chat-threads/js/templates/default.js",
-        "sha256": "cf6df53de299f5d7acf5b8044cebec7744776cd7360a4e2db60453299d1dfd3e"
+        "sha256": "5b518ae54b9648509ae41ae61559246524962e9451983fda2da03882a6d4c562"
       },
       {
         "path": "src/smart/chat-threads/js/templates/default.css",
-        "sha256": "a7d9354e00e100b5a803a5416a16c09b7723efe22a85c1ef1463deefb1050b19"
+        "sha256": "0b7e3259adaeef66d56f62e1267f67bf2545b10ad66f4706ce20b6f7d72754e3"
       },
       {
         "path": "src/smart/chat-threads/rule.js",
-        "sha256": "3c959a5c3aa77aac045704c38184728f8a9faa98356089b39d0b274e6e60e224"
+        "sha256": "4a94037d513848a4751ad843fc29499679a34e4cc6737fd765813c9855cf6d5e"
       },
       {
         "path": "src/smart/chat-threads/docs.md",
-        "sha256": "df8fe709f0612f6b2301da60b28d6ecb0af5cb7903395bbfd8fbb612fdb92f9a"
+        "sha256": "55d6ba1ab553f8b50017bd30eb815cb677121ce19b4460f915e673c5837f9b74"
       },
       {
         "path": "src/smart/chat-threads/component.json",
-        "sha256": "9d2b812c23bdb8c4116f46428dc76e9b75ee2a6833cd04dfc97b3215f56db994"
+        "sha256": "3187860e85cbb91feef5dea8354ddba08329605f9f266250524d13b2b5c6dcbb"
       },
       {
         "path": "src/smart/chat-threads/aliases.json",
@@ -1044,11 +1059,11 @@
       },
       {
         "path": "src/smart/chat-threads/lang/en.json",
-        "sha256": "07339f6caa4b138b1a41526d8ea42d88383f6c4f412ec63f7e59287954560c3e"
+        "sha256": "713b87a249b0bf2b7f456635c9a71d11518a5dc48eec629c01164367f603dfc8"
       },
       {
         "path": "src/smart/chat-threads/lang/ru.json",
-        "sha256": "b508e0a84de3ad1a479cc494488399c07785a0bf9c96a0146feca259a1d5cd3d"
+        "sha256": "6fdf9c4706c48776e706c4e8389a0bcc5ead979d35f6f5f8c09ca730a0df9ba9"
       }
     ],
     "generated_runtime": []

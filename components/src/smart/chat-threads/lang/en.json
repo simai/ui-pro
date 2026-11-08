@@ -1,24 +1,18 @@
 {
   "title": "Thread list",
   "runtime": {
-    "actions-label": "Actions for “{title}”",
+    "activity-done": "Ready",
+    "activity-failed": "Failed",
+    "activity-running": "Running",
+    "activity-stopped": "Stopped",
+    "activity-waiting": "Needs your input",
     "archive-empty-text": "The archive is empty",
     "archive-text": "Archive",
     "archive-view": "Archive",
     "back-text": "Back to conversations",
     "create-text": "New conversation",
-    "earlier": "Earlier",
     "empty-text": "No conversations yet",
     "label": "Conversations",
-    "loading-text": "Loading conversations",
-    "pinned": "Pinned",
-    "pinned-text": "Pinned",
-    "rename-label": "New name",
-    "rename-text": "Rename",
-    "today": "Today",
-    "unarchive-text": "Restore from archive",
-    "unread-label": "{count} unread",
-    "untitled-text": "Untitled",
-    "yesterday": "Yesterday"
+    "unarchive-text": "Restore from archive"
   }
 }

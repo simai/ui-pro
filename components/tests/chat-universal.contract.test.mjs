@@ -87,7 +87,7 @@ test('the versions, the events and the words are declared', () => {
   const message = json('chat-message', 'component.json');
   const list = json('chat-threads', 'component.json');
   const composer = json('chat-composer', 'component.json');
-  assert.deepEqual([window.version, message.version, list.version, composer.version], ['1.13.0', '1.7.3', '1.7.2', '1.2.1']);
+  assert.deepEqual([window.version, message.version, list.version, composer.version], ['1.14.0', '1.7.3', '2.0.0', '1.2.1']);
   for (const [manifest, from, to] of [[window, '1.5.1', '1.6.0'], [message, '1.3.0', '1.4.0'], [list, '1.5.1', '1.6.0'], [composer, '1.1.0', '1.2.0']]) {
     assert.ok(manifest['x-registry'].compatibility.migrations.some((one) => one.from === from && one.to === to), `${manifest.tag} ${to}`);
   }
@@ -105,6 +105,7 @@ test('the versions, the events and the words are declared', () => {
     const runtime = json('chat-window', `lang/${locale}.json`).runtime;
     for (const name of ['reactions-refused', 'reply-cancel', 'reply-label', 'reply-say', 'reply-you']) assert.ok(runtime[name], `${locale}: ${name}`);
   }
-  assert.match(read('chat-threads', 'js/templates/default.js'), /SHAPES = new Set\(\["circle", "square"\]\)/u);
+  // 2.0.0: a thread's avatar (shape, sign) goes to sf-list as it is; the list draws it.
+  assert.match(read('chat-threads', 'index.js'), /\.\.\.\(avatar \? \{avatar\} : \{\}\)/u);
   assert.doesNotMatch(read('chat-threads', 'js/templates/default.css'), /#[0-9a-f]{3,8}\b/iu, 'no hardcoded colours');
 });
