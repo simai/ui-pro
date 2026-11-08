@@ -16,9 +16,14 @@ test('a conversation declares activity with the badge\'s own words', () => {
   for (const state of STATES) assert.ok(badge.settings.activity.values.includes(state), `the badge knows ${state}`);
 });
 
-test('the row draws the compact mark, and nothing for a word the badge does not know', () => {
-  const template = read('src/smart/chat-threads/js/templates/default.js');
-  assert.match(template, /const ACTIVITIES = new Set\(\["running", "waiting", "done", "stopped", "failed"\]\);/u);
-  assert.match(template, /ACTIVITIES\.has\(thread\.activity\) \? thread\.activity : ""/u);
-  assert.match(template, /<sf-badge class="sf-thread-list__activity" size="1\/3" appearance="tonal" compact\s+activity=\$\{activity\}>/u);
+// 2.0.0: the rows are sf-list's; the activity is the row's badge, its word and a tone.
+test('the row draws the activity as a badge with its word, and nothing for a word it does not know', () => {
+  const source = read('src/smart/chat-threads/index.js');
+  assert.match(source, /const ACTIVITY_TONES = \{running: "neutral", waiting: "warning", done: "success", stopped: "neutral", failed: "error"\};/u);
+  assert.match(source, /\.\.\.\(tone \? \{badge: \{text: this\.sfWord\(`activity-\$\{thread\.activity\}`\), tone\}\} : \{\}\)/u);
+  for (const locale of ['ru', 'en']) {
+    const own = JSON.parse(read(`src/smart/chat-threads/lang/${locale}.json`)).runtime;
+    const badge = JSON.parse(read(`src/smart/badge/lang/${locale}.json`)).runtime;
+    for (const state of STATES) assert.equal(own[`activity-${state}`], badge[`activity-${state}`], `${locale}: the badge's own word for ${state}`);
+  }
 });

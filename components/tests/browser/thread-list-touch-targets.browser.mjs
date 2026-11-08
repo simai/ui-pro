@@ -12,13 +12,15 @@ const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/badges/css/badges.css', 'component/component/avatars/css/avatars.css',
-  'component/component/context-menu/css/context-menu.css',
+  'component/component/context-menu/css/context-menu.css', 'component/component/icon-buttons/css/icon-buttons.css',
+  'component/component/skeleton/css/skeleton.css', 'component/component/dropdown/css/dropdown.css', 'smart/smart/list/css/list.css',
   'smart/smart/chat-threads/css/chat-threads.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js',
-  'smart/smart/menu-context/js/menu-context.js',
+  'smart/smart/menu-context/js/menu-context.js', 'smart/smart/button/js/button.js',
+  'smart/smart/empty-state/js/empty-state.js', 'smart/smart/list-item/js/list-item.js', 'smart/smart/list/js/list.js',
   'smart/smart/chat-threads/js/chat-threads.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -60,7 +62,7 @@ try {
   const desk = await open({viewport: {width: 900, height: 700}});
   await make(desk.page);
   // A mouse keeps the ladder's row.
-  const mouse = await desk.page.evaluate(() => Math.round(document.querySelector('#list .sf-thread-list__link').getBoundingClientRect().height));
+  const mouse = await desk.page.evaluate(() => Math.round(document.querySelector('#list .sf-list__row .sf-list-item[data-sf-list-roving]').getBoundingClientRect().height));
   if (mouse >= 44) failures.push(`with a mouse the row is ${mouse}px, not the ladder's step`);
   await desk.context.close();
 
@@ -71,8 +73,8 @@ try {
     const list = document.getElementById('list');
     const box = (node) => (node ? node.getBoundingClientRect() : null);
     const coarse = matchMedia('(pointer: coarse)').matches;
-    const link = box(list.querySelector('.sf-thread-list__link'));
-    const more = box(list.querySelector('.sf-thread-list__more'));
+    const link = box(list.querySelector('.sf-list__row .sf-list-item[data-sf-list-roving]'));
+    const more = box(list.querySelector('.sf-list__actions'));
     const create = box(list.querySelector('.sf-thread-list__command[data-action="create"]'));
     return {coarse, link: link && Math.round(link.height), more: more && [Math.round(more.width), Math.round(more.height)],
       create: create && Math.round(create.height)};

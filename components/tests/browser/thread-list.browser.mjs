@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
 // sf-chat-threads on the built bytes:
-// - conversations grouped by the day they last changed, the open one marked by
-//   aria-current and weight, one Tab stop for the whole list;
+// - conversations grouped by the day they last changed (the rows are sf-list's
+//   since 2.0.0), the open one marked by aria-current, one Tab stop for the
+//   whole list;
 // - arrows, Home and End move between rows, Enter opens one (the list reports
 //   it and does not move `selected` itself);
 // - F2 renames in place: Enter keeps and reports, Escape gives up and does not
@@ -22,13 +23,15 @@ const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css', 'core/core/css/utility.full.css',
   'component/component/badges/css/badges.css', 'component/component/avatars/css/avatars.css',
-  'component/component/context-menu/css/context-menu.css',
+  'component/component/context-menu/css/context-menu.css', 'component/component/icon-buttons/css/icon-buttons.css',
+  'component/component/skeleton/css/skeleton.css', 'component/component/dropdown/css/dropdown.css', 'smart/smart/list/css/list.css',
   'smart/smart/chat-threads/css/chat-threads.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js',
-  'smart/smart/menu-context/js/menu-context.js',
+  'smart/smart/menu-context/js/menu-context.js', 'smart/smart/button/js/button.js',
+  'smart/smart/empty-state/js/empty-state.js', 'smart/smart/list-item/js/list-item.js', 'smart/smart/list/js/list.js',
   'smart/smart/chat-threads/js/chat-threads.js',
 ].map((p) => join(out, p));
 const absent = [...styles, ...modules].filter((path) => !existsSync(path));
@@ -91,30 +94,30 @@ try {
       await new Promise((done) => setTimeout(done, 300));
     }, {attributes, threads, hasMore, actions, footer});
   };
-  const focused = () => page.evaluate(() => document.activeElement?.dataset?.id ?? document.activeElement?.className ?? null);
+  const focused = () => page.evaluate(() => document.activeElement?.closest?.('.sf-list__row')?.dataset.id ?? document.activeElement?.className ?? null);
+  const ROW = (id) => `.sf-list__row[data-id="${id}"] .sf-list-item[data-sf-list-roving]`;
   const events = () => page.evaluate(() => window.events.slice());
 
   // 1. Groups, the open row, one Tab stop.
   await make({attributes: {selected: 't3'}, footer: true});
   const shape = await page.evaluate(() => ({
-    groups: [...document.querySelectorAll('.sf-thread-list__heading')].map((node) => node.textContent),
-    rows: [...document.querySelectorAll('.sf-thread-list__link')].map((node) => node.dataset.id),
-    stops: [...document.querySelectorAll('.sf-thread-list__link')].filter((node) => node.tabIndex === 0).map((node) => node.dataset.id),
-    current: document.querySelector('.sf-thread-list__link[aria-current="page"]')?.dataset.id,
-    weight: getComputedStyle(document.querySelector('.sf-thread-list__item--current .sf-thread-list__title')).fontWeight,
+    groups: [...document.querySelectorAll('.sf-list__heading')].map((node) => node.textContent.trim()),
+    rows: [...document.querySelectorAll('.sf-list__row')].map((node) => node.dataset.id),
+    stops: [...document.querySelectorAll('.sf-list-item[data-sf-list-roving]')].filter((node) => node.tabIndex === 0).map((node) => node.closest('.sf-list__row').dataset.id),
+    current: document.querySelector('.sf-list-item[data-sf-list-roving][aria-current="true"]')?.closest('.sf-list__row').dataset.id,
     label: document.querySelector('nav.sf-thread-list').getAttribute('aria-label'),
     footer: Boolean(document.getElementById('usage')),
     create: document.querySelector('[data-action="create"]')?.hidden,
   }));
-  const expected = {groups: ['Сегодня', 'Вчера', 'Раньше'], rows: ['t1', 't2', 't3', 't4'], stops: ['t3'], current: 't3', label: 'Разговоры', footer: true, create: false};
+  // Earlier days are named by their date (sf-list's day groups, since 2.0.0).
+  const expected = {groups: ['Сегодня', 'Вчера', '2 января'], rows: ['t1', 't2', 't3', 't4'], stops: ['t3'], current: 't3', label: 'Разговоры', footer: true, create: false};
   for (const [key, value] of Object.entries(expected)) {
     if (JSON.stringify(shape[key]) !== JSON.stringify(value)) note({case: `groups and the open row: ${key}`, got: shape[key], expected: value});
   }
-  if (Number(shape.weight) < 500) note({case: 'the open row is told by weight as well', got: shape.weight});
   const oneLine = await page.evaluate(() => {
-    const long = document.querySelector('.sf-thread-list__link[data-id="t4"]');
-    const short = document.querySelector('.sf-thread-list__link[data-id="t1"]');
-    const title = long.querySelector('.sf-thread-list__title');
+    const long = document.querySelector('.sf-list__row[data-id="t4"] .sf-list-item[data-sf-list-roving]');
+    const short = document.querySelector('.sf-list__row[data-id="t1"] .sf-list-item[data-sf-list-roving]');
+    const title = long.querySelector('.sf-list-item-container');
     return {long: Math.round(long.getBoundingClientRect().height), short: Math.round(short.getBoundingClientRect().height), cut: title.scrollWidth > title.clientWidth,
       overflow: document.querySelector('.sf-thread-list__scroller').scrollWidth > document.querySelector('.sf-thread-list__scroller').clientWidth};
   });
@@ -145,15 +148,15 @@ try {
   const stillSelected = await page.evaluate(() => document.getElementById('list').selected);
   if (stillSelected !== 't3') note({case: 'the list does not move selected itself', got: stillSelected});
   await page.keyboard.press('Tab');
-  at = await page.evaluate(() => document.activeElement?.closest?.('.sf-thread-list__item') ? 'inside' : 'outside');
+  at = await page.evaluate(() => document.activeElement?.closest?.('.sf-list__row') ? 'inside' : 'outside');
   if (at !== 'outside') note({case: 'Tab leaves the list after one stop', got: at});
 
   // 3. Rename with F2: Enter keeps, Escape gives up.
   await page.evaluate(() => { window.events.length = 0; window.escaped = 0; document.addEventListener('keydown', (event) => { if (event.key === 'Escape') window.escaped += 1; }); });
-  await page.focus('.sf-thread-list__link[data-id="t2"]');
+  await page.focus(ROW('t2'));
   await page.keyboard.press('F2');
   await page.waitForTimeout(150);
-  const editing = await page.evaluate(() => ({focused: document.activeElement?.classList.contains('sf-thread-list__rename'), value: document.activeElement?.value,
+  const editing = await page.evaluate(() => ({focused: document.activeElement?.classList.contains('sf-list__rename'), value: document.activeElement?.value,
     selected: document.activeElement?.selectionStart === 0 && document.activeElement?.selectionEnd === document.activeElement?.value.length}));
   if (!editing.focused || editing.value !== 'Тоже сегодня' || !editing.selected) note({case: 'F2 opens the title for editing, selected', got: editing});
   await page.keyboard.type('Переименован');
@@ -161,7 +164,7 @@ try {
   await page.waitForTimeout(150);
   got = await events();
   at = await focused();
-  const title = await page.evaluate(() => document.querySelector('.sf-thread-list__link[data-id="t2"] .sf-thread-list__title')?.textContent);
+  const title = await page.evaluate(() => document.querySelector('.sf-list__row[data-id="t2"] sf-list-item')?.getAttribute('text'));
   if (JSON.stringify(got) !== JSON.stringify([{name: 'rename', id: 't2', title: 'Переименован'}]) || title !== 'Переименован' || at !== 't2') {
     note({case: 'Enter keeps the new title, reports it and returns to the row', got: {got, title, at}});
   }
@@ -173,12 +176,12 @@ try {
   await page.waitForTimeout(150);
   got = await events();
   at = await focused();
-  const kept = await page.evaluate(() => ({title: document.querySelector('.sf-thread-list__link[data-id="t2"] .sf-thread-list__title')?.textContent, escaped: window.escaped}));
+  const kept = await page.evaluate(() => ({title: document.querySelector('.sf-list__row[data-id="t2"] sf-list-item')?.getAttribute('text'), escaped: window.escaped}));
   if (got.length || kept.title !== 'Переименован' || at !== 't2' || kept.escaped !== 0) note({case: 'Escape gives up the rename, inside the list', got: {got, kept, at}});
 
   // 4. Shift+F10: the row's actions; Archive and the host's own.
   await make({actions: [{id: 'mute', text: 'Без звука', icon: 'notifications_off'}]});
-  await page.focus('.sf-thread-list__link[data-id="t1"]');
+  await page.focus(ROW('t1'));
   await page.keyboard.press('Shift+F10');
   await page.waitForTimeout(400);
   const menu = await page.evaluate(() => [...document.querySelectorAll('[role="menuitem"]')].filter((node) => node.offsetParent).map((node) => node.textContent.replace(/\s+/g, ' ').trim()));
@@ -188,22 +191,25 @@ try {
   got = await events();
   if (JSON.stringify(got) !== JSON.stringify([{name: 'archive', id: 't1'}])) note({case: 'Archive reports its row', got});
   await page.evaluate(() => { window.events.length = 0; });
-  await page.click('.sf-thread-list__item[data-id="t2"] .sf-thread-list__more', {force: true});
+  await page.click('.sf-list__row[data-id="t2"] .sf-list__actions', {force: true});
   await page.waitForTimeout(400);
   await page.evaluate(() => [...document.querySelectorAll('[role="menuitem"]')].find((node) => node.offsetParent && node.textContent.includes('Без звука'))?.click());
   await page.waitForTimeout(200);
   got = await events();
   if (JSON.stringify(got) !== JSON.stringify([{name: 'action', id: 't2', action: 'mute'}])) note({case: 'the host\'s own action reports its row', got});
-  const moreStop = await page.evaluate(() => document.querySelector('.sf-thread-list__more').tabIndex);
+  const moreStop = await page.evaluate(() => document.querySelector('.sf-list__actions').tabIndex);
   if (moreStop !== -1) note({case: 'the «⋯» is not a Tab stop', got: moreStop});
 
   // 5. A long list asks for the next page once, at its end.
   await make({threads: 'long', hasMore: true});
   got = await events();
   if (got.length) note({case: 'the first page in view asks for nothing', got});
-  await page.evaluate(() => { const scroller = document.querySelector('.sf-thread-list__scroller'); scroller.scrollTop = scroller.scrollHeight; });
-  await page.waitForTimeout(300);
-  await page.evaluate(() => { const scroller = document.querySelector('.sf-thread-list__scroller'); scroller.scrollTop -= 10; scroller.scrollTop += 10; });
+  // The rows settle their height as sf-list-item draws them: scroll to the
+  // end of what is there, then again to the end it grew to.
+  for (let pass = 0; pass < 2; pass += 1) {
+    await page.evaluate(() => { const scroller = document.querySelector('.sf-thread-list__scroller'); scroller.scrollTop = scroller.scrollHeight; });
+    await page.waitForTimeout(300);
+  }
   await page.waitForTimeout(300);
   got = await events();
   if (JSON.stringify(got) !== JSON.stringify([{name: 'load-more'}])) note({case: 'the end of a long list asks for the next page once', got});
@@ -214,26 +220,26 @@ try {
       {id: 'x1', title: 'Следующая страница', 'updated-at': '2020-01-01T00:00:00Z'}], {hasMore: false});
   });
   await page.waitForTimeout(300);
-  const appended = await page.evaluate(() => ({rows: document.querySelectorAll('.sf-thread-list__link').length, last: [...document.querySelectorAll('.sf-thread-list__link')].at(-1)?.dataset.id}));
+  const appended = await page.evaluate(() => ({rows: document.querySelectorAll('.sf-list__row').length, last: [...document.querySelectorAll('.sf-list__row')].at(-1)?.dataset.id}));
   if (appended.rows !== 41 || appended.last !== 'x1') note({case: 'the next page joins without repeating a row', got: appended});
 
   // 6. Empty, loading, archived, no-manage, a people's list.
   await make({threads: []});
-  const empty = await page.evaluate(() => document.querySelector('.sf-thread-list__status:not([hidden])')?.textContent.trim());
+  const empty = await page.evaluate(() => document.querySelector('.sf-list__empty sf-empty-state')?.getAttribute('heading'));
   if (empty !== 'Разговоров пока нет') note({case: 'an empty list says so', got: empty});
   const loading = await page.evaluate(async () => {
     const list = document.getElementById('list');
     list.loading = true;
     await new Promise((done) => setTimeout(done, 150));
-    return {busy: document.querySelector('.sf-thread-list__scroller').getAttribute('aria-busy'),
-      rows: document.querySelectorAll('.sf-thread-list__skeleton span').length,
+    return {busy: document.querySelector('.sf-list__frame').getAttribute('aria-busy'),
+      rows: document.querySelectorAll('.sf-list__skeleton span').length,
       status: document.querySelector('.sf-thread-list__status')?.hidden};
   });
   if (loading.busy !== 'true' || loading.rows !== 3 || loading.status !== true) note({case: 'loading shows the shape of the list, busy', got: loading});
 
   await make({attributes: {archived: ''}});
   const archive = await page.evaluate(() => ({
-    rows: [...document.querySelectorAll('.sf-thread-list__link')].map((node) => node.dataset.id),
+    rows: [...document.querySelectorAll('.sf-list__row')].map((node) => node.dataset.id),
     create: document.querySelector('[data-action="create"]')?.hidden,
     back: document.querySelector('[data-action="back"]')?.hidden,
     label: document.querySelector('nav.sf-thread-list').getAttribute('aria-label'),
@@ -245,15 +251,15 @@ try {
 
   await make({attributes: {'no-manage': '', 'no-create': '', 'no-archive': ''}});
   const plain = await page.evaluate(() => ({
-    more: document.querySelectorAll('.sf-thread-list__more').length,
+    more: document.querySelectorAll('.sf-list__actions').length,
     head: document.querySelector('.sf-thread-list__head')?.hidden,
     footer: document.querySelector('.sf-thread-list__footer')?.hidden,
   }));
   if (JSON.stringify(plain) !== JSON.stringify({more: 0, head: true, footer: true})) note({case: 'no-manage, no-create, no-archive draw nothing they take away', got: plain});
-  await page.focus('.sf-thread-list__link[data-id="t1"]');
+  await page.focus(ROW('t1'));
   await page.keyboard.press('F2');
   await page.waitForTimeout(150);
-  const renamed = await page.evaluate(() => Boolean(document.querySelector('.sf-thread-list__rename')));
+  const renamed = await page.evaluate(() => Boolean(document.querySelector('.sf-list__rename')));
   if (renamed) note({case: 'no-manage: F2 renames nothing'});
 
   await make({attributes: {'group-by': 'none', selected: 'p2'}, threads: [
@@ -262,24 +268,24 @@ try {
     {id: 'p3', title: 'Пётр', caption: 'Спасибо', unread: 250, 'updated-at': '2025-01-01T00:00:00Z'},
   ]});
   const people = await page.evaluate(() => ({
-    headings: document.querySelectorAll('.sf-thread-list__heading').length,
-    captions: [...document.querySelectorAll('.sf-thread-list__caption')].map((node) => node.textContent),
-    unread: [...document.querySelectorAll('sf-badge.sf-thread-list__unread')].map((node) => [node.getAttribute('text'), node.getAttribute('aria-label')]),
-    avatars: document.querySelectorAll('sf-avatar.sf-thread-list__avatar').length,
-    listLabel: document.querySelector('.sf-thread-list__list')?.getAttribute('aria-label'),
+    headings: document.querySelectorAll('.sf-list__heading').length,
+    captions: [...document.querySelectorAll('.sf-list__row sf-list-item')].map((node) => node.getAttribute('supporting')),
+    unread: [...document.querySelectorAll('sf-badge.sf-list__count')].map((node) => [node.getAttribute('text'), node.getAttribute('aria-label')]),
+    avatars: document.querySelectorAll('.sf-list__row sf-avatar').length,
+    listLabel: document.querySelector('.sf-list__rows')?.getAttribute('aria-label'),
   }));
-  const expectedPeople = {headings: 0, captions: ['До завтра!', 'Пётр: отчёт готов', 'Спасибо'], unread: [['3', 'Непрочитанных: 3'], ['99+', 'Непрочитанных: 250']], avatars: 1, listLabel: 'Разговоры'};
+  const expectedPeople = {headings: 0, captions: ['До завтра!', 'Пётр: отчёт готов', 'Спасибо'], unread: [['3', '3 непрочитанных'], ['99+', '250 непрочитанных']], avatars: 1, listLabel: 'Разговоры'};
   if (JSON.stringify(people) !== JSON.stringify(expectedPeople)) note({case: 'a people\'s list: no groups, captions, unread counts, an avatar', got: people});
 
   // 7. English.
   await page.evaluate(() => document.documentElement.setAttribute('lang', 'en'));
   await make();
   const english = await page.evaluate(() => ({
-    groups: [...document.querySelectorAll('.sf-thread-list__heading')].map((node) => node.textContent),
+    groups: [...document.querySelectorAll('.sf-list__heading')].map((node) => node.textContent.trim()),
     create: document.querySelector('[data-action="create"] span')?.textContent,
     label: document.querySelector('nav.sf-thread-list').getAttribute('aria-label'),
   }));
-  if (JSON.stringify(english) !== JSON.stringify({groups: ['Today', 'Yesterday', 'Earlier'], create: 'New conversation', label: 'Conversations'})) note({case: 'an English page speaks English', got: english});
+  if (JSON.stringify(english) !== JSON.stringify({groups: ['Today', 'Yesterday', 'January 2'], create: 'New conversation', label: 'Conversations'})) note({case: 'an English page speaks English', got: english});
 
   if (errors.length) note({case: 'no page errors', got: errors});
   console.log(JSON.stringify({checked: 7}));

@@ -19,19 +19,19 @@
       "covers": "keyboard.row ArrowDown focus:next, End focus:last, Enter open, events.open, aliases sf-thread-list-select, accessibility.name runtime.label",
       "steps": [
         {
-          "script": "(document.querySelector('#list .sf-thread-list__link[data-id=\"t1\"]').focus(), true)",
+          "script": "(document.querySelector('#list .sf-list__row[data-id=\"t1\"] .sf-list-item[data-sf-list-roving]').focus(), true)",
           "wait": 60,
-          "check": "document.querySelectorAll('#list .sf-thread-list__link[tabindex=\"0\"]').length === 1 && document.querySelector('#list nav').getAttribute('aria-label') === 'Разговоры'"
+          "check": "document.querySelectorAll('#list .sf-list-item[data-sf-list-roving][tabindex=\"0\"]').length === 1 && document.querySelector('#list nav').getAttribute('aria-label') === 'Разговоры'"
         },
         {
           "user": "keyboard:ArrowDown",
           "wait": 60,
-          "check": "document.activeElement === document.querySelector('#list .sf-thread-list__link[data-id=\"t2\"]')"
+          "check": "document.activeElement === document.querySelector('#list .sf-list__row[data-id=\"t2\"] .sf-list-item[data-sf-list-roving]')"
         },
         {
           "user": "keyboard:End",
           "wait": 60,
-          "check": "document.activeElement === document.querySelector('#list .sf-thread-list__link[data-id=\"t3\"]')"
+          "check": "document.activeElement === document.querySelector('#list .sf-list__row[data-id=\"t3\"] .sf-list-item[data-sf-list-roving]')"
         },
         {
           "user": "keyboard:Enter",
@@ -71,13 +71,13 @@
       "covers": "keyboard.row F2 rename, accessibility.keys Escape revert, Enter commit, events.rename",
       "steps": [
         {
-          "script": "(document.querySelector('#list .sf-thread-list__link[data-id=\"t2\"]').focus(), true)",
+          "script": "(document.querySelector('#list .sf-list__row[data-id=\"t2\"] .sf-list-item[data-sf-list-roving]').focus(), true)",
           "wait": 60
         },
         {
           "user": "keyboard:F2",
           "wait": 120,
-          "check": "document.activeElement === document.querySelector('#list .sf-thread-list__rename')"
+          "check": "document.activeElement === document.querySelector('#list .sf-list__rename')"
         },
         {
           "user": "keyboard:Escape",
@@ -89,14 +89,14 @@
               }
             ]
           },
-          "check": "!document.querySelector('#list .sf-thread-list__rename') && document.activeElement === document.querySelector('#list .sf-thread-list__link[data-id=\"t2\"]')"
+          "check": "!document.querySelector('#list .sf-list__rename') && document.activeElement === document.querySelector('#list .sf-list__row[data-id=\"t2\"] .sf-list-item[data-sf-list-roving]')"
         },
         {
           "user": "keyboard:F2",
           "wait": 120
         },
         {
-          "script": "(document.querySelector('#list .sf-thread-list__rename').value = 'Отчёт за третий квартал', true)",
+          "script": "(document.querySelector('#list .sf-list__rename').value = 'Отчёт за третий квартал', true)",
           "wait": 30
         },
         {
@@ -113,7 +113,7 @@
               }
             ]
           },
-          "check": "document.querySelector('#list .sf-thread-list__link[data-id=\"t2\"]').querySelector('.sf-thread-list__title').textContent === 'Отчёт за третий квартал'"
+          "check": "document.querySelector('#list .sf-list__row[data-id=\"t2\"] sf-list-item').getAttribute('text') === 'Отчёт за третий квартал'"
         }
       ]
     },
@@ -123,16 +123,16 @@
       "covers": "keyboard.row Shift+F10 open-menu, events.archive, events.apply, aliases sf-thread-list-action",
       "steps": [
         {
-          "script": "(document.querySelector('#list .sf-thread-list__link[data-id=\"t1\"]').focus(), true)",
+          "script": "(document.querySelector('#list .sf-list__row[data-id=\"t1\"] .sf-list-item[data-sf-list-roving]').focus(), true)",
           "wait": 60
         },
         {
           "user": "keyboard:Shift+F10",
           "wait": 300,
-          "check": "document.querySelector('#list .sf-thread-list__menu').entries.map((one) => one.id).join() === 'rename,archive,action:pin'"
+          "check": "document.querySelector('#list .sf-list__menu').entries.map((one) => one.id).join() === 'rename,action:archive,action:host:pin'"
         },
         {
-          "script": "(document.querySelector('#list').onMenu({id: 'archive'}), true)",
+          "script": "(document.querySelector('#list sf-list').onMenu({id: 'action:archive'}), true)",
           "expect": {
             "events": [
               {
@@ -149,7 +149,7 @@
           }
         },
         {
-          "script": "(document.querySelector('#list').onMenu({id: 'action:pin'}), true)",
+          "script": "(document.querySelector('#list sf-list').onMenu({id: 'action:host:pin'}), true)",
           "expect": {
             "events": [
               {
@@ -201,10 +201,10 @@
               "outcome": "applied"
             }
           },
-          "check": "document.querySelector('#archive .sf-thread-list__menu').entries.map((one) => one.id).join() === 'rename,unarchive'"
+          "check": "document.querySelector('#archive .sf-list__menu').entries.map((one) => one.id).join() === 'rename,action:restore'"
         },
         {
-          "script": "(document.querySelector('#archive').onMenu({id: 'unarchive'}), true)",
+          "script": "(document.querySelector('#archive sf-list').onMenu({id: 'action:restore'}), true)",
           "expect": {
             "events": [
               {
@@ -303,7 +303,7 @@
               }
             ]
           },
-          "check": "document.querySelector('#list').hasAttribute('loading') && document.querySelector('#list .sf-thread-list__scroller').getAttribute('aria-busy') === 'true'"
+          "check": "document.querySelector('#list').hasAttribute('loading') && document.querySelector('#list sf-list').hasAttribute('loading')"
         },
         {
           "script": "(document.querySelector('#list').loading = false, document.querySelector('#list').status = 'Не удалось загрузить', true)",
@@ -338,7 +338,7 @@
               "outcome": "applied"
             }
           },
-          "check": "!document.querySelector('#list .sf-thread-list__link[data-id=\"t3\"]')"
+          "check": "!document.querySelector('#list .sf-list__row[data-id=\"t3\"]')"
         },
         {
           "script": "(document.querySelector('#list').hasMore = true, true)",
@@ -392,13 +392,13 @@
     },
     {
       "id": "p-avatar-shape-icon",
-      "title": "1.6.0: avatar.shape and avatar.icon; a row without an avatar keeps no column and no node",
+      "title": "1.6.0, 2.0.0: avatar.shape and avatar.icon reach sf-list's row; a row without an avatar draws none (sf-list aligns the titles of a list that has some)",
       "covers": "settings.threads, compatibility.1.6.0",
       "steps": [
         {
           "script": "(document.querySelector('#list').threads = [{id: 'a', title: 'Анна', 'updated-at': '2026-10-27T09:00:00Z', avatar: {text: 'АН'}}, {id: 'g', title: 'Группа', 'updated-at': '2026-10-26T09:00:00Z', avatar: {text: 'ГР', shape: 'square'}}, {id: 'c', title: 'Канал', 'updated-at': '2026-10-25T09:00:00Z', avatar: {icon: 'campaign', shape: 'square'}}, {id: 'b', title: 'Бот', 'updated-at': '2026-10-24T09:00:00Z', avatar: {icon: 'bolt'}}, {id: 'n', title: 'ИИ-разговор', 'updated-at': '2026-10-23T09:00:00Z'}], true)",
           "wait": 300,
-          "check": "(() => { const row = (id) => document.querySelector('#list .sf-thread-list__item[data-id=\"' + id + '\"]'); const icon = (id) => row(id).querySelector('.sf-thread-list__avatar sf-icon'); const left = (id) => row(id).querySelector('.sf-thread-list__title').getBoundingClientRect().left - row(id).querySelector('.sf-thread-list__link').getBoundingClientRect().left; return row('g').querySelector('sf-avatar').getAttribute('shape') === 'square' && !row('a').querySelector('sf-avatar').hasAttribute('shape') && icon('c')?.getAttribute('icon') === 'campaign' && row('c').querySelector('.sf-thread-list__avatar').classList.contains('sf-avatar--square') && icon('b')?.getAttribute('icon') === 'bolt' && !row('b').querySelector('.sf-thread-list__avatar').classList.contains('sf-avatar--square') && !row('n').querySelector('.sf-thread-list__avatar') && left('n') < left('a'); })()"
+          "check": "(() => { const row = (id) => document.querySelector('#list .sf-list__row[data-id=\"' + id + '\"]'); const sign = (id) => row(id).querySelector('.sf-list__sign sf-icon'); const left = (id) => row(id).querySelector('.sf-list-item__text, [class*=\"__headline\"], sf-list-item').getBoundingClientRect().left; return row('g').querySelector('sf-avatar').getAttribute('shape') === 'square' && row('a').querySelector('sf-avatar').getAttribute('shape') === 'circle' && sign('c')?.getAttribute('icon') === 'campaign' && row('c').querySelector('.sf-list__sign').classList.contains('sf-avatar--square') && sign('b')?.getAttribute('icon') === 'bolt' && !row('b').querySelector('.sf-list__sign').classList.contains('sf-avatar--square') && !row('n').querySelector('sf-avatar, .sf-list__sign'); })()"
         }
       ]
     }

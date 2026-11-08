@@ -13,47 +13,61 @@
 
 
 </div>
-<div class="sf-thread-list__scroller" aria-busy="false">
+<div class="sf-thread-list__scroller">
+<sf-list class="sf-thread-list__rows" heading-level="2" label="Разговоры" group-by="day" empty-text="Разговоров пока нет" selected="thr_01" renamable style="display: contents;">
+<div class="sf-list sf-list__frame sf-list--size-1 " role="group" aria-label="Разговоры" aria-busy="false" data-sf-static>
 
-<div class="sf-thread-list__groups">
+<div class="sf-list__body" data-sf-list>
 
-<section class="sf-thread-list__group" data-group="earlier">
-<h2 class="sf-thread-list__heading">Раньше</h2>
-<ul class="sf-thread-list__list" aria-label="Раньше">
+<section class="sf-list__group" data-group="day:-5">
+<div class="sf-list__heading" role="heading" aria-level="2" id="sf-chat-window-waiting-1">Четверг</div>
 
-<li class="sf-thread-list__item sf-thread-list__item--current " data-id="thr_01">
-<button type="button" class="sf-thread-list__link" data-id="thr_01" tabindex="0" aria-current="page" aria-keyshortcuts="Shift+F10 F2" title="Отпуск и перенос">
+<ul class="sf-list__rows" aria-labelledby="sf-chat-window-waiting-1">
 
-<span class="sf-thread-list__text">
-<span class="sf-thread-list__title">Отпуск и перенос</span>
+<li class="sf-list__row sf-list__row--current" data-id="thr_01">
+<sf-list-item interactive kind="text" size="1" value="thr_01" text="Отпуск и перенос" selected style="display: contents;">
+<div class="sf-list-item flex items-cross-center sf-list-item--text sf-list-item--size-1 selected sf-list-item--interactive" data-sf-list-roving aria-current="true" tabindex="0" data-sf-static>
 
-
-</span>
-
-
-</button>
-<button type="button" class="sf-thread-list__more" tabindex="-1" aria-haspopup="menu" aria-label="Действия с разговором «Отпуск и перенос»" title="Действия с разговором «Отпуск и перенос»"><sf-icon icon="more_horiz" size="1" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
-</li>
-
-<li class="sf-thread-list__item  " data-id="thr_02">
-<button type="button" class="sf-thread-list__link" data-id="thr_02" tabindex="-1" aria-keyshortcuts="Shift+F10 F2" title="График на ноябрь · Кадры">
-
-<span class="sf-thread-list__text">
-<span class="sf-thread-list__title">График на ноябрь</span>
-<span class="sf-thread-list__caption">Кадры</span>
-
-</span>
-
-
-</button>
-<button type="button" class="sf-thread-list__more" tabindex="-1" aria-haspopup="menu" aria-label="Действия с разговором «График на ноябрь»" title="Действия с разговором «График на ноябрь»"><sf-icon icon="more_horiz" size="1" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
+<div class="sf-list-item-wrap flex flex-1">
+ <div class="sf-list-item-container">Отпуск и перенос</div> <span slot="trailing" class="sf-list__meta"></span>
+</div>
+</div>
+</sf-list-item>
+<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Отпуск и перенос" title="Действия: Отпуск и перенос"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
 </li>
 
 </ul>
+
+</section>
+<section class="sf-list__group" data-group="day:-6">
+<div class="sf-list__heading" role="heading" aria-level="2" id="sf-chat-window-waiting-2">Среда</div>
+
+<ul class="sf-list__rows" aria-labelledby="sf-chat-window-waiting-2">
+
+<li class="sf-list__row " data-id="thr_02">
+<sf-list-item interactive kind="text" size="1" value="thr_02" text="График на ноябрь" supporting="Кадры" style="display: contents;">
+<div class="sf-list-item flex items-cross-center sf-list-item--text sf-list-item--size-1 sf-list-item--two-line sf-list-item--interactive" data-sf-list-roving tabindex="-1" data-sf-static>
+
+<div class="sf-list-item-wrap flex flex-1">
+ <div class="sf-list-item-container"><span class="sf-list-item-title">График на ноябрь</span><span class="sf-list-item-supporting">Кадры</span></div> <span slot="trailing" class="sf-list__meta"></span>
+</div>
+</div>
+</sf-list-item>
+<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: График на ноябрь" title="Действия: График на ноябрь"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
+</li>
+
+</ul>
+
 </section>
 </div>
-<p class="sf-thread-list__status" hidden></p>
-<div class="sf-thread-list__sentinel" aria-hidden="true"></div>
+
+<div class="sf-list__next" hidden></div>
+<sf-menu-context class="sf-list__menu" popup style="display: contents;">
+<div class="sf-context-menu flex" role="menu" data-sf-static></div>
+</sf-menu-context>
+</div>
+</sf-list>
+<p class="sf-thread-list__status" role="status" hidden></p>
 </div>
 <div class="sf-thread-list__footer">
 
@@ -64,17 +78,14 @@
 
 
 </div>
-<sf-menu-context class="sf-thread-list__menu" popup style="display: contents;">
-<div class="sf-context-menu flex" role="menu" data-sf-static></div>
-</sf-menu-context>
 </nav>
 </sf-chat-threads></aside><main class="chat-shell__main sf-workspace-main"><h1 class="sf-chat-offscreen chat-shell__page-title">Отпуск и перенос</h1><header class="chat-shell__header"><button class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface flex items-cross-center content-main-center sf-workspace-back chat-shell__back" type="button" aria-label="К разговорам" title="К разговорам"><sf-icon icon="arrow_back" size="2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>arrow_back</i></sf-icon></button><sf-chat-interlocutor style="display: contents;" value="personal"><script type="application/json" data-sf-settings>{"options":[{"id":"personal","kind":"personal","title":"Мой помощник","greeting":"Чем помочь? Спросите о правилах компании или пришлите документ.","suggestions":["Сколько дней отпуска?","Как оформить командировку?"],"capabilities":{"attachments":true,"proposals":true,"memory":true}},{"id":"hr","kind":"knowledge","title":"Кадры","greeting":"Вопросы об отпусках, графике и документах.","suggestions":[]}]}</script>
 <div class="sf-chat-interlocutor" data-sf-static>
-<button type="button" class="sf-chat-interlocutor__button" aria-label="Помощник: Мой помощник" aria-haspopup="menu" aria-expanded="false" aria-describedby="sf-chat-window-waiting-1"><span class="sf-chat-interlocutor__title">Мой помощник</span><sf-icon icon="expand_more" size="1/2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>expand_more</i></sf-icon></button>
+<button type="button" class="sf-chat-interlocutor__button" aria-label="Помощник: Мой помощник" aria-haspopup="menu" aria-expanded="false" aria-describedby="sf-chat-window-waiting-3"><span class="sf-chat-interlocutor__title">Мой помощник</span><sf-icon icon="expand_more" size="1/2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>expand_more</i></sf-icon></button>
 <sf-menu-context class="sf-chat-interlocutor__menu" popup aria-label="Выбрать помощника" style="display: contents;">
 <div class="sf-context-menu flex" role="menu" aria-label="Выбрать помощника" data-sf-static></div>
 </sf-menu-context>
-<span class="sf-chat-interlocutor__note sr-only" id="sf-chat-window-waiting-1">При смене помощника начнётся новый разговор</span>
+<span class="sf-chat-interlocutor__note sr-only" id="sf-chat-window-waiting-3">При смене помощника начнётся новый разговор</span>
 </div>
 </sf-chat-interlocutor><span class="chat-shell__head-mark" hidden></span><span class="chat-shell__head-who"><span class="chat-shell__thread-title">Отпуск и перенос</span><span class="chat-shell__thread-sub" hidden></span></span><div class="chat-shell__spacer"></div><button class="sf-button sf-button--size-1/2 sf-button--ghost sf-button--on-surface flex items-cross-center content-main-center chat-shell__members-open" type="button" hidden aria-controls="chat-members-1"></button></header><div class="chat-shell__find" role="search" aria-label="Поиск в разговоре" hidden></div><div class="chat-shell__thread-bar" hidden></div><sf-list-feed class="chat-shell__list" style="display: contents;">
 <div role="region" tabindex="0" class="sf-list-feed " aria-label="Переписка" data-sf-static>
@@ -90,15 +101,15 @@
 <div class="sf-chat-composer__files" hidden></div>
 <div class="sf-chat-composer__row">
 <button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__attach" aria-label="Прикрепить файл" title="Прикрепить файл" hidden></button>
-<label class="sf-textarea sf-textarea--size-1 sf-textarea--flush sf-chat-composer__field sf-textarea--auto-grow" data-sf-textarea-bound="1" for="sf-chat-window-waiting-2"><textarea class="sf-chat-composer__input" rows="1" data-auto-grow data-max-rows="8" id="sf-chat-window-waiting-2" aria-label="Сообщение" aria-describedby="sf-chat-window-waiting-3" placeholder="Спросите что-нибудь" style="--sf-textarea--min-rows: 1; --sf-textarea--max-rows: 8;"></textarea></label>
-<span class="sf-chat-composer__count" id="sf-chat-window-waiting-3" hidden></span>
+<label class="sf-textarea sf-textarea--size-1 sf-textarea--flush sf-chat-composer__field sf-textarea--auto-grow" data-sf-textarea-bound="1" for="sf-chat-window-waiting-4"><textarea class="sf-chat-composer__input" rows="1" data-auto-grow data-max-rows="8" id="sf-chat-window-waiting-4" aria-label="Сообщение" aria-describedby="sf-chat-window-waiting-5" placeholder="Спросите что-нибудь" style="--sf-textarea--min-rows: 1; --sf-textarea--max-rows: 8;"></textarea></label>
+<span class="sf-chat-composer__count" id="sf-chat-window-waiting-5" hidden></span>
 <button type="submit" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--tonal sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__send" aria-label="Отправить после ответа" title="Отправить после ответа" disabled hidden></button>
 <button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--default sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__stop" aria-label="Остановить ожидание" title="Остановить ожидание"><sf-icon aria-hidden="true" icon="stop" size="2" style="display: contents;"><i class="sf-icon sf-icon--size-2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>stop</i></sf-icon></button>
 </div>
 <div class="sf-chat-composer__drop" aria-hidden="true">Отпустите, чтобы прикрепить</div>
 </div>
 <p class="sf-chat-composer__notice" role="alert" hidden></p>
-<p aria-live="polite" class="sf-chat-composer__hint" id="sf-chat-window-waiting-4">Enter — отправить после ответа, Shift+Enter — новая строка</p>
+<p aria-live="polite" class="sf-chat-composer__hint" id="sf-chat-window-waiting-6">Enter — отправить после ответа, Shift+Enter — новая строка</p>
 <input class="sf-chat-composer__picker" type="file" multiple hidden>
 <span class="sf-chat-composer__said sr-only" aria-live="polite"></span>
 </form>

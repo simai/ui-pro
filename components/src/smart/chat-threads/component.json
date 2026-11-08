@@ -2,7 +2,7 @@
   "$comment": "The source of sf-thread-list's element plumbing (core/js/element-manifest.js). Taken from simai/ui-control control/smart-architecture/migration/out/thread-list (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); standard simai.smart-component 1.3.8, vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.chat-threads",
   "tag": "sf-chat-threads",
-  "version": "1.7.1",
+  "version": "2.0.0",
   "kind": "leaf",
   "family": "list",
   "settings": {
@@ -27,7 +27,7 @@
           "type": "enum",
           "values": ["running", "waiting", "done", "stopped", "failed"],
           "optional": true,
-          "summary": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+          "summary": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
         },
         "unread": {
           "type": "number",
@@ -52,7 +52,7 @@
         "key": "id",
         "changes": "content"
       },
-      "x-markup": "a property (a host has objects); newest first by updated-at, the pinned ones (pinned: true, Mirai24 API v1.1) first under their own heading «Закреплённые» with a quiet «Закреплён» line; pin and unpin are the host's row actions (apply); avatar is {image-url, text, shape: circle|square, icon} (1.6.0: square for a group or a channel, icon a sign instead of initials), and no avatar keeps no column; title, caption and avatar text are text, never markup. updated_at and avatar.image_url, the 1.0 spellings, are read until 2026-12-01 and noted"
+      "x-markup": "a property (a host has objects); newest first by updated-at, the pinned ones (pinned: true, Mirai24 API v1.1) first under their own heading «Закреплённые» (sf-list); pin and unpin are the host's row actions (apply); avatar is {image-url, text, shape: circle|square, icon} (1.6.0: square for a group or a channel, icon a sign instead of initials), and no avatar keeps no column; title, caption and avatar text are text, never markup. updated_at and avatar.image_url, the 1.0 spellings, are read until 2026-12-01 and noted"
     },
     "has-more": {
       "type": "boolean",
@@ -99,7 +99,7 @@
         "none"
       ],
       "default": "day",
-      "summary": "day: Today, Yesterday, Earlier by updated_at in the reader's time zone. none: one list."
+      "summary": "day: Today, Yesterday, the weekday, the date by updated-at in the reader's time zone (sf-list). none: one list."
     },
     "label": {
       "type": "string",
@@ -283,7 +283,7 @@
                     "stopped",
                     "failed"
                   ],
-                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
                 },
                 "unread": {
                   "type": "integer",
@@ -361,7 +361,7 @@
                     "stopped",
                     "failed"
                   ],
-                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
                 },
                 "unread": {
                   "type": "integer",
@@ -437,7 +437,7 @@
                   "stopped",
                   "failed"
                 ],
-                "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+                "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
               },
               "unread": {
                 "type": "integer",
@@ -539,17 +539,7 @@
       "name": "cl-icon"
     },
     {
-      "name": "cl-badge"
-    },
-    {
-      "name": "cl-avatar"
-    },
-    {
-      "name": "cl-menu-context",
-      "lazy": true
-    },
-    {
-      "name": "sr-only/default"
+      "name": "cl-list"
     }
   ],
   "templates": {
@@ -803,16 +793,14 @@
     "version 1.6.3: the today, yesterday and earlier groups count calendar days through calendarDayOffset of core/js/format.js (core.runtime 1.20.0; reuse audit 2026-11-02, finding 7); an unreadable date is still earlier. New: at the reader's midnight (a timer of msUntilNextDay plus a second, as sf-chat-window's day dividers) the list draws its groups again, so a conversation of today moves to yesterday without new data from the host. Needs core.runtime >= 1.20.0.",
     "version 1.6.4: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): a row's actions open in sf-menu-context. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0).",
     "version 1.7.0: the tag is sf-chat-threads (naming decision 2026-11-02: sf-[set]-<block>[-<variant>]; rename plan R2); the folder chat-threads, the id smart.chat-threads and the bundle cl-chat-threads follow it. sf-thread-list stays a dated alias until 2027-01-01: a subclass the Smart base defines beside the new tag, listed in the package rule, in sheets as :is(sf-chat-threads, sf-thread-list), its events named after the tag followed by their former names (ui-source change journal tag-sf-thread-list-to-sf-chat-threads, path-smart-thread-list-to-chat-threads).",
-    "version 1.7.1 (2026-11-07): a patch (a look). The unread count of a row draws with sf-badge tight: Framework sf-badge 1.3.0 (component.badges 1.2.0) widens a badge's default side room to --sf-space-1/2 (owner decision, docs review R020), and this is a dense place, so it keeps the size's own narrow room. On a Framework before 1.3.0 the attribute and class do nothing. Settings, values, events and keys unchanged."
+    "version 1.7.1 (2026-11-07): a patch (a look). The unread count of a row draws with sf-badge tight: Framework sf-badge 1.3.0 (component.badges 1.2.0) widens a badge's default side room to --sf-space-1/2 (owner decision, docs review R020), and this is a dense place, so it keeps the size's own narrow room. On a Framework before 1.3.0 the attribute and class do nothing. Settings, values, events and keys unchanged. Since 2.0.0 the count is sf-list's, which keeps the tight room itself (sf-list 1.1.1)."
   ],
   "x-rule": {
     "$comment": [
-      "The list draws its glyphs as sf-icon, an unread count as sf-badge and a",
-      "conversation's picture as sf-avatar; a tag it renders is a tag it fetches. A",
-      "row's actions open in sf-menu-context on a press, so the menu is fetched after",
-      "the page is ready, and the list waits for the element before opening it. The",
-      "loading sentence is visually hidden with the sr-only utility, which a class",
-      "scan can miss on a node drawn later, so it comes with the component."
+      "The head's and foot's commands draw their glyphs as sf-icon; the rows are the",
+      "Framework's sf-list (since 2.0.0), which brings its own parts: sf-list-item, the",
+      "avatar, the badges, the empty state and the row menu. A tag it renders is a tag",
+      "it fetches."
     ]
   },
   "x-registry": {
@@ -881,7 +869,7 @@
               "stopped",
               "failed"
             ],
-            "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a compact mark in the row, the word as its accessible name. Absent: no mark."
+            "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
           },
           "unread": {
             "type": "integer",
@@ -1120,7 +1108,9 @@
         {
           "from": "1.6.0",
           "to": "1.6.1",
-          "changes": ["Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."]
+          "changes": [
+            "Initials in a muted tone picked from the name (sf-avatar 1.2.0, tone auto). Additive."
+          ]
         },
         {
           "from": "1.6.2",
@@ -1141,6 +1131,23 @@
           "to": "1.7.0",
           "changes": [
             "The tag is sf-chat-threads (rename plan R2, naming decision 2026-11-02: sf-[set]-<block>); the folder chat-threads, the id smart.chat-threads and the bundle cl-chat-threads follow it (were thread-list, smart.thread-list, cl-thread-list). sf-thread-list stays a dated alias until 2027-01-01: old markup upgrades as this element, the Loader forwards cl-thread-list, and every event fires under its former name as well, with the same detail. Public CSS variables and classes keep their names. Needs the SIMAI Framework pair whose package reference lists the former tag (core.runtime 1.22.0). Nothing to change for a host until 2027-01-01; new markup writes sf-chat-threads."
+          ]
+        },
+        {
+          "from": "1.7.0",
+          "to": "1.7.1",
+          "changes": [
+            "A look: a row's unread count keeps the tight side room of sf-badge 1.3.0 (tight). Nothing for a host to change."
+          ]
+        },
+        {
+          "from": "1.7.1",
+          "to": "2.0.0",
+          "changes": [
+            "The rows are the Framework's sf-list 1.1.0 (owner, 2026-11-06, q-3b313e2246): a thread becomes its item -- title the text, caption the supporting line, updated-at the date, unread the count, activity a tonal badge with its word, avatar and pinned as they are. Settings, actions, events and their details do not change; a host's code keeps working.",
+            "What a host sees: the day groups are sf-list's (formatRelativeDay: «Сегодня», «Вчера», the weekday, the date) instead of «Today», «Yesterday», «Earlier»; a pinned row has no «Закреплён» line of its own (the «Закреплённые» heading stays, and without groups the pinned ones lead with no heading); a running conversation's badge has no spinner; «Show more» stands under a list with a next page; the words of a row (Rename, New name, the actions' label, Untitled, Loading) are sf-list's, and the words today, yesterday, earlier, pinned, pinned-text, unread-label, rename-label, rename-text, actions-label, untitled-text and loading-text left this component's lang/.",
+            "The rows' markup is sf-list's: .sf-list__row[data-id] with sf-list-item, «⋯» .sf-list__actions; the classes .sf-thread-list__item, __link, __title, __caption, __pinned, __avatar, __unread, __activity, __more, __group, __heading, __list, __skeleton and __sentinel are gone. A page that styled or queried them moves to sf-list's (sf-chat-window 1.14.0 has). The head, foot, commands and status keep their .sf-thread-list__* classes and the public CSS variables keep their names: radius, hover and current reach the rows as sf-list's variables.",
+            "Needs the SIMAI Framework pair with sf-list 1.1.1 (ui-2a671352d67b or later): its count and badge keep the tight room of sf-badge 1.3.0."
           ]
         }
       ]

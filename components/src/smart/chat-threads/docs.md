@@ -10,11 +10,15 @@
 (с кем разговор, последнее сообщение), `unread` (сколько непрочитанных) и `avatar`.
 Список рисует ровно это и ничего не толкует.
 
-Он владеет только расположением: группы по дню последнего изменения в часовом поясе
-человека («Сегодня», «Вчера», «Раньше») или без групп, отметка открытого разговора,
-одна остановка Tab на весь список, переименование на месте, действия строки в меню
-Фреймворка и просьба о следующей странице, когда конец списка показался. Он ничего не
-загружает и сам не меняет `selected`: открытый разговор назначает хост.
+Строки — это `sf-list` Framework (с 2.0.0, решение владельца 06.11.2026): разговор
+становится его строкой (`title` → `text`, `caption` → `supporting`, `updated-at` →
+`date`, `unread` → `count`, `activity` → `badge`, `avatar` и `pinned` как есть). Группы
+по дню последнего изменения в часовом поясе человека («Сегодня», «Вчера», день недели,
+дата — `formatRelativeDay` ядра) или без групп, закреплённые первыми, отметка
+открытого разговора, одна остановка Tab, переименование на месте, меню строки и
+следующая страница — его. Вокруг строк остаётся своё: начать разговор, архив и путь
+назад, фраза вместо списка, подвал. Список ничего не загружает и сам не меняет
+`selected`: открытый разговор назначает хост.
 
 ## Подключение
 
@@ -65,7 +69,7 @@ list.addEventListener('sf-chat-threads-apply', (event) => {
 | `create-commands` | `[]` | A property (`createCommands`): commands in the head in place of New conversation (below). |
 | `no-manage` | `false` | No row actions: no menu, no F2. |
 | `no-archive` | `false` | No archive: no way to it, no Archive among the actions. |
-| `group-by` | `day` | `day`: Today, Yesterday, Earlier. `none`: one list. |
+| `group-by` | `day` | `day`: Today, Yesterday, the weekday, the date (sf-list). `none`: one list. |
 | `label` | «Разговоры» / «Conversations» | The navigation's accessible name (in the archive: «Архив»). |
 | `loading` | `false` | The shape of the list while the first page loads (was `setLoading()`). |
 | `status` | `""` | A sentence in place of the list, an error; empty clears it (was `setStatus()`). |
@@ -88,10 +92,9 @@ list.addEventListener('sf-chat-threads-apply', (event) => {
 только с ИИ-разговорами пустого места слева не остаётся. Тона инициалов компонент
 не задаёт: у Framework для них пока нет средства (инициалы все одного цвета).
 `activity` (`running`, `waiting`, `done`, `stopped`, `failed`) is where the work in the
-conversation is: a compact `sf-badge` in the row, its word the accessible name.
+conversation is: a tonal badge in the row with its word (sf-list `badge`).
 A pinned conversation (`pinned: true`, Mirai24 API v1.1) leads the list under its own
-heading «Закреплённые» (`pinned`) and carries a quiet «Закреплён» line
-(`pinned-text`); without groups (`group-by="none"`) the pinned ones simply lead.
+heading «Закреплённые» (sf-list's `pinned-text`); without groups (`group-by="none"`) the pinned ones simply lead.
 Pinning and unpinning are the host's row actions: it offers them in `actions`
 (`{id: "pin", text: "Закрепить"}`), hears them as `sf-chat-threads-apply` and
 gives the list the entry with `pinned` changed.
@@ -155,9 +158,9 @@ Public variables, set on the list or any ancestor; the component never sets them
 |:---|:---|
 | `--sf-thread-list-inset` | `var(--sf-space-1\/3)` |
 | `--sf-thread-list-row-height` | `var(--sf-ui-1--control-height)` |
-| `--sf-thread-list-radius` | `var(--sf-radius-1)` |
-| `--sf-thread-list-hover-background-color` | `var(--sf-surface-transparent-hover)` |
-| `--sf-thread-list-current-background-color` | `var(--sf-surface-transparent-select)` |
+| `--sf-thread-list-radius` | `var(--sf-radius-1)` — a command's corner |
+| `--sf-thread-list-hover-background-color` | `var(--sf-surface-transparent-hover)` — a command under the pointer |
+| `--sf-thread-list-current-background-color` | `var(--sf-surface-transparent-select)` — kept for 1.x pages; the open row is sf-list's (`--sf-list-current-background-color`) |
 
 The 1.0 hooks `--sf-thread-list--inset`, `--row-height`, `--radius`, `--hover` and
 `--current` stay the internal layer these feed.
@@ -166,15 +169,31 @@ The 1.0 hooks `--sf-thread-list--inset`, `--row-height`, `--radius`, `--hover` a
 
 English by default, the page's language otherwise (`lang/en.json`, `lang/ru.json`);
 corrected through `SF.language.register('sf-chat-threads', 'ru', {'create-text': 'Новый чат'})`.
-Keys: `label`, `create-text`, `today`, `yesterday`, `earlier`, `actions-label`,
-`rename-text`, `rename-label`, `archive-text`, `unarchive-text`, `archive-view`,
-`back-text`, `empty-text`, `archive-empty-text`, `loading-text`, `untitled-text`,
-`unread-label`, `pinned`, `pinned-text`.
+Keys: `label`, `create-text`, `archive-text`, `unarchive-text`, `archive-view`,
+`back-text`, `empty-text`, `archive-empty-text`, `activity-running`, `activity-waiting`,
+`activity-done`, `activity-stopped`, `activity-failed` (a badge's word, sf-badge's own).
+A row's words (Rename, New name, the actions' label, Untitled, Loading, the
+«Закреплённые» heading, the unread count) are sf-list's: `SF.language.register('sf-list', …)`.
 
-Under a finger (`pointer: coarse`) every target is at least 44px (`--sf-d1`):
-a row, «Новый разговор» and the other row-like commands, and a row's «⋯».
+Under a finger (`pointer: coarse`) every command is at least 44px (`--sf-d1`):
+«Новый разговор» and the other row-like commands; the rows are sf-list's.
 
-1.6.1: инициалы приглушённым тоном по имени (`tone="auto"`, sf-avatar 1.2.0).
+## 2.0.0
+
+The rows are sf-list 1.1. Settings, actions, events and their details do not
+change. What a page sees: the day headings are sf-list's (weekday and date past
+yesterday, instead of «Раньше»); a pinned row has no «Закреплён» line of its own;
+the running badge has no spinner; «Показать ещё» stands under a list with a next
+page. The rows' markup is sf-list's (`.sf-list__row[data-id]`, `sf-list-item`, «⋯»
+`.sf-list__actions`): the `.sf-thread-list__item`, `__link`, `__title`, `__caption`,
+`__pinned`, `__avatar`, `__unread`, `__activity`, `__more` classes are gone. The head,
+foot, commands and status keep theirs. Needs the Framework pair with sf-list 1.1.1
+(ui-2a671352d67b or later).
+
+What 1.x promised of its rows still holds: a title and a caption stay one line,
+cut at the end, and under a finger a row and its «⋯» are at least 44px. sf-list 1.1
+does neither by itself yet, so the list of conversations keeps both for its own
+rows (scoped to `.sf-thread-list__rows`) until sf-list does.
 
 ## Former tag
 
@@ -186,4 +205,4 @@ use is noted once in `SF.deprecations`. Write the new tag in new markup.
 Every event keeps its former name beside the new one, with the same detail:
 `sf-thread-list-create`, `sf-thread-list-open`, `sf-thread-list-rename`, `sf-thread-list-archive`, `sf-thread-list-restore`, `sf-thread-list-apply`, `sf-thread-list-load-more`, `sf-thread-list-toggle`.
 
-The public CSS variables (`--sf-thread-list-*`) and the class names keep the former name.
+The public CSS variables (`--sf-thread-list-*`) and the head's, foot's and commands' class names keep the former name.
