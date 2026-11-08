@@ -15,7 +15,12 @@ test('every studio fixture and scenario in a folder is listed by its manifest, a
   for (const name of readdirSync(smart)) {
     const manifestUrl = new URL(`${name}/smart.manifest.json`, smart);
     if (!existsSync(manifestUrl)) continue;
-    const artifacts = JSON.parse(readFileSync(manifestUrl, 'utf8')).artifacts ?? {};
+    const manifest = JSON.parse(readFileSync(manifestUrl, 'utf8'));
+    // The overlay holds the free SIMAI Framework folders as well; they are
+    // ui-source's to keep (its own studio tests), and a free folder's slip
+    // must not hold this package's release. Only this package's folders count.
+    if (manifest.provenance?.source_repository === 'simai/ui-source') continue;
+    const artifacts = manifest.artifacts ?? {};
     for (const [kind, file] of [['fixtures', 'studio.fixture.json'], ['scenarios', 'studio.scenario.json']]) {
       const listed = artifacts[kind] ?? [];
       const present = existsSync(new URL(`${name}/${file}`, smart));
