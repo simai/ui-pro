@@ -312,7 +312,9 @@ try {
       const headings = [...left.querySelectorAll('h2, h3')].map((node) => node.tagName);
       return {
         bar: outside('#editor .sf-editor-bar') + outside('#sf-editor-help'),
-        canvas: {role: canvas.getAttribute('role'), named: canvas.hasAttribute('aria-label'), main: Boolean(canvas.querySelector('main'))},
+        // The page's main is drawn embedded (sf-editor 1.2.1): a div marked as
+        // the main landmark, never a second <main> inside the editor's page.
+        canvas: {role: canvas.getAttribute('role'), named: canvas.hasAttribute('aria-label'), main: Boolean(canvas.querySelector('[data-sf-composition-landmark="main"]')), nestedMain: canvas.querySelectorAll('main, [role="main"]').length},
         leftHeadings: headings,
         nested: [...document.querySelectorAll('#editor [role="option"]')].filter((option) => option.querySelector('button, a[href], input, select, textarea, [tabindex]')).length,
         locked: [...document.querySelectorAll('#editor .sf-editor-locked')].map((node) => node.getAttribute('aria-disabled')),
@@ -320,7 +322,7 @@ try {
     });
     let tab = await open();
     let seen = await structure(tab);
-    check('G-31 region: the bar and the help stand in a region; the canvas of a page with its own main is an unnamed group', seen.bar === 0 && seen.canvas.main && seen.canvas.role === 'group' && !seen.canvas.named, seen);
+    check('G-31 region: the bar and the help stand in a region; the canvas of a page with its own main is an unnamed group', seen.bar === 0 && seen.canvas.main && seen.canvas.nestedMain === 0 && seen.canvas.role === 'group' && !seen.canvas.named, seen);
     check('G-31 heading-order: the library\'s groups (h3) follow the panel\'s own heading (h2)', seen.leftHeadings[0] === 'H2' && seen.leftHeadings.length > 1, seen.leftHeadings);
     check('G-31 color-contrast: the dimmed template is inactive (aria-disabled), so its text is not held to 4.5:1', seen.locked.length > 0 && seen.locked.every((value) => value === 'true'), seen.locked);
     await axe(tab, 'nothing chosen');
