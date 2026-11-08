@@ -13,6 +13,7 @@
     "component/icon-buttons/css/icon-buttons.min.css",
     "component/icons/css/icons.min.css",
     "component/inputs/css/inputs.min.css",
+    "component/kbd/css/kbd.min.css",
     "core/css/core.css",
     "smart/chat-message/css/chat-message.min.css",
     "smart/confirm-change/css/confirm-change.min.css",
@@ -43,6 +44,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -53,6 +55,7 @@
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "brief-questions": [
@@ -60,6 +63,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -71,6 +75,7 @@
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css",
       "utility/transition-property/default/css/default.min.css"
     ],
@@ -79,6 +84,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -89,6 +95,7 @@
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "document": [
@@ -98,6 +105,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -120,6 +128,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -129,6 +138,7 @@
       "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "feedback-reason": [
@@ -136,6 +146,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -147,6 +158,7 @@
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css",
       "utility/transition-property/default/css/default.min.css"
     ],
@@ -155,6 +167,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -164,6 +177,7 @@
       "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "person": [
@@ -174,6 +188,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -190,6 +205,7 @@
       "utility/place-items/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css",
       "utility/text-overflow/default/css/default.min.css",
       "utility/transition-property/default/css/default.min.css",
@@ -202,6 +218,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -212,6 +229,7 @@
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "person-reply": [
@@ -221,6 +239,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -237,6 +256,7 @@
       "utility/place-items/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css",
       "utility/text-overflow/default/css/default.min.css",
       "utility/transition-property/default/css/default.min.css",
@@ -248,6 +268,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -258,6 +279,7 @@
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "question": [
@@ -265,6 +287,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -274,6 +297,7 @@
       "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "reference": [
@@ -281,6 +305,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -291,6 +316,7 @@
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "steps": [
@@ -298,6 +324,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -308,6 +335,7 @@
       "utility/justify-content/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "stopped": [
@@ -315,6 +343,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -324,6 +353,7 @@
       "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ],
     "waiting": [
@@ -331,6 +361,7 @@
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
       "component/inputs/css/inputs.min.css",
+      "component/kbd/css/kbd.min.css",
       "core/css/core.css",
       "smart/chat-message/css/chat-message.min.css",
       "smart/confirm-change/css/confirm-change.min.css",
@@ -340,6 +371,7 @@
       "utility/font-weight/default/css/default.min.css",
       "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
+      "utility/sr-only/default/css/default.min.css",
       "utility/text-align/default/css/default.min.css"
     ]
   }
