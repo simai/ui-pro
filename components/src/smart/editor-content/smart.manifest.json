@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.editor-content",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "title": "Content editor",
   "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "kind": "smart",
@@ -562,7 +562,7 @@
       },
       {
         "path": "src/smart/editor-content/js/templates/default.css",
-        "sha256": "5cfc2e818a6cf6bfdd8dc3e211b73879bf9cc9ee59827c053f211109ac80364f"
+        "sha256": "d970df3b2e03683025bc292d569624dedd43912d7ffd88f46a0daf9377008eeb"
       },
       {
         "path": "src/smart/editor-content/rule.js",
@@ -574,7 +574,7 @@
       },
       {
         "path": "src/smart/editor-content/component.json",
-        "sha256": "8d25b2c21499af2cfda8edf694e0bed3b67850dfe7e8a506e3e5e4642122e4f4"
+        "sha256": "f3c33e7a1dd73784b50db304dbfee02545d32983843d060bb9ea5d07a7ce15f7"
       },
       {
         "path": "src/smart/editor-content/lang/en.json",

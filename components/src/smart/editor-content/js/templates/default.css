@@ -755,8 +755,17 @@
     margin-block: calc(var(--sf-space-1\/4) * -1) calc(var(--sf-content--space-text) - var(--sf-space-1\/4));
   }
 
-  .sf-content-editor[data-embed] .sf-content-editor-blocks > .sf-content-editor-block:has(> :is(.sf-content-editor-heading--2, .sf-content-editor-heading--3, .sf-content-editor-heading--4, .sf-content-editor-heading--5, .sf-content-editor-heading--6)) {
-    margin-block-start: calc(var(--sf-content--space-section) - var(--sf-content--space-text) - var(--sf-space-1\/4));
+  /* The content heading ladder of the page (tokens.typography 1.2.0, docs
+     review R022): an h2 opens a section, the heading space and a block before
+     it; an h3-h6 stands a block from the text before and half the heading's
+     space above its own text. Read from the same tokens, so a host that moves
+     them moves the editor with the page. */
+  .sf-content-editor[data-embed] .sf-content-editor-blocks > .sf-content-editor-block:has(> .sf-content-editor-heading--2) {
+    margin-block-start: calc(var(--sf-heading--space-top) + var(--sf-content--space-block) - var(--sf-content--space-text) - var(--sf-space-1\/4));
+  }
+
+  .sf-content-editor[data-embed] .sf-content-editor-blocks > .sf-content-editor-block:has(> :is(.sf-content-editor-heading--3, .sf-content-editor-heading--4, .sf-content-editor-heading--5, .sf-content-editor-heading--6)) {
+    margin-block: calc(var(--sf-content--space-block) - var(--sf-content--space-text) - var(--sf-space-1\/4)) calc(var(--sf-heading--space-bottom) / 2 - var(--sf-space-1\/4));
   }
 
   .sf-content-editor[data-embed] .sf-content-editor-blocks > .sf-content-editor-block > .sf-content-editor-heading {
