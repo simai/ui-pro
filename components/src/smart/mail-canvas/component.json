@@ -2,7 +2,7 @@
   "$comment": "The source of sf-mail-canvas's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-mail by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
   "id": "smart.mail-canvas",
   "tag": "sf-mail-canvas",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -398,7 +398,8 @@
     "overlay: simai/ui-source#58 is the Framework's and open: under an ancestor with contain: layout (a docked sf-drawer's container) the overlay's fixed layer lands offset. The element does not hide that. It places the overlay in its own markup by default, and overlay-target binds one the host placed outside such an ancestor; docs.md says which is which.",
     "first paint: a printed frame shows the letter (sandbox and srcdoc as drawn) and the well holds its size, so nothing below moves when the letter is measured. The overlay's parts float where its code places them, so printed they are not shown; and its toolbar is not shown until placed, because sf-composition-overlay unhides it before the frame that places it and the gate measured the shift (a Framework behaviour, worked around in this element's sheet only).",
     "version 1.1.0, owner's decision of 2026-10-31: the letter is patched block by block by its mark attribute and is not reloaded, a full write only when the head of the letter changes; the element's own overlay lies in the scroller, so its parts travel with the letter.",
-    "version 1.1.1: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the overlay is sf-editor-overlay (its sf-editor-overlay-* events); an overlay-target the host placed may still be the former sf-composition-overlay. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0)."
+    "version 1.1.1: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the overlay is sf-editor-overlay (its sf-editor-overlay-* events); an overlay-target the host placed may still be the former sf-composition-overlay. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0).",
+    "version 1.1.2 (2026-11-08): a patch (first paint only). static/sheets.json no longer lists utility/headers/default/css/default.min.css: SIMAI Framework utility.headers 1.1.0 asks for that sheet only for a whole class token h1..h6 (its former rule matched h1..h6 inside ids, modifiers and SVG path data), and none of the snapshots has one; the sheet styled only the h1..h6 tags with the heading tokens core.css already gives them. Code, settings, values and events are unchanged."
   ],
   "x-rule": {
     "$comment": [
