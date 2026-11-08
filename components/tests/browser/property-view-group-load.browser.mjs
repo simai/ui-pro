@@ -54,7 +54,7 @@ const modules = [
   'smart/smart/drawer/js/drawer.js',
   'smart/smart/tag/js/tag.js',
   'smart/smart/input-date/js/input-date.js', 'smart/smart/input-textarea/js/input-textarea.js',
-  'smart/smart/switch/js/switch.js', 'smart/smart/button-group/js/button-group.js',
+  'smart/smart/switch/js/switch.js', 'smart/smart/segmented/js/segmented.js',
   'smart/smart/file-upload/js/file-upload.js', 'smart/smart/file-preview/js/file-preview.js',
   'smart/smart/progress-bar/js/progress-bar.js',
   'smart/smart/field-renderers/js/field-renderers.js',

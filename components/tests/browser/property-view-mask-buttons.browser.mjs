@@ -37,7 +37,7 @@ const modules = [
   'smart/smart/input/js/input.js', 'smart/smart/button-icon/js/button-icon.js', 'smart/smart/button/js/button.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js', 'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/spinner/js/spinner.js', 'smart/smart/drawer/js/drawer.js', 'smart/smart/tag/js/tag.js',
-  'smart/smart/button-group/js/button-group.js', 'smart/smart/field-renderers/js/field-renderers.js',
+  'smart/smart/segmented/js/segmented.js', 'smart/smart/field-renderers/js/field-renderers.js',
   'smart/smart/popover/js/popover.js', 'smart/smart/view-properties/js/view-properties.js',
 ];
 const absent = [...styles, ...modules].map((path) => join(out, path)).filter((path) => !existsSync(path));
@@ -123,7 +123,7 @@ try {
       const node = control(key)?.querySelector('[data-field-message]');
       return node?.getAttribute('data-field-message') === 'error' ? node.textContent.trim() : '';
     };
-    const buttons = (key) => [...view.querySelectorAll(`[data-field="${key}"] sf-button-group .sf-button-group > button`)];
+    const buttons = (key) => [...view.querySelectorAll(`[data-field="${key}"] :is(sf-segmented, sf-button-group) .sf-button-group > button`)];
     return {
       saveDisabled: save ? save.disabled === true || save.hasAttribute('disabled') : null,
       count: view.querySelector('.sf-property-view-errors')?.textContent.trim() ?? '',
@@ -133,10 +133,10 @@ try {
       shown: {input: Boolean(control('shown')), text: view.querySelector('[data-field="shown"] .sf-property-view-field-value')?.textContent.trim()},
       kind: buttons('kind').map((button) => button.getAttribute('aria-checked')),
       tier: buttons('tier').map((button) => button.getAttribute('aria-checked')),
-      tierSize: view.querySelector('[data-field="tier"] sf-button-group')?.getAttribute('size'),
+      tierSize: view.querySelector('[data-field="tier"] :is(sf-segmented, sf-button-group)')?.getAttribute('size'),
       locked: {checked: buttons('locked').map((button) => button.getAttribute('aria-checked')), disabled: buttons('locked').map((button) => button.disabled)},
       off: buttons('off').map((button) => button.disabled),
-      dropdown: Boolean(view.querySelector('[data-field="status"] sf-dropdown')) && !view.querySelector('[data-field="status"] sf-button-group'),
+      dropdown: Boolean(view.querySelector('[data-field="status"] sf-dropdown')) && !view.querySelector('[data-field="status"] :is(sf-segmented, sf-button-group)'),
       saves: window.raised.filter((one) => one.intent === 'record.save' || one.intent === 'group.save').length,
     };
   });
@@ -148,7 +148,7 @@ try {
   };
   const leave = async () => { await page.keyboard.press('Tab'); await page.waitForTimeout(200); };
   const press = async (key, index) => {
-    await page.locator(`${field(key)} sf-button-group .sf-button-group > button`).nth(index).click({force: true});
+    await page.locator(`${field(key)} :is(sf-segmented, sf-button-group) .sf-button-group > button`).nth(index).click({force: true});
     await page.waitForTimeout(150);
   };
   const saveBy = (mode) => page.evaluate(async (mode) => {

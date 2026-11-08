@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -775,7 +775,7 @@
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "761a7644c0839b866ec278943fbc7318efeba2895ef49d03db0460be24fa3bd7"
+        "sha256": "3d3be81216cc50ad6cdffba4d1b59256435f0718cc2bd31078c3dc01b489ea34"
       },
       {
         "path": "src/smart/chat-message/aliases.json",

@@ -74,7 +74,24 @@ rmSync(overlay, {force: true, recursive: true});
 const laid = materializeOverlay(overlay, {uiSource: option('--ui-source'), committed: args.includes('--committed')});
 process.stdout.write(`overlay ${overlay}: ui-source ${laid.sourceRevision.slice(0, 12)} + ${laid.laid} package files\n`);
 
+// Free tests of CROSS_CUTTING files whose package half is a test of this
+// repository: the frozen set folders (editor, view, view-table,
+// view-properties) still carry names the pair keeps only as dated aliases, and
+// tests/frozen-sets-former-names.contract.test.mjs asks the same of every
+// package folder with that one exemption (pair ui-d6f01121baca, 2026-11-09).
+export const FREE_REPLACED = [
+  'no first-party source asks a component for a value it does not declare',
+  'loader: every related group a rule names exists as a rule, here or in a required set',
+  'every Smart rule forward is a former name that leads to a rule',
+];
+const escape = (name) => `^${name.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}$`;
+
 const own = readdirSync(join(PACKAGE_ROOT, 'tests')).filter((name) => name.endsWith('.test.mjs')).sort();
 const files = [...own, ...CROSS_CUTTING].map((name) => join('tests', name));
-const result = spawnSync(process.execPath, ['--test', ...files], {cwd: overlay, stdio: 'inherit'});
+const skip = FREE_REPLACED.flatMap((name) => ['--test-skip-pattern', escape(name)]);
+const result = spawnSync(process.execPath, ['--test', ...skip, ...files], {
+  cwd: overlay,
+  stdio: 'inherit',
+  env: {...process.env, SF_PACKAGE_ROOT: PACKAGE_ROOT},
+});
 process.exitCode = result.status ?? 1;

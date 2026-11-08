@@ -188,7 +188,7 @@ function progress(context, node, upload) {
         reason.textContent = upload.reason;
         element.append(icon(doc, "error"), reason,
             make(doc, "sf-button", "", {size: "1/2", appearance: "tonal", text: word("file-retry"), "data-sf-zone-action": "retry"}),
-            make(doc, "sf-button", "", {size: "1/2", appearance: "link", text: word("file-cancel"), "data-sf-zone-action": "cancel"}));
+            make(doc, "sf-button", "", {size: "1/2", appearance: "ghost", text: word("file-cancel"), "data-sf-zone-action": "cancel"}));
     } else {
         element.append(make(doc, "sf-progress-bar", "", {size: "1/3", value: String(upload.progress ?? 0), label: word("file-sending", {vars: {name: upload.name}})}));
     }
@@ -204,14 +204,14 @@ function zone(context, node) {
     const element = make(doc, "div", "sf-content-editor-zone", {"data-sf-zone": node.id, contenteditable: "false"});
     if (context.linking(node)) {
         const address = make(doc, "sf-input", "sf-content-editor-zone-address", {size: "1/2", label: word(file ? "param-href" : "param-src"), "input-type": "url", "data-sf-zone-src": node.id, placeholder: "https://"});
-        element.append(address, make(doc, "sf-button", "", {size: "1/2", appearance: "link", icon: "upload", text: word("zone-upload"), "data-sf-zone-action": "upload"}));
+        element.append(address, make(doc, "sf-button", "", {size: "1/2", appearance: "ghost", icon: "upload", text: word("zone-upload"), "data-sf-zone-action": "upload"}));
         return element;
     }
     element.append(
         file
             ? make(doc, "sf-file-upload", "sf-content-editor-zone-files", {icon: "upload_file", "link-text": word("zone-pick"), text: word("zone-file-text"), "supporting-text": word("zone-file-formats")})
             : make(doc, "sf-file-upload", "sf-content-editor-zone-files", {accept: "image/*", icon: "add_photo_alternate", "link-text": word("zone-pick"), text: word("zone-text"), "supporting-text": word("zone-formats")}),
-        make(doc, "sf-button", "sf-content-editor-zone-link", {size: "1/2", appearance: "link", icon: "link", text: word("zone-link"), "data-sf-zone-action": "link"}),
+        make(doc, "sf-button", "sf-content-editor-zone-link", {size: "1/2", appearance: "ghost", icon: "link", text: word("zone-link"), "data-sf-zone-action": "link"}),
     );
     return element;
 }

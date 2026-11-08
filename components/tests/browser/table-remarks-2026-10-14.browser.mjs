@@ -126,7 +126,9 @@ try {
       await new Promise((done) => setTimeout(done, 400));
       const rowMenu = document.querySelector('sf-menu-context[aria-label] .sf-context-menu-item');
       const rowLabel = rowMenu?.querySelector('.sf-context-menu-item-label')?.textContent.trim() ?? null;
-      const linkButtons = document.querySelectorAll('sf-menu-context sf-button[appearance="link"]').length;
+      // ghost is the name of the look link was (C15, pair ui-d6f01121baca); the
+      // shim writes it on a host that still asks for link.
+      const linkButtons = document.querySelectorAll('sf-menu-context sf-button:is([appearance="ghost"], [appearance="link"])').length;
       rowMenu?.click();
       await new Promise((done) => setTimeout(done, 200));
       table.openContextMenu({currentTarget: anchor, target: anchor, preventDefault() {}, stopPropagation() {}}, {menu: 'filter-settings'});

@@ -33,7 +33,7 @@ const attention = (row) => {
         return html`<sf-badge class="sf-admin-nav-attention" size="1/3" status="error"
             text=${String(row.badge)}></sf-badge>`;
     }
-    if (row.shortcut) return html`<kbd class="sf-admin-nav-kbd">${row.shortcut}</kbd>`;
+    if (row.shortcut) return html`<kbd class="sf-admin-nav-kbd" appearance="plain">${row.shortcut}</kbd>`;
     return nothing;
 };
 

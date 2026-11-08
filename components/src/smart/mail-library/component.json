@@ -2,7 +2,7 @@
   "$comment": "The source of sf-mail-library's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Moved from simai/ui-mail package/src/smart/mail-library (smart.manifest.json 0.2.0, ui-mail 330720b) by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. The name stays sf-mail-library (owner decision q-08d1979fc9). Written by hand in the 1.4 form on the shape of sf-chat-interlocutor; x-decisions says how each point was decided.",
   "id": "smart.mail-library",
   "tag": "sf-mail-library",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "kind": "leaf",
   "family": "list",
   "settings": {
@@ -237,7 +237,8 @@
     "first paint (§5.4): no late data. The editor's blocks come from its own manifest with the page, together with the groups and places; the printed markup is the search field, the chips and the rows. A host that loads its blocks later holds its own skeleton.",
     "words: lang/ru.json and lang/en.json; ru is the source language (the ui-mail words were written in Russian first). The own verbs' words are events.<verb>.label.",
     "css-variables: none yet. Every value is a Framework token, as it was in ui-mail.",
-    "self-contained: nothing from simai/ui-mail is imported."
+    "self-contained: nothing from simai/ui-mail is imported.",
+    "version 1.0.3 (2026-11-09): a patch (no visible change). A category chip that is not chosen asks for appearance=\"ghost\", the look SIMAI Framework now calls ghost (decision C15, sf-button 1.7.0 and sf-button-icon of the pair ui-d6f01121baca); link is its former name, a dated alias until 2027-01-01, drawn the same. Settings, values and events are unchanged."
   ],
   "x-rule": {
     "$comment": [

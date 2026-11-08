@@ -17,7 +17,7 @@ function renderRow(context, letter) {
                     ? nothing
                     : html`<sf-button size="1/2" appearance="outline" text=${context.openLabel} data-action="open"
                              @click=${() => context.component.choose({action: "open", id: letter.id})}></sf-button>`}
-                <sf-button-icon size="1/2" appearance="link" icon="more_horiz" data-action="more"
+                <sf-button-icon size="1/2" appearance="ghost" icon="more_horiz" data-action="more"
                     aria-label=${letter.actionsLabel}
                     @click=${(event) => context.component.openMenu(letter.id, event.currentTarget)}></sf-button-icon>
             </span>

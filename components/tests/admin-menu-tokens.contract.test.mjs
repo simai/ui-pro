@@ -22,9 +22,11 @@ test('Admin Menu uses hairline and semantic radius tokens by element role', asyn
   // corner has to be a decision someone made. The search panel of 2026-10-03
   // added two hairlines — the line under the key hints and the border of the Esc
   // key — and three rounded things: that key, the mark on a matched word, and the
-  // rows of nothing shown while the host is answering.
-  assert.equal((styles.match(/var\(--sf-px\)/g) || []).length, 8);
-  assert.equal((styles.match(/var\(--sf-radius--ui\)/g) || []).length, 11);
+  // rows of nothing shown while the host is answering. The Esc key's border and
+  // corner left with its own rule (component.admin-menu 1.0.1, sf-kbd 1.1.0,
+  // R030): the key is the Framework's kbd, a cap by its place in the field.
+  assert.equal((styles.match(/var\(--sf-px\)/g) || []).length, 7);
+  assert.equal((styles.match(/var\(--sf-radius--ui\)/g) || []).length, 10);
   assert.equal((styles.match(/var\(--sf-radius--surface\)/g) || []).length, 2);
   assert.match(styles, /\.sf-admin-menu-bottom[\s\S]*?var\(--sf-radius--surface\)/);
 });

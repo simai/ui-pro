@@ -276,11 +276,13 @@
     --sf-badge--padding-inline-end: var(--sf-a4);
   }
 
+  /* A row's shortcut: SIMAI Framework's kbd draws it (owner decision
+     2026-11-07, docs review R030, rule C04); the rows ask for its plain look
+     with appearance="plain". Only the place in the row's flex line is the
+     menu's: the key never shrinks. */
+  /* sf-kbd-lint: allow layout only, the key's look is the kbd component's */
   .sf-admin-nav-kbd {
     flex: none;
-    color: var(--sf-on-surface-variant);
-    font-size: var(--sf-text-size-1\/3);
-    font-family: inherit;
   }
 
   /* In the rail a row's counter sits on its icon (simai/ui-source#12): the

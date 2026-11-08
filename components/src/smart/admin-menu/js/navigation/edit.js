@@ -108,7 +108,7 @@ function renderIconChooser(context, row) {
         search-placeholder=${text("chooseIcon")} aria-label=${`${text("chooseIcon")}: ${row.label ?? ""}`}
         value=${current} .options=${options}
         @change=${(event) => controller.setRowIcon(row.key, event.detail?.value ?? "")}>
-        <sf-button-icon slot="trigger" size="1/2" appearance="link" scheme="on-surface" icon=${current || "add_photo_alternate"}
+        <sf-button-icon slot="trigger" size="1/2" appearance="ghost" scheme="on-surface" icon=${current || "add_photo_alternate"}
             title=${text("chooseIcon")} aria-label=${`${text("chooseIcon")}: ${row.label ?? ""}`}></sf-button-icon>
     </sf-dropdown>`;
 }
@@ -183,7 +183,7 @@ function renderAdd(context, root) {
             ${edit.linkError ? html`<p class="sf-admin-nav-edit-message" role="alert">${edit.linkError}</p>` : nothing}
             <div class="sf-admin-nav-edit-actions">
                 <sf-button size="1/2" @click=${(event) => event.target.closest("form")?.requestSubmit()} text=${text("add")}></sf-button>
-                <sf-button size="1/2" appearance="link" scheme="on-surface"
+                <sf-button size="1/2" appearance="ghost" scheme="on-surface"
                     @click=${() => { controller.edit = {...controller.edit, adding: null, draft: null, linkError: ""}; controller.update("edit"); }} text=${text("cancel")}></sf-button>
             </div>
         </form>`;

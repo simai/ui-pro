@@ -85,6 +85,6 @@ export function renderSearchRow(context) {
         @click=${(event) => { event.preventDefault(); controller.openPalette(); }}>
         ${icon("search")}
         ${compact ? nothing : html`<span class="sf-admin-nav-row-label">${text("search")}</span>
-            <kbd class="sf-admin-nav-kbd">${shortcut}</kbd>`}
+            <kbd class="sf-admin-nav-kbd" appearance="plain">${shortcut}</kbd>`}
     </a>`;
 }

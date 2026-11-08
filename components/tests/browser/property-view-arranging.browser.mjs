@@ -32,7 +32,7 @@ const modules = [
   'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/input/js/input.js', 'smart/smart/switch/js/switch.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js',
-  'smart/smart/button-group/js/button-group.js',
+  'smart/smart/segmented/js/segmented.js',
   'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/tree/js/tree.js', 'smart/smart/tree-item/js/tree-item.js',
   'smart/smart/spinner/js/spinner.js', 'smart/smart/drawer/js/drawer.js',

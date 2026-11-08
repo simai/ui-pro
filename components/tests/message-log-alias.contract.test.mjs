@@ -105,7 +105,7 @@ test('the rule relates the feed, and the folder names one component', () => {
   assert.equal(manifest.custom_element, 'sf-message-log');
   assert.deepEqual(manifest.composition.uses, ['smart.list-feed']);
   assert.equal(contract.tag, 'sf-message-log');
-  assert.equal(contract.version, '2.0.0');
+  assert.equal(contract.version, '2.0.1');
   assert.equal(manifest.version, contract.version);
   assert.equal(contract.templates, undefined, 'no template of its own');
   assert.equal(manifest.ownership.source, 'simai/ui-pro');

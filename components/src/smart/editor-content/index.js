@@ -1885,12 +1885,12 @@ class SfContentEditor extends ContentEditorElement {
             const segment = item.choices.length === 1 ? "" : index === 0 ? "start" : index === item.choices.length - 1 ? "end" : "middle";
             const choose = () => this.writeParam(node.id, item, String(choice));
             return icon
-                ? html`<sf-button-icon size="1/3" icon=${icon} appearance=${on ? "tonal" : "link"} segment=${segment} aria-pressed=${on ? "true" : "false"}
+                ? html`<sf-button-icon size="1/3" icon=${icon} appearance=${on ? "tonal" : "ghost"} segment=${segment} aria-pressed=${on ? "true" : "false"}
                     aria-label=${label} title=${label} data-param=${item.key} data-value=${String(choice)} @click=${choose}></sf-button-icon>`
-                : html`<sf-button size="1/3" text=${this.choiceWord(item.key, choice)} appearance=${on ? "tonal" : "link"} segment=${segment} aria-pressed=${on ? "true" : "false"}
+                : html`<sf-button size="1/3" text=${this.choiceWord(item.key, choice)} appearance=${on ? "tonal" : "ghost"} segment=${segment} aria-pressed=${on ? "true" : "false"}
                     aria-label=${label} title=${label} data-param=${item.key} data-value=${String(choice)} @click=${choose}></sf-button>`;
         };
-        const more = html`<sf-button-icon size="1/3" icon="tune" appearance="link" class="sf-content-editor-quick-more" aria-label=${this.sfWord("params-text")} title=${this.sfWord("params-text")}
+        const more = html`<sf-button-icon size="1/3" icon="tune" appearance="ghost" class="sf-content-editor-quick-more" aria-label=${this.sfWord("params-text")} title=${this.sfWord("params-text")}
             slot=${host ? nothing : "trigger"} @click=${host ? () => this.tellParams({open: true}) : null}></sf-button-icon>`;
         render(html`
             ${quick.map((item) => html`<div class="sf-content-editor-quick-group" role="group" aria-label=${this.paramWord(item.key)}>${item.choices.map((choice, index) => toggle(item, choice, index))}</div>`)}

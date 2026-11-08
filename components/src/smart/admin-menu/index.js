@@ -1915,7 +1915,7 @@ class SfAdminMenu extends AdminMenuElement {
                 {
                     component: "sf-button",
                     props: {
-                        appearance: "link",
+                        appearance: "ghost",
                         scheme: "on-surface",
                         iconStart: "save",
                         text: this.translate("save"),
@@ -1927,7 +1927,7 @@ class SfAdminMenu extends AdminMenuElement {
                 {
                     component: "sf-button",
                     props: {
-                        appearance: "link",
+                        appearance: "ghost",
                         scheme: "on-surface",
                         iconStart: `visibility${!tempVisible ? "_off" : ""}`,
                         text: this.translate(!tempVisible ? "hide" : "show"),

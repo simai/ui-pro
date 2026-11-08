@@ -119,7 +119,7 @@ function renderItems(context, field) {
                      @sf-sortable-move=${(event) => component.onSortableMove(field.path, event)}>
             ${repeat(items, (_, index) => index, (item, index) => renderItem(context, field, item, index))}
         </sf-sortable>
-        <sf-button class="sf-mail-inspector-add" appearance="link" scheme="on-surface" size="1/2" icon-start="add" text=${context.words.add}
+        <sf-button class="sf-mail-inspector-add" appearance="ghost" scheme="on-surface" size="1/2" icon-start="add" text=${context.words.add}
                    data-item-add=${field.path} ?disabled=${component.isFull(field)}
                    @click=${() => component.itemAdd({path: field.path})}></sf-button>
     </div>`;

@@ -22,10 +22,10 @@ export function renderContentEditorTemplate(context) {
                      ?hidden=${!context.titleShown}></div>
                 <div class="sf-content-editor-blocks" role="group" tabindex="-1" aria-label=${context.label}></div>
                 <div class="sf-content-editor-gutter">
-                    <sf-button-icon class="sf-content-editor-plus" size="1/3" appearance="link" icon="add"
+                    <sf-button-icon class="sf-content-editor-plus" size="1/3" appearance="ghost" icon="add"
                                     aria-label=${context.plusLabel} title=${context.plusLabel}
                                     @click=${(event) => component.openMenu("plus", event.currentTarget)}></sf-button-icon>
-                    <sf-button-icon class="sf-content-editor-grip" size="1/3" appearance="link" icon="drag_indicator"
+                    <sf-button-icon class="sf-content-editor-grip" size="1/3" appearance="ghost" icon="drag_indicator"
                                     aria-label=${context.gripLabel} title=${context.gripLabel} aria-haspopup="menu"
                                     @pointerdown=${(event) => component.onGripDown(event)}
                                     @keydown=${(event) => component.onGripKey(event)}></sf-button-icon>
