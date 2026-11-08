@@ -10,6 +10,8 @@ import {html, render} from "lit";
 import {setParentSpace} from "../helpers/dom";
 import {bindSortableDrag} from "../helpers/draggable";
 import BundledPosition from "../../core/js/position.js";
+import {holdOpenSurfaceMark} from "../../core/js/open-surface-mark.js";
+import {layerZIndex} from "../../core/js/layer-stack.js";
 import {pageText} from "../../core/js/page-language";
 import {
     NavigationController,
@@ -269,6 +271,10 @@ class SfAdminMenu extends AdminMenuElement {
         this.contextKeyEvent = this.contextKeyEvent.bind(this);
         this.contextFocusEvent = this.contextFocusEvent.bind(this);
         this._contextEventBound = false;
+        // The settings menu's place on the document's one layer stack: one
+        // owner for every menu this element opens, alive while it is.
+        const host = this;
+        this._contextLayer = {get isConnected() { return host.isConnected; }};
         this._contextOpenToken = 0;
         this._contextPortal = null;
         this._contextReturnFocus = null;
@@ -1764,7 +1770,15 @@ class SfAdminMenu extends AdminMenuElement {
         }
         const scrollingElement = document.scrollingElement;
         this._contextScrollPositions.set(document, {left: scrollingElement?.scrollLeft, top: scrollingElement?.scrollTop});
-        document.addEventListener("click", this.contextEvent);
+        // A surface of the document's one layer stack (standard 1.3.8 §19):
+        // the stack's one listener hands it a press outside and Escape while
+        // it is the top layer, in place of a document click and keydown of
+        // its own (reuse audit 2026-11-02, findings 1 and 3).
+        holdOpenSurfaceMark(this._contextLayer, true, {
+            root: () => this.refs.contextMenu?.value ?? null,
+            onOutsidePress: (event) => this.contextOutsidePress(event),
+            onEscape: (event) => this.contextEscape(event),
+        });
         document.addEventListener("keydown", this.contextKeyEvent);
         document.addEventListener("focusin", this.contextFocusEvent);
         document.addEventListener("scroll", this.contextScrollEvent, true);
@@ -1780,7 +1794,7 @@ class SfAdminMenu extends AdminMenuElement {
             return;
         }
 
-        document.removeEventListener("click", this.contextEvent);
+        holdOpenSurfaceMark(this._contextLayer, false);
         document.removeEventListener("keydown", this.contextKeyEvent);
         document.removeEventListener("focusin", this.contextFocusEvent);
         document.removeEventListener("scroll", this.contextScrollEvent, true);
@@ -1800,13 +1814,25 @@ class SfAdminMenu extends AdminMenuElement {
         this.closeContextMenu();
     }
 
+    // A press on the control that opened the menu is left to its own click,
+    // which closes the menu it opened (openContextMenu): closed here first,
+    // that click would open it again.
+    contextOutsidePress(event) {
+        const opener = this.contextTarget;
+        if (opener instanceof Element && (event.composedPath?.() || []).includes(opener)) return;
+        this.contextEvent(event);
+    }
+
+    // Escape from inside the menu, as before; answers true when it took it.
+    contextEscape(event) {
+        if (event.key !== "Escape" || !this.isContextMenuEvent(event)) return false;
+        this.closeContextMenu();
+        return true;
+    }
+
     contextKeyEvent(event) {
         if (event.defaultPrevented || !this.isContextMenuEvent(event)) return;
-        if (event.key === "Escape") {
-            event.preventDefault();
-            event.stopPropagation();
-            this.closeContextMenu();
-        } else if (event.key === "Tab") {
+        if (event.key === "Tab") {
             // Restore the opener first; native Tab then continues from its position,
             // rather than from the portal appended at the end of the document.
             this.closeContextMenu();
@@ -1932,6 +1958,10 @@ class SfAdminMenu extends AdminMenuElement {
         this._contextPortal = portal;
         const token = ++this._contextOpenToken;
         const openingFocus = document.activeElement;
+        // On the layer stack before it is drawn: the menu takes its z-index
+        // from its place there (it was a fixed 10000, above every modal).
+        this.bindContextEvent();
+        const zIndex = layerZIndex(this._contextLayer);
         render(
             html`
                 <sf-menu-context
@@ -1941,7 +1971,7 @@ class SfAdminMenu extends AdminMenuElement {
             inset-inline-start: calc(${x}px + var(--sf-context-menu-tail-corner-offset));
             inset-block-start: ${y}px;
             transform: ${pos};
-            z-index: 10000;
+            z-index: ${zIndex === "" ? 10000 : zIndex};
           "
                         .items=${items}
                         aria-label=${this._contextReturnFocus?.getAttribute("aria-label") || this.translate("settingsTitle")}
@@ -1979,7 +2009,6 @@ class SfAdminMenu extends AdminMenuElement {
                 if (token === this._contextOpenToken) this._contextReadyHandler?.();
             });
         });
-        this.bindContextEvent();
     }
 
     clampContextMenuToViewport() {
