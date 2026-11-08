@@ -2,7 +2,7 @@
   "$comment": "The source of sf-editor's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Part B of the owner's one-block-editor decision of 2026-11-03 (ui-control control/ui-editor/UNIFIED-BLOCK-EDITOR.md, control/decisions/2026-11-03-one-editor-part-a.md), on the Part A contracts of SIMAI Framework pair ui-a2ca21f06e0c. Written by hand in the 1.4 form on the shape of sf-editor-content; x-decisions says how each point was decided.",
   "id": "smart.editor",
   "tag": "sf-editor",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -457,7 +457,8 @@
     "rights: from the host only; layout false = the author writes only inside layout.area; a locked part is dimmed with a lock and says why on a press.",
     "theme: read only; its defaults are a level of origin, its attributes go on the drawn page.",
     "data: a block never fetches; the host's source port (connect-port {sources, fields, preview, saveBlock?}) is wrapped by createSourcePort and only previews and lists sources.",
-    "storage: none. Every change is a change event with the whole Document; site blocks go out in block-save."
+    "storage: none. Every change is a change event with the whole Document; site blocks go out in block-save.",
+    "version 1.2.1 (2026-11-08): a patch (accessibility). The canvas draws the page Document with Composition render options.embedded (SIMAI Framework pair ui-0c23f6a0af12, ui-source #60), so the page's layout.page and a main region become <div data-sf-composition-landmark=\"main\"> inside the editor's own page instead of a second, nested main (axe landmark-main-is-top-level, landmark-no-duplicate-main). The canvas still counts that div as the page's main landmark, so around such a page it stays an unnamed group and the page's landmarks stay top level, as before. toHTML, the HTML a site prints, keeps the landmarks. A pair before it ignores the option. Settings, values and events are unchanged."
   ],
   "x-rule": {
     "$comment": [
