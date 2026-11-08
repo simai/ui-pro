@@ -39,7 +39,7 @@ const modules = [
   'smart/smart/input/js/input.js', 'smart/smart/button-icon/js/button-icon.js', 'smart/smart/button/js/button.js',
   'smart/smart/dropdown/js/dropdown.js', 'smart/smart/list-item/js/list-item.js', 'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/spinner/js/spinner.js', 'smart/smart/drawer/js/drawer.js', 'smart/smart/tag/js/tag.js',
-  'smart/smart/button-group/js/button-group.js', 'smart/smart/switch/js/switch.js',
+  'smart/smart/segmented/js/segmented.js', 'smart/smart/switch/js/switch.js',
   'smart/smart/field-renderers/js/field-renderers.js',
   'smart/smart/popover/js/popover.js', 'smart/smart/view-properties/js/view-properties.js',
 ];

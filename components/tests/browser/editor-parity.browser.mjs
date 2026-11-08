@@ -29,7 +29,7 @@ import {chromium} from 'playwright';
 
 if (!process.argv[2]) throw new Error('Build output root is required');
 const out = resolve(process.argv[2]);
-const parts = ['icon', 'button', 'button-icon', 'button-group', 'tabs', 'input', 'dropdown', 'switch', 'skeleton', 'menu-context', 'modal', 'editor-inline'];
+const parts = ['icon', 'button', 'button-icon', 'segmented', 'tabs', 'input', 'dropdown', 'switch', 'skeleton', 'menu-context', 'modal', 'editor-inline'];
 const sheets = ['buttons', 'icon-buttons', 'button-group', 'inputs', 'dropdown', 'switch', 'skeleton', 'modal', 'menu', 'context-menu', 'tabs', 'tab', 'icons']
   .map((name) => `component/component/${name}/css/${name}.css`).filter((path) => existsSync(join(out, path)));
 const styles = [
@@ -448,6 +448,10 @@ try {
         const group = row?.querySelector('.sf-button-group');
         const segments = [...(group?.querySelectorAll('.sf-button-group-segment') ?? [])];
         const active = segments.find((segment) => segment.classList.contains('active'));
+        // sf-segmented's track look (the default since the pair ui-d6f01121baca,
+        // where the editor's segmented is its former name) draws the chosen
+        // segment's raised surface as a plate that slides under it.
+        const surface = group?.querySelector(':scope > .sf-button-group-plate') ?? active;
         const probe = document.createElement('span');
         probe.style.color = 'var(--sf-primary)';
         right.append(probe);
@@ -455,7 +459,7 @@ try {
         probe.remove();
         return {
           labels: segments.map((segment) => segment.textContent.trim()), active: active?.textContent.trim(),
-          activeFill: active ? getComputedStyle(active).backgroundColor : '', activeShadow: active ? getComputedStyle(active).boxShadow : '', primary,
+          activeFill: surface ? getComputedStyle(surface).backgroundColor : '', activeShadow: surface ? getComputedStyle(surface).boxShadow : '', primary,
           height: group ? Math.round(group.getBoundingClientRect().height) : 0,
           more: Boolean(row?.querySelector('.sf-editor-more-steps')),
           sameRow: (() => {

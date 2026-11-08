@@ -82,9 +82,11 @@ try {
   if (!cells.docs.every((one) => one.icon === 'picture_as_pdf')) note(`a document is drawn without its icon: ${JSON.stringify(cells.docs)}`);
   if (JSON.stringify(cells.one) !== '["Счёт № 45.pdf"]') note(`one document draws ${JSON.stringify(cells.one)}`);
   const ru = (options, at) => new Intl.DateTimeFormat('ru', options).format(at);
+  // The day reads in figures in the page's locale (module.smart-field-renderers
+  // 1.5.0, ui-source#44, pair ui-d6f01121baca): 02.11.2026 and 15.11.2026 10:30.
   const expected = {
-    day: ru({dateStyle: 'medium'}, new Date(2026, 10, 2)),
-    at: ru({dateStyle: 'medium', timeStyle: 'short'}, new Date(2026, 10, 15, 10, 30)),
+    day: ru({day: '2-digit', month: '2-digit', year: 'numeric'}, new Date(2026, 10, 2)),
+    at: `${ru({day: '2-digit', month: '2-digit', year: 'numeric'}, new Date(2026, 10, 15, 10, 30))} ${ru({timeStyle: 'short'}, new Date(2026, 10, 15, 10, 30))}`,
     time: ru({timeStyle: 'short'}, new Date(2000, 0, 1, 9, 30)),
   };
   for (const [key, text] of Object.entries(expected)) if (cells[key] !== text) note(`${key} reads «${cells[key]}», not «${text}»`);
