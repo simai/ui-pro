@@ -2,10 +2,10 @@
 // the duplicate-shipping window).
 //
 // sf-view, sf-view-table and sf-view-properties moved to the view set: their
-// source is simai/ui-view, released as view-a79198bb298c (@simai-studio/view
-// 1.3.1, ui-view tag view-a79198bb298c, package/src/smart/<folder>; earlier
+// source is simai/ui-view, released as view-99c8dd1585fd (@simai-studio/view
+// 1.4.0, ui-view tag view-99c8dd1585fd, package/src/smart/<folder>; earlier
 // releases view-4d7070623fe1, view-9c963d217188, view-f529c2354b0d and
-// view-cd0d82aeb756). Until the next pro bundle takes them from that
+// view-cd0d82aeb756; view-a79198bb298c was prepared, never published). Until the next pro bundle takes them from that
 // release, ui-pro still ships its own copies of the three folders, and they
 // must stay the release's tree exactly: a change made here would ship in pro
 // and not in view, and the next bundle would silently drop it.
@@ -26,10 +26,10 @@ import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
 
-// view-a79198bb298c: `git -C ui-view rev-parse view-a79198bb298c:package/src/smart/<folder>`.
-const RELEASE = 'view-a79198bb298c';
+// view-99c8dd1585fd: `git -C ui-view rev-parse view-99c8dd1585fd:package/src/smart/<folder>`.
+const RELEASE = 'view-99c8dd1585fd';
 const FROZEN = {
-  'view': '452e654a13152b36310c3cd3d04e19feae415b8b',
+  'view': 'd7d56897ff2515029c6978e582524aaf7f93a1dd',
   'view-table': '52acc02769c99655c5fdb9c8905f8f7ed6d57a33',
   'view-properties': '71f42ce94a2a115b289b4e43503252d4215c8418',
 };

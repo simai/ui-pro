@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view",
-  "version": "1.8.2",
+  "version": "1.9.0",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -143,9 +143,9 @@
       ],
       "host_port": {
         "port": "simai.dataview-port",
-        "version": "1.13.0",
-        "path": "src/core/contracts/ports/simai.dataview-port/1.13.0/port.json",
-        "sha256": "6b6fa1e500b531c2db5cf296c7f3cf09cff991c9d86551f3a6e712ef0e3aad5c",
+        "version": "1.14.0",
+        "path": "src/core/contracts/ports/simai.dataview-port/1.14.0/port.json",
+        "sha256": "729e7aae0fa1f4425ae11a470de024f75e92d475cd24cc63b7e1d3d020d2955b",
         "supported_versions": [
           "1.0.0",
           "1.1.0",
@@ -160,7 +160,8 @@
           "1.10.0",
           "1.11.0",
           "1.12.0",
-          "1.13.0"
+          "1.13.0",
+          "1.14.0"
         ]
       }
     }
@@ -1521,6 +1522,13 @@
         "changes": [
           "A table the host wrote selectable=\"false\" or settings=\"false\" on keeps it inside the view (no row boxes, no settings column); before, the view's chrome overwrote both. Nothing to change for a host; a host that wanted the view's boxes on such a table removes its own attribute."
         ]
+      },
+      {
+        "from": "1.8.2",
+        "to": "1.9.0",
+        "changes": [
+          "Speaks simai.dataview-port 1.14.0 (SIMAI Framework pair ui-0c23f6a0af12, ui-source #48) beside 1.0.0-1.13.0: a bulk.apply_selected the host refuses with confirm_required and a digest is asked of the person and, confirmed, raised again with payload.confirm, as record.mutate and record.set already were. Nothing to change for a host on 1.13.0 or earlier; a host on 1.14.0 may ask to confirm a bulk write first."
+        ]
       }
     ]
   },
@@ -1530,7 +1538,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view/index.js",
-        "sha256": "1ea30c79b3935c00ede4d82f563699baba315e833488c63ddbc7c2f3462a7a36"
+        "sha256": "2aa16167dbc9ea866914aec36ad6e8738c4d6c7b1f121cf0e2cb0c6dd5d75c34"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",
