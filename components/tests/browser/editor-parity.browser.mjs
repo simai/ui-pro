@@ -591,7 +591,9 @@ try {
     check('7: one bar row of 48 at 1440', bar.height === 48 && bar.rows === 1, bar);
     check('7: the screens are in the centre', Math.abs(bar.screensOffset) <= 2, bar.screensOffset);
     check('7: help, output and theme are 32px icon buttons', [bar.help, bar.output, bar.theme].every((size) => size && size[0] === 32 && size[1] === 32), {help: bar.help, output: bar.output, theme: bar.theme});
-    check('7: «Изменить шаблон» is a link, not a full outlined button', bar.template && bar.template.appearance === 'link' && bar.template.height <= 32, bar.template);
+    // ghost is the name of the look link was (C15, pair ui-d6f01121baca); the
+    // frozen editor still asks for link, and the shim writes ghost on the host.
+    check('7: «Изменить шаблон» is a ghost button, not a full outlined button', bar.template && ['ghost', 'link'].includes(bar.template.appearance) && bar.template.height <= 32, bar.template);
     check('7: the host\'s slotted controls (slots start and actions) stand in the same row', bar.pages !== null && bar.lang !== null && Math.abs(bar.pages - bar.barCentre) <= 2 && Math.abs(bar.lang - bar.barCentre) <= 2 && bar.pagesFirst && bar.langBeforeHelp, bar);
     await tab.locator('#editor .sf-editor-help-open button').click();
     await settle(tab, 200);

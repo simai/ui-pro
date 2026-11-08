@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-canvas",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "title": "Letter canvas",
   "summary": "The canvas of SIMAI Email Editor: a rendered letter in a frame that runs nothing, the width switch, the out-of-date and weight notes and sf-editor-overlay on top. The element knows no letter, no block manifest and no renderer: the host passes the HTML and the data about it, and hears what the person did.",
   "kind": "smart",
@@ -25,7 +25,7 @@
   "exported_parts": [],
   "composition": {
     "uses": [
-      "smart.button-group",
+      "smart.segmented",
       "smart.editor-overlay"
     ],
     "public_parts": []
@@ -99,7 +99,7 @@
         "items": {
           "type": "object"
         },
-        "description": "The widths offered, as sf-button-group takes them: {value, label, icon, icon-only, aria-label}. value is the letter's width; frame is the frame's width in pixels when it differs from value. Empty shows no switch and the frame fills the well."
+        "description": "The widths offered, as sf-segmented takes them: {value, label, icon, icon-only, aria-label}. value is the letter's width; frame is the frame's width in pixels when it differs from value. Empty shows no switch and the frame fills the well."
       },
       "weight": {
         "type": "object",
@@ -499,7 +499,7 @@
       },
       {
         "path": "src/smart/mail-canvas/js/templates/default.js",
-        "sha256": "d9a92dc0c4ad0b6bc997f316c7fee581ab3d0d280ab0574bdc35f1cd36e54964"
+        "sha256": "d90a1912832256626c85ac30040d814889c865bbfadfc5d0d1e16d83493606f1"
       },
       {
         "path": "src/smart/mail-canvas/js/templates/default.css",
@@ -507,7 +507,7 @@
       },
       {
         "path": "src/smart/mail-canvas/rule.js",
-        "sha256": "9afe33d67adb8c1a23225e93333c557816032b50574d57d49588d9cddcbfa23e"
+        "sha256": "64de351d5805fe3924397a5afaa78ea6c5a2f50b64eef8b10aca86ff406777a4"
       },
       {
         "path": "src/smart/mail-canvas/docs.md",
@@ -515,7 +515,7 @@
       },
       {
         "path": "src/smart/mail-canvas/component.json",
-        "sha256": "983783a699b2a5c16969f606bce12f3a9357dace18db21c3cf4febe397e6f8cf"
+        "sha256": "d04fe91c3312c5f0f3d6d15ab548c1cc4fc9ce1695e891a8840b13af910c40fe"
       },
       {
         "path": "src/smart/mail-canvas/lang/en.json",

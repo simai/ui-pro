@@ -24,7 +24,7 @@ function renderRow(context, row) {
                 <span class="sf-mail-structure-title">${row.title}</span>
                 ${row.summary ? html`<span class="sf-mail-structure-summary">${row.summary}</span>` : nothing}
             </span>
-            <sf-button-icon class="sf-mail-structure-more" size="1/2" appearance="link" icon="more_horiz" tabindex="-1"
+            <sf-button-icon class="sf-mail-structure-more" size="1/2" appearance="ghost" icon="more_horiz" tabindex="-1"
                             aria-label=${row.actionsLabel} title=${row.actionsLabel}
                             @click=${(event) => component.openMenu(row.id, event.currentTarget)}></sf-button-icon>
         </div>

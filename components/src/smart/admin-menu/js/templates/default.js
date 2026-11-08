@@ -621,7 +621,7 @@ export function renderAdminMenuTemplate(context) {
                       {
                         component: "sf-button",
                         props: {
-                          appearance: "link",
+                          appearance: "ghost",
                           scheme: "on-surface",
                           iconStart: "save",
                           text: menuText("save"),
@@ -634,7 +634,7 @@ export function renderAdminMenuTemplate(context) {
                         ? [{
                             component: "sf-button",
                             props: {
-                              appearance: "link",
+                              appearance: "ghost",
                               scheme: "on-surface",
                               iconStart: context.settingsMode === "system" ? "person" : "groups",
                               text: context.settingsMode === "system"
@@ -649,7 +649,7 @@ export function renderAdminMenuTemplate(context) {
                       ...(context.persistenceMode === "external" ? [{
                         component: "sf-button",
                         props: {
-                          appearance: "link",
+                          appearance: "ghost",
                           scheme: "on-surface",
                           iconStart: "visibility",
                           text: menuText("hiddenItems"),
@@ -662,7 +662,7 @@ export function renderAdminMenuTemplate(context) {
                         ? [{
                         component: "sf-button",
                         props: {
-                          appearance: "link",
+                          appearance: "ghost",
                           scheme: "on-surface",
                           iconStart: "horizontal_rule",
                           text: menuText("addDivider"),
@@ -675,7 +675,7 @@ export function renderAdminMenuTemplate(context) {
                       {
                         component: "sf-button",
                         props: {
-                          appearance: "link",
+                          appearance: "ghost",
                           scheme: "on-surface",
                           iconStart: "refresh",
                           text: menuText("refreshState"),
@@ -685,7 +685,7 @@ export function renderAdminMenuTemplate(context) {
                       {
                         component: "sf-button",
                         props: {
-                          appearance: "link",
+                          appearance: "ghost",
                           scheme: "on-surface",
                           iconStart: "restart_alt",
                           text: menuText("resetSettings"),
@@ -695,7 +695,7 @@ export function renderAdminMenuTemplate(context) {
                       {
                         component: "sf-button",
                         props: {
-                          appearance: "link",
+                          appearance: "ghost",
                           scheme: "on-surface",
                           iconStart: "close",
                           text: menuText("cancel"),
@@ -725,7 +725,7 @@ export function renderAdminMenuTemplate(context) {
                 ? menuText("conflict")
                 : settingsError || menuText("saveError")}</span>
               <sf-button
-                appearance="link"
+                appearance="ghost"
                 scheme="primary"
                 size="1/2"
                 text=${settingsStatus === "conflict" ? menuText("refreshState") : menuText("save")}
@@ -829,7 +829,7 @@ export function renderAdminMenuTemplate(context) {
             ? html`<sf-button-icon
                 data-sf-admin-search-toggle
                 root-class="sf-admin-menu-search-toggle"
-                appearance="link"
+                appearance="ghost"
                 scheme="on-surface"
                 icon="search"
                 title=${context.searchLabel}
@@ -898,7 +898,7 @@ export function renderAdminMenuTemplate(context) {
         ${showSettings
           ? html` <sf-button-icon
               id="${item.panelId}_move"
-              appearance="link"
+              appearance="ghost"
               data-move
               scheme="on-surface"
               aria-label="Set order"
@@ -920,7 +920,7 @@ export function renderAdminMenuTemplate(context) {
         ${showSettings
           ? html` <sf-button-icon
               id="${item.panelId}_settings"
-              appearance="link"
+              appearance="ghost"
               @click=${(event) =>
                 component.openContextMenu(event, {
                   tempVisible: isTempVisible,
@@ -972,7 +972,7 @@ export function renderAdminMenuTemplate(context) {
         ${showSettings
           ? html` <sf-button-icon
               id="${item.panelId}_move"
-              appearance="link"
+              appearance="ghost"
               data-move
               scheme="on-surface"
               aria-label="Set order"
@@ -986,7 +986,7 @@ export function renderAdminMenuTemplate(context) {
         ${showSettings
           ? html` <sf-button-icon
               id="${item.panelId}_settings"
-              appearance="link"
+              appearance="ghost"
               @click=${(event) =>
                 component.openContextMenu(event, {
                   tempVisible: isTempVisible,

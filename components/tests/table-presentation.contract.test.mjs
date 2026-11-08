@@ -173,7 +173,14 @@ test('every colour role the table names is a role the theme declares', async () 
   const roles = new Set(
     [...css.matchAll(/var\(--sf-(surface|primary|outline|on-surface)[a-z0-9-]*\)/gu)].map((match) => match[0].slice(4, -1)),
   );
-  const missing = [...roles].filter((role) => !theme.includes(`${role}:`));
+  // A former name of the background system's renames (C16, 2026-11-08) is
+  // declared too, as var() of its new name, until its remove_after
+  // (src/core/contracts/token-aliases.v1.json). sf-view-table is frozen to its
+  // view release here; it moves to the purpose names in simai/ui-view.
+  const aliases = new Set(JSON.parse(await read('src/core/contracts/token-aliases.v1.json')).tokens
+    .filter(({to}) => theme.includes(`${to}:`))
+    .map(({from}) => from));
+  const missing = [...roles].filter((role) => !theme.includes(`${role}:`) && !aliases.has(role));
 
   assert.deepEqual(missing, [], 'the table names only roles the theme declares');
   assert.ok(roles.size >= 6, 'the sweep actually found the roles');

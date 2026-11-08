@@ -14,10 +14,10 @@ export function renderMailCanvasTemplate(context) {
             <h2 class="sr-only">${context.previewLabel}</h2>
             ${context.choices.length
                 ? html`<div class="sf-mail-canvas-bar">
-                    <sf-button-group class="sf-mail-canvas-widths" appearance="segmented" plate="raised" size="1/2"
+                    <sf-segmented class="sf-mail-canvas-widths" plate="raised" size="1/2"
                                      aria-label=${context.widthsLabel} value=${context.chosenWidth}
                                      items=${JSON.stringify(context.choices)}
-                                     @change=${(event) => component.onWidthChange(event)}></sf-button-group>
+                                     @change=${(event) => component.onWidthChange(event)}></sf-segmented>
                 </div>`
                 : nothing}
             <p class="sf-mail-canvas-note sf-mail-canvas-stale" ?hidden=${!context.isStale}>${context.staleText}</p>
