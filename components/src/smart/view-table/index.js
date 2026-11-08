@@ -4188,6 +4188,8 @@ class SfTable extends TableElement {
         const label = option.label || option.title || String(value || '');
         const badge = field.filter?.optionRenderer === 'badge' ? optionBadgeProps(option) : null;
 
+        // An option list is a dense place: its badge keeps the size's own narrow
+        // side room (sf-badge tight, sf-badge 1.3.0), as a cell's choice badge does.
         return html`
             <div
                     ${ref(this.getItemRef(option.label))}
@@ -4196,6 +4198,7 @@ class SfTable extends TableElement {
                     ${badge ? html`
                         <sf-badge
                                 appearance="tonal"
+                                tight
                                 scheme=${badge.scheme}
                                 root-style=${badge.rootStyle || nothing}
                                 icon=${option.icon || nothing}

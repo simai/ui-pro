@@ -886,11 +886,22 @@
 
   .sf-property-view-title {
     margin: 0;
-    font-size: var(--sf-property-view--title-size, var(--sf-heading-4--size));
-    line-height: var(--sf-property-view--title-height, var(--sf-heading-4--height));
+    /* Rung 3, the step the heading-4 role held before the content heading
+       ladder moved it to the body size (tokens.typography 1.2.0, docs review
+       R022); a record's name is not a content sub-heading. */
+    font-size: var(--sf-property-view--title-size, var(--sf-text--size-3));
+    line-height: var(--sf-property-view--title-height, var(--sf-title--height-3));
     font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  /* The views' list heading is an h3 with no look of its own, so it took the
+     heading-3 role, which the content heading ladder moves two rungs down
+     (R022). It keeps rung 4 and the heading's own space, as before. */
+  .sf-property-view-profiles-title {
+    margin-block: var(--sf-heading--space-top) var(--sf-heading--space-bottom);
+    font-size: var(--sf-text--size-4);
+    line-height: var(--sf-title--height-4);
   }
   /* Beside the panel, not in it: the strip goes into the drawer's own edge area,
      which is a sibling of the panel and is not clipped by it. How the controls

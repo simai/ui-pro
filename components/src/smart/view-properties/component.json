@@ -2,7 +2,7 @@
   "$comment": "sf-property-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/property-view; every x-todo decided in x-decisions.",
   "id": "smart.view-properties",
   "tag": "sf-view-properties",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "kind": "leaf",
   "family": "record",
   "implements": [
@@ -1696,6 +1696,13 @@
           "to": "1.11.0",
           "changes": [
             "The set draws five property types itself, from Framework controls: money {amount, currency} (an amount with the currency's sign, or a currency choice; minor digits by ISO 4217), percent (a decimal with %), items (rows over the field's columns: typed cells, computed cells worked out live, totals, rows added, removed and moved, min and max rows, a card a row where the field is narrow), compound (a fixed set of parts, one value object) and ru.requisites (ИНН, КПП, ОГРН, БИК, accounts, checked part by part and together). Every number is a decimal string, never a float. An entry that is not a value yet holds both saves, as an incomplete masked string does. The settings they read (currency, columns, minRows, maxRows, parts) are due in simai.property-view-port 1.18.0. Nothing changes for a host that sends none of these types."
+          ]
+        },
+        {
+          "from": "1.11.0",
+          "to": "1.11.1",
+          "changes": [
+            "The record's title keeps rung 3 (--sf-text--size-3, --sf-title--height-3) and the views' list heading rung 4 with the heading's space, where they fell back to the heading-4 and heading-3 roles that the content heading ladder moves to smaller rungs (tokens.typography 1.2.0, docs review R022). Unchanged on the page over every pair; a host's --sf-property-view--title-size and --sf-property-view--title-height still win. Nothing to change for a host."
           ]
         }
       ]

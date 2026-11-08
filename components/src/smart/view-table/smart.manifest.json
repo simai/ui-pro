@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.15.0",
+  "version": "1.15.1",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2469,6 +2469,13 @@
         "changes": [
           "A date, date and time or time the host does not format reads in the page's language («2 нояб. 2026 г.», «15 нояб. 2026 г., 10:30», «09:30») instead of as stored; a host's formatFieldValue still wins. An html cell shows its text, not its markup; a cell of several files shows each file's name with its icon. The settings column is left out when it would open nothing (no settings-menu, no row actions, no row-reorder). Nothing to change for a host; a host that relied on stored dates in cells formats them in formatFieldValue."
         ]
+      },
+      {
+        "from": "1.15.0",
+        "to": "1.15.1",
+        "changes": [
+          "A filter option drawn as a badge is a tight badge (sf-badge tight, SIMAI Framework sf-badge 1.3.0): it keeps the size's own narrow side room in the dense option list, as a table cell's choice badge does. Needs the pair with sf-badge 1.3.0 (ui-2a671352d67b or newer) to show; on an older pair the attribute is ignored and the badge is as before. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -2478,7 +2485,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-table/index.js",
-        "sha256": "249039b637346c7c9ab8a6178a61874e29adce6c07fded6268941392a4da1ca4"
+        "sha256": "4ddecdbdde5c09d3ae1adb58386fd9ed55fdb844f5891218e74713d110123c61"
       },
       {
         "path": "src/smart/view-table/js/templates/default.js",
