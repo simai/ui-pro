@@ -15,7 +15,13 @@ test('Admin context menu bounds portal ownership and stale focus callbacks',()=>
 });
 
 test('Admin context menu pairs dismissal listeners and names its native settings opener',()=>{
-  for(const [event,handler] of [['click','contextEvent'],['keydown','contextKeyEvent'],['focusin','contextFocusEvent']]){
+  // Since 1.7.3 a press outside reaches the menu through the layer stack's one
+  // listener (holdOpenSurfaceMark), not a document click of its own; the mark
+  // is held and released in pairs like the remaining listeners.
+  assert.ok(!source.includes('document.addEventListener("click", this.contextEvent)'));
+  assert.ok(source.includes('holdOpenSurfaceMark(this._contextLayer, true'));
+  assert.ok(source.includes('holdOpenSurfaceMark(this._contextLayer, false)'));
+  for(const [event,handler] of [['keydown','contextKeyEvent'],['focusin','contextFocusEvent']]){
     assert.ok(source.includes(`document.addEventListener("${event}", this.${handler})`));
     assert.ok(source.includes(`document.removeEventListener("${event}", this.${handler})`));
   }
