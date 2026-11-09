@@ -134,6 +134,22 @@ free output may be a product output root or the `distr` of the ui distribution.
 `scripts/overlay.mjs` looks for ui-source beside the ui-pro checkout, or at
 `UI_SOURCE_ROOT`, or wherever `--ui-source` says.
 
+The probes drive Chromium through `playwright`, a pinned devDependency of
+this folder at the version the pinned ui-source declares. Install it before the
+first probe (about a second from the yarn cache; no browser is downloaded):
+
+```bash
+yarn install --frozen-lockfile --prefer-offline --ignore-scripts
+```
+
+Each probe runner links the overlay's `node_modules` to this folder's
+(`scripts/playwright-local.mjs`), so a probe never reaches a copy above the
+repository such as `~/node_modules`; an overlay that already holds a
+`node_modules` is taken only at the declared version. A git worktree whose
+`components/` has no `node_modules` borrows the main checkout's when that holds
+the declared version. Browsers live in `PLAYWRIGHT_BROWSERS_PATH` (the release
+route uses `<GitHub>/.playwright-browsers`).
+
 ## Building the package
 
 ui-builder builds it over the pinned ui-source, from committed bytes, twice

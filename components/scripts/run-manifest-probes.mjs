@@ -21,6 +21,7 @@ import {spawnSync} from 'node:child_process';
 import {cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {PACKAGE_ROOT, materializeOverlay, packageNameOf} from './overlay.mjs';
+import {linkOverlayPlaywright} from './playwright-local.mjs';
 
 const args = process.argv.slice(2);
 const at = args.indexOf('--overlay');
@@ -31,6 +32,9 @@ const free = resolve(freeInput);
 const built = resolve(packageInput);
 if (!existsSync(join(built, 'smart', 'rule.js'))) throw new Error(`the package output has no smart/rule.js: ${built}`);
 if (!existsSync(overlay)) materializeOverlay(overlay);
+// Before any probe: the overlay's playwright is this folder's pinned devDependency
+// (scripts/playwright-local.mjs), never a copy above the repository.
+linkOverlayPlaywright(overlay);
 
 // One output root in the product layout, the package's folders and its rule
 // file inside smart/smart beside the free components.
