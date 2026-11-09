@@ -89,7 +89,7 @@ test('the manifests and words declare the people mode, and the port is not exten
   const window = json('chat-window', 'component.json');
   const message = json('chat-message', 'component.json');
   assert.equal(window.version, '1.14.0');
-  assert.equal(message.version, '1.7.4');
+  assert.equal(message.version, '1.7.5');
   assert.deepEqual(window['x-port'].supports, ['1.0.0']);
   assert.ok(window['x-registry'].compatibility.migrations.some((one) => one.from === '1.2.0' && one.to === '1.3.0'));
   assert.match(message.settings.display.summary, /conflict/u);

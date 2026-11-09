@@ -9,8 +9,8 @@
        --sf-chat-composer-height            the buttons' and one line's height
      Their fallbacks are the tokens simai/ui-chat's chat.css and smart.css
      gave the same places (--sf-chat--ink-muted, --sf-chat--touch, the
-     elevation-1 surface, the outline at 3:1), so the composer reads as it did
-     there. */
+     elevation-1 surface, now the card surface, the outline at 3:1), so the
+     composer reads as it did there. The box casts the raised shadow (C20). */
   .sf-chat-composer {
     --sf-chat-composer--muted: var(--sf-chat-composer-hint-color, var(--sf-on-surface-variant));
     --sf-chat-composer--control: var(--sf-chat-composer-height, var(--sf-ui-1--control-height));
@@ -53,8 +53,8 @@
     /* The field's edge at 3:1 against the page (WCAG 1.4.11). */
     border: var(--sf-px) solid var(--sf-chat-composer-border-color, var(--sf-outline));
     border-radius: var(--sf-chat-composer--radius);
-    background: var(--sf-chat-composer-background-color, var(--sf-elevation-1--surface));
-    box-shadow: var(--sf-elevation-1--shadow);
+    background: var(--sf-chat-composer-background-color, var(--sf-surface-card));
+    box-shadow: var(--sf-shadow-raised);
     transition: border-color var(--sf-duration-fast), box-shadow var(--sf-duration-fast);
   }
 

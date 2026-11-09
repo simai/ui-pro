@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.7.5",
+  "version": "1.7.6",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -1321,7 +1321,7 @@
       },
       {
         "path": "src/smart/admin-menu/js/navigation/navigation.css",
-        "sha256": "370d8947de5bf13db2b9c263f30d143880bb4d784226fbd7d2a38f5a806d3656"
+        "sha256": "c89aa5ea93ceb0df8f681c6a6504227430da9e82017af4fd6dda459058acb999"
       },
       {
         "path": "src/smart/admin-menu/js/navigation/template.js",
@@ -1349,11 +1349,11 @@
       },
       {
         "path": "src/component/admin-menu/scss/_css__admin_menu.scss",
-        "sha256": "bcfafdc8d6db6b36abe62a5c68eb4fc9012a5b78a4ee8d956133abb7518aa79f"
+        "sha256": "df615a4ada0c700c83571a141940e96b8bd072d9c5b7dab92c03605405255a3c"
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "253c9dfe616736b92c1f240726055e37b0d6c39cb8af73f6d481bea220c1ff83"
+        "sha256": "a383e3429ad93541d55487f8485ef5c929c47923911db15a76533fc8565b8116"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",

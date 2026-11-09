@@ -117,7 +117,7 @@ composer.files = [{id: 'att_1', name: 'Договор.pdf', bytes: 48213}];
 
 | Переменная | Что | По умолчанию |
 |:---|:---|:---|
-| `--sf-chat-composer-background-color` | фон коробки | `--sf-elevation-1--surface` |
+| `--sf-chat-composer-background-color` | фон коробки | `--sf-surface-card` |
 | `--sf-chat-composer-border-color` | рамка коробки | `--sf-outline` |
 | `--sf-chat-composer-hint-color` | подсказка, счётчик, размер файла | `--sf-on-surface-variant` |
 | `--sf-chat-composer-height` | высота кнопок и строки | `--sf-ui-1--control-height`, под пальцем `--sf-ui-2--control-height` |

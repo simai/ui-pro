@@ -1838,8 +1838,8 @@
     padding: var(--sf-space-1\/4);
     border: var(--sf-chat-message--line) solid var(--sf-chat-message--edge);
     border-radius: var(--sf-chat-message--bubble-radius);
-    background: var(--sf-elevation-4--surface);
-    box-shadow: var(--sf-elevation-4--shadow);
+    background: var(--sf-surface-popup-nested);
+    box-shadow: var(--sf-shadow-overlay);
   }
 
   .sf-chat-person--own .sf-chat-picker {
