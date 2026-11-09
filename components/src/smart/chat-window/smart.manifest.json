@@ -2791,7 +2791,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "6182eec4c92eaecb5c32d93f46573db5ec691cb4f0c1b28bb5b0636914b96259"
+        "sha256": "b8027e68a7fa438fd1b90b03bc9a14c03df58ea970f0f5199b5e0fa679d77aae"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
