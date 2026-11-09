@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-interlocutor",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "title": "Chat interlocutor",
   "summary": "Who the conversation is with: the server's interlocutors in the Framework's context menu, the current one checked, and a choice of another reported for the host to start a new conversation with. One interlocutor is a name, not a choice.",
   "kind": "smart",
@@ -136,30 +136,40 @@
       "summary": "The interlocutors, as the options property (the action set-options); kind knowledge goes under its own heading, from eight the menu gets a search.",
       "arguments": [
         {
-          "name": "options",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "description": "The interlocutor's id."
-                },
-                "title": {
-                  "type": "string",
-                  "description": "Its name, drawn as text."
-                },
-                "kind": {
-                  "type": "string",
-                  "description": "knowledge: a knowledge base's assistant, under its own heading."
+            "type": "object",
+            "properties": {
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The interlocutor's id."
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Its name, drawn as text."
+                    },
+                    "kind": {
+                      "type": "string",
+                      "description": "knowledge: a knowledge base's assistant, under its own heading."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title"
+                  ]
                 }
-              },
-              "required": [
-                "id",
-                "title"
-              ]
-            }
+              }
+            },
+            "required": [
+              "options"
+            ]
           }
         }
       ],
@@ -357,7 +367,7 @@
       },
       {
         "path": "src/smart/chat-interlocutor/component.json",
-        "sha256": "3346887e2068740f7f1df90a3a787c22e0df570a36cb3b073e9721fbd15d004e"
+        "sha256": "f2f2fc55b619ab14c24adc212cc1443a6a275a71b34b45c7e0ea02b11d37c0c9"
       },
       {
         "path": "src/smart/chat-interlocutor/aliases.json",

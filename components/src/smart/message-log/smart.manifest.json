@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "title": "Message log",
   "summary": "Dated alias of SIMAI Framework's sf-list-feed (until 2027-01-01): the feed under its former tag, with the former names (messages, setMessages, prependMessages, renderMessage, announceMessage, sf-message-log-* events) still answered.",
   "kind": "composite",
@@ -221,57 +221,64 @@
       "summary": "Replace the whole conversation and show its end. What it holds is not announced.",
       "arguments": [
         {
-          "name": "messages",
-          "schema": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": [
-                    "string",
-                    "number"
-                  ],
-                  "description": "The stable key of the message; a message that changes key is upserted with replaces."
-                },
-                "author": {
-                  "type": "string",
-                  "description": "Who wrote it, as an id: consecutive messages of one author make a run."
-                },
-                "author_name": {
-                  "type": "string",
-                  "description": "The name the default renderer and the default announcement say."
-                },
-                "own": {
-                  "type": "boolean",
-                  "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
-                },
-                "pending": {
-                  "type": "boolean",
-                  "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
-                },
-                "text": {
-                  "type": "string",
-                  "description": "Plain text; the default renderer draws it as text, never as markup."
-                }
-              },
-              "required": [
-                "id"
-              ],
-              "description": "Plain data. Any further fields are the host renderer's; the log reads only these."
-            }
-          }
-        },
-        {
-          "name": "options",
+          "name": "args",
+          "type": "object|list",
+          "required": true,
           "schema": {
             "type": "object",
             "properties": {
-              "hasMore": {
-                "type": "boolean",
-                "default": false
+              "messages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": [
+                        "string",
+                        "number"
+                      ],
+                      "description": "The stable key of the message; a message that changes key is upserted with replaces."
+                    },
+                    "author": {
+                      "type": "string",
+                      "description": "Who wrote it, as an id: consecutive messages of one author make a run."
+                    },
+                    "author_name": {
+                      "type": "string",
+                      "description": "The name the default renderer and the default announcement say."
+                    },
+                    "own": {
+                      "type": "boolean",
+                      "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
+                    },
+                    "pending": {
+                      "type": "boolean",
+                      "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Plain text; the default renderer draws it as text, never as markup."
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "description": "Plain data. Any further fields are the host renderer's; the log reads only these."
+                }
+              },
+              "options": {
+                "type": "object",
+                "properties": {
+                  "hasMore": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
               }
-            }
+            },
+            "required": [
+              "messages"
+            ]
           }
         }
       ],
@@ -284,57 +291,64 @@
       "summary": "Earlier history above, without moving what is being read; ends the earlier request.",
       "arguments": [
         {
-          "name": "messages",
-          "schema": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": [
-                    "string",
-                    "number"
-                  ],
-                  "description": "The stable key of the message; a message that changes key is upserted with replaces."
-                },
-                "author": {
-                  "type": "string",
-                  "description": "Who wrote it, as an id: consecutive messages of one author make a run."
-                },
-                "author_name": {
-                  "type": "string",
-                  "description": "The name the default renderer and the default announcement say."
-                },
-                "own": {
-                  "type": "boolean",
-                  "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
-                },
-                "pending": {
-                  "type": "boolean",
-                  "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
-                },
-                "text": {
-                  "type": "string",
-                  "description": "Plain text; the default renderer draws it as text, never as markup."
-                }
-              },
-              "required": [
-                "id"
-              ],
-              "description": "Plain data. Any further fields are the host renderer's; the log reads only these."
-            }
-          }
-        },
-        {
-          "name": "options",
+          "name": "args",
+          "type": "object|list",
+          "required": true,
           "schema": {
             "type": "object",
             "properties": {
-              "hasMore": {
-                "type": "boolean",
-                "default": false
+              "messages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": [
+                        "string",
+                        "number"
+                      ],
+                      "description": "The stable key of the message; a message that changes key is upserted with replaces."
+                    },
+                    "author": {
+                      "type": "string",
+                      "description": "Who wrote it, as an id: consecutive messages of one author make a run."
+                    },
+                    "author_name": {
+                      "type": "string",
+                      "description": "The name the default renderer and the default announcement say."
+                    },
+                    "own": {
+                      "type": "boolean",
+                      "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
+                    },
+                    "pending": {
+                      "type": "boolean",
+                      "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Plain text; the default renderer draws it as text, never as markup."
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "description": "Plain data. Any further fields are the host renderer's; the log reads only these."
+                }
+              },
+              "options": {
+                "type": "object",
+                "properties": {
+                  "hasMore": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
               }
-            }
+            },
+            "required": [
+              "messages"
+            ]
           }
         }
       ],
@@ -347,65 +361,69 @@
       "summary": "Add a message at the end or update it in place; drawn again only when something it shows changed.",
       "arguments": [
         {
-          "name": "message",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
             "type": "object",
-            "description": "Plain data. Any further fields are the host renderer's; the log reads only these.",
             "properties": {
-              "id": {
-                "type": [
-                  "string",
-                  "number"
-                ],
-                "description": "The stable key of the message; a message that changes key is upserted with replaces."
+              "message": {
+                "type": "object",
+                "description": "Plain data. Any further fields are the host renderer's; the log reads only these.",
+                "properties": {
+                  "id": {
+                    "type": [
+                      "string",
+                      "number"
+                    ],
+                    "description": "The stable key of the message; a message that changes key is upserted with replaces."
+                  },
+                  "author": {
+                    "type": "string",
+                    "description": "Who wrote it, as an id: consecutive messages of one author make a run."
+                  },
+                  "author_name": {
+                    "type": "string",
+                    "description": "The name the default renderer and the default announcement say."
+                  },
+                  "own": {
+                    "type": "boolean",
+                    "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
+                  },
+                  "pending": {
+                    "type": "boolean",
+                    "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Plain text; the default renderer draws it as text, never as markup."
+                  }
+                },
+                "required": [
+                  "id"
+                ]
               },
-              "author": {
-                "type": "string",
-                "description": "Who wrote it, as an id: consecutive messages of one author make a run."
+              "view": {
+                "type": "object",
+                "description": "What the host knows that the message does not (a stopped wait, the person's rating). Reaches the renderer as context.view and is part of what decides a redraw."
               },
-              "author_name": {
-                "type": "string",
-                "description": "The name the default renderer and the default announcement say."
-              },
-              "own": {
-                "type": "boolean",
-                "description": "The reader wrote it: drawn on the end side, followed to the bottom, never announced by default."
-              },
-              "pending": {
-                "type": "boolean",
-                "description": "Not finished yet (being sent, being written): aria-busy on the item, not announced until it is finished."
-              },
-              "text": {
-                "type": "string",
-                "description": "Plain text; the default renderer draws it as text, never as markup."
+              "options": {
+                "type": "object",
+                "properties": {
+                  "replaces": {
+                    "type": [
+                      "string",
+                      "number",
+                      "null"
+                    ],
+                    "description": "The id the message had before (a local key the server has now numbered): it keeps its place."
+                  }
+                }
               }
             },
             "required": [
-              "id"
+              "message"
             ]
-          }
-        },
-        {
-          "name": "view",
-          "schema": {
-            "type": "object",
-            "description": "What the host knows that the message does not (a stopped wait, the person's rating). Reaches the renderer as context.view and is part of what decides a redraw."
-          }
-        },
-        {
-          "name": "options",
-          "schema": {
-            "type": "object",
-            "properties": {
-              "replaces": {
-                "type": [
-                  "string",
-                  "number",
-                  "null"
-                ],
-                "description": "The id the message had before (a local key the server has now numbered): it keeps its place."
-              }
-            }
           }
         }
       ],
@@ -418,14 +436,22 @@
       "summary": "Merge into the view of a message already shown.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
-        },
-        {
-          "name": "view",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
             "type": "object",
-            "description": "What the host knows that the message does not (a stopped wait, the person's rating). Reaches the renderer as context.view and is part of what decides a redraw."
+            "properties": {
+              "id": {},
+              "view": {
+                "type": "object",
+                "description": "What the host knows that the message does not (a stopped wait, the person's rating). Reaches the renderer as context.view and is part of what decides a redraw."
+              }
+            },
+            "required": [
+              "id",
+              "view"
+            ]
           }
         }
       ],
@@ -438,8 +464,18 @@
       "summary": "Take one message off; a stream it was ends cancelled. remove(id) is read until 2026-12-01.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object|string",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            },
+            "required": [
+              "id"
+            ]
+          }
         }
       ],
       "returns": {
@@ -451,8 +487,18 @@
       "summary": "Stop drawing a growing message now; the stream ends cancelled.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object|string",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            },
+            "required": [
+              "id"
+            ]
+          }
         }
       ],
       "returns": {
@@ -463,8 +509,15 @@
       "summary": "Draw one message again, or all of them, after the renderer's own inputs changed.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object|string",
+          "required": false,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            }
+          }
         }
       ],
       "returns": {
@@ -492,15 +545,22 @@
       "summary": "Scroll to the last message; with focus, focus moves to it.",
       "arguments": [
         {
-          "name": "options",
+          "name": "args",
+          "type": "object",
+          "required": false,
           "schema": {
             "type": "object",
             "properties": {
-              "instant": {
-                "type": "boolean"
-              },
-              "focus": {
-                "type": "boolean"
+              "options": {
+                "type": "object",
+                "properties": {
+                  "instant": {
+                    "type": "boolean"
+                  },
+                  "focus": {
+                    "type": "boolean"
+                  }
+                }
               }
             }
           }
@@ -515,9 +575,19 @@
       "summary": "Say something once through the log's polite live region (cut at 240 characters).",
       "arguments": [
         {
-          "name": "text",
+          "name": "args",
+          "type": "object|string",
+          "required": true,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ]
           }
         }
       ],
@@ -799,7 +869,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/message-log/index.js",
-        "sha256": "0d7e074548959cb9049ab0b924f70e78d105d4e1b837bdd5528d525a92e9ed25"
+        "sha256": "10339f44a38ae15457bb7fc2360fad3cda9eb42f36314b0bac2a1205ba4dc5f1"
       },
       {
         "path": "src/smart/message-log/js/templates/default.css",
@@ -815,7 +885,7 @@
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "4c96bffe85accf7d2de4fea85b121d3371ee6ac24a741db310824e11bda82e7f"
+        "sha256": "673feccc0a66055308533707180660d8614c9f67fba8c7867928b2677aaed536"
       },
       {
         "path": "src/smart/message-log/aliases.json",

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-threads",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "title": "Thread list",
   "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "kind": "composite",
@@ -267,74 +267,81 @@
       "summary": "Replace the list; only the conversations of the shown view (archived or not) are kept.",
       "arguments": [
         {
-          "name": "threads",
+          "name": "args",
+          "type": "object|list",
+          "required": true,
           "schema": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": [
-                    "string",
-                    "number"
-                  ]
-                },
-                "title": {
-                  "type": "string"
-                },
-                "updated_at": {
-                  "type": "string",
-                  "description": "ISO 8601; orders the list and groups it by day."
-                },
-                "archived": {
-                  "type": "boolean"
-                },
-                "pinned": {
-                  "type": "boolean",
-                  "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
-                },
-                "caption": {
-                  "type": "string",
-                  "description": "A quiet second line: who it is with, the last message."
-                },
-                "activity": {
-                  "type": "string",
-                  "enum": [
-                    "running",
-                    "waiting",
-                    "done",
-                    "stopped",
-                    "failed"
-                  ],
-                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
-                },
-                "unread": {
-                  "type": "integer",
-                  "minimum": 0
-                },
-                "avatar": {
+            "type": "object",
+            "properties": {
+              "threads": {
+                "type": "array",
+                "items": {
                   "type": "object",
                   "properties": {
-                    "image_url": {
+                    "id": {
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    },
+                    "title": {
                       "type": "string"
                     },
-                    "text": {
-                      "type": "string"
+                    "updated_at": {
+                      "type": "string",
+                      "description": "ISO 8601; orders the list and groups it by day."
+                    },
+                    "archived": {
+                      "type": "boolean"
+                    },
+                    "pinned": {
+                      "type": "boolean",
+                      "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
+                    },
+                    "caption": {
+                      "type": "string",
+                      "description": "A quiet second line: who it is with, the last message."
+                    },
+                    "activity": {
+                      "type": "string",
+                      "enum": [
+                        "running",
+                        "waiting",
+                        "done",
+                        "stopped",
+                        "failed"
+                      ],
+                      "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
+                    },
+                    "unread": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "avatar": {
+                      "type": "object",
+                      "properties": {
+                        "image_url": {
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      }
                     }
-                  }
+                  },
+                  "required": [
+                    "id",
+                    "title"
+                  ]
                 }
               },
-              "required": [
-                "id",
-                "title"
-              ]
-            }
-          }
-        },
-        {
-          "name": "hasMore",
-          "schema": {
-            "type": "boolean"
+              "hasMore": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "threads"
+            ]
           }
         }
       ],
@@ -347,74 +354,81 @@
       "summary": "The next page, after the ones shown; a conversation already listed is not repeated.",
       "arguments": [
         {
-          "name": "threads",
+          "name": "args",
+          "type": "object|list",
+          "required": true,
           "schema": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": [
-                    "string",
-                    "number"
-                  ]
-                },
-                "title": {
-                  "type": "string"
-                },
-                "updated_at": {
-                  "type": "string",
-                  "description": "ISO 8601; orders the list and groups it by day."
-                },
-                "archived": {
-                  "type": "boolean"
-                },
-                "pinned": {
-                  "type": "boolean",
-                  "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
-                },
-                "caption": {
-                  "type": "string",
-                  "description": "A quiet second line: who it is with, the last message."
-                },
-                "activity": {
-                  "type": "string",
-                  "enum": [
-                    "running",
-                    "waiting",
-                    "done",
-                    "stopped",
-                    "failed"
-                  ],
-                  "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
-                },
-                "unread": {
-                  "type": "integer",
-                  "minimum": 0
-                },
-                "avatar": {
+            "type": "object",
+            "properties": {
+              "threads": {
+                "type": "array",
+                "items": {
                   "type": "object",
                   "properties": {
-                    "image_url": {
+                    "id": {
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    },
+                    "title": {
                       "type": "string"
                     },
-                    "text": {
-                      "type": "string"
+                    "updated_at": {
+                      "type": "string",
+                      "description": "ISO 8601; orders the list and groups it by day."
+                    },
+                    "archived": {
+                      "type": "boolean"
+                    },
+                    "pinned": {
+                      "type": "boolean",
+                      "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
+                    },
+                    "caption": {
+                      "type": "string",
+                      "description": "A quiet second line: who it is with, the last message."
+                    },
+                    "activity": {
+                      "type": "string",
+                      "enum": [
+                        "running",
+                        "waiting",
+                        "done",
+                        "stopped",
+                        "failed"
+                      ],
+                      "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
+                    },
+                    "unread": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "avatar": {
+                      "type": "object",
+                      "properties": {
+                        "image_url": {
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      }
                     }
-                  }
+                  },
+                  "required": [
+                    "id",
+                    "title"
+                  ]
                 }
               },
-              "required": [
-                "id",
-                "title"
-              ]
-            }
-          }
-        },
-        {
-          "name": "hasMore",
-          "schema": {
-            "type": "boolean"
+              "hasMore": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "threads"
+            ]
           }
         }
       ],
@@ -427,64 +441,74 @@
       "summary": "A new or changed conversation, placed where its date puts it.",
       "arguments": [
         {
-          "name": "thread",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
             "type": "object",
             "properties": {
-              "id": {
-                "type": [
-                  "string",
-                  "number"
-                ]
-              },
-              "title": {
-                "type": "string"
-              },
-              "updated_at": {
-                "type": "string",
-                "description": "ISO 8601; orders the list and groups it by day."
-              },
-              "archived": {
-                "type": "boolean"
-              },
-              "pinned": {
-                "type": "boolean",
-                "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
-              },
-              "caption": {
-                "type": "string",
-                "description": "A quiet second line: who it is with, the last message."
-              },
-              "activity": {
-                "type": "string",
-                "enum": [
-                  "running",
-                  "waiting",
-                  "done",
-                  "stopped",
-                  "failed"
-                ],
-                "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
-              },
-              "unread": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "avatar": {
+              "thread": {
                 "type": "object",
                 "properties": {
-                  "image_url": {
+                  "id": {
+                    "type": [
+                      "string",
+                      "number"
+                    ]
+                  },
+                  "title": {
                     "type": "string"
                   },
-                  "text": {
-                    "type": "string"
+                  "updated_at": {
+                    "type": "string",
+                    "description": "ISO 8601; orders the list and groups it by day."
+                  },
+                  "archived": {
+                    "type": "boolean"
+                  },
+                  "pinned": {
+                    "type": "boolean",
+                    "description": "Pinned (Mirai24 API v1.1): leads the list under its own heading with a quiet line saying so; pinning is the host's row action."
+                  },
+                  "caption": {
+                    "type": "string",
+                    "description": "A quiet second line: who it is with, the last message."
+                  },
+                  "activity": {
+                    "type": "string",
+                    "enum": [
+                      "running",
+                      "waiting",
+                      "done",
+                      "stopped",
+                      "failed"
+                    ],
+                    "description": "Where the work in this conversation is (sf-badge activity): running, waiting, done, stopped or failed. Drawn as a tonal badge in the row with its word (sf-list badge). Absent: no mark."
+                  },
+                  "unread": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "avatar": {
+                    "type": "object",
+                    "properties": {
+                      "image_url": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    }
                   }
-                }
+                },
+                "required": [
+                  "id",
+                  "title"
+                ]
               }
             },
             "required": [
-              "id",
-              "title"
+              "thread"
             ]
           }
         }
@@ -498,8 +522,18 @@
       "summary": "Take one conversation off the list.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object|string",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            },
+            "required": [
+              "id"
+            ]
+          }
         }
       ],
       "returns": {
@@ -519,8 +553,18 @@
       "summary": "Start renaming a conversation in place, as F2 does.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object|string",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            },
+            "required": [
+              "id"
+            ]
+          }
         }
       ],
       "returns": {
@@ -532,8 +576,18 @@
       "summary": "Open a conversation's actions, as the row's «⋯» and Shift+F10 do.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object|string",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            },
+            "required": [
+              "id"
+            ]
+          }
         }
       ],
       "returns": {
@@ -1051,7 +1105,7 @@
       },
       {
         "path": "src/smart/chat-threads/component.json",
-        "sha256": "3187860e85cbb91feef5dea8354ddba08329605f9f266250524d13b2b5c6dcbb"
+        "sha256": "fd1cd8511c3585c85762ce17c16b696ae7d97ddd9a8dcd27c6560a5c37137f2a"
       },
       {
         "path": "src/smart/chat-threads/aliases.json",

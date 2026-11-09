@@ -163,6 +163,11 @@ const AdminMenuElement = elementFromManifest(manifest, {
     lang: {en, ru},
     source: "ru",
     aliases,
+    // The class writes these methods and takes their `with` fields in order
+    // (setSearchResults(requestId, groups)); the runtime gives each the object
+    // form too (standard §4.4, core.runtime 1.43.0): setSearchResults({requestId,
+    // groups}) is the same call. toggle reads both forms itself.
+    positional: ["apply-external-settings-state", "apply-settings-result", "apply-settings-error", "set-search-results"],
 });
 
 class SfAdminMenu extends AdminMenuElement {

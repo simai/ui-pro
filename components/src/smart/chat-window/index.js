@@ -253,6 +253,11 @@ const ChatWindowElement = elementFromManifest(manifest, {
     lang: {en, ru},
     source: "ru",
     aliases,
+    // The class writes these methods and takes their `with` fields in order
+    // (openConversation(id), setListFooter(node), openPreview(source)); the
+    // runtime gives each the object form too (standard §4.4, core.runtime
+    // 1.43.0): openConversation({id}) is the same call.
+    positional: ["open-conversation", "set-list-footer", "open-preview"],
     actions: {
         "set-data"({data}) {
             this.applyData(data);

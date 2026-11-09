@@ -58,8 +58,10 @@ test('the former properties and methods are answered under the feed\'s names', (
   for (const [from, to] of [['messages', 'items'], ['renderMessage', 'renderItem'], ['announceMessage', 'announceItem']]) {
     assert.match(source, new RegExp(`set ${from}\\(value\\) \\{\\s*former\\("[a-z]+", "${from}", "${to}"\\)`, 'u'), `${from} → ${to}`);
   }
-  assert.match(source, /setMessages\(messages = \[\], options = \{\}\) \{\s*former\("action", "setMessages", "setItems"\);\s*return this\.setItems\(entriesOf\(messages\), options\)/u);
-  assert.match(source, /prependMessages\(messages = \[\], options = \{\}\) \{\s*former\("action", "prependMessages", "prependItems"\);\s*return this\.prependItems\(entriesOf\(messages\), options\)/u);
+  // Both forms of an action (standard §4.4, 2.0.2): the fields in order, or one object of them.
+  assert.match(source, /setMessages\(\.\.\.args\) \{\s*const \[messages = \[\], options = \{\}\] = objectForm\(args, \["messages", "options"\]\);\s*former\("action", "setMessages", "setItems"\);\s*return this\.setItems\(entriesOf\(messages\), options\)/u);
+  assert.match(source, /prependMessages\(\.\.\.args\) \{\s*const \[messages = \[\], options = \{\}\] = objectForm\(args, \["messages", "options"\]\);\s*former\("action", "prependMessages", "prependItems"\);\s*return this\.prependItems\(entriesOf\(messages\), options\)/u);
+  assert.match(source, /upsert\(\.\.\.args\) \{\s*const \[message, \.\.\.rest\] = objectForm\(args, \["message", "view", "options"\]\);/u);
   // 1.x's own methods the feed does not keep (sf-chat-window 1.12 called setHasMore).
   assert.match(source, /setHasMore\(value\) \{\s*former\("action", "setHasMore", "has-more"\);\s*this\.hasMore = Boolean\(value\)/u);
   assert.match(source, /isNearBottom\(\) \{\s*former\("action", "isNearBottom", "isAtLatest"\);\s*return this\.isAtLatest\(\)/u);
@@ -105,7 +107,7 @@ test('the rule relates the feed, and the folder names one component', () => {
   assert.equal(manifest.custom_element, 'sf-message-log');
   assert.deepEqual(manifest.composition.uses, ['smart.list-feed']);
   assert.equal(contract.tag, 'sf-message-log');
-  assert.equal(contract.version, '2.0.1');
+  assert.equal(contract.version, '2.0.2');
   assert.equal(manifest.version, contract.version);
   assert.equal(contract.templates, undefined, 'no template of its own');
   assert.equal(manifest.ownership.source, 'simai/ui-pro');

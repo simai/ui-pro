@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.admin-menu",
-  "version": "1.7.7",
+  "version": "1.7.8",
   "title": "Admin menu",
   "summary": "Searchable nested admin navigation with compact mode and editable personal or system preferences.",
   "kind": "composite",
@@ -373,17 +373,25 @@
       "summary": "Apply backend-resolved state and tree.",
       "arguments": [
         {
-          "name": "state",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "object"
-          }
-        },
-        {
-          "name": "target",
-          "schema": {
-            "enum": [
-              "user",
-              "system"
+            "type": "object",
+            "properties": {
+              "state": {
+                "type": "object"
+              },
+              "target": {
+                "enum": [
+                  "user",
+                  "system"
+                ]
+              }
+            },
+            "required": [
+              "state",
+              "target"
             ]
           }
         }
@@ -396,9 +404,19 @@
       "summary": "Commit a successful external save response.",
       "arguments": [
         {
-          "name": "result",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "result": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "result"
+            ]
           }
         }
       ],
@@ -410,9 +428,19 @@
       "summary": "Keep the draft and expose error or conflict state.",
       "arguments": [
         {
-          "name": "error",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "error"
+            ]
           }
         }
       ],
@@ -439,15 +467,22 @@
       "summary": "The host answers one search request with its own groups of results. An answer to a query the person has moved on from is dropped.",
       "arguments": [
         {
-          "name": "requestId",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "groups",
-          "schema": {
-            "type": "array"
+            "type": "object",
+            "properties": {
+              "requestId": {
+                "type": "string"
+              },
+              "groups": {
+                "type": "array"
+              }
+            },
+            "required": [
+              "requestId"
+            ]
           }
         }
       ],
@@ -460,13 +495,21 @@
       "summary": "Add a row to the person's favourites or take it out (favourite.toggle). The items menu refuses.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
-        },
-        {
-          "name": "on",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "boolean"
+            "type": "object",
+            "properties": {
+              "id": {},
+              "on": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "on"
+            ]
           }
         }
       ],
@@ -1313,7 +1356,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/admin-menu/index.js",
-        "sha256": "8cbe118fcb4c568928701f4751fe8ae37b434f4df3a1c510d16a8306896ade2d"
+        "sha256": "6e997d613b7a92a43c5d7d7cb3fbc49c1806b074cc5bdb6e505bf19fb2d6d84d"
       },
       {
         "path": "src/smart/admin-menu/js/templates/default.js",
@@ -1353,7 +1396,7 @@
       },
       {
         "path": "src/smart/admin-menu/component.json",
-        "sha256": "8d4cf6474cf393fd722a52b87d7bd8c9c69dfdc39221473d91a22c69dcffd60c"
+        "sha256": "8bde24c2233f47e5726b7888eb377a00f8f79a065e8cea18401ae07fcf2c3e6e"
       },
       {
         "path": "src/smart/admin-menu/aliases.json",
