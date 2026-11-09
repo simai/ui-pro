@@ -30,6 +30,7 @@
       "component.buttons",
       "component.icon-buttons",
       "component.inputs",
+      "smart.avatar",
       "smart.button",
       "smart.chat-composer",
       "smart.chat-interlocutor",
@@ -2783,7 +2784,7 @@
       },
       {
         "path": "src/smart/chat-window/rule.js",
-        "sha256": "abefaf758bc7ac20e2ea296e9d4df5faab9c2bb5bc897c49263aea48e5b31a5d"
+        "sha256": "1336e06255572313d4cc5f5f7fc80bb6c8c13bac38a7b1fded4cc3e3dfe8f21e"
       },
       {
         "path": "src/smart/chat-window/docs.md",
@@ -2791,7 +2792,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "b8027e68a7fa438fd1b90b03bc9a14c03df58ea970f0f5199b5e0fa679d77aae"
+        "sha256": "d87daad158afb5391c7bee6b6596c7b58b35895c3b159ff36cbc22d2c6a62601"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
