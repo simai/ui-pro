@@ -97,13 +97,17 @@ function renderFirstRow(context, row) {
     }
     const opens = row.kind === "root";
     const open = opens && openRoot?.key === row.key;
-    const current = opens ? controller.holdsCurrent(row) : controller.isCurrent(row.key);
+    // A page row that is the current page takes the plate; a root whose rows
+    // hold it takes the bar (C23), as a rail row over the current page does.
+    const current = !opens && controller.isCurrent(row.key);
+    const holds = opens && controller.holdsCurrent(row);
     return html`<a class="sf-admin-nav-row sf-admin-nav-row--first"
         href=${row.href ?? "#"}
         role=${opens ? "button" : nothing}
         aria-expanded=${opens ? String(open) : nothing}
-        aria-current=${current && !opens ? "page" : nothing}
+        aria-current=${current ? "page" : nothing}
         data-current=${current ? "true" : nothing}
+        data-holds-current=${holds ? "true" : nothing}
         data-open=${open ? "true" : nothing}
         title=${compact ? row.label : nothing}
         aria-label=${compact ? nameWithCounter(row.label, railCounter(row)) : nothing}
@@ -250,6 +254,7 @@ function renderRow(context, row, depth = 0) {
             aria-expanded=${section ? String(unfolded) : nothing}
             aria-current=${controller.isCurrent(row.key) ? "page" : nothing}
             data-current=${controller.isCurrent(row.key) ? "true" : nothing}
+            data-holds-current=${section && !unfolded && !controller.isCurrent(row.key) && controller.holdsCurrent(row) ? "true" : nothing}
             @click=${(event) => controller.openRow(row, event)}>
             ${icon(row.icon, "sf-admin-nav-row-icon")}
             <span class="sf-admin-nav-row-label">${row.label}</span>

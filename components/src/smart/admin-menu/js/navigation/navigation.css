@@ -203,11 +203,73 @@
     background-color: var(--sf-surface-container-hover);
   }
 
-  .sf-admin-nav-row[data-current="true"],
+  /* A root whose column is open in the second panel keeps its fill: which
+     root the second column shows is the two-panel menu's question (C24,
+     deferred by C29), not the current page's. */
   .sf-admin-nav-row[data-open="true"] {
     background-color: var(--sf-secondary-container);
     color: var(--sf-on-secondary-container);
     --sf-icon--color: var(--sf-on-secondary-container);
+  }
+
+  /* The current page (C23, owner 2026-11-09), as SIMAI Framework's navigation
+     menu draws it (component.menu 1.4.1): a primary plate of the fill family,
+     --sf-primary-container-active (primary at 20 light, 32 dark), with
+     on-primary-container words and icons and the medium label; no bar. The
+     pointer does not change it, so it is never lighter than at rest. */
+  .sf-admin-nav-row[data-current="true"],
+  .sf-admin-nav-row[data-current="true"]:hover {
+    background-color: var(--sf-primary-container-active);
+    color: var(--sf-on-primary-container);
+    --sf-icon--color: var(--sf-on-primary-container);
+  }
+
+  .sf-admin-nav-row[data-current="true"] :is(.sf-admin-nav-row-icon, .sf-admin-nav-row-chevron) {
+    --sf-icon--color: var(--sf-on-primary-container);
+  }
+
+  .sf-admin-nav-row[data-current="true"] .sf-admin-nav-row-label {
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  /* Where a row has no plate but leads to the current page -- a root of the
+     first column or the rail whose rows hold it, a section of the second
+     column folded over it -- a bar of primary, 3 by 16 (a3 by icon size 1),
+     stands at the row's inline start, flush with it, its free end rounded
+     (C23). An unfolded section is not filled and has no bar: its rows show
+     the current page. A bar is never on a plate. */
+  .sf-admin-nav-row[data-holds-current="true"]:not([data-current]) {
+    position: relative;
+  }
+
+  .sf-admin-nav-row[data-holds-current="true"]:not([data-current])::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: var(--sf-0);
+    inline-size: var(--sf-a3);
+    block-size: var(--sf-icon-size-1);
+    translate: 0 -50%;
+    border-start-start-radius: var(--sf-0);
+    border-end-start-radius: var(--sf-0);
+    border-start-end-radius: var(--sf-radius--ui);
+    border-end-end-radius: var(--sf-radius--ui);
+    background-color: var(--sf-primary);
+    pointer-events: none;
+  }
+
+  /* Forced colours drop the plate: the current page keeps a frame of the
+     system's text colour, and the bar the system's highlight. */
+  @media (forced-colors: active) {
+    .sf-admin-nav-row[data-current="true"] {
+      outline: var(--sf-px) solid CanvasText;
+      outline-offset: calc(-1 * var(--sf-px));
+    }
+
+    .sf-admin-nav-row[data-holds-current="true"]:not([data-current])::before {
+      forced-color-adjust: none;
+      background-color: Highlight;
+    }
   }
 
   .sf-admin-nav-row:focus-visible,
@@ -293,9 +355,12 @@
     --sf-badge--surface: var(--sf-surface-1);
   }
 
-  .sf-admin-nav-row[data-current="true"],
   .sf-admin-nav-row[data-open="true"] {
     --sf-badge--surface: var(--sf-secondary-container);
+  }
+
+  .sf-admin-nav-row[data-current="true"] {
+    --sf-badge--surface: var(--sf-primary-container-active);
   }
 
   /* ─── the items menu (no navigation port) ─────────────────────────────── */

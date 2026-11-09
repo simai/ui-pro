@@ -617,91 +617,28 @@ export function renderAdminMenuTemplate(context) {
                 @click=${(event) =>
                   component.openContextMenu(event, {
                     position: "left-bottom",
+                    // sf-menu-context entries (the menu's current form): the
+                    // older items list drew each row as an sf-button from
+                    // props.type/iconLeft, and these rows asked for
+                    // appearance/iconStart, so they came out as filled buttons.
+                    // `run` stays here; the menu gets the entry without it.
                     items: [
-                      {
-                        component: "sf-button",
-                        props: {
-                          appearance: "ghost",
-                          scheme: "on-surface",
-                          iconStart: "save",
-                          text: menuText("save"),
-                          "@click": () => {
-                            component.saveMenuSettings();
-                          },
-                        },
-                      },
+                      {id: "save", text: menuText("save"), icon: "save", run: () => component.saveMenuSettings()},
                       ...(context.persistenceMode === "external" && context.allowSystemSettings
                         ? [{
-                            component: "sf-button",
-                            props: {
-                              appearance: "ghost",
-                              scheme: "on-surface",
-                              iconStart: context.settingsMode === "system" ? "person" : "groups",
-                              text: context.settingsMode === "system"
-                                ? menuText("personalSettings")
-                                : menuText("systemSettings"),
-                              "@click": () => component.selectSettingsMode(
-                                context.settingsMode === "system" ? "user" : "system",
-                              ),
-                            },
+                            id: "settings-mode",
+                            text: context.settingsMode === "system" ? menuText("personalSettings") : menuText("systemSettings"),
+                            icon: context.settingsMode === "system" ? "person" : "groups",
+                            run: () => component.selectSettingsMode(context.settingsMode === "system" ? "user" : "system"),
                           }]
                         : []),
                       ...(context.persistenceMode === "external" ? [{
-                        component: "sf-button",
-                        props: {
-                          appearance: "ghost",
-                          scheme: "on-surface",
-                          iconStart: "visibility",
-                          text: menuText("hiddenItems"),
-                          "@click": () => {
-                            component.toggleHidden();
-                          },
-                        },
-                      },
-                      ...(context.persistenceMode !== "external"
-                        ? [{
-                        component: "sf-button",
-                        props: {
-                          appearance: "ghost",
-                          scheme: "on-surface",
-                          iconStart: "horizontal_rule",
-                          text: menuText("addDivider"),
-                          "@click": () => {
-                            component.createDivider();
-                          },
-                        },
-                      }]
-                        : []),
-                      {
-                        component: "sf-button",
-                        props: {
-                          appearance: "ghost",
-                          scheme: "on-surface",
-                          iconStart: "refresh",
-                          text: menuText("refreshState"),
-                          "@click": () => component.refreshSettings(),
-                        },
+                        id: "hidden-items", text: menuText("hiddenItems"), icon: "visibility", run: () => component.toggleHidden(),
+                      }, {
+                        id: "refresh", text: menuText("refreshState"), icon: "refresh", run: () => component.refreshSettings(),
                       }] : []),
-                      {
-                        component: "sf-button",
-                        props: {
-                          appearance: "ghost",
-                          scheme: "on-surface",
-                          iconStart: "restart_alt",
-                          text: menuText("resetSettings"),
-                          "@click": () => component.resetMenuSettings(),
-                        },
-                      },
-                      {
-                        component: "sf-button",
-                        props: {
-                          appearance: "ghost",
-                          scheme: "on-surface",
-                          iconStart: "close",
-                          text: menuText("cancel"),
-                          "@click": () => component.cancelMenuSettings(),
-                        },
-                      },
+                      {id: "reset", text: menuText("resetSettings"), icon: "restart_alt", run: () => component.resetMenuSettings()},
+                      {id: "cancel", text: menuText("cancel"), icon: "close", run: () => component.cancelMenuSettings()},
                     ],
                   })}
                 type="button"
