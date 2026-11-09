@@ -11,7 +11,7 @@ SF.RuleLoader['cl-editor'] = {
     { name: 'cl-icon' },
     { name: 'cl-button' },
     { name: 'cl-button-icon' },
-    { name: 'cl-button-group' },
+    { name: 'cl-segmented' },
     { name: 'cl-tabs' },
     { name: 'cl-input' },
     { name: 'cl-dropdown' },

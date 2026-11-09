@@ -24,25 +24,6 @@
     overscroll-behavior: contain;
   }
 
-  /* A stack of windows. Each depth is inset a little further so the one below
-     stays partly visible, which is what makes it a stack rather than a
-     replacement: a person can see they are two records deep. Only the top window
-     is interactive -- a dimmed window that still answered clicks would be a
-     window that looks disabled and is not. */
-  .sf-property-view-panel[data-stacked="true"] {
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  .sf-property-view-panel[data-stacked="true"]::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-color: var(--sf-surface-0);
-    opacity: 0.4;
-    pointer-events: none;
-  }
-
   /* sf-drawer portals its content out of the element, so an open panel is no
      longer a descendant of sf-view-properties. These rules are scoped to the panel
      itself rather than to the element: written under `sf-view-properties` they
@@ -304,7 +285,7 @@
   }
 
   .sf-property-view-section-tab:hover {
-    background-color: var(--sf-surface-transparent-hover);
+    background-color: var(--sf-surface-state-hover);
   }
 
   .sf-property-view-section-tab[aria-current='true'] {
@@ -381,9 +362,12 @@
     /* `--sf-title-small` does not exist in this Framework, so this fell back to
        `inherit` and a group title was the same sixteen regular pixels as the field
        labels under it -- the flat look the owner called slapdash. The roles that
-       do exist are display, heading, label and text. */
-    font-size: var(--sf-property-view--group-size, var(--sf-heading-6--size));
-    line-height: var(--sf-property-view--group-height, var(--sf-heading-6--height));
+       do exist are display, heading, label and text. A group title is not a
+       content heading either: it reads rung 1 of the text ladder, which the
+       heading-6 role it took also holds under the heading ladder (C21), so a
+       later move of that role does not move it. */
+    font-size: var(--sf-property-view--group-size, var(--sf-text--size-1));
+    line-height: var(--sf-property-view--group-height, var(--sf-title--height-1));
     font-weight: 600;
   }
 
@@ -860,7 +844,7 @@
          ladder is surface-0/1/2 -- and an empty var() would have left the bar
          transparent, with the rows scrolling through the only control that saves
          them. */
-      background-color: var(--sf-surface-0);
+      background-color: var(--sf-surface-page);
     }
   }
 
@@ -878,7 +862,7 @@
     z-index: 2;
     margin-inline: calc(-1 * var(--sf-property-view--panel-bleed));
     padding: var(--sf-property-view--panel-bleed) var(--sf-property-view--panel-axis) var(--sf-space-1);
-    background-color: var(--sf-surface-1);
+    background-color: var(--sf-surface-area);
     border-block-end: var(--sf-px) solid var(--sf-outline-variant);
   }
 
@@ -888,7 +872,8 @@
     margin: 0;
     /* Rung 3, the step the heading-4 role held before the content heading
        ladder moved it to the body size (tokens.typography 1.2.0, docs review
-       R022); a record's name is not a content sub-heading. */
+       R022) and that the heading ladder (C21) gives h3; a record's name is not
+       a content sub-heading, so it reads the text ladder, not a heading role. */
     font-size: var(--sf-property-view--title-size, var(--sf-text--size-3));
     line-height: var(--sf-property-view--title-height, var(--sf-title--height-3));
     font-weight: 700;

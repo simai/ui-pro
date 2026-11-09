@@ -101,7 +101,7 @@ function renderListToolbar(context) {
                                     @click=${(e) => context.component.openContextMenu(e, {type: 'bottom', menu: 'tag-settings', fieldKey: k, anchorSelector: '.sf-tag'})}
                             ></sf-tag>`;
                     })}
-                    <sf-button size=${context.size} appearance="link" scheme="on-surface" text=${context.clearText}
+                    <sf-button size=${context.size} appearance="ghost" scheme="on-surface" text=${context.clearText}
                                @click="${() => context.component.removeFilterTag()}"></sf-button>
                 </div>` : nothing}
         </div>
@@ -238,7 +238,7 @@ function renderToolbar(context) {
           <span slot="right">
                 <sf-button-icon
                         size=${context.size}
-                        appearance="link"
+                        appearance="ghost"
                         scheme="on-surface"
                         icon=${value.length ? 'close' : 'search'}
                         aria-label=${value.length ? 'Очистить поиск' : 'Поиск'}
@@ -781,7 +781,7 @@ export function renderTableTemplate(context) {
                 ${rows.map((row, rowIndex) => row.__tree?.more
                     ? keyed(`item:${row.id}`, html`
                         <li class="sf-table-list-more" style=${`--sf-table-tree--level: ${row.__tree.level}`}>
-                            <sf-button appearance="link" size="1/2" text=${context.component.text('treeMore')}
+                            <sf-button appearance="ghost" size="1/2" text=${context.component.text('treeMore')}
                                        @click=${() => context.component.requestTreeMore(row)}></sf-button>
                         </li>`)
                     : keyed(`item:${context.component.rowsGeneration?.() ?? 0}:${row.id ?? rowIndex}`, html`
@@ -954,7 +954,7 @@ export function renderTableTemplate(context) {
                 <td colspan=${String(columns.length)}>
                     <span class="sf-table-tree-cell" style=${`--sf-table-tree--level: ${row.__tree.level}`}>
                         <span class="sf-table-tree-toggle" aria-hidden="true"></span>
-                        <sf-button appearance="link" size="1/2" text=${context.component.text('treeMore')}
+                        <sf-button appearance="ghost" size="1/2" text=${context.component.text('treeMore')}
                                    @click=${() => context.component.requestTreeMore(row)}></sf-button>
                     </span>
                 </td>

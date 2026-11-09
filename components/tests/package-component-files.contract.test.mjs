@@ -33,20 +33,14 @@ const PHASE_A = ['message-log', 'chat-threads', 'view-properties', 'admin-menu',
 // shared event (§8), so the port and host-port contracts still find them.
 const PENDING = [];
 
-// The frozen folders: editor is the editor release editor-0893d3077342 and
-// view, view-table and view-properties the view release view-99c8dd1585fd
-// (tests/editor-folder-frozen.contract.test.mjs,
-// tests/view-folders-frozen.contract.test.mjs); they change only in
-// simai/ui-editor and simai/ui-view. Those releases were generated before
-// SIMAI Framework ui-cb287da78ab1, whose generator writes an action's method
-// as one args object (standard §4.4, ui-source 9d2eeb8e), so their manifests
-// still name the fields one by one. In a frozen folder, and only there, a
-// smart.manifest.json that differs from the generated one in
-// methods.*.arguments and nothing else is accepted. When the sets are
-// released over the pair and taken in, the exemption finds nothing.
-const FROZEN = new Set(['editor', 'view', 'view-table', 'view-properties']);
-const argumentsOnly = (name, file, entry) => FROZEN.has(name) && file === 'smart.manifest.json' && entry.status === 'differs'
-  && entry.differences?.length > 0 && entry.differences.every((d) => /^methods\.[^.]+\.arguments(\.|\[|$)/u.test(d.path));
+// The frozen folders (editor: the editor release editor-f142dcfc53ca; view,
+// view-table and view-properties: the view release view-99763f547560;
+// tests/editor-folder-frozen.contract.test.mjs,
+// tests/view-folders-frozen.contract.test.mjs) were released over SIMAI
+// Framework ui-cb287da78ab1 or later, whose generator writes an action's
+// method as one args object (standard 4.4), so they generate byte for byte
+// like every other folder: the methods.*.arguments exemption of
+// pro-b671241d4d34 is gone.
 const CHECKED = ['rule.js', 'aliases.json', 'studio.fixture.json', 'studio.scenario.json', 'probe.json'];
 
 // Gate 1 (§4): the top-level fields of component.json are a closed list; 1.4
@@ -71,7 +65,7 @@ test('phase A package folders are in the 1.4 form and generate every file byte f
     if (result.error) { problems.push(`${name}: ${result.error}`); continue; }
     if (result.log?.form !== '1.4') problems.push(`${name}: component.json has no relations (not in the 1.4 form)`);
     for (const [file, entry] of Object.entries(result.files)) {
-      if (entry.status !== 'identical' && !argumentsOnly(name, file, entry)) problems.push(`${name}/${file}: ${entry.status}${entry.differences ? ` (${entry.differences.slice(0, 3).map((d) => d.path).join(', ')})` : ''}`);
+      if (entry.status !== 'identical') problems.push(`${name}/${file}: ${entry.status}${entry.differences ? ` (${entry.differences.slice(0, 3).map((d) => d.path).join(', ')})` : ''}`);
     }
     for (const field of Object.keys(result.view?.component ?? {})) {
       if (field === '$comment' || field === 'folder' || field.startsWith('x-') || TOP_FIELDS.includes(field)) continue;

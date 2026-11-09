@@ -130,7 +130,7 @@ try {
 
     // Shared view from page code; several templates at once.
     view.dispatchEvent(new CustomEvent('sf-view-saved-view-intent', {detail: {key: 'team', label: 'Команда'}}));
-    table.dispatchEvent(new CustomEvent('sf-view-table-template-save', {bubbles: true, composed: true, detail: [{key: 'a', label: 'A'}, {key: 'b', label: 'B'}]}));
+    table.dispatchEvent(new CustomEvent('sf-view-table-template-save', {bubbles: true, composed: true, detail: {templates: [{key: 'a', label: 'A'}, {key: 'b', label: 'B'}]}}));
     await wait(400);
     const views = (host.views ?? []).map((entry) => entry.join(':'));
 

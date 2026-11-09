@@ -182,7 +182,8 @@ digits. An entry that is not a value yet -- not a number, more digits after
 the point than the currency has, a ИНН whose control digits do not match --
 holds both saves as an incomplete masked string does, and the control says
 what is wrong under itself once the person leaves it. The settings below are
-due in simai.property-view-port 1.18.0.
+declared by simai.property-view-port 1.18.0 (since sf-view-properties 1.12.0);
+a 1.17.0 host sends none of them.
 
 - `money`: `{"amount": "1500.50", "currency": "RUB"}`. A field with
   `currency` fixes it: the sign stands in the input and a bare amount is read
@@ -285,10 +286,13 @@ While the view is arranged every field is listed, whatever its condition.
 
 ## Closing a panel over unsaved work
 
-A panel never closes itself: the cross, Esc and «Отменить» each raise
-`sf-view-properties-close` (`reason` `close`, `escape` or `cancelled`) with
-`unsaved_fields`, and whether to ask «Закрыть? Введённое не будет сохранено.»
-is the host's decision. The count is the same on every way out: the changed
+A panel never closes itself: the cross, Esc, a press on the dimmed page and
+«Отменить» each raise `sf-view-properties-close` (`reason` `close`, `escape`,
+`outside` or `cancelled`) with `unsaved_fields`, and whether to ask «Закрыть?
+Введённое не будет сохранено.» is the host's decision. Esc reaches the panel
+through SIMAI Framework's layer stack, which hands it to the top layer only: a
+menu, a list or an sf-modal opened over the panel takes it first, and of two
+stacked panels only the upper one asks to close. The count is the same on every way out: the changed
 fields, plus every entry a control reports as not a value yet (a masked text
 not filled in). A field still holding the focus reports first, so an entry
 typed and not yet left is counted. «Отменить» keeps what was entered

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.editor",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "title": "Page editor",
   "summary": "The one block editor of the SIMAI page: layout and text in one Composition Document, edited by depth. A click on text types, a click beside it chooses the block, Esc goes up and Enter down. One catalogue (Text and Blocks, groups, variants with pictures, search, favourites, recent) serves the + between blocks, / in text and the library; blocks move by the grip with drop lines or Alt+arrows, and a drop beside a block splits it into columns. The parameter panel says where every value comes from (type, theme, variant, block, screen) and sets values per screen; the Data tab binds a block to a host source through the source port. The block builder makes and changes site blocks everywhere; the site template is a separate, explicit edit. Rights and theme come from the host. One undo history; output as JSON, HTML and Markdown.",
   "kind": "smart",
@@ -29,7 +29,6 @@
   "composition": {
     "uses": [
       "smart.button",
-      "smart.button-group",
       "smart.button-icon",
       "smart.dropdown",
       "smart.editor-inline",
@@ -37,6 +36,7 @@
       "smart.input",
       "smart.menu-context",
       "smart.modal",
+      "smart.segmented",
       "smart.skeleton",
       "smart.switch",
       "smart.tabs"
@@ -174,8 +174,15 @@
       "summary": "Choose a block as a press does; with no id the choice is let go.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object",
+          "required": false,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            }
+          }
         }
       ],
       "returns": {
@@ -187,8 +194,18 @@
       "summary": "Put the caret at the end of a text block.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            },
+            "required": [
+              "id"
+            ]
+          }
         }
       ],
       "returns": {
@@ -200,18 +217,22 @@
       "summary": "Add a block of a type (and variant) after a block, or where it first fits; the value is the new block's id.",
       "arguments": [
         {
-          "name": "type",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "variant": {},
+              "after": {}
+            },
+            "required": [
+              "type"
+            ]
           }
-        },
-        {
-          "name": "variant",
-          "schema": {}
-        },
-        {
-          "name": "after",
-          "schema": {}
         }
       ],
       "returns": {
@@ -239,28 +260,31 @@
       "summary": "Set a parameter of a block, for a screen when it differs by screen.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
-        },
-        {
-          "name": "key",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "value",
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "screen",
-          "schema": {
-            "enum": [
-              "desktop",
-              "tablet",
-              "phone"
+            "type": "object",
+            "properties": {
+              "id": {},
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              },
+              "screen": {
+                "enum": [
+                  "desktop",
+                  "tablet",
+                  "phone"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "key",
+              "value"
             ]
           }
         }
@@ -274,9 +298,16 @@
       "summary": "Start (or end, on false) editing the site template: the header and footer of every page.",
       "arguments": [
         {
-          "name": "on",
+          "name": "args",
+          "type": "object",
+          "required": false,
           "schema": {
-            "type": "boolean"
+            "type": "object",
+            "properties": {
+              "on": {
+                "type": "boolean"
+              }
+            }
           }
         }
       ],
@@ -289,13 +320,17 @@
       "summary": "Open the block builder: a new site block, one made from a block, or a site block to change everywhere.",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
-        },
-        {
-          "name": "type",
+          "name": "args",
+          "type": "object",
+          "required": false,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "id": {},
+              "type": {
+                "type": "string"
+              }
+            }
           }
         }
       ],
@@ -308,12 +343,22 @@
       "summary": "The page as JSON, HTML (utility classes) or Markdown of its text areas; the value is the text.",
       "arguments": [
         {
-          "name": "format",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "enum": [
-              "json",
-              "html",
-              "markdown"
+            "type": "object",
+            "properties": {
+              "format": {
+                "enum": [
+                  "json",
+                  "html",
+                  "markdown"
+                ]
+              }
+            },
+            "required": [
+              "format"
             ]
           }
         }
@@ -561,15 +606,15 @@
       },
       {
         "path": "src/smart/editor/js/templates/default.js",
-        "sha256": "79d4c433805a0e1acbc50570a03199022d748fb337af6e69155c928588cf5ae0"
+        "sha256": "64e1cd32def3c19789d8a888b7dc7c2ffa33a87bd6b078519a9809c09484e3ae"
       },
       {
         "path": "src/smart/editor/js/templates/default.css",
-        "sha256": "8062ae07ca5bfce2322eb53ebcd5e6727899661708c5a1e37c94855ceae896a5"
+        "sha256": "dda20b6aa9105b951a728199ca5356d74da8de9e1b568e3387d77f3859e0df65"
       },
       {
         "path": "src/smart/editor/rule.js",
-        "sha256": "3b7fe49064fd6987ab0c95c10bf0fc4b23510bde04b4a5c61062c8e71f154c0e"
+        "sha256": "c7c37317c2dd9825b1c0d407523076f668eec37aef0914b5f4a334b6279a7525"
       },
       {
         "path": "src/smart/editor/docs.md",
@@ -577,7 +622,7 @@
       },
       {
         "path": "src/smart/editor/component.json",
-        "sha256": "3697fb641463088717fd9029198adbe84d41089c81fb0c6aad2e39defe2b4b41"
+        "sha256": "66877f600d56c060ff5ac782aa35253426dcee40726b2b1ee839a2180a1dabfd"
       },
       {
         "path": "src/smart/editor/lang/en.json",

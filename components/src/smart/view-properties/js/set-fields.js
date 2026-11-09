@@ -476,7 +476,7 @@ function renderItemsTable(field, rows, columns, ctx, {editing, host}) {
 
     const rowActions = (index) => html`
         <span class="sf-view-items-actions flex items-cross-center gap-1/4" role="cell">
-            <sf-button-icon size="1/2" appearance="link" scheme="secondary" icon="keyboard_arrow_up"
+            <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="keyboard_arrow_up"
                     data-action="row-up" ?disabled=${index === 0 || index >= rows.length}
                     title=${word(node, 'rowUp')} aria-label=${word(node, 'rowUp')}
                     @click=${() => {
@@ -484,7 +484,7 @@ function renderItemsTable(field, rows, columns, ctx, {editing, host}) {
                         [next[index - 1], next[index]] = [next[index], next[index - 1]];
                         reshape(next);
                     }}></sf-button-icon>
-            <sf-button-icon size="1/2" appearance="link" scheme="secondary" icon="keyboard_arrow_down"
+            <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="keyboard_arrow_down"
                     data-action="row-down" ?disabled=${index >= rows.length - 1}
                     title=${word(node, 'rowDown')} aria-label=${word(node, 'rowDown')}
                     @click=${() => {

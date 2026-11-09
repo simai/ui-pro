@@ -450,12 +450,12 @@
      so the head was transparent — invisible while the table rested on a surface
      of the same colour, and plainly wrong once the head became sticky: a sticky
      `th` leaves the box `thead` paints, and the rows scrolled through the
-     labels. The fallback is `--sf-surface-0`, the surface `body` itself paints,
+     labels. The fallback is `--sf-surface-page`, the surface `body` itself paints,
      because a table that is not inside a raised box rests on that one; a host
      that puts the table on another surface names it through the property. */
   :is(sf-view-table, sf-table) > .sf-table thead,
   :is(sf-view-table, sf-table) > .sf-table thead th {
-    background-color: var(--sf-table-head--background-color, var(--sf-surface-0));
+    background-color: var(--sf-table-head--background-color, var(--sf-surface-page));
   }
 
   :is(sf-view-table, sf-table) > * .sf-table-avatar {
@@ -560,9 +560,9 @@
     opacity: 0.8;
     /* A dragged item is lifted to step 3: surface and shadow, or it is flat
        in the dark theme. */
-    background-color: var(--sf-elevation-3--surface);
-    --sf-on-surface-variant: var(--sf-on-elevation-3--variant);
-    box-shadow: var(--sf-elevation-3--shadow);
+    background-color: var(--sf-surface-popup);
+    --sf-on-surface-variant: var(--sf-on-surface-popup-variant);
+    box-shadow: var(--sf-shadow-popup);
   }
 
   /* Where a dragged row will land: the Framework's silhouette (sf-sortable
@@ -572,9 +572,9 @@
   .sf-table-context-menu .sf-settings-context-menu-item.drag-placeholder,
   :is(sf-view-table, sf-table) .drag-placeholder {
     box-sizing: border-box;
-    border: var(--sf-px) dashed var(--sf-outline-primary);
+    border: var(--sf-px) dashed var(--sf-primary-outline);
     border-radius: var(--sf-radius--ui);
-    background-color: var(--sf-primary-transparent-select);
+    background-color: var(--sf-primary-state-select);
     pointer-events: none;
   }
   .sf-table-context-menu .sf-settings-context-menu-item.drag-placeholder > *,
@@ -691,7 +691,7 @@
     gap: var(--sf-a8);
     padding: var(--sf-a8);
     border-block-end: var(--sf-px) solid var(--sf-outline-variant);
-    background-color: var(--sf-table-row--background-color, var(--sf-surface-0));
+    background-color: var(--sf-table-row--background-color, var(--sf-surface-page));
   }
 
   :is(sf-view-table, sf-table) .sf-table-list-item:hover {
@@ -815,7 +815,7 @@
     overflow-y: auto;
     /* The sheet is the screen, so it paints the screen; the panel inside paints
        only as far as its fields reach. Room is left at the top for the way out. */
-    background-color: var(--sf-elevation-3--surface) !important;
+    background-color: var(--sf-surface-popup) !important;
     padding-block-start: calc(var(--sf-text-height-1) + var(--sf-ui-1--space-y-tightness-default) * 2 + var(--sf-a8) * 2) !important;
     --sf-table-context-menu--max-block-size: 100dvh;
   }
@@ -948,7 +948,7 @@
     z-index: 5;
     overflow-x: auto;
     overflow-y: hidden;
-    background-color: var(--sf-table-head--background-color, var(--sf-surface-0));
+    background-color: var(--sf-table-head--background-color, var(--sf-surface-page));
   }
 
   :is(sf-view-table, sf-table) .sf-table-rail[hidden] {
@@ -964,7 +964,7 @@
     position: sticky;
     inset-block-start: 0;
     z-index: 6;
-    background-color: var(--sf-table-head--background-color, var(--sf-surface-0));
+    background-color: var(--sf-table-head--background-color, var(--sf-surface-page));
   }
 
   :is(sf-view-table, sf-table)[data-sf-page-scroll] thead {
@@ -1066,7 +1066,7 @@
      consumer saw on a hovered row. Inheriting both layers paints each exactly
      once. */
   :is(sf-view-table, sf-table) tbody tr {
-    background-color: var(--sf-table-row--background-color, var(--sf-surface-0));
+    background-color: var(--sf-table-row--background-color, var(--sf-surface-page));
   }
 
   :is(sf-view-table, sf-table) .sf-table-scroll tbody [data-sf-pinned] {
@@ -1127,7 +1127,7 @@
      2026-10-16). The same tint, mixed with the surface it lies on. */
   :is(sf-view-table, sf-table)[data-sf-view-stripes] tbody tr:nth-child(even) {
     --sf-table-row--background-color: color-mix(in srgb,
-      light-dark(var(--sf-neutral-50), var(--sf-neutral-90)) 16%, var(--sf-surface-0));
+      light-dark(var(--sf-neutral-50), var(--sf-neutral-90)) 16%, var(--sf-surface-page));
   }
 
   /* A line between the columns, the table's own line colour. */

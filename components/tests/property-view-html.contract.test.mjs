@@ -8,9 +8,9 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf
 // msg-4208ef91ae5442ceb44b): a field of propertyType html is formatted text,
 // drawn by the Framework's field renderers with sf-input-rich. The view only
 // declares the port; the renderer set does the drawing.
-test('the view declares port 1.17.0 and says what html is', () => {
+test('the view declares port 1.17.0 or later and says what html is', () => {
   const manifest = JSON.parse(read('src/smart/view-properties/smart.manifest.json'));
-  assert.equal(manifest.composition.declarative.host_port.version, '1.17.0');
+  assert.ok(manifest.composition.declarative.host_port.supported_versions.includes('1.17.0'));
   assert.ok(manifest.compatibility.migrations.some((step) => step.from === '1.7.9' && step.to === '1.8.0'));
   const port = JSON.parse(read('src/core/contracts/ports/simai.property-view-port/1.17.0/port.json'));
   assert.equal(port.version, '1.17.0');

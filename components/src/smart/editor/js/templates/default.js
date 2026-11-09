@@ -25,7 +25,7 @@ import {groupWordKey} from "../catalogue.mjs";
 // path a nav. The canvas is a named region when the page brings no landmarks;
 // a page with its own (banner, main, contentinfo) keeps them top level, and
 // the canvas is then an unnamed group that says its role. Every control is a Framework
-// part: sf-button, sf-button-icon, sf-button-group, sf-tabs, sf-input,
+// part: sf-button, sf-button-icon, sf-segmented, sf-tabs, sf-input,
 // sf-dropdown, sf-switch, sf-menu-context, sf-modal, sf-skeleton, sf-icon.
 /** The word for each reason a class of «Extra classes» is not taken. */
 const REFUSED = {
@@ -108,17 +108,17 @@ function bar(component, view, w) {
                                 ?disabled=${!model.canUndo} @click=${() => component.history("undo")}></sf-button-icon>
                 <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="redo" aria-label=${w("redo-label")} title=${`${w("redo-label")} (⇧⌘Z)`}
                                 ?disabled=${!model.canRedo} @click=${() => component.history("redo")}></sf-button-icon>
-                ${template ? html`<sf-button class="sf-editor-template-toggle" size="1/3" appearance=${model.templateEditing ? "tonal" : "link"} scheme=${model.templateEditing ? "primary" : "on-surface-variant"}
+                ${template ? html`<sf-button class="sf-editor-template-toggle" size="1/3" appearance=${model.templateEditing ? "tonal" : "ghost"} scheme=${model.templateEditing ? "primary" : "on-surface-variant"}
                         icon-start=${model.templateEditing ? "check" : ""} text=${w(model.templateEditing ? "template-done" : "template-edit")}
                         @click=${() => component.toggleTemplate(!model.templateEditing)}></sf-button>` : nothing}
                 ${model.templateEditing ? html`<span class="sf-editor-badge">${w("template-badge")}</span>` : nothing}
             </div>
-            <sf-button-group class="sf-editor-screens" size="1/2" appearance="segmented" plate="raised" aria-label=${w("screen-label")}
+            <sf-segmented class="sf-editor-screens" size="1/2" appearance="track" plate="raised" aria-label=${w("screen-label")}
                              .items=${view.screens} .value=${component.screenName}
                              @change=${(event) => {
                                  event.stopPropagation();
                                  component.setScreen(event.detail?.value ?? event.currentTarget.value);
-                             }}></sf-button-group>
+                             }}></sf-segmented>
             <div class="sf-editor-bar-end">
                 ${slotted(component, "actions")}
                 <sf-button-icon class="sf-editor-help-open" size="1/2" appearance="ghost" scheme="on-surface-variant" icon="help"
@@ -168,7 +168,7 @@ function builderBar(component, w) {
             <span class="sf-editor-builder-note">${w("builder-note", {count: String(builder.exposed.length)})}</span>
             ${builder.diagnostics?.length ? html`<span class="sf-editor-error" role="alert">${w("builder-invalid")}: ${builder.diagnostics.map((entry) => entry.message ?? entry.code).join("; ")}</span>` : nothing}
             <span class="sf-editor-spacer"></span>
-            <sf-button size="1/2" appearance="link" scheme="on-surface" text=${w("cancel")} @click=${() => component.closeBuilder()}></sf-button>
+            <sf-button size="1/2" appearance="ghost" scheme="on-surface" text=${w("cancel")} @click=${() => component.closeBuilder()}></sf-button>
             <sf-button size="1/2" scheme="primary" icon-start="save" text=${w(builder.editing ? "builder-save-everywhere" : "builder-save")}
                        ?disabled=${!builder.editing && !String(builder.name ?? "").trim()} @click=${() => component.saveBuilder()}></sf-button>
         </div>
@@ -225,7 +225,7 @@ function library(component, view, w) {
             </div>` : open ? html`
             <section class="sf-editor-group sf-editor-open-section" aria-labelledby="sf-editor-h-open">
                 <div class="sf-editor-back">
-                    <sf-button size="1/2" appearance="link" scheme="on-surface" icon-start="arrow_back" text-position="start" text=${component.word(open.labelKey)}
+                    <sf-button size="1/2" appearance="ghost" scheme="on-surface" icon-start="arrow_back" text-position="start" text=${component.word(open.labelKey)}
                                aria-label=${`${w("back")}: ${component.word(open.labelKey)}`}
                                @click=${() => component.openSection("")}></sf-button>
                 </div>
@@ -235,7 +235,7 @@ function library(component, view, w) {
             <section class="sf-editor-group" aria-labelledby="sf-editor-h-favourites">${heading("star", w("favourites"), "sf-editor-h-favourites")}${lib.favourites.length ? rows(component, lib.favourites, w) : html`<p class="sf-editor-hint sf-editor-empty-list">${w("favourites-empty")}</p>`}</section>
             ${lib.recent.length ? html`<section class="sf-editor-group" aria-labelledby="sf-editor-h-recent">${heading("history", w("recent"), "sf-editor-h-recent")}${rows(component, lib.recent, w)}</section>` : nothing}
             ${component.main.rights.builder && !component.builder ? html`
-                <sf-button class="sf-editor-make" size="1/3" appearance="link" scheme="on-surface-variant" icon-start="add"
+                <sf-button class="sf-editor-make" size="1/3" appearance="ghost" scheme="on-surface-variant" icon-start="add"
                            text=${w("builder-start")} @click=${() => component.openBuilder({from: null})}></sf-button>` : nothing}
             <section class="sf-editor-group" aria-labelledby="sf-editor-h-sections">
                 ${heading("category", w("sections"), "sf-editor-h-sections")}
@@ -245,7 +245,7 @@ function library(component, view, w) {
                         component.openSection(section.id);
                     }}>
                         <sf-icon icon=${section.icon} size="1/2" aria-hidden="true"></sf-icon>
-                        <sf-button class="sf-editor-section-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text=${component.word(section.labelKey)}
+                        <sf-button class="sf-editor-section-name" size="1/2" appearance="ghost" scheme="on-surface" text-position="start" text=${component.word(section.labelKey)}
                                    aria-label=${w("section-open", {name: component.word(section.labelKey), count: String(section.count)})}
                                    @click=${() => component.openSection(section.id)}></sf-button>
                         <span class="sf-editor-count" aria-hidden="true">${section.count}</span>
@@ -273,7 +273,7 @@ function typeEntry(component, type, w, from = "") {
             <li class="sf-editor-item sf-editor-variant" data-item=${`${item.type}#${item.variant}`} title=${w("item-drag-hint")}
                 @pointerdown=${(event) => component.onLibraryDown(event, item)}>
                 <div class="sf-editor-preview" aria-hidden="true">${skeleton(component.skeleton(item))}</div>
-                <sf-button class="sf-editor-item-name" size="1/3" appearance="link" scheme="on-surface" text-position="start" text=${item.label}
+                <sf-button class="sf-editor-item-name" size="1/3" appearance="ghost" scheme="on-surface" text-position="start" text=${item.label}
                            @click=${(event) => {
                                if (event.detail === 0) component.insertChoice({type: item.type, variant: item.variant}, null, item);
                            }}></sf-button>
@@ -295,7 +295,7 @@ function rows(component, list, w, {note = (item) => (item.variant ? item.typeLab
                 }}>
                 <sf-icon class="sf-editor-item-icon" icon=${item.icon ?? "widgets"} size="1/2" aria-hidden="true"></sf-icon>
                 <span class="sf-editor-item-text">
-                    <sf-button class="sf-editor-item-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text=${item.label}
+                    <sf-button class="sf-editor-item-name" size="1/2" appearance="ghost" scheme="on-surface" text-position="start" text=${item.label}
                                @click=${(event) => {
                                    if (event.detail === 0) component.insertChoice({type: item.type, ...(item.variant ? {variant: item.variant} : {})}, null, item);
                                }}></sf-button>
@@ -347,7 +347,7 @@ function structure(component, view, w) {
     return html`<ul class="sf-editor-tree" role="tree" aria-label=${w("left-structure")}>${repeat(view.tree, (row) => row.id, (row) => html`
         <li role="treeitem" aria-level=${row.depth + 1} aria-selected=${row.id === view.model.selected ? "true" : "false"}
             class="sf-editor-tree-row" style=${`--sf-editor-depth:${row.depth}`}>
-            <sf-button size="1/2" appearance=${row.id === view.model.selected ? "tonal" : "link"} scheme="on-surface"
+            <sf-button size="1/2" appearance=${row.id === view.model.selected ? "tonal" : "ghost"} scheme="on-surface"
                        icon-start=${row.icon} icon-end=${row.lock ? "lock" : ""} text=${row.excerpt ? `${row.label} · ${row.excerpt}` : row.label}
                        @click=${() => component.choose(row.id)}></sf-button>
         </li>`)}</ul>`;
@@ -366,7 +366,7 @@ function toolbar(component, view, w) {
             ${show ? html`<div class="sf-editor-toolbar-row" role="toolbar" aria-label=${w("toolbar-label")}>
                 <span class="sf-editor-crumbs">${crumbs.map((entry, index) => index === crumbs.length - 1
                     ? html`<strong class="sf-editor-crumb-here">${component.typeLabel(entry.type)}</strong>`
-                    : html`<sf-button size="1/3" appearance="link" scheme="on-surface-variant" text=${component.typeLabel(entry.type)} @click=${() => component.choose(entry.id)}></sf-button>
+                    : html`<sf-button size="1/3" appearance="ghost" scheme="on-surface-variant" text=${component.typeLabel(entry.type)} @click=${() => component.choose(entry.id)}></sf-button>
                         <sf-icon class="sf-editor-path-sep" icon="chevron_right" size="1/3" aria-hidden="true"></sf-icon>`)}</span>
                 <sf-button-icon class="sf-editor-toolbar-grip" size="1/3" appearance="ghost" scheme="on-surface-variant" icon="drag_indicator"
                                 aria-label=${w("grip-label")} title=${w("grip-label")} aria-haspopup="menu"
@@ -389,10 +389,10 @@ function toolbar(component, view, w) {
 function pathBar(component, view, w) {
     return html`
         <nav class="sf-editor-path" aria-label=${w("path-label")}>
-            <sf-button size="1/3" appearance="link" scheme="on-surface-variant" text=${w("path-page")} @click=${() => component.choose(null)}></sf-button>
+            <sf-button size="1/3" appearance="ghost" scheme="on-surface-variant" text=${w("path-page")} @click=${() => component.choose(null)}></sf-button>
             ${view.path.filter((node) => view.model.choosable(node)).map((node) => html`
                 <sf-icon icon="chevron_right" size="1/3" class="sf-editor-path-sep" aria-hidden="true"></sf-icon>
-                <sf-button size="1/3" appearance="link" scheme="on-surface-variant" class=${node.id === view.model.selected ? "sf-editor-path-here" : ""}
+                <sf-button size="1/3" appearance="ghost" scheme="on-surface-variant" class=${node.id === view.model.selected ? "sf-editor-path-here" : ""}
                            text=${component.typeLabel(node.type)} aria-current=${node.id === view.model.selected ? "true" : "false"}
                            @click=${() => component.choose(node.id)}></sf-button>`)}
             <span class="sf-editor-spacer"></span>
@@ -577,9 +577,9 @@ const ALIGN_ICONS = {start: "format_align_left", center: "format_align_center", 
 /** The light segmented look of the prototype: a quiet track, the chosen segment a raised surface, not a primary fill. */
 const segmentedSwitch = (field, items, value, component, extra = nothing) => html`
     <div class="sf-editor-control sf-editor-switch-row">
-        <sf-button-group class="sf-editor-segmented" size="1/2" appearance="segmented" plate="raised" full-width aria-label=${field.label}
+        <sf-segmented class="sf-editor-segmented" size="1/2" appearance="track" plate="raised" full-width aria-label=${field.label}
                          .items=${items} .value=${String(value)}
-                         @change=${(event) => component.onField(event, field)}></sf-button-group>
+                         @change=${(event) => component.onField(event, field)}></sf-segmented>
         ${extra}
     </div>`;
 
@@ -622,7 +622,7 @@ function fieldRow(component, field, w) {
                 <span class="sf-editor-field-label">${field.label}</span>
                 ${field.responsive ? html`<sf-icon class="sf-editor-field-screen" icon=${SCREEN_ICON[component.screenName]} size="1/3" title=${w("per-screen")} aria-label=${w("per-screen")}></sf-icon>` : nothing}
                 <span class="sf-editor-origin" data-origin=${field.origin} data-own=${own ? "true" : "false"} title=${w(`origin-${field.origin}-help`)}><span class="sf-editor-origin-dot" aria-hidden="true"></span>${field.originLabel}</span>
-                ${field.set ? html`<sf-button class="sf-editor-reset" size="1/3" appearance="link" scheme="on-surface-variant" text=${w("reset")}
+                ${field.set ? html`<sf-button class="sf-editor-reset" size="1/3" appearance="ghost" scheme="on-surface-variant" text=${w("reset")}
                         aria-label=${w("reset-field", {name: field.label})} @click=${() => component.onReset(field)}></sf-button>` : nothing}
             </div>
             ${control}
@@ -687,8 +687,8 @@ function dataPanel(component, view, w) {
         ${view.data.bindings.length ? html`
             <section class="sf-editor-group">
                 <h3>${w("data-states")}</h3>
-                <sf-button-group size="1/3" appearance="segmented" plate="raised" .items=${view.states} .value=${state}
-                                 aria-label=${w("data-states")} @change=${(event) => component.onState(event)}></sf-button-group>
+                <sf-segmented size="1/3" appearance="track" plate="raised" .items=${view.states} .value=${state}
+                                 aria-label=${w("data-states")} @change=${(event) => component.onState(event)}></sf-segmented>
                 <p class="sf-editor-quiet">${w("data-states-help")}</p>
             </section>` : nothing}
     `;
@@ -729,7 +729,7 @@ function popover(component, view, w) {
                           }}></sf-input>`}
             ${open ? html`
                 <div class="sf-editor-back sf-editor-pop-back">
-                    <sf-button size="1/2" appearance="link" scheme="on-surface" icon-start="arrow_back" text-position="start" text=${openName}
+                    <sf-button size="1/2" appearance="ghost" scheme="on-surface" icon-start="arrow_back" text-position="start" text=${openName}
                                aria-label=${`${w("back")}: ${openName}`} @mousedown=${(event) => event.preventDefault()}
                                @click=${() => component.openPopSection("")}></sf-button>
                 </div>` : nothing}

@@ -9,11 +9,12 @@
 // replaced by this file (FREE_REPLACED there).
 //
 // The reason is the frozen folders. editor is the editor release
-// editor-0893d3077342 (tests/editor-folder-frozen.contract.test.mjs) and view,
-// view-table and view-properties are the view release view-99c8dd1585fd
+// editor-f142dcfc53ca (tests/editor-folder-frozen.contract.test.mjs) and view,
+// view-table and view-properties are the view release view-99763f547560
 // (tests/view-folders-frozen.contract.test.mjs); they change only in
-// simai/ui-editor and simai/ui-view. Those releases were made over
-// ui-0c23f6a0af12 and still use names the next pair turned into former names:
+// simai/ui-editor and simai/ui-view. Those releases (and the ones before
+// them, made over ui-0c23f6a0af12) still use, in places, names later pairs
+// turned into former names:
 // appearance="link" (now ghost, C15), status="error" on a button (now danger),
 // scheme="secondary" on an icon button (now on-surface-variant), and the
 // relation cl-button-group (now cl-segmented). Every one of them is a dated

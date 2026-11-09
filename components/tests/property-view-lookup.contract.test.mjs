@@ -11,11 +11,11 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
 const view = read('src/smart/view-properties/index.js');
 
-// 1.15.0 (group.load), 1.16.0 (mask, buttons) and 1.17.0 (html) are declared since; 1.14.0 stays accepted.
+// 1.15.0 (group.load), 1.16.0 (mask, buttons), 1.17.0 (html) and 1.18.0 (set-drawn types' settings) are declared since; 1.14.0 stays accepted.
 test('the component accepts port 1.14.0 and declares it', () => {
-  assert.match(view, /const SUPPORTED_PORT_VERSIONS = \[[^\]]*"1\.13\.0", "1\.14\.0", "1\.15\.0", "1\.16\.0", "1\.17\.0"\];/u);
+  assert.match(view, /const SUPPORTED_PORT_VERSIONS = \[[^\]]*"1\.13\.0", "1\.14\.0", "1\.15\.0", "1\.16\.0", "1\.17\.0", "1\.18\.0"\];/u);
   const port = JSON.parse(read('src/smart/view-properties/smart.manifest.json')).composition.declarative.host_port;
-  assert.equal(port.version, '1.17.0');
+  assert.equal(port.version, '1.18.0');
   assert.ok(port.supported_versions.includes('1.14.0'));
   for (const version of port.supported_versions) assert.ok(view.includes(`"${version}"`), `${version} is accepted`);
 });

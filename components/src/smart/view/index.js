@@ -1506,7 +1506,7 @@ class SfDataView extends DataViewElement {
                 <sf-button data-sf-bulk="apply" size="1" appearance="default" scheme="primary"></sf-button>
                 <span class="sf-pagination-actions-separator" aria-hidden="true" data-sf-bulk="for-all-separator"></span>
                 <sf-checkbox data-sf-bulk="for-all"></sf-checkbox>
-                <sf-button-icon data-sf-bulk="clear" class="sf-pagination-actions-clear" size="1" appearance="link" scheme="on-surface" icon="close"></sf-button-icon>`;
+                <sf-button-icon data-sf-bulk="clear" class="sf-pagination-actions-clear" size="1" appearance="ghost" scheme="on-surface" icon="close"></sf-button-icon>`;
             band.querySelector('[data-sf-bulk="apply"]')
                 .addEventListener("click", () => this.applyBulkAction());
             band.querySelector('[data-sf-bulk="actions"]')
@@ -2465,8 +2465,11 @@ class SfDataView extends DataViewElement {
             // «Saved view needs key and label» on the array itself).
             const save = (view = {}) => this.saveView({key: view.key, label: view.label ?? view.name ?? view.key, revision: view.revision,
                 level: view.level ?? "personal", roles: view.roles, layout: view.layout, settings: view.settings});
+            // sf-view-table 1.16.0 carries {templates}; a bare template or an
+            // array of them, from a table before it, is read until 2027-01-01.
             const detail = event.detail ?? {};
-            return Array.isArray(detail) ? Promise.all(detail.filter((view) => view?.key).map(save)) : save(detail);
+            const templates = Array.isArray(detail.templates) ? detail.templates : detail;
+            return Array.isArray(templates) ? Promise.all(templates.filter((view) => view?.key).map(save)) : save(templates);
         }
         if (intent) return this._raise(intent, copy(event.detail ?? {}));
     }

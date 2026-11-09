@@ -29,7 +29,7 @@
     block-size: 100%;
     min-block-size: calc(var(--sf-space-7) * 8);
     color: var(--sf-on-surface);
-    background: var(--sf-surface-0);
+    background: var(--sf-surface-page);
     font-family: var(--sf-text--family);
     font-size: var(--sf-text--size-1\/2);
     line-height: var(--sf-text--height-1\/2);
@@ -47,7 +47,7 @@
     min-block-size: var(--sf-space-6);
     padding: var(--sf-space-1\/4) var(--sf-space-1\/3);
     border-block-end: var(--sf-border--width) solid var(--sf-outline-variant);
-    background: var(--sf-surface-0);
+    background: var(--sf-surface-page);
   }
 
   .sf-editor-bar-start,
@@ -91,7 +91,7 @@
     white-space: nowrap;
   }
 
-  /* sf-button-group's host is display: contents: its group is the grid item. */
+  /* sf-segmented's host is display: contents: its group is the grid item. */
   .sf-editor-screens > * {
     justify-self: center;
   }
@@ -140,10 +140,11 @@
     inline-size: calc(var(--sf-space-7) * 4 + var(--sf-space-6));
     padding: var(--sf-space-1\/2) var(--sf-space-1);
     border-radius: var(--sf-radius-1);
-    background: var(--sf-elevation-2--surface);
-    box-shadow: var(--sf-elevation-2--shadow);
-    /* Dimmed ink on the raised surface keeps 4.5:1 in the dark theme. */
-    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
+    background: var(--sf-surface-popup);
+    box-shadow: var(--sf-shadow-overlay);
+    /* An overlay place (C20): the popup surface and the overlay shadow; dimmed
+       ink on it keeps 4.5:1 in the dark theme. */
+    --sf-on-surface-variant: var(--sf-on-surface-popup-variant);
   }
 
   .sf-editor-help-title {
@@ -175,7 +176,7 @@
     min-block-size: 0;
     min-inline-size: 0;
     overflow: auto;
-    background: var(--sf-surface-0);
+    background: var(--sf-surface-page);
   }
 
   .sf-editor-left {
@@ -266,7 +267,7 @@
     border-radius: var(--sf-radius-1\/2);
     background: var(--sf-surface-container);
     /* Dimmed ink on a container fill: the container's text role (4.5:1 dark). */
-    --sf-on-surface-variant: var(--sf-on-surface-container--variant);
+    --sf-on-surface-variant: var(--sf-on-surface-container-variant);
     color: var(--sf-on-surface-variant);
     font-size: var(--sf-editor-small);
     line-height: var(--sf-editor-small-height);
@@ -325,7 +326,7 @@
 
   .sf-editor-item:hover,
   .sf-editor-section-row:hover {
-    background: var(--sf-surface-transparent-hover);
+    background: var(--sf-surface-state-hover);
   }
 
   .sf-editor-item-icon,
@@ -462,7 +463,7 @@
     overflow: hidden;
     border: var(--sf-border--width) solid var(--sf-outline-variant);
     border-radius: var(--sf-radius-1);
-    background: var(--sf-surface-1);
+    background: var(--sf-surface-area);
     pointer-events: none;
   }
 
@@ -591,7 +592,7 @@
     padding-inline-start: calc(var(--sf-space-1\/2) * var(--sf-editor-depth, 0));
   }
 
-  /* The page: a sheet with a soft shadow on a quiet background. */
+  /* The page: a sheet with the raised shadow (C20) on a quiet background. */
   .sf-editor-stage {
     display: grid;
     grid-template-rows: minmax(0, 1fr) auto;
@@ -606,7 +607,7 @@
     overflow: auto;
     padding-block: var(--sf-space-3) var(--sf-space-8);
     padding-inline: max(var(--sf-space-3), var(--sf-editor-gutter-room)) var(--sf-space-2);
-    background: var(--sf-surface-1);
+    background: var(--sf-surface-area);
     outline: 0;
   }
 
@@ -619,8 +620,8 @@
     inline-size: min(100%, calc(var(--sf-space-7) * 16 + var(--sf-space-1)));
     margin-inline: auto;
     border-radius: var(--sf-radius-1\/2);
-    background: var(--sf-surface-0);
-    box-shadow: var(--sf-elevation-1--shadow);
+    background: var(--sf-surface-page);
+    box-shadow: var(--sf-shadow-raised);
     transition: inline-size var(--sf-editor-motion) var(--sf-ease-move);
   }
 
@@ -731,7 +732,7 @@
   }
 
   .sf-editor-drop[data-edge="inside"] {
-    background: var(--sf-primary-transparent-select);
+    background: var(--sf-primary-state-select);
     outline: var(--sf-focus--width) dashed var(--sf-editor-accent);
   }
 
@@ -778,10 +779,11 @@
     padding: var(--sf-space-1\/4);
     border: var(--sf-border--width) solid var(--sf-outline-variant);
     border-radius: var(--sf-radius-1);
-    background: var(--sf-elevation-2--surface);
-    box-shadow: var(--sf-elevation-2--shadow);
-    /* Dimmed ink on the raised surface keeps 4.5:1 in the dark theme. */
-    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
+    background: var(--sf-surface-popup);
+    box-shadow: var(--sf-shadow-overlay);
+    /* An overlay place (C20): the popup surface and the overlay shadow; dimmed
+       ink on it keeps 4.5:1 in the dark theme. */
+    --sf-on-surface-variant: var(--sf-on-surface-popup-variant);
     font-size: var(--sf-editor-small);
     line-height: var(--sf-editor-small-height);
     white-space: nowrap;
@@ -835,7 +837,7 @@
     padding: 0 var(--sf-space-1\/2);
     overflow-x: auto;
     border-block-start: var(--sf-border--width) solid var(--sf-outline-variant);
-    background: var(--sf-surface-0);
+    background: var(--sf-surface-page);
     font-size: var(--sf-editor-small);
     line-height: var(--sf-editor-small-height);
     white-space: nowrap;
@@ -913,7 +915,7 @@
     margin: 0;
     padding: var(--sf-space-1\/2);
     border-radius: var(--sf-radius-1);
-    background: var(--sf-surface-1);
+    background: var(--sf-surface-area);
     color: var(--sf-on-surface-variant);
   }
 
@@ -1011,7 +1013,7 @@
   }
 
   /* The hosts are display: contents: their drawn roots are the row's items. */
-  .sf-editor-switch-row > sf-button-group > * {
+  .sf-editor-switch-row > sf-segmented > * {
     flex: 1 1 auto;
     min-inline-size: 0;
   }
@@ -1114,7 +1116,7 @@
     padding: var(--sf-space-1\/2);
     overflow: auto;
     border-radius: var(--sf-radius-1);
-    background: var(--sf-surface-1);
+    background: var(--sf-surface-area);
     font-family: var(--sf-mono);
     font-size: var(--sf-editor-small);
     line-height: var(--sf-editor-small-height);
@@ -1134,10 +1136,11 @@
     max-block-size: min(60vh, calc(var(--sf-space-7) * 8));
     padding: var(--sf-space-1\/3);
     border-radius: var(--sf-radius-1);
-    background: var(--sf-elevation-2--surface);
-    box-shadow: var(--sf-elevation-2--shadow);
-    /* Dimmed ink on the raised surface keeps 4.5:1 in the dark theme. */
-    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
+    background: var(--sf-surface-popup);
+    box-shadow: var(--sf-shadow-overlay);
+    /* An overlay place (C20): the popup surface and the overlay shadow; dimmed
+       ink on it keeps 4.5:1 in the dark theme. */
+    --sf-on-surface-variant: var(--sf-on-surface-popup-variant);
   }
 
   .sf-editor-pop-list {
@@ -1164,7 +1167,7 @@
   }
 
   .sf-editor-pop-list > li.is-active {
-    background: var(--sf-primary-transparent-select);
+    background: var(--sf-primary-state-select);
   }
 
   .sf-editor-option-name {
@@ -1226,10 +1229,11 @@
     max-inline-size: calc(var(--sf-space-7) * 5);
     padding: var(--sf-space-1\/3) var(--sf-space-1\/2);
     border-radius: var(--sf-radius-1);
-    background: var(--sf-elevation-2--surface);
-    box-shadow: var(--sf-elevation-2--shadow);
-    /* Dimmed ink on the raised surface keeps 4.5:1 in the dark theme. */
-    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
+    background: var(--sf-surface-popup);
+    box-shadow: var(--sf-shadow-overlay);
+    /* An overlay place (C20): the popup surface and the overlay shadow; dimmed
+       ink on it keeps 4.5:1 in the dark theme. */
+    --sf-on-surface-variant: var(--sf-on-surface-popup-variant);
   }
 
   .sf-editor-top {
