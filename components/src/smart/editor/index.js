@@ -541,9 +541,11 @@ class SfEditor extends EditorElement {
                 const rect = gutterTarget.getBoundingClientRect();
                 gutter.hidden = false;
                 const side = this.isRtl ? box.right - rect.right : rect.left - box.left;
+                // The gap is the gutter's end margin (a space token); never left of the canvas.
+                const gap = Number.parseFloat(getComputedStyle(gutter).marginInlineEnd) || 0;
                 Object.assign(gutter.style, {
                     insetBlockStart: `${rect.top - box.top + canvas.scrollTop}px`,
-                    insetInlineStart: `${Math.max(0, side + canvas.scrollLeft - gutter.offsetWidth - 4)}px`,
+                    insetInlineStart: `${Math.max(0, side + canvas.scrollLeft - gutter.offsetWidth - gap)}px`,
                 });
             }
         }

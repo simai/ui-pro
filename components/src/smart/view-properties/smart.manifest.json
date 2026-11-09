@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.13.1",
+  "version": "1.13.2",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1608,6 +1608,14 @@
         "changes": [
           "Over SIMAI Framework ui-cb287da78ab1 (core.runtime 1.45.0; the set needs 1.43.0 or newer): a choice drawn as buttons (sf-button-group) relates cl-segmented, the rule that serves sf-segmented and sf-button-group since the pair ui-d6f01121baca (cl-button-group is its forwarded former name); the theme roles and the background utility by their C16 names (--sf-surface-page, --sf-surface-area, --sf-surface-popup, --sf-shadow-popup, bg-surface-page; the former names are dated aliases of the same values); the buttons ask for appearance ghost, scheme on-surface-variant and status danger (link, secondary and error are their former names, drawn the same). The reference names one args argument per action (standard §4.4); the methods already took the object form (answerActions). Nothing changes on the page."
         ]
+      },
+      {
+        "from": "1.13.1",
+        "to": "1.13.2",
+        "changes": [
+          "The loading skeleton's strip of section tabs takes the box sf-tabs takes (simai/ui-pro#3): a tab's height (the control height of the view's size, --sf-ui-1--control-height, at 1/2 --sf-ui-1/2--control-height), the tabs' hairline (.sf-tabs-top-container) and their empty panel (.sf-tabs-main-container), from the tabs' own sheet. It was one text line, so with sections-as tabs the record moved down by 49px at size 1 (41px at 1/2) when it came; now the first group stands where the skeleton drew it. skeleton.html prints the same markup (data-size from size). Nothing to change for a host.",
+          "The arranging bar's section title reads rung 1 of the text ladder (--sf-text--size-1, --sf-text--height-1), 16/24 at sizes 1 and 1/2: what it drew while it named --sf-title-small, a role the Framework has no token for (measured before and after, both themes, three loads). Nothing changes on the page."
+        ]
       }
     ]
   },
@@ -1621,11 +1629,11 @@
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
-        "sha256": "ce652d1f9769c3eab9baa013f43dc87457229a49004b54ef2a77d6f887655247"
+        "sha256": "1680e2ca1b48955f6a11d17518bf9f95e9f2883cd2a76580fe6afc6c0c35898f"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.css",
-        "sha256": "545aa0e735b98c990cc18b9af2b0863b35e74df9443e630d13fafe98c842ca94"
+        "sha256": "9fbc0fddf5bd614901e2e1837042eff2ba4348999301aba44e46c2a07da0fb65"
       },
       {
         "path": "src/smart/view-properties/js/conditions.js",

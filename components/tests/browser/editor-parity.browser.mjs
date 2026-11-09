@@ -13,9 +13,11 @@
 //   fields under Content, Layout and More, each with its origin dot, reset
 //   and Framework binding; the type's effective value; a short empty state;
 // 5 the chosen block: a frame and a floating bar above it, at its end edge;
-//   + and the grip in the gutter with a first-use hint until used;
-// 6 the canvas: a sheet at least the prototype's 792 at 1440, with a shadow,
-//   on a quieter background; the template lock is a chip in the corner; the
+//   + and the grip in the gutter, a 1/3 control of the ladder (C27: 28 on a
+//   desktop, the phone step on a phone), with a first-use hint until used;
+// 6 the canvas: the sheet fills the canvas beside the gutter's room, which
+//   follows the 1/3 control, with a shadow, on a quieter background; the
+//   gutter stays inside the window at 1440 and 390; the template lock is a chip in the corner; the
 //   status bar is 32 high at 12px;
 // 7 the bar: one row, the screens in the centre, help, output and theme as
 //   32 px icon buttons, «Edit template» a link, the host's slotted controls
@@ -328,8 +330,16 @@ try {
       return {shown: Boolean(element && !element.hidden), text: element?.textContent.trim(), size: element ? getComputedStyle(element).fontSize : ''};
     });
     check('5: the first-use hint stands by the gutter, 12px', hint.shown && /⠿/u.test(hint.text) && hint.size === '12px', hint);
-    const gutter = await tab.evaluate(() => [...document.querySelectorAll('#editor .sf-editor-gutter button')].map((button) => Math.round(button.getBoundingClientRect().height)));
-    check('5: + and the grip in the gutter, 24 high', gutter.length === 2 && gutter.every((height) => height === 24), gutter);
+    const gutter = await tab.evaluate(() => {
+      // The 1/3 control height of the ladder, read from the token (never a number here).
+      const ruler = document.createElement('div');
+      ruler.style.blockSize = 'var(--sf-ui-1\\/3--control-height)';
+      document.querySelector('#editor .sf-editor').append(ruler);
+      const control = Math.round(ruler.getBoundingClientRect().height);
+      ruler.remove();
+      return {control, heights: [...document.querySelectorAll('#editor .sf-editor-gutter button')].map((button) => Math.round(button.getBoundingClientRect().height))};
+    });
+    check('5: + and the grip in the gutter, a 1/3 control high (the token)', gutter.control > 0 && gutter.heights.length === 2 && gutter.heights.every((height) => height === gutter.control), gutter);
     await choose(tab, 'a2');
     await settle(tab, 300);
     const bar = await tab.evaluate(() => {
@@ -448,10 +458,7 @@ try {
         const group = row?.querySelector('.sf-button-group');
         const segments = [...(group?.querySelectorAll('.sf-button-group-segment') ?? [])];
         const active = segments.find((segment) => segment.classList.contains('active'));
-        // sf-segmented's track look (the default since the pair ui-d6f01121baca,
-        // where the editor's segmented is its former name) draws the chosen
-        // segment's raised surface as a plate that slides under it.
-        const surface = group?.querySelector(':scope > .sf-button-group-plate') ?? active;
+        const plate = group?.querySelector('.sf-button-group-plate');
         const probe = document.createElement('span');
         probe.style.color = 'var(--sf-primary)';
         right.append(probe);
@@ -459,7 +466,14 @@ try {
         probe.remove();
         return {
           labels: segments.map((segment) => segment.textContent.trim()), active: active?.textContent.trim(),
-          activeFill: surface ? getComputedStyle(surface).backgroundColor : '', activeShadow: surface ? getComputedStyle(surface).boxShadow : '', primary,
+          // Since sf-segmented 1.4.0 (pair ui-d6f01121baca, D11c) the track draws the
+          // choice as one plate under the chosen segment, not as the segment's fill.
+          activeFill: plate ? getComputedStyle(plate).backgroundColor : '', activeShadow: plate ? getComputedStyle(plate).boxShadow : '', primary,
+          plateUnderActive: (() => {
+            const a = active?.getBoundingClientRect();
+            const p = plate?.getBoundingClientRect();
+            return Boolean(a && p) && Math.abs(a.left - p.left) <= 1 && Math.abs(a.width - p.width) <= 1;
+          })(),
           height: group ? Math.round(group.getBoundingClientRect().height) : 0,
           more: Boolean(row?.querySelector('.sf-editor-more-steps')),
           sameRow: (() => {
@@ -472,7 +486,7 @@ try {
       });
       if (level) {
         check(`8 ${label}: the heading level is H1–H3 with the rest behind «ещё»`, level.labels.join() === 'H1,H2,H3' && level.active === 'H2' && level.more && level.sameRow, level);
-        check(`8 ${label}: the switch is light: the chosen segment a raised surface with a shadow, no primary fill anywhere`, level.activeFill !== level.primary && level.activeShadow !== 'none' && level.primaryPlates === 0 && level.height === bar.control, level);
+        check(`8 ${label}: the switch is light: the chosen segment a raised surface with a shadow, no primary fill anywhere`, level.activeFill !== level.primary && level.activeFill !== 'rgba(0, 0, 0, 0)' && level.activeShadow !== 'none' && level.plateUnderActive && level.primaryPlates === 0 && level.height === bar.control, level);
         const panel = await tab.evaluate(() => {
           const right = document.querySelector('#editor .sf-editor-right');
           const cards = [...right.querySelectorAll('.sf-editor-card')];
@@ -555,9 +569,40 @@ try {
           headerHeight: Math.round(header.height),
           path: {height: Math.round(path.getBoundingClientRect().height), size: getComputedStyle(path).fontSize, control: Math.round(document.querySelector('#editor .sf-editor-output-open button').getBoundingClientRect().height)},
           scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          ...(() => {
+            // The gutter's room and the sheet's cap, read from the editor's tokens.
+            const ruler = (size) => {
+              const element = document.createElement('div');
+              element.style.inlineSize = size;
+              document.querySelector('#editor .sf-editor').append(element);
+              const width = element.getBoundingClientRect().width;
+              element.remove();
+              return width;
+            };
+            const style = getComputedStyle(stage);
+            const start = Number.parseFloat(style.paddingInlineStart);
+            const content = stage.clientWidth - start - Number.parseFloat(style.paddingInlineEnd);
+            return {
+              room: Math.round(ruler('var(--sf-editor-gutter-room)')), start: Math.round(start),
+              fills: Math.round(Math.min(content, ruler('calc(var(--sf-space-7) * 16 + var(--sf-space-1))'))),
+            };
+          })(),
         };
       });
-      if (!options.viewport) check(`6 ${label}: the sheet is at least the prototype's 792 at 1440`, canvas.sheet >= 792, canvas.sheet);
+      check(`6 ${label}: the canvas keeps the gutter's room (it follows the 1/3 control) at its start`, canvas.room > 0 && canvas.start >= canvas.room, canvas);
+      check(`6 ${label}: the sheet fills the canvas beside the gutter's room`, Math.abs(canvas.sheet - canvas.fills) <= 1, canvas);
+      // The gutter beside the first and a lower block stays inside the window (C27: never off screen).
+      for (const id of ['h1', 'p2']) {
+        const block = await box(tab, `#editor [data-sf-composition-id="${id}"]`);
+        await tab.mouse.move(block.x + block.width / 2, block.y + Math.min(6, block.height / 2), {steps: 3});
+        await settle(tab, 250);
+        const gutter = await tab.evaluate(() => {
+          const element = document.querySelector('#editor .sf-editor-gutter');
+          const rect = element && !element.hidden ? element.getBoundingClientRect() : null;
+          return rect ? {left: Math.round(rect.left), right: Math.round(rect.right), width: innerWidth} : null;
+        });
+        check(`6 ${label}: the gutter by ${id} stays inside the window`, gutter && gutter.left >= 0 && gutter.right <= gutter.width, gutter);
+      }
       check(`6 ${label}: the sheet has a soft shadow on a different background`, canvas.shadow && canvas.sheetBg !== canvas.canvasBg, canvas);
       check(`6 ${label}: the template lock is a chip in the template's corner, not a line of its own`, canvas.mark && canvas.mark.position === 'absolute' && canvas.mark.top >= 0 && canvas.mark.top <= 12 && canvas.mark.end >= 0 && canvas.mark.end <= 12 && canvas.mark.height <= 20 && canvas.mark.text === 'Шаблон', canvas.mark);
       // The Framework's control ladder is responsive: 32 at 1440, a step less on a phone.
@@ -574,7 +619,7 @@ try {
       const rect = element.getBoundingClientRect();
       const centre = (node) => { const b = node.getBoundingClientRect(); return Math.round(b.top + b.height / 2); };
       const controls = [...element.querySelectorAll('button')].filter((button) => button.getBoundingClientRect().width > 0);
-      // sf-button-group's host draws no box: the screens are its buttons, first to last.
+      // sf-segmented's host draws no box: the screens are its buttons, first to last.
       const buttons = [...element.querySelectorAll('.sf-editor-screens button')].map((button) => button.getBoundingClientRect());
       const screens = {left: Math.min(...buttons.map((b) => b.left)), width: Math.max(...buttons.map((b) => b.right)) - Math.min(...buttons.map((b) => b.left))};
       const icon = (selector) => { const button = element.querySelector(`${selector} button`); const b = button?.getBoundingClientRect(); return b ? [Math.round(b.width), Math.round(b.height)] : null; };
@@ -595,9 +640,7 @@ try {
     check('7: one bar row of 48 at 1440', bar.height === 48 && bar.rows === 1, bar);
     check('7: the screens are in the centre', Math.abs(bar.screensOffset) <= 2, bar.screensOffset);
     check('7: help, output and theme are 32px icon buttons', [bar.help, bar.output, bar.theme].every((size) => size && size[0] === 32 && size[1] === 32), {help: bar.help, output: bar.output, theme: bar.theme});
-    // ghost is the name of the look link was (C15, pair ui-d6f01121baca); the
-    // frozen editor still asks for link, and the shim writes ghost on the host.
-    check('7: «Изменить шаблон» is a ghost button, not a full outlined button', bar.template && ['ghost', 'link'].includes(bar.template.appearance) && bar.template.height <= 32, bar.template);
+    check('7: «Изменить шаблон» is a quiet ghost button, not a full outlined one', bar.template && bar.template.appearance === 'ghost' && bar.template.height <= 32, bar.template);
     check('7: the host\'s slotted controls (slots start and actions) stand in the same row', bar.pages !== null && bar.lang !== null && Math.abs(bar.pages - bar.barCentre) <= 2 && Math.abs(bar.lang - bar.barCentre) <= 2 && bar.pagesFirst && bar.langBeforeHelp, bar);
     await tab.locator('#editor .sf-editor-help-open button').click();
     await settle(tab, 200);

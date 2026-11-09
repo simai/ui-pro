@@ -9,8 +9,8 @@
 // replaced by this file (FREE_REPLACED there).
 //
 // The reason is the frozen folders. editor is the editor release
-// editor-f142dcfc53ca (tests/editor-folder-frozen.contract.test.mjs) and view,
-// view-table and view-properties are the view release view-99763f547560
+// editor-6b1736f863ee (tests/editor-folder-frozen.contract.test.mjs) and view,
+// view-table and view-properties are the view release view-aea031ba718b
 // (tests/view-folders-frozen.contract.test.mjs); they change only in
 // simai/ui-editor and simai/ui-view. Those releases (and the ones before
 // them, made over ui-0c23f6a0af12) still use, in places, names later pairs

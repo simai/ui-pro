@@ -10,7 +10,8 @@
 //     (not the answer's echo, whose default sort differs);
 //   - capabilities printed beside first-answer work the same way;
 //   - a port that brings a capability more redraws the controls it affects,
-//     never a row;
+//     never a row: the toolbar may move (a control comes in, the search field
+//     gives it room), nothing outside it does;
 //   - a declared port without a printed answer: the view's first query is the
 //     declared one.
 import {resolve, join} from 'node:path';
@@ -18,8 +19,11 @@ import {chromium} from 'playwright';
 
 if (!process.argv[2]) throw new Error('Build output root is required');
 const out = resolve(process.argv[2]);
+// The icons sheet draws an icon as one glyph on a page with no Loader
+// (ui-source ea3a53ca). Without it the icons of the first pairs drew nothing,
+// a control that came in was 0 wide and no shift could be seen.
 const styles = [
-  'core/core/css/core.css', 'core/core/css/utility.full.css',
+  'core/core/css/core.css', 'core/core/css/utility.full.css', 'component/component/icons/css/icons.css',
   'component/component/pagination/css/pagination.css',
   'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
@@ -77,7 +81,14 @@ const connect = (id, capabilities) => page.evaluate(async ({id, capabilities, an
   });
   observer.observe(table, {subtree: true, childList: true, attributes: true, characterData: true});
   let shift = 0;
-  const shifts = new PerformanceObserver((list) => { for (const entry of list.getEntries()) shift += entry.value; });
+  let outside = 0;
+  const inToolbar = (node) => Boolean(toolbar && node && (toolbar === node || toolbar.contains(node)));
+  const shifts = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      shift += entry.value;
+      if (entry.sources.some((source) => !inToolbar(source.node))) outside += entry.value;
+    }
+  });
   shifts.observe({type: 'layout-shift', buffered: false});
   const asked = [];
   view.setHostPort({version: '1.12.0', capabilities, raise: (intent, payload) => {
@@ -87,7 +98,7 @@ const connect = (id, capabilities) => page.evaluate(async ({id, capabilities, an
   await new Promise((done) => setTimeout(done, 700));
   observer.disconnect();
   shifts.disconnect();
-  return {mutations, shift, asked, rowsDrawn: table.querySelectorAll('tbody tr[data-row-id]').length,
+  return {mutations, shift, outside, asked, rowsDrawn: table.querySelectorAll('tbody tr[data-row-id]').length,
     rowActions: table.getAttribute('row-actions'), settingsMenu: table.getAttribute('settings-menu')};
 }, {id, capabilities, answer});
 
@@ -109,7 +120,7 @@ try {
   }
   const more = await connect('more', [...CAPS, 'saved-views']);
   if (more.mutations.rows) failures.push(`a capability more touched the rows: ${JSON.stringify(more.mutations)}`);
-  if (more.shift > 0) failures.push(`a capability more shifted the layout by ${more.shift}`);
+  if (more.outside > 0) failures.push(`a capability more shifted the layout outside the toolbar by ${more.outside}`);
 
   const bare = await connect('bare', CAPS);
   if (bare.asked.length !== 1 || JSON.stringify(bare.asked[0].query) !== JSON.stringify(QUERY)) failures.push(`without a printed answer the first query is not the declared one: ${JSON.stringify(bare.asked)}`);

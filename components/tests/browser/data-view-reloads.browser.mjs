@@ -11,6 +11,11 @@ const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
+  // The icons sheet draws an icon as one glyph on a page with no Loader
+  // (ui-source ea3a53ca). Without it the answer's rows and menus drew their
+  // icons' names as text and the table measured itself once more after the
+  // answer: a third render no page with the sheet makes.
+  'component/component/icons/css/icons.css',
   'component/component/pagination/css/pagination.css',
   'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));

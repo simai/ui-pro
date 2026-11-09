@@ -3,8 +3,8 @@
 // (view-folders-frozen.contract.test.mjs).
 //
 // sf-editor moved to the editor set: its source is simai/ui-editor, released
-// as editor-f142dcfc53ca (@simai-studio/editor 1.1.0, ui-editor tag
-// editor-f142dcfc53ca; earlier editor-0893d3077342, editor-8057e7b4beb2, package/src/smart/editor). Until the next pro bundle
+// as editor-6b1736f863ee (@simai-studio/editor 1.1.1, ui-editor tag
+// editor-6b1736f863ee; earlier editor-f142dcfc53ca, editor-0893d3077342, editor-8057e7b4beb2, package/src/smart/editor). Until the next pro bundle
 // takes it from that release, ui-pro still ships its own copy of the folder,
 // and it must stay the release's tree exactly: a change made here would ship
 // in pro and not in the editor set, and the next bundle would silently drop it.
@@ -25,10 +25,10 @@ import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
 
-// editor-f142dcfc53ca: `git -C ui-editor rev-parse editor-f142dcfc53ca:package/src/smart/<folder>`.
-const RELEASE = 'editor-f142dcfc53ca';
+// editor-6b1736f863ee: `git -C ui-editor rev-parse editor-6b1736f863ee:package/src/smart/<folder>`.
+const RELEASE = 'editor-6b1736f863ee';
 const FROZEN = {
-  'editor': '827827cdea1ea8f0e5815e04e29826948815c489',
+  'editor': '40c91f0c7a26342304e9f997c9f5a067422589c3',
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

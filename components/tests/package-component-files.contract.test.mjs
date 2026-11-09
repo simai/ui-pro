@@ -33,8 +33,8 @@ const PHASE_A = ['message-log', 'chat-threads', 'view-properties', 'admin-menu',
 // shared event (§8), so the port and host-port contracts still find them.
 const PENDING = [];
 
-// The frozen folders (editor: the editor release editor-f142dcfc53ca; view,
-// view-table and view-properties: the view release view-99763f547560;
+// The frozen folders (editor: the editor release editor-6b1736f863ee; view,
+// view-table and view-properties: the view release view-aea031ba718b;
 // tests/editor-folder-frozen.contract.test.mjs,
 // tests/view-folders-frozen.contract.test.mjs) were released over SIMAI
 // Framework ui-cb287da78ab1 or later, whose generator writes an action's

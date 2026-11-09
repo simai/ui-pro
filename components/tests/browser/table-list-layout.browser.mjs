@@ -12,12 +12,18 @@ import {chromium} from 'playwright';
 
 if (!process.argv[2]) throw new Error('Build output root is required');
 const out = resolve(process.argv[2]);
-const styles = ['core/core/css/core.css', 'core/core/css/utility.full.css',
+// The toolbar's controls are measured as a page draws them: the search field
+// (sf-input) and the icon buttons with their sheets, and the icons sheet that
+// draws a glyph on a page with no Loader. Without them every control measured
+// 0 high and "one line" held by default.
+const styles = ['core/core/css/core.css', 'core/core/css/utility.full.css', 'component/component/icons/css/icons.css',
+  'component/component/inputs/css/inputs.css', 'component/component/icon-buttons/css/icon-buttons.css',
+  'smart/smart/input/css/input.css', 'smart/smart/button-icon/css/button-icon.css',
   'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css'].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
-  'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
+  'smart/smart/checkbox/js/checkbox.js', 'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/list-item/js/list-item.js',
   'smart/smart/pagination/js/pagination.js', 'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
 ].map((p) => join(out, p));
@@ -60,6 +66,7 @@ try {
     const toolbar = table.querySelector('.sf-table-toolbar--list');
     const row = toolbar?.firstElementChild;
     const tops = row ? [...row.children].map((child) => Math.round((child.firstElementChild ?? child).getBoundingClientRect().top)) : [];
+    const heights = row ? [...row.children].map((child) => Math.round((child.firstElementChild ?? child).getBoundingClientRect().height)) : [];
     const box = toolbar?.getBoundingClientRect();
     const field = row?.querySelector('label.sf-search-input')?.getBoundingClientRect();
     return {
@@ -71,7 +78,8 @@ try {
       labels,
       select: items.every((item) => item.querySelector('.sf-table-list-select')),
       menu: items.every((item) => item.querySelector('.sf-table-list-menu')),
-      oneLine: new Set(tops).size === 1,
+      oneLine: new Set(tops).size === 1 && heights.length > 0 && heights.every((height) => height > 0),
+      heights,
       // The row of the toolbar stays inside the table: it overran it to the
       // left once, under the toolbar's wrap-reverse.
       inside: Boolean(box && row && row.getBoundingClientRect().left >= box.left - 1

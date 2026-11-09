@@ -1434,8 +1434,13 @@ function renderLoading(context) {
     // (simai/ui-pro#3): they came only with the data before, and the record
     // moved down by their height when it arrived. The stylesheet draws the
     // strip only where the record has tabs -- sections-as tabs, from the wide
-    // arrangement on -- since a printed skeleton knows no viewport.
-    const tabs = html`<div class="sf-property-view-tabs sf-property-view-tabs--skeleton flex items-cross-center gap-2" aria-hidden="true" data-sf-skeleton="tabs" data-sections-as=${context.sectionsAs}>${[0, 1, 2].map((at) => html`<div class="flex-none" style="inline-size: 6rem">${bar(at + 3)}</div>`)}</div>`;
+    // arrangement on -- since a printed skeleton knows no viewport. The box is
+    // sf-tabs' own: its strip of the view's control height over the tabs'
+    // hairline (.sf-tabs-top-container) and its empty panel
+    // (.sf-tabs-main-container), both from the tabs' sheet; the strip was one
+    // text line before, and the record still moved down by 49px at size 1.
+    // The root is not .sf-tabs: that class is the tabs script's to bind.
+    const tabs = html`<div class="sf-property-view-tabs sf-property-view-tabs--skeleton" aria-hidden="true" data-sf-skeleton="tabs" data-sections-as=${context.sectionsAs} data-size=${context.size}><div class="sf-tabs-top-container"><div class="sf-property-view-tabs-skeleton-strip flex items-cross-center gap-2">${[0, 1, 2].map((at) => html`<div class="flex-none" style="inline-size: 6rem">${bar(at + 3)}</div>`)}</div></div><div class="sf-tabs-main-container"></div></div>`;
     return html`${tabs}<div class="sf-property-view-loading flex flex-col gap-4" data-state="loading">${Array.from({length: SKELETON_GROUPS}, (_, group) => html`<section class="sf-property-view-group bg-surface-page flex flex-col gap-2" aria-busy="true"><header class="sf-property-view-group-header flex items-cross-center content-main-between gap-2"><div class="flex-1">${bar(group)}</div></header>${Array.from({length: SKELETON_FIELDS}, (_, field) => bar(group + field + 1))}</section>`)}<span class="sr-only" role="status">${context.message}</span></div>`;
 }
 

@@ -11,6 +11,11 @@ const out = resolve(process.argv[2]);
 const styles = [
   'core/core/css/core.css',
   'core/core/css/utility.full.css',
+  // The icons sheet: on a page with no Loader it is what draws an icon as one
+  // glyph (ui-source ea3a53ca, core.css holds icons at 0 only where the Loader
+  // runs). Without it the header box's icon drew its name as text and grew the
+  // header by 114px once a row was marked, moving the rows under a double click.
+  'component/component/icons/css/icons.css',
   'component/component/pagination/css/pagination.css',
   'component/component/inputs/css/inputs.css',
   'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',

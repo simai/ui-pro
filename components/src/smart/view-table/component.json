@@ -2,7 +2,7 @@
   "$comment": "sf-table from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/table (convert-1.3.8.mjs over ui-pro 9cbe061); every x-todo decided in x-decisions.",
   "id": "smart.view-table",
   "tag": "sf-view-table",
-  "version": "1.16.0",
+  "version": "1.16.1",
   "kind": "leaf",
   "family": "table",
   "settings": {
@@ -2260,6 +2260,13 @@
           "changes": [
             "sf-view-table-template-save carries {templates}: a list of one template (saved from the form) or several (Apply on the Templates tab), each {key, label, selected, data, settings}, at least one (the decision 'Event detail that is not a flat object', 2026-11-09). The detail used to be the template object itself or an array of them. sf-table-template-save and onTemplateSave keep that former detail through the element's adapter (mode split) until their dates. A host listening to sf-view-table-template-save reads detail.templates; sf-view 1.10.0 does, and still reads a bare template or array until 2027-01-01.",
             "Over SIMAI Framework ui-cb287da78ab1 (core.runtime 1.45.0; the set needs 1.43.0 or newer): the theme roles by their C16 names (--sf-surface-page, --sf-surface-popup, --sf-shadow-popup, --sf-on-surface-popup-variant, --sf-primary-outline, --sf-primary-state-select; the former names are dated aliases of the same values), the icon buttons and buttons ask for appearance ghost (link is its former name, drawn the same). The reference names one args argument per action (standard §4.4); every method the class writes already read the object form beside the fields in order (isActionParameters), and addRows, requestCreateIntent and focusRow also a bare value (x-registry.action-calls). Nothing changes on the page."
+          ]
+        },
+        {
+          "from": "1.16.0",
+          "to": "1.16.1",
+          "changes": [
+            "The avatar's max-width reads --sf-table-avatar--max-width with the fallback none: a host may still bound the avatar, and a page that sets nothing draws what it drew (the bare reference was unset, so none). The pair range no longer lists a variable bound by the page. Nothing changes on the page."
           ]
         }
       ]

@@ -459,7 +459,9 @@
   }
 
   :is(sf-view-table, sf-table) > * .sf-table-avatar {
-    max-width: var(--sf-table-avatar--max-width);
+    /* A host may bound the avatar; without it nothing does (`none`), which is
+       what the bare reference drew when no page set the property. */
+    max-width: var(--sf-table-avatar--max-width, none);
   }
 
   :is(sf-view-table, sf-table) .sf-table-link-cell {

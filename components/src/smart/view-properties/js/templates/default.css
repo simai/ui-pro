@@ -348,6 +348,18 @@
     display: none;
   }
 
+  /* Its strip is a tab's height: the control height of the view's size, the
+     height sf-tabs gives its buttons. The hairline under it and the empty panel
+     below are the tabs' sheet's (.sf-tabs-top-container, .sf-tabs-main-container),
+     so the record's tabs take the same box when they come (simai/ui-pro#3). */
+  .sf-property-view-tabs-skeleton-strip {
+    min-block-size: var(--sf-ui-1--control-height);
+  }
+
+  .sf-property-view-tabs--skeleton[data-size="1/2"] .sf-property-view-tabs-skeleton-strip {
+    min-block-size: var(--sf-ui-1\/2--control-height);
+  }
+
   @media not all and (min-width: 48rem) {
     .sf-property-view-tabs--skeleton {
       display: none;
@@ -700,10 +712,13 @@
     border-block-end: var(--sf-px) solid var(--sf-outline-variant);
   }
 
+  /* Rung 1 of the text ladder: what the title drew while it named
+     `--sf-title-small`, a role this Framework has no token for (it inherited
+     16/24 at both sizes; measured before and after, 2026-11-09). */
   .sf-property-view-section-title {
     margin: 0;
-    font-size: var(--sf-title-small--size);
-    line-height: var(--sf-title-small--height);
+    font-size: var(--sf-text--size-1);
+    line-height: var(--sf-text--height-1);
   }
 
   /* A name that can be changed is a control, and says so only by being one: it
