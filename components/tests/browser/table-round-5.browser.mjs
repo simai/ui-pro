@@ -196,7 +196,10 @@ try {
     const afterTick = {visible: visible(), saved: window.saved.length,
       draft: table.tempSettings ? Object.keys(table.tempSettings) : []};
 
-    // A click away loses nothing now.
+    // A click away loses nothing now. A press, as a person makes it: the
+    // window hears the layer stack's pointerdown (sf-view-table 1.15.2), not
+    // a click alone.
+    document.body.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, composed: true}));
     document.body.click();
     await new Promise((done) => setTimeout(done, 300));
     const afterAway = {visible: visible(), windowClosed: !document.querySelector('sf-menu-context .sf-table-context-menu')};

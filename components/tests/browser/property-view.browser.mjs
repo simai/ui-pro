@@ -944,13 +944,27 @@ try {
 
     const panelFor = (id) => document.querySelector(`.sf-property-view-panel[data-record-id="${id}"]`);
     const stack = {
-      depths: [panelFor('stack-1')?.dataset.stackDepth, panelFor('stack-2')?.dataset.stackDepth],
-      stacked: [panelFor('stack-1')?.dataset.stacked, panelFor('stack-2')?.dataset.stacked],
-      lowerInteractive: panelFor('stack-1')
-        ? getComputedStyle(panelFor('stack-1')).pointerEvents : null,
+      // Read from the Framework's layer stack (1.13.0), which the panels stand
+      // on through their drawers: the component keeps no order of its own.
+      depths: [lower.stackDepth, upper.stackDepth],
+      stacked: [String(!lower.isTopPanel), String(!upper.isTopPanel)],
+      // The window below takes no press because the one above lies over it --
+      // its panel and its overlay -- not because of a rule of this component.
+      lowerCovered: (() => {
+        const box = panelFor('stack-1')?.getBoundingClientRect();
+        if (!box) return null;
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        return Boolean(hit && panelFor('stack-2')?.closest('[data-sf-drawer-root]')?.contains(hit));
+      })(),
       upperInteractive: panelFor('stack-2')
         ? getComputedStyle(panelFor('stack-2')).pointerEvents : null,
+      // No dim of its own: the panel below keeps full opacity and is dimmed by
+      // the overlay of the drawer above it, the Framework's scrim.
       lowerVisible: panelFor('stack-1') ? getComputedStyle(panelFor('stack-1')).opacity : null,
+      upperOverlay: (() => {
+        const overlay = panelFor('stack-2')?.closest('[data-sf-drawer-root]')?.querySelector('[data-sf-drawer-overlay]');
+        return overlay ? {hidden: overlay.hidden, opacity: getComputedStyle(overlay).opacity} : null;
+      })(),
       // The inset is the drawer's now, not an inline margin this component writes:
       // sf-drawer stands each window depth x stack-offset in from its edge and
       // keeps its width. Measured as painted geometry rather than as a style
@@ -984,8 +998,8 @@ try {
     upper.remove();
     await new Promise((done) => setTimeout(done, 200));
     stack.afterUpperClosed = {
-      depth: panelFor('stack-1')?.dataset.stackDepth,
-      stacked: panelFor('stack-1')?.dataset.stacked,
+      depth: lower.stackDepth,
+      stacked: String(!lower.isTopPanel),
     };
     lower.remove();
 
@@ -1503,14 +1517,16 @@ try {
       note({case: 'the one below is marked stacked and the top is not', got: stacked.stacked,
         expected: 'true for the lower, false for the top'});
     }
-    if (stacked.lowerInteractive !== 'none' || stacked.upperInteractive === 'none') {
+    if (stacked.lowerCovered !== true || stacked.upperInteractive === 'none') {
       note({case: 'only the top window answers a click',
-        got: {lower: stacked.lowerInteractive, upper: stacked.upperInteractive},
-        expected: 'the lower inert, the top live -- a dimmed window that still answered clicks would look disabled and not be'});
+        got: {lowerCovered: stacked.lowerCovered, upper: stacked.upperInteractive},
+        expected: 'a press on the lower lands in the window above it, the top live -- a dimmed window that still answered clicks would look disabled and not be'});
     }
-    if (!stacked.lowerVisible || Number(stacked.lowerVisible) >= 1 || Number(stacked.lowerVisible) <= 0) {
-      note({case: 'the one below stays visible and dimmed, not hidden',
-        got: stacked.lowerVisible, expected: 'an opacity between 0 and 1'});
+    if (Number(stacked.lowerVisible) !== 1 || stacked.upperOverlay?.hidden !== false
+        || !(Number(stacked.upperOverlay?.opacity) > 0)) {
+      note({case: "the one below is dimmed by the Framework's overlay of the one above, with no dim of its own",
+        got: {lowerOpacity: stacked.lowerVisible, upperOverlay: stacked.upperOverlay},
+        expected: "the lower at opacity 1 under the upper drawer's drawn overlay"});
     }
     // The window above stands exactly over the one below, at the same width
     // (owner, 2026-10-07). The step in read as a panel that had slipped, and
@@ -1759,9 +1775,9 @@ try {
         got: {modal: inPanel.modal, overlay: inPanel.overlay},
         expected: 'modal and overlay both on -- a drawer that narrows the page reflows the table behind it into letter-wide columns, which is the state the owner photographed'});
     }
-    if (inPanel.closeOnEsc !== 'false') {
-      note({case: "the drawer's own Esc is off, because a stack must close one window",
-        got: inPanel.closeOnEsc, expected: 'false'});
+    if (inPanel.closeOnEsc === 'false') {
+      note({case: "the drawer's own Esc is on: the layer stack hands it to the top window only",
+        got: inPanel.closeOnEsc, expected: 'not false (the default, true)'});
     }
     if (!inPanel.portalled) {
       note({case: 'the panel is portalled out of the element, which the styles must follow',
