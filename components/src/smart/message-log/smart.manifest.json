@@ -885,7 +885,7 @@
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "673feccc0a66055308533707180660d8614c9f67fba8c7867928b2677aaed536"
+        "sha256": "ea1f689aa83d327b208abb1747c149999aea7b4ceb5cd3724f094d9389cdac7c"
       },
       {
         "path": "src/smart/message-log/aliases.json",

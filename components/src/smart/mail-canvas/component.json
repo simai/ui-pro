@@ -2,7 +2,7 @@
   "$comment": "The source of sf-mail-canvas's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-mail by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
   "id": "smart.mail-canvas",
   "tag": "sf-mail-canvas",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -401,7 +401,8 @@
     "version 1.1.1: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the overlay is sf-editor-overlay (its sf-editor-overlay-* events); an overlay-target the host placed may still be the former sf-composition-overlay. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0).",
     "version 1.1.2 (2026-11-08): a patch (first paint only). static/sheets.json no longer lists utility/headers/default/css/default.min.css: SIMAI Framework utility.headers 1.1.0 asks for that sheet only for a whole class token h1..h6 (its former rule matched h1..h6 inside ids, modifiers and SVG path data), and none of the snapshots has one; the sheet styled only the h1..h6 tags with the heading tokens core.css already gives them. Code, settings, values and events are unchanged.",
     "version 1.1.3 (2026-11-09): a patch (no visible change). The width switch is sf-segmented, SIMAI Framework's name for sf-button-group (pair ui-d6f01121baca; the former tag stays a dated alias until 2027-01-01); its track look is the default, so appearance=\"segmented\" is dropped. The rule relates cl-segmented (cl-button-group is a forward to it) and composition.uses names smart.segmented. Settings, values and events are unchanged.",
-    "version 1.1.4 (2026-11-09): a patch, for the SIMAI Framework pair with the shadow places (C20, owner 2026-11-08; core.runtime >= 1.43.0). A frame narrower than the letter casts the raised shadow through the shadow-raised utility (shadow-1 is its dated alias), and the paper inside a wider frame through --sf-shadow-raised read in the light scheme (was --sf-elevation-1--shadow). Level 1 is the raised place on that pair, so the shadow is the same; the static phone snapshot and the probe follow the class. Settings, values and events are unchanged."
+    "version 1.1.4 (2026-11-09): a patch, for the SIMAI Framework pair with the shadow places (C20, owner 2026-11-08; core.runtime >= 1.43.0). A frame narrower than the letter casts the raised shadow through the shadow-raised utility (shadow-1 is its dated alias), and the paper inside a wider frame through --sf-shadow-raised read in the light scheme (was --sf-elevation-1--shadow). Level 1 is the raised place on that pair, so the shadow is the same; the static phone snapshot and the probe follow the class. Settings, values and events are unchanged.",
+    "version 1.1.5 (2026-11-09): a patch (first paint only). The first-paint snapshots are retaken over SIMAI Framework ui-cb287da78ab1 (the pair's elements now print data-sf-size-relative on sf-icon and the other markup of that pair); static/sheets.json is unchanged (no sheet drift). Code, settings, values and events are unchanged."
   ],
   "x-rule": {
     "$comment": [

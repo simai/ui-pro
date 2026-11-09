@@ -586,7 +586,7 @@
       },
       {
         "path": "src/smart/chat-composer/component.json",
-        "sha256": "c0659538d944a05ec68a9713466a9bd09550fa5ebd70bf1b7336fb33ce3fdb82"
+        "sha256": "e76befa749b628bd815f98ed9ae4dbe8b5b86830a0777c80a2e0b4d92dd6c809"
       },
       {
         "path": "src/smart/chat-composer/aliases.json",

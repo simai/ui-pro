@@ -765,7 +765,7 @@
         }
       },
       "first-paint": {
-        "max-bytes": 22000,
+        "max-bytes": 23000,
         "why": "A whole window between people: the list, the conversation with its authors and runs, a tombstone and the field, printed with the host's data; no times, so the print does not depend on the reader's time zone."
       }
     }

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-canvas",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "title": "Letter canvas",
   "summary": "The canvas of SIMAI Email Editor: a rendered letter in a frame that runs nothing, the width switch, the out-of-date and weight notes and sf-editor-overlay on top. The element knows no letter, no block manifest and no renderer: the host passes the HTML and the data about it, and hears what the person did.",
   "kind": "smart",
@@ -515,7 +515,7 @@
       },
       {
         "path": "src/smart/mail-canvas/component.json",
-        "sha256": "ee38a97edf842d470f06890ab085f940eb69ad34048114c72e306307f7023b35"
+        "sha256": "6f7851338e61793165b2f125171ab61633ae32c4e504b1f3ff3cd44699d54801"
       },
       {
         "path": "src/smart/mail-canvas/lang/en.json",
