@@ -10,7 +10,8 @@
 // or failed list only once the view is opened. The form of a new
 // conversation (x-conversation-start) is sf-input-lookup, sf-input and sf-button,
 // and a group's members (x-members) the avatars' class markup, each only
-// once its view is opened.
+// once its view is opened. A conversation between
+// people draws the head's mark as Smart sf-avatar (cl-avatar, lazy).
 SF.RuleLoader['cl-chat-window'] = {
   tags: ['sf-chat-window'],
   type: 'smart',
@@ -32,6 +33,7 @@ SF.RuleLoader['cl-chat-window'] = {
     { name: 'cl-progress-bar', lazy: true },
     { name: 'cl-empty-state', lazy: true },
     { name: 'avatars', lazy: true },
+    { name: 'cl-avatar', lazy: true },
     { name: 'cl-input-lookup', lazy: true },
     { name: 'cl-input', lazy: true },
     { name: 'cl-button', lazy: true },
