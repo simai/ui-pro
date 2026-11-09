@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-message",
   "tag": "sf-chat-message",
-  "version": "1.7.6",
+  "version": "1.7.7",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -443,7 +443,8 @@
     "version 1.7.3 (2026-11-08): a patch (a look). SIMAI Framework now draws inline code in running text itself (tokens.typography 1.3.0, the pair ui-5edc71bd6936, docs review C10) and keeps a name on one line. Code in a table cell of the markup no longer drops the plate (the rule td code {background: none; padding: 0} is gone), and inline code in the markup wraps (white-space: normal, overflow-wrap: anywhere) so a long name stays inside a narrow bubble. Settings, values and events are unchanged.",
     "version 1.7.4 (2026-11-09): a patch (first paint only). The snapshots are retaken over SIMAI Framework ui-d6f01121baca: static/sheets.json lists the sheets the pair now asks for (component/kbd, a relation of the buttons since sf-kbd 1.1.0; smart/button-close and utility/sr-only where an example draws them). Code, settings, values and events are unchanged; its buttons still ask for appearance link, the dated alias of ghost until 2027-01-01.",
     "version 1.7.5 (2026-11-09): a patch, for the SIMAI Framework pair with the shadow places (C20, owner 2026-11-08; core.runtime >= 1.43.0). The reaction picker reads --sf-surface-popup-nested and --sf-shadow-overlay instead of elevation step 4, the values the former names resolve to on that pair (a nested popup's shadow is the overlay one). No visible change against that pair; settings, values and events are unchanged.",
-    "version 1.7.6 (2026-11-09): a patch (first paint only). The first-paint snapshots are retaken over SIMAI Framework ui-cb287da78ab1 (the pair's elements now print data-sf-size-relative on sf-icon and the other markup of that pair); static/sheets.json is unchanged (no sheet drift). Code, settings, values and events are unchanged."
+    "version 1.7.6 (2026-11-09): a patch (first paint only). The first-paint snapshots are retaken over SIMAI Framework ui-cb287da78ab1 (the pair's elements now print data-sf-size-relative on sf-icon and the other markup of that pair); static/sheets.json is unchanged (no sheet drift). Code, settings, values and events are unchanged.",
+    "version 1.7.7 (2026-11-09): a patch (a look, the people editor only). The count and the refusal under a person's description read --sf-chat-message--muted, a variable nothing declares, so they took the text colour of the row; they read --sf-chat-message--ink-muted (the muted colour, --sf-chat-message-muted-color or on-surface-variant) as the rest of the message's secondary text does. Settings, values and events are unchanged."
   ],
   "x-rule": {
     "$comment": [
