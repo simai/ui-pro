@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.editor-content",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "title": "Content editor",
   "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "kind": "smart",
@@ -562,7 +562,7 @@
       },
       {
         "path": "src/smart/editor-content/js/templates/default.css",
-        "sha256": "0fb1fb336edc4bef010d0a6f996ba46e805a64cd06c585fd581b7198557e6141"
+        "sha256": "7bafa4d87c8a56d6058069b07fa23f4f7176699b7c97d64c0687cda4e098802b"
       },
       {
         "path": "src/smart/editor-content/rule.js",
@@ -570,11 +570,11 @@
       },
       {
         "path": "src/smart/editor-content/docs.md",
-        "sha256": "14326e4393b7c4a9da9318c738ef43dd1692d9acb0065b5da30af26465cb7ea0"
+        "sha256": "f9c65c440bbc7353bc14c19ebaca4d7d2e4360f23008c6bd1f75349a6d5aba37"
       },
       {
         "path": "src/smart/editor-content/component.json",
-        "sha256": "0996675971c1a5d00cc0b9f7e1b837fa5c1253f4470484b42e20ab2b51c18128"
+        "sha256": "78ffe2c4cdcdf8e99b6088dc57e6685f59d20bab490a5e50f4e9a8c7e3a941b8"
       },
       {
         "path": "src/smart/editor-content/lang/en.json",

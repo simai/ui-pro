@@ -19,7 +19,11 @@
 //     title-field="shown" draws it, embedded or not;
 //   - embed: the gutter of a block under the pointer stands wholly outside
 //     the box, in the host's margin, beside the block's first line, and on
-//     screen;
+//     screen (x >= 0) at 1280, 1440 and 390. The host's margin is the gutter's
+//     room read from the ladder, as a host leaves it: two 1/3 controls, their
+//     gaps and the highlight's reach beside a box of 640px and wider, one
+//     control beside a narrower one (28 + 28 + 4 + 4 + 12 = 76px on a desktop
+//     since C27, pair ui-b4a77681f0a7; it was 68 with the 24px control);
 //   - without embed the sheet is kept: its text stands in from the box.
 // With --shots it also writes the screenshots.
 import {createServer} from 'node:http';
@@ -62,8 +66,9 @@ const page = (attributes) => `<!doctype html><html lang="ru" class="theme-light"
 <link rel="stylesheet" href="/distr/core/css/core.css">
 <style>
   body { margin: 0; }
-  /* The host: a column whose margin is just the gutter's room (68px beside a
-     box of 640px and wider, 36px beside a narrower one). */
+  /* The host: a column whose margin is just the gutter's room, from the
+     ladder (--room, set per width: two 1/3 controls beside a box of 640px and
+     wider, one beside a narrower one). */
   .host { display: grid; gap: 24px; padding: 24px var(--room); }
   .box { min-inline-size: 0; }
 </style>
@@ -102,7 +107,7 @@ const near = (a, b, within = 1) => typeof a === 'number' && typeof b === 'number
 const open = async (browserPage, attributes, room) => {
   current = page(attributes);
   await browserPage.goto(`${base}/probe`);
-  await browserPage.evaluate((value) => document.documentElement.style.setProperty('--room', value), `${room}px`);
+  await browserPage.evaluate((value) => document.documentElement.style.setProperty('--room', value), room);
   await browserPage.waitForFunction(() => customElements.get('sf-editor-content'), null, {timeout: 10000});
   await browserPage.evaluate((doc) => { document.getElementById('editor').document = doc; }, DOCUMENT);
   await browserPage.waitForFunction(() => document.querySelectorAll('#editor .sf-content-editor-blocks > .sf-content-editor-block').length === 4, null, {timeout: 10000});
@@ -179,7 +184,11 @@ const gutter = async (browserPage) => {
 const browser = await chromium.launch();
 const report = {};
 try {
-  for (const [width, room] of [[1280, 68], [390, 36]]) {
+  // The gutter's room as a host reserves it: the 1/3 control of the ladder
+  // (C27), the gutter's gap on each side of a button and the highlight's reach.
+  const WIDE = 'calc(var(--sf-ui-1\\/3--control-height) * 2 + var(--sf-a4) * 2 + var(--sf-space-1\\/2))';
+  const NARROW = 'calc(var(--sf-ui-1\\/3--control-height) + var(--sf-a4) * 2 + var(--sf-space-1\\/2))';
+  for (const [width, room] of [[1280, WIDE], [1440, WIDE], [390, NARROW]]) {
     const context = await browser.newContext({viewport: {width, height: 900}});
     const browserPage = await context.newPage();
     browserPage.on('pageerror', (error) => note({case: `${width}: no page error`, got: error.message}));
@@ -199,6 +208,7 @@ try {
     if (!near(embedded.height, embedded.referenceHeight)) note({case: `${width}: the editor is as tall as the rendered text`, got: {height: embedded.height, reference: embedded.referenceHeight}});
     if (embedded.title?.drawn) note({case: `${width}: no title field embedded`, got: embedded.title});
     const room1 = await gutter(browserPage);
+    room1.room = await browserPage.evaluate(() => parseFloat(getComputedStyle(document.getElementById('host')).paddingInlineStart));
     report[`gutter-${width}`] = room1;
     if (!room1.shown) note({case: `${width}: the gutter shows for the block under the pointer`, got: room1});
     if (!(room1.right <= room1.outletLeft + 0.5)) note({case: `${width}: the gutter stands outside the box`, got: room1});

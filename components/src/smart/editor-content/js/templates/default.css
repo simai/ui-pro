@@ -6,9 +6,11 @@
      host is display: contents; .sf-content-editor is what a page places.
      Every value is a Framework token. */
   .sf-content-editor {
-    /* The margin the gutter stands in: the + and the grip, 24px each, 4px
-       apart and 4px from a block's highlight, which reaches past the text.
-       Below 640px of sheet the two stand one above the other. */
+    /* The margin the gutter stands in: the + and the grip, each a 1/3
+       control of the ladder (28 on a desktop since C27, the phone step on a
+       phone; never a local size), 4px apart and 4px from a block's
+       highlight, which reaches past the text. Below 640px of sheet the two
+       stand one above the other. */
     --sf-content-editor-button: var(--sf-ui-1\/3--control-height);
     --sf-content-editor-gap: var(--sf-a4);
     --sf-content-editor-reach: var(--sf-space-1\/2);
@@ -729,8 +731,10 @@
   /* Embedded (embed, G-15): the editor stands in a host's box -- a layout's
      outlet -- as that box's text, so opening it moves nothing. No sheet: no
      reading width, no padding, the text from the box's own edge; the gutter
-     stands outside the box, in the host's margin (68px beside a box of 640px
-     and wider, 36px beside a narrower one); the blocks keep the content
+     stands outside the box, in the host's margin, which the host leaves as
+     the gutter's room: two 1/3 controls, their gaps and the highlight's
+     reach beside a box of 640px and wider (76px on a desktop since C27), one
+     control beside a narrower one; the blocks keep the content
      rhythm of the rendered page (simai.vertical-sizing: the text space after
      each block, as a p's margin; the section space before a heading of level
      2 to 6, as an h2's; the title's text space after it). A block's highlight
