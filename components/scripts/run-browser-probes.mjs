@@ -20,6 +20,7 @@ import {execFileSync} from 'node:child_process';
 import {cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {PACKAGE_COMPONENTS, PACKAGE_ROOT, materializeOverlay} from './overlay.mjs';
+import {linkOverlayPlaywright} from './playwright-local.mjs';
 
 const args = process.argv.slice(2);
 const at = args.indexOf('--overlay');
@@ -35,6 +36,9 @@ for (const path of [...PACKAGE_COMPONENTS.map((name) => `smart/${name}`), 'smart
   if (!existsSync(join(built, path))) throw new Error(`the package output has no ${path}: ${built}`);
 }
 if (!existsSync(overlay)) materializeOverlay(overlay);
+// Before any probe: the overlay's playwright is this folder's pinned devDependency
+// (scripts/playwright-local.mjs), never a copy above the repository.
+const playwright = linkOverlayPlaywright(overlay);
 
 // One output root, laid out like the free one, with the package inside smart/smart.
 const combined = join(overlay, '.probe-output');
@@ -88,5 +92,6 @@ console.log(JSON.stringify({
   unknown: {count: results.unknown.length, names: results.unknown},
   cli: {count: results.cli.length, why: 'page functions against a fixture server and a published runtime; not run here'},
   unaccounted: own.filter((name) => !name.endsWith('.browser.mjs') && !name.endsWith('.cli.js')),
+  playwright,
 }, null, 1));
 if (results.failed.length || results.unknown.length) process.exit(1);

@@ -9,5 +9,8 @@
     "overlay": "node scripts/overlay.mjs",
     "test": "node scripts/test.mjs",
     "test:browser": "node scripts/run-browser-probes.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
   }
 }
