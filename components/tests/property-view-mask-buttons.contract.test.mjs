@@ -22,15 +22,15 @@ const body = (source, start, end = '\n    }\n') => {
   return source.slice(at, source.indexOf(end, at));
 };
 
-test('the view declares port 1.17.0 and keeps every earlier version', () => {
+test('the view declares port 1.18.0 and keeps every earlier version', () => {
   const manifest = JSON.parse(read('src/smart/view-properties/smart.manifest.json'));
   const port = manifest.composition.declarative.host_port;
-  assert.equal(port.version, '1.17.0');
-  assert.equal(port.path, 'src/core/contracts/ports/simai.property-view-port/1.17.0/port.json');
-  assert.deepEqual(port.supported_versions.slice(-3), ['1.15.0', '1.16.0', '1.17.0']);
-  assert.match(view, /const SUPPORTED_PORT_VERSIONS = \[[^\]]*"1\.16\.0", "1\.17\.0"\];/u);
+  assert.equal(port.version, '1.18.0');
+  assert.equal(port.path, 'src/core/contracts/ports/simai.property-view-port/1.18.0/port.json');
+  assert.deepEqual(port.supported_versions.slice(-4), ['1.15.0', '1.16.0', '1.17.0', '1.18.0']);
+  assert.match(view, /const SUPPORTED_PORT_VERSIONS = \[[^\]]*"1\.16\.0", "1\.17\.0", "1\.18\.0"\];/u);
   const component = JSON.parse(read('src/smart/view-properties/component.json'));
-  assert.equal(component.port.version, '1.17.0');
+  assert.equal(component.port.version, '1.18.0');
   assert.equal(manifest.version, component.version);
   assert.ok(manifest.compatibility.migrations.some((step) => step.from === '1.6.0' && step.to === '1.7.0'));
 });
@@ -81,7 +81,7 @@ test('the field editors the set draws for the two are fetched by the rule', () =
   const sandbox = {SF: {RuleLoader: {}}};
   vm.runInContext(read('src/smart/view-properties/rule.js'), vm.createContext(sandbox));
   const relations = sandbox.SF.RuleLoader['cl-view-properties'].relation;
-  for (const name of ['cl-input', 'cl-button-group', 'cl-dropdown']) {
+  for (const name of ['cl-input', 'cl-segmented', 'cl-dropdown']) {
     assert.ok(relations.some((relation) => relation.name === name && relation.lazy === true), name);
   }
 });

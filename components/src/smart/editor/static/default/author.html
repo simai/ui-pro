@@ -7,14 +7,14 @@
 <div class="sf-editor-bar-start">
 
 
-<sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="undo" aria-label="Отменить" title="Отменить (⌘Z)" disabled style="display: contents;">
-<button type="button" class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface-variant sf-icon-button--on-surface" disabled aria-label="Отменить" title="Отменить (⌘Z)" data-sf-static>
+<sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="undo" aria-label="Отменить" title="Отменить (⌘Z)" disabled style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface-variant sf-icon-button--on-surface" disabled aria-label="Отменить" title="Отменить (⌘Z)" data-sf-static>
 
 <sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="undo" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>undo</i></sf-icon>
 </button>
 </sf-button-icon>
-<sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="redo" aria-label="Повторить" title="Повторить (⇧⌘Z)" disabled style="display: contents;">
-<button type="button" class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface-variant sf-icon-button--on-surface" disabled aria-label="Повторить" title="Повторить (⇧⌘Z)" data-sf-static>
+<sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="redo" aria-label="Повторить" title="Повторить (⇧⌘Z)" disabled style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface-variant sf-icon-button--on-surface" disabled aria-label="Повторить" title="Повторить (⇧⌘Z)" data-sf-static>
 
 <sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="redo" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>redo</i></sf-icon>
 </button>
@@ -22,8 +22,9 @@
 
 
 </div>
-<sf-button-group class="sf-editor-screens" size="1/2" appearance="segmented" plate="raised" aria-label="Экран" value="desktop" style="display: contents;">
-<div role="radiogroup" class="sf-button-group sf-button-group--segmented sf-button-group--size-1/2 sf-button-group--plate-raised sf-button-group--primary" aria-label="Экран" aria-orientation="horizontal" data-value="desktop" data-sf-static>
+<sf-segmented class="sf-editor-screens" size="1/2" appearance="track" plate="raised" aria-label="Экран" value="desktop" style="display: contents;" data-sf-size-relative>
+<div role="radiogroup" class="sf-button-group sf-button-group--segmented sf-button-group--size-1/2 sf-button-group--plate-raised sf-button-group--primary" aria-label="Экран" aria-orientation="horizontal" data-value="desktop" data-plate="placed" data-sf-static>
+<span class="sf-button-group-plate" aria-hidden="true"></span>
 
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface flex items-cross-center sf-button-group-segment sf-button-group-icon-only active" data-sf-button-group-value="desktop" role="radio" aria-checked="true" tabindex="0">
 
@@ -45,17 +46,17 @@
 
 </div>
 
-</sf-button-group>
+</sf-segmented>
 <div class="sf-editor-bar-end">
 
-<sf-button-icon class="sf-editor-help-open" size="1/2" appearance="ghost" scheme="on-surface-variant" icon="help" aria-haspopup="dialog" aria-label="Справка" title="Справка" aria-expanded="false" style="display: contents;">
-<button type="button" class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface-variant sf-icon-button--on-surface" aria-label="Справка" aria-haspopup="dialog" title="Справка" aria-expanded="false" data-sf-static>
+<sf-button-icon class="sf-editor-help-open" size="1/2" appearance="ghost" scheme="on-surface-variant" icon="help" aria-haspopup="dialog" aria-label="Справка" title="Справка" aria-expanded="false" style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface-variant sf-icon-button--on-surface" aria-label="Справка" aria-haspopup="dialog" title="Справка" aria-expanded="false" data-sf-static>
 
 <sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="help" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>help</i></sf-icon>
 </button>
 </sf-button-icon>
-<sf-button-icon class="sf-editor-output-open" size="1/2" appearance="ghost" scheme="on-surface-variant" icon="data_object" aria-haspopup="dialog" aria-label="Результат" title="Результат" style="display: contents;">
-<button type="button" class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface-variant sf-icon-button--on-surface" aria-label="Результат" aria-haspopup="dialog" title="Результат" data-sf-static>
+<sf-button-icon class="sf-editor-output-open" size="1/2" appearance="ghost" scheme="on-surface-variant" icon="data_object" aria-haspopup="dialog" aria-label="Результат" title="Результат" style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface-variant sf-icon-button--on-surface" aria-label="Результат" aria-haspopup="dialog" title="Результат" data-sf-static>
 
 <sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="data_object" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>data_object</i></sf-icon>
 </button>
@@ -72,12 +73,12 @@
 
 <aside class="sf-editor-left" aria-label="Блоки и структура">
 <h2 class="sf-editor-visually-hidden">Блоки и структура</h2>
-<sf-tabs type="underline" size="1/2" active-index="0" style="display: contents;"><script type="application/json" data-sf-settings>{"items":[{"id":"blocks","label":"Блоки"},{"id":"structure","label":"Структура"}]}</script>
+<sf-tabs type="underline" size="1/2" active-index="0" style="display: contents;" data-sf-size-relative><script type="application/json" data-sf-settings>{"items":[{"id":"blocks","label":"Блоки"},{"id":"structure","label":"Структура"}]}</script>
 <div role="group" class="sf-tabs sf-tabs--size-1-2 sf-tabs--underline flex flex-col" data-active-index="0" data-sf-static>
 <div class="sf-tabs-top-container">
 <div role="tablist" class="sf-tabs-top flex content-main-start" aria-orientation="horizontal">
 
-<sf-button appearance="primary" size="1/2" scheme="default" text="Блоки" root-class="selected" style="display: contents;">
+<sf-button appearance="primary" size="1/2" scheme="default" text="Блоки" root-class="selected" style="display: contents;" data-sf-size-relative>
 
 
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--default sf-button--primary flex items-cross-center selected" id="sf-editor-author-2" role="tab" aria-controls="sf-editor-author-6" aria-selected="true" aria-disabled="false" aria-labelledby="sf-editor-author-3" tabindex="0" data-sf-tab-index="0" data-tab="0" data-sf-static>
@@ -90,7 +91,7 @@
 </button>
 </sf-button>
 
-<sf-button appearance="primary" size="1/2" scheme="default" text="Структура" root-class style="display: contents;">
+<sf-button appearance="primary" size="1/2" scheme="default" text="Структура" root-class style="display: contents;" data-sf-size-relative>
 
 
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--default sf-button--primary flex items-cross-center" id="sf-editor-author-4" role="tab" aria-controls="sf-editor-author-7" aria-selected="false" aria-disabled="false" aria-labelledby="sf-editor-author-5" tabindex="-1" data-sf-tab-index="1" data-tab="1" data-sf-static>
@@ -120,8 +121,8 @@
 </sf-tabs>
 <div class="sf-editor-left-body">
 
-<sf-input class="sf-editor-search" size="1/2" appearance="filled" input-type="search" icon-start="search" placeholder="Найти блок" aria-label="Найти блок" value style="display: contents;">
-<label class="sf-input  sf-input--size-1/2 sf-input--filled  flex flex-col" data-mask="false" data-mask-pattern data-mask-lazy data-mask-placeholder-char data-mask-options data-sf-input-bound="1" for="sf-editor-author-8" data-sf-static>
+<sf-input class="sf-editor-search" size="1/2" appearance="filled" input-type="search" icon-start="search" placeholder="Найти блок" aria-label="Найти блок" value style="display: contents;" data-sf-size-relative>
+<label class="sf-input  sf-input--size-1/2 sf-input--filled   flex flex-col" data-mask="false" data-mask-pattern data-mask-lazy data-mask-placeholder-char data-mask-options data-sf-input-bound="1" for="sf-editor-author-8" data-sf-static>
 
 <span class="sf-input-field items-cross-center transition flex">
 <span class="sf-input-left flex"><sf-icon icon="search" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>search</i></sf-icon></span>
@@ -138,15 +139,15 @@
 </label>
 </sf-input>
 
-<section class="sf-editor-group" aria-labelledby="sf-editor-h-favourites"><h3 class="sf-editor-heading" id="sf-editor-h-favourites"><sf-icon size="1/3" aria-hidden="true" icon="star" style="display: contents;"><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>star</i></sf-icon><span>Избранное</span></h3><p class="sf-editor-hint sf-editor-empty-list">Отметьте блок звёздочкой — он появится здесь.</p></section>
+<section class="sf-editor-group" aria-labelledby="sf-editor-h-favourites"><h3 class="sf-editor-heading" id="sf-editor-h-favourites"><sf-icon size="1/3" aria-hidden="true" icon="star" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>star</i></sf-icon><span>Избранное</span></h3><p class="sf-editor-hint sf-editor-empty-list">Отметьте блок звёздочкой — он появится здесь.</p></section>
 
 
 <section class="sf-editor-group" aria-labelledby="sf-editor-h-sections">
-<h3 class="sf-editor-heading" id="sf-editor-h-sections"><sf-icon size="1/3" aria-hidden="true" icon="category" style="display: contents;"><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>category</i></sf-icon><span>Разделы</span></h3>
+<h3 class="sf-editor-heading" id="sf-editor-h-sections"><sf-icon size="1/3" aria-hidden="true" icon="category" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>category</i></sf-icon><span>Разделы</span></h3>
 <ul class="sf-editor-sections" role="list">
 <li class="sf-editor-section-row" data-section="text">
-<sf-icon size="1/2" aria-hidden="true" icon="notes" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>notes</i></sf-icon>
-<sf-button class="sf-editor-section-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text="Текст" aria-label="Текст, блоков: 12" style="display: contents;">
+<sf-icon size="1/2" aria-hidden="true" icon="notes" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>notes</i></sf-icon>
+<sf-button class="sf-editor-section-name" size="1/2" appearance="ghost" scheme="on-surface" text-position="start" text="Текст" aria-label="Текст, блоков: 12" style="display: contents;" data-sf-size-relative>
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface flex items-cross-center" aria-label="Текст, блоков: 12" data-sf-static>
 
 
@@ -157,11 +158,11 @@
 </button>
 </sf-button>
 <span class="sf-editor-count" aria-hidden="true">12</span>
-<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
+<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
 </li>
 <li class="sf-editor-section-row" data-section="media">
-<sf-icon size="1/2" aria-hidden="true" icon="image" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>image</i></sf-icon>
-<sf-button class="sf-editor-section-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text="Медиа" aria-label="Медиа, блоков: 5" style="display: contents;">
+<sf-icon size="1/2" aria-hidden="true" icon="image" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>image</i></sf-icon>
+<sf-button class="sf-editor-section-name" size="1/2" appearance="ghost" scheme="on-surface" text-position="start" text="Медиа" aria-label="Медиа, блоков: 5" style="display: contents;" data-sf-size-relative>
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface flex items-cross-center" aria-label="Медиа, блоков: 5" data-sf-static>
 
 
@@ -172,11 +173,11 @@
 </button>
 </sf-button>
 <span class="sf-editor-count" aria-hidden="true">5</span>
-<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
+<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
 </li>
 <li class="sf-editor-section-row" data-section="elements">
-<sf-icon size="1/2" aria-hidden="true" icon="interests" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>interests</i></sf-icon>
-<sf-button class="sf-editor-section-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text="Элементы" aria-label="Элементы, блоков: 6" style="display: contents;">
+<sf-icon size="1/2" aria-hidden="true" icon="interests" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>interests</i></sf-icon>
+<sf-button class="sf-editor-section-name" size="1/2" appearance="ghost" scheme="on-surface" text-position="start" text="Элементы" aria-label="Элементы, блоков: 6" style="display: contents;" data-sf-size-relative>
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface flex items-cross-center" aria-label="Элементы, блоков: 6" data-sf-static>
 
 
@@ -187,11 +188,11 @@
 </button>
 </sf-button>
 <span class="sf-editor-count" aria-hidden="true">6</span>
-<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
+<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
 </li>
 <li class="sf-editor-section-row" data-section="layout">
-<sf-icon size="1/2" aria-hidden="true" icon="view_quilt" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>view_quilt</i></sf-icon>
-<sf-button class="sf-editor-section-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text="Макет" aria-label="Макет, блоков: 1" style="display: contents;">
+<sf-icon size="1/2" aria-hidden="true" icon="view_quilt" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>view_quilt</i></sf-icon>
+<sf-button class="sf-editor-section-name" size="1/2" appearance="ghost" scheme="on-surface" text-position="start" text="Макет" aria-label="Макет, блоков: 1" style="display: contents;" data-sf-size-relative>
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface flex items-cross-center" aria-label="Макет, блоков: 7" data-sf-static>
 
 
@@ -202,11 +203,11 @@
 </button>
 </sf-button>
 <span class="sf-editor-count" aria-hidden="true">1</span>
-<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
+<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
 </li>
 <li class="sf-editor-section-row" data-section="data">
-<sf-icon size="1/2" aria-hidden="true" icon="dataset" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>dataset</i></sf-icon>
-<sf-button class="sf-editor-section-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text="Данные" aria-label="Данные, блоков: 1" style="display: contents;">
+<sf-icon size="1/2" aria-hidden="true" icon="dataset" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>dataset</i></sf-icon>
+<sf-button class="sf-editor-section-name" size="1/2" appearance="ghost" scheme="on-surface" text-position="start" text="Данные" aria-label="Данные, блоков: 1" style="display: contents;" data-sf-size-relative>
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface flex items-cross-center" aria-label="Данные, блоков: 1" data-sf-static>
 
 
@@ -217,11 +218,11 @@
 </button>
 </sf-button>
 <span class="sf-editor-count" aria-hidden="true">1</span>
-<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
+<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
 </li>
 <li class="sf-editor-section-row" data-section="forms">
-<sf-icon size="1/2" aria-hidden="true" icon="edit_square" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>edit_square</i></sf-icon>
-<sf-button class="sf-editor-section-name" size="1/2" appearance="link" scheme="on-surface" text-position="start" text="Формы" aria-label="Формы, блоков: 7" style="display: contents;">
+<sf-icon size="1/2" aria-hidden="true" icon="edit_square" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>edit_square</i></sf-icon>
+<sf-button class="sf-editor-section-name" size="1/2" appearance="ghost" scheme="on-surface" text-position="start" text="Формы" aria-label="Формы, блоков: 7" style="display: contents;" data-sf-size-relative>
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface flex items-cross-center" aria-label="Формы, блоков: 7" data-sf-static>
 
 
@@ -232,7 +233,7 @@
 </button>
 </sf-button>
 <span class="sf-editor-count" aria-hidden="true">7</span>
-<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
+<sf-icon class="sf-editor-chevron" icon="chevron_right" size="1/2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
 </li></ul>
 </section>
 
@@ -244,7 +245,7 @@
 <div class="sf-editor-stage">
 <div class="sf-editor-canvas" tabindex="0" aria-describedby="sf-editor-author-1" role="group" aria-roledescription="страница">
 <div class="sf-editor-frame" data-screen="desktop">
-<div class="sf-editor-page" data-sf-editor-drawn="true"><div class="sf-composition-regions sf-editor-node" data-sf-composition-id="regs" data-sf-editor-lock="template" aria-disabled="true"><div class="sf-composition-regions-grid"><header class="sf-composition-region sf-editor-node sf-editor-locked" data-sf-composition-id="hd" data-sf-region="header" data-sf-region-placement="block" data-sf-editor-lock="template" aria-disabled="true"><p data-sf-composition-id="logo" class="sf-editor-node" data-sf-editor-lock="template" aria-disabled="true">SIMAI Студия</p><span class="sf-editor-lock-mark" aria-hidden="true"><sf-icon icon="lock" size="1/3" style="display: contents;"><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>lock</i></sf-icon><span>Шаблон</span></span></header><div class="sf-composition-region sf-editor-node" data-sf-composition-id="mn" data-sf-region="main" data-sf-region-placement="block" data-sf-composition-landmark="main" data-sf-editor-lock="layout" aria-disabled="true"><section class="p-y-8 sf-editor-node" data-sf-composition-id="s1" data-sf-editor-lock="layout" aria-disabled="true"><div class="container m-inline-auto" data-sf-composition-part="frame"><div class="space-y-3" data-sf-composition-part="content"><div data-sf-composition-area data-sf-composition-id="a1" class="sf-editor-node" data-sf-editor-lock="layout" aria-disabled="true"><h1 data-sf-composition-id="h1" class="sf-editor-node">Сайт, который собирается из блоков</h1><p data-sf-composition-id="p1" class="sf-editor-node">Щёлкните по тексту, чтобы печатать, или рядом с ним, чтобы выбрать блок.</p><p data-sf-composition-id="p2" class="sf-editor-node">Esc поднимает на уровень выше, Enter опускает ниже.</p></div></div></div></section><section class="p-y-8 sf-editor-node" data-sf-composition-id="s2" data-sf-editor-lock="layout" aria-disabled="true"><div class="container m-inline-auto" data-sf-composition-part="frame"><div class="space-y-3" data-sf-composition-part="content"><div class="sf-composition-columns grid gap-4 grid-col-2 sf-editor-node" data-sf-composition-id="c1" data-composition-columns="2" data-sf-editor-lock="layout" aria-disabled="true"><div class="sf-composition-column"><div data-sf-composition-area data-sf-composition-id="a2" class="sf-editor-node" data-sf-editor-lock="layout" aria-disabled="true"><h2 data-sf-composition-id="h2" class="sf-editor-node">Слева</h2><p data-sf-composition-id="p3" class="sf-editor-node">Колонка на компьютере, строка на телефоне.</p></div></div><div class="sf-composition-column"><div data-sf-composition-area data-sf-composition-id="a3" class="sf-editor-node" data-sf-editor-lock="layout" aria-disabled="true"><h2 data-sf-composition-id="h3" class="sf-editor-node">Справа</h2><p data-sf-composition-id="p4" class="sf-editor-node">Перетащите блок за ручку к краю соседнего — получатся колонки.</p></div></div></div></div></div></section></div><footer class="sf-composition-region sf-editor-node sf-editor-locked" data-sf-composition-id="ft" data-sf-region="footer" data-sf-region-placement="block" data-sf-editor-lock="template" aria-disabled="true"><p data-sf-composition-id="copy" class="sf-editor-node" data-sf-editor-lock="template" aria-disabled="true">© SIMAI</p><span class="sf-editor-lock-mark" aria-hidden="true"><sf-icon icon="lock" size="1/3" style="display: contents;"><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>lock</i></sf-icon><span>Шаблон</span></span></footer></div></div></div>
+<div class="sf-editor-page" data-sf-editor-drawn="true"><div class="sf-composition-regions sf-editor-node" data-sf-composition-id="regs" data-sf-editor-lock="template" aria-disabled="true"><div class="sf-composition-regions-grid"><header class="sf-composition-region sf-editor-node sf-editor-locked" data-sf-composition-id="hd" data-sf-region="header" data-sf-region-placement="block" data-sf-editor-lock="template" aria-disabled="true"><p data-sf-composition-id="logo" class="sf-editor-node" data-sf-editor-lock="template" aria-disabled="true">SIMAI Студия</p><span class="sf-editor-lock-mark" aria-hidden="true"><sf-icon icon="lock" size="1/3" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>lock</i></sf-icon><span>Шаблон</span></span></header><div class="sf-composition-region sf-editor-node" data-sf-composition-id="mn" data-sf-region="main" data-sf-region-placement="block" data-sf-composition-landmark="main" data-sf-editor-lock="layout" aria-disabled="true"><section class="p-y-8 sf-editor-node" data-sf-composition-id="s1" data-sf-editor-lock="layout" aria-disabled="true"><div class="container m-inline-auto" data-sf-composition-part="frame"><div class="space-y-3" data-sf-composition-part="content"><div data-sf-composition-area data-sf-composition-id="a1" class="sf-editor-node" data-sf-editor-lock="layout" aria-disabled="true"><h1 data-sf-composition-id="h1" class="sf-editor-node">Сайт, который собирается из блоков</h1><p data-sf-composition-id="p1" class="sf-editor-node">Щёлкните по тексту, чтобы печатать, или рядом с ним, чтобы выбрать блок.</p><p data-sf-composition-id="p2" class="sf-editor-node">Esc поднимает на уровень выше, Enter опускает ниже.</p></div></div></div></section><section class="p-y-8 sf-editor-node" data-sf-composition-id="s2" data-sf-editor-lock="layout" aria-disabled="true"><div class="container m-inline-auto" data-sf-composition-part="frame"><div class="space-y-3" data-sf-composition-part="content"><div class="sf-composition-columns grid gap-4 grid-col-2 sf-editor-node" data-sf-composition-id="c1" data-composition-columns="2" data-sf-editor-lock="layout" aria-disabled="true"><div class="sf-composition-column"><div data-sf-composition-area data-sf-composition-id="a2" class="sf-editor-node" data-sf-editor-lock="layout" aria-disabled="true"><h2 data-sf-composition-id="h2" class="sf-editor-node">Слева</h2><p data-sf-composition-id="p3" class="sf-editor-node">Колонка на компьютере, строка на телефоне.</p></div></div><div class="sf-composition-column"><div data-sf-composition-area data-sf-composition-id="a3" class="sf-editor-node" data-sf-editor-lock="layout" aria-disabled="true"><h2 data-sf-composition-id="h3" class="sf-editor-node">Справа</h2><p data-sf-composition-id="p4" class="sf-editor-node">Перетащите блок за ручку к краю соседнего — получатся колонки.</p></div></div></div></div></div></section></div><footer class="sf-composition-region sf-editor-node sf-editor-locked" data-sf-composition-id="ft" data-sf-region="footer" data-sf-region-placement="block" data-sf-editor-lock="template" aria-disabled="true"><p data-sf-composition-id="copy" class="sf-editor-node" data-sf-editor-lock="template" aria-disabled="true">© SIMAI</p><span class="sf-editor-lock-mark" aria-hidden="true"><sf-icon icon="lock" size="1/3" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>lock</i></sf-icon><span>Шаблон</span></span></footer></div></div></div>
 </div>
 <div class="sf-editor-hover" hidden aria-hidden="true"></div>
 <div class="sf-editor-chosen" hidden aria-hidden="true"></div>
@@ -257,7 +258,7 @@
 </div>
 
 <nav class="sf-editor-path" aria-label="Где выбранный блок">
-<sf-button size="1/3" appearance="link" scheme="on-surface-variant" text="Страница" style="display: contents;">
+<sf-button size="1/3" appearance="ghost" scheme="on-surface-variant" text="Страница" style="display: contents;" data-sf-size-relative>
 <button type="button" class="sf-button sf-button--size-1/3 sf-button--link sf-button--on-surface-variant sf-button--on-surface flex items-cross-center" data-sf-static>
 
 
@@ -277,14 +278,14 @@
 <aside class="sf-editor-right" aria-label="Параметры">
 
 <div class="sf-editor-panel-head">
-<span class="sf-editor-panel-icon" aria-hidden="true"><sf-icon size="1/2" icon="article" style="display: contents;"><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>article</i></sf-icon></span>
+<span class="sf-editor-panel-icon" aria-hidden="true"><sf-icon size="1/2" icon="article" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>article</i></sf-icon></span>
 <div class="sf-editor-panel-names">
 <h2 class="sf-editor-panel-title">Страница</h2>
 
 </div>
 </div>
 
-<p class="sf-editor-empty-state"><sf-icon icon="arrow_selector_tool" size="1/3" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>arrow_selector_tool</i></sf-icon><span>Выберите блок, чтобы увидеть его параметры.</span></p>
+<p class="sf-editor-empty-state"><sf-icon icon="arrow_selector_tool" size="1/3" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/3 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>arrow_selector_tool</i></sf-icon><span>Выберите блок, чтобы увидеть его параметры.</span></p>
 <dl class="sf-editor-facts">
 
 
@@ -295,7 +296,7 @@
 
 
 
-<sf-menu-context class="sf-editor-menu" size="1/2" style="display: contents;">
+<sf-menu-context class="sf-editor-menu" size="1/2" data-sf-size-relative style="display: contents;">
 <div class="sf-context-menu flex" role="menu" data-sf-static>
 <div class="relative">
 

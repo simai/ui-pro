@@ -1917,32 +1917,19 @@ class SfAdminMenu extends AdminMenuElement {
             id,
             transform,
             items = [
+                {id: "save", text: this.translate("save"), icon: "save", run: () => this.saveMenuSettings()},
                 {
-                    component: "sf-button",
-                    props: {
-                        appearance: "ghost",
-                        scheme: "on-surface",
-                        iconStart: "save",
-                        text: this.translate("save"),
-                        "@click": () => {
-                            this.saveMenuSettings();
-                        },
-                    },
-                },
-                {
-                    component: "sf-button",
-                    props: {
-                        appearance: "ghost",
-                        scheme: "on-surface",
-                        iconStart: `visibility${!tempVisible ? "_off" : ""}`,
-                        text: this.translate(!tempVisible ? "hide" : "show"),
-                        "@click": () => {
-                            this.toggleItemVisibility(id, tempVisible);
-                        },
-                    },
+                    id: "visibility",
+                    text: this.translate(!tempVisible ? "hide" : "show"),
+                    icon: `visibility${!tempVisible ? "_off" : ""}`,
+                    run: () => this.toggleItemVisibility(id, tempVisible),
                 },
             ],
         } = data;
+        // The rows are sf-menu-context entries ({id, text, icon}); what a row
+        // does stays here, keyed by its id, and runs on sf-menu-context-select.
+        const actions = new Map(items.map((item) => [item.id, item.run]));
+        const entries = items.map(({run, ...entry}) => entry);
         let pos = `translateY(calc(${transform !== undefined ? transform : -50}%))`;
         if (position) {
             switch (position) {
@@ -1978,7 +1965,12 @@ class SfAdminMenu extends AdminMenuElement {
             transform: ${pos};
             z-index: ${zIndex === "" ? 10000 : zIndex};
           "
-                        .items=${items}
+                        .entries=${entries}
+                        @sf-menu-context-select=${(event) => {
+                            const run = actions.get(event.detail?.id);
+                            this.closeContextMenu();
+                            run?.();
+                        }}
                         aria-label=${this._contextReturnFocus?.getAttribute("aria-label") || this.translate("settingsTitle")}
                         position="${position || "left"}"
                 >

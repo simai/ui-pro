@@ -25,7 +25,7 @@ import ru from "./lang/ru.json";
 // 1.25.0; duplication audit 2026-11-03 A-1), shared with sf-admin-menu.
 import {ICON_CHOICES} from "../../core/js/icon-choices.js";
 import {pageText} from "../../core/js/page-language";
-import {FOCUSABLE} from "../../core/js/layer-stack";
+import {FOCUSABLE, hasLayer, hasLayerAbove, openLayers} from "../../core/js/layer-stack";
 import {renderPropertyViewTemplate} from "./js/templates/default";
 // The day-and-time reading is the field renderers' (A-14): this view kept a
 // copy from before it was lifted into the Framework.
@@ -36,7 +36,7 @@ import {formatDateValue} from "../view-table/js/format-value.js";
 // keeps its list -- a guard naming a narrower set than the published versions is
 // a component refusing a host it asked to move. The contract test beside this
 // file compares the list with the manifest.
-const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0", "1.15.0", "1.16.0", "1.17.0"];
+const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0", "1.15.0", "1.16.0", "1.17.0", "1.18.0"];
 
 // The surface's mode (owner, 2026-10-14). view: show the object, never offer
 // a change. auto: show it and offer what this person may do. edit: every group
@@ -69,13 +69,19 @@ const versionAtLeast = (version, minimum) => {
     return true;
 };
 
-// Every panel open on the page, in the order they were opened. A stack is not one
-// state held for several records: each window is its own element with its own
-// record, its own open group and its own unsaved changes -- which is what «такое
-// же представление поверх» means, and what leaves a half-edited window intact
-// underneath the one above it. What the Framework owns is the behaviour between
-// them: which window Esc closes, which are dimmed, how far each is inset so the
-// one below stays partly visible. That needs no shared state beyond the order.
+// Every panel open on the page is a layer of the Framework's one document layer
+// stack (core layer-stack.js, standard 1.3.8 §19), through the sf-drawer that
+// carries it -- the stack sf-modal, the drawers and the menus share. A stack of
+// panels is not one state held for several records: each window is its own
+// element with its own record, its own open group and its own unsaved changes --
+// which is what «такое же представление поверх» means, and what leaves a
+// half-edited window intact underneath the one above it. What lies between the
+// windows is the stack's: which one is on top and takes Escape, how high each is
+// drawn, the dim each modal layer lays over what is below it, and where focus
+// goes when one closes. This component kept a list of its own for that, an
+// Escape listener of its own and a dim of its own until 1.13.0; its list did not
+// know about a modal, so Escape under an sf-modal opened from a panel closed the
+// panel instead of the modal.
 // The same query sf-drawer docks on, written the same way so a reader grepping
 // 48rem finds both. The Framework's own breakpoint array has no 48rem step -- its
 // nearest is md at 720px -- but the panel *is* a drawer, and flipping the panel's
@@ -83,6 +89,11 @@ const versionAtLeast = (version, minimum) => {
 // visible in that gap. The split between the breakpoint array and the pixel values
 // components use is reported rather than settled here.
 const WIDE_MEDIA_QUERY = "(min-width: 48rem)";
+
+// What the drawer's close reasons (standard 1.3.8 §19.3) are as this panel's:
+// the drawer draws no close control of its own here, so its `close` is a script
+// asking; `outside` is a press on the dimmed page.
+const DRAWER_CLOSE_REASONS = {escape: "escape", outside: "outside", close: "api", api: "api"};
 
 // The column the list of sections takes. It is here rather than in the
 // stylesheet because the panel's own width is computed from it, and the drawer
@@ -96,20 +107,6 @@ const SECTIONS_WIDTH = "14rem";
 // its tick for this long, and two controls that say «copied» for two different
 // lengths are two conventions where there is one act.
 const COPY_FEEDBACK_MS = 5000;
-
-const openPanels = [];
-
-function topPanel() {
-    return openPanels[openPanels.length - 1] ?? null;
-}
-
-function restackPanels() {
-    openPanels.forEach((panel, index) => {
-        panel.setAttribute("data-stack-depth", String(index));
-        panel.toggleAttribute("data-stack-top", panel === topPanel());
-        panel.requestComponentUpdate("stack");
-    });
-}
 
 // A payload is copied so that a host cannot mutate what the component still
 // holds. Copying it through JSON destroys anything that is not plain data, and
@@ -527,15 +524,9 @@ class SfPropertyView extends PropertyViewElement {
         return this.panel && !this.hidden && this.getAttribute("open") !== "false";
     }
 
+    // The drawer opens and closes with it and takes the panel on and off the
+    // layer stack; there is nothing to register here.
     syncPanelOpen() {
-        const at = openPanels.indexOf(this);
-        if (this.panelOpen && this.isConnected && at < 0) {
-            openPanels.push(this);
-            restackPanels();
-        } else if (!this.panelOpen && at >= 0) {
-            openPanels.splice(at, 1);
-            restackPanels();
-        }
         this.requestComponentUpdate("panel-open");
     }
 
@@ -1193,41 +1184,21 @@ class SfPropertyView extends PropertyViewElement {
             this.setAttribute("data-state", "loading");
             this.setAttribute("aria-busy", "true");
         }
-        if (this.panelOpen && !openPanels.includes(this)) {
-            openPanels.push(this);
-            restackPanels();
-        }
-        // The drawer's own close-on-esc is off, because in a stack Esc must close
-        // the top window and not every one of them.
-        //
-        // The listener is on the document rather than on the element, and that is
-        // not a preference: sf-drawer portals its content out, so an open panel is
-        // not a descendant of this element at all. On the element the handler
-        // would never have fired from a real keypress -- only from an event
-        // dispatched at the element itself, which is exactly what the first probe
-        // did, so it passed while the feature did not work.
-        //
-        // It acts only when the focus is inside this panel, or when nothing is
-        // focused. With a stack the top window is the one holding focus, so the
-        // same rule closes the right window then too.
-        this._onKeyDown = (event) => {
-            if (event.key !== "Escape" || !this.panel) return;
-            // A surface opened inside this panel takes the press. Both listen on
-            // the document in capture, where stopPropagation cannot reach a
-            // listener on the same node, so the one that opened last says so on
-            // the root and this one stands back.
-            if (document.documentElement.dataset.sfPopoverOpen) return;
-            // An open field-settings surface takes the first Esc. Both handlers
-            // sit on the document in capture, where stopPropagation does not
-            // reach a listener on the same node -- so the two share one.
-            // The top window, and no other. The first version guessed from where
-            // the focus happened to be, which was the best a single panel could
-            // do; with the order known the guess is gone.
-            if (topPanel() !== this) return;
-            event.stopPropagation();
-            this.closePanel("escape");
+        // Escape is the layer stack's: it hands the press to the top layer only,
+        // after it has passed through the page, so a list, a menu or a modal
+        // opened over this panel takes it first, and a control inside that
+        // handled it (preventDefault) keeps it. The drawer closes on it -- and a
+        // panel never closes itself, so every close the drawer starts (Escape,
+        // a press on the dimmed page, a script calling close()) is refused here
+        // and asked of the host as this component's own cancelable close, with
+        // the count of what is unsaved. Only this panel's own drawer: a drawer
+        // opened inside the panel is portalled with it and never bubbles here.
+        this._onDrawerClose = (event) => {
+            if (event.target !== this._ownDrawer()) return;
+            event.preventDefault();
+            this.closePanel(DRAWER_CLOSE_REASONS[event.detail?.reason] ?? "api");
         };
-        document.addEventListener("keydown", this._onKeyDown, true);
+        this.addEventListener("sf-drawer-close", this._onDrawerClose);
         // The drop is sf-sortable's to report and the component's to apply or
         // refuse -- that is the seam the mechanism already publishes, so no drag
         // is implemented here. The lists name themselves `field:<group>` and
@@ -1331,13 +1302,8 @@ class SfPropertyView extends PropertyViewElement {
         this._standardMenu = null;
         // Once per connection, so an element moved in the DOM asks again.
         this._portRequested = false;
-        const at = openPanels.indexOf(this);
-        if (at >= 0) {
-            openPanels.splice(at, 1);
-            restackPanels();
-        }
-        if (this._onKeyDown) document.removeEventListener("keydown", this._onKeyDown, true);
-        this._onKeyDown = null;
+        if (this._onDrawerClose) this.removeEventListener("sf-drawer-close", this._onDrawerClose);
+        this._onDrawerClose = null;
         // The settings surface listens on the document, so a panel that goes away
         // while it is open takes that listener with it.
         this.configuring = false;
@@ -1529,10 +1495,8 @@ class SfPropertyView extends PropertyViewElement {
             hostSlot: (name) => this.getSlotContent(name),
             hasHostSlot: (name) => this.hasSlotContent(name),
             address: this.address,
-            stackDepth: this.stackDepth,
             drawerWidth: this.drawerWidth,
             sectionsWidth: SECTIONS_WIDTH,
-            isTopPanel: this.isTopPanel,
             conflict: this.conflict,
             confirmation: this.confirmation,
             confirmSaveText: pageText(PROPERTY_VIEW_TEXT, "confirmSaveText", this),
@@ -1970,13 +1934,25 @@ class SfPropertyView extends PropertyViewElement {
         return answer;
     }
 
+    // The drawer that carries this panel: a child of the element (the drawer
+    // portals its content, not itself).
+    _ownDrawer() {
+        return [...this.children].find((child) => child.localName === "sf-drawer") ?? null;
+    }
+
+    // Read from the layer stack, not kept: how many panels of this component
+    // stand below this one, and whether no window (a modal or another panel)
+    // stands above it. A list or a menu opened inside the panel leaves it on top.
     get stackDepth() {
-        const at = openPanels.indexOf(this);
-        return at < 0 ? 0 : at;
+        const drawer = this._ownDrawer();
+        if (!drawer || !hasLayer(drawer)) return 0;
+        const panels = openLayers("panel").filter((owner) => owner?.parentElement?.localName === this.localName);
+        return Math.max(0, panels.indexOf(drawer));
     }
 
     get isTopPanel() {
-        return topPanel() === this;
+        const drawer = this._ownDrawer();
+        return Boolean(drawer && hasLayer(drawer) && !hasLayerAbove(drawer, ["modal", "panel"]));
     }
 
     // What a panel's three controls do, and all three are the host's decisions

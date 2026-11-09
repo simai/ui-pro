@@ -64,7 +64,7 @@ test('a row says whether it is selected, and the look follows from that', async 
   // A row is two layers: an opaque surface and the state as a tint over it.
   // Every state colour is an alpha colour, so a pinned cell that inherited one
   // flattened result painted the tint twice and came out darker than its row.
-  assert.match(css, /tbody tr \{\s*background-color: var\(--sf-table-row--background-color, var\(--sf-surface-0\)\);/u);
+  assert.match(css, /tbody tr \{\s*background-color: var\(--sf-table-row--background-color, var\(--sf-surface-page\)\);/u);
   assert.match(css, /tbody tr:hover \{\s*background-image: linear-gradient\(\s*var\(--sf-surface-container-hover\),/u);
   assert.match(css, /tbody tr\[data-selected\] \{\s*background-image: linear-gradient\(\s*var\(--sf-primary-container\),/u);
   assert.match(
@@ -149,7 +149,7 @@ test('the head paints its own surface, with a role behind the host property', as
 
   assert.match(
     css,
-    /:is\(sf-view-table, sf-table\) > \.sf-table thead,\s*:is\(sf-view-table, sf-table\) > \.sf-table thead th \{\s*background-color: var\(--sf-table-head--background-color, var\(--sf-surface-0\)\);/u,
+    /:is\(sf-view-table, sf-table\) > \.sf-table thead,\s*:is\(sf-view-table, sf-table\) > \.sf-table thead th \{\s*background-color: var\(--sf-table-head--background-color, var\(--sf-surface-page\)\);/u,
     'the cells paint too, because a sticky th leaves the box thead paints',
   );
   // The bare property had no fallback, so the head was transparent and the rows
@@ -173,14 +173,7 @@ test('every colour role the table names is a role the theme declares', async () 
   const roles = new Set(
     [...css.matchAll(/var\(--sf-(surface|primary|outline|on-surface)[a-z0-9-]*\)/gu)].map((match) => match[0].slice(4, -1)),
   );
-  // A former name of the background system's renames (C16, 2026-11-08) is
-  // declared too, as var() of its new name, until its remove_after
-  // (src/core/contracts/token-aliases.v1.json). sf-view-table is frozen to its
-  // view release here; it moves to the purpose names in simai/ui-view.
-  const aliases = new Set(JSON.parse(await read('src/core/contracts/token-aliases.v1.json')).tokens
-    .filter(({to}) => theme.includes(`${to}:`))
-    .map(({from}) => from));
-  const missing = [...roles].filter((role) => !theme.includes(`${role}:`) && !aliases.has(role));
+  const missing = [...roles].filter((role) => !theme.includes(`${role}:`));
 
   assert.deepEqual(missing, [], 'the table names only roles the theme declares');
   assert.ok(roles.size >= 6, 'the sweep actually found the roles');

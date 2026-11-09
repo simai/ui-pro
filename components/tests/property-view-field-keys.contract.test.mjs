@@ -33,23 +33,10 @@ const notInThisPort = new Map([
   ['filter', 'the filter-row descriptor a data view builds for a column; a property-view field has no filter'],
   ['type', 'a legacy alias of propertyType, read as a fallback for older hosts; propertyType is the name this port declares'],
   ['dataType', 'a second legacy alias of propertyType, kept for the same reason and declared under neither name'],
-  // The stepper variant of a number field (sf-input-quantity, SIMAI Framework
-  // ui-357568a20a7e) reads its bounds and step; property-view-port 1.14.0 does
-  // not carry them, so a 1.14.0 host never sends them. They are to be declared
-  // in the next port minor (1.15.0, held by the DEV thread).
-  ['min', 'the stepper variant\'s lower bound; not in port 1.14.0, due in 1.15.0'],
-  ['max', 'the stepper variant\'s upper bound; not in port 1.14.0, due in 1.15.0'],
-  ['step', 'the stepper variant\'s step; not in port 1.14.0, due in 1.15.0'],
-  ['precision', 'the stepper variant\'s decimals; not in port 1.14.0, due in 1.15.0'],
-  // The property types the set draws itself (js/set-fields.js; Larena addendum
-  // of 2026-11-03): their settings are read now and are to be declared in the
-  // next port minor, simai.property-view-port 1.18.0, ordered from the SIMAI
-  // Framework dispatcher with this change. A 1.17.0 host does not send them.
-  ['currency', 'a money field\'s fixed ISO 4217 currency; not in port 1.17.0, due in 1.18.0'],
-  ['columns', 'the columns of a rows (items) field; not in port 1.17.0, due in 1.18.0'],
-  ['minRows', 'the fewest rows an items field holds; not in port 1.17.0, due in 1.18.0'],
-  ['maxRows', 'the most rows an items field holds; not in port 1.17.0, due in 1.18.0'],
-  ['parts', 'the parts of a compound or ru.requisites field; not in port 1.17.0, due in 1.18.0'],
+  // min, max, step and precision (the stepper's bounds and decimals) and the
+  // settings of the property types the set draws itself (currency, columns,
+  // minRows, maxRows, parts) were excused here until simai.property-view-port
+  // 1.18.0 declared them.
 ]);
 
 const portPath = json('src/smart/view-properties/smart.manifest.json')

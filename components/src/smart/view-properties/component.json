@@ -2,7 +2,7 @@
   "$comment": "sf-property-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/property-view; every x-todo decided in x-decisions.",
   "id": "smart.view-properties",
   "tag": "sf-view-properties",
-  "version": "1.11.1",
+  "version": "1.13.1",
   "kind": "leaf",
   "family": "record",
   "implements": [
@@ -440,6 +440,7 @@
           "values": [
             "close",
             "escape",
+            "outside",
             "cancelled",
             "deleted",
             "api"
@@ -454,7 +455,7 @@
         }
       },
       "cancelable": true,
-      "summary": "The panel asks to be closed (by its close control, Esc or Cancel), carrying how many fields would be lost: changed and not saved, or entered and not yet a value."
+      "summary": "The panel asks to be closed (by its close control, Esc, a press on the dimmed page or Cancel), carrying how many fields would be lost: changed and not saved, or entered and not yet a value."
     },
     "open-full": {
       "carries": {
@@ -689,8 +690,8 @@
   },
   "port": {
     "id": "simai.property-view-port",
-    "version": "1.17.0",
-    "contract": "src/core/contracts/ports/simai.property-view-port/1.17.0/port.json"
+    "version": "1.18.0",
+    "contract": "src/core/contracts/ports/simai.property-view-port/1.18.0/port.json"
   },
   "relations": [
     {
@@ -804,7 +805,7 @@
       "lazy": true
     },
     {
-      "name": "cl-button-group",
+      "name": "cl-segmented",
       "lazy": true
     },
     {
@@ -1173,7 +1174,7 @@
     "last-shared-view-text"
   ],
   "x-port": {
-    "sha256": "123295c1e8fda146ebd25a814fc4695c6fdb6cb1f84911a66d4568e0c7504120",
+    "sha256": "59d49df35692416608d8dc2757927c2c720555e39f53a74563aad8235ecfe972",
     "supports": [
       "1.0.0",
       "1.1.0",
@@ -1191,7 +1192,8 @@
       "1.14.0",
       "1.15.0",
       "1.16.0",
-      "1.17.0"
+      "1.17.0",
+      "1.18.0"
     ]
   },
   "x-renamed": [
@@ -1295,7 +1297,8 @@
     "framework-tag-renames": "version 1.8.5: the Framework elements it draws, finds and listens to are named by their new tags (Smart component naming of 2026-11-02, sf-[set]-<block>): the editors are sf-input-date, sf-input-color, sf-input-country, sf-input-textarea, sf-slider-range and sf-button-copy, the buttons sf-button-icon, the standard menu sf-menu-context. The rule relations and the registry ids follow (cl-<new>, smart.<new>; the package reference pro.package.json of the pair). The former tags stay dated aliases of the Framework until 2027-01-01; public CSS variables and classes keep their names. No visible change. Needs the SIMAI Framework pair with the tag renames (core.runtime 1.21.0).",
     "tag-rename": "version 1.9.0: the tag is sf-view-properties (naming decision 2026-11-02: sf-[set]-<block>[-<variant>]; rename plan R2); the folder view-properties, the id smart.view-properties and the bundle cl-view-properties follow it. sf-property-view stays a dated alias until 2027-01-01: a subclass the Smart base defines beside the new tag, listed in the package rule, in sheets as :is(sf-view-properties, sf-property-view), its events named after the tag followed by their former names (ui-source change journal tag-sf-property-view-to-sf-view-properties, path-smart-property-view-to-view-properties).",
     "version-1.9.1": "the section glyphs are SIMAI Framework's choice list (core/js/icon-choices.js, core.runtime 1.25.0; duplication audit 2026-11-03 A-1) instead of this view's own js/icon-choices.js, which sf-admin-menu imported across what become two component sets; the day-and-time reading is the field renderers' (field-renderers/datetime.js, A-14) instead of the copy js/datetime-value.js kept from before the lift. Behaviour unchanged.",
-    "datetime-and-formats": "version 1.10.0: a datetime and a time of day are edited with the renderer set's sf-input-date in its mode (datetime, time): one control each, as SIMAI Framework's duplication audit A-14 asked, instead of this view's own pair of a datepicker and a masked time field, which cut the day short in a half-width field. js/datetime-edit.js, its drafts and its seven words go. A date the host did not format reads in the page's language through format-date, as sf-view-table's cells do (viewHost; the host's formatFieldValue first). A colour with a palette wraps inside its field instead of running over the field beside it. A closed panel draws nothing: sf-drawer leaves its edge strip -- this panel's close and copy-link -- in place when it slides the panel out, so the strip goes at once and the panel when its slide is over. An entry brought back to what the record holds is no change (changeField compares with the field's stored value): a control is drawn with the change it made, so it compared a later entry with that, and a time put back to the stored one was written."
+    "datetime-and-formats": "version 1.10.0: a datetime and a time of day are edited with the renderer set's sf-input-date in its mode (datetime, time): one control each, as SIMAI Framework's duplication audit A-14 asked, instead of this view's own pair of a datepicker and a masked time field, which cut the day short in a half-width field. js/datetime-edit.js, its drafts and its seven words go. A date the host did not format reads in the page's language through format-date, as sf-view-table's cells do (viewHost; the host's formatFieldValue first). A colour with a palette wraps inside its field instead of running over the field beside it. A closed panel draws nothing: sf-drawer leaves its edge strip -- this panel's close and copy-link -- in place when it slides the panel out, so the strip goes at once and the panel when its slide is over. An entry brought back to what the record holds is no change (changeField compares with the field's stored value): a control is drawn with the change it made, so it compared a later entry with that, and a time put back to the stored one was written.",
+    "layer-stack": "version 1.13.0: the panels stand on SIMAI Framework's one layer stack (core layer-stack.js, standard 1.3.8 §19) through their sf-drawer -- stacking, Escape, the dim and the return of focus are the stack's and the drawer's, not a list, a document Escape listener and an opacity of this component's (dispatcher task 2026-11-09). The unsaved check stays the host's: the drawer's cancelable sf-drawer-close is refused and asked again as this component's close, with unsaved_fields. stackDepth and isTopPanel are read from the stack. No new look: the dim is the drawer's overlay."
   },
   "x-rule": {
     "$comment": [
@@ -1454,7 +1457,7 @@
         "const": "A reference field is picked from the host's candidates when the host announces the field-options capability, a page at a time with the search answered by the host. Without the capability the field shows its current value read-only, which is better than an empty control over a value that exists."
       },
       "panel": {
-        "const": "The panel is modeless -- modal and overlay both off -- so the list it was opened from stays visible and usable. Esc is handled by the composite rather than by the drawer, because in a stack it must close the top window only."
+        "const": "The panel is an sf-drawer with modal and overlay on, so the page behind is covered and dimmed rather than squeezed. It is a layer of the Framework's one layer stack (core layer-stack.js, standard 1.3.8 §19), shared with sf-modal, the other drawers and the menus: the stack hands Escape to the top layer only, and the drawer's close is refused and raised as this component's cancelable close, because a panel never closes itself."
       },
       "address": {
         "const": "A window's address is the host's. The component copies it and announces it and never constructs one; without an address neither the copy nor the open control is rendered."
@@ -1466,7 +1469,7 @@
         "const": "Children marked slot=\"actions\", slot=\"menu\" or slot=\"footer\" are captured by the base element before the first render and returned as live nodes by reference, so a host's listeners and open state survive every render. The menu slot holds a host's own items inside the «…», under the ones the component offers, so the corner of the head is one place whatever the task puts in it. Both slots work in the panel and in the full-page layout; there is deliberately no slot inside a group or between fields, because content there could not survive the view configuration reordering around it."
       },
       "panel_stack": {
-        "const": "A stack is an order of elements, not one state held for several records: each window is its own sf-view-properties with its own record, open group and unsaved changes, so a half-edited window left underneath keeps them. The Framework owns the behaviour between windows -- Esc closes the top one, the others are dimmed and not interactive, and each depth is inset so the one below stays partly visible."
+        "const": "A stack is an order of elements, not one state held for several records: each window is its own sf-view-properties with its own record, open group and unsaved changes, so a half-edited window left underneath keeps them. The Framework's layer stack owns the behaviour between windows -- Esc reaches the top one only, a window below is under the overlay of the one above it, so it is dimmed and takes no press, the height of each is the stack's, and focus goes back where it was when one closes; a window takes no step in from the one below (owner, 2026-10-07)."
       },
       "opening_a_reference": {
         "const": "Activating a reference raises record.open and nothing else. The component follows no href, because that would be routing for the consumer, and opens no window, because that would decide whether a half-edited window may be covered."
@@ -1704,6 +1707,27 @@
           "changes": [
             "The record's title keeps rung 3 (--sf-text--size-3, --sf-title--height-3) and the views' list heading rung 4 with the heading's space, where they fell back to the heading-4 and heading-3 roles that the content heading ladder moves to smaller rungs (tokens.typography 1.2.0, docs review R022). Unchanged on the page over every pair; a host's --sf-property-view--title-size and --sf-property-view--title-height still win. Nothing to change for a host."
           ]
+        },
+        {
+          "from": "1.11.1",
+          "to": "1.12.0",
+          "changes": [
+            "Port 1.18.0 (1.17.0 and earlier keep working; ordered with 1.11.0, the Framework half in ui-source 5a3ccf91): currency, columns, minRows, maxRows and parts, the settings money, percent, items, compound and ru.requisites read since 1.11.0, and min, max, step and precision of a number field are declared by the port, every one optional; the Framework field renderers draw the cells and filters of money, percent and items and write a number field whose value is a string as a decimal string. Titles read the text ladder, not the heading roles, under the heading ladder (C21: h3 rung 3, h4 2, h5 1, h6 1): the title at size 1/2 is rung 2 (--sf-text--size-2, --sf-title--height-2), where the heading-5 role would move it to rung 1, the size of the fields; a group title is rung 1 (--sf-text--size-1, --sf-title--height-1), as the heading-6 role gives it on both ladders. Unchanged on the page over the pinned pair; over a pair with the C21 ladder the titles keep their rungs."
+          ]
+        },
+        {
+          "from": "1.12.0",
+          "to": "1.13.0",
+          "changes": [
+            "Panels stand on the SIMAI Framework layer stack (core layer-stack.js), the one sf-modal, the drawers and the menus share, instead of a list of their own: Escape reaches the top layer only, so Escape over an sf-modal or a menu opened from a panel closes that and not the panel; the drawer's own Escape is on, and every close it starts is refused and raised as sf-view-properties-close, now also with reason outside for a press on the dimmed page (the drawer closed itself on it before, and the panel stayed open under no drawer). A panel below another is dimmed by the overlay of the one above it, the drawer's scrim, without a second dim of its own (opacity and a wash, gone with data-stack-depth and data-stacked on the panel). Escape in a naming row leaves the row and no longer also asks to close the panel. Nothing to change for a host that already answers close; a host that switched on reason may meet outside."
+          ]
+        },
+        {
+          "from": "1.13.0",
+          "to": "1.13.1",
+          "changes": [
+            "Over SIMAI Framework ui-cb287da78ab1 (core.runtime 1.45.0; the set needs 1.43.0 or newer): a choice drawn as buttons (sf-button-group) relates cl-segmented, the rule that serves sf-segmented and sf-button-group since the pair ui-d6f01121baca (cl-button-group is its forwarded former name); the theme roles and the background utility by their C16 names (--sf-surface-page, --sf-surface-area, --sf-surface-popup, --sf-shadow-popup, bg-surface-page; the former names are dated aliases of the same values); the buttons ask for appearance ghost, scheme on-surface-variant and status danger (link, secondary and error are their former names, drawn the same). The reference names one args argument per action (standard §4.4); the methods already took the object form (answerActions). Nothing changes on the page."
+          ]
         }
       ]
     },
@@ -1915,6 +1939,11 @@
       "template": {
         "description": "Which template draws the view."
       }
+    },
+    "action-calls": {
+      "load": "object|string",
+      "select-section": "object|string",
+      "close-panel": "object|string"
     }
   }
 }

@@ -15,7 +15,7 @@ const relations = new Map(SF.RuleLoader['cl-view-properties'].relation.map((one)
 
 test('sf-view-properties relates its editors lazily and its reading parts eagerly', () => {
   for (const name of ['cl-input', 'cl-input-textarea', 'cl-dropdown', 'cl-input-date', 'cl-switch', 'cl-checkbox',
-    'cl-button-group', 'cl-slider-range', 'cl-file-upload', 'cl-progress-bar', 'cl-sortable', 'cl-popover',
+    'cl-segmented', 'cl-slider-range', 'cl-file-upload', 'cl-progress-bar', 'cl-sortable', 'cl-popover',
     'cl-profile-picker', 'cl-view', 'cl-view-table']) {
     assert.equal(relations.get(name), true, `${name} is lazy`);
   }

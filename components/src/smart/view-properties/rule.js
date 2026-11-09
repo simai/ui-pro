@@ -48,7 +48,7 @@ SF.RuleLoader['cl-view-properties'] = {
     { name: 'cl-input-date', lazy: true },
     { name: 'cl-switch', lazy: true },
     { name: 'cl-checkbox', lazy: true },
-    { name: 'cl-button-group', lazy: true },
+    { name: 'cl-segmented', lazy: true },
     { name: 'cl-list-item' },
     { name: 'cl-spinner' },
     // Configuring the view drags fields between groups and groups between

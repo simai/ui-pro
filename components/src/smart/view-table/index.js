@@ -16,6 +16,8 @@ import {pageText} from "../../core/js/page-language";
 import {getParent, setParentSpace} from "../helpers/dom";
 import {setLoaderDragState} from "../helpers/loaderDragState";
 import BundledPosition from "../../core/js/position.js";
+import {holdOpenSurfaceMark} from "../../core/js/open-surface-mark.js";
+import {layerZIndex} from "../../core/js/layer-stack.js";
 import BundledPreferences from "../../core/js/preferences.js";
 
 // Sized for what they hold rather than for reading, so they take no floor.
@@ -135,6 +137,10 @@ const TableElement = elementFromManifest(manifest, {
     source: "ru",
     aliases,
 });
+
+// template-save carries {templates} (1.16.0); its former names keep the 1.3
+// detail, the template itself or the array of them, until their dates.
+const formerTemplateDetail = (detail) => (detail?.templates?.length === 1 ? detail.templates[0] : detail?.templates);
 
 
 // Whether a row of the current set would stand at another index in the next:
@@ -648,6 +654,8 @@ class SfTable extends TableElement {
             "sf-table-action-intent": (detail) => Object.freeze({action_id: detail.action, record_ids: detail.ids}),
             "sf-port-output": (detail) => Object.freeze({port: "selection", value: detail.ids}),
             onSearchEnd: (detail) => detail.search,
+            "sf-table-template-save": formerTemplateDetail,
+            onTemplateSave: formerTemplateDetail,
         };
     }
 
@@ -910,7 +918,7 @@ class SfTable extends TableElement {
             position: fixed;
             left: ${x}px;
             inset-block-start: calc(${y}px + calc(var(--sf-focus-outline-width) * 2));
-            z-index: var(--sf-table-context-menu--z-index, var(--sf-z-index-9));
+            z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
           "
                     data-context-main-menu
                     .entries=${entries}
@@ -958,7 +966,7 @@ class SfTable extends TableElement {
             position: fixed;
             left: ${x}px;
             inset-block-start: calc(${y}px + calc(var(--sf-focus-outline-width) * 2));
-            z-index: var(--sf-table-context-menu--z-index, var(--sf-z-index-9));
+            z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
           "
                     data-context-main-menu
                     .entries=${items}
@@ -985,7 +993,7 @@ class SfTable extends TableElement {
             position: fixed;
             left: ${x}px;
             inset-block-start: calc(${y}px + calc(var(--sf-focus-outline-width) * 2));
-            z-index: var(--sf-table-context-menu--z-index, var(--sf-z-index-9));
+            z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
           "
                     data-context-main-menu
                     .entries=${entries}
@@ -2242,7 +2250,8 @@ class SfTable extends TableElement {
             template || this.getFilterTemplateByKey(key, filter),
             filter,
         );
-        this.emitTableEvent('template-save', detail);
+        // §8: the detail is an object; the template rides in templates.
+        this.emitTableEvent('template-save', {templates: [detail]});
 
         return this;
     }
@@ -2273,10 +2282,7 @@ class SfTable extends TableElement {
             return this;
         }
 
-        const detail = this.withFilterFieldSettings(
-            filteredTemplates.length === 1 ? filteredTemplates[0] : filteredTemplates,
-        );
-        this.emitTableEvent('template-save', detail);
+        this.emitTableEvent('template-save', {templates: this.withFilterFieldSettings(filteredTemplates)});
 
         return this;
     }
@@ -3080,7 +3086,7 @@ class SfTable extends TableElement {
             position: fixed;
             left: ${x}px;
             inset-block-start: calc(${y}px + calc(var(--sf-focus-outline-width) * 2));
-            z-index: var(--sf-table-context-menu--z-index, var(--sf-z-index-9));
+            z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
           "
                     root-class="sf-table-context-menu ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
                     data-context-main-menu
@@ -3166,8 +3172,7 @@ class SfTable extends TableElement {
             }
         };
 
-        const detail = this.withFilterFieldSettings(template);
-        this.emitTableEvent('template-save', detail);
+        this.emitTableEvent('template-save', {templates: [this.withFilterFieldSettings(template)]});
         this.tempSettings = null;
         this.closeContextMenu();
     }
@@ -3211,7 +3216,7 @@ class SfTable extends TableElement {
             left: calc(${x}px + var(--sf-context-menu-tail-corner-offset));
             inset-block-start: ${y}px;
             transform: ${pos};
-            z-index: var(--sf-table-context-menu--z-index, var(--sf-z-index-9));
+            z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
           "
                     .entries=${items.map((item, at) => {
                         // The standard menu's rows (owner, 2026-10-14): these were
@@ -3711,7 +3716,7 @@ class SfTable extends TableElement {
                     ${handle
                         ? html`<sf-button-icon
                                 size="1/2"
-                                appearance="link"
+                                appearance="ghost"
                                 scheme="on-surface"
                                 icon="drag_indicator"
                                 data-move
@@ -3728,7 +3733,7 @@ class SfTable extends TableElement {
                          a list of twenty pins could not tell which were set. -->
                     <sf-button-icon
                         size="1/2"
-                        appearance="link"
+                        appearance="ghost"
                         scheme=${pinned ? "primary" : "on-surface"}
                         ?filled=${pinned}
                         icon="push_pin"
@@ -4358,7 +4363,7 @@ class SfTable extends TableElement {
                     ${!isActiveEdit ? html`
                         <sf-button-icon size=${this.size}
                                 id="${this.getInstanceId()}--template-move--${col.key}"
-                                appearance="link"
+                                appearance="ghost"
                                 data-move
                                 data-sf-sortable-handle
                                 scheme="on-surface"
@@ -4370,7 +4375,7 @@ class SfTable extends TableElement {
                     ${!isActiveEdit ? html`
                         <div class="flex items-cross-center m-inline-start-auto gap-1/3">
                             <sf-button-icon
-                                    appearance="link"
+                                    appearance="ghost"
                                     data-keep
                                     size="1/3"
                                     scheme="on-surface"
@@ -4385,7 +4390,7 @@ class SfTable extends TableElement {
                                     }}
                             ></sf-button-icon>
                             <sf-button-icon size=${this.size}
-                                    appearance="link"
+                                    appearance="ghost"
                                     data-settings
                                     data-context-submenu-anchor="${col.key}"
                                     scheme="on-surface"
@@ -4416,7 +4421,7 @@ class SfTable extends TableElement {
             left: ${x}px;
             inset-block-start: calc(${y}px + calc(var(--sf-focus-outline-width) * 2));
             transform: ${pos};
-            z-index: var(--sf-table-context-menu--z-index, var(--sf-z-index-9));
+            z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
             --sf-table-context-menu--max-block-size: calc(100dvh - ${y}px - var(--sf-space-4));
           "
                     root-class="sf-table-context-menu ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
@@ -4566,7 +4571,7 @@ class SfTable extends TableElement {
             position: fixed;
             left: ${x}px;
             inset-block-start: calc(${y}px + calc(var(--sf-focus-outline-width) * 2));
-            z-index: var(--sf-table-context-menu--z-index, var(--sf-z-index-9));
+            z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
           "
                     root-class="sf-table-context-menu ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
                     position="${position || ""}"
@@ -4702,7 +4707,7 @@ class SfTable extends TableElement {
             left: ${x}px;
             inset-block-start: calc(${y}px + calc(var(--sf-focus-outline-width) * 2));
             transform: ${pos};
-            z-index: var(--sf-table-context-menu--z-index, var(--sf-z-index-9));
+            z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
             --sf-table-context-menu--max-block-size: calc(100dvh - ${y}px - var(--sf-space-4));
           "
                     root-class="sf-table-context-menu ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
@@ -4847,7 +4852,7 @@ class SfTable extends TableElement {
           position: fixed;
         left: calc(${x}px + var(--sf-context-menu-tail-corner-offset));
             inset-block-start: ${y}px;
-          z-index: var(--sf-table-context-submenu--z-index, var(--sf-z-index-9));
+          z-index: var(--sf-table-context-submenu--z-index, ${this.contextMenuZIndex()});
           transform: ${pos}
         "
                     data-context-submenu
@@ -4915,6 +4920,9 @@ class SfTable extends TableElement {
             return nothing;
         }
 
+        // On the layer stack before it is drawn: the windows take their
+        // z-index from their place in it.
+        this.bindContextEvent();
         render(
             html`
                 <div
@@ -4927,7 +4935,7 @@ class SfTable extends TableElement {
                     ${data.submenu?.open ? this.renderContextSubmenu(data.submenu) : nothing}
                     ${this.isList && ["filter-settings", "tag-settings"].includes(data.menu) ? html`
                         <div class="sf-table-sheet-close">
-                            <sf-button-icon size=${this.size} appearance="link" scheme="on-surface"
+                            <sf-button-icon size=${this.size} appearance="ghost" scheme="on-surface"
                                             icon="close" aria-label=${this.text('closeText')}
                                             @click=${() => this.closeContextMenu()}></sf-button-icon>
                         </div>` : nothing}
@@ -4936,7 +4944,6 @@ class SfTable extends TableElement {
             this.getPortalContainer(),
         );
         this.showPortal();
-        this.bindContextEvent();
         this.bindContextViewport();
         requestAnimationFrame(() => {
             this.clampContextMenusToViewport();
@@ -5781,13 +5788,26 @@ class SfTable extends TableElement {
         this.measurePinnedColumns();
     }
 
+    // An open window is a surface of the document's one layer stack
+    // (standard 1.3.8 §19): the stack's one listener hands it a press outside
+    // and Escape while it is the top layer, and it is drawn at the stack's
+    // height. The table bound a document click and keydown of its own (reuse
+    // audit 2026-11-02, findings 1 and 3), which acted whatever lay above the
+    // window and closed it together with a drawer or a record panel under it.
+    // The layer is the portal the windows are drawn in, not the table: a press
+    // anywhere else in the table is outside the window.
     bindContextEvent() {
         if (this._contextEventBound) {
             return;
         }
 
-        document.addEventListener("click", this.contextEvent);
-        document.addEventListener("keydown", this.contextKeyEvent);
+        const portal = this.getPortalContainer();
+        this._contextLayerOwner = portal;
+        holdOpenSurfaceMark(portal, true, {
+            root: () => portal,
+            onOutsidePress: (event) => this.contextOutsidePress(event),
+            onEscape: (event) => this.contextKeyEvent(event),
+        });
         this._contextEventBound = true;
     }
 
@@ -5796,19 +5816,37 @@ class SfTable extends TableElement {
             return;
         }
 
-        document.removeEventListener("click", this.contextEvent);
-        document.removeEventListener("keydown", this.contextKeyEvent);
+        holdOpenSurfaceMark(this._contextLayerOwner, false);
+        this._contextLayerOwner = null;
         this._contextEventBound = false;
     }
 
-    contextKeyEvent(event) {
-        if (event.key !== 'Escape' || !this.state.contextMenu?.open) {
+    // The window's place on the stack's z-index scale; the Framework's old
+    // fixed step until it is on the stack.
+    contextMenuZIndex() {
+        const zIndex = this._contextLayerOwner ? layerZIndex(this._contextLayerOwner) : '';
+        return zIndex === '' ? 'var(--sf-z-index-9)' : String(zIndex);
+    }
+
+    // A press on the control that opened the window is left to that
+    // control's own click, which reopens or closes it as it always did: closed
+    // here first, the gear's second press would open the window again.
+    contextOutsidePress(event) {
+        const opener = this.contextTarget;
+        if (opener instanceof Element && (event.composedPath?.() || []).includes(opener)) {
             return;
         }
+        this.contextEvent(event);
+    }
 
-        event.preventDefault();
-        event.stopPropagation();
+    // Answers true when it took the press; the stack then stops it.
+    contextKeyEvent(event) {
+        if (event.key !== 'Escape' || !this.state.contextMenu?.open) {
+            return false;
+        }
+
         this.closeContextMenu(true);
+        return true;
     }
 
     // The table's windows -- filter, field popovers, settings, menus -- are

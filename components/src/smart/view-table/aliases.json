@@ -170,15 +170,15 @@
     },
     {
       "from": "onTemplateSave",
-      "to": "sf-table-template-save",
+      "to": "sf-view-table-template-save",
       "kind": "event",
       "component": "sf-view-table",
       "since": "2026-10-27",
       "remove_after": "2026-12-01",
-      "mode": "same-detail",
+      "mode": "split",
       "cancelable": false,
       "section": "§8, §16 item 20, vocabulary §9",
-      "note": "a camelCase name outside §8 (simai/ui-pro#1); ui-admin listens to it"
+      "note": "a camelCase name outside §8 (simai/ui-pro#1); ui-admin listens to it; its detail was the template object or the array of them, made by the element's adapter since template-save carries {templates} (1.16.0)"
     },
     {
       "from": "onFilterUpdate",
@@ -330,9 +330,9 @@
       "component": "sf-view-table",
       "since": "2026-11-03",
       "remove_after": "2027-01-01",
-      "mode": "same-detail",
+      "mode": "split",
       "section": "§8",
-      "note": "the event name carries the tag"
+      "note": "the event name carries the tag; its detail was the template object or the array of them, made by the element's adapter since template-save carries {templates} (1.16.0)"
     },
     {
       "from": "sf-table-template-select",

@@ -17,7 +17,9 @@ test('the naming row creates on confirm and leaves on Escape or close', () => {
   const row = template.slice(template.indexOf('function renderNewViewName('), template.indexOf('function renderArrangementAdditions('));
   assert.match(row, /context\.component\.createViewProfile\(input\?\.value \?\? ''\)/u);
   assert.match(row, /event\.key === 'Enter'\) commit\(event\)/u);
-  assert.match(row, /event\.key === 'Escape'\) context\.component\.cancelNamingView\(\)/u);
+  // Escape leaves the row and keeps the press: the layer stack passes over a
+  // press a control took, so the panel under the row is not also asked to close.
+  assert.match(row, /event\.key === 'Escape'\) \{\s*(?:\/\/[^\n]*\s*)*event\.preventDefault\(\);\s*context\.component\.cancelNamingView\(\)/u);
   assert.match(row, /data-action="new-profile-cancel"[\s\S]*cancelNamingView\(\)/u);
 });
 

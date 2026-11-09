@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -384,9 +384,16 @@
       "summary": "Request current query with a new sequence.",
       "arguments": [
         {
-          "name": "reason",
+          "name": "args",
+          "type": "object|string",
+          "required": false,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "reason": {
+                "type": "string"
+              }
+            }
           }
         }
       ],
@@ -399,15 +406,22 @@
       "summary": "Change search, filters, sort or window.",
       "arguments": [
         {
-          "name": "patch",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "object"
-          }
-        },
-        {
-          "name": "reason",
-          "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "patch": {
+                "type": "object"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "patch"
+            ]
           }
         }
       ],
@@ -420,9 +434,19 @@
       "summary": "Open a saved view.",
       "arguments": [
         {
-          "name": "key",
+          "name": "args",
+          "type": "object|string",
+          "required": true,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "key"
+            ]
           }
         }
       ],
@@ -435,10 +459,20 @@
       "summary": "Save a personal or shared view: view.save, or view.save_shared on a port of 1.1.0 or later. Throws TypeError without key and label, or for another level.",
       "arguments": [
         {
-          "name": "view",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
             "type": "object",
-            "description": "{key, label, level?: personal|shared, revision?, roles?, layout?, settings?}. layout defaults to the current columns, settings to the current column settings; the current query is always saved."
+            "properties": {
+              "view": {
+                "type": "object",
+                "description": "{key, label, level?: personal|shared, revision?, roles?, layout?, settings?}. layout defaults to the current columns, settings to the current column settings; the current query is always saved."
+              }
+            },
+            "required": [
+              "view"
+            ]
           }
         }
       ],
@@ -451,9 +485,19 @@
       "summary": "Delete a saved view.",
       "arguments": [
         {
-          "name": "key",
+          "name": "args",
+          "type": "object|string",
+          "required": true,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "key"
+            ]
           }
         }
       ],
@@ -466,15 +510,23 @@
       "summary": "Raise a confirmed filter-wide action (bulk.apply_under_filter) over the current filters. Throws TypeError when confirmedTotal is not the current total.",
       "arguments": [
         {
-          "name": "actionId",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "confirmedTotal",
-          "schema": {
-            "type": "number"
+            "type": "object",
+            "properties": {
+              "actionId": {
+                "type": "string"
+              },
+              "confirmedTotal": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "actionId",
+              "confirmedTotal"
+            ]
           }
         }
       ],
@@ -502,16 +554,23 @@
       "summary": "Show one notice over the card, or clear it with an empty text. A refusal, a conflict and an unreachable host raise it by themselves.",
       "arguments": [
         {
-          "name": "text",
-          "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "options",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
             "type": "object",
-            "description": "{kind?: 'error'|'warning', code?: string}. kind defaults to error; code is the reason the notice carries."
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "options": {
+                "type": "object",
+                "description": "{kind?: 'error'|'warning', code?: string}. kind defaults to error; code is the reason the notice carries."
+              }
+            },
+            "required": [
+              "text"
+            ]
           }
         }
       ],
@@ -1072,51 +1131,16 @@
       }
     },
     "sf-table-template-save": {
-      "summary": "A table event the view listens to: a filter template was saved. The view turns it into saveView (view.save) with key, label, revision, level, roles, layout and settings; an array detail is saved template by template, each one its own view.save, entries without a key skipped.",
+      "summary": "A table event the view listens to: filter templates were saved (detail {templates}). The view turns each template into saveView (view.save) with key, label, revision, level, roles, layout and settings, each one its own view.save, entries without a key skipped.",
       "payload": {
-        "description": "One template object when a single template is saved from the form, or an array of them when Apply on the Templates tab changed several (order, pin, default, selected).",
-        "oneOf": [
-          {
-            "type": "object",
-            "required": [
-              "key",
-              "label",
-              "settings"
-            ],
-            "properties": {
-              "key": {
-                "type": "string",
-                "description": "The template's key; a new template gets filter_template_<n>."
-              },
-              "label": {
-                "type": "string",
-                "description": "The name the person gave it."
-              },
-              "selected": {
-                "type": "boolean",
-                "description": "Whether it is the applied template."
-              },
-              "data": {
-                "type": "object",
-                "description": "The filter draft it keeps: the form values, `values` and `tags`."
-              },
-              "settings": {
-                "type": "object",
-                "properties": {
-                  "filter_fields": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "The filter fields it was showing, so opening it shows them again."
-                  }
-                },
-                "description": "Passed through by the port as it is."
-              }
-            }
-          },
-          {
+        "type": "object",
+        "required": [
+          "templates"
+        ],
+        "properties": {
+          "templates": {
             "type": "array",
+            "description": "The saved templates: one when a template is saved from the form, several when Apply on the Templates tab changed several (order, pin, default, selected).",
             "items": {
               "type": "object",
               "required": [
@@ -1158,7 +1182,8 @@
             },
             "minItems": 1
           }
-        ]
+        },
+        "additionalProperties": true
       }
     },
     "sf-table-template-select": {
@@ -1529,6 +1554,14 @@
         "changes": [
           "Speaks simai.dataview-port 1.14.0 (SIMAI Framework pair ui-0c23f6a0af12, ui-source #48) beside 1.0.0-1.13.0: a bulk.apply_selected the host refuses with confirm_required and a digest is asked of the person and, confirmed, raised again with payload.confirm, as record.mutate and record.set already were. Nothing to change for a host on 1.13.0 or earlier; a host on 1.14.0 may ask to confirm a bulk write first."
         ]
+      },
+      {
+        "from": "1.9.0",
+        "to": "1.10.0",
+        "changes": [
+          "The table event table-template-save (shared table-intents@1) carries {templates}, a list of one or more templates, as sf-view-table 1.16.0 sends it (the decision 'Event detail that is not a flat object', 2026-11-09); each is saved as its own view.save. A bare template object or an array of them, from a table before 1.16.0, is still read until 2027-01-01. The payload schema moves from x-registry/event-fields into the carried field.",
+          "Over SIMAI Framework ui-cb287da78ab1 (core.runtime 1.45.0; the set needs 1.43.0 or newer): the reference names one args argument per action (standard §4.4); the methods already took the object form (answerActions). The icon buttons ask for appearance ghost (link is its former name, drawn the same). Nothing changes on the page."
+        ]
       }
     ]
   },
@@ -1538,7 +1571,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view/index.js",
-        "sha256": "2aa16167dbc9ea866914aec36ad6e8738c4d6c7b1f121cf0e2cb0c6dd5d75c34"
+        "sha256": "0059d40fe5a9a6fa551f58c522a4d1974fda0d7f9060b6832c1aa82c70fab7d9"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",

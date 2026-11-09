@@ -1378,7 +1378,7 @@
   .sf-chat-person__edit-count,
   .sf-chat-person__edit-refused {
     margin: 0;
-    color: var(--sf-chat-message--muted);
+    color: var(--sf-chat-message--ink-muted);
     font-size: var(--sf-chat-message--meta-size);
     line-height: var(--sf-chat-message--meta-height);
   }

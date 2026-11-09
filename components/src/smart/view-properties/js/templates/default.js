@@ -71,9 +71,9 @@ function renderConfigureBar(context) {
                     ? html`
                         <span class="sf-property-view-reset-ask color-error">${context.resetViewAskText}</span>
                         <sf-button
-                                appearance="link"
+                                appearance="ghost"
                                 size=${context.size}
-                                status="error"
+                                status="danger"
                                 text=${context.resetViewText}
                                 data-action="reset-view-confirm"
                                 @click=${() => context.component.resetView()}
@@ -91,7 +91,7 @@ function renderConfigureBar(context) {
                              and asks first; cancel puts back the arrangement this
                              mode was entered with; done keeps what is there. -->
                         <sf-button
-                                appearance="link"
+                                appearance="ghost"
                                 size=${context.size}
                                 text=${context.resetViewText}
                                 data-action="reset-view"
@@ -128,8 +128,8 @@ function renderFieldSettings(context, field, key) {
             <sf-button-icon
                     slot="trigger"
                     size="1/2"
-                    appearance="link"
-                    scheme="secondary"
+                    appearance="ghost"
+                    scheme="on-surface-variant"
                     icon="settings"
                     data-action="field-settings"
                     title=${context.fieldSettingsText}
@@ -221,8 +221,8 @@ function renderFieldActions(context, field, key) {
         <div class="sf-property-view-field-actions flex items-cross-center gap-1/4">
             <sf-button-icon
                     size="1/2"
-                    appearance="link"
-                    scheme="secondary"
+                    appearance="ghost"
+                    scheme="on-surface-variant"
                     icon=${field.hidden ? 'visibility_off' : 'close'}
                     data-action="remove-field"
                     ?disabled=${locked}
@@ -263,8 +263,8 @@ function renderEntryName(context, kind, key, label, titleClass) {
             </h3>
             <sf-button-icon
                     size="1/2"
-                    appearance="link"
-                    scheme="secondary"
+                    appearance="ghost"
+                    scheme="on-surface-variant"
                     icon="edit"
                     data-action="rename"
                     title=${context.renameText}
@@ -292,12 +292,17 @@ function renderEntryName(context, kind, key, label, titleClass) {
                     value=${label}
                     @keydown=${(event) => {
                         if (event.key === 'Enter') commit(event);
-                        if (event.key === 'Escape') context.component.cancelRenaming();
+                        // Escape here leaves the naming row and nothing else: the
+                        // layer stack passes over a press a control took.
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+                            context.component.cancelRenaming();
+                        }
                     }}
             ></sf-input>
             <sf-button-icon
                     size="1/2"
-                    appearance="link"
+                    appearance="ghost"
                     scheme="on-surface"
                     icon="check"
                     data-action="rename-save"
@@ -307,7 +312,7 @@ function renderEntryName(context, kind, key, label, titleClass) {
             ></sf-button-icon>
             <sf-button-icon
                     size="1/2"
-                    appearance="link"
+                    appearance="ghost"
                     scheme="on-surface"
                     icon="close"
                     data-action="rename-cancel"
@@ -497,8 +502,8 @@ function renderAddField(context, groupKey) {
             <sf-button-icon
                     slot="trigger"
                     size="1/2"
-                    appearance="link"
-                    scheme="secondary"
+                    appearance="ghost"
+                    scheme="on-surface-variant"
                     icon="add"
                     data-action="add-field"
                     title=${context.addFieldText}
@@ -537,7 +542,7 @@ function renderGroup(context, section, group) {
         : html`${fields.map((field) => renderField(context, field, editing, String(section.key ?? ''), groupKey))}`;
 
     return html`
-        <section class="sf-property-view-group bg-surface-0 flex flex-col gap-2 ${editing ? 'sf-property-view-group--editing' : ''}"
+        <section class="sf-property-view-group bg-surface-page flex flex-col gap-2 ${editing ? 'sf-property-view-group--editing' : ''}"
                  data-group=${groupKey}
                  aria-busy=${reading ? 'true' : nothing}
                  data-sf-sortable-item=${configuring ? groupKey : nothing}
@@ -557,8 +562,8 @@ function renderGroup(context, section, group) {
                             ${renderAddField(context, groupKey)}
                             <sf-button-icon
                                     size="1/2"
-                                    appearance="link"
-                                    scheme="secondary"
+                                    appearance="ghost"
+                                    scheme="on-surface-variant"
                                     icon="keyboard_arrow_up"
                                     data-action="group-up"
                                     ?disabled=${context.groupAt(groupKey) === 0}
@@ -568,8 +573,8 @@ function renderGroup(context, section, group) {
                             ></sf-button-icon>
                             <sf-button-icon
                                     size="1/2"
-                                    appearance="link"
-                                    scheme="secondary"
+                                    appearance="ghost"
+                                    scheme="on-surface-variant"
                                     icon="keyboard_arrow_down"
                                     data-action="group-down"
                                     ?disabled=${context.groupAt(groupKey) === context.groupCount - 1}
@@ -579,8 +584,8 @@ function renderGroup(context, section, group) {
                             ></sf-button-icon>
                             <sf-button-icon
                                     size="1/2"
-                                    appearance="link"
-                                    scheme="secondary"
+                                    appearance="ghost"
+                                    scheme="on-surface-variant"
                                     icon=${group.hidden ? 'visibility_off' : 'delete'}
                                     data-action="remove-group"
                                     ?disabled=${groupLocked}
@@ -593,7 +598,7 @@ function renderGroup(context, section, group) {
                 ${!configuring && !editing && context.mayEdit && !context.openAll && group.kind !== 'related' && group.editable !== false
                         ? html`
                             <sf-button
-                                    appearance="link"
+                                    appearance="ghost"
                                     size=${context.size}
                                     text=${context.editText}
                                     data-action="edit"
@@ -648,7 +653,7 @@ function renderPhoneSectionHead(context) {
         <div class="sf-property-view-phone-head flex items-cross-center gap-2">
             <sf-button-icon
                     size=${context.size}
-                    appearance="link"
+                    appearance="ghost"
                     icon="arrow_back"
                     data-action="phone-back"
                     aria-label=${context.backLabel}
@@ -792,10 +797,13 @@ function renderSectionTabs(context, sections) {
 
 // The type of a view at 1/2: a step down from 1 in every role, so the record
 // reads at the table's size. Variables rather than a class: the panel is drawn
-// in a drawer moved to the page's end, outside the element.
+// in a drawer moved to the page's end, outside the element. The title is rung 2,
+// one below the full title's rung 3, read from the text ladder: the heading-5
+// role it took is a content heading, which the heading ladder (C21) moves to
+// rung 1, the size of the fields under it.
 function sizeStyle(context) {
     if (context.size !== '1/2') return '';
-    return ' --sf-property-view--title-size: var(--sf-heading-5--size); --sf-property-view--title-height: var(--sf-heading-5--height);'
+    return ' --sf-property-view--title-size: var(--sf-text--size-2); --sf-property-view--title-height: var(--sf-title--height-2);'
         + ' --sf-property-view--group-size: var(--sf-text-medium--size); --sf-property-view--group-height: var(--sf-text-medium--height);'
         + ' --sf-property-view--label-size: var(--sf-label-medium--size); --sf-property-view--label-height: var(--sf-label-medium--height);'
         + ' --sf-property-view--value-size: var(--sf-text-small--size); --sf-property-view--value-height: var(--sf-text-small--height);';
@@ -910,8 +918,8 @@ function renderActions(context, {panel = false} = {}) {
             ${removable
                     ? html`
                         <sf-button-icon
-                                appearance="link"
-                                status="error"
+                                appearance="ghost"
+                                status="danger"
                                 size=${context.size}
                                 icon="delete"
                                 data-action="delete"
@@ -1038,7 +1046,7 @@ function renderMenuControl(context) {
     // for each -- a link row for a link, a press on the element for the rest.
     return html`
         <sf-button-icon
-                appearance="link"
+                appearance="ghost"
                 scheme="on-surface"
                 size=${context.size}
                 icon="more_horiz"
@@ -1066,7 +1074,7 @@ function renderPanelHead(context) {
                      favourite: no star until it has an id (Larena storage
                      review, 2026-10-28). -->
                 ${context.recordId && context.mode !== 'create' ? html`<sf-button-icon
-                        appearance="link"
+                        appearance="ghost"
                         size=${context.size}
                         icon="star"
                         ?filled=${context.favourite}
@@ -1084,11 +1092,11 @@ function renderPanelHead(context) {
 }
 
 // The edge controls stand on a raised surface, elevation 3 as a menu does: its
-// own fill and shadow, and the text role that goes with it. On --sf-surface-0
+// own fill and shadow, and the text role that goes with it. On --sf-surface-page
 // they were the page's darkest colour on a dimmed page in the dark theme and
 // could hardly be found (owner, 2026-10-13). Inline, because the button's own
 // appearance rule outranks any selector this sheet could write.
-const EDGE_SURFACE = '--sf-icon-button--background-color: var(--sf-elevation-3--surface); --sf-on-surface-variant: var(--sf-on-elevation-3--variant); box-shadow: var(--sf-elevation-3--shadow)';
+const EDGE_SURFACE = '--sf-icon-button--background-color: var(--sf-surface-popup); --sf-on-surface-variant: var(--sf-on-surface-popup-variant); box-shadow: var(--sf-shadow-popup)';
 
 // Round, and on the panel's outer edge rather than inside its head: in a stack
 // each panel keeps its own set visible past the one above it, which is what the
@@ -1231,7 +1239,7 @@ function renderSectionIcon(context, section) {
             <sf-button-icon
                     slot="trigger"
                     size="1/2"
-                    appearance="link"
+                    appearance="ghost"
                     scheme="on-surface"
                     icon=${current || 'folder'}
                     data-action="section-icon"
@@ -1288,8 +1296,8 @@ function renderViewProfiles(context) {
                     </span>
                     <sf-button-icon
                             size="1/2"
-                            appearance="link"
-                            scheme="secondary"
+                            appearance="ghost"
+                            scheme="on-surface-variant"
                             icon="close"
                             data-action="delete-profile"
                             ?disabled=${!context.canDeleteViewProfile(profile.id)}
@@ -1334,12 +1342,17 @@ function renderNewViewName(context) {
                     placeholder=${context.newViewText}
                     @keydown=${(event) => {
                         if (event.key === 'Enter') commit(event);
-                        if (event.key === 'Escape') context.component.cancelNamingView();
+                        // Escape here leaves the naming row and nothing else: the
+                        // layer stack passes over a press a control took.
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+                            context.component.cancelNamingView();
+                        }
                     }}
             ></sf-input>
             <sf-button-icon
                     size="1/2"
-                    appearance="link"
+                    appearance="ghost"
                     scheme="on-surface"
                     icon="check"
                     data-action="new-profile-save"
@@ -1349,7 +1362,7 @@ function renderNewViewName(context) {
             ></sf-button-icon>
             <sf-button-icon
                     size="1/2"
-                    appearance="link"
+                    appearance="ghost"
                     scheme="on-surface"
                     icon="close"
                     data-action="new-profile-cancel"
@@ -1423,7 +1436,7 @@ function renderLoading(context) {
     // strip only where the record has tabs -- sections-as tabs, from the wide
     // arrangement on -- since a printed skeleton knows no viewport.
     const tabs = html`<div class="sf-property-view-tabs sf-property-view-tabs--skeleton flex items-cross-center gap-2" aria-hidden="true" data-sf-skeleton="tabs" data-sections-as=${context.sectionsAs}>${[0, 1, 2].map((at) => html`<div class="flex-none" style="inline-size: 6rem">${bar(at + 3)}</div>`)}</div>`;
-    return html`${tabs}<div class="sf-property-view-loading flex flex-col gap-4" data-state="loading">${Array.from({length: SKELETON_GROUPS}, (_, group) => html`<section class="sf-property-view-group bg-surface-0 flex flex-col gap-2" aria-busy="true"><header class="sf-property-view-group-header flex items-cross-center content-main-between gap-2"><div class="flex-1">${bar(group)}</div></header>${Array.from({length: SKELETON_FIELDS}, (_, field) => bar(group + field + 1))}</section>`)}<span class="sr-only" role="status">${context.message}</span></div>`;
+    return html`${tabs}<div class="sf-property-view-loading flex flex-col gap-4" data-state="loading">${Array.from({length: SKELETON_GROUPS}, (_, group) => html`<section class="sf-property-view-group bg-surface-page flex flex-col gap-2" aria-busy="true"><header class="sf-property-view-group-header flex items-cross-center content-main-between gap-2"><div class="flex-1">${bar(group)}</div></header>${Array.from({length: SKELETON_FIELDS}, (_, field) => bar(group + field + 1))}</section>`)}<span class="sr-only" role="status">${context.message}</span></div>`;
 }
 
 function renderLoadFailure(context) {
@@ -1515,9 +1528,12 @@ function renderBody(context, railOutside = false, withActions = true) {
 // `modal` is on because the drawer draws its overlay only when it is -- the
 // element is marked hidden unless modal and overlay are both set, which was
 // measured rather than assumed. Dimming the page is what the mockup asks for, and
-// a panel that dims the page is modal in the sense that matters. Esc is still
-// handled here rather than by the drawer, because in a stack it must close the top
-// window and not every one of them.
+// a panel that dims the page is modal in the sense that matters. The dim is the
+// drawer's overlay, the same over a panel below as over the page: a panel under
+// another stands under that one's overlay, so it is dimmed and takes no press
+// without a dim of its own (1.13.0). Esc is the drawer's on the layer stack, which
+// hands it to the top layer only; the close it starts is refused and asked of the
+// host (index.js, sf-drawer-close).
 //
 // The drawer is given no `title`: the panel draws its own head, with the collection
 // above the name and the star and the «⋯» beside it, and a drawer title as well
@@ -1550,10 +1566,9 @@ export function renderPropertyViewTemplate(context) {
                 size=${context.wide ? context.panelSize : 'full'}
                 width=${context.wide ? (context.drawerWidth || nothing) : nothing}
                 gutter="var(--sf-space-1)"
-                panel-style=${`--sf-drawer-background: var(--sf-surface-1); --sf-property-view--sections-width: ${context.sectionsWidth}; scrollbar-gutter: auto;${sizeStyle(context)}`}
+                panel-style=${`--sf-drawer-background: var(--sf-surface-area); --sf-property-view--sections-width: ${context.sectionsWidth}; scrollbar-gutter: auto;${sizeStyle(context)}`}
                 show-close="false"
                 close-label=${context.closeLabel}
-                close-on-esc="false"
                 label=${context.panelLabel || context.recordId || ''}
         >
             ${renderPanelControls(context)}
@@ -1562,8 +1577,6 @@ export function renderPropertyViewTemplate(context) {
                          ? `--sf-property-view--edge-room: calc(${context.edgeControlCount} * ${context.edgeControlWidth} + ${context.edgeControlCount - 1} * var(--sf-space-1\\/2));`
                          : nothing}
                  data-record-id=${context.recordId || ''}
-                 data-stack-depth=${String(context.stackDepth)}
-                 data-stacked=${context.isTopPanel ? 'false' : 'true'}
             >
                 ${renderPanelHead(context)}
                 <div class="sf-property-view-scroll flex-auto min-h-0 ${rail ? 'flex' : 'flex flex-col'}">

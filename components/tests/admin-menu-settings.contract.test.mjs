@@ -53,7 +53,15 @@ test("settings UI exposes user and system modes with reset and cancel", () => {
     assert.match(template, /settingsStatus === "conflict" \? menuText\("refreshState"\) : menuText\("save"\)/);
     assert.match(template, /<sf-button[\s\S]*?scheme="primary"[\s\S]*?settingsStatus === "conflict"/);
     assert.doesNotMatch(template, /<sf-button[\s\S]*?scheme="danger"/);
-    assert.match(template, /context\.persistenceMode !== "external"/);
+    // The settings menu gives sf-menu-context entries (sf-admin-menu 1.8.0): the
+    // older items list drew its rows as filled sf-buttons. The divider row it
+    // listed sat behind persistenceMode !== "external" inside the external
+    // branch and was never shown; it is gone.
+    assert.match(template, /\{id: "reset", text: menuText\("resetSettings"\), icon: "restart_alt"/);
+    assert.doesNotMatch(template, /component: "sf-button"/);
+    assert.doesNotMatch(source, /component: "sf-button"/);
+    assert.match(source, /\.entries=\$\{entries\}/);
+    assert.match(source, /@sf-menu-context-select=/);
     assert.match(source, /this\._layoutSettings = structuredClone\(this\._layoutBaseline \|\| \{\}\);/);
     assert.match(source, /compact !== this\._compactBaseline/);
     assert.match(
