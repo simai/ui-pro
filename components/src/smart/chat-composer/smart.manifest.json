@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-composer",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "title": "Chat composer",
   "summary": "Where a question is written and files are added: Enter sends, Shift+Enter breaks the line, an IME composition is never cut short, the send button becomes «stop waiting» while an answer is awaited, and files are only reported for the host to upload; their chips come back as files.",
   "kind": "smart",
@@ -221,46 +221,56 @@
       "summary": "The chips, as the files property (the action set-files).",
       "arguments": [
         {
-          "name": "files",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "name"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "description": "The stored file's id; a chip with an id and no error is sent with the message."
-                },
-                "localId": {
-                  "type": "string",
-                  "description": "The host's key while it uploads."
-                },
-                "name": {
-                  "type": "string",
-                  "description": "The file's name, drawn as text."
-                },
-                "bytes": {
-                  "type": "number"
-                },
-                "progress": {
-                  "type": [
-                    "number",
-                    "null"
+            "type": "object",
+            "properties": {
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name"
                   ],
-                  "description": "0..1 while uploading; null or 1 when done."
-                },
-                "error": {
-                  "type": [
-                    "string",
-                    "null"
-                  ],
-                  "description": "The server's refusal, the chip's second line."
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The stored file's id; a chip with an id and no error is sent with the message."
+                    },
+                    "localId": {
+                      "type": "string",
+                      "description": "The host's key while it uploads."
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The file's name, drawn as text."
+                    },
+                    "bytes": {
+                      "type": "number"
+                    },
+                    "progress": {
+                      "type": [
+                        "number",
+                        "null"
+                      ],
+                      "description": "0..1 while uploading; null or 1 when done."
+                    },
+                    "error": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "The server's refusal, the chip's second line."
+                    }
+                  }
                 }
               }
-            }
+            },
+            "required": [
+              "files"
+            ]
           }
         }
       ],
@@ -564,7 +574,7 @@
       },
       {
         "path": "src/smart/chat-composer/js/templates/default.css",
-        "sha256": "4467a778498eb25bbd45640db383f607ac2d5be8eb208ab3c3fbfb207a0fbe6e"
+        "sha256": "a1bf322e45b9908b02d59871eef691e86f5954b04e0446d186cb67554178e82d"
       },
       {
         "path": "src/smart/chat-composer/rule.js",
@@ -572,11 +582,11 @@
       },
       {
         "path": "src/smart/chat-composer/docs.md",
-        "sha256": "91709e34d263c8228f068ba9f183ff4f0a5b1a229ba3067d60df824412816bc9"
+        "sha256": "ee1675284126ecc0cc01629140c888a4549118bdfc2c8c91f812e8a5642b8237"
       },
       {
         "path": "src/smart/chat-composer/component.json",
-        "sha256": "500e8bc4d2da49dbc66e16a5d3dac6ddf1bdbaa9e185c32c9cee7ae8303f467b"
+        "sha256": "c0659538d944a05ec68a9713466a9bd09550fa5ebd70bf1b7336fb33ce3fdb82"
       },
       {
         "path": "src/smart/chat-composer/aliases.json",

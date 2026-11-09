@@ -25,7 +25,9 @@ test('Admin Menu uses hairline and semantic radius tokens by element role', asyn
   // rows of nothing shown while the host is answering. The Esc key's border and
   // corner left with its own rule (component.admin-menu 1.0.1, sf-kbd 1.1.0,
   // R030): the key is the Framework's kbd, a cap by its place in the field.
-  assert.equal((styles.match(/var\(--sf-px\)/g) || []).length, 7);
+  // The bottom bar under an open menu is parted by a hairline instead of an
+  // upward shadow (C20, component.admin-menu of the shadow-places pair).
+  assert.equal((styles.match(/var\(--sf-px\)/g) || []).length, 8);
   assert.equal((styles.match(/var\(--sf-radius--ui\)/g) || []).length, 10);
   assert.equal((styles.match(/var\(--sf-radius--surface\)/g) || []).length, 2);
   assert.match(styles, /\.sf-admin-menu-bottom[\s\S]*?var\(--sf-radius--surface\)/);

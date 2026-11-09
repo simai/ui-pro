@@ -436,7 +436,7 @@ class SfMailCanvas extends MailCanvasElement {
         const rules = [`[${this.markAttributeName()}]{cursor:pointer}`];
         const paper = String(this.paper ?? "");
         if (paper && !this.frameIsPaper() && CSS.supports(`selector(${paper})`)) {
-            rules.push(`${paper}{box-shadow:${this.resolved("boxShadow", "var(--sf-elevation-1--shadow)")}}`);
+            rules.push(`${paper}{box-shadow:${this.resolved("boxShadow", "var(--sf-shadow-raised)")}}`);
         }
         if (!this.sheet || this.sheet.ownerDocument !== letter) {
             this.sheet = letter.createElement("style");

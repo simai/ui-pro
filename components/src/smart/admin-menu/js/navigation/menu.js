@@ -54,7 +54,17 @@ export async function openMenu(controller, anchor, {label, entries, select, side
     } else {
         menu.style.removeProperty("--sf-context-menu--min-inline-size");
     }
-    return menu.openFor(anchor, {side, align, width: "content"});
+    return menuOpened(await menu.openFor(anchor, {side, align, width: "content"}));
+}
+
+// Whether the standard menu opened. sf-menu-context answered true or false
+// before 1.12.2 and answers an outcome since ({outcome: "applied" | "refused"
+// | "unavailable", ...}, SIMAI Framework fix/action-call-defects): a refused
+// open is an object, truthy, and the site switcher read it as open and kept
+// its list waiting for a menu that never showed. Both answers are read here,
+// so the navigation works with the menu of either pair.
+export function menuOpened(answer) {
+    return answer === true || answer?.outcome === "applied";
 }
 
 // Whether the shared menu is open for this anchor now.

@@ -872,7 +872,10 @@ export class NavigationController {
                 return null;
             },
         });
-        if (!opened) {
+        // openMenu answers whether the menu opened (true), for the boolean
+        // menu and the outcome menu alike; a refused or unavailable open
+        // leaves the switcher closed.
+        if (opened !== true) {
             this.sites = {...this.sites, open: false};
             return;
         }

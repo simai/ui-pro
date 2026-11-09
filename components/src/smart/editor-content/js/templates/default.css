@@ -516,10 +516,10 @@
     gap: var(--sf-space-1\/2);
     padding: var(--sf-space-1\/4);
     border-radius: var(--sf-radius-1);
-    background: var(--sf-elevation-2--surface);
-    box-shadow: var(--sf-elevation-2--shadow);
+    background: var(--sf-surface-popup);
+    box-shadow: var(--sf-shadow-overlay);
     color: var(--sf-on-surface);
-    --sf-on-surface-variant: var(--sf-on-elevation-2--variant);
+    --sf-on-surface-variant: var(--sf-on-surface-popup-variant);
   }
 
   .sf-content-editor-quick[hidden] {
@@ -573,8 +573,8 @@
     gap: var(--sf-space-1\/2);
     padding: var(--sf-space-1\/2) var(--sf-space-1);
     border-radius: var(--sf-radius-1);
-    background: var(--sf-elevation-2--surface);
-    box-shadow: var(--sf-elevation-2--shadow);
+    background: var(--sf-surface-popup);
+    box-shadow: var(--sf-shadow-overlay);
     color: var(--sf-on-surface);
   }
 
@@ -646,8 +646,8 @@
     position: fixed;
     z-index: calc(var(--sf-z-index-9) + 1);
     border-radius: var(--sf-radius-2);
-    background-color: var(--sf-elevation-3--surface);
-    box-shadow: var(--sf-elevation-3--shadow);
+    background-color: var(--sf-surface-popup);
+    box-shadow: var(--sf-shadow-overlay);
     font-size: var(--sf-text--size-1\/2);
     line-height: var(--sf-text--height-1\/2);
   }

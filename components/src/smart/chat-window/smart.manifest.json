@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -248,9 +248,19 @@
       "summary": "several of the port's data at once, by the port's names or the settings'; unknown keys are ignored (the 0.3 applyData(partial), kept as the method) (action set-data; answers an outcome)",
       "arguments": [
         {
-          "name": "data",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "data"
+            ]
           }
         }
       ],
@@ -262,15 +272,23 @@
       "summary": "a host without a port answers an intent: result {answer, reason, text, data, current}; refused unknown-request when nothing waits under that id (the 0.3 answer(request_id, result), kept as the method) (action settle; answers an outcome)",
       "arguments": [
         {
-          "name": "requestId",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "result",
-          "schema": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "requestId": {
+                "type": "string"
+              },
+              "result": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "requestId",
+              "result"
+            ]
           }
         }
       ],
@@ -289,8 +307,18 @@
       "summary": "open a conversation (port conversation.open) (action open-conversation; answers an outcome)",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object|string",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            },
+            "required": [
+              "id"
+            ]
+          }
         }
       ],
       "returns": {
@@ -315,9 +343,16 @@
       "summary": "back to the conversation; focus false leaves the focus where it is (action close-files; answers an outcome)",
       "arguments": [
         {
-          "name": "focus",
+          "name": "args",
+          "type": "object",
+          "required": false,
           "schema": {
-            "type": "boolean"
+            "type": "object",
+            "properties": {
+              "focus": {
+                "type": "boolean"
+              }
+            }
           }
         }
       ],
@@ -329,11 +364,21 @@
       "summary": "what the page shows under the list of conversations, after «Мои файлы» (Mirai24: the spending); null takes it away (action set-list-footer; answers an outcome)",
       "arguments": [
         {
-          "name": "node",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": [
-              "object",
-              "null"
+            "type": "object",
+            "properties": {
+              "node": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "node"
             ]
           }
         }
@@ -346,9 +391,16 @@
       "summary": "Open the search in the conversation, focus in its field; query searches at once (action open-find; answers an outcome).",
       "arguments": [
         {
-          "name": "query",
+          "name": "args",
+          "type": "object",
+          "required": false,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            }
           }
         }
       ],
@@ -360,9 +412,16 @@
       "summary": "Close the search in the conversation; the focus returns to what opened it (action close-find; answers an outcome).",
       "arguments": [
         {
-          "name": "focus",
+          "name": "args",
+          "type": "object",
+          "required": false,
           "schema": {
-            "type": "boolean"
+            "type": "object",
+            "properties": {
+              "focus": {
+                "type": "boolean"
+              }
+            }
           }
         }
       ],
@@ -374,10 +433,20 @@
       "summary": "Open the source preview beside the conversation (action open-preview; answers an outcome).",
       "arguments": [
         {
-          "name": "source",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
             "type": "object",
-            "description": "{title, kind, preview_url, locator, mime, n?}: preview_url of the page's origin; locator {from, to} characters of the text, or {page} of a PDF."
+            "properties": {
+              "source": {
+                "type": "object",
+                "description": "{title, kind, preview_url, locator, mime, n?}: preview_url of the page's origin; locator {from, to} characters of the text, or {page} of a PDF."
+              }
+            },
+            "required": [
+              "source"
+            ]
           }
         }
       ],
@@ -389,9 +458,16 @@
       "summary": "Close the source preview; the focus returns to what opened it (action close-preview; answers an outcome).",
       "arguments": [
         {
-          "name": "focus",
+          "name": "args",
+          "type": "object",
+          "required": false,
           "schema": {
-            "type": "boolean"
+            "type": "object",
+            "properties": {
+              "focus": {
+                "type": "boolean"
+              }
+            }
           }
         }
       ],
@@ -403,12 +479,19 @@
       "summary": "the form of a new conversation or group in place of the conversation (x-conversation-start); kind private, the default, or group; refused capability-not-provided without it (action open-start; answers an outcome)",
       "arguments": [
         {
-          "name": "kind",
+          "name": "args",
+          "type": "object|string",
+          "required": false,
           "schema": {
-            "enum": [
-              "private",
-              "group"
-            ]
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "private",
+                  "group"
+                ]
+              }
+            }
           }
         }
       ],
@@ -420,9 +503,16 @@
       "summary": "closes the form; focus false leaves the focus where it is, else it returns to the command that opened it (action close-start; answers an outcome)",
       "arguments": [
         {
-          "name": "focus",
+          "name": "args",
+          "type": "object",
+          "required": false,
           "schema": {
-            "type": "boolean"
+            "type": "object",
+            "properties": {
+              "focus": {
+                "type": "boolean"
+              }
+            }
           }
         }
       ],
@@ -441,9 +531,16 @@
       "summary": "closes the members; focus false leaves the focus where it is, else it returns to the command that opened it (action close-members; answers an outcome)",
       "arguments": [
         {
-          "name": "focus",
+          "name": "args",
+          "type": "object",
+          "required": false,
           "schema": {
-            "type": "boolean"
+            "type": "object",
+            "properties": {
+              "focus": {
+                "type": "boolean"
+              }
+            }
           }
         }
       ],
@@ -2638,7 +2735,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "51266665aa0868bd9817062a50583c4cefc45abca9fb9440a6ae1dedd1a18ab1"
+        "sha256": "25093b20e3017593b8429b5004a654536beddc58ee93cb03aae1fb65dcc61f96"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2694,7 +2791,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "fe5a3084d33241ec44c14434873a6498a23d952d23ef478d17c6c02a222c2778"
+        "sha256": "6182eec4c92eaecb5c32d93f46573db5ec691cb4f0c1b28bb5b0636914b96259"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

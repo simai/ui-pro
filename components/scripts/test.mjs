@@ -79,9 +79,12 @@ process.stdout.write(`overlay ${overlay}: ui-source ${laid.sourceRevision.slice(
 // view-properties) still carry names the pair keeps only as dated aliases, and
 // tests/frozen-sets-former-names.contract.test.mjs asks the same of every
 // package folder with that one exemption (pair ui-d6f01121baca, 2026-11-09).
+// The loader-relations title names the set core since ui-cb287da78ab1; this
+// package declares no core (package.json has no simai.core), so its half is
+// the same check.
 export const FREE_REPLACED = [
   'no first-party source asks a component for a value it does not declare',
-  'loader: every related group a rule names exists as a rule, here or in a required set',
+  'loader: every related group a rule names exists as a rule, here, in the set core or in a required set',
   'every Smart rule forward is a former name that leads to a rule',
 ];
 const escape = (name) => `^${name.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}$`;

@@ -708,8 +708,9 @@
     max-block-size: min(100%, var(--sf-g9));
     border: var(--sf-px) solid var(--sf-outline-variant);
     border-radius: var(--sf-radius--surface);
-    background-color: var(--sf-elevation-3--surface);
-    box-shadow: var(--sf-elevation-3--shadow);
+    /* A window over the scrim: the modal place (C20), on the popup surface. */
+    background-color: var(--sf-surface-popup);
+    box-shadow: var(--sf-shadow-modal);
     overflow: hidden;
   }
 

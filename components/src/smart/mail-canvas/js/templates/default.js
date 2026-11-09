@@ -28,7 +28,7 @@ export function renderMailCanvasTemplate(context) {
                         <sf-editor-overlay label=${context.previewLabel} accepts=${context.overlayAccepts || nothing}></sf-editor-overlay>
                     </section>`
                     : nothing}
-                <iframe class=${["sf-mail-canvas-frame", context.frameCastsShadow ? "shadow-1" : ""].filter(Boolean).join(" ")}
+                <iframe class=${["sf-mail-canvas-frame", context.frameCastsShadow ? "shadow-raised" : ""].filter(Boolean).join(" ")}
                         sandbox="allow-same-origin" tabindex="-1" title=${context.frameLabel}
                         width=${context.frameSize || nothing}
                         @load=${() => component.onFrameLoad()}></iframe>

@@ -118,13 +118,13 @@ test('the band is the last strip of the card, and it is the card that places it'
   // the bottom of the window, and only the band sticks.
   assert.match(css, /^\.sf-pagination-actions \{/mu, 'the band is not scoped to the page row any more');
   assert.doesNotMatch(css, /\.sf-pagination:has\(\.sf-pagination-actions\)/u, 'and the row itself does not stick');
-  assert.match(css, /box-shadow: var\(--sf-elevation-2--shadow\);/u, 'a shadow upwards, over the rows');
+  assert.match(css, /box-shadow: var\(--sf-shadow-raised\);/u, 'the raised shadow, over the rows (C20: a sticky bar while content runs under it)');
   assert.match(
     css,
     /border-block-start: var\(--sf-px\) solid var\(--sf-pagination-actions--border-color\);/u,
     'and a line where the band starts',
   );
-  assert.match(css, /--sf-pagination-actions--background-color: var\(--sf-elevation-2--surface\);/u, 'a role the theme declares: the band floats on step 2');
+  assert.match(css, /--sf-pagination-actions--background-color: var\(--sf-surface-raised\);/u, 'a role the theme declares: the band floats on the raised place (C20)');
   assert.match(css, /inline-size: 100%;/u, 'the full width of the card');
   // Not the generic last row of the page: that class paints transparent at a
   // higher specificity, and the band came out see-through over the rows.

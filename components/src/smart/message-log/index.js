@@ -81,6 +81,21 @@ function entryOf(message) {
 
 const entriesOf = (list) => (Array.isArray(list) ? list.map(entryOf) : list);
 
+// The object form of an action (standard §4.4): one plain object that names
+// declared parameters only, at least one, is the parameters in order --
+// setMessages({messages}) is setMessages(messages), upsert({message}) is
+// upsert(message). Anything else (a list, an entry, the fields in order) goes
+// through as it came. The feed's runtime does this for the feed's own methods;
+// these three are this element's.
+const objectForm = (args, names) => {
+    const [first] = args;
+    if (args.length !== 1 || !first || typeof first !== "object" || Array.isArray(first)
+        || Object.getPrototypeOf(first) !== Object.prototype) return args;
+    const given = Object.keys(first);
+    if (!given.length || !given.every((key) => names.includes(key))) return args;
+    return names.map((name) => first[name]);
+};
+
 // The conversation's own words («Переписка», «Сообщения»), not the feed's
 // («Лента», «Записи»): the keys are the feed's, so a word a page registered
 // for either tag still wins (the two tags share one entry, canonicalTag).
@@ -163,12 +178,14 @@ function defineMessageLog(Feed) {
             this.announceItem = value;
         }
 
-        setMessages(messages = [], options = {}) {
+        setMessages(...args) {
+            const [messages = [], options = {}] = objectForm(args, ["messages", "options"]);
             former("action", "setMessages", "setItems");
             return this.setItems(entriesOf(messages), options);
         }
 
-        prependMessages(messages = [], options = {}) {
+        prependMessages(...args) {
+            const [messages = [], options = {}] = objectForm(args, ["messages", "options"]);
             former("action", "prependMessages", "prependItems");
             return this.prependItems(entriesOf(messages), options);
         }
@@ -186,7 +203,8 @@ function defineMessageLog(Feed) {
             return this.isAtLatest();
         }
 
-        upsert(message, ...rest) {
+        upsert(...args) {
+            const [message, ...rest] = objectForm(args, ["message", "view", "options"]);
             return super.upsert(entryOf(message), ...rest);
         }
 
