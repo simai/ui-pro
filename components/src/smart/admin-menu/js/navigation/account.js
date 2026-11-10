@@ -89,9 +89,11 @@ export function openAccountMenu(context, anchor) {
     }
     return openMenu(controller, anchor, {
         label: text("account"), entries, side: "block-start", align: "start",
-        // As wide as the person button (owner, 2026-10-14); in the narrow rail
-        // the button is a picture, and the menu is as wide as its lines.
-        width: controller.compact ? "content" : "trigger",
+        // As wide as the person button (owner, 2026-10-14), and never cutting a
+        // line: the profile picker's panel rule, max(trigger, the panel step)
+        // (decision C32 "panel"; DEV 2026-11-10, G1 320/288/320). In the narrow
+        // rail the button is a picture, and the menu is as wide as its lines.
+        width: controller.compact ? "content" : "panel",
         select: (id) => {
             const [kind, value] = String(id ?? "").split(/:(.*)/su);
             if (kind === "theme") return controller.chooseTheme(value);
