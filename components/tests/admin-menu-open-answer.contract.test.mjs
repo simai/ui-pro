@@ -61,6 +61,6 @@ test('the site switcher closes again when the menu did not open', async () => {
   assert.match(sites, /const opened = await openMenu\(this, anchor, \{/u);
   assert.match(sites, /if \(opened !== true\) \{\n\s+this\.sites = \{\.\.\.this\.sites, open: false\};/u);
   const menu = await read('src/smart/admin-menu/js/navigation/menu.js');
-  assert.match(menu, /return menuOpened\(await menu\.openFor\(anchor, \{side, align, width: "content"\}\)\);/u);
+  assert.match(menu, /return menuOpened\(await menu\.openFor\(anchor, \{side, align, width: width === "trigger" \? "list" : "content"\}\)\);/u);
   assert.match(menu, /answer === true \|\| answer\?\.outcome === "applied"/u);
 });
