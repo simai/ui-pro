@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -55,6 +55,12 @@
         "port-record",
         "port-group",
         "size",
+        "layout",
+        "layout-switch",
+        "list-below",
+        "quick-actions",
+        "row-open",
+        "list-roles",
         "column-search-placeholder",
         "column-search-empty-text",
         "column-move-label",
@@ -143,9 +149,9 @@
       ],
       "host_port": {
         "port": "simai.dataview-port",
-        "version": "1.14.0",
-        "path": "src/core/contracts/ports/simai.dataview-port/1.14.0/port.json",
-        "sha256": "729e7aae0fa1f4425ae11a470de024f75e92d475cd24cc63b7e1d3d020d2955b",
+        "version": "1.15.0",
+        "path": "src/core/contracts/ports/simai.dataview-port/1.15.0/port.json",
+        "sha256": "554e57f2134ce47d92300ab151136a94f395494ec4d7aec4e314547b5fc6a3b7",
         "supported_versions": [
           "1.0.0",
           "1.1.0",
@@ -161,7 +167,8 @@
           "1.11.0",
           "1.12.0",
           "1.13.0",
-          "1.14.0"
+          "1.14.0",
+          "1.15.0"
         ]
       }
     }
@@ -224,6 +231,45 @@
           "1/2",
           "1"
         ]
+      },
+      "layout": {
+        "type": "string",
+        "default": "auto",
+        "description": "How the records are drawn, passed to the table (owner decision C31): auto, a table where there is room and the list below list-below; table; list. A table the host wrote a layout on keeps it. An embedded view (no toolbar) without this attribute is a table, as before.",
+        "enum": [
+          "auto",
+          "table",
+          "list"
+        ]
+      },
+      "layout-switch": {
+        "type": "boolean",
+        "default": false,
+        "description": "The table's list/table switch in the toolbar (sf-view-table layout-switch, C31): the person's choice is kept under preferences-key and in the settings of a saved view (settings.layout), and a saved view opened brings it back. Below list-below there is only the list and no switch; a view without a toolbar has none."
+      },
+      "list-below": {
+        "type": "number",
+        "default": 600,
+        "description": "The table's container width, in pixels, below which auto draws the list (sf-view-table list-below), passed on when written."
+      },
+      "quick-actions": {
+        "type": "string",
+        "default": "",
+        "description": "The row actions a list row shows as icon buttons, by id, at most three (sf-view-table quick-actions, C31); the rest are its «more» menu. The ids are the host's row actions; an icon comes from the row_actions entry."
+      },
+      "row-open": {
+        "type": "string",
+        "default": "title",
+        "description": "row: a press anywhere in a row but its controls opens the record, through record.open as the title link does (sf-view-table row-open, C31).",
+        "enum": [
+          "title",
+          "row"
+        ]
+      },
+      "list-roles": {
+        "type": "string",
+        "default": "",
+        "description": "The columns' places in a list row as key:role pairs, comma-separated -- state:status, name:title, domain:supporting, kind:supporting, ssl:fact. A dated alias of simai.dataview-port 1.15.0 columns[].list until 2027-01-01 (noted in SF.deprecations): a host on 1.15.0 sends the role with the column, and a column the host gave a list role keeps its own."
       },
       "column-search-placeholder": {
         "type": "string",
@@ -1562,6 +1608,16 @@
           "The table event table-template-save (shared table-intents@1) carries {templates}, a list of one or more templates, as sf-view-table 1.16.0 sends it (the decision 'Event detail that is not a flat object', 2026-11-09); each is saved as its own view.save. A bare template object or an array of them, from a table before 1.16.0, is still read until 2027-01-01. The payload schema moves from x-registry/event-fields into the carried field.",
           "Over SIMAI Framework ui-cb287da78ab1 (core.runtime 1.45.0; the set needs 1.43.0 or newer): the reference names one args argument per action (standard §4.4); the methods already took the object form (answerActions). The icon buttons ask for appearance ghost (link is its former name, drawn the same). Nothing changes on the page."
         ]
+      },
+      {
+        "from": "1.10.0",
+        "to": "1.11.0",
+        "changes": [
+          "The list of resources (owner decision C31, 2026-11-09): layout is passed to the table instead of auto always (a page's list is still auto without it; a layout the host wrote on its table is kept); layout-switch, list-below, quick-actions and row-open go to the table as written; list-roles gives the columns their places in a list row (columns[].list) where the host's columns do not carry them. With the switch, the person's choice is kept under preferences-key by the table, rides in a saved view's settings (settings.layout) and comes back when that view is opened; the first paint draws the layout chosen. Needs sf-view-table 1.17.0 (the same release).",
+          "Speaks simai.dataview-port 1.15.0 (SIMAI Framework pair ui-a0370c0c99fb) beside 1.0.0-1.14.0: a column's list role comes from the port (columns[].list) and is passed to the table as sent. list-roles stays a dated alias until 2027-01-01 for a host on an earlier port (aliases.json, noted in SF.deprecations once per view); a column the host gave a role keeps it.",
+          "The controls the view makes and its table are relative (C22, Larena 2026-11-10): a view without a size writes no size on its table, page row, selection band (the action list, Apply, Clear and their options) or Show all, so compact page density moves them with the page (32 at 1280 where they stayed 40); a view with size=\"1\" or \"1/2\" still hands it down. A table given its own size inside a view without one loses it to the view (it used to be overwritten with 1).",
+          "Over SIMAI Framework ui-a0370c0c99fb (core.runtime 1.49.0; the set still needs 1.43.0 or newer). Nothing to change for a host that does not use the new settings."
+        ]
       }
     ]
   },
@@ -1571,7 +1627,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view/index.js",
-        "sha256": "0059d40fe5a9a6fa551f58c522a4d1974fda0d7f9060b6832c1aa82c70fab7d9"
+        "sha256": "bfcf7d95120473636f12acb261eb2abed7979db342ef638bfbd39f645a01e2e7"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",
@@ -1579,7 +1635,7 @@
       },
       {
         "path": "src/smart/view/docs.md",
-        "sha256": "6fbe4b18a496ce87e6c65f0bab96e1aa657718929a0b29796ef5c0232ceb4fd5"
+        "sha256": "b927d8b2f3171e75cd205dee10485e7a3ad67ebc7950e94b5dda1848df1603e9"
       },
       {
         "path": "tests/fixtures/data-view-composite-lab.html",
@@ -1591,7 +1647,7 @@
       },
       {
         "path": "src/smart/view/js/first-paint.css",
-        "sha256": "059abccc0b441cc33602d9677efc57d7cf372e7f94b76ca3421f17cf60accccc"
+        "sha256": "6f2ac90c84b367163cefaa9669cfb6412a75b13dde477f16c06a079c895d77ed"
       }
     ],
     "generated_runtime": []

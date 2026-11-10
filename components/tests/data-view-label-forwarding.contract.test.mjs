@@ -11,7 +11,7 @@ test('the data view declares and passes on the words of the parts it draws', asy
   const names = [...list('TABLE_LABELS'), ...list('PAGINATION_LABELS'), 'pagination-aria-label'];
   assert.equal(names.length, 20);
   for (const name of names) assert.ok(manifest.inputs.properties[name], `${name} is declared`);
-  assert.match(source, /observedAttributes\(\) \{\s*return \["chrome", "row-cap", "aria-label", "size", "preferences-key", \.\.\.LABEL_ATTRIBUTES\];/u);
+  assert.match(source, /observedAttributes\(\) \{\s*return \["chrome", "row-cap", "aria-label", "size", "preferences-key", \.\.\.LIST_ATTRIBUTES, \.\.\.LABEL_ATTRIBUTES\];/u);
   assert.match(source, /pass\(this\.pagination, "pagination-aria-label", "aria-label"\);/u);
-  assert.match(source, /this\.pagination\?\.setAttribute\?\.\("size", this\.size\);\n\s*this\._forwardLabels\(\);/u);
+  assert.match(source, /else this\.pagination\?\.removeAttribute\?\.\("size"\);\n\s*this\._forwardLabels\(\);/u);
 });

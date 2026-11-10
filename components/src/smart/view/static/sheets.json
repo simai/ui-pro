@@ -8,6 +8,7 @@
   "sheets": [
     "component/avatars/css/avatars.min.css",
     "component/badges/css/badges.min.css",
+    "component/button-group/css/button-group.min.css",
     "component/buttons/css/buttons.min.css",
     "component/checkbox/css/checkbox.min.css",
     "component/close/css/close.min.css",
@@ -79,6 +80,7 @@
     "embedded": [
       "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/checkbox/css/checkbox.min.css",
       "component/close/css/close.min.css",
@@ -149,6 +151,7 @@
     "open-record": [
       "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/checkbox/css/checkbox.min.css",
       "component/close/css/close.min.css",
@@ -219,6 +222,7 @@
     "reference": [
       "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/checkbox/css/checkbox.min.css",
       "component/close/css/close.min.css",

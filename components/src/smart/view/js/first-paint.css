@@ -19,8 +19,12 @@
   }
 
   :is(sf-view, sf-data-view) > .sf-data-view-skeleton {
-    --sf-data-view-skeleton--pad: var(--sf-space-1);
+    --sf-data-view-skeleton--pad: var(--sf-ui-1--space-y);
     --sf-data-view-skeleton--control: var(--sf-ui-1--control-height);
+    /* The table's row model (C31 look points): a body row's padding from the
+       rung of two lines of the step's text, the row on the rung below it. */
+    --sf-data-view-skeleton--row-pad: calc((var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) - var(--sf-px)) / 2);
+    --sf-data-view-skeleton--row: var(--sf-ui-2--control-height);
     display: grid;
     gap: var(--sf-data-view-gap, var(--sf-space-3));
     container-type: inline-size;
@@ -29,6 +33,8 @@
   :is(sf-view, sf-data-view) > .sf-data-view-skeleton[data-size="1/2"] {
     --sf-data-view-skeleton--pad: var(--sf-ui-1\/2--space-y);
     --sf-data-view-skeleton--control: var(--sf-ui-1\/2--control-height);
+    --sf-data-view-skeleton--row-pad: calc((var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) - var(--sf-px)) / 2);
+    --sf-data-view-skeleton--row: var(--sf-ui-1--control-height);
   }
 
   /* A bar is a line of the row's text (its line height, the letters' height
@@ -89,6 +95,12 @@
     gap: var(--sf-space-1);
     padding-block: var(--sf-data-view-skeleton--pad);
     border-block-end: var(--sf-px) solid var(--sf-outline-variant);
+  }
+
+  .sf-data-view-skeleton-table > div:not(:first-child) {
+    box-sizing: border-box;
+    min-block-size: var(--sf-data-view-skeleton--row);
+    padding-block: var(--sf-data-view-skeleton--row-pad);
   }
 
   .sf-data-view-skeleton-table > div > span {

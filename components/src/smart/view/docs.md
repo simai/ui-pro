@@ -129,6 +129,43 @@ payload}`, стандарт §4.9), или из `capabilities` рядом с о�
 </sf-view>
 ```
 
+## Список ресурсов (с версии 1.11.0)
+
+Представление передаёт таблице свой `layout` (раньше оно само ставило `auto`
+списку страницы и `table` встроенному):
+`layout="list"` у `sf-view` — список и на широком экране. Вместе с ним до
+таблицы доходят `layout-switch`, `list-below`, `quick-actions` и `row-open`
+(см. `sf-view-table`, «Список ресурсов»). Роли колонок в списке приходят
+из порта: с `simai.dataview-port` 1.15.0 у колонки есть поле `list`
+(`status`, `title`, `supporting`, `fact`, `hidden`), и представление
+передаёт его таблице как есть:
+
+```js
+// ответ хоста на query.change
+{columns: [
+  {key: 'state', label: 'Состояние', list: 'status'},
+  {key: 'name', label: 'Сайт', role: 'title', list: 'title'},
+  {key: 'domain', label: 'Домен', list: 'supporting'},
+  {key: 'ssl', label: 'SSL', list: 'fact'},
+], records: [/* … */]}
+```
+
+`list-roles="ключ:роль,…"` — прежний способ для хоста на порте 1.14.0 и
+раньше: устаревший псевдоним поля `list` до 2027-01-01, отмечается в
+`SF.deprecations`. Роль, которую колонке дал хост, важнее:
+
+```html
+<sf-view aria-label="Сайты" preferences-key="sites" layout-switch quick-actions="visit,restart" row-open="row"
+         list-roles="state:status,name:title,domain:supporting,kind:supporting,ssl:fact,backup:fact">
+  <sf-view-table slot="content" aria-label="Сайты"></sf-view-table>
+</sf-view>
+```
+
+`layout-switch` рисуется только там, где у таблицы есть панель. Выбор
+«Список / Таблица» хранится у человека под `preferences-key`; первая отрисовка
+сразу рисует заготовку выбранного вида. `view.save` кладёт его в
+`settings.layout` рядом с фильтрами и колонками, а `view.open` возвращает.
+
 ## Действия и виды
 
 - Поиск, фильтры, сортировка и окно меняют один `query.change`.

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.16.1",
+  "version": "1.17.0",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -31,7 +31,9 @@
   "exported_parts": [],
   "composition": {
     "uses": [
+      "component.dot",
       "component.icons",
+      "component.tooltip",
       "smart.avatar",
       "smart.badge",
       "smart.button",
@@ -51,6 +53,7 @@
       "smart.radio",
       "smart.reference-link",
       "smart.resizer",
+      "smart.segmented",
       "smart.slider-range",
       "smart.sortable",
       "smart.spinner",
@@ -100,8 +103,11 @@
         "vertical-scroll",
         "filter-apply-text",
         "layout",
+        "layout-switch",
         "list-below",
         "list-fields",
+        "quick-actions",
+        "row-open",
         "size",
         "preferences-key",
         "row-actions-visible",
@@ -141,7 +147,8 @@
         "sf-view-table-move",
         "sf-view-table-cell-set",
         "sf-view-table-view-change",
-        "sf-view-table-window"
+        "sf-view-table-window",
+        "sf-view-table-layout-change"
       ],
       "persistence": {
         "settings_key_prop": "table-settings-key",
@@ -345,12 +352,17 @@
       "layout": {
         "type": "string",
         "default": "table",
-        "description": "How the records are drawn: a table, a compact list of records, or auto -- a table while the table's container is at least list-below pixels wide, the list below that. sf-view asks for auto on a page's list.",
+        "description": "How the records are drawn: a table, a compact list of records, or auto -- a table while the table's container is at least list-below pixels wide, the list below that. sf-view asks for auto on a page's list. With layout-switch, the person's choice comes first.",
         "enum": [
           "auto",
           "table",
           "list"
         ]
+      },
+      "layout-switch": {
+        "type": "boolean",
+        "default": false,
+        "description": "A list/table switch (sf-segmented, two icons) in the toolbar before Create (owner decision C31). The choice is the person's: kept with the table's preferences (preferences-key, table-settings-key or remember-widths, else for the page) and in the settings of a saved view; with it, layout table reads as auto. Below list-below there is only the list and no switch."
       },
       "list-below": {
         "type": "number",
@@ -361,6 +373,20 @@
         "type": "number",
         "default": 3,
         "description": "How many fields a record shows under its title in the compact list, chosen by the columns' priority."
+      },
+      "quick-actions": {
+        "type": "string",
+        "default": "",
+        "description": "The row actions a list row shows as icon buttons, always visible: their ids, comma-separated, at most three (owner decision C31). The rest stay in the row menu, which in the list is «more» (more_horiz) instead of the menu icon; on a narrow list (below 37.5rem) the quick ones fold into it too. An action without an icon is a text button."
+      },
+      "row-open": {
+        "type": "string",
+        "default": "title",
+        "description": "What a press on a row opens: title, the title link alone (and a double click, Enter); row, a press anywhere in the row but its controls opens the record through the same view intent (sf-view-table-apply view), in the table and in the list (owner decision C31).",
+        "enum": [
+          "title",
+          "row"
+        ]
       },
       "size": {
         "type": "string",
@@ -930,6 +956,33 @@
             },
             "required": [
               "id"
+            ]
+          }
+        }
+      ],
+      "returns": {
+        "type": "object"
+      }
+    },
+    "setLayout": {
+      "summary": "Choose the list or the table for this person, as the layout switch does: kept with the table's preferences and drawn. Refused for another value; unchanged when it is the choice already.",
+      "arguments": [
+        {
+          "name": "args",
+          "type": "object|string",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "layout": {
+                "enum": [
+                  "list",
+                  "table"
+                ]
+              }
+            },
+            "required": [
+              "layout"
             ]
           }
         }
@@ -1806,6 +1859,24 @@
       },
       "canonical": true
     },
+    "sf-view-table-layout-change": {
+      "summary": "The person chose the list or the table with the layout switch (or set-layout was called); the choice is already kept. sf-view keeps it with the view.",
+      "payload": {
+        "type": "object",
+        "required": [
+          "layout"
+        ],
+        "properties": {
+          "layout": {
+            "enum": [
+              "list",
+              "table"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "sf-port-output": {
       "summary": "Composition port output. The table emits port selection (record-ids.v1) once per change of its explicit selection, including clearing; a common sf-composition-scope routes it.",
       "payload": {
@@ -2616,6 +2687,20 @@
         "changes": [
           "The avatar's max-width reads --sf-table-avatar--max-width with the fallback none: a host may still bound the avatar, and a page that sets nothing draws what it drew (the bare reference was unset, so none). The pair range no longer lists a variable bound by the page. Nothing changes on the page."
         ]
+      },
+      {
+        "from": "1.16.1",
+        "to": "1.17.0",
+        "changes": [
+          "The list of resources (owner decision C31, 2026-11-09): columns[].list names a column's place in a list row -- status, title, supporting, fact or hidden. With one, a list row is the status dot (its word the tooltip and the accessible text; a stopped resource's word also leads the second line), the title over the supporting fields joined with « · », the facts as sf-badge without labels in columns of one width (8rem; quiet when fine, warning or error when not, the column's label read to a screen reader), then the quick actions and «more». The row is a row of the ladder: 48 at size 1/2, 56 at size 1, 52 on a phone with the title a text step larger. Below 37.5rem only the most worrying fact stays and the quick actions fold into «more». A list without roles is drawn as before.",
+          "quick-actions (ids, at most three) draws those row actions as icon buttons in every list row, always visible, with the Framework tooltip; the rest are the «more» menu (more_horiz), which replaces the row menu icon in the list; a narrow list folds the quick ones into it. row-open=\"row\" (the default is title): a press anywhere in a row but its controls opens the record (the view intent, as the title link); the title link is the list row's tab stop, and the arrows, Home and End move from it as from the row (they did nothing in the list before: the focus went only to table rows).",
+          "layout-switch: an sf-segmented list/table in the toolbar before Create; the person's choice is kept with the table's preferences (the preference record's layout field) and in a saved view's settings (settings.layout), sent by layout-change and the action set-layout. A list chosen on a wide container keeps the table's toolbar with the switch; below list-below the compact list and its toolbar, no switch.",
+          "One row model on the ladder for every table (the look points the owner accepted on 2026-11-09): a body cell's block padding is the rung of two lines of the step's text less those lines and the row's line -- --sf-ui-2--control-height at size 1/2, --sf-ui-3--control-height at size 1 -- and a body row stands on the rung between (block-size --sf-ui-1--control-height at 1/2, --sf-ui-2--control-height at 1). At size 1/2 a one-line row with its box and menu is 40 (it was 45), two lines -- a link with its supporting text or a text wrapped to two lines -- 48 (they were 48 and 53), three lines 68. At size 1 a one-line row with the row menu is 48 (it was 73), two lines 56 (53 and 81 before). The head keeps the step's space around its line, at size 1 from the control ladder (--sf-ui-1--space-y) rather than --sf-space-1: 41, 57 with the box (it was 57 and 73). The published --sf-table-row-*-block-size-* say the same rows (40, 48, 48, 56; head 33, 41). Under compact page density the ladder moves one rung down and the rows with it; a person's view density (data-sf-view-density) keeps its padding.",
+          "A column with a list role draws the same value in a table cell: a status as the dot with its word, a fact as its badge (quiet, warning or error, with its tip). The row the person is on (data-current, where the keys and a press leave them) is kept apart from the record the page has open (current, aria-current): the keys no longer move the open record, and list rows carry aria-current as table rows do. Under compact density (data-sf-density=\"compact\", C22, desktop) a table without a size takes the ladder one rung down: 40 with the row's controls, 48 with a supporting line (it was 57 and 61), and the published step-1 box follows on a compact page.",
+          "The list's look points (owner, 2026-11-09): the record's title is the surface's text colour (--sf-on-surface), medium weight, underlined while the row is pointed at or the link focused (it was the link colour), and the link draws no ring of its own inside the row's ring. The open record (current, aria-current) has the primary container fill (--sf-primary-container: 12 light, 24 dark); the row the keyboard is on shows the focus ring only. On a phone the row's buttons and «more» are --sf-ui-1--control-height (36; 28 at size 1/2 before). The list has no inline padding and an empty toolbar start takes no gap, so the search field, Create and the rows' fill are on one line (R077). The quick actions still fold below a 37.5rem container.",
+          "The controls inside are relative (C22, Larena 2026-11-10): a table without a size writes no size on its toolbar (filter, search, Create, gear, layout switch, chips), its menus or the row controls it draws; a component a column or an action names at size 1 takes the host's size, or none when the host has none. Compact page density then moves them a rung down with the page (32 at 1280); a host with size=\"1\" or \"1/2\" hands that size down as before.",
+          "Over SIMAI Framework ui-a0370c0c99fb (core.runtime 1.49.0; the set still needs 1.43.0 or newer). New relations: dot, tooltip, cl-segmented. Nothing to change for a host that does not use the new settings."
+        ]
       }
     ]
   },
@@ -2625,15 +2710,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-table/index.js",
-        "sha256": "7eca98d1a16c48a72586ee961273712ebb18eb932f492600062199cb3ac178a3"
+        "sha256": "05d95b92c18e67f0649ed11838eed92367a118ced8006decee43ecf5a2c2b8bd"
       },
       {
         "path": "src/smart/view-table/js/templates/default.js",
-        "sha256": "b836081b29ec66aefd74b4397803d82b859f8343ccbfa6ca1572ff569b19206d"
+        "sha256": "2197b74d2c0de08e6d05581ad90068a35896a83712549a906762df33b6dc5ffb"
       },
       {
         "path": "src/smart/view-table/js/templates/default.css",
-        "sha256": "f7603999097d675a9a218a1653f687048f0c16eccbfd0008198c444645f1afa3"
+        "sha256": "955ed8b596e067411ba9e2d330cf9379a74f61ab7055deb00db7750fae467fce"
       },
       {
         "path": "src/smart/helpers/option-badge.js",
@@ -2641,11 +2726,11 @@
       },
       {
         "path": "src/smart/view-table/rule.js",
-        "sha256": "2b01429447af41eb8530e7b50e71f06c29f1526d65a48721ecfeb673a7ebdbe2"
+        "sha256": "ab297cd497a35bbcbfd328befc83666e72c9d371f4e96efe84dbc91c575dcdf8"
       },
       {
         "path": "src/smart/view-table/docs/smart-table-guide.md",
-        "sha256": "69978180760960841c2148efe9f405d1459cbe159786ddf4fbf32b26d6da9094"
+        "sha256": "059c23ed25e9ac36f3a4828034347dadac5f6eaf2afe0d4b95c6fb32d9fddaf3"
       },
       {
         "path": "src/smart/pagination/index.js",

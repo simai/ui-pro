@@ -38,6 +38,17 @@
       "note": "the element is sf-view; sf-data-view is a subclass defined beside it until the date"
     },
     {
+      "from": "list-roles",
+      "to": null,
+      "kind": "attribute",
+      "component": "sf-view",
+      "since": "2026-11-10",
+      "remove_after": "2027-01-01",
+      "mode": "host-attribute",
+      "section": "simai.dataview-port 1.15.0 columns[].list (C31)",
+      "note": "the host sends each column's list role through the port (columns[].list); list-roles still names them for a host on 1.14.0 or earlier, noted in SF.deprecations, until the date"
+    },
+    {
       "from": "sf-data-view-open",
       "to": "sf-view-open",
       "kind": "event",

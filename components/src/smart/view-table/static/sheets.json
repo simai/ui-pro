@@ -8,6 +8,7 @@
   "sheets": [
     "component/avatars/css/avatars.min.css",
     "component/badges/css/badges.min.css",
+    "component/button-group/css/button-group.min.css",
     "component/buttons/css/buttons.min.css",
     "component/checkbox/css/checkbox.min.css",
     "component/close/css/close.min.css",
@@ -79,6 +80,7 @@
     "current": [
       "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/checkbox/css/checkbox.min.css",
       "component/close/css/close.min.css",
@@ -148,6 +150,7 @@
     "empty": [
       "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/checkbox/css/checkbox.min.css",
       "component/close/css/close.min.css",
@@ -217,6 +220,7 @@
     "loading": [
       "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/checkbox/css/checkbox.min.css",
       "component/close/css/close.min.css",
@@ -286,6 +290,7 @@
     "many": [
       "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/checkbox/css/checkbox.min.css",
       "component/close/css/close.min.css",
@@ -355,6 +360,7 @@
     "reference": [
       "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/checkbox/css/checkbox.min.css",
       "component/close/css/close.min.css",
@@ -424,6 +430,7 @@
     "typed-cells": [
       "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/checkbox/css/checkbox.min.css",
       "component/close/css/close.min.css",

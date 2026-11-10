@@ -62,6 +62,16 @@ const TABLE_TEXT = {
 
 
 const SYSTEM_COLUMN_KEYS = new Set(["select", "settings", "actions"]);
+// The list of resources (C31): a column's place in a list row, and what a
+// status value and a fact's status mean there.
+const LIST_ROLES = new Set(["status", "title", "supporting", "fact", "hidden"]);
+const MAX_QUICK_ACTIONS = 3;
+const STATUS_DOTS = Object.freeze({
+    ok: "success", warning: "warning", error: "error", stopped: "neutral",
+    success: "success", danger: "error", neutral: "neutral", info: "info", primary: "primary",
+});
+const STATUS_WORDS = Object.freeze({ok: "statusOk", warning: "statusWarning", error: "statusError", stopped: "statusStopped"});
+const FACT_LEVELS = Object.freeze({warning: 1, error: 2});
 
 const positioning = () => globalThis.SF?.Position || BundledPosition;
 
@@ -183,6 +193,19 @@ class SfTable extends TableElement {
             // How many fields a record shows under its title in the list, chosen
             // by the columns' priority (lower first).
             listFields: {attribute: 'list-fields', type: Number, default: 3},
+            // The list of resources (owner decision C31, 2026-11-09). The row
+            // actions drawn in a list row as icon buttons, always visible (at
+            // most three, by id); the rest are the row's «more» menu, and on a
+            // narrow list these fold into it as well.
+            quickActions: {attribute: 'quick-actions', default: ''},
+            // What a press on a row opens: `title`, the title link alone (and
+            // a double click, Enter); `row`, anywhere in the row but its
+            // controls, through the same view intent.
+            rowOpen: {attribute: 'row-open', default: 'title', values: ['title', 'row']},
+            // A list/table switch in the toolbar, before Create. The person's
+            // choice is kept with the table's preferences and in its saved
+            // views; below list-below there is only the list and no switch.
+            layoutSwitch: {attribute: 'layout-switch', type: Boolean, default: false},
             toolbar: {type: Boolean, default: true},
             settings: {type: Boolean, default: true},
             pagin: {type: Boolean, default: false},
@@ -475,7 +498,12 @@ class SfTable extends TableElement {
             rail: this.createRef(),
             resizeGuide: this.createRef(),
         }
+        // Two rows, kept apart: the record the page has open (current,
+        // aria-current) and the row the person is on (the keyboard's and the
+        // pointer's place, data-current). The keys used to write the first, so
+        // ↑/↓ moved «the open record» (C31 acceptance, 2026-11-09).
         this._currentRowId = null;
+        this._cursorRowId = null;
         this._checkboxMeasureToken = 0;
         this._responsiveWidth = 0;
         this._responsiveObserver = null;
@@ -619,6 +647,8 @@ class SfTable extends TableElement {
     set current(id) {
         const value = id === null || id === undefined ? "" : String(id);
         this._currentRowId = value || null;
+        // Opening a record puts the person on it.
+        this._cursorRowId = null;
         if ((this.getAttribute("current") ?? "") !== value) {
             if (value) this.setAttribute("current", value);
             else this.removeAttribute("current");
@@ -628,7 +658,10 @@ class SfTable extends TableElement {
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-        if (name === "current" && oldValue !== newValue) this._currentRowId = newValue || null;
+        if (name === "current" && oldValue !== newValue) {
+            this._currentRowId = newValue || null;
+            this._cursorRowId = null;
+        }
         super.attributeChangedCallback?.(name, oldValue, newValue);
     }
 
@@ -911,7 +944,7 @@ class SfTable extends TableElement {
         };
         return html`
             <sf-menu-context
-                    size=${this.size === "1/2" ? "1/2" : "1"}
+                    size=${this.controlSize ?? nothing}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'toolbar-actions'})}
                     style="
@@ -959,7 +992,7 @@ class SfTable extends TableElement {
         ];
         return html`
             <sf-menu-context
-                    size=${this.size === "1/2" ? "1/2" : "1"}
+                    size=${this.controlSize ?? nothing}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'list-sort'})}
                     style="
@@ -986,7 +1019,7 @@ class SfTable extends TableElement {
         };
         return html`
             <sf-menu-context
-                    size=${this.size === "1/2" ? "1/2" : "1"}
+                    size=${this.controlSize ?? nothing}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'create'})}
                     style="
@@ -1135,8 +1168,18 @@ class SfTable extends TableElement {
     // takes nothing away from that. Only opening the record stays off limits
     // from a control.
     handleRowClick(event, row, index = -1) {
-        this.focusRow(this.getRowKey(row, index));
+        // A list row's own buttons keep the focus a press gives them: the menu
+        // they open goes back to them.
+        this.focusRow(this.getRowKey(row, index), {focus: !(this.isList && this.isRowControlTarget(event?.target))});
         this.openReferenceFromCell(event, row);
+        // row-open="row" (C31): a press anywhere in the row but its controls
+        // opens the record, as the title link and Enter do. A press that
+        // selected text, or one with a modifier, is not a press to open.
+        if (this.getAttribute("row-open") === "row" && !event?.defaultPrevented
+                && !(event?.button > 0) && !event?.metaKey && !event?.ctrlKey && !event?.shiftKey && !event?.altKey
+                && !(event?.detail > 1) && !String(globalThis.getSelection?.() ?? "")) {
+            this.handleRowOpen(event, row);
+        }
         return this;
     }
 
@@ -1278,9 +1321,17 @@ class SfTable extends TableElement {
         }, {signal});
     }
 
+    // The record the page has open (aria-current).
     isCurrentRow(row, index = -1) {
         const key = this.getRowKey(row, index);
         return key !== "" && String(this._currentRowId ?? "") === key;
+    }
+
+    // The row the person is on (data-current): where the keys and the last
+    // press left them, else the open record.
+    isCursorRow(row, index = -1) {
+        const key = this.getRowKey(row, index);
+        return key !== "" && String(this._cursorRowId ?? this._currentRowId ?? "") === key;
     }
 
     // ---------- many entries (§18.4) ----------
@@ -1425,6 +1476,9 @@ class SfTable extends TableElement {
         // row whose arrangement changes is drawn anew, and the focus that
         // brought the buttons in would leave with the old row.
         if (column.system || column.component || column.renderer === "link" || column.role === "title") return null;
+        // A status or a fact (C31) is the full renderer's: the dot with its
+        // word, the badge.
+        if (column.list === "status" || column.list === "fact") return null;
         if (this.isTree() || row.path || this.cellEditable(row, column)) return null;
         const value = row[key];
         if (value === null || typeof value === "undefined") return {kind: "empty"};
@@ -1454,11 +1508,22 @@ class SfTable extends TableElement {
     // box's click and its change event swallowed the change — one click on a
     // row was enough to lose a Shift-range selection. The field is read back by
     // the template, so a later render keeps the mark.
-    focusRow(rowId, {reveal = false} = {}) {
+    focusRow(rowId, {reveal = false, focus = true} = {}) {
         // The action focus-row {id} (component.json) answers an outcome.
         if (rowId && typeof rowId === "object") return this.focusRowAction(rowId);
         if (rowId == null || rowId === "") return this;
-        this._currentRowId = String(rowId);
+        this._cursorRowId = String(rowId);
+        // The list's rows: the item is marked, and the focus goes to its title
+        // link where it has one (the row's tab stop), else to the item.
+        if (this.isList) {
+            const selector = `.sf-table-list-item[data-row-id="${String(rowId).replace(/"/gu, '\\"')}"]`;
+            for (const marked of this.querySelectorAll(".sf-table-list-item[data-current]")) marked.removeAttribute("data-current");
+            const item = this.querySelector(selector);
+            item?.setAttribute("data-current", "");
+            if (reveal) item?.scrollIntoView?.({block: "nearest", behavior: "instant"});
+            if (focus) (item?.querySelector(".sf-table-title-link") ?? item)?.focus?.({preventScroll: true});
+            return this;
+        }
         const table = this.refs.table?.value;
         if (!table) return this;
         const selector = `tbody tr[data-row-id="${String(rowId).replace(/"/gu, '\\"')}"]`;
@@ -1497,6 +1562,9 @@ class SfTable extends TableElement {
 
     handleRowOpen(event, row) {
         if (this.isRowControlTarget(event?.target) || !this.canOpenRow(row)) return this;
+        // With row-open="row" the first click of a double click has opened
+        // the record already: the second is the same wish, not a second one.
+        if (event?.type === "dblclick" && this.getAttribute("row-open") === "row") return this;
         const id = row?.id;
         if (id == null) return this;
         return this.requestActionIntent("view", [id]);
@@ -1540,7 +1608,12 @@ class SfTable extends TableElement {
     }
 
     handleRowKeydown(event, row) {
-        if (event?.target !== event?.currentTarget) return this;
+        // In the list the row's title link is its tab stop: the arrows, Home
+        // and End move from it as from the row.
+        const fromTitle = event?.target !== event?.currentTarget
+            && event?.target?.matches?.(".sf-table-title-link")
+            && ["ArrowDown", "ArrowUp", "Home", "End"].includes(event?.key);
+        if (event?.target !== event?.currentTarget && !fromTitle) return this;
         // A treegrid row: the right arrow opens a closed node, the left arrow
         // closes an open one.
         if (row?.__tree?.hasChildren && (event.key === "ArrowRight" || event.key === "ArrowLeft")) {
@@ -2236,11 +2309,15 @@ class SfTable extends TableElement {
         const fields = Array.isArray(detail.data?.tags)
             ? []
             : Object.keys(detail.data?.tags || {}).filter((key) => detail.data.tags[key]?.active);
+        // With the layout switch the view's layout rides with it too (C31):
+        // a saved view opens as the list or the table it was saved as.
+        const layout = this.hasLayoutSwitch ? (this.chosenLayout || (this.isList ? "list" : "table")) : null;
         return {
             ...detail,
             settings: {
                 ...(detail.settings || {}),
                 filter_fields: fields.length ? fields : this.getActiveFilterFieldKeys(filter),
+                ...(layout ? {layout} : {}),
             },
         };
     }
@@ -2569,11 +2646,167 @@ class SfTable extends TableElement {
     // width of the box the table sits in, which is what a list beside an open
     // panel is narrow in, not the window.
     get isList() {
-        const layout = this.getProp?.("layout") ?? "table";
+        const layout = this.resolvedLayout;
         if (layout === "list") return true;
         if (layout === "table") return false;
+        return this.isNarrow;
+    }
+
+    // Whether the table's container is below list-below: a phone, or a list
+    // beside an open panel.
+    get isNarrow() {
         const below = Number(this.getProp?.("listBelow")) || 600;
         return this._responsiveWidth > 0 && this._responsiveWidth < below;
+    }
+
+    // The layout drawn (C31). Without the switch, the layout attribute. With
+    // it, the person's choice: a list is a list at every width, a table is a
+    // table while there is room for it and the list below list-below; with no
+    // choice yet, the attribute, where `table` is read as that same `auto`.
+    get resolvedLayout() {
+        const own = this.getProp?.("layout") ?? "table";
+        if (!this.hasLayoutSwitch) return own;
+        const chosen = this.chosenLayout;
+        if (chosen === "list") return "list";
+        if (chosen === "table") return "auto";
+        return own === "table" ? "auto" : own;
+    }
+
+    get hasLayoutSwitch() {
+        const value = this.getAttribute?.("layout-switch");
+        return value !== null && value !== undefined && value !== "false";
+    }
+
+    // Where the choice is kept: the table's view preference (preferences-key,
+    // else table-settings-key, else remember-widths' own key), else the page
+    // session.
+    get layoutPreferenceKey() {
+        return this.viewPreferenceKey || this.rememberedWidthsKey || "";
+    }
+
+    get chosenLayout() {
+        const key = this.layoutPreferenceKey;
+        const kept = key ? preferences()?.read(key)?.layout : this._sessionLayout;
+        return kept === "list" || kept === "table" ? kept : "";
+    }
+
+    // The switch's answer, and the action set-layout {layout}: kept for this
+    // person and drawn. A saved view that is opened brings its own (sf-view).
+    setLayoutChoice(layout, {emit = true} = {}) {
+        if (this.isActionParameters?.(layout, ["layout"])) layout = layout.layout;
+        if (layout !== "list" && layout !== "table") return {outcome: "refused", reason: "unknown-layout"};
+        if (layout === this.chosenLayout) return {outcome: "unchanged"};
+        const key = this.layoutPreferenceKey;
+        if (key) this.writeTablePreference(key, {layout});
+        else this._sessionLayout = layout;
+        this.applyTableView();
+        this.requestComponentUpdate("layout");
+        if (emit) this.emitTableEvent("layout-change", Object.freeze({layout}));
+        return {outcome: "applied"};
+    }
+
+    // The switch's two items, kept while the words are the same (a new array
+    // on every render would draw the switch again).
+    layoutSwitchItems() {
+        const list = this.text("layoutList");
+        const table = this.text("layoutTable");
+        if (this._layoutSwitchItems?.key !== `${list}|${table}`) {
+            this._layoutSwitchItems = {key: `${list}|${table}`, items: [
+                {value: "list", label: list, icon: "view_agenda", iconOnly: true},
+                {value: "table", label: table, icon: "table_rows", iconOnly: true},
+            ]};
+        }
+        return this._layoutSwitchItems.items;
+    }
+
+    // The action set-layout {layout}.
+    setLayout(layout) {
+        return this.setLayoutChoice(layout);
+    }
+
+    // ─── the list of resources (C31) ─────────────────────────────────────────
+    // A list row is a resource row when a column names its place in it
+    // (columns[].list: status, title, supporting, fact or hidden).
+    listRoles(columns = this.getColumns?.() ?? []) {
+        const roles = {status: null, title: null, supporting: [], facts: [], any: false};
+        for (const column of columns) {
+            const role = column?.list;
+            if (!column?.key || SYSTEM_COLUMN_KEYS.has(column.key) || column.system) continue;
+            if (!LIST_ROLES.has(role)) continue;
+            roles.any = true;
+            if (role === "status") roles.status ??= column;
+            else if (role === "title") roles.title ??= column;
+            else if (role === "supporting") roles.supporting.push(column);
+            else if (role === "fact") roles.facts.push(column);
+        }
+        return roles;
+    }
+
+    // The ids of the quick actions, in the order written, at most three.
+    get quickActionIds() {
+        const written = String(this.getAttribute?.("quick-actions") ?? "");
+        return [...new Set(written.split(/[\s,]+/u).filter(Boolean))].slice(0, MAX_QUICK_ACTIONS);
+    }
+
+    // A row's actions split for the list: the quick ones (as the row offers
+    // them) and the rest, which the «more» menu holds.
+    listRowActions(row) {
+        const items = this.rowActionItems(row).filter((item) => !Array.isArray(item?.members) || item.members.length);
+        const ids = this.quickActionIds;
+        const quick = ids.map((id) => items.find((item) => item?.id === id)).filter(Boolean);
+        const rest = items.filter((item) => !quick.includes(item));
+        return {quick, rest};
+    }
+
+    // The words of a value shown as text in the list: a link cell's text, a
+    // choice's label, a typed value formatted as its cell would be.
+    listText(column, value) {
+        if (value === null || value === undefined || value === "") return "";
+        if (Array.isArray(value)) return value.map((item) => this.listText(column, item)).filter(Boolean).join(", ");
+        if (typeof value === "object") {
+            const props = value.component?.props;
+            if (props) return String(props.text ?? props.label ?? "");
+            return String(value.label ?? value.text ?? value.value ?? "");
+        }
+        const option = Array.isArray(column?.options)
+            ? column.options.find((item) => String(item?.value) === String(value))
+            : null;
+        if (option) return String(option.label ?? option.value);
+        return String(this.cellText?.(column, value) ?? value);
+    }
+
+    // The state a status column gives a row: the dot's colour and its word.
+    // The value is ok, warning, error or stopped (or the dot's own names); an
+    // option of the column may name its `status` and its label.
+    listStatus(column, row) {
+        const raw = row?.[column?.key];
+        if (raw === null || raw === undefined || raw === "") return null;
+        const value = typeof raw === "object" ? (raw.value ?? raw.status ?? "") : raw;
+        const option = Array.isArray(column?.options)
+            ? column.options.find((item) => String(item?.value) === String(value))
+            : null;
+        const named = String(option?.status ?? (typeof raw === "object" ? raw.status : "") ?? "") || String(value);
+        const dot = STATUS_DOTS[named] ?? "neutral";
+        const word = (typeof raw === "object" ? raw.label ?? raw.text : null)
+            ?? option?.label
+            ?? (STATUS_WORDS[named] ? this.text(STATUS_WORDS[named]) : String(value));
+        return {dot, word: String(word), value: String(value)};
+    }
+
+    // A fact: its words, how worrying it is (0 fine, 1 warning, 2 error) and
+    // what it says on hover. A plain value is fine; an object or a badge
+    // component carries its status; an option of the column may name one.
+    listFact(column, row) {
+        const raw = row?.[column?.key];
+        if (raw === null || raw === undefined || raw === "") return null;
+        const props = typeof raw === "object" && !Array.isArray(raw) ? (raw.component?.props ?? raw) : null;
+        const option = !props && Array.isArray(column?.options)
+            ? column.options.find((item) => String(item?.value) === String(raw))
+            : null;
+        const status = String(props?.status ?? props?.level ?? option?.status ?? "").replace(/^danger$/u, "error");
+        const text = this.listText(column, raw);
+        if (!text) return null;
+        return {text, level: FACT_LEVELS[status] ?? 0, status: FACT_LEVELS[status] ? status : "", tip: String(props?.tip ?? props?.title ?? option?.tip ?? "")};
     }
 
     get actionsColumnWidth() {
@@ -3079,7 +3312,7 @@ class SfTable extends TableElement {
         const template = this.getSelectedFilterTemplate();
         return html`
             <sf-menu-context
-                    size=${this.size === "1/2" ? "1/2" : "1"}
+                    size=${this.controlSize ?? nothing}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'filter-favorites'})}
                     style="
@@ -3208,7 +3441,7 @@ class SfTable extends TableElement {
         }
         return html`
             <sf-menu-context
-                    size=${this.size === "1/2" ? "1/2" : "1"}
+                    size=${this.controlSize ?? nothing}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'row-settings'})}
                     style="
@@ -4413,7 +4646,7 @@ class SfTable extends TableElement {
         let contextItems = `${this.text('templatesTabText')}|${this.text('fieldsTabText')}`;
         return html`
             <sf-menu-context
-                    size=${this.size === "1/2" ? "1/2" : "1"}
+                    size=${this.controlSize ?? nothing}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'filter-settings'})}
                     style="
@@ -4564,7 +4797,7 @@ class SfTable extends TableElement {
         };
         return html`
             <sf-menu-context
-                    size=${this.size === "1/2" ? "1/2" : "1"}
+                    size=${this.controlSize ?? nothing}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'tag-settings'})}
                     style="
@@ -4699,7 +4932,7 @@ class SfTable extends TableElement {
         // them taught nobody anything.
         return html`
             <sf-menu-context
-                    size=${this.size === "1/2" ? "1/2" : "1"}
+                    size=${this.controlSize ?? nothing}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'table-settings'})}
                     style="
@@ -4845,7 +5078,7 @@ class SfTable extends TableElement {
         const isDefaultTemplate = (temp || template).default === true;
         return html`
             <sf-menu-context
-                    size=${this.size === "1/2" ? "1/2" : "1"}
+                    size=${this.controlSize ?? nothing}
                     :key=${`${template.key || ''}-${x}-${y}`}
                     aria-label=${this.getContextMenuLabel({...data, type: 'filter-template-actions'})}
                     style="
@@ -5275,6 +5508,8 @@ class SfTable extends TableElement {
                 this.setColumnSettings(host && typeof host === "object" && !Array.isArray(host) ? {...host} : {}, "preferences", false);
             }
             this.applyTableView();
+            // The layout chosen on another tab, or by the host's copy.
+            if (this.hasLayoutSwitch && this._renderedList !== undefined && this.isList !== this._renderedList) this.requestComponentUpdate("layout");
         });
         const general = preferences()?.subscribe(GENERAL_TABLE_PREFERENCE, () => this.applyTableView());
         this._preferenceUnsubscribe = () => { own?.(); general?.(); };
@@ -6380,8 +6615,7 @@ class SfTable extends TableElement {
         }
         if (typeof element.template !== "function") return this.renderSmartElement(type, props);
         for (const name of [...element.getAttributeNames()]) element.removeAttribute(name);
-        const size = this.size !== "1" && String(props.size) === "1" ? this.size : props.size;
-        for (const [key, value] of Object.entries({...props, ...(size !== undefined ? {size} : {})})) {
+        for (const [key, value] of Object.entries(this.relativeSize(props))) {
             if (value === undefined || value === null || value === false) continue;
             const attribute = key.replace(/[A-Z]/gu, (letter) => `-${letter.toLowerCase()}`);
             if (typeof value === "object" || typeof value === "function") element[key] = value;
@@ -6399,15 +6633,28 @@ class SfTable extends TableElement {
     // under its current tag.
     renderSmartElement(type, props = {}) {
         type = canonicalTag(`sf-${String(type ?? "").replace(/^sf-/u, "")}`);
-        const size = this.size;
-        if (size !== "1" && props && String(props.size) === "1") {
-            return super.renderSmartElement(type, {...props, size});
-        }
-        return super.renderSmartElement(type, props);
+        return super.renderSmartElement(type, this.relativeSize(props));
     }
 
     get size() {
         return this.getEnumAttr("size", ["1/2", "1"], "1");
+    }
+
+    // The size a control inside is written with (C22): the host's own when it
+    // has one, none when it has not. A control written at size 1 in a host
+    // without a size stayed 40 under compact page density, where the page's
+    // own controls were 32 (Larena, 2026-11-10).
+    get controlSize() {
+        const size = this.getAttribute("size");
+        return size === "1/2" || size === "1" ? size : null;
+    }
+
+    // A control a column or an action names at size 1 is "this table's
+    // size": the host's size when it has one, otherwise no size at all.
+    relativeSize(props) {
+        if (!props || String(props.size) !== "1") return props;
+        const {size: _size, ...rest} = props;
+        return this.controlSize ? {...rest, size: this.controlSize} : rest;
     }
 
     getSelectColumn() {
@@ -6650,7 +6897,7 @@ class SfTable extends TableElement {
     // of the host's row_actions is a real submenu rather than a second menu
     // swapped in over the first. What a choice does is unchanged -- an intent
     // for the row, or the action's own handler where it has one.
-    async openRowMenu(event, row = {}) {
+    async openRowMenu(event, row = {}, only = null) {
         const anchor = event?.currentTarget?.querySelector?.("button")
             ?? event?.target?.closest?.("button")
             ?? event?.currentTarget;
@@ -6658,7 +6905,8 @@ class SfTable extends TableElement {
         const selection = Array.isArray(row.actions) && row.actions.every((item) => typeof item === "string")
             ? row.actions
             : null;
-        const items = this.getActionRowItems(row);
+        // The list's «more» menu holds the actions its row does not show.
+        const items = Array.isArray(only) ? only : this.getActionRowItems(row);
         const iconOf = (action) => action?.icon ?? action?.component?.props?.icon ?? undefined;
         const entries = items.map((action) => (Array.isArray(action.members)
             ? {
@@ -7311,7 +7559,18 @@ class SfTable extends TableElement {
         return this.createTemplateContext({
             ...props,
             component: this,
-            list: this.isList,
+            list: this._renderedList = this.isList,
+            // The list's toolbar is the compact one, unless the person chose
+            // the list on a container wide enough for the table's toolbar and
+            // its layout switch (C31).
+            compactToolbar: this._renderedList && !(this.hasLayoutSwitch && !this.isNarrow),
+            layoutSwitch: this.hasLayoutSwitch && !this.isNarrow,
+            shownLayout: this._renderedList ? "list" : "table",
+            quickActionIds: this.quickActionIds,
+            // The size the controls inside are written with: the host's own,
+            // or none, so a host without a size keeps its controls relative
+            // and page density moves them (C22).
+            controlSize: this.controlSize,
             rootClass: this.getRootClass(),
             rootStyle: this.getRootStyle(),
             filterText: this.text("filterText", "filter-text"),

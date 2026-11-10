@@ -186,8 +186,8 @@ test('the count port is additive, and the versions before it are untouched', asy
   // tree, 1.9.0 lets a node name its icon, and 1.10.0 makes create and column
   // settings capabilities a host announces. 1.3.0 keeps the count as it
   // was published.
-  assert.equal(declared.version, '1.14.0');
-  assert.deepEqual(declared.supported_versions, ['1.0.0', '1.1.0', '1.2.0', '1.3.0', '1.4.0', '1.5.0', '1.6.0', '1.7.0', '1.8.0', '1.9.0', '1.10.0', '1.11.0', '1.12.0', '1.13.0', '1.14.0']);
+  assert.equal(declared.version, '1.15.0');
+  assert.deepEqual(declared.supported_versions, ['1.0.0', '1.1.0', '1.2.0', '1.3.0', '1.4.0', '1.5.0', '1.6.0', '1.7.0', '1.8.0', '1.9.0', '1.10.0', '1.11.0', '1.12.0', '1.13.0', '1.14.0', '1.15.0']);
   assert.ok(manifest.events['sf-pagination-count'], 'the composite announces the event the intent is raised by');
   const earlier = await json('src/core/contracts/ports/simai.dataview-port/1.2.0/port.json');
   assert.equal(earlier.version, '1.2.0', 'the published version keeps its number');
