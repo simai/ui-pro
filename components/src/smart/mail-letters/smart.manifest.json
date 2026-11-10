@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-letters",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "title": "Emails",
   "summary": "Every letter a person has in SIMAI Email Editor: a search by name, an order, and what each row offers -- «Открыть» and, under ⋯, a copy, a rename and a delete. The moment and the block count are worded in the page's language. The element holds no letter and stores nothing; it says what the person chose.",
   "kind": "smart",
@@ -413,7 +413,7 @@
       },
       {
         "path": "src/smart/mail-letters/component.json",
-        "sha256": "8aa21dd4ffac7eeb70b13b0d02ee8863e21e19eb031e5567d264c7edb1289b6d"
+        "sha256": "c7a987b915392365ce3ecc7d1186332da833e492dbe770c250176eddcb0fd047"
       },
       {
         "path": "src/smart/mail-letters/lang/en.json",
