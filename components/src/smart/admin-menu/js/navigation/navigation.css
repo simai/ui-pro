@@ -199,17 +199,26 @@
     cursor: pointer;
   }
 
+  /* The pointer lays the state family of the alpha scale over a row (4 hover,
+     12 press), as SIMAI Framework's navigation menu does (component.menu,
+     C23): the fill family's hover (container-hover, 20) sat as close to the
+     current page's plate as a second plate. */
   .sf-admin-nav-row:hover {
-    background-color: var(--sf-surface-container-hover);
+    background-color: var(--sf-surface-state-hover);
   }
 
-  /* A root whose column is open in the second panel keeps its fill: which
+  .sf-admin-nav-row:active {
+    background-color: var(--sf-surface-state-active);
+  }
+
+  /* A root whose column is open in the second panel: the neutral select plate
+     of the alpha scale (8), never a colour, so open and current cannot look
+     alike -- the Framework's open branch of a header row (C30, R060). Which
      root the second column shows is the two-panel menu's question (C24,
-     deferred by C29), not the current page's. */
+     deferred by C29); the plate only says which column is shown. */
   .sf-admin-nav-row[data-open="true"] {
-    background-color: var(--sf-secondary-container);
-    color: var(--sf-on-secondary-container);
-    --sf-icon--color: var(--sf-on-secondary-container);
+    background-color: var(--sf-surface-state-select);
+    --sf-surface-underlay: var(--sf-surface-place-solid);
   }
 
   /* The current page (C23, owner 2026-11-09), as SIMAI Framework's navigation
@@ -222,6 +231,9 @@
     background-color: var(--sf-primary-container-active);
     color: var(--sf-on-primary-container);
     --sf-icon--color: var(--sf-on-primary-container);
+    /* A translucent fill: a tonal badge on it lays its tone over the solid
+       place, not over the plate (C43, core mix sf-place-fill). */
+    --sf-surface-underlay: var(--sf-surface-place-solid);
   }
 
   .sf-admin-nav-row[data-current="true"] :is(.sf-admin-nav-row-icon, .sf-admin-nav-row-chevron) {
@@ -233,40 +245,46 @@
   }
 
   /* Where a row has no plate but leads to the current page -- a root of the
-     first column or the rail whose rows hold it, a section of the second
-     column folded over it -- a bar of primary, 3 by 16 (a3 by icon size 1),
-     stands at the row's inline start, flush with it, its free end rounded
-     (C23). An unfolded section is not filled and has no bar: its rows show
-     the current page. A bar is never on a plate. */
-  .sf-admin-nav-row[data-holds-current="true"]:not([data-current]) {
+     first column whose rows hold it, a section of the second column folded
+     over it -- it takes the path mark of SIMAI Framework's navigation menu
+     (C30 amended 2026-11-09, R065 a; component.menu 1.5): a medium label and
+     no bar, since neither column has a border at its start for a line to lie
+     on. The 3 by 16 bar (C23) is retired. In the rail a row is an icon alone,
+     so it takes the path's 2px primary line on the rail's own start edge, as
+     tall as the row, its inner corners rounded, and no weight (C30 amended,
+     DEV answer b), as sf-menu's compact rail does. An unfolded section has
+     no mark: its rows show the current page. */
+  .sf-admin-nav-row[data-holds-current="true"]:not([data-current]) .sf-admin-nav-row-label {
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  .sf-admin-nav-first[data-compact="true"] .sf-admin-nav-row[data-holds-current="true"]:not([data-current]) {
     position: relative;
   }
 
-  .sf-admin-nav-row[data-holds-current="true"]:not([data-current])::before {
+  .sf-admin-nav-first[data-compact="true"] .sf-admin-nav-row[data-holds-current="true"]:not([data-current])::before {
     content: '';
     position: absolute;
-    inset-block-start: 50%;
-    inset-inline-start: var(--sf-0);
-    inline-size: var(--sf-a3);
-    block-size: var(--sf-icon-size-1);
-    translate: 0 -50%;
+    inset-block: var(--sf-0);
+    inset-inline-start: calc(-1 * var(--sf-admin-menu-padding, var(--sf-a4)));
+    inline-size: var(--sf-a2);
     border-start-start-radius: var(--sf-0);
     border-end-start-radius: var(--sf-0);
-    border-start-end-radius: var(--sf-radius--ui);
-    border-end-end-radius: var(--sf-radius--ui);
+    border-start-end-radius: var(--sf-a2);
+    border-end-end-radius: var(--sf-a2);
     background-color: var(--sf-primary);
     pointer-events: none;
   }
 
   /* Forced colours drop the plate: the current page keeps a frame of the
-     system's text colour, and the bar the system's highlight. */
+     system's text colour, and the rail's line the system's highlight. */
   @media (forced-colors: active) {
     .sf-admin-nav-row[data-current="true"] {
       outline: var(--sf-px) solid CanvasText;
       outline-offset: calc(-1 * var(--sf-px));
     }
 
-    .sf-admin-nav-row[data-holds-current="true"]:not([data-current])::before {
+    .sf-admin-nav-first[data-compact="true"] .sf-admin-nav-row[data-holds-current="true"]:not([data-current])::before {
       forced-color-adjust: none;
       background-color: Highlight;
     }
@@ -293,9 +311,11 @@
     --sf-icon--color: var(--sf-on-surface-variant);
   }
 
+  /* At rest a row's label is regular: the medium label is the second cue of
+     the current page and of a row on its path, besides the colour (C23). */
   .sf-admin-nav-row-label {
     flex: 1 1 auto;
-    font-weight: var(--sf-font-weight-medium);
+    font-weight: var(--sf-font-weight-regular);
     min-inline-size: 0;
     overflow-wrap: anywhere;
   }
@@ -350,13 +370,11 @@
   /* In the rail a row's counter sits on its icon (simai/ui-source#12): the
      icon is wrapped in the Framework's .sf-badge-anchor and the badge sheet
      places the count; it stood at the row's corner before, beside the icon. The
-     rail's surface is surface-1, so that is the ring round the count. */
+     rail's surface is surface-1, so that is the ring round the count;
+     the open row's select plate is a translucent 8 over it and keeps that
+     ring. */
   .sf-admin-nav-first {
     --sf-badge--surface: var(--sf-surface-1);
-  }
-
-  .sf-admin-nav-row[data-open="true"] {
-    --sf-badge--surface: var(--sf-secondary-container);
   }
 
   .sf-admin-nav-row[data-current="true"] {
@@ -454,7 +472,11 @@
   }
 
   .sf-admin-nav-site-trigger:not(:disabled):hover {
-    background-color: var(--sf-surface-container-hover);
+    background-color: var(--sf-surface-state-hover);
+  }
+
+  .sf-admin-nav-site-trigger:not(:disabled):active {
+    background-color: var(--sf-surface-state-active);
   }
 
   .sf-admin-nav-site-trigger:disabled {
@@ -555,7 +577,11 @@
   }
 
   .sf-admin-nav-action:hover {
-    background-color: var(--sf-surface-container-hover);
+    background-color: var(--sf-surface-state-hover);
+  }
+
+  .sf-admin-nav-action:active {
+    background-color: var(--sf-surface-state-active);
   }
 
   /* ─── favourites, bottom, foot ──────────────────────────────────────────── */
@@ -612,9 +638,17 @@
     cursor: pointer;
   }
 
-  .sf-admin-nav-person:hover,
+  .sf-admin-nav-person:hover {
+    background-color: var(--sf-surface-state-hover);
+  }
+
+  .sf-admin-nav-person:active {
+    background-color: var(--sf-surface-state-active);
+  }
+
+  /* Its menu open: the neutral select plate, as an open root (C30). */
   .sf-admin-nav-person[aria-expanded="true"] {
-    background-color: var(--sf-surface-container-hover);
+    background-color: var(--sf-surface-state-select);
   }
 
   .sf-admin-nav-person:focus-visible {
@@ -969,7 +1003,7 @@
   }
 
   .sf-admin-nav-edit-row:hover {
-    background-color: var(--sf-surface-container-hover);
+    background-color: var(--sf-surface-state-hover);
   }
 
   /* Hidden in this profile: drawn, so it can be brought back, but plainly
@@ -1040,7 +1074,11 @@
   }
 
   .sf-admin-nav-edit-button:hover {
-    background-color: var(--sf-surface-container-hover);
+    background-color: var(--sf-surface-state-hover);
+  }
+
+  .sf-admin-nav-edit-button:active {
+    background-color: var(--sf-surface-state-active);
   }
 
   .sf-admin-nav-edit-button:focus-visible,
