@@ -45,7 +45,7 @@ function renderConfigureBar(context) {
     const writable = context.editableLayers ?? [];
     const chooser = html`
         <sf-profile-picker
-                size=${context.size}
+                size=${context.controlSize ?? nothing}
                 data-action="view-profile"
                 label=${context.viewProfileLabel}
                 current=${context.viewProfile ?? ''}
@@ -72,7 +72,7 @@ function renderConfigureBar(context) {
                         <span class="sf-property-view-reset-ask color-error">${context.resetViewAskText}</span>
                         <sf-button
                                 appearance="ghost"
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 status="danger"
                                 text=${context.resetViewText}
                                 data-action="reset-view-confirm"
@@ -80,7 +80,7 @@ function renderConfigureBar(context) {
                         ></sf-button>
                         <sf-button
                                 appearance="outline"
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 text=${context.cancelConfiguringText}
                                 data-action="reset-view-cancel"
                                 @click=${() => context.component.cancelReset()}
@@ -92,21 +92,21 @@ function renderConfigureBar(context) {
                              mode was entered with; done keeps what is there. -->
                         <sf-button
                                 appearance="ghost"
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 text=${context.resetViewText}
                                 data-action="reset-view"
                                 @click=${() => context.component.askReset()}
                         ></sf-button>
                         <sf-button
                                 appearance="outline"
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 text=${context.cancelConfiguringText}
                                 data-action="cancel-configuring"
                                 @click=${() => context.component.cancelConfiguringView()}
                         ></sf-button>
                         <sf-button
                                 appearance="default"
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 text=${context.doneConfiguringText}
                                 data-action="done-configuring"
                                 @click=${() => context.component.stopConfiguringView()}
@@ -599,7 +599,7 @@ function renderGroup(context, section, group) {
                         ? html`
                             <sf-button
                                     appearance="ghost"
-                                    size=${context.size}
+                                    size=${context.controlSize ?? nothing}
                                     text=${context.editText}
                                     data-action="edit"
                                     @click=${() => context.component.editGroup(String(section.key ?? ''), groupKey)}
@@ -652,7 +652,7 @@ function renderPhoneSectionHead(context) {
     return html`
         <div class="sf-property-view-phone-head flex items-cross-center gap-2">
             <sf-button-icon
-                    size=${context.size}
+                    size=${context.controlSize ?? nothing}
                     appearance="ghost"
                     icon="arrow_back"
                     data-action="phone-back"
@@ -783,7 +783,7 @@ function renderSectionTabs(context, sections) {
     return html`
         <sf-tabs
                 class="sf-property-view-tabs"
-                size=${context.size}
+                size=${context.controlSize ?? nothing}
                 active-index=${String(at)}
                 aria-label=${context.sectionsLabel}
                 items=${sections.map((section) => tabLabel(context, section)).join('|')}
@@ -821,14 +821,14 @@ function renderConfirmation(context) {
             <span class="grow"></span>
             <sf-button
                     appearance="default"
-                    size=${context.size}
+                    size=${context.controlSize ?? nothing}
                     text=${context.confirmSaveText}
                     data-action="confirm-save"
                     @click=${() => context.component.confirmSave()}
             ></sf-button>
             <sf-button
                     appearance="outline"
-                    size=${context.size}
+                    size=${context.controlSize ?? nothing}
                     text=${context.keepEditingText}
                     data-action="keep-editing"
                     @click=${() => context.component.cancelConfirmation()}
@@ -846,7 +846,7 @@ function renderOpenAllBar(context) {
         <div class="sf-property-view-actions flex items-cross-center gap-2 flex-wrap" role="group">
             <sf-button
                     appearance="default"
-                    size=${context.size}
+                    size=${context.controlSize ?? nothing}
                     text=${creating ? context.createText : context.saveText}
                     data-action=${creating ? 'create' : 'save'}
                     ?disabled=${(!creating && context.changed.size === 0) || context.inputsInvalid}
@@ -854,7 +854,7 @@ function renderOpenAllBar(context) {
             ></sf-button>
             <sf-button
                     appearance="outline"
-                    size=${context.size}
+                    size=${context.controlSize ?? nothing}
                     text=${context.cancelText}
                     data-action="cancel"
                     @click=${() => context.component.cancelEdit()}
@@ -893,7 +893,7 @@ function renderActions(context, {panel = false} = {}) {
                     ? html`
                         <sf-button
                                 appearance="default"
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 text=${context.saveText}
                                 data-action="save"
                                 ?disabled=${context.changed.size === 0 || context.inputsInvalid}
@@ -901,7 +901,7 @@ function renderActions(context, {panel = false} = {}) {
                         ></sf-button>
                         <sf-button
                                 appearance="outline"
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 text=${context.cancelText}
                                 data-action="cancel"
                                 @click=${() => context.component.cancelEdit()}
@@ -920,7 +920,7 @@ function renderActions(context, {panel = false} = {}) {
                         <sf-button-icon
                                 appearance="ghost"
                                 status="danger"
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 icon="delete"
                                 data-action="delete"
                                 title=${context.deleteText}
@@ -1048,7 +1048,7 @@ function renderMenuControl(context) {
         <sf-button-icon
                 appearance="ghost"
                 scheme="on-surface"
-                size=${context.size}
+                size=${context.controlSize ?? nothing}
                 icon="more_horiz"
                 data-action="menu"
                 aria-haspopup="menu"
@@ -1075,7 +1075,7 @@ function renderPanelHead(context) {
                      review, 2026-10-28). -->
                 ${context.recordId && context.mode !== 'create' ? html`<sf-button-icon
                         appearance="ghost"
-                        size=${context.size}
+                        size=${context.controlSize ?? nothing}
                         icon="star"
                         ?filled=${context.favourite}
                         data-action="favourite"
@@ -1119,7 +1119,7 @@ function renderPanelControls(context) {
                     appearance="tonal"
                     scheme="on-surface"
                     root-style=${EDGE_SURFACE}
-                    size=${context.size}
+                    size=${context.controlSize ?? nothing}
                     icon="close"
                     data-action="close"
                     aria-label=${context.closeLabel}
@@ -1131,7 +1131,7 @@ function renderPanelControls(context) {
                         <sf-button-copy
                                 appearance="tonal"
                                 root-style=${EDGE_SURFACE}
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 icon="link"
                                 value=${context.addressUrl}
                                 label=${context.copyLinkLabel}
@@ -1149,7 +1149,7 @@ function renderPanelControls(context) {
                                 appearance="tonal"
                                 scheme="on-surface"
                                 root-style=${EDGE_SURFACE}
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 icon="open_in_full"
                                 aria-label=${context.openFullLabel}
                                 title=${context.openFullLabel}
@@ -1380,7 +1380,7 @@ function renderArrangementAdditions(context, section) {
             <sf-button
                     appearance="outline"
                     scheme="on-surface"
-                    size=${context.size}
+                    size=${context.controlSize ?? nothing}
                     text=${context.addGroupText}
                     data-action="add-group"
                     @click=${() => context.component.addGroup(section ? String(section.key) : '')}

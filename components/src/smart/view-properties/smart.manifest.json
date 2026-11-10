@@ -1625,11 +1625,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-properties/index.js",
-        "sha256": "6aff7f544146598195d2d3ef67e9e6a4cc5abc53dc9a6ed08218e757cd695bbe"
+        "sha256": "6d5d01b4bc168dcde94091531e0d50d9df47f3e0efe1b62bb9954a09d90a1c52"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
-        "sha256": "1680e2ca1b48955f6a11d17518bf9f95e9f2883cd2a76580fe6afc6c0c35898f"
+        "sha256": "737883a29aa0d85eb2e4753248bab856e5ff390db92f4b423d8017acd888d744"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.css",
