@@ -17,6 +17,12 @@ const styles = [
   'component/component/badges/css/badges.css',
   'component/component/inputs/css/inputs.css',
   'component/component/context-menu/css/context-menu.css',
+  // The icons sheet: on a page with no Loader it is what draws an icon as one
+  // glyph (ui-source ea3a53ca, core.css holds icons at 0 only where the Loader
+  // runs). Without it a menu row's icon and chevron drew their names as text
+  // (view_sidebar 88px, chevron_right 91px) and cut «Профиль меню» in a 320px
+  // menu that a real page draws whole.
+  'component/component/icons/css/icons.css',
   'smart/smart/admin-menu/css/admin-menu.css',
   'smart/smart/resizer/css/resizer.css',
   'smart/smart/profile-picker/css/profile-picker.css',
