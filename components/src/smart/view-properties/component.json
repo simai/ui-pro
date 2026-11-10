@@ -2,7 +2,7 @@
   "$comment": "sf-property-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/property-view; every x-todo decided in x-decisions.",
   "id": "smart.view-properties",
   "tag": "sf-view-properties",
-  "version": "1.13.2",
+  "version": "1.13.3",
   "kind": "leaf",
   "family": "record",
   "implements": [
@@ -1735,6 +1735,13 @@
           "changes": [
             "The loading skeleton's strip of section tabs takes the box sf-tabs takes (simai/ui-pro#3): a tab's height (the control height of the view's size, --sf-ui-1--control-height, at 1/2 --sf-ui-1/2--control-height), the tabs' hairline (.sf-tabs-top-container) and their empty panel (.sf-tabs-main-container), from the tabs' own sheet. It was one text line, so with sections-as tabs the record moved down by 49px at size 1 (41px at 1/2) when it came; now the first group stands where the skeleton drew it. skeleton.html prints the same markup (data-size from size). Nothing to change for a host.",
             "The arranging bar's section title reads rung 1 of the text ladder (--sf-text--size-1, --sf-text--height-1), 16/24 at sizes 1 and 1/2: what it drew while it named --sf-title-small, a role the Framework has no token for (measured before and after, both themes, three loads). Nothing changes on the page."
+          ]
+        },
+        {
+          "from": "1.13.2",
+          "to": "1.13.3",
+          "changes": [
+            "The controls the panel draws (the open-all bar, the group and section buttons, the section tabs, the profile picker, the edge controls) carry the panel's size when it has one and none when it has not (decision C22), as sf-view and sf-view-table do since view 1.6.0, so page density moves them: under compact density a panel with no size draws them at 32, size 1 keeps 40. `size` still chooses the panel's own type steps (1/2 or 1). Made in ui-pro ahead of simai/ui-view (2026-11-10); the view set releases the same change. Nothing to change for a host."
           ]
         }
       ]

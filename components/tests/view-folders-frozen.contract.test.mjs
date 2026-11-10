@@ -41,10 +41,10 @@ const FROZEN = {
 // controls it draws only when the host has one, as sf-view and sf-view-table do
 // since view 1.6.0; with size 1 written on them they stayed 40 under compact
 // density beside the page's 32. Dispatcher order 2026-11-10 (pro over
-// ui-a0370c0c99fb); the patch for simai/ui-view is
+// ui-a0370c0c99fb); the patch for simai/ui-view (index.js, the template, component.json) is
 // ui-control control/evidence/2026-11-10-pro-next-1110/view-properties-c22.patch.
 const PATCHED = {
-  'view-properties': {tree: '539efddb51da9fc88d11b8f0e1ed883461eb5faa', patch: 'C22 control size (2026-11-10)'},
+  'view-properties': {tree: '660b9268c96af4a120e7c35c2b207d9e3d8090fc', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
