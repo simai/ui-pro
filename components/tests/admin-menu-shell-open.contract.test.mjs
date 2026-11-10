@@ -12,13 +12,18 @@ test('the profile menu and the site switcher open as wide as their button', asyn
   // ellipsis; in the narrow rail, where the button is a picture, they are as
   // wide as their lines. The f8 floor every menu here had is gone.
   const account = await read('src/smart/admin-menu/js/navigation/account.js');
-  assert.match(account, /width: controller\.compact \? "content" : "trigger",/u);
+  // The person menu is the profile picker's panel (C32 "panel", DEV 2026-11-10).
+  assert.match(account, /width: controller\.compact \? "content" : "panel",/u);
   const controller = await read('src/smart/admin-menu/js/navigation/controller.js');
   assert.match(controller, /width: this\.compact \? "content" : "trigger",/u);
   const menu = await read('src/smart/admin-menu/js/navigation/menu.js');
-  // At least the button's width, wider when a line needs it (2026-10-14).
-  assert.match(menu, /menu\.style\.setProperty\("--sf-context-menu--min-inline-size", `\$\{Math\.round\(anchor\.getBoundingClientRect\(\)\.width\)\}px`\)/u);
-  assert.match(menu, /menu\.openFor\(anchor, \{side, align, width: "content"\}\)/u);
+  // At least the button's width, wider when a line needs it (2026-10-14):
+  // since the pair with decision C32 (sf-menu-context 1.14.0) that is the
+  // Framework's "list" width, and the navigation writes no floor of its own.
+  assert.match(menu, /const OPEN_WIDTH = \{trigger: "list", panel: "panel"\};/u);
+  assert.match(menu, /menu\.openFor\(anchor, \{side, align, width: OPEN_WIDTH\[width\] \?\? "content"\}\)/u);
+  assert.doesNotMatch(menu, /setProperty\("--sf-context-menu--min-inline-size"/u);
+  assert.match(menu, /menu\.style\.removeProperty\("--sf-context-menu--min-inline-size"\)/u);
   const styles = await read('src/smart/admin-menu/js/navigation/navigation.css');
   assert.doesNotMatch(styles, /--sf-context-menu--min-inline-size: var\(--sf-f8\)/u);
 });

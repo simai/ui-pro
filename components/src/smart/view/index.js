@@ -15,6 +15,7 @@ import {elementFromManifest} from "../../core/js/element-manifest";
 // its former tag beside its own (it is not a Smart base element).
 import {defineTagAliases, isTag, tagSelector} from "../../core/js/smart-base";
 import {installAliases} from "../../core/js/aliases.js";
+import {noteDeprecated} from "../../core/js/deprecations.js";
 import {answerActions, settingSetters} from "../view-table/js/manifest-actions.js";
 import manifest from "./component.json";
 import aliases from "./aliases.json";
@@ -106,7 +107,7 @@ function projectColumn(column) {
     return projected;
 }
 
-const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0"];
+const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0", "1.15.0"];
 
 // Creating a record and saving personal column settings became capabilities in
 // port 1.10.0. A host that declares an earlier version was offered both without
@@ -175,6 +176,9 @@ const preferences = () => globalThis.SF?.Preferences || BundledPreferences;
 // The stored key keeps the former tag's spelling: it names what a person has
 // already saved (SF.Preferences, a host's store), not the element.
 const viewPreferenceKey = (key) => `sf-table/${String(key).replace(/[^\w.:-]+/gu, "-")}`;
+// The list of resources (owner decision C31): what the view passes to its
+// table, and the columns' places in a list row.
+const LIST_ATTRIBUTES = ["layout", "layout-switch", "list-below", "quick-actions", "row-open", "list-roles"];
 
 function hasValue(value) {
     if (value === null || value === undefined || value === "" || value === false) return false;
@@ -843,6 +847,23 @@ class SfDataView extends DataViewElement {
         this.append(skeleton);
     }
 
+    // The layout the data will draw (C31): the host's on its table, else the
+    // view's, else auto for a page's list; with the switch, the person's
+    // choice -- a list is a list, a table is a table only where there is room
+    // (auto), as the table resolves it.
+    _firstPaintLayout(table) {
+        const written = table?.getAttribute?.("data-sf-host-layout") || table?.getAttribute?.("layout") || this.getAttribute?.("layout");
+        const own = ["auto", "table", "list"].includes(written) ? written : (this.renders("toolbar") ? "auto" : "table");
+        const value = this.getAttribute?.("layout-switch");
+        const switched = value !== null && value !== undefined && value !== "false" && this.renders("toolbar");
+        if (!switched) return own;
+        const key = this.preferencesKey;
+        const chosen = key ? preferences()?.read(key)?.layout : null;
+        if (chosen === "list") return "list";
+        if (chosen === "table") return "auto";
+        return own === "table" ? "auto" : own;
+    }
+
     // The skeleton's markup, kept small (it is printed in every page that
     // shows the view): a bar is an <i class="sf-skeleton-text">, a control
     // block one marked data-control; the lengths and the bars' widths are the
@@ -858,7 +879,7 @@ class SfDataView extends DataViewElement {
         const ownToolbar = Boolean(table) && this.renders("toolbar") && Boolean(this.querySelector(':scope > [slot="toolbar"]'));
         const select = this.renders("select") && !hostWroteOff(table, "selectable");
         const settings = this.renders("settings") && !hostWroteOff(table, "settings");
-        const layout = table?.getAttribute("layout") || (this.renders("toolbar") ? "auto" : "table");
+        const layout = this._firstPaintLayout(table);
         skeleton.setAttribute("data-layout", ["auto", "table", "list"].includes(layout) ? layout : "table");
         const columns = this.expectedColumns;
         const rows = this.firstPaintRows;
@@ -1011,8 +1032,18 @@ class SfDataView extends DataViewElement {
         return this.getAttribute("size") === "1/2" ? "1/2" : "1";
     }
 
+    // The size written on the controls the view makes and on its table: the
+    // view's own when it has one, none when it has not, so page density moves
+    // them with the page (C22). A table given size 1 by a view without one
+    // stayed 40 under compact density, beside the page's 32 (Larena,
+    // 2026-11-10).
+    get controlSize() {
+        const size = this.getAttribute("size");
+        return size === "1/2" || size === "1" ? size : null;
+    }
+
     static get observedAttributes() {
-        return ["chrome", "row-cap", "aria-label", "size", "preferences-key", ...LABEL_ATTRIBUTES];
+        return ["chrome", "row-cap", "aria-label", "size", "preferences-key", ...LIST_ATTRIBUTES, ...LABEL_ATTRIBUTES];
     }
 
     // The words of the table and the pagination the view draws itself, written
@@ -1502,11 +1533,11 @@ class SfDataView extends DataViewElement {
             band.innerHTML = `
                 <span class="sf-pagination-actions-count" data-sf-bulk="count"></span>
                 <span class="sf-pagination-actions-separator" aria-hidden="true"></span>
-                <sf-dropdown data-sf-bulk="actions" size="1" appearance="outlined" search="false" mode="select"></sf-dropdown>
-                <sf-button data-sf-bulk="apply" size="1" appearance="default" scheme="primary"></sf-button>
+                <sf-dropdown data-sf-bulk="actions" appearance="outlined" search="false" mode="select"></sf-dropdown>
+                <sf-button data-sf-bulk="apply" appearance="default" scheme="primary"></sf-button>
                 <span class="sf-pagination-actions-separator" aria-hidden="true" data-sf-bulk="for-all-separator"></span>
                 <sf-checkbox data-sf-bulk="for-all"></sf-checkbox>
-                <sf-button-icon data-sf-bulk="clear" class="sf-pagination-actions-clear" size="1" appearance="ghost" scheme="on-surface" icon="close"></sf-button-icon>`;
+                <sf-button-icon data-sf-bulk="clear" class="sf-pagination-actions-clear" appearance="ghost" scheme="on-surface" icon="close"></sf-button-icon>`;
             band.querySelector('[data-sf-bulk="apply"]')
                 .addEventListener("click", () => this.applyBulkAction());
             band.querySelector('[data-sf-bulk="actions"]')
@@ -1518,16 +1549,16 @@ class SfDataView extends DataViewElement {
         }
         for (const node of band.querySelectorAll("[data-sf-bulk]")) {
             parts[node.dataset.sfBulk] = node;
-            if (node.localName.startsWith("sf-")) chosen(node, "size", this.size);
+            if (node.localName.startsWith("sf-")) chosen(node, "size", this.controlSize);
         }
         parts.count.textContent = `${pagination.selectedLabel} ${selected.length}`;
         chosen(parts.actions, "value", action);
         chosen(parts.actions, "placeholder", pagination.actionChooseLabel);
         chosen(parts.actions, "aria-label", pagination.actionsLabel);
         parts.actions.options = [
-            {type: "text", size: this.size, text: pagination.actionChooseLabel, value: "", selected: !action},
+            {type: "text", size: this.controlSize ?? undefined, text: pagination.actionChooseLabel, value: "", selected: !action},
             ...actions.map((item) => ({
-                type: "text", size: this.size, text: item.text, value: item.value,
+                type: "text", size: this.controlSize ?? undefined, text: item.text, value: item.value,
                 selected: item.value === action, disabled: Boolean(item.disabled),
             })),
         ];
@@ -1920,7 +1951,8 @@ class SfDataView extends DataViewElement {
         // false value by removing the attribute — and a removed `bottom` means
         // the default, which is to draw the band.
         this.pagination?.setAttribute?.("bottom", "false");
-        this.pagination?.setAttribute?.("size", this.size);
+        if (this.controlSize) this.pagination?.setAttribute?.("size", this.controlSize);
+        else this.pagination?.removeAttribute?.("size");
         this._forwardLabels();
         const table = this.table;
         if (table) {
@@ -1952,10 +1984,19 @@ class SfDataView extends DataViewElement {
             if (!table.hasAttribute?.("data-sf-host-layout")) {
                 table.setAttribute("data-sf-host-layout", table.getAttribute?.("layout") ?? "");
             }
+            // The view's own layout is passed on (owner decision C31): a page's
+            // list is auto unless the view says list or table; an embedded one
+            // stays a table unless the view says otherwise.
             if (!table.getAttribute?.("data-sf-host-layout")) {
-                table.setAttribute("layout", this.renders("toolbar") ? "auto" : "table");
+                const own = this.getAttribute("layout");
+                table.setAttribute("layout", ["auto", "table", "list"].includes(own) ? own : (this.renders("toolbar") ? "auto" : "table"));
             }
-            table.setAttribute("size", this.size);
+            // The list of resources (C31): the switch (where there is a
+            // toolbar to hold it), the threshold, the quick actions and what a
+            // press on a row opens go to the table as the view has them.
+            this._forwardListSettings(table, refused);
+            if (this.controlSize) table.setAttribute("size", this.controlSize);
+            else table.removeAttribute?.("size");
             this._tableScrollMode(table);
             table.setAttribute("settings", this.renders("settings") && !hostWroteOff(table, "settings") ? "true" : "false");
             // The column settings, without the column: it also carries each
@@ -2064,7 +2105,7 @@ class SfDataView extends DataViewElement {
             // no host to ask. Only the formatting is read from it -- the table
             // raises its intents as it always has and the view re-raises them.
             table.cellHost = this.hostPort ?? null;
-            table.setColumns?.(this.columns);
+            table.setColumns?.(this._listColumns(this.columns));
             if (Array.isArray(this.appended)) {
                 // Appending leaves the rows already on screen untouched, so a
                 // row that was checked stays checked: the checkbox state lives
@@ -2140,7 +2181,7 @@ class SfDataView extends DataViewElement {
                 button = document.createElement("sf-button");
                 button.setAttribute("data-show-all", "");
                 button.setAttribute("appearance", "link");
-                button.setAttribute("size", "1");
+                if (this.controlSize) button.setAttribute("size", this.controlSize);
                 band.append(button);
             }
             button.setAttribute("text", pageText(DATA_VIEW_TEXT, "showAll", this));
@@ -2181,7 +2222,9 @@ class SfDataView extends DataViewElement {
         return this._raise(level === "shared" ? "view.save_shared" : "view.save", {
             key, label, revision, query: copy(this.query),
             roles: copy(roles ?? {}), layout: copy(layout ?? {columns: this.columns}),
-            settings: copy(settings ?? this.columnSettings ?? {}),
+            // With the layout switch the view's list or table rides with it (C31).
+            settings: copy(settings ?? {...(this.columnSettings ?? {}),
+                ...(this.table?.hasLayoutSwitch && this.table.chosenLayout ? {layout: this.table.chosenLayout} : {})}),
             ...(level === "shared" ? {target: "shared"} : {}),
         });
     }
@@ -2206,7 +2249,56 @@ class SfDataView extends DataViewElement {
         if (Array.isArray(fields)) {
             this.table?.setActiveFilterFields?.(fields.filter((item) => typeof item === "string"));
         }
+        // The list or the table it was saved as (C31), for this person now.
+        const layout = view.settings?.layout;
+        if ((layout === "list" || layout === "table") && this.table?.hasLayoutSwitch) {
+            this.table.setLayoutChoice?.(layout, {emit: false});
+        }
         return this;
+    }
+
+    // The settings of the list of resources the view passes to its table
+    // (C31). layout-switch only where the table draws its toolbar; a refused
+    // list offers no switch either.
+    _forwardListSettings(table, refused = false) {
+        if (!table?.setAttribute) return;
+        this._listForwarded ??= new Set();
+        for (const name of LIST_ATTRIBUTES) {
+            if (name === "layout" || name === "list-roles") continue;
+            let value = this.getAttribute(name);
+            if (name === "layout-switch" && value !== null && (value === "false" || refused || !this.renders("toolbar"))) value = null;
+            if (value === null) {
+                if (this._listForwarded.delete(name)) table.removeAttribute(name);
+                continue;
+            }
+            table.setAttribute(name, value);
+            this._listForwarded.add(name);
+        }
+    }
+
+    // The columns with their places in a list row (columns[].list, C31):
+    // the host's own -- simai.dataview-port 1.15.0 carries columns[].list,
+    // passed on as the port sent it -- else what list-roles on the view names
+    // ("state:status, name:title, domain:supporting, ssl:fact"). list-roles
+    // is a dated alias of the port field until 2027-01-01 (aliases.json),
+    // noted in SF.deprecations once per view.
+    _listColumns(columns = []) {
+        const written = String(this.getAttribute("list-roles") ?? "").trim();
+        if (!written) return columns;
+        if (!this._listRolesNoted) {
+            this._listRolesNoted = true;
+            noteDeprecated({component: "sf-view", tag: "sf-view", kind: "attribute", attribute: "list-roles",
+                from: "list-roles", to: "columns[].list", since: "2026-11-10", remove_after: "2027-01-01"});
+        }
+        const roles = new Map(written.split(/[\s,]+/u).filter(Boolean).map((pair) => pair.split(":").map((part) => part.trim())));
+        if (this._listRolesKey !== written || this._listRolesFrom !== columns) {
+            this._listRolesKey = written;
+            this._listRolesFrom = columns;
+            this._listRolesColumns = columns.map((column) => (column?.list || !roles.has(column?.key)
+                ? column
+                : {...column, list: roles.get(column.key)}));
+        }
+        return this._listRolesColumns;
     }
     saveColumnSettings(columnSettings, {shared = false, base_revision} = {}) {
         const layer = shared ? "shared" : "personal";

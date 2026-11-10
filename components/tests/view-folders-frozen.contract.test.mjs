@@ -2,9 +2,9 @@
 // the duplicate-shipping window).
 //
 // sf-view, sf-view-table and sf-view-properties moved to the view set: their
-// source is simai/ui-view, released as view-aea031ba718b (@simai-studio/view
-// 1.5.1, ui-view tag view-aea031ba718b, package/src/smart/<folder>; earlier
-// releases view-99763f547560, view-99c8dd1585fd, view-4d7070623fe1, view-9c963d217188, view-f529c2354b0d and
+// source is simai/ui-view, released as view-23ed2acf30d7 (@simai-studio/view
+// 1.6.0, ui-view tag view-23ed2acf30d7, package/src/smart/<folder>; earlier
+// releases view-aea031ba718b, view-99763f547560, view-99c8dd1585fd, view-4d7070623fe1, view-9c963d217188, view-f529c2354b0d and
 // view-cd0d82aeb756; view-a79198bb298c was prepared, never published). Until the next pro bundle takes them from that
 // release, ui-pro still ships its own copies of the three folders, and they
 // must stay the release's tree exactly: a change made here would ship in pro
@@ -26,12 +26,25 @@ import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
 
-// view-aea031ba718b: `git -C ui-view rev-parse view-aea031ba718b:package/src/smart/<folder>`.
-const RELEASE = 'view-aea031ba718b';
+// view-23ed2acf30d7: `git -C ui-view rev-parse view-23ed2acf30d7:package/src/smart/<folder>`.
+const RELEASE = 'view-23ed2acf30d7';
 const FROZEN = {
-  'view': '26e7552067ad84c8cacfa186909a09d98c63ada7',
-  'view-table': 'e9347e3e1174a026e7d15e03e6c47e4c0d0a13b2',
+  'view': '559ece8cef89443ee9e7d8c2124bef71b2ddb038',
+  'view-table': '24bc7fb6eff2ecfeca56b3efc41946176e22a39c',
   'view-properties': '59c2eaf203e1c5067ba81c7694934536d072805c',
+};
+
+// A change made here ahead of the view set: one folder, one named patch. The
+// folder must be the release's tree with exactly that patch, and simai/ui-view
+// releases the same change before the next take (the take then drops the entry
+// here). sf-view-properties: decision C22 -- the panel writes a size on the
+// controls it draws only when the host has one, as sf-view and sf-view-table do
+// since view 1.6.0; with size 1 written on them they stayed 40 under compact
+// density beside the page's 32. Dispatcher order 2026-11-10 (pro over
+// ui-a0370c0c99fb); the patch for simai/ui-view (index.js, the template, component.json) is
+// ui-control control/evidence/2026-11-10-pro-next-1110/view-properties-c22.patch.
+const PATCHED = {
+  'view-properties': {tree: '660b9268c96af4a120e7c35c2b207d9e3d8090fc', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
@@ -61,11 +74,13 @@ const treeOf = (directory) => {
   return object('tree', body);
 };
 
-for (const [folder, expected] of Object.entries(FROZEN)) {
-  test(`src/smart/${folder} is the view release ${RELEASE}, unchanged`, () => {
+for (const [folder, released] of Object.entries(FROZEN)) {
+  const patched = PATCHED[folder];
+  const expected = patched?.tree ?? released;
+  test(`src/smart/${folder} is the view release ${RELEASE}${patched ? ` with the patch ${patched.patch}` : ', unchanged'}`, () => {
     const actual = treeOf(join(root, 'src', 'smart', folder)).toString('hex');
     assert.equal(actual, expected,
-      `src/smart/${folder} differs from the view set release ${RELEASE} (tree ${expected}). `
+      `src/smart/${folder} differs from the view set release ${RELEASE} (tree ${expected}${patched ? `, the release ${released} with the patch ${patched.patch}` : ''}). `
       + 'The view folders are frozen in ui-pro: changes to sf-view, sf-view-table and sf-view-properties go to '
       + 'simai/ui-view (package/src/smart), are released there, and come into pro with the next view release. '
       + 'Revert the change here and make it in simai/ui-view.');

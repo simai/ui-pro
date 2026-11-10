@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.13.2",
+  "version": "1.13.3",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1616,6 +1616,13 @@
           "The loading skeleton's strip of section tabs takes the box sf-tabs takes (simai/ui-pro#3): a tab's height (the control height of the view's size, --sf-ui-1--control-height, at 1/2 --sf-ui-1/2--control-height), the tabs' hairline (.sf-tabs-top-container) and their empty panel (.sf-tabs-main-container), from the tabs' own sheet. It was one text line, so with sections-as tabs the record moved down by 49px at size 1 (41px at 1/2) when it came; now the first group stands where the skeleton drew it. skeleton.html prints the same markup (data-size from size). Nothing to change for a host.",
           "The arranging bar's section title reads rung 1 of the text ladder (--sf-text--size-1, --sf-text--height-1), 16/24 at sizes 1 and 1/2: what it drew while it named --sf-title-small, a role the Framework has no token for (measured before and after, both themes, three loads). Nothing changes on the page."
         ]
+      },
+      {
+        "from": "1.13.2",
+        "to": "1.13.3",
+        "changes": [
+          "The controls the panel draws (the open-all bar, the group and section buttons, the section tabs, the profile picker, the edge controls) carry the panel's size when it has one and none when it has not (decision C22), as sf-view and sf-view-table do since view 1.6.0, so page density moves them: under compact density a panel with no size draws them at 32, size 1 keeps 40. `size` still chooses the panel's own type steps (1/2 or 1). Made in ui-pro ahead of simai/ui-view (2026-11-10); the view set releases the same change. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1625,11 +1632,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-properties/index.js",
-        "sha256": "6aff7f544146598195d2d3ef67e9e6a4cc5abc53dc9a6ed08218e757cd695bbe"
+        "sha256": "6d5d01b4bc168dcde94091531e0d50d9df47f3e0efe1b62bb9954a09d90a1c52"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
-        "sha256": "1680e2ca1b48955f6a11d17518bf9f95e9f2883cd2a76580fe6afc6c0c35898f"
+        "sha256": "737883a29aa0d85eb2e4753248bab856e5ff390db92f4b423d8017acd888d744"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.css",

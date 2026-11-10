@@ -13,25 +13,33 @@ const template = readFileSync(new URL('../src/smart/view-table/js/templates/defa
 const css = readFileSync(new URL('../src/smart/view-table/js/templates/default.css', import.meta.url), 'utf8');
 const view = readFileSync(new URL('../src/smart/view/index.js', import.meta.url), 'utf8');
 
-const override = table.slice(table.indexOf('    renderSmartElement(type, props = {}) {'), table.indexOf('    get size() {'));
+// The override and the two members it reads (controlSize, relativeSize):
+// the slice runs from renderSmartElement to the end of relativeSize.
+const from = table.indexOf('    renderSmartElement(type, props = {}) {');
+const to = table.indexOf('\n    }\n', table.indexOf('    relativeSize(props) {')) + 7;
+const override = table.slice(from, to).replace(/\n    get size\(\) \{[\s\S]*?\n    \}\n/u, '\n');
 // The override names a former tag by its current one (canonicalTag of the
 // Smart base); here every tag is current.
 const context = vm.createContext({canonicalTag: (tag) => tag});
 vm.runInContext(`class Base { renderSmartElement(type, props) { return props; } }
 class Table extends Base { ${override} }
 this.Table = Table;`, context);
-const drawn = (step, props) => {
+const drawn = (attribute, props) => {
   const element = new context.Table();
-  Object.defineProperty(element, 'size', {value: step});
+  element.getAttribute = (name) => (name === 'size' ? attribute : null);
   return element.renderSmartElement('button', props);
 };
 
-test('a size of 1 becomes the table step; a size of its own or none is kept', () => {
+test('a size of 1 becomes the host\'s size, or none without one; a size of its own is kept', () => {
   assert.equal(drawn('1/2', {size: '1'}).size, '1/2');
   assert.equal(drawn('1/2', {size: 1}).size, '1/2', 'a number counts');
   assert.equal(drawn('1/2', {size: '1/3'}).size, '1/3');
   assert.equal(drawn('1/2', {}).size, undefined, 'a badge keeps its own default');
   assert.equal(drawn('1', {size: '1'}).size, '1');
+  // C22 (Larena, 2026-11-10): a host without a size leaves its controls
+  // relative, so page density moves them.
+  assert.equal('size' in drawn(null, {size: '1'}), false, 'no size without a host size');
+  assert.equal(drawn(null, {size: '1/3'}).size, '1/3');
 });
 
 test('the table writes its step on what it draws and its rows follow', () => {
@@ -40,9 +48,10 @@ test('the table writes its step on what it draws and its rows follow', () => {
   assert.match(css, /:is\(sf-view-table, sf-table\)\[size="1\/2"\][^{]*\{\s*padding-block: var\(--sf-ui-1\\\/2--space-y\);/u);
 });
 
-test('the data view hands its step to the table, the page row and the band', () => {
-  assert.match(view, /table\.setAttribute\("size", this\.size\)/u);
-  assert.match(view, /this\.pagination\?\.setAttribute\?\.\("size", this\.size\)/u);
-  assert.match(view, /if \(node\.localName\.startsWith\("sf-"\)\) chosen\(node, "size", this\.size\)/u);
+test('the data view hands its own size to the table, the page row and the band, and none without one', () => {
+  assert.match(view, /if \(this\.controlSize\) table\.setAttribute\("size", this\.controlSize\);\s*else table\.removeAttribute\?\.\("size"\);/u);
+  assert.match(view, /if \(this\.controlSize\) this\.pagination\?\.setAttribute\?\.\("size", this\.controlSize\);\s*else this\.pagination\?\.removeAttribute\?\.\("size"\);/u);
+  assert.match(view, /if \(node\.localName\.startsWith\("sf-"\)\) chosen\(node, "size", this\.controlSize\)/u);
+  assert.doesNotMatch(view, /\bsize="1"/u, 'no control the view makes is fixed at 1');
   assert.match(view, /"chrome", "row-cap", "aria-label", "size"/u);
 });

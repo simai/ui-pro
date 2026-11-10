@@ -42,7 +42,7 @@ function renderListToolbar(context) {
              data-sf-filter-tags="${active.length ? '1' : '0'}">
             <div class="flex items-cross-center gap-1/3 min-w-0">
                 <sf-input
-                        size=${context.size}
+                        size=${context.controlSize ?? nothing}
                         root-class="sf-search-input flex-1 min-w-0"
                         appearance="bordered"
                         value="${value}"
@@ -56,7 +56,7 @@ function renderListToolbar(context) {
                 ></sf-input>
                 ${context.component.offersFilter(active.length) ? html`<span class="sf-table-list-filter">
                     <sf-button-icon
-                            size=${context.size}
+                            size=${context.controlSize ?? nothing}
                             appearance=${active.length ? 'default' : 'outline'}
                             scheme="primary"
                             icon="filter_list"
@@ -69,7 +69,7 @@ function renderListToolbar(context) {
                 </span>` : nothing}
                 ${context.component.getColumns().some((column) => column?.sortable && !column.system) ? html`
                     <sf-button-icon
-                            size=${context.size}
+                            size=${context.controlSize ?? nothing}
                             appearance=${state.sort?.key ? 'default' : 'outline'}
                             scheme=${state.sort?.key ? 'primary' : 'on-surface'}
                             icon="swap_vert"
@@ -79,7 +79,7 @@ function renderListToolbar(context) {
                     ></sf-button-icon>` : nothing}
                 ${context.actions && context.creatable ? html`
                     <sf-button-icon
-                            size=${context.size}
+                            size=${context.controlSize ?? nothing}
                             appearance="outline"
                             scheme="on-surface"
                             icon="add"
@@ -95,13 +95,13 @@ function renderListToolbar(context) {
                         const filterValue = filterValues?.[k] || {};
                         const count = Array.isArray(filterValue.values) ? filterValue.values.length : tag.count || '';
                         return html`
-                            <sf-tag type="default" size=${context.size} text='${tag.label}' interactive closable :key=${k}
+                            <sf-tag type="default" size=${context.controlSize ?? nothing} text='${tag.label}' interactive closable :key=${k}
                                     root-class="active" count='${count}'
                                     @close="${() => context.component.removeFilterTag(k)}"
                                     @click=${(e) => context.component.openContextMenu(e, {type: 'bottom', menu: 'tag-settings', fieldKey: k, anchorSelector: '.sf-tag'})}
                             ></sf-tag>`;
                     })}
-                    <sf-button size=${context.size} appearance="ghost" scheme="on-surface" text=${context.clearText}
+                    <sf-button size=${context.controlSize ?? nothing} appearance="ghost" scheme="on-surface" text=${context.clearText}
                                @click="${() => context.component.removeFilterTag()}"></sf-button>
                 </div>` : nothing}
         </div>
@@ -126,7 +126,7 @@ function renderToolbar(context) {
             <div class="sf-table-toolbar-start flex items-cross-center gap-1/3 flex-wrap min-w-0">
                 ${context.component.offersFilter(activeFilterTags.length) ? html`<div class="flex items-cross-center">
                     <sf-button
-                            size=${context.size}
+                            size=${context.controlSize ?? nothing}
                             appearance="default"
                             scheme="primary"
                             text=${context.filterText}
@@ -141,7 +141,7 @@ function renderToolbar(context) {
                     ></sf-button>
                     ${context.filterTemplates ? html`
                     <sf-button-icon
-                            size=${context.size}
+                            size=${context.controlSize ?? nothing}
                             appearance="default"
                             scheme="primary"
                             aria-label="Сохранить шаблон фильтра"
@@ -171,7 +171,7 @@ function renderToolbar(context) {
                         <div class="sf-table-tags">
                             <sf-tag
                                     type="default"
-                                    size=${context.size}
+                                    size=${context.controlSize ?? nothing}
                                     text='${tag.label}'
                                     interactive
                                     closable
@@ -195,7 +195,7 @@ function renderToolbar(context) {
                 ${activeFilterTags.length || hasUnsavedFilterDataChanges ? html`
                     ${hasUnsavedFilterDataChanges ? html`
                         <sf-button
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 appearance="default"
                                 scheme="primary"
                                 text="Сохранить"
@@ -204,7 +204,7 @@ function renderToolbar(context) {
                     ` : nothing}
                     ${activeFilterTags.length ? html`
                         <sf-button
-                                size=${context.size}
+                                size=${context.controlSize ?? nothing}
                                 appearance="outline"
                                 scheme="on-surface"
                                 text=${context.clearText}
@@ -216,7 +216,7 @@ function renderToolbar(context) {
 
             <div class="sf-table-toolbar-end flex items-cross-center gap-1/3 flex-wrap flex-auto min-w-0">
                 <sf-input
-                        size=${context.size}
+                        size=${context.controlSize ?? nothing}
                         root-class="sf-search-input m-inline-start-auto"
                         appearance="bordered"
                         value="${value}"
@@ -237,7 +237,7 @@ function renderToolbar(context) {
                 >
           <span slot="right">
                 <sf-button-icon
-                        size=${context.size}
+                        size=${context.controlSize ?? nothing}
                         appearance="ghost"
                         scheme="on-surface"
                         icon=${value.length ? 'close' : 'search'}
@@ -255,11 +255,21 @@ function renderToolbar(context) {
           </span>
                 </sf-input>
 
+                ${context.layoutSwitch ? html`
+                    <sf-segmented class="sf-table-layout-switch" size=${context.controlSize ?? nothing}
+                            aria-label=${context.component.text('layoutSwitchLabel')}
+                            value=${context.shownLayout}
+                            .items=${context.component.layoutSwitchItems()}
+                            @change=${(e) => {
+                                const chosen = e.detail?.value;
+                                if (chosen === 'list' || chosen === 'table') context.component.setLayoutChoice(chosen);
+                            }}></sf-segmented>` : nothing}
+
                 ${context.actions && context.creatable
                         ? html`
                             <div class="flex items-cross-center">
                                 <sf-button
-                                        size=${context.size}
+                                        size=${context.controlSize ?? nothing}
                                         appearance="outline"
                                         scheme="on-surface"
                                         text=${context.createText}
@@ -268,7 +278,7 @@ function renderToolbar(context) {
                                 ></sf-button>
                                 ${state.createItems?.length ? html`
                                     <sf-button-icon
-                                            size=${context.size}
+                                            size=${context.controlSize ?? nothing}
                                             appearance="outline"
                                             scheme="primary"
                                             segment="end"
@@ -294,7 +304,7 @@ function renderToolbar(context) {
                 ${context.settings && state.toolbarActions?.length
                         ? html`
                             <sf-button-icon
-                                    size=${context.size}
+                                    size=${context.controlSize ?? nothing}
                                     appearance="outline"
                                     scheme="primary"
                                     icon="more_vert"
@@ -760,6 +770,8 @@ export function renderTableTemplate(context) {
         }
         const select = columns.find((column) => column.key === 'select');
         const menu = columns.find((column) => column.key === 'settings');
+        const roles = context.component.listRoles?.(columns);
+        if (roles?.any) return renderResourceList(columns, rows, dataState, roles, select, menu);
         const data = columns.filter((column) => column?.key && !['select', 'settings', 'actions'].includes(column.key)
             && !column.system && column.visible !== false);
         const title = data.find((column) => column.role === 'title') ?? data[0];
@@ -788,7 +800,8 @@ export function renderTableTemplate(context) {
                         <li class="sf-table-list-item"
                             data-row-id=${context.component.getRowKey(row, rowIndex)}
                             data-selected=${row.select?.component?.props?.checked === true ? '' : nothing}
-                            data-current=${context.component.isCurrentRow(row, rowIndex) ? '' : nothing}
+                            data-current=${context.component.isCursorRow(row, rowIndex) ? '' : nothing}
+                            aria-current=${context.component.isCurrentRow(row, rowIndex) ? 'true' : nothing}
                             aria-level=${row.__tree ? String(row.__tree.level + 1) : nothing}
                             aria-expanded=${row.__tree?.hasChildren ? String(row.__tree.expanded === true) : nothing}
                             tabindex="-1"
@@ -810,9 +823,148 @@ export function renderTableTemplate(context) {
                                             </span>`)}
                                     </div>` : nothing}
                             </div>
-                            ${menu ? html`<span class="sf-table-list-menu">${renderCellValue(row, menu)}</span>` : nothing}
+                            ${context.quickActionIds?.length
+                                ? renderListActions(row, menu)
+                                : menu ? html`<span class="sf-table-list-menu">${renderCellValue(row, menu)}</span>` : nothing}
                         </li>`))}
             </ul>`;
+    }
+
+    // ─── the list of resources (owner decision C31) ─────────────────────────
+    // A row is the status dot, the title over a supporting line («domain ·
+    // kind»), the facts as badges without labels in columns of one width,
+    // and the quick actions with the «more» menu. The roles are the columns'
+    // (columns[].list); a column without one is the record panel's.
+    function renderResourceList(columns, rows, dataState, roles, select, menu) {
+        const component = context.component;
+        const visible = (column) => column && column.visible !== false;
+        const status = visible(roles.status) ? roles.status : null;
+        const data = columns.filter((column) => column?.key && !['select', 'settings', 'actions'].includes(column.key) && !column.system);
+        const title = roles.title ?? data.find((column) => column.role === 'title' && column.list !== 'hidden')
+            ?? data.find((column) => !column.list) ?? data[0];
+        const supporting = roles.supporting.filter(visible);
+        const facts = roles.facts.filter(visible);
+        const opensRow = component.getAttribute('row-open') === 'row';
+        const titleOf = (row) => {
+            const text = component.listText(title, row[title?.key]);
+            return title?.role === 'title' || roles.title || opensRow
+                ? renderTitleLink(context, row, text)
+                : text;
+        };
+        return html`
+            <ul class="sf-table-list sf-table-list--resource" role="list" aria-label=${context.ariaLabel || nothing}
+                aria-busy=${dataState === 'loading' ? 'true' : nothing}
+                style=${`--sf-table-resource--actions: ${Math.max(1, (context.quickActionIds?.length ?? 0) + (menu ? 1 : 0))}`}>
+                ${rows.map((row, rowIndex) => {
+                    if (row.__tree?.more) return keyed(`item:${row.id}`, html`
+                        <li class="sf-table-list-more" style=${`--sf-table-tree--level: ${row.__tree.level}`}>
+                            <sf-button appearance="ghost" size="1/2" text=${component.text('treeMore')}
+                                       @click=${() => component.requestTreeMore(row)}></sf-button>
+                        </li>`);
+                    const state = status ? component.listStatus(status, row) : null;
+                    const shown = facts.map((column) => ({column, fact: component.listFact(column, row)}));
+                    // The most worrying fact, the one a narrow list keeps.
+                    const worst = shown.reduce((found, item) => ((item.fact?.level ?? 0) > (found?.fact?.level ?? 0) ? item : found), null);
+                    const words = supporting.map((column) => component.listText(column, row[column.key])).filter(Boolean);
+                    const lead = state?.dot === 'neutral' ? state.word : '';
+                    return keyed(`item:${component.rowsGeneration?.() ?? 0}:${row.id ?? rowIndex}`, html`
+                        <li class="sf-table-list-item sf-table-resource"
+                            data-row-id=${component.getRowKey(row, rowIndex)}
+                            data-selected=${row.select?.component?.props?.checked === true ? '' : nothing}
+                            data-current=${component.isCursorRow(row, rowIndex) ? '' : nothing}
+                            aria-current=${component.isCurrentRow(row, rowIndex) ? 'true' : nothing}
+                            data-status=${state?.dot ?? nothing}
+                            data-open=${opensRow && component.canOpenRow?.(row) ? 'row' : nothing}
+                            aria-level=${row.__tree ? String(row.__tree.level + 1) : nothing}
+                            aria-expanded=${row.__tree?.hasChildren ? String(row.__tree.expanded === true) : nothing}
+                            tabindex="-1"
+                            @mousedown=${(event) => component.handleRowPointerDown(event)}
+                            @click=${(event) => component.handleRowClick(event, row, rowIndex)}
+                            @dblclick=${(event) => component.handleRowOpen(event, row)}
+                            @keydown=${(event) => component.handleRowKeydown(event, row)}>
+                            ${select ? html`<span class="sf-table-list-select">${renderCellValue(row, select)}</span>` : nothing}
+                            ${status ? html`<span class="sf-table-resource-status">${state ? tooltip(html`
+                                <span class="sf-dot sf-dot--${state.dot}" data-tooltip="" data-status=${state.value}>
+                                    <span class="sf-dot-item"></span>
+                                    <span class="sf-table-visually-hidden">${state.word}</span>
+                                </span>`, state.word) : nothing}</span>` : nothing}
+                            <span class="sf-table-resource-main">
+                                <span class="sf-table-resource-title">${title
+                                    ? (row.__tree || row.path ? renderTreeCell(context, row, titleOf(row)) : titleOf(row))
+                                    : nothing}</span>
+                                ${lead || words.length ? html`<span class="sf-table-resource-supporting">${lead
+                                    ? html`<span class="sf-table-resource-lead">${lead}</span>${words.length ? ' · ' : ''}`
+                                    : nothing}${words.join(' · ')}</span>` : nothing}
+                            </span>
+                            ${facts.length ? html`<span class="sf-table-resource-facts">${shown.map(({column, fact}) => html`
+                                <span class="sf-table-resource-fact" data-worst=${fact && worst?.column === column && fact.level > 0 ? '' : nothing}>${fact
+                                    ? renderFact(column, fact)
+                                    : nothing}</span>`)}</span>` : nothing}
+                            ${renderListActions(row, menu)}
+                        </li>`);
+                })}
+            </ul>`;
+    }
+
+    // A fact: a badge without its column's label, which a screen reader
+    // still hears; quiet when all is well, warning or error when not.
+    function renderFact(column, fact) {
+        return html`<span class="sf-table-visually-hidden">${column.label ?? column.key}: </span>${renderFactBadge(fact)}`;
+    }
+
+    // The badge of a fact, in a list row and in a table cell alike.
+    function renderFactBadge(fact) {
+        const size = context.size === '1/2' ? '1/3' : '1/2';
+        const badge = html`<sf-badge size=${size} appearance="tonal"
+                scheme=${fact.status ? nothing : 'neutral'} status=${fact.status || nothing}
+                text=${fact.text} data-tooltip=${fact.tip ? '' : nothing}></sf-badge>`;
+        return fact.tip ? tooltip(badge, fact.tip) : badge;
+    }
+
+    // The Framework's tooltip: the trigger and its surface in one anchor
+    // (component tooltip), shown on hover and on keyboard focus.
+    function tooltip(trigger, text) {
+        return html`<span class="sf-tooltip-anchor">${trigger}<span class="sf-tooltip sf-tooltip--dark sf-tooltip--size-1/3 sf-tooltip--arrow-bottom-center" hidden><span class="sf-tooltip-content"><span class="sf-tooltip-text">${text}</span></span></span></span>`;
+    }
+
+    // A list row's actions (C31): up to three quick ones as icon buttons,
+    // always shown, then «more» (more_horiz) with the rest -- and, on a
+    // narrow list, the quick ones too: the sheet folds them away, and the
+    // menu asks it what is shown.
+    function renderListActions(row, menu) {
+        const component = context.component;
+        // The rest is the row menu's, and a table without its menu column
+        // (settings="false") has none: then only the quick ones are drawn.
+        const split = component.listRowActions(row);
+        const quick = split.quick;
+        const rest = menu ? split.rest : [];
+        if (!quick.length && !rest.length) return nothing;
+        const size = context.size === '1/2' ? '1/2' : '1';
+        const button = 'sf-icon-button sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface-variant flex items-cross-center';
+        const iconOf = (action) => action?.icon ?? action?.component?.props?.icon ?? '';
+        const press = (action) => (event) => {
+            event.stopPropagation();
+            const handler = action?.component?.props?.['@click'] ?? action?.component?.props?.onClick;
+            if (typeof handler === 'function') handler(event);
+            else component.requestActionIntent(action.id, [row.id]);
+        };
+        return html`<span class="sf-table-resource-actions" data-only-quick=${rest.length ? nothing : ''}>
+            ${quick.length ? html`<span class="sf-table-resource-quick">${quick.map((action) => (iconOf(action)
+                ? tooltip(html`<button type="button" class=${`${button} sf-icon-button--size-${size}`} data-tooltip=""
+                        data-quick-action=${action.id} aria-label=${action.name ?? action.id}
+                        @click=${press(action)}><i class="sf-icon" aria-hidden="true">${iconOf(action)}</i></button>`, action.name ?? action.id)
+                : html`<sf-button size=${size} appearance="ghost" scheme="on-surface-variant" data-quick-action=${action.id}
+                        text=${action.name ?? action.id} @click=${press(action)}></sf-button>`))}</span>` : nothing}
+            <button type="button" class=${`${button} sf-icon-button--size-${size} sf-table-resource-more`}
+                    aria-label=${component.text('moreActionsLabel')} aria-haspopup="menu" data-sf-row-menu
+                    @click=${(event) => {
+                        event.stopPropagation();
+                        const item = event.currentTarget.closest('.sf-table-resource-actions');
+                        const box = item?.querySelector('.sf-table-resource-quick');
+                        const folded = Boolean(box) && getComputedStyle(box).display === 'none';
+                        component.openRowMenu(event, row, folded ? [...quick, ...rest] : rest);
+                    }}><i class="sf-icon" aria-hidden="true">more_horiz</i></button>
+        </span>`;
     }
 
     // The title opens its record with one click (owner, 2026-10-14): the
@@ -868,6 +1020,7 @@ export function renderTableTemplate(context) {
         const renderRow = (row, at) => {
             const index = at + offset;
             const current = component.isCurrentRow(row, index);
+            const cursor = component.isCursorRow(row, index);
             const kinds = [];
             const values = [
                 row.select?.component?.props?.checked === true ? '' : nothing,
@@ -879,7 +1032,7 @@ export function renderTableTemplate(context) {
                 row.__tree?.loading ? 'true' : nothing,
                 slice ? String(index + 2) : nothing,
                 component.getRowKey(row, index),
-                current ? '' : nothing,
+                cursor ? '' : nothing,
                 current ? 'true' : nothing,
                 component.rowPointerDown,
                 (event) => component.handleRowClick(event, row, index),
@@ -1010,6 +1163,22 @@ export function renderTableTemplate(context) {
             if (!built) value = context.component.rowActionItems(row);
         }
 
+
+        // A column with a list role (C31) draws its value the same way in a
+        // table cell as in a list row: a status is the dot with its word, a
+        // fact the badge, quiet or warning/error. Without this, the switch to
+        // «Таблица» showed a status's raw value (ok, stopped) and dropped a
+        // fact given as {text, status, tip} altogether.
+        if (column.list === 'status') {
+            const state = context.component.listStatus(column, row);
+            return state ? html`<span class="sf-table-status flex items-cross-center gap-1/3" data-status=${state.dot}>
+                <span class="sf-dot sf-dot--${state.dot}" aria-hidden="true"><span class="sf-dot-item"></span></span>
+                <span>${state.word}</span></span>` : nothing;
+        }
+        if (column.list === 'fact') {
+            const fact = context.component.listFact(column, row);
+            return fact ? renderFactBadge(fact) : nothing;
+        }
 
         // A boolean the host lets this person write is a checkbox in the cell;
         // it is disabled while the host answers.
@@ -1155,7 +1324,7 @@ export function renderTableTemplate(context) {
                 data-state=${resolvedDataState(context)}
                 aria-busy=${resolvedDataState(context) === 'loading' ? 'true' : nothing}
         >
-            ${context.toolbar ? (context.list ? renderListToolbar(context) : renderToolbar(context)) : nothing}
+            ${context.toolbar ? (context.compactToolbar ? renderListToolbar(context) : renderToolbar(context)) : nothing}
             ${context.component.renderBulkActions()}
 
             <div class="table-wrap min-w-0 max-w-full flex flex-col flex-1 min-h-0">
@@ -1167,7 +1336,7 @@ export function renderTableTemplate(context) {
                     ${resolvedDataState(context) === 'loading' && (context.component.getTableData()?.rows?.length ?? 0) > 0
                         ? html`
                             <div class="sf-table-busy" role="status">
-                                <sf-spinner size=${context.size} label="" aria-label=${context.loadingText}></sf-spinner>
+                                <sf-spinner size=${context.controlSize ?? nothing} label="" aria-label=${context.loadingText}></sf-spinner>
                             </div>
                         `
                         : nothing}

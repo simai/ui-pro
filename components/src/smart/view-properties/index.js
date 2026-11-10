@@ -556,6 +556,16 @@ class SfPropertyView extends PropertyViewElement {
         return this.getAttribute("size") === "1/2" ? "1/2" : "1";
     }
 
+    // The size written on the controls the panel draws: the host's own when it
+    // has one, none when it has not, so page density moves them with the page
+    // (C22), as sf-view and sf-view-table do since view 1.6.0. With size 1
+    // written on them they stayed 40 under compact density beside the page's
+    // 32. `size` still chooses the panel's own type steps (1/2 or 1).
+    get controlSize() {
+        const size = this.getAttribute("size");
+        return size === "1/2" || size === "1" ? size : null;
+    }
+
     get mode() {
         const value = this.getAttribute("mode");
         return MODES.includes(value) ? value : "auto";
@@ -1449,6 +1459,7 @@ class SfPropertyView extends PropertyViewElement {
             hostPort: this.hostPort,
             viewHost: this.viewHost,
             size: this.size,
+            controlSize: this.controlSize,
             mode: this.mode,
             mayEdit: this.mayEdit,
             openAll: this.openAll,

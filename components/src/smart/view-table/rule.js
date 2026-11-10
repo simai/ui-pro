@@ -47,5 +47,11 @@ SF.RuleLoader['cl-view-table'] = {
     { name: 'cl-list-item' },
     { name: 'cl-modal', lazy: true },
     { name: 'cl-slider-range', lazy: true },
+    // The list of resources (C31): the status dot is the dot component's class markup.
+    { name: 'dot' },
+    // The status word, a fact's note and a quick action's name are the Framework tooltip (its anchor and data-tooltip), shown on hover and on keyboard focus: behaviour, fetched after the page is ready.
+    { name: 'tooltip', lazy: true },
+    // The layout switch in the toolbar (C31).
+    { name: 'cl-segmented' },
   ],
 };

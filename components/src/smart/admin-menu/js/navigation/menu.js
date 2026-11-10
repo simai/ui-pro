@@ -11,6 +11,12 @@ async function standardMenuDefined() {
     return Boolean(customElements.get("sf-menu-context"));
 }
 
+// The navigation's widths, in the Framework's kinds (decision C32): "trigger"
+// (the site switcher) is "list", at least the switcher, up to the list step;
+// "panel" (the person menu) is the profile picker's panel, the panel step or
+// the trigger, whichever is wider. Anything else is "content".
+const OPEN_WIDTH = {trigger: "list", panel: "panel"};
+
 export async function openMenu(controller, anchor, {label, entries, select, side = "block-end", align = "start", width = "content", search = null, onSearch = null, onClose = null}) {
     if (!(anchor instanceof Element)) return null;
     if (!(await standardMenuDefined())) return null;
@@ -45,16 +51,16 @@ export async function openMenu(controller, anchor, {label, entries, select, side
     controller._menuSearch = onSearch;
     controller._menuClose = onClose;
     controller._menuAnchor = anchor;
-    // "trigger" here is at least the button's width and wider when a line
+    // "trigger" (the site switcher) is at least the button's width and wider when a line
     // needs it: exactly the button's width cut «Безопасность учётной записи»
-    // and «Профиль меню» in the profile menu (Larena, 2026-10-14). The floor is
-    // the menu's own minimum, so the shared menu gives it back for the next.
-    if (width === "trigger") {
-        menu.style.setProperty("--sf-context-menu--min-inline-size", `${Math.round(anchor.getBoundingClientRect().width)}px`);
-    } else {
-        menu.style.removeProperty("--sf-context-menu--min-inline-size");
-    }
-    return menuOpened(await menu.openFor(anchor, {side, align, width: "content"}));
+    // and «Профиль меню» in the profile menu (Larena, 2026-10-14). That is the
+    // Framework's "list" kind (decision C32, sf-menu-context 1.14.0): at least
+    // the trigger, up to the list's step or the trigger, whichever is wider,
+    // and both follow the page's density. The floor this menu used to write
+    // itself (the trigger's px as --sf-context-menu--min-inline-size) is
+    // removed, so a menu of the previous release's page does not keep it.
+    menu.style.removeProperty("--sf-context-menu--min-inline-size");
+    return menuOpened(await menu.openFor(anchor, {side, align, width: OPEN_WIDTH[width] ?? "content"}));
 }
 
 // Whether the standard menu opened. sf-menu-context answered true or false

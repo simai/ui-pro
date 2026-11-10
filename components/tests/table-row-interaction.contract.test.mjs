@@ -18,8 +18,16 @@ test('a click moves the row the person is on, and nothing else', async () => {
   // still does its own work; only opening the record stays off limits from one.
   assert.match(
     source,
-    /handleRowClick\(event, row, index = -1\) \{\s*this\.focusRow\(this\.getRowKey\(row, index\)\);\s*this\.openReferenceFromCell\(event, row\);\s*return this;/u,
-    'a click anywhere in the row moves the current row; a link to another record asks to open it (owner, 2026-10-14)',
+    /handleRowClick\(event, row, index = -1\) \{[^}]*?this\.focusRow\(this\.getRowKey\(row, index\), \{focus: !\(this\.isList && this\.isRowControlTarget\(event\?\.target\)\)\}\);\s*this\.openReferenceFromCell\(event, row\);/u,
+    'a click anywhere in the row moves the current row; a link to another record asks to open it (owner, 2026-10-14); a list row\'s own button keeps its focus',
+  );
+  // row-open="row" (C31): the press opens through the same path as a double
+  // click, never from a control (handleRowOpen's exemption), never with a
+  // modifier or over a selection of text.
+  assert.match(
+    source,
+    /if \(this\.getAttribute\("row-open"\) === "row" && !event\?\.defaultPrevented[\s\S]{0,300}?\) \{\s*this\.handleRowOpen\(event, row\);\s*\}\s*return this;/u,
+    'row-open="row" opens through handleRowOpen',
   );
   assert.match(
     source,
@@ -33,7 +41,10 @@ test('a click moves the row the person is on, and nothing else', async () => {
     /handleRowClick\(event, row\) \{[\s\S]{0,400}?applyRowSelection/u,
     'a click never marks the row',
   );
-  assert.match(markup, /data-current=\$\{context\.component\.isCurrentRow\(row, rowIndex\) \? '' : nothing\}/u);
+  // The row the person is on (data-current) and the record the page has open
+  // (aria-current) are two marks (C31 acceptance, 2026-11-09).
+  assert.match(markup, /data-current=\$\{context\.component\.isCursorRow\(row, rowIndex\) \? '' : nothing\}/u);
+  assert.match(markup, /aria-current=\$\{context\.component\.isCurrentRow\(row, rowIndex\) \? 'true' : nothing\}/u);
   // Keyed the way the rest of the template keys a row: id, then value, then
   // position. The current row followed `id` alone, so in a view whose rows
   // carry another key a click marked nothing and looked broken.
@@ -48,9 +59,10 @@ test('a click moves the row the person is on, and nothing else', async () => {
   // selection. The template reads the field back, so a later render keeps it.
   assert.match(
     source,
-    /focusRow\(rowId, \{reveal = false\} = \{\}\) \{[\s\S]*?this\._currentRowId = String\(rowId\);[\s\S]*?removeAttribute\("data-current"\)[\s\S]*?setAttribute\("data-current", ""\)/u,
+    /focusRow\(rowId, \{reveal = false, focus = true\} = \{\}\) \{[\s\S]*?this\._cursorRowId = String\(rowId\);[\s\S]*?removeAttribute\("data-current"\)[\s\S]*?setAttribute\("data-current", ""\)/u,
   );
   assert.doesNotMatch(source, /currentRowId: null,/u, 'the current row is not table state');
+  assert.doesNotMatch(source, /focusRow\([^)]*\) \{[\s\S]{0,400}?this\._currentRowId =/u, 'the keys never move the open record');
   assert.match(markup, /tabindex="-1"/u, 'the row can take focus, so the keyboard can act on it');
 });
 
@@ -131,7 +143,9 @@ test('the keyboard reaches the same two answers as the pointer', async () => {
     'Space marks it, and Shift+Space marks the range',
   );
   // A key pressed inside a control in the row belongs to that control.
-  assert.match(source, /if \(event\?\.target !== event\?\.currentTarget\) return this;/u);
+  // The list row's title link (its tab stop, C31) passes the arrows, Home and
+  // End on to the row, and nothing else.
+  assert.match(source, /const fromTitle = event\?\.target !== event\?\.currentTarget\s*&& event\?\.target\?\.matches\?\.\("\.sf-table-title-link"\)\s*&& \["ArrowDown", "ArrowUp", "Home", "End"\]\.includes\(event\?\.key\);\s*if \(event\?\.target !== event\?\.currentTarget && !fromTitle\) return this;/u);
 });
 
 test('a column move survives the render a host answer brings with it', async () => {

@@ -36,6 +36,12 @@
   /* The search row keeps a usable width or goes to the line above. Without a
      floor it simply shrank instead of wrapping, and the field ended up a stub
      beside the chips. */
+  /* An empty start group (no filter, no chips) takes no gap: the field then
+     starts on the toolbar's edge, in line with the rows under it (R077). */
+  :is(sf-view-table, sf-table) .sf-table-toolbar-start:not(:has(*)) {
+    display: none;
+  }
+
   :is(sf-view-table, sf-table) .sf-table-toolbar .sf-table-toolbar-end {
     flex: 1 1 auto;
     min-inline-size: var(--sf-g0);
@@ -100,16 +106,48 @@
     margin-block-end: 0;
   }
 
+  /* One row model on the ladder (owner C31, 2026-11-09; C18): a body cell's
+     block padding is the rung of two lines of the step's text less those
+     lines -- the rung two above the step's control -- and a row stands on
+     the rung one above it. At step 1/2: one line 40
+     (--sf-ui-1--control-height), two lines 48 (--sf-ui-2--control-height),
+     three 68. At step 1: one line 48, two lines 56
+     (--sf-ui-3--control-height). The padding is the step's control ladder,
+     never --sf-space-1, which density does not move: step 1 stood at 53 and
+     73 with the reorder handle, step 1/2 at 45, 53 and 48 side by side. The
+     head keeps the step's own space around its line. On a compact page (C22)
+     the ladder moves one rung down and the rows with it. The person's own
+     view density (data-sf-view-density, below) keeps its padding. */
   :is(sf-view-table, sf-table) > * .table > :not(caption) > * > * {
     vertical-align: middle;
-    padding-block: var(--sf-space-1);
+    padding-block: var(--sf-ui-1--space-y);
   }
 
-  /* At step 1/2 a row is the ladder's: the 32px controls it holds and the step's
-     own vertical space around them -- a 45px row beside the admin menu's 32px
-     items, where step 1 keeps its 73. */
   :is(sf-view-table, sf-table)[size="1/2"] > * .table > :not(caption) > * > * {
     padding-block: var(--sf-ui-1\/2--space-y);
+  }
+
+  :is(sf-view-table, sf-table):not([data-sf-view-density]) > * .table > tbody > tr {
+    block-size: var(--sf-ui-2--control-height);
+  }
+
+  :is(sf-view-table, sf-table):not([data-sf-view-density]) > * .table > tbody > tr > * {
+    padding-block: calc((var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) - var(--sf-px)) / 2);
+  }
+
+  /* At step 1 a title over its supporting line (a link with its subtext, a
+     found tree row with its path) is a line of the step's text over a line
+     of 1/2: the same rung, 56. */
+  :is(sf-view-table, sf-table):not([size="1/2"]):not([data-sf-view-density]) > * .table > tbody > tr:has(.sf-table-link-cell-subtext, .sf-table-tree-path) > * {
+    padding-block: calc((var(--sf-ui-3--control-height) - var(--sf-text-height-1) - var(--sf-text-height-1\/2) - var(--sf-px)) / 2);
+  }
+
+  :is(sf-view-table, sf-table)[size="1/2"]:not([data-sf-view-density]) > * .table > tbody > tr {
+    block-size: var(--sf-ui-1--control-height);
+  }
+
+  :is(sf-view-table, sf-table)[size="1/2"]:not([data-sf-view-density]) > * .table > tbody > tr > * {
+    padding-block: calc((var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) - var(--sf-px)) / 2);
   }
 
   /* A cell's text is its step's, not whatever the page's body is: the rows'
@@ -125,6 +163,7 @@
     font-size: var(--sf-text-size-1\/2);
     line-height: var(--sf-text-height-1\/2);
   }
+
 
   /* The windows' top-layer container (see getPortalContainer): the whole
      viewport, invisible and click-through, so each window inside places itself
@@ -260,16 +299,18 @@
        (docs.md) -- from the same tokens the rows below are drawn with, never a
        number typed into the page. On the root for the reason above: the page
        reads them outside the table. One value per step of the ladder (size
-       1/2 and 1); a row is its cells' padding at the step, its tallest
-       content -- the step's control (the row's box and menu) or its text,
-       one line or two -- and the line under it. */
-    --sf-table-row-block-size-1\/2: calc(2 * var(--sf-ui-1\/2--space-y) + max(var(--sf-ui-1\/2--control-height), var(--sf-text-height-1\/2)) + var(--sf-px));
-    --sf-table-row-block-size-1: calc(2 * var(--sf-space-1) + max(var(--sf-ui-1--control-height), var(--sf-text-height-1)) + var(--sf-px));
-    --sf-table-row-2-lines-block-size-1\/2: calc(2 * var(--sf-ui-1\/2--space-y) + max(var(--sf-ui-1\/2--control-height), 2 * var(--sf-text-height-1\/2)) + var(--sf-px));
-    --sf-table-row-2-lines-block-size-1: calc(2 * var(--sf-space-1) + max(var(--sf-ui-1--control-height), 2 * var(--sf-text-height-1)) + var(--sf-px));
-    /* The head row: the same padding, a line of the head's text, its line. */
+       1/2 and 1); a row is the ladder's (C31, the row model below): its
+       cells' padding -- the rung of two lines less the step's two lines --
+       around its tallest content, the step's control (the row's box and
+       menu) or its text, one line or two, and never below the rung it
+       stands on. */
+    --sf-table-row-block-size-1\/2: max(var(--sf-ui-1--control-height), var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) + max(var(--sf-ui-1\/2--control-height), var(--sf-text-height-1\/2)));
+    --sf-table-row-block-size-1: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), var(--sf-text-height-1)));
+    --sf-table-row-2-lines-block-size-1\/2: max(var(--sf-ui-1--control-height), var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) + max(var(--sf-ui-1\/2--control-height), 2 * var(--sf-text-height-1\/2)));
+    --sf-table-row-2-lines-block-size-1: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), 2 * var(--sf-text-height-1)));
+    /* The head row: the step's space around a line of the head's text, its line. */
     --sf-table-head-block-size-1\/2: calc(2 * var(--sf-ui-1\/2--space-y) + var(--sf-text-height-1\/2) + var(--sf-px));
-    --sf-table-head-block-size-1: calc(2 * var(--sf-space-1) + var(--sf-text-height-1) + var(--sf-px));
+    --sf-table-head-block-size-1: calc(2 * var(--sf-ui-1--space-y) + var(--sf-text-height-1) + var(--sf-px));
     /* The toolbar on one line (search, settings, export): the step's control,
        and the gap between it and the head. */
     --sf-table-toolbar-block-size-1\/2: var(--sf-ui-1\/2--control-height);
@@ -708,6 +749,18 @@
     background-image: linear-gradient(var(--sf-primary-container-hover), var(--sf-primary-container-hover));
   }
 
+  /* The open record (current, aria-current) keeps a light primary fill --
+     12 in the light theme, 24 in the dark (--sf-primary-container) -- so it
+     is still seen on the way back from its card (owner C31, 2026-11-09). The
+     row the keyboard is on (data-current) shows the focus ring only. */
+  :is(sf-view-table, sf-table) .sf-table-list-item[aria-current="true"] {
+    background-image: linear-gradient(var(--sf-primary-container), var(--sf-primary-container));
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-list-item[aria-current="true"]:hover {
+    background-image: linear-gradient(var(--sf-primary-container-hover), var(--sf-primary-container-hover));
+  }
+
   :is(sf-view-table, sf-table) .sf-table-list-item:focus-visible {
     outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
     outline-offset: calc(var(--sf-focus--width) * -1);
@@ -763,6 +816,211 @@
   :is(sf-view-table, sf-table) .sf-table-list-more {
     padding: var(--sf-a4) var(--sf-a8);
     padding-inline-start: calc(var(--sf-a8) + var(--sf-table-tree--level, 0) * var(--sf-icon-size-2));
+  }
+
+  /* ─── the list of resources (owner decision C31, 2026-11-09) ────────────
+     A row of the ladder: two lines of the step's text in the step's row --
+     48 at size 1/2 (--sf-ui-2--control-height), 56 at size 1
+     (--sf-ui-3--control-height), and on a phone the mobile step 52 with the
+     title a step larger. The status dot (8 in a box of the icon size), the
+     title over its supporting line, the facts in columns of one width, the
+     actions in a box of one width: the title is the only part that yields,
+     so the facts stand in columns down the list. Two listed measures (C18):
+     the title's 26rem (--sf-g3) and a fact's 8rem (--sf-e6). */
+  :is(sf-view-table, sf-table) .sf-table-list--resource {
+    --sf-table-resource--row: var(--sf-ui-2--control-height);
+    --sf-table-resource--button: var(--sf-ui-1\/2--control-height);
+    --sf-table-resource--title-measure: var(--sf-g3);
+    --sf-table-resource--fact: var(--sf-e6);
+    container-type: inline-size;
+    gap: var(--sf-px);
+    /* No inline padding: the rows' fill runs from edge to edge, in line with
+       the field and the last button of the toolbar above (R077). */
+    padding-block: var(--sf-space-1\/4);
+    padding-inline: 0;
+    font-size: var(--sf-text-size-1\/2);
+    line-height: var(--sf-text-height-1\/2);
+  }
+
+  :is(sf-view-table, sf-table):not([size="1/2"]) .sf-table-list--resource {
+    --sf-table-resource--row: var(--sf-ui-3--control-height);
+    --sf-table-resource--button: var(--sf-ui-1--control-height);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-list-item.sf-table-resource {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/2);
+    block-size: var(--sf-table-resource--row);
+    padding-block: 0;
+    padding-inline: var(--sf-space-1\/2) var(--sf-space-1\/4);
+    border-block-end: 0;
+    border-radius: var(--sf-radius--ui);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource[data-open="row"] {
+    cursor: pointer;
+  }
+
+  /* The ring of a focused row is the row's, from its title link too. */
+  :is(sf-view-table, sf-table) .sf-table-resource:has(.sf-table-title-link:focus-visible) {
+    outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
+    outline-offset: calc(var(--sf-focus--width) * -1);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource .sf-table-title-link:focus-visible {
+    outline: none;
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource > .sf-table-list-select,
+  :is(sf-view-table, sf-table) .sf-table-resource-facts,
+  :is(sf-view-table, sf-table) .sf-table-resource-actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-status {
+    display: flex;
+    flex: none;
+    justify-content: center;
+    inline-size: var(--sf-icon-size-2);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-main {
+    display: flex;
+    flex: 0 1 var(--sf-table-resource--title-measure);
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-title,
+  :is(sf-view-table, sf-table) .sf-table-resource-supporting {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-title {
+    color: var(--sf-on-surface);
+    font-weight: var(--sf-font-weight-medium);
+  }
+
+  /* The record's name in the row's own colour, as the prototype drew it (on
+     the surface, medium weight): every row's title in the link colour was a
+     column of blue. The link shows itself by its underline when the row is
+     pointed at or the link is focused (owner C31, 2026-11-09). */
+  :is(sf-view-table, sf-table) .sf-table-resource .sf-table-title-link {
+    color: var(--sf-on-surface);
+    text-decoration: none;
+    text-decoration-color: var(--sf-outline);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource:hover .sf-table-title-link,
+  :is(sf-view-table, sf-table) .sf-table-resource .sf-table-title-link:focus-visible {
+    text-decoration-line: underline;
+  }
+
+  :is(sf-view-table, sf-table):not([size="1/2"]) .sf-table-resource-title {
+    font-size: var(--sf-text-size-1);
+    line-height: var(--sf-text-height-1);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-supporting {
+    color: var(--sf-on-surface-variant);
+    font-size: var(--sf-text-size-1\/2);
+    line-height: var(--sf-text-height-1\/2);
+  }
+
+  /* A stopped resource: the title is quieter, and the word leads its line,
+     so the state is read in words as well as in the grey dot. */
+  :is(sf-view-table, sf-table) .sf-table-resource[data-status="neutral"] .sf-table-resource-title,
+  :is(sf-view-table, sf-table) .sf-table-resource[data-status="neutral"] .sf-table-title-link {
+    color: var(--sf-on-surface-variant);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-lead {
+    color: var(--sf-on-surface);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-facts {
+    gap: var(--sf-space-1\/2);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-fact {
+    display: flex;
+    inline-size: var(--sf-table-resource--fact);
+    min-inline-size: 0;
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-fact sf-badge {
+    display: inline-flex;
+    max-inline-size: 100%;
+  }
+
+  /* The actions box is as wide as the quick actions the list offers and
+     «more», whatever one row shows, so it never moves the facts. */
+  :is(sf-view-table, sf-table) .sf-table-resource-actions {
+    justify-content: flex-end;
+    gap: var(--sf-space-1\/4);
+    inline-size: calc(var(--sf-table-resource--actions, 1) * var(--sf-table-resource--button)
+      + (var(--sf-table-resource--actions, 1) - 1) * var(--sf-space-1\/4));
+    margin-inline-start: auto;
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-quick {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+  }
+
+  :is(sf-view-table, sf-table) .sf-table-resource-actions[data-only-quick] .sf-table-resource-more {
+    display: none;
+  }
+
+  /* A narrow list (below 37.5rem, the default list-below) and a phone: the
+     quick actions fold into «more», and of the facts only the most worrying
+     stays -- none when all is well. */
+  @container (inline-size < 37.5rem) {
+    :is(sf-view-table, sf-table) .sf-table-resource-quick,
+    :is(sf-view-table, sf-table) .sf-table-resource-fact:not([data-worst]) {
+      display: none;
+    }
+
+    :is(sf-view-table, sf-table) .sf-table-resource-fact {
+      inline-size: auto;
+    }
+
+    :is(sf-view-table, sf-table) .sf-table-resource-actions {
+      inline-size: auto;
+    }
+
+    :is(sf-view-table, sf-table) .sf-table-resource-actions[data-only-quick] .sf-table-resource-more {
+      display: inline-flex;
+    }
+  }
+
+  /* A phone (the Framework's 32rem step): the mobile row of the ladder, 52,
+     and the title a text step larger, as the record reads on a phone. */
+  @media (max-width: 31.98rem) {
+    :is(sf-view-table, sf-table) .sf-table-list--resource {
+      --sf-table-resource--row: var(--sf-ui-3--control-height);
+      --sf-table-resource--button: var(--sf-ui-1--control-height);
+    }
+
+    /* The row's buttons on the step of the row and its title, size 1 of the
+       mobile ladder (36): the only button of a row on a phone is one a finger
+       finds (owner C31, 2026-11-09). */
+    :is(sf-view-table, sf-table) .sf-table-resource-actions .sf-icon-button {
+      justify-content: center;
+      block-size: var(--sf-table-resource--button);
+      inline-size: var(--sf-table-resource--button);
+    }
+
+    :is(sf-view-table, sf-table) .sf-table-resource-title {
+      font-size: var(--sf-text-size-1);
+      line-height: var(--sf-text-height-1);
+    }
   }
 
   /* The filter button carries how many conditions are on. */
@@ -1014,6 +1272,13 @@
     outline: var(--sf-focus--width) var(--sf-focus--style) var(--sf-focus--color);
     outline-offset: var(--sf-a2);
     border-radius: var(--sf-radius--ui);
+  }
+
+  /* In a list of resources the ring is the row's (sf.components): the
+     link's own ring, cut by the title's ellipsis box, drew a stray arc
+     after the name. */
+  :is(sf-view-table, sf-table) .sf-table-resource .sf-table-title-link:focus-visible {
+    outline: none;
   }
 
   :is(sf-view-table, sf-table) tbody[data-busy] {
