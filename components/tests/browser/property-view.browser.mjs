@@ -1125,7 +1125,7 @@ try {
     // section's own icon on its tab and no folder for a section without one.
     const tablist = root.querySelector('.sf-property-view-sections [role="tablist"]');
     const tabs = [...root.querySelectorAll('.sf-property-view-sections [role="tab"]')];
-    const list = {
+    const sectionList = {
       vertical: root.querySelector('.sf-property-view-sections sf-tabs')?.getAttribute('type') ?? null,
       orientation: tablist?.getAttribute('aria-orientation') ?? null,
       named: root.querySelector('.sf-property-view-sections sf-tabs')?.getAttribute('aria-label') ?? null,
@@ -1336,7 +1336,7 @@ try {
     };
 
     return {
-      before, list, switched, bareSeen, withRare, editing, editControls, changedCount, saveDisabled,
+      before, sectionList, switched, bareSeen, withRare, editing, editControls, changedCount, saveDisabled,
       raisedBeforeRare, raisedAfterRare, raisedAfterTyping,
       afterConflict, afterRefusal, afterApplied,
       singleSections, singleList: Boolean(singleList),
@@ -1365,7 +1365,7 @@ try {
       note({case: 'two sections render a section list', got: measured.before?.sectionItems, expected: 2});
     }
     // TR-13, decision C96 point 5: the list is vertical tabs, not a tree.
-    const list = measured.list ?? {};
+    const list = measured.sectionList ?? {};
     if (list.vertical !== 'vertical' || list.orientation !== 'vertical' || !list.named
         || list.selected !== 1 || list.tree !== false || list.landmark !== 'div') {
       note({case: 'the section list is a named vertical tablist with one tab selected, no tree, no landmark around it',
