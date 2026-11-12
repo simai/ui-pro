@@ -123,7 +123,10 @@ async function measure(page, badgeSelector, anchorSelector, surfaceSelector) {
       dx: +(centre.x - point.x).toFixed(2), dy: +(centre.y - point.y).toFixed(2),
       width: +b.width.toFixed(2), height: +b.height.toFixed(2), anchor: [+a.width.toFixed(2), +a.height.toFixed(2)], radius,
       text: badge.textContent, hidden: badge.hidden || b.width === 0,
-      ring: ring.startsWith(surface), surface, shadow: ring,
+      // Since SIMAI Framework ui-7fb26d395af2 (C43 D3) the ring is two layers:
+      // the row's fill (transparent on a row with none) over the surface
+      // under it. What a person sees is the first layer that is not clear.
+      ring: (ring.split(/,\s*(?=rgba?\()/u).find((layer) => !/^rgba\([^)]*,\s*0\)/u.test(layer)) ?? '').startsWith(surface), surface, shadow: ring,
     };
   }, {badgeSelector, anchorSelector, surfaceSelector, DIAGONAL});
 }
