@@ -32,8 +32,9 @@ test("the package composites are generated into the searchable registry beside t
   // 75 free and 17 of the package make 92. sf-tile-metric, sf-list-attention
   // and sf-progress-run (ui-5edc71bd6936): 78 free and 17 of the package make 95.
   // sf-input-choice, sf-list-description and sf-list-timeline
-  // (ui-0c23f6a0af12): 81 free and 17 of the package make 98.
-  assert.equal(registry.entries.length, 98);
+  // (ui-0c23f6a0af12): 81 free and 17 of the package make 98. sf-time and
+  // sf-change (ui-7f1d29b02919): 83 free and 17 of the package make 100.
+  assert.equal(registry.entries.length, 100);
   assert.ok(registry.entries.some((entry) => entry.id === "smart.confirm-change"), "sf-confirm-change, now the Framework's");
   for (const id of ["smart.admin-menu", "smart.view-table", "smart.view", "smart.view-properties",
     "smart.message-log", "smart.chat-threads", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
@@ -52,7 +53,7 @@ test("CLI discovers and describes the whole data view", () => {
   assert.equal(packet.decision.reuse_mode, "whole");
   assert.equal(packet.public_abi.custom_element, "sf-view-table");
   assert.equal(packet.conformance.compatibility.contract_schema.version, 2);
-  assert.equal(packet.identity.version, '1.17.0');
+  assert.equal(packet.identity.version, '1.17.1');
   assert.ok(packet.public_abi.methods.requestActionIntent);
   assert.ok(packet.public_abi.events['sf-table-action-intent']);
   for (const event of ['sf-table-create-intent', 'sf-view-table-template-select', 'sf-view-table-sort-change']) {

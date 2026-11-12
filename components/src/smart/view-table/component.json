@@ -2,7 +2,7 @@
   "$comment": "sf-table from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/table (convert-1.3.8.mjs over ui-pro 9cbe061); every x-todo decided in x-decisions.",
   "id": "smart.view-table",
   "tag": "sf-view-table",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "kind": "leaf",
   "family": "table",
   "settings": {
@@ -2345,6 +2345,13 @@
             "The list's look points (owner, 2026-11-09): the record's title is the surface's text colour (--sf-on-surface), medium weight, underlined while the row is pointed at or the link focused (it was the link colour), and the link draws no ring of its own inside the row's ring. The open record (current, aria-current) has the primary container fill (--sf-primary-container: 12 light, 24 dark); the row the keyboard is on shows the focus ring only. On a phone the row's buttons and «more» are --sf-ui-1--control-height (36; 28 at size 1/2 before). The list has no inline padding and an empty toolbar start takes no gap, so the search field, Create and the rows' fill are on one line (R077). The quick actions still fold below a 37.5rem container.",
             "The controls inside are relative (C22, Larena 2026-11-10): a table without a size writes no size on its toolbar (filter, search, Create, gear, layout switch, chips), its menus or the row controls it draws; a component a column or an action names at size 1 takes the host's size, or none when the host has none. Compact page density then moves them a rung down with the page (32 at 1280); a host with size=\"1\" or \"1/2\" hands that size down as before.",
             "Over SIMAI Framework ui-a0370c0c99fb (core.runtime 1.49.0; the set still needs 1.43.0 or newer). New relations: dot, tooltip, cl-segmented. Nothing to change for a host that does not use the new settings."
+          ]
+        },
+        {
+          "from": "1.17.0",
+          "to": "1.17.1",
+          "changes": [
+            "The shadow at the edge of the pinned columns reads the surface role --sf-surface-state-select (the neutral 8% step, light and dark, and the place's own inside a place) instead of the public ramp --sf-alpha-8: over SIMAI Framework ui-7fb26d395af2 no component reads --sf-alpha-* (DEV acceptance 2026-11-10, Q3). Made in ui-pro ahead of simai/ui-view (2026-11-12); the view set releases the same change. Nothing to change for a host."
           ]
         }
       ]

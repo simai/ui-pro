@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2701,6 +2701,13 @@
           "The controls inside are relative (C22, Larena 2026-11-10): a table without a size writes no size on its toolbar (filter, search, Create, gear, layout switch, chips), its menus or the row controls it draws; a component a column or an action names at size 1 takes the host's size, or none when the host has none. Compact page density then moves them a rung down with the page (32 at 1280); a host with size=\"1\" or \"1/2\" hands that size down as before.",
           "Over SIMAI Framework ui-a0370c0c99fb (core.runtime 1.49.0; the set still needs 1.43.0 or newer). New relations: dot, tooltip, cl-segmented. Nothing to change for a host that does not use the new settings."
         ]
+      },
+      {
+        "from": "1.17.0",
+        "to": "1.17.1",
+        "changes": [
+          "The shadow at the edge of the pinned columns reads the surface role --sf-surface-state-select (the neutral 8% step, light and dark, and the place's own inside a place) instead of the public ramp --sf-alpha-8: over SIMAI Framework ui-7fb26d395af2 no component reads --sf-alpha-* (DEV acceptance 2026-11-10, Q3). Made in ui-pro ahead of simai/ui-view (2026-11-12); the view set releases the same change. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -2718,7 +2725,7 @@
       },
       {
         "path": "src/smart/view-table/js/templates/default.css",
-        "sha256": "955ed8b596e067411ba9e2d330cf9379a74f61ab7055deb00db7750fae467fce"
+        "sha256": "5e3986ef976e03b18682428fc4bbb6dc516356e4f85af8ed367b73b0da9d6f93"
       },
       {
         "path": "src/smart/helpers/option-badge.js",

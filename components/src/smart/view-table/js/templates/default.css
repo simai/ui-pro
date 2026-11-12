@@ -1307,11 +1307,13 @@
     inset-inline-end: calc(var(--sf-a4) * -1);
     inline-size: var(--sf-a4);
     pointer-events: none;
-    /* `--sf-alpha-8` is the neutral ink of the current theme at 8%, so the
-       shadow follows light and dark without a colour of its own. The direction
+    /* `--sf-surface-state-select` is the neutral 8% step of the surface
+       roles, so the shadow follows light and dark (and the place it stands
+       in) without a colour of its own; the components read the roles, not
+       the public --sf-alpha-* ramp (DEV acceptance 2026-11-10, Q3). The direction
        is written physically because a gradient takes no logical keyword; the
        RTL pipeline mirrors it, as it does for the row's focus bar. */
-    background-image: linear-gradient(to right, var(--sf-alpha-8), transparent);
+    background-image: linear-gradient(to right, var(--sf-surface-state-select), transparent);
   }
 
   /* A row says whether it is selected, so the look is a rule rather than a

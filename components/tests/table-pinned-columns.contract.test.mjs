@@ -100,8 +100,8 @@ test('the pinned edge carries a shadow only while something is behind it', async
   assert.match(source, /cell\.setAttribute\("data-sf-pin-edge", ""\)/u, 'the cell that ends the block draws it');
   assert.match(
     css,
-    /\.sf-table-scroll\[data-sf-pin-scrolled\] \[data-sf-pin-edge\]::after \{[\s\S]*?background-image: linear-gradient\(to right, var\(--sf-alpha-8\), transparent\);/u,
-    'the shadow is the theme ink at 8 per cent, so it follows light and dark',
+    /\.sf-table-scroll\[data-sf-pin-scrolled\] \[data-sf-pin-edge\]::after \{[\s\S]*?background-image: linear-gradient\(to right, var\(--sf-surface-state-select\), transparent\);/u,
+    'the shadow is the neutral 8 per cent surface role, so it follows light and dark',
   );
   // A border would move the cell's content; the shadow has to lie over the rows
   // the pinned block overlaps.
