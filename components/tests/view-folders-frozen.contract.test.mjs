@@ -43,8 +43,12 @@ const FROZEN = {
 // density beside the page's 32. Dispatcher order 2026-11-10 (pro over
 // ui-a0370c0c99fb); the patch for simai/ui-view (index.js, the template, component.json) is
 // ui-control control/evidence/2026-11-10-pro-next-1110/view-properties-c22.patch.
+// On top of it, TR-13 (decision C96 point 5, dispatcher order 2026-11-12): the
+// section list beside the groups is sf-tabs type="vertical" rather than an
+// sf-tree, sf-view-properties 1.14.0; its patch for simai/ui-view is
+// ui-control control/evidence/2026-11-12-tr13-view-properties/view-properties-tr13.patch.
 const PATCHED = {
-  'view-properties': {tree: '660b9268c96af4a120e7c35c2b207d9e3d8090fc', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10)'},
+  'view-properties': {tree: '331645fbf37d9d56ce25d7b94f4542cac4a380a1', patch: 'C22 control size (1.13.3, 2026-11-10) and TR-13 vertical section tabs (1.14.0, 2026-11-12)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

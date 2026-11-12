@@ -669,52 +669,69 @@ function renderSectionList(context, sections) {
     // can use, and the consumer's request asks for the groups to stand alone.
     if (sections.length < 2 && !context.configuring) return nothing;
 
+    // Reading, the column holds one tablist, which is named itself; a landmark
+    // around it would name the same list twice and call a set of panels a
+    // navigation. Arranged, the column is this component's own rows.
+    if (!context.configuring) {
+        return html`
+            <div class="sf-property-view-sections self-cross-stretch flex flex-col min-w-0">
+                ${renderSectionVerticalTabs(context, sections)}
+            </div>
+        `;
+    }
+
     return html`
         <nav class="sf-property-view-sections self-cross-stretch flex flex-col min-w-0" aria-label=${context.sectionsLabel}>
-            ${context.configuring
-                    ? html`
-                        ${renderSectionTabsArranged(context, sections)}
-                        <div class="sf-property-view-additions flex">${renderAddSection(context)}</div>`
-                    : renderSectionTree(context, sections)}
+            ${renderSectionTabsArranged(context, sections)}
+            <div class="sf-property-view-additions flex">${renderAddSection(context)}</div>
         </nav>
     `;
 }
 
-// Reading: the sections are a tree, which carries the keyboard walk and the
-// selection a list of destinations needs.
+// Reading: the sections are vertical tabs (decision C96 point 5). They switch
+// which of the record's parts is shown, in place -- a tablist with one selected
+// tab, the same thing the row of tabs above the groups is. A tree said "one
+// level of a hierarchy" and drew a folder beside a section without an icon of
+// its own; a menu column (C30) is for places with their own addresses, and a
+// section is not one.
 //
-// The items are given as data rather than as children: sf-tree reads its child
-// items once and removes them, so a section renamed while the view is being
-// arranged kept its old name in this list.
-function renderSectionTree(context, sections) {
+// The items are given as data (the property), not as the `|` string the row
+// uses: a section's icon travels as the entry's icon (sf-tabs reads a list as
+// `{id, label, icon}` entries, released since sf-tabs 1.1.16), and a label is
+// read as text, so neither `|` nor `::` in a name is taken as structure.
+// `selected` names the tab by the section key, so a section added or removed
+// before the selected one keeps the selection on the right tab.
+function renderSectionVerticalTabs(context, sections) {
     const items = sections.map((section) => ({
+        id: String(section.key),
         label: sectionName(context, section),
-        value: String(section.key),
-        selected: String(section.key) === context.selectedSection,
-        openIcon: section.icon ? String(section.icon) : '',
-        closedIcon: section.icon ? String(section.icon) : '',
+        ...(section.icon ? {icon: String(section.icon)} : {}),
     }));
+    const selected = sections.some((section) => String(section.key) === context.selectedSection)
+        ? context.selectedSection
+        : String(sections[0]?.key ?? '');
 
-    // selection "one": sf-tree 2.0's name for a single choice; its manifest
-    // declares it since sf-tree 2.0.1 ("single" is a former value until
-    // 2026-12-01).
     return html`
-        <sf-tree
-                selection="one"
+        <sf-tabs
+                class="sf-property-view-section-list"
+                type="vertical"
+                size=${context.controlSize ?? nothing}
+                selected=${selected}
+                aria-label=${context.sectionsLabel}
                 .items=${items}
-                @sf-tree-select=${(event) => {
-                    // sf-tree 2.0 (standard 1.3.8 §8): select carries the entry's
-                    // id, which is the section key given as its value.
-                    const id = event.detail?.id;
-                    if (id) context.component.selectSection(String(id));
+                @sf-tabs-change=${(event) => {
+                    // sf-tabs (standard 1.3.8 §8): change carries the entry's id,
+                    // which is the section key.
+                    const id = event.detail?.selected ?? sections[Number(event.detail?.current)]?.key;
+                    if (id !== undefined && id !== null && id !== '') context.component.selectSection(String(id));
                 }}
-        ></sf-tree>
+        ></sf-tabs>
     `;
 }
 
 // Arranging: the same tabs, in an order a drag can change, and each one still a
-// place to drop a field or an area. A tree cannot be reordered by a pointer --
-// it takes its items once and owns their rows -- so while the view is arranged
+// place to drop a field or an area. Tabs cannot be reordered by a pointer --
+// sf-tabs owns its tab buttons -- so while the view is arranged
 // the tabs are rows of this component's own, which is also what lets a tab carry
 // a handle.
 function renderSectionTabsArranged(context, sections) {
@@ -737,7 +754,7 @@ function renderSectionTabsArranged(context, sections) {
                 >
                     <i class="sf-icon sf-property-view-section-grip color-on-surface-variant" data-sf-sortable-handle
                        aria-hidden="true">drag_indicator</i>
-                    <i class="sf-icon" aria-hidden="true">${section.icon ? String(section.icon) : 'folder'}</i>
+                    ${section.icon ? html`<i class="sf-icon" aria-hidden="true">${String(section.icon)}</i>` : nothing}
                     <span class="sf-property-view-section-tab-label flex-auto min-w-0">${sectionName(context, section)}</span>
                 </button>
             `)}
@@ -745,10 +762,9 @@ function renderSectionTabsArranged(context, sections) {
     `;
 }
 
-// A rare section says so in its own name. A tree row takes a label string and
-// draws it as text -- markup put into sf-tree-item once printed lit's own
-// markers into the list -- so a trailing mark of its own is a gap in that
-// component rather than something to work around here.
+// A rare section says so in its own name. A tab takes a label string and draws
+// it as text, so a trailing mark of its own is a gap in that component rather
+// than something to work around here.
 function sectionName(context, section) {
     const label = String(section.label ?? section.key);
     return section.rare ? `${label} · ${context.rareText}` : label;
@@ -1171,8 +1187,8 @@ function onPhoneSectionList(context, sections) {
 }
 
 // The section being arranged, named where its areas are. The section list is
-// drawn by sf-tree, whose rows take a label as a string and nothing else
-// (sf-tree 2.0 draws class markup, not sf-tree-item elements), so neither a pencil nor a field can stand in the list
+// drawn by sf-tabs, whose tabs take a label as a string and nothing else, so
+// neither a pencil nor a field can stand in the list
 // itself -- and a section shown as a tab has no list at all. The name of the
 // place you are arranging belongs above the things you are arranging anyway.
 function renderSectionBar(context, section, count) {

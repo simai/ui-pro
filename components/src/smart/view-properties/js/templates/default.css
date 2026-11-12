@@ -254,14 +254,6 @@
     /* Nothing is painted under the tabs (owner, 2026-10-07): a tinted column
        running past the last one drew a block the size of the record rather than
        the size of the list in it. What a tab is, it says by itself. */
-    /* Reading, the tabs are a tree, and these are its own tokens: the rail sets
-       what it wants rather than reaching into the component's rules. */
-    --sf-tree--padding-inline-start: 0;
-    --sf-tree--padding-inline-end: 0;
-    --sf-tree--padding-top: 0;
-    --sf-tree--padding-bottom: 0;
-    --sf-tree--gap: var(--sf-px);
-    --sf-tree-item--padding-inline: var(--sf-space-1\/3);
   }
 
   .sf-property-view-section-tabs {

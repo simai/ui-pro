@@ -16,6 +16,8 @@ const styles = [
   'component/component/badges/css/badges.css', 'component/component/avatars/css/avatars.css',
   'component/component/reference-link/css/reference-link.css',
   'component/component/inputs/css/inputs.css', 'component/component/tree/css/tree.css',
+  // The section list beside the groups is vertical tabs (TR-13).
+  'component/component/tabs/css/tabs.css',
   'component/component/progress-scale/css/progress-scale.css',
   'component/component/buttons/css/buttons.css',
   'component/component/dropdown/css/dropdown.css',
@@ -155,7 +157,9 @@ try {
             {key: 'slug', label: 'Код', propertyType: 'string', value: 'first'},
           ]},
         ]},
-        {key: 'seo', label: 'SEO', groups: [
+        // An icon of its own, which the section's tab carries (TR-13); 'main'
+        // has none, and its tab draws no folder.
+        {key: 'seo', label: 'SEO', icon: 'search', groups: [
           {key: 'meta', label: 'Метатеги', fields: [
             {key: 'description', label: 'Описание', propertyType: 'text', value: 'Описание страницы'},
           ]},
@@ -1083,7 +1087,7 @@ try {
     // Framework's component stylesheets reach the field controls.
     const root = view;
     const read = () => ({
-      sectionItems: root.querySelectorAll('.sf-property-view-sections .sf-tree-item[data-sf-entry]').length,
+      sectionItems: root.querySelectorAll('.sf-property-view-sections [role="tab"]').length,
       groups: [...root.querySelectorAll('.sf-property-view-group')].map((node) => node.dataset.group),
       fields: [...root.querySelectorAll('.sf-property-view-field')].map((node) => node.dataset.field),
       // Which element drew each value: the renderer set's choice, not the host's.
@@ -1115,31 +1119,37 @@ try {
     });
 
     const before = read();
-    // A tab answers a press. Since sf-tree 2.0 the rail's entries are rows
-    // of class markup (.sf-tree-item[data-value]), not sf-tree-item elements.
-    // The rail is an sf-tree asked for a single selection, and that tree moved only its tab stop on a click: the sections
-    // could be walked with the arrows and chosen with the space bar, and
-    // pressing one did nothing at all. sf-tree 2.0.0 draws its rows itself, flat,
-    // as class markup (.sf-tree-item[data-sf-entry], the value in data-value)
-    // rather than as sf-tree-item elements.
-    const tabs = [...root.querySelectorAll('.sf-property-view-sections .sf-tree-item[data-sf-entry]')];
+    // A tab answers a press. The list beside the groups is vertical tabs
+    // (sf-tabs type="vertical", decision C96 point 5, TR-13; it was an sf-tree
+    // until sf-view-properties 1.14.0): a named tablist, one tab selected, the
+    // section's own icon on its tab and no folder for a section without one.
+    const tablist = root.querySelector('.sf-property-view-sections [role="tablist"]');
+    const tabs = [...root.querySelectorAll('.sf-property-view-sections [role="tab"]')];
+    const list = {
+      vertical: root.querySelector('.sf-property-view-sections sf-tabs')?.getAttribute('type') ?? null,
+      orientation: tablist?.getAttribute('aria-orientation') ?? null,
+      named: root.querySelector('.sf-property-view-sections sf-tabs')?.getAttribute('aria-label') ?? null,
+      selected: tabs.filter((tab) => tab.getAttribute('aria-selected') === 'true').length,
+      tree: Boolean(root.querySelector('.sf-property-view-sections sf-tree, .sf-property-view-sections .sf-tree')),
+      landmark: root.querySelector('.sf-property-view-sections')?.tagName?.toLowerCase() ?? null,
+      glyphs: tabs.map((tab) => [...tab.querySelectorAll('.sf-icon')].map((icon) => icon.textContent.trim()).join(' ')),
+    };
     const pressed = tabs[tabs.length - 1];
-    (pressed?.querySelector(':scope > .sf-tree-item-container') ?? pressed)
-      ?.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
+    pressed?.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
     await new Promise((done) => setTimeout(done, 400));
     const switched = {
-      asked: pressed?.getAttribute('data-value') ?? null,
+      asked: (view.sections ?? [])[Number(pressed?.closest('[data-sf-tab-index]')?.getAttribute('data-sf-tab-index')
+        ?? pressed?.getAttribute('data-sf-tab-index') ?? -1)]?.key ?? null,
       showing: view.selectedSection ?? null,
       groups: [...root.querySelectorAll('.sf-property-view-group')].map((node) => node.dataset.group),
     };
 
     // Back to the first section, because everything measured below reads the
     // groups this record opens on.
-    (tabs[0]?.querySelector(':scope > .sf-tree-item-container') ?? tabs[0])
-      ?.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
+    tabs[0]?.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
     await new Promise((done) => setTimeout(done, 400));
 
-    const singleSections = single.querySelectorAll('.sf-property-view-sections .sf-tree-item[data-sf-entry]').length;
+    const singleSections = single.querySelectorAll('.sf-property-view-sections [role="tab"]').length;
     const singleList = single.querySelector('.sf-property-view-sections');
 
     // Rare: hidden, then shown, and the host is not asked again -- showing rare
@@ -1326,7 +1336,7 @@ try {
     };
 
     return {
-      before, switched, bareSeen, withRare, editing, editControls, changedCount, saveDisabled,
+      before, list, switched, bareSeen, withRare, editing, editControls, changedCount, saveDisabled,
       raisedBeforeRare, raisedAfterRare, raisedAfterTyping,
       afterConflict, afterRefusal, afterApplied,
       singleSections, singleList: Boolean(singleList),
@@ -1353,6 +1363,18 @@ try {
     }
     if (measured.before?.sectionItems !== 2) {
       note({case: 'two sections render a section list', got: measured.before?.sectionItems, expected: 2});
+    }
+    // TR-13, decision C96 point 5: the list is vertical tabs, not a tree.
+    const list = measured.list ?? {};
+    if (list.vertical !== 'vertical' || list.orientation !== 'vertical' || !list.named
+        || list.selected !== 1 || list.tree !== false || list.landmark !== 'div') {
+      note({case: 'the section list is a named vertical tablist with one tab selected, no tree, no landmark around it',
+        got: list, expected: {vertical: 'vertical', orientation: 'vertical', named: 'the sections label',
+          selected: 1, tree: false, landmark: 'div'}});
+    }
+    if (JSON.stringify(list.glyphs) !== JSON.stringify(['', 'search'])) {
+      note({case: 'a section\'s own icon is on its tab, and a section without one draws no folder',
+        got: list.glyphs, expected: ['', 'search']});
     }
     // One section renders its groups alone: a list of one is a control nobody can use.
     // One section renders no list at all now, rather than a hidden one: the

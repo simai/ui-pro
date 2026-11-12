@@ -17,5 +17,6 @@ test('the panel writes a size on its controls only when the host has one', async
   assert.match(element, /\n            controlSize: this\.controlSize,\n/u, 'the template context carries it');
   const template = await read('src/smart/view-properties/js/templates/default.js');
   assert.doesNotMatch(template, /\ssize=\$\{context\.size\}/u, 'no control takes the panel size, which is 1 when the host has none');
-  assert.equal(template.match(/size=\$\{context\.controlSize \?\? nothing\}/gu)?.length, 22);
+  // 22 with C22; 23 since TR-13 (1.14.0) drew the section list as sf-tabs, which takes it too.
+  assert.equal(template.match(/size=\$\{context\.controlSize \?\? nothing\}/gu)?.length, 23);
 });

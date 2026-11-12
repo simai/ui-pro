@@ -20,8 +20,6 @@ SF.RuleLoader['cl-view-properties'] = {
     { name: 'cl-button' },
     { name: 'cl-button-icon' },
     { name: 'cl-drawer' },
-    { name: 'cl-tree' },
-    { name: 'cl-tree-item' },
     { name: 'cl-avatar' },
     { name: 'cl-badge' },
     { name: 'cl-tag' },
@@ -84,7 +82,8 @@ SF.RuleLoader['cl-view-properties'] = {
     // Every anchored surface this panel opens -- a field's settings, the list of
     // fields an area can take, the head's menu -- is an sf-popover.
     { name: 'cl-popover', lazy: true },
-    // Sections laid out as a row of tabs rather than a list beside the fields.
+    // The sections are tabs either way: a row above the groups, or vertical
+    // tabs beside them (decision C96 point 5).
     { name: 'cl-tabs' },
   ],
 };

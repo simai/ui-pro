@@ -2912,9 +2912,10 @@ class SfPropertyView extends PropertyViewElement {
             const under = globalThis.document?.elementFromPoint?.(x, y);
             // While the view is arranged the sections are rows of their own, so a
             // field may be dropped on a tab the same way it is dropped on a group.
-            // sf-tree 2.0 draws its entries as rows of class markup, each named
-            // by data-value (the section key).
-            const item = under?.closest?.("[data-section-tab], .sf-tree-item[data-value]");
+            // This target is bound only while the view is arranged, and then the
+            // sections are those rows (data-section-tab, the section key); the
+            // reading list (sf-tabs) is never drawn at the same time.
+            const item = under?.closest?.("[data-section-tab]");
             // Another panel's list is not this panel's drop target. The drawer
             // moves the content out of the element, so asking `closest` for an
             // sf-view-properties finds nothing at all -- which is why the first
@@ -2931,17 +2932,14 @@ class SfPropertyView extends PropertyViewElement {
                 if (session?.group && !["field", "group"].includes(session.group)) return null;
                 const item = sectionAt(x, y);
                 if (!item) return null;
-                const key = item.getAttribute("data-section-tab") ?? item.getAttribute("data-value");
+                const key = item.getAttribute("data-section-tab");
                 if (key === this.selectedSection) return null;
-                // A tree row's own box holds its children too; the line the
-                // indicator marks is the row's container.
-                const shown = item.matches("[data-section-tab]")
-                    ? item
-                    : item.querySelector(":scope > .sf-tree-item-container") || item;
+                // The row's name, not its handle or icon: those are glyph
+                // ligatures, and their words would be read into the label.
                 return {
                     descriptor: {section: key},
-                    rect: shown.getBoundingClientRect(),
-                    label: item.querySelector(":scope > .sf-tree-item-container > .sf-tree-item-name")?.textContent?.trim()
+                    rect: item.getBoundingClientRect(),
+                    label: item.querySelector(".sf-property-view-section-tab-label")?.textContent?.trim()
                         || item.textContent?.trim() || key,
                 };
             },

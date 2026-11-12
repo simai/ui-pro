@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.13.3",
+  "version": "1.14.0",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -65,8 +65,6 @@
       "smart.switch",
       "smart.tabs",
       "smart.tag",
-      "smart.tree",
-      "smart.tree-item",
       "smart.view",
       "smart.view-table"
     ],
@@ -1623,6 +1621,13 @@
         "changes": [
           "The controls the panel draws (the open-all bar, the group and section buttons, the section tabs, the profile picker, the edge controls) carry the panel's size when it has one and none when it has not (decision C22), as sf-view and sf-view-table do since view 1.6.0, so page density moves them: under compact density a panel with no size draws them at 32, size 1 keeps 40. `size` still chooses the panel's own type steps (1/2 or 1). Made in ui-pro ahead of simai/ui-view (2026-11-10); the view set releases the same change. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.13.3",
+        "to": "1.14.0",
+        "changes": [
+          "The section list beside the groups is vertical tabs, sf-tabs type=\"vertical\" (decision C96 point 5, TR-13), not an sf-tree: the sections switch which part of the record is shown, so they are a named tablist (aria-label is the sections label, one tab aria-selected), and arrow keys up and down walk them. A section without an icon of its own no longer gets the tree's folder; a section's own icon stays, as the tab's icon. The column around the list is no longer a nav landmark while reading (the tablist is named itself); while the view is arranged it is still the nav of the component's own rows, and those rows no longer draw a folder either. The rule loads cl-tabs and no longer cl-tree / cl-tree-item. A host that read the list's rows (.sf-tree-item[data-value] in .sf-property-view-sections) reads the tabs instead ([role=tab] in .sf-property-view-sections); selectSection, the section events and the settings are unchanged. Made in ui-pro ahead of simai/ui-view (2026-11-12); the view set releases the same change."
+        ]
       }
     ]
   },
@@ -1632,15 +1637,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-properties/index.js",
-        "sha256": "6d5d01b4bc168dcde94091531e0d50d9df47f3e0efe1b62bb9954a09d90a1c52"
+        "sha256": "c8a12e31a1f9af1f19ff20222bf9f24d4e57cc8f23854f5e986091279949204b"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
-        "sha256": "737883a29aa0d85eb2e4753248bab856e5ff390db92f4b423d8017acd888d744"
+        "sha256": "c329e5059e2c75edbfc83aaa1e3fdd394ea2391b997be643ef3cb9ac6ebfa3cc"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.css",
-        "sha256": "9fbc0fddf5bd614901e2e1837042eff2ba4348999301aba44e46c2a07da0fb65"
+        "sha256": "5a1efc21b735ca6297f134b986e2a898cf3bf1d413de45ddf47969cc5baa208e"
       },
       {
         "path": "src/smart/view-properties/js/conditions.js",
@@ -1676,7 +1681,7 @@
       },
       {
         "path": "src/smart/view-properties/rule.js",
-        "sha256": "d6b0ba37902b2b84b46be67ec3a4d8261110b08e0f4e5c4685ef2fd4766dbedf"
+        "sha256": "24cef901fd4f5ee46a10e7fa29e58ca98cdd9805e95ec8e46dfa788a6798cffa"
       },
       {
         "path": "src/core/contracts/ports/simai.property-view-port/1.4.0/port.json",

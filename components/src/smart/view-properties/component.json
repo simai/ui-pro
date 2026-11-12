@@ -2,7 +2,7 @@
   "$comment": "sf-property-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/property-view; every x-todo decided in x-decisions.",
   "id": "smart.view-properties",
   "tag": "sf-view-properties",
-  "version": "1.13.3",
+  "version": "1.14.0",
   "kind": "leaf",
   "family": "record",
   "implements": [
@@ -715,12 +715,6 @@
       "name": "cl-drawer"
     },
     {
-      "name": "cl-tree"
-    },
-    {
-      "name": "cl-tree-item"
-    },
-    {
       "name": "cl-avatar"
     },
     {
@@ -882,7 +876,8 @@
     {
       "name": "cl-tabs",
       "$comment": [
-        "Sections laid out as a row of tabs rather than a list beside the fields."
+        "The sections are tabs either way: a row above the groups, or vertical",
+        "tabs beside them (decision C96 point 5)."
       ]
     }
   ],
@@ -1742,6 +1737,13 @@
           "to": "1.13.3",
           "changes": [
             "The controls the panel draws (the open-all bar, the group and section buttons, the section tabs, the profile picker, the edge controls) carry the panel's size when it has one and none when it has not (decision C22), as sf-view and sf-view-table do since view 1.6.0, so page density moves them: under compact density a panel with no size draws them at 32, size 1 keeps 40. `size` still chooses the panel's own type steps (1/2 or 1). Made in ui-pro ahead of simai/ui-view (2026-11-10); the view set releases the same change. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.13.3",
+          "to": "1.14.0",
+          "changes": [
+            "The section list beside the groups is vertical tabs, sf-tabs type=\"vertical\" (decision C96 point 5, TR-13), not an sf-tree: the sections switch which part of the record is shown, so they are a named tablist (aria-label is the sections label, one tab aria-selected), and arrow keys up and down walk them. A section without an icon of its own no longer gets the tree's folder; a section's own icon stays, as the tab's icon. The column around the list is no longer a nav landmark while reading (the tablist is named itself); while the view is arranged it is still the nav of the component's own rows, and those rows no longer draw a folder either. The rule loads cl-tabs and no longer cl-tree / cl-tree-item. A host that read the list's rows (.sf-tree-item[data-value] in .sf-property-view-sections) reads the tabs instead ([role=tab] in .sf-property-view-sections); selectSection, the section events and the settings are unchanged. Made in ui-pro ahead of simai/ui-view (2026-11-12); the view set releases the same change."
           ]
         }
       ]
