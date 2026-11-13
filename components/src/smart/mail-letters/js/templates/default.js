@@ -46,7 +46,10 @@ export function renderMailLettersTemplate(context) {
                 ? html`<ul class="sf-mail-letters-list">${context.letters.map((letter) => renderRow(context, letter))}</ul>`
                 : nothing}
             ${context.empty
+                // The section's icon for an empty list (owner decision C120):
+                // mail, as the letters' menu entry; nothing found keeps search_off.
                 ? html`<sf-empty-state class="sf-mail-letters-empty" kind=${context.empty} size="1/2" heading-level="2"
+                         icon=${context.empty === "no-data" ? "mail" : nothing}
                          heading=${context.emptyTitle} text=${context.emptyText}></sf-empty-state>`
                 : nothing}
             <sf-menu-context class="sf-mail-letters-menu" popup

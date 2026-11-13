@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-structure",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "title": "Letter structure",
   "summary": "The structure of a letter in SIMAI Email Editor: the letter's settings, one row per block, and a way to add a block. A row chooses, moves, copies and removes its block; a point between rows asks for a new block there; the header and the footer stay pinned. The element holds no letter and changes none; it says what the person asked for.",
   "kind": "smart",
@@ -444,7 +444,7 @@
       },
       {
         "path": "src/smart/mail-structure/js/templates/default.js",
-        "sha256": "ffd268134458feeb7349d4b4f35e937592372730fae77ed8f04194c8fc950312"
+        "sha256": "d2298af10cb57debe1a8200535beeac3b4a67cb73b6b0b54149820f216fd0e1a"
       },
       {
         "path": "src/smart/mail-structure/js/templates/default.css",
@@ -460,7 +460,7 @@
       },
       {
         "path": "src/smart/mail-structure/component.json",
-        "sha256": "7b766e09850ef3101a93f25411880721c7b30556ad9041022f7bad78c631126a"
+        "sha256": "11c3541c847a5d65d6b6cb1758cc5ccf8992e704c620a3218a5c814a439ffdea"
       },
       {
         "path": "src/smart/mail-structure/lang/en.json",

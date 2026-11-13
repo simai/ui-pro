@@ -34,9 +34,9 @@ function renderRow(context, row) {
 function renderEmpty(context) {
     const {component} = context;
     return html`
-        <sf-empty-state slot="item" class="sf-mail-structure-empty" kind="no-data" size="1/2" heading-level="3"
+        <sf-empty-state slot="item" class="sf-mail-structure-empty" kind="first-use" icon="widgets" size="1/2" heading-level="3"
                         heading=${context.emptyTitle} text=${context.emptyText}>
-            <sf-button slot="actions" size="1/2" appearance="outline" icon-start="add" text=${context.addLabel}
+            <sf-button slot="actions" size="1/2" appearance="default" scheme="primary" icon-start="add" text=${context.addLabel}
                        data-action="add" @click=${() => component.add()}></sf-button>
         </sf-empty-state>
     `;
