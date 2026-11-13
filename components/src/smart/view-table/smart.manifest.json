@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.17.1",
+  "version": "1.17.2",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2721,7 +2721,7 @@
       },
       {
         "path": "src/smart/view-table/js/templates/default.js",
-        "sha256": "2197b74d2c0de08e6d05581ad90068a35896a83712549a906762df33b6dc5ffb"
+        "sha256": "9a99ca01529da9cfdd7733a0c8a068f7c592497258c3686d4f74de9b1f79fecc"
       },
       {
         "path": "src/smart/view-table/js/templates/default.css",

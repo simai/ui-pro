@@ -341,7 +341,7 @@
             ]
           },
           "wait": 600,
-          "check": "(() => { const w = document.querySelector('#w'); return w.querySelector('.chat-shell').classList.contains('chat-shell--files') && w.querySelectorAll('.chat-files__item').length === 2 && w.querySelector('.chat-files__used').textContent.includes('из') && w.querySelector('a.chat-files__download').getAttribute('href') === '/files/f1'; })()"
+          "check": "(() => { const w = document.querySelector('#w'); return w.querySelector('.chat-shell').classList.contains('chat-shell--files') && w.querySelectorAll('.chat-files__item').length === 2 && w.querySelector('.chat-files__used').textContent.includes('из') && w.querySelector('.chat-files__usage').getAttribute('role') === 'meter' && w.querySelector('.chat-files__usage').getAttribute('aria-valuetext') === w.querySelector('.chat-files__used').textContent && w.querySelector('.chat-files__bar').getAttribute('aria-hidden') === 'true' && w.querySelector('a.chat-files__download').getAttribute('href') === '/files/f1'; })()"
         },
         {
           "user": "click:#w .chat-files__item[data-id=f1] .chat-files__delete",

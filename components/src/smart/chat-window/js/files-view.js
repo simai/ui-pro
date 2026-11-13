@@ -79,10 +79,13 @@ export class FilesView {
     usage.hidden = true;
     const used = doc.createElement('p');
     used.className = 'chat-files__used';
+    // The space used is an amount within a quota, not a task's progress
+    // (PG-14 of the SIMAI Framework progress study): the usage is one meter,
+    // as sf-tile-metric's limit is; the line and the bar are its picture.
     const bar = doc.createElement('sf-progress-bar');
     bar.className = 'chat-files__bar';
     bar.setAttribute('size', '1/2');
-    bar.setAttribute('label', this.words('files.usage'));
+    bar.setAttribute('aria-hidden', 'true');
     usage.append(used, bar);
 
     const body = doc.createElement('div');
@@ -172,10 +175,21 @@ export class FilesView {
       : usedText;
     this.used.textContent = text;
     this.bar.hidden = !(Number.isFinite(quota) && quota > 0);
-    if (this.bar.hidden) return;
-    const percent = Math.min(100, Math.max(0, (used / quota) * 100));
-    this.bar.setAttribute('value', String(Number(percent.toFixed(1))));
-    this.bar.setAttribute('value-text', text);
+    if (this.bar.hidden) {
+      // No quota: only the amount, read as text.
+      for (const name of ['role', 'aria-label', 'aria-valuemin', 'aria-valuemax', 'aria-valuenow', 'aria-valuetext']) this.usage.removeAttribute(name);
+      this.used.removeAttribute('aria-hidden');
+      return;
+    }
+    const percent = Number(Math.min(100, Math.max(0, (used / quota) * 100)).toFixed(1));
+    this.bar.setAttribute('value', String(percent));
+    this.usage.setAttribute('role', 'meter');
+    this.usage.setAttribute('aria-label', this.words('files.usage'));
+    this.usage.setAttribute('aria-valuemin', '0');
+    this.usage.setAttribute('aria-valuemax', '100');
+    this.usage.setAttribute('aria-valuenow', String(percent));
+    this.usage.setAttribute('aria-valuetext', text);
+    this.used.setAttribute('aria-hidden', 'true');
   }
 
   row(file) {
