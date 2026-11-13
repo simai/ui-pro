@@ -665,11 +665,9 @@
     color: var(--sf-chat-window--ink-muted);
   }
 
-  .chat-files__loading {
-    margin: 0;
-    padding-block: var(--sf-space-1);
-    color: var(--sf-chat-window--ink-muted);
-  }
+  /* The list on its way (1.15.0): sf-skeleton rows in the list's own grid;
+     the words (.chat-files__loading) are offscreen. */
+  .chat-files__skeleton .chat-files__text { row-gap: var(--sf-space-1\/3); }
 
   .chat-files__body sf-empty-state { display: block; padding-block-start: var(--sf-space-4); }
 

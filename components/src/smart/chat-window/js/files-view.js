@@ -7,8 +7,11 @@
 // delete when it is confirmed (delete {kind: file}); how much is used and
 // whether a delete is allowed is the server's, shown as it comes.
 //
-// Framework parts: the usage is sf-progress-bar, an empty list and a list that
-// did not load are sf-empty-state (its «Повторить»), the actions are sf-button
+// Framework parts: the usage is sf-progress-bar, the list on its way is
+// sf-skeleton rows in the shape of the list (the Framework's loading contract:
+// a list loads as a skeleton of its future rows, the words said offscreen), an
+// empty list and a list that did not load are sf-empty-state (its
+// «Повторить»), the actions are sf-button
 // markup (a real <a download> for «Скачать»). The rows are plain markup (the
 // Framework's repeats-are-light-markup), and «Удалить» asks in its row rather
 // than in sf-modal, which renders its content as copied HTML in a portal
@@ -121,10 +124,7 @@ export class FilesView {
     this.body.setAttribute('aria-busy', String(this.state === 'loading'));
     if (this.state === 'loading' && !data) {
       this.usage.hidden = true;
-      const line = doc.createElement('p');
-      line.className = 'chat-files__loading';
-      line.textContent = this.words('files.loading');
-      this.body.replaceChildren(line);
+      this.body.replaceChildren(...this.loadingRows());
       return;
     }
     if (this.state === 'error') {
@@ -146,11 +146,41 @@ export class FilesView {
     this.body.replaceChildren(list);
   }
 
-  emptyState(kind, title, text, icon = '') {
+  // The list on its way: three rows of the list's own shape in sf-skeleton --
+  // the glyph's square and the name over its facts -- so nothing moves when
+  // the files come. The drawing is aria-hidden (sf-skeleton's own contract);
+  // the body is aria-busy and the words are said offscreen.
+  loadingRows() {
+    const doc = this.ctx.document;
+    const said = doc.createElement('p');
+    said.className = 'sf-chat-offscreen chat-files__loading';
+    said.textContent = this.words('files.loading');
+    const list = doc.createElement('ul');
+    list.className = 'chat-files__list chat-files__skeleton';
+    list.setAttribute('aria-hidden', 'true');
+    const shape = (settings) => {
+      const bar = doc.createElement('sf-skeleton');
+      for (const [key, value] of Object.entries(settings)) bar.setAttribute(key, value);
+      return bar;
+    };
+    for (const width of ['60%', '45%', '70%']) {
+      const item = doc.createElement('li');
+      item.className = 'chat-files__item';
+      const square = 'var(--sf-ui-1--control-height)';
+      const text = doc.createElement('div');
+      text.className = 'chat-files__text';
+      text.append(shape({kind: 'text', size: '1', width}), shape({kind: 'text', size: '1/2', width: '35%'}));
+      item.append(shape({kind: 'rounded', width: square, height: square}), text);
+      list.append(item);
+    }
+    return [said, list];
+  }
+
+  emptyState(kind, heading, text, icon = '') {
     const state = this.ctx.document.createElement('sf-empty-state');
     state.setAttribute('kind', kind);
     state.setAttribute('size', '1');
-    state.setAttribute('title', title);
+    state.setAttribute('heading', heading);
     state.setAttribute('text', text);
     state.setAttribute('heading-level', String(Math.min(6, this.headingLevel + 1)));
     if (icon) state.setAttribute('icon', icon);

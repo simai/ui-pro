@@ -12,6 +12,7 @@
 // and a group's members (x-members) the avatars' class markup, each only
 // once its view is opened. A conversation between
 // people draws the head's mark as Smart sf-avatar (cl-avatar, lazy).
+// «Мои файлы» on their way are sf-skeleton rows (cl-skeleton, lazy).
 SF.RuleLoader['cl-chat-window'] = {
   tags: ['sf-chat-window'],
   type: 'smart',
@@ -31,6 +32,7 @@ SF.RuleLoader['cl-chat-window'] = {
     { name: 'cl-confirm-change', lazy: true },
     { name: 'cl-menu-context', lazy: true },
     { name: 'cl-progress-bar', lazy: true },
+    { name: 'cl-skeleton', lazy: true },
     { name: 'cl-empty-state', lazy: true },
     { name: 'avatars', lazy: true },
     { name: 'cl-avatar', lazy: true },

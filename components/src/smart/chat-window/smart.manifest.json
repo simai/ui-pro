@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.14.3",
+  "version": "1.15.0",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -43,7 +43,8 @@
       "smart.input-lookup",
       "smart.list-feed",
       "smart.menu-context",
-      "smart.progress-bar"
+      "smart.progress-bar",
+      "smart.skeleton"
     ],
     "public_parts": [],
     "declarative": {
@@ -2744,7 +2745,7 @@
       },
       {
         "path": "src/smart/chat-window/js/files-view.js",
-        "sha256": "94ec4d39cdc810de6edb31b87e61e33c94078752dec42ebe78c0b30b8ff3958a"
+        "sha256": "bd5a845c6e253f983ba682431f8ca337f77fd2b47115df81cdf8e2111b5a3e51"
       },
       {
         "path": "src/smart/chat-window/js/part-words.js",
@@ -2780,11 +2781,11 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "530677b9bd1660bd47283170cf9d4d4b79166858ff16c5c63f632ad03e571ba2"
+        "sha256": "2323876f9924611c415b0d25ddd4674ba0b7bd137e809d53c5b304adfe3929e3"
       },
       {
         "path": "src/smart/chat-window/rule.js",
-        "sha256": "1336e06255572313d4cc5f5f7fc80bb6c8c13bac38a7b1fded4cc3e3dfe8f21e"
+        "sha256": "a4323aece5bbf7fa861d8d5c9e5386333b961c6703cee3aaaeed4c2fc1652703"
       },
       {
         "path": "src/smart/chat-window/docs.md",
@@ -2792,7 +2793,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "1417fa803d48cefed3b0a7bb808a4384c9ccd4be6b43426a0bb9a3fdda225631"
+        "sha256": "9070db4a3c3cad90f83f46a5651e98a5ff89f49c19662b23485171f2c2ec891d"
       },
       {
         "path": "src/smart/chat-window/aliases.json",
