@@ -12,6 +12,9 @@ SF.RuleLoader['cl-admin-menu'] = {
     { name: 'badges' },
     { name: 'cl-button' },
     { name: 'cl-menu-context', lazy: true },
+    // The person menu's «Language» row is sf-language's own (SfLanguage.menuEntry,
+    // C142 (7)); fetched after the page is ready, or at once when the menu opens first.
+    { name: 'cl-language', lazy: true },
     { name: 'cl-badge' },
     { name: 'cl-icon' },
     { name: 'cl-button-icon' },

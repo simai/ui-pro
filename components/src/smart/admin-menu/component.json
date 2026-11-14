@@ -2,7 +2,7 @@
   "$comment": "The source of sf-admin-menu's interface (standard simai.smart-component 1.3.8). Taken from simai/ui-control control/smart-architecture/migration/out/admin-menu (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.admin-menu",
   "tag": "sf-admin-menu",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "kind": "leaf",
   "family": "menu",
   "settings": {
@@ -609,6 +609,14 @@
       "lazy": true
     },
     {
+      "name": "cl-language",
+      "lazy": true,
+      "$comment": [
+        "The person menu's «Language» row is sf-language's own (SfLanguage.menuEntry,",
+        "C142 (7)); fetched after the page is ready, or at once when the menu opens first."
+      ]
+    },
+    {
       "name": "cl-badge"
     },
     {
@@ -960,7 +968,8 @@
     "version 1.8.2 (2026-11-10): a patch, for SIMAI Framework ui-a0370c0c99fb. The person menu opens with the profile picker's panel rule (decision C32 \"panel\"; DEV 2026-11-10, owner rule 2026-10-14 kept): max(the person button, --sf-popup-panel-width), 320 at 1280, 288 under compact density, 320 on a phone, never wider than the screen less its gutters; no line is cut, which the list step (1.8.1) did to «Профиль меню». The site switcher keeps the list width. In the narrow rail the menu is as wide as its lines, as before. Settings, values and events are unchanged.",
     "version 1.9.0 (2026-11-10): a minor version (a look), for SIMAI Framework ui-2bd5a3ab478a (ui-source d25a01f9), as its navigation menu now draws the current page and its path (component.menu 1.5, C23 and C30 amended 2026-11-09). The 3 by 16 bar is retired: a root of the first column whose rows hold the current page, or a section of the second column folded over it, takes the path mark -- a medium label, no bar (R065 a: neither column has a border at its start); in the rail, where a row is an icon alone, that root takes a 2px primary line on the rail's own start edge, as tall as the row, and no weight (DEV answer b). A row's label is regular at rest, so the medium label is the current page's and the path's second cue besides the colour. A root whose column is open takes the neutral select plate of the alpha scale (--sf-surface-state-select) instead of the secondary container, so open and current cannot look alike (C30, R060); so does the person button while its menu is open. Rows and the menu's own buttons hover and press with the state family (--sf-surface-state-hover 4, --sf-surface-state-active 12), as the Framework navigation menu does; the fill family's hover (container-hover, 20) sat as close to the current plate as a second plate. A tonal count on the current plate or the open root's plate lays its tone over the solid place (C43: --sf-surface-underlay, as the Framework's translucent rows declare it). The settings menus keep giving sf-menu-context entries (1.8.0), the entry form of sf-menu-context 1.14.2. Settings, values and events are unchanged.",
     "version 1.9.1 (2026-11-12): a patch (no change of its own), for SIMAI Framework ui-7fb26d395af2 (ui-source 8c13bf45). The Framework's admin-menu sheet it builds in (component.admin-menu 1.1.2) names the page surface --sf-surface-page (C16; --sf-surface-0 is its former name, the same value), and its current, open and hover rows are translucent places whose fill an anchored badge rings with (C43 D3, D4). Nothing to change for a host.",
-    "version 1.9.2 (2026-11-14): a patch (a row's look). In the person menu's language submenu each language's English name stands beside its own name, as the row's value at the row's end -- «Deutsch    German» -- where it was a caption under it; left out when the two are the same word (English). Decision C49 keeps the language menu as sf-language draws it (the second name beside); research ui-control control/research/2026-11-14-language.md LG-11. The English name stays searchable (keywords, with the code). Settings, values, events and the port are unchanged."
+    "version 1.9.2 (2026-11-14): a patch (a row's look). In the person menu's language submenu each language's English name stands beside its own name, as the row's value at the row's end -- «Deutsch    German» -- where it was a caption under it; left out when the two are the same word (English). Decision C49 keeps the language menu as sf-language draws it (the second name beside); research ui-control control/research/2026-11-14-language.md LG-11. The English name stays searchable (keywords, with the code). Settings, values, events and the port are unchanged.",
+    "version 1.10.0 (2026-11-14): a minor (owner decision C142 (7); research ui-control control/research/2026-11-14-language.md LG-11). The person menu's «Language» row is the one SIMAI Framework draws for an app menu, SfLanguage.menuEntry() of sf-language 1.4.0: the current language's name as its value, and in the submenu each language's name in itself with its name in the person's interface language beside it (C49; «Deutsch    немецкий» for a Russian interface, where 1.9.2 gave the English name), the radio mark on the current one, the submenu at the panel width (C32, sf-menu-context 1.17.0) so no second name is cut, and a search from eight languages (it was always there). The rows' ids stay «language:<code>», so choosing one is unchanged; the note under the rows stays. The rule relates cl-language (lazy); the menu asks the Loader for it when it opens before it has arrived. Over a pair without menuEntry the rows are drawn as 1.9.2 drew them. Settings, values, events and the port are unchanged."
   ],
   "x-registry": {
     "kind": "composite",

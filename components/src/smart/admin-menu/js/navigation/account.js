@@ -20,14 +20,54 @@ const THEMES = [
     {value: "system", icon: "contrast", label: "themeSystem"},
 ];
 
+// The «Language» row is the one SIMAI Framework draws for an app menu
+// (SfLanguage.menuEntry, owner decision C142 (7), research LG-11): the current
+// language's name as the row's value, a submenu of sf-language's rows -- the
+// name in itself and beside it its name in the page's language (C49), the
+// radio mark on the current one -- at the panel width (C32), with a search
+// from eight languages. Its rows' ids are «language:<code>», which the select
+// below reads. Over a pair without menuEntry (sf-language before 1.4.0) the
+// rows are drawn here as 1.9.2 drew them: the English name beside, a search
+// always.
+function languageEntry({text}, person, language) {
+    const languages = person.languages ?? [];
+    const note = {type: "note", text: text("languageNote")};
+    const SfLanguage = customElements.get("sf-language");
+    if (typeof SfLanguage?.menuEntry === "function") {
+        const entry = SfLanguage.menuEntry({
+            items: languages.map((entry) => ({code: entry.code, label: entry.native})),
+            value: person.language,
+            page: person.language,
+            label: text("language"),
+        });
+        return {...entry, submenu: [...(entry.submenu ?? []), note]};
+    }
+    return {
+        id: "language", text: text("language"), icon: "translate", value: language?.native ?? person.language,
+        search: {placeholder: text("findLanguage"), empty: text("nothingFound")},
+        submenu: [
+            ...languages.map((entry) => ({
+                id: `language:${entry.code}`, text: entry.native,
+                value: entry.english && entry.english !== entry.native ? entry.english : undefined,
+                keywords: [entry.english, entry.code].filter(Boolean).join(" "),
+                kind: "radio", checked: entry.code === person.language, lang: entry.code,
+            })),
+            note,
+        ],
+    };
+}
+
 // The profile menu is the Framework's standard menu (owner, 2026-10-12): who
 // is signed in, the host's links, the theme as a choice row, the language and
 // the menu profile as submenus -- the language with its search -- and signing
 // out apart. It opens above the person, start-aligned.
-export function openAccountMenu(context, anchor) {
+export async function openAccountMenu(context, anchor) {
     const {controller, navigation, text} = context;
     const person = navigation?.person;
     if (!person) return null;
+    // The language row is sf-language's (C142 (7)); a lazy relation, so a
+    // press before it has arrived asks the Loader for it and waits.
+    if (controller.offers("preferences")) await globalThis.SF?.Loader?.ensure?.(["sf-language"]);
     const site = navigation.site?.current;
     const profiles = navigation.profiles;
     const currentProfile = profiles?.list?.find((entry) => entry.key === profiles.current);
@@ -55,22 +95,7 @@ export function openAccountMenu(context, anchor) {
                     kind: "radio", checked: person.theme === theme.value,
                 })),
             },
-            {
-                id: "language", text: text("language"), icon: "translate", value: language?.native ?? person.language,
-                search: {placeholder: text("findLanguage"), empty: text("nothingFound")},
-                submenu: [
-                    // The second name beside the name, as sf-language's own
-                    // menu has it (C49: the language menu does not change);
-                    // left out when it is the same word (English).
-                    ...(person.languages ?? []).map((entry) => ({
-                        id: `language:${entry.code}`, text: entry.native,
-                        value: entry.english && entry.english !== entry.native ? entry.english : undefined,
-                        keywords: [entry.english, entry.code].filter(Boolean).join(" "),
-                        kind: "radio", checked: entry.code === person.language, lang: entry.code,
-                    })),
-                    {type: "note", text: text("languageNote")},
-                ],
-            },
+            languageEntry(context, person, language),
         );
     }
     // Configuring the menu sits with the menu profile, in the person's menu: a
