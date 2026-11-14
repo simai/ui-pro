@@ -2,6 +2,8 @@ import {html, nothing} from "lit";
 import {ICON_CHOICES} from "../../../../core/js/icon-choices.js";
 import {LIST_ID} from "./controller";
 import {openMenu} from "./menu";
+import {isEditableTarget} from "../../../../component/kbd/js/shortcut";
+import {isMenuKey, pointAnchor} from "./context-menu.js";
 
 // The edit mode (assignment, section 7): both columns at once, a banner with
 // the profile being edited and what that means, and on every row a handle, an
@@ -58,7 +60,28 @@ export function renderEditBanner(context) {
     </div>`;
 }
 
-function openRowMenu(context, row, anchor) {
+// A row's menu from a right click or the context-menu key (decision C164
+// (1)(2), defect TL-2): the same menu, with the same list, as the row's ⋯ --
+// at the pointer (context-menu.js), or from the keyboard at the ⋯ itself.
+function onRowContextMenu(context, row, event) {
+    if (event.shiftKey || isEditableTarget(event.target)) return;
+    event.preventDefault();
+    const point = pointAnchor(event);
+    Promise.resolve(openRowMenu(context, row, point, () => point.remove())).then((opened) => {
+        if (!opened) point.remove();
+    });
+}
+
+function onRowKeydown(context, row, event) {
+    if (!isMenuKey(event) || isEditableTarget(event.target)) return;
+    const button = event.currentTarget.querySelector(":scope > .sf-admin-nav-edit-button");
+    if (!button) return;
+    event.preventDefault();
+    event.stopPropagation();
+    openRowMenu(context, row, button);
+}
+
+function openRowMenu(context, row, anchor, onClose = null) {
     const {controller, text} = context;
     const renamed = row.package_label && row.label !== row.package_label;
     // Every row's menu says something: a divider's had nothing to offer that was
@@ -73,7 +96,7 @@ function openRowMenu(context, row, anchor) {
     ].filter(Boolean);
     if (!entries.length) return null;
     return openMenu(controller, anchor, {
-        label: `${text("more")}: ${row.label ?? ""}`, entries,
+        label: `${text("more")}: ${row.label ?? ""}`, entries, onClose,
         select: (id) => {
             if (id === "rename") {
                 controller.edit = {...controller.edit, renaming: row.key};
@@ -128,7 +151,9 @@ function renderEditRow(context, row, {draggable = true} = {}) {
         : html`${row.kind === "heading" ? nothing : renderIconChooser(context, row)}
             <span class="sf-admin-nav-row-label" data-heading=${row.kind === "heading" ? "true" : nothing}>${row.label}</span>`;
     return html`<div class="sf-admin-nav-edit-row" data-sf-sortable-item=${draggable ? row.key : nothing}
-        data-hidden=${row.hidden ? "true" : nothing} data-kind=${row.kind}>
+        data-hidden=${row.hidden ? "true" : nothing} data-kind=${row.kind}
+        @contextmenu=${(event) => onRowContextMenu(context, row, event)}
+        @keydown=${(event) => onRowKeydown(context, row, event)}>
         ${draggable ? html`<span class="sf-admin-nav-edit-handle" data-sf-sortable-handle aria-hidden="true"
             title=${text("drag")}>${icon("drag_indicator", "")}</span>` : html`<span class="sf-admin-nav-edit-handle"></span>`}
         ${edit.renaming === row.key ? renderRenaming(context, row) : row.kind === "divider"

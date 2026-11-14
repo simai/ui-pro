@@ -10,6 +10,12 @@ SF.RuleLoader['cl-admin-menu'] = {
     { name: 'icons' },
     { name: 'inputs' },
     { name: 'badges' },
+    // A row's shortcut, the search row's keys and the palette's keys are SIMAI Framework's
+    // kbd unit (C04, KB-2, K-05): the menu writes the keys, the kbd sheet draws them.
+    { name: 'kbd' },
+    // The person's picture is the Framework's avatar drawing beside the button's text
+    // (avatar/js/picture.js, K-06): the avatars sheet draws it.
+    { name: 'avatars' },
     { name: 'cl-button' },
     { name: 'cl-menu-context', lazy: true },
     { name: 'cl-badge' },

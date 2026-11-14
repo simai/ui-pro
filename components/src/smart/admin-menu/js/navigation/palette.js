@@ -1,8 +1,30 @@
 import {html, nothing} from "lit";
+import {ariaKeyShortcuts, parseShortcut, shortcutView} from "../../../../component/kbd/js/shortcut";
 
 // The ⌘K palette: a dialog over the page, so the same search is there in the
 // two-column menu, on the rail and on a phone (assignment, section 4). The
 // groups and their order are the host's; the field says where it searched.
+
+// A key or a combination as SIMAI Framework's kbd unit writes it (C04, KB-2,
+// K-05): one <kbd> per key, a group for a combination, the platform's caps
+// (⌘K on a Mac, Ctrl+K elsewhere) and its + between words. The kbd sheet
+// picks the look by the place -- plain glyphs in a list or a menu row, a key
+// in the palette's foot. A menu row that is a link with role=button says
+// appearance="plain" (the kbd sheet's own attribute): it is a row of a menu,
+// not a button. The menu writes the keys and no look of its own.
+export function renderKeys(value, appearance = null) {
+    const {keys, join} = shortcutView(value);
+    if (!keys.length) return nothing;
+    const one = (key, said = null) => html`<kbd class=${key.square ? "sf-kbd--square" : nothing} appearance=${said ?? nothing}>${key.text}</kbd>`;
+    if (keys.length === 1) return one(keys[0], appearance);
+    return html`<kbd class="sf-kbd--group" appearance=${appearance ?? nothing}>${keys.map((key, at) => html`${at && join ? html`<span class="sf-kbd-join">+</span>` : nothing}${one(key)}`)}</kbd>`;
+}
+
+// What a combination reads as in words, for a title: «Ctrl+K», «⌘K».
+const keysText = (value) => {
+    const {keys, join} = shortcutView(value);
+    return keys.map((key) => key.text).join(join ? "+" : "");
+};
 
 const icon = (name) => (name
     ? html`<sf-icon root-class="sf-admin-nav-row-icon" aria-hidden="true" icon=${name}></sf-icon>`
@@ -38,7 +60,7 @@ function renderResults(context) {
                     ${icon(item.icon || (item.kind === "action" ? "bolt" : "description"))}
                     <span class="sf-admin-nav-palette-label">${item.label}</span>
                     ${item.caption ? html`<span class="sf-admin-nav-palette-caption">${item.caption}</span>` : nothing}
-                    ${active ? html`<kbd class="sf-admin-nav-kbd" aria-hidden="true">↵</kbd>` : nothing}
+                    ${active ? html`<span class="sf-admin-nav-palette-enter" aria-hidden="true">${renderKeys("enter")}</span>` : nothing}
                 </div>`;
             })}
             ${group.more ? html`<a class="sf-admin-nav-palette-more" href=${group.more.href}
@@ -64,10 +86,10 @@ export function renderPalette(context) {
                 aria-label=${text("search")} aria-busy=${palette.loading ? "true" : "false"}>
                 ${renderResults(context)}
             </div>
-            <div class="sf-admin-nav-palette-foot" aria-hidden="true">
-                <span><kbd class="sf-admin-nav-key">↑</kbd><kbd class="sf-admin-nav-key">↓</kbd> ${text("paletteNavigate")}</span>
-                <span><kbd class="sf-admin-nav-key">↵</kbd> ${text("paletteOpen")}</span>
-                <span><kbd class="sf-admin-nav-key">Esc</kbd> ${text("paletteClose")}</span>
+            <div class="sf-admin-nav-palette-foot sf-text-1/3" aria-hidden="true">
+                <span>${renderKeys("up")} ${renderKeys("down")} ${text("paletteNavigate")}</span>
+                <span>${renderKeys("enter")} ${text("paletteOpen")}</span>
+                <span>${renderKeys("escape")} ${text("paletteClose")}</span>
             </div>
         </div>
     </div>`;
@@ -79,12 +101,12 @@ export function renderSearchRow(context) {
     if (!controller.offers("search")) return nothing;
     return html`<a class="sf-admin-nav-row sf-admin-nav-row--first" href="#" role="button"
         aria-haspopup="dialog"
-        aria-keyshortcuts=${shortcut === "⌘K" ? "Meta+K" : "Control+K"}
-        title=${compact ? `${text("search")} ${shortcut}` : nothing}
+        aria-keyshortcuts=${ariaKeyShortcuts(parseShortcut(shortcut)) || nothing}
+        title=${compact ? `${text("search")} ${keysText(shortcut)}` : nothing}
         aria-label=${compact ? text("search") : nothing}
         @click=${(event) => { event.preventDefault(); controller.openPalette(); }}>
         ${icon("search")}
         ${compact ? nothing : html`<span class="sf-admin-nav-row-label">${text("search")}</span>
-            <kbd class="sf-admin-nav-kbd" appearance="plain">${shortcut}</kbd>`}
+            <span class="sf-admin-nav-row-keys">${renderKeys(shortcut, "plain")}</span>`}
     </a>`;
 }

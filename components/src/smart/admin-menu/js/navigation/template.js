@@ -1,7 +1,7 @@
 import {html, nothing} from "lit";
 import "./navigation.css";
 import {getInitials} from "../../../helpers/text";
-import {renderPalette, renderSearchRow} from "./palette";
+import {renderKeys, renderPalette, renderSearchRow} from "./palette";
 import {counterOf, dotPhrase, nameWithCounter} from "../templates/default";
 import {renderPersonButton} from "./account";
 import {renderEditBanner, renderEditRoots, renderEditRows} from "./edit";
@@ -33,7 +33,9 @@ const attention = (row) => {
         return html`<sf-badge class="sf-admin-nav-attention" size="1/3" status="error"
             text=${String(row.badge)}></sf-badge>`;
     }
-    if (row.shortcut) return html`<kbd class="sf-admin-nav-kbd" appearance="plain">${row.shortcut}</kbd>`;
+    // The host writes a row's keys in the Framework's notation (mod+shift+p) or
+    // as text; the kbd unit draws either (C04).
+    if (row.shortcut) return html`<span class="sf-admin-nav-row-keys">${renderKeys(row.shortcut, "plain")}</span>`;
     return nothing;
 };
 

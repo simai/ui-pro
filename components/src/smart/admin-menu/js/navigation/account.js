@@ -1,5 +1,5 @@
 import {html, nothing} from "lit";
-import {getInitials} from "../../../helpers/text";
+import {avatarPicture} from "../../../avatar/js/picture";
 import {openMenu} from "./menu";
 
 // The profile menu at the bottom of the first column: who is signed in, the
@@ -10,9 +10,15 @@ const icon = (name, rootClass = "sf-admin-nav-row-icon") => (name
     ? html`<sf-icon root-class=${rootClass} aria-hidden="true" icon=${name}></sf-icon>`
     : nothing);
 
-const avatar = (person) => (person.avatar
-    ? html`<img class="sf-admin-nav-avatar" src=${person.avatar} alt="">`
-    : html`<span class="sf-admin-nav-avatar" aria-hidden="true">${getInitials(person.name ?? "")}</span>`);
+// The person's picture is SIMAI Framework's avatar drawing (K-06, C152; the
+// avatar study AV-8): the photo filling the circle, else the initials of the
+// name on the neutral plate, from the avatars sheet. It is the picture beside
+// the button's own text, not an sf-avatar element: sf-avatar is a button, and
+// a button inside the person button would be a second Tab stop with no action
+// (AR-1). Size 1/2 is the 32 px mark the column's site mark has.
+const avatar = (person) => avatarPicture({
+    imageUrl: person.avatar, name: person.name ?? "", size: "1/2",
+});
 
 const THEMES = [
     {value: "light", icon: "light_mode", label: "themeLight"},

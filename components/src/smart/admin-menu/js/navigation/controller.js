@@ -31,6 +31,7 @@ import {pageText} from "../../../../core/js/page-language";
 import {closeLayer, focusablesIn, openLayer} from "../../../../core/js/layer-stack";
 import BundledPreferences from "../../../../core/js/preferences.js";
 import {wordsOf} from "../words.js";
+import {matchesShortcut, parseShortcut} from "../../../../component/kbd/js/shortcut";
 
 export const NAVIGATION_PORT = "simai.admin-navigation-port";
 
@@ -52,9 +53,12 @@ const FIND_IN_SECTION_FROM = 7;
 // feel immediate; long enough that a word typed at speed is one question.
 const PALETTE_PAUSE_MS = 120;
 
-// ⌘K on a Mac, Ctrl K elsewhere: the hint says the keys this keyboard has.
-const IS_MAC = /Mac|iPhone|iPad/u.test(globalThis.navigator?.platform ?? globalThis.navigator?.userAgent ?? "");
-export const PALETTE_SHORTCUT = IS_MAC ? "⌘K" : "Ctrl K";
+// The palette's keys in SIMAI Framework's shortcut notation (component kbd):
+// mod is Cmd on an Apple platform and Ctrl elsewhere. The Framework says which
+// platform this is, draws the keys (⌘K, Ctrl+K) and hears them (KB-2, C04):
+// the menu keeps no platform test and no key look of its own.
+export const PALETTE_SHORTCUT = "mod+k";
+const PALETTE_KEYS = parseShortcut(PALETTE_SHORTCUT);
 
 // The id prefix of the lists sf-sortable reorders in the edit mode.
 export const LIST_ID = "sf-admin-nav-list-";
@@ -298,8 +302,7 @@ export class NavigationController {
             // ⌘K / Ctrl+K opens the palette from anywhere on the page, in every
             // arrangement of the menu -- the rail and the phone included, which
             // is the reason it is a palette over the page rather than a column.
-            if ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey
-                && String(event.key).toLowerCase() === "k" && this.offers("search")) {
+            if (matchesShortcut(event, PALETTE_KEYS) && this.offers("search")) {
                 event.preventDefault();
                 if (this.palette.open) this.closePalette();
                 else this.openPalette();

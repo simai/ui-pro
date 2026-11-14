@@ -1,6 +1,8 @@
 import { html, nothing } from "lit";
 import { getInitials } from "../../../helpers/text";
 import {wordsOf} from "../words.js";
+import {isMenuKey} from "../navigation/context-menu.js";
+import {isEditableTarget} from "../../../../component/kbd/js/shortcut";
 
 const MENU_TRANSLATIONS = wordsOf({
   empty: "empty",
@@ -223,6 +225,23 @@ export function renderAdminMenuTemplate(context) {
     settingsStatus,
     settingsError,
   } = component.state;
+
+  // A row's settings menu in the settings mode also opens on a right click,
+  // the context-menu key and Shift+F10 (decision C164 (1)(2), TL-2): the same
+  // menu as the row's ⋯, opened from it. Shift with a right click leaves the
+  // browser's own menu.
+  function openSettingsFrom(event, tempVisible) {
+    if (event.type === "keydown" ? !isMenuKey(event) : event.shiftKey) return;
+    if (isEditableTarget(event.target)) return;
+    const button = event.currentTarget.querySelector(":scope > .sf-admin-menu-item-settings, :scope > sf-button-icon[data-settings]");
+    if (!button) return;
+    component.openContextMenu({
+      currentTarget: button,
+      target: button,
+      preventDefault: () => event.preventDefault(),
+      stopPropagation: () => event.stopPropagation(),
+    }, {tempVisible});
+  }
 
   // The counter is the container's last child in both modes (renderCounter).
   // Compact, the container holds the icon alone in the flow, so it is as big as
@@ -487,7 +506,7 @@ export function renderAdminMenuTemplate(context) {
               @input=${(event) => component.search(event.target.value)}
               @keydown=${(event) => component.handleSearchKeydown(event)}
             />
-            <span class="sf-input-right"><kbd class="sf-admin-menu-search-kbd">Esc</kbd></span>
+            <span class="sf-input-right"><kbd>Esc</kbd></span>
           </span>
         </span>
       </div>
@@ -831,6 +850,8 @@ export function renderAdminMenuTemplate(context) {
           ? " hidden"
           : ""}${showSettings ? " settings-on relative" : ""}"
         role="presentation"
+        @contextmenu=${showSettings ? (event) => openSettingsFrom(event, isTempVisible) : nothing}
+        @keydown=${showSettings ? (event) => openSettingsFrom(event, isTempVisible) : nothing}
       >
         ${showSettings
           ? html` <sf-button-icon
@@ -866,7 +887,7 @@ export function renderAdminMenuTemplate(context) {
               scheme="on-surface"
               aria-label="Item Settings"
               root-class="absolute sf-admin-menu-item-settings"
-              icon="more_vert"
+              icon="more_horiz"
             ></sf-button-icon>`
           : nothing}
       </li>
@@ -904,6 +925,8 @@ export function renderAdminMenuTemplate(context) {
         class="sf-admin-menu-item-wrap flex items-cross-center${hidden
           ? " hidden"
           : ""}${showSettings ? " settings-on relative" : ""}"
+        @contextmenu=${showSettings ? (event) => openSettingsFrom(event, isTempVisible) : nothing}
+        @keydown=${showSettings ? (event) => openSettingsFrom(event, isTempVisible) : nothing}
       >
         <!-- Продумать touch-action: none;-->
         ${showSettings
@@ -932,7 +955,7 @@ export function renderAdminMenuTemplate(context) {
               scheme="on-surface"
               aria-label="Item Settings"
               root-class="absolute sf-admin-menu-item-settings"
-              icon="more_vert"
+              icon="more_horiz"
             ></sf-button-icon>`
           : nothing}
       </li>
