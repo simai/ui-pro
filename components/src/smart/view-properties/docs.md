@@ -132,6 +132,13 @@ a `limit` of 20. The search is the host's too, over the whole list — the
 component never filters a page it holds. Without the `field-options` capability
 a lookup that is not inline is shown read-only, as a record is.
 
+The host's list is chosen in `sf-input-lookup` (field-renderers 1.9.0, owner
+decision C139): a record, a relation, a user and a paged lookup alike. Focus
+shows the first page (the one asked quietly as the group opened, when it is
+held), typing searches through the host, «Показать ещё» follows the cursor. A
+row may carry `caption`, `avatar` (`{src}` or `{initials}`, or `avatarText`) and
+`icon` beside `value` and `label`; they reach the lookup as the host sends them.
+
 ```json
 {"key": "country", "label": "Страна", "propertyType": "lookup", "source": "countries",
  "value": {"value": "RU", "label": "Россия"}}

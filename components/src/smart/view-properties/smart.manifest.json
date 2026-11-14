@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.13.3",
+  "version": "1.15.0",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -51,6 +51,7 @@
       "smart.input-color",
       "smart.input-country",
       "smart.input-date",
+      "smart.input-lookup",
       "smart.input-textarea",
       "smart.list-item",
       "smart.popover",
@@ -1623,6 +1624,13 @@
         "changes": [
           "The controls the panel draws (the open-all bar, the group and section buttons, the section tabs, the profile picker, the edge controls) carry the panel's size when it has one and none when it has not (decision C22), as sf-view and sf-view-table do since view 1.6.0, so page density moves them: under compact density a panel with no size draws them at 32, size 1 keeps 40. `size` still chooses the panel's own type steps (1/2 or 1). Made in ui-pro ahead of simai/ui-view (2026-11-10); the view set releases the same change. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.13.3",
+        "to": "1.15.0",
+        "changes": [
+          "A record, a relation, a user and a paged lookup field are edited in sf-input-lookup (field-renderers 1.9.0, owner decision C139 (1)): focus asks the host for the first page (the quiet page asked as the group opens is reused), typing searches through loadFieldOptions, «Show more» follows the cursor, and the chosen value is written as {value, label}. The rule relates cl-input-lookup (lazy). A row's caption, avatar ({src} or {initials}, or avatarText) and icon reach the lookup as the host sends them in options_page.items; property-view-port 1.18.0 names only value and label, so a host that wants them needs the port to say so. A short list given whole stays sf-dropdown. The renderer set is built into this bundle, so the change comes with a package built over a ui-source that has field-renderers 1.9.0, and the page needs the pair with sf-input-lookup 1.10.0; a package built over an older ui-source keeps the searchable sf-dropdown. 1.14.0 is held by another branch. Made in ui-pro ahead of simai/ui-view (2026-11-14); the view set releases the same change."
+        ]
       }
     ]
   },
@@ -1676,7 +1684,7 @@
       },
       {
         "path": "src/smart/view-properties/rule.js",
-        "sha256": "d6b0ba37902b2b84b46be67ec3a4d8261110b08e0f4e5c4685ef2fd4766dbedf"
+        "sha256": "42a5bbe62b2298a139850ec114639c64ced897c556b57ba2ccd28d5600ad196c"
       },
       {
         "path": "src/core/contracts/ports/simai.property-view-port/1.4.0/port.json",
@@ -1684,7 +1692,7 @@
       },
       {
         "path": "src/smart/view-properties/docs.md",
-        "sha256": "1561c72c492262d7b9722c6fc62017e6ee676f372a54c8791c3e83862b1de10d"
+        "sha256": "e2a29465f32db3b5e62cd95f9bcfe65ebe6838aa73bcad1af2dccf3cc974fbe6"
       }
     ],
     "generated_runtime": []

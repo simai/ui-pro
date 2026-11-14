@@ -45,6 +45,11 @@ SF.RuleLoader['cl-view-properties'] = {
     { name: 'cl-input', lazy: true },
     { name: 'cl-input-textarea', lazy: true },
     { name: 'cl-dropdown', lazy: true },
+    // A record, a relation, a user and a paged lookup are edited in sf-input-lookup
+    // (field-renderers 1.9.0, owner decision C139 (1)): a search over the host's
+    // pages with a picture and a caption per row. Without the relation the field
+    // would hold an element that never upgrades.
+    { name: 'cl-input-lookup', lazy: true },
     { name: 'cl-input-date', lazy: true },
     { name: 'cl-switch', lazy: true },
     { name: 'cl-checkbox', lazy: true },

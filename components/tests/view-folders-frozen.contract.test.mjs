@@ -44,7 +44,11 @@ const FROZEN = {
 // ui-a0370c0c99fb); the patch for simai/ui-view (index.js, the template, component.json) is
 // ui-control control/evidence/2026-11-10-pro-next-1110/view-properties-c22.patch.
 const PATCHED = {
-  'view-properties': {tree: '660b9268c96af4a120e7c35c2b207d9e3d8090fc', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10)'},
+  // With it (2026-11-14, group 4): record, relation and user fields edited in
+  // sf-input-lookup -- the cl-input-lookup relation and its notes, field-renderers
+  // 1.9.0 (C139 (1)) -- sf-view-properties 1.15.0; the patch for simai/ui-view is
+  // ui-control control/evidence/2026-11-14-pro-g4/view-properties-c139.patch.
+  'view-properties': {tree: '6a77e5a7ed623a54d3a7e1b8734c5dc4629a85e0', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); C139 lookup relation, 1.15.0 (2026-11-14)'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
