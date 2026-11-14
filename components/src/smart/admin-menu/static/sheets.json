@@ -7,6 +7,7 @@
   ],
   "sheets": [
     "component/admin-menu/css/admin-menu.min.css",
+    "component/avatars/css/avatars.min.css",
     "component/badges/css/badges.min.css",
     "component/buttons/css/buttons.min.css",
     "component/close/css/close.min.css",
@@ -54,6 +55,7 @@
   "examples": {
     "navigation-port": [
       "component/admin-menu/css/admin-menu.min.css",
+      "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
@@ -94,6 +96,7 @@
     ],
     "object-menu": [
       "component/admin-menu/css/admin-menu.min.css",
+      "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
@@ -125,6 +128,7 @@
     ],
     "reference": [
       "component/admin-menu/css/admin-menu.min.css",
+      "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
@@ -169,6 +173,7 @@
     ],
     "search-panel": [
       "component/admin-menu/css/admin-menu.min.css",
+      "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",

@@ -6,6 +6,7 @@
     "theme-dark"
   ],
   "sheets": [
+    "component/avatars/css/avatars.min.css",
     "component/badges/css/badges.min.css",
     "component/buttons/css/buttons.min.css",
     "component/close/css/close.min.css",
@@ -33,6 +34,7 @@
   ],
   "examples": {
     "empty": [
+      "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
@@ -59,6 +61,7 @@
       "utility/text-decoration/default/css/default.min.css"
     ],
     "reference": [
+      "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
@@ -85,6 +88,7 @@
       "utility/text-decoration/default/css/default.min.css"
     ],
     "short": [
+      "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
@@ -111,6 +115,7 @@
       "utility/text-decoration/default/css/default.min.css"
     ],
     "unknown": [
+      "component/avatars/css/avatars.min.css",
       "component/badges/css/badges.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",

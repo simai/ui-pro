@@ -4,13 +4,15 @@
 
 <div class="sf-mail-inspector-head">
 <sf-breadcrumbs class="sf-mail-inspector-path" aria-label="Путь" items="[{&quot;text&quot;:&quot;Кнопка&quot;,&quot;href&quot;:&quot;#level-0&quot;},{&quot;text&quot;:&quot;Расширенный&quot;,&quot;current&quot;:true}]" style="display: contents;">
-<nav class="sf-breadcrumbs flex items-cross-center" aria-label="Путь" data-sf-static>
+<nav class="sf-breadcrumbs" aria-label="Путь" data-sf-static>
+<ol>
 
+<li>
 
 
 <a href="#level-0" class="sf-breadcrumbs-item sf-breadcrumbs-item--link" data-sf-breadcrumb-index="0">
 
-<span class="sf-breadcrumbs-item-container flex items-cross-center">
+<span class="sf-breadcrumbs-item-container">
 
 
 <span>Кнопка</span>
@@ -20,9 +22,12 @@
 </a>
 
 
+</li>
+
+<li>
 
 <div aria-hidden="true" class="sf-breadcrumbs-item sf-breadcrumbs-item--default sf-breadcrumbs-item--separator" data-sf-breadcrumb-separator="0">
-<span class="sf-breadcrumbs-item-container flex items-cross-center">
+<span class="sf-breadcrumbs-item-container">
 
 <sf-icon aria-hidden="true" icon="chevron_right" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>chevron_right</i></sf-icon>
 
@@ -32,7 +37,7 @@
 
 <div class="sf-breadcrumbs-item sf-breadcrumbs-item--default active" aria-current="page" data-sf-breadcrumb-index="1">
 
-<span class="sf-breadcrumbs-item-container flex items-cross-center">
+<span class="sf-breadcrumbs-item-container">
 
 
 <span>Расширенный</span>
@@ -42,7 +47,11 @@
 </div>
 
 
+</li>
+
+</ol>
 </nav>
+
 </sf-breadcrumbs>
 <div class="sf-mail-inspector-title-row">
 <sf-icon size="2" aria-hidden="true" icon="smart_button" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>smart_button</i></sf-icon>
@@ -130,6 +139,10 @@
 
 
 
+
+
+
+
 </span>
 
 </label>
@@ -156,7 +169,7 @@
 
 <div class="sf-sortable-live" aria-live="polite" data-sf-static></div><div class="sf-sortable-live" id="sf-mail-inspector-item-6" data-sf-static>Пробел или Enter — взять, стрелки — переместить, Пробел или Enter — положить, Escape — отменить.</div></sf-sortable>
 <sf-button class="sf-mail-inspector-add" appearance="ghost" scheme="on-surface" size="1/2" icon-start="add" text="Добавить элемент" style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-button sf-button--size-1/2 sf-button--link sf-button--on-surface flex items-cross-center" data-item-add="/items" data-sf-static>
+<button type="button" class="sf-button sf-button--size-1/2 sf-button--ghost sf-button--link sf-button--on-surface flex items-cross-center" data-item-add="/items" data-sf-static>
 
 <sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" icon="add" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>add</i></sf-icon>
 <span class="sf-button-text-container text-center pointer-event-none">
