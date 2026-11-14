@@ -307,7 +307,7 @@ function renderToolbar(context) {
                                     size=${context.controlSize ?? nothing}
                                     appearance="outline"
                                     scheme="primary"
-                                    icon="more_vert"
+                                    icon="more_horiz"
                                     aria-label="Действия с представлением"
                                     aria-haspopup="menu"
                                     @click=${e => {

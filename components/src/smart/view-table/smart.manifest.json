@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.17.1",
+  "version": "1.17.4",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2708,6 +2708,13 @@
         "changes": [
           "The shadow at the edge of the pinned columns reads the surface role --sf-surface-state-select (the neutral 8% step, light and dark, and the place's own inside a place) instead of the public ramp --sf-alpha-8: over SIMAI Framework ui-7fb26d395af2 no component reads --sf-alpha-* (DEV acceptance 2026-11-10, Q3). Made in ui-pro ahead of simai/ui-view (2026-11-12); the view set releases the same change. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.17.1",
+        "to": "1.17.4",
+        "changes": [
+          "The view's actions button and a template's actions button draw ⋯ (more_horiz), not ⋮ (owner decision C155 (2), defect TL-1). A row's menu also opens on a right click on the row, at the pointer (sf-menu-context's point anchor), and on the context-menu key and Shift+F10 from the row or a control in it, at the row's menu button, with the same list as that button (the table's ≡ every action, the list's ⋯ what the row does not show; decision C164 (1)(2), defect TL-2); not from a field a person types in, and Shift with a right click leaves the browser's menu. A row without a menu button keeps the browser's menu. 1.17.2 and 1.17.3 are held by other branches. Made in ui-pro ahead of simai/ui-view (2026-11-15); the view set releases the same change. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -2717,11 +2724,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-table/index.js",
-        "sha256": "05d95b92c18e67f0649ed11838eed92367a118ced8006decee43ecf5a2c2b8bd"
+        "sha256": "6aa8f72b648b942a647f74c6d378b4e54cee565e73d526d9790225cd04d977c2"
       },
       {
         "path": "src/smart/view-table/js/templates/default.js",
-        "sha256": "2197b74d2c0de08e6d05581ad90068a35896a83712549a906762df33b6dc5ffb"
+        "sha256": "13516ba30338c0a3622484433e51313c2449fcfe2537dd60a0a3e16112556643"
       },
       {
         "path": "src/smart/view-table/js/templates/default.css",
@@ -2729,7 +2736,7 @@
       },
       {
         "path": "src/smart/helpers/option-badge.js",
-        "sha256": "ee43e3f6b7257a1b8c30a4d8b7774819cb697380aea8bd3b7a11ac53de74aa0f"
+        "sha256": "bc56841fbeb1689e492d3e47b754ab76ca7de9502740a05c105eb26ead44ee2d"
       },
       {
         "path": "src/smart/view-table/rule.js",
@@ -2741,7 +2748,7 @@
       },
       {
         "path": "src/smart/pagination/index.js",
-        "sha256": "e6c76ad5cb4e2e869259ed15c2d9a9a55ca12dc62d2dbe36d6e2e04f6ede8423"
+        "sha256": "8a1f057c7871e96cdc70418185a672d4778e3a63a103672c0ae269217de12d8d"
       }
     ],
     "generated_runtime": []

@@ -50,7 +50,12 @@ const PATCHED = {
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
   // Pro over ui-7fb26d395af2, 2026-11-12; the patch for simai/ui-view is
   // ui-control control/evidence/2026-11-12-pro-over-7fb26d395af2/view-table-alpha.patch.
-  'view-table': {tree: '92c5e6217cbce2e9460f52263948f47f4288b6df', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12)'},
+  // With it (2026-11-15, admin set K-1): ⋯ (more_horiz) for the view's and a
+  // template's actions (C155 (2), TL-1), and a row's menu on a right click, the
+  // context-menu key and Shift+F10 (C164 (1)(2), TL-2), sf-view-table 1.17.4;
+  // the patch for simai/ui-view is ui-control
+  // control/evidence/2026-11-15-admin-set-k1/view-table-k1.patch.
+  'view-table': {tree: '92e7426373b5d1db55acfad6c5b9d7ac5ff1b35c', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); ⋯ and the row context menu, 1.17.4 (2026-11-15)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
