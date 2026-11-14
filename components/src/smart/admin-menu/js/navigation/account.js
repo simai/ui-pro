@@ -59,8 +59,13 @@ export function openAccountMenu(context, anchor) {
                 id: "language", text: text("language"), icon: "translate", value: language?.native ?? person.language,
                 search: {placeholder: text("findLanguage"), empty: text("nothingFound")},
                 submenu: [
+                    // The second name beside the name, as sf-language's own
+                    // menu has it (C49: the language menu does not change);
+                    // left out when it is the same word (English).
                     ...(person.languages ?? []).map((entry) => ({
-                        id: `language:${entry.code}`, text: entry.native, caption: entry.english, keywords: entry.code,
+                        id: `language:${entry.code}`, text: entry.native,
+                        value: entry.english && entry.english !== entry.native ? entry.english : undefined,
+                        keywords: [entry.english, entry.code].filter(Boolean).join(" "),
                         kind: "radio", checked: entry.code === person.language, lang: entry.code,
                     })),
                     {type: "note", text: text("languageNote")},
