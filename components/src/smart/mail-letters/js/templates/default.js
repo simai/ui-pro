@@ -7,7 +7,9 @@ import "./default.css";
 function renderRow(context, letter) {
     const summary = [letter.when, letter.blocksText].filter(Boolean).join(" · ");
     return html`
-        <li class=${["sf-mail-letters-row", letter.isCurrent ? "is-current" : ""].filter(Boolean).join(" ")} data-letter=${letter.id}>
+        <li class=${["sf-mail-letters-row", letter.isCurrent ? "is-current" : ""].filter(Boolean).join(" ")} data-letter=${letter.id}
+            @contextmenu=${(event) => context.component.onRowContextMenu(letter.id, event)}
+            @keydown=${(event) => context.component.onRowKeydown(letter.id, event)}>
             <span class="sf-mail-letters-words">
                 <span class="sf-mail-letters-title">${letter.title}</span>
                 <span class="sf-mail-letters-summary">${summary}${letter.isCurrent ? html` · <span class="sf-mail-letters-current">${context.currentLabel}</span>` : nothing}</span>

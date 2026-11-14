@@ -66,10 +66,13 @@
     color: var(--sf-on-surface-variant);
   }
 
+  /* «Открыть» and ⋯ are one group of a row's actions, not a toolbar: buttons
+     of one group stand --sf-space-1/3 apart, 8 and 4 under compact density
+     (C105 H5, C144; RG-S2-46). They stood 4 apart. */
   .sf-mail-letters-actions {
     display: flex;
     flex-shrink: 0;
     align-items: center;
-    gap: var(--sf-space-1\/4);
+    gap: var(--sf-space-1\/3);
   }
 }
