@@ -50,7 +50,11 @@ const PATCHED = {
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
   // Pro over ui-7fb26d395af2, 2026-11-12; the patch for simai/ui-view is
   // ui-control control/evidence/2026-11-12-pro-over-7fb26d395af2/view-table-alpha.patch.
-  'view-table': {tree: '92c5e6217cbce2e9460f52263948f47f4288b6df', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12)'},
+  // With it (2026-11-14, group 4): --sf-table--row-text-inset follows the
+  // Framework table's edge inset (utility.table 1.3.0: --sf-space-1, was the
+  // cell spacing + --sf-a8), sf-view-table 1.17.3; the patch for simai/ui-view is
+  // ui-control control/evidence/2026-11-14-pro-g4/view-table-inset.patch.
+  'view-table': {tree: '84e36024707e633b020cbc3e032a82a1705c2c8d', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); row text inset on the table edge inset, 1.17.3 (2026-11-14)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

@@ -279,20 +279,25 @@
     /* The widest a column grows to fit its content on one line; past it the
        value wraps. A host that knows better sets a width per column. */
     --sf-table--column-max-inline-size: var(--sf-g0);
-    /* The cell's own leading padding, measured at 8px on the built bytes rather
-       than derived -- and 8px is --sf-a8, so it is named here rather than
-       written out again (owner, 2026-10-09). It is set by a nested rule in this sheet, and a nested rule's
-       selector is relative, so neither a grep nor `cell.matches()` can attribute
-       it -- the honest thing is to say the number was measured and let a check
-       hold it true. tests/browser/property-view asserts the row text of an
-       embedded list lands on the field-label axis, so if this padding changes that
-       probe goes red rather than an embedded list quietly drifting.
+    /* Where a row's text starts: the cell spacing before the first cell plus
+       that cell's leading padding. The first cell takes the Framework's table
+       edge inset, a list row's inset of the step (utility.table 1.3.0, C77:
+       --sf-space-1, 16 at 1440 and 12 under compact density and on a phone),
+       so the number is that token and not a size atom. It was --sf-a8 while
+       the table classes padded every cell 8; with the new inset that put an
+       embedded list 8 (4) off the field-label axis -- the misalignment the
+       first attempt at this inset was rolled back for (ui-source 1308eb8f).
+       The padding is set by a nested rule in the Framework's sheet, and a
+       nested rule's selector is relative, so neither a grep nor
+       `cell.matches()` can attribute it: tests/browser/property-view and
+       embedded-list-composition assert the row text of an embedded list lands
+       on the field-label axis, so if this padding changes those probes go red
+       rather than an embedded list quietly drifting.
 
-       It was 1px before: that was the user agent's default, measured on a table
-       in a shadow tree where this sheet does not reach. The first version of this
-       inset was computed from that reading and put an embedded list 7px out once
-       the table was styled. */
-    --sf-table--row-text-inset: calc(var(--sf-table--cell-spacing) + var(--sf-a8));
+       It was 1px once: the user agent's default, measured on a table in a
+       shadow tree where the sheet does not reach, which put an embedded list
+       7px out once the table was styled. */
+    --sf-table--row-text-inset: calc(var(--sf-table--cell-spacing) + var(--sf-space-1));
 
     /* The table's box, published so a page can hold the room of a list before
        it draws -- min-block-size = toolbar + toolbar gap + head + rows x row
