@@ -27,6 +27,20 @@ import {renderMailInspectorTemplate} from "./js/templates/default.js";
 import manifest from "./component.json";
 import en from "./lang/en.json";
 import ru from "./lang/ru.json";
+import {isEditableTarget} from "../../component/kbd/js/shortcut";
+
+// A right click on an item opens its ⋯ menu at the pointer (decision C164
+// (1)(2), defect TL-2) through sf-menu-context's point anchor (1.18.0: a fixed
+// box of no size, removed when the menu closes); the context-menu key and
+// Shift+F10 already open it (onToggleKeydown). The core's one SF.menu.open
+// (C184) is not in the pair this is built over; when it is, openItemMenu()
+// opens through it and this helper goes.
+function pointAnchor(event) {
+    const point = document.createElement("span");
+    point.style.cssText = `position: fixed; left: ${event.clientX}px; top: ${event.clientY}px`;
+    document.body.append(point);
+    return point;
+}
 
 const applied = () => ({outcome: "applied"});
 const refused = (reason) => ({outcome: "refused", reason});
@@ -423,12 +437,22 @@ class SfMailInspector extends MailInspectorElement {
     menuEntries(list, index) {
         const total = this.itemsOf(list).length;
         return [
-            {id: "up", text: this.sfWord("up-text"), icon: "arrow_upward", shortcut: "Alt+↑", disabled: index === 0},
-            {id: "down", text: this.sfWord("down-text"), icon: "arrow_downward", shortcut: "Alt+↓", disabled: index === total - 1},
+            // SIMAI Framework's shortcut notation (C04): ⌥↑ on a Mac, Alt+↑ elsewhere.
+            {id: "up", text: this.sfWord("up-text"), icon: "arrow_upward", shortcut: "alt+up", disabled: index === 0},
+            {id: "down", text: this.sfWord("down-text"), icon: "arrow_downward", shortcut: "alt+down", disabled: index === total - 1},
             {id: "duplicate", text: this.sfWord("duplicate-text"), icon: "content_copy", disabled: this.isFull(list)},
             {type: "separator"},
             {id: "remove", text: this.sfWord("delete-text"), icon: "delete", danger: true, disabled: this.isLeast(list)},
         ];
+    }
+
+    /** A right click on an item's row opens its ⋯ menu at the pointer (C164). */
+    onItemContextMenu(path, index, event) {
+        if (event.shiftKey || isEditableTarget(event.target) || !this.menu) return;
+        event.preventDefault();
+        const point = pointAnchor(event);
+        this.menu.addEventListener("sf-menu-context-closed", () => point.remove(), {once: true});
+        this.openItemMenu(path, index, point);
     }
 
     /** The ⋯ of an item: one menu, filled for the item it was opened from. */
