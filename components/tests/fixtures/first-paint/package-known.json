@@ -1,0 +1,6 @@
+{
+  "$comment": "The set's own gate 24 known failures, merged by scripts/run-first-paint.mjs into the overlay's tests/fixtures/first-paint/gate-known.json (ui-source's file, which a package may not replace). Same rules: each entry names its reason outside the set, is reported by every run, not counted, and is taken out when it passes again. The gate keys an entry by its id without the width.",
+  "known": {
+    "view-flow/ask": "Intermittent at 390 only (waiver DEV msg-779b2aee, release view 1.7.0 only): the date field's sf-input-date (SIMAI Framework) draws its wrapper inline-flex on the baseline of view-flow's value line; that baseline is the calendar icon's, which core holds at font-size 0 until its font is marked loaded, so the line is 29px held and 28px loaded and the flow 339 -> 338 when the icon font arrives during the run. The fix is in the Framework (sf-input-date wrapper vertical-align top, smart/forms B branch); drop this entry at the repin on the pair carrying it."
+  }
+}

@@ -290,4 +290,17 @@ use is noted once in `SF.deprecations`. Write the new tag in new markup.
 Every event keeps its former name beside the new one, with the same detail:
 `sf-data-view-open`, `sf-data-view-deleted`, `sf-data-view-answer`, `sf-data-view-state`, `sf-data-view-tree`, `sf-data-view-files-drop`, `sf-data-view-saved-view-intent`, `sf-data-view-list-open`.
 
+A page asks the view to save a shared saved view with `save` on the view
+itself (vocabulary 1.1.5 §9, sf-view 1.12.0):
+
+```js
+view.dispatchEvent(new CustomEvent('sf-view-save', {detail: {kind: 'view', key: 'team', label: 'Команда'}}));
+```
+
+The view raises `view.save_shared`; a detail of another `kind` is left alone.
+The former name `sf-view-saved-view-intent` (and `sf-data-view-saved-view-intent`)
+is still heard until 2027-01-01, its detail read as a view, and each use is
+noted in `SF.deprecations`. The new name sent without `kind` is read as a view
+too and is not noted.
+
 The public CSS variables (`--sf-data-view-*`) and the class names keep the former name.

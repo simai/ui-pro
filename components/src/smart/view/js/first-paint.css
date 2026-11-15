@@ -19,8 +19,15 @@
   }
 
   :is(sf-view, sf-data-view) > .sf-data-view-skeleton {
-    --sf-data-view-skeleton--pad: var(--sf-ui-1--space-y);
     --sf-data-view-skeleton--control: var(--sf-ui-1--control-height);
+    --sf-data-view-skeleton--switch: calc(var(--sf-data-view-skeleton--control) * 2 - (var(--sf-ui-1--space-y-tightness-default) - var(--sf-ui-1--space-y-tightness-low)));
+    /* A labelled button of the step, from the button's own lengths (sf-button
+       size 1): its side padding, its icon a line of the step's text, the
+       label's padding and its text. */
+    --sf-data-view-skeleton--button-x: var(--sf-ui-1--space-x);
+    --sf-data-view-skeleton--label-x: var(--sf-ui-1--text-space-x);
+    --sf-data-view-skeleton--icon: var(--sf-text-height-1);
+    --sf-data-view-skeleton--label-size: var(--sf-text-size-1);
     /* The table's row model (C31 look points): a body row's padding from the
        rung of two lines of the step's text, the row on the rung below it. */
     --sf-data-view-skeleton--row-pad: calc((var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) - var(--sf-px)) / 2);
@@ -31,8 +38,12 @@
   }
 
   :is(sf-view, sf-data-view) > .sf-data-view-skeleton[data-size="1/2"] {
-    --sf-data-view-skeleton--pad: var(--sf-ui-1\/2--space-y);
     --sf-data-view-skeleton--control: var(--sf-ui-1\/2--control-height);
+    --sf-data-view-skeleton--switch: calc(var(--sf-data-view-skeleton--control) * 2 - (var(--sf-ui-1\/2--space-y-tightness-default) - var(--sf-ui-1\/2--space-y-tightness-low)));
+    --sf-data-view-skeleton--button-x: var(--sf-ui-1\/2--space-x);
+    --sf-data-view-skeleton--label-x: var(--sf-ui-1\/2--text-space-x);
+    --sf-data-view-skeleton--icon: var(--sf-text-height-1\/2);
+    --sf-data-view-skeleton--label-size: var(--sf-text-size-1\/2);
     --sf-data-view-skeleton--row-pad: calc((var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) - var(--sf-px)) / 2);
     --sf-data-view-skeleton--row: var(--sf-ui-1--control-height);
   }
@@ -64,14 +75,57 @@
     flex: none;
   }
 
-  .sf-data-view-skeleton .sf-skeleton-text[data-control="button"] {
-    inline-size: calc(var(--sf-data-view-skeleton--control) * 3);
+  /* The filter and create buttons hold their labels, in the button's type
+     and unseen: each block is as wide as the button the table draws -- the
+     side padding, the filter's icon, the label's padding and its words --
+     whatever the language or the words a product gave (sf-view 1.11.1; a
+     fixed three controls was 9.72 / 16.5 px short of the filter button). */
+  .sf-data-view-skeleton .sf-skeleton-text:is([data-control="filter"], [data-control="create"]) {
+    box-sizing: border-box;
+    inline-size: auto;
+    padding-inline: calc(var(--sf-data-view-skeleton--button-x) + var(--sf-data-view-skeleton--label-x));
+    color: transparent;
+    font-family: var(--sf-text--family);
+    font-size: var(--sf-data-view-skeleton--label-size);
+    font-weight: var(--sf-font-weight-medium);
+    line-height: var(--sf-data-view-skeleton--control);
+    white-space: nowrap;
   }
+
+  .sf-data-view-skeleton .sf-skeleton-text[data-control="filter"] {
+    padding-inline-start: calc(var(--sf-data-view-skeleton--button-x) + var(--sf-data-view-skeleton--icon) + var(--sf-data-view-skeleton--label-x));
+  }
+
+  /* The saved-views segment is a square of the step's control, joined to the
+     filter button before it: the start group has no gap, as the table's pair
+     of segments has none (sf-view 1.11.1). */
 
   .sf-data-view-skeleton .sf-skeleton-text[data-control="field"] {
     inline-size: auto;
     min-inline-size: calc(var(--sf-data-view-skeleton--control) * 2.5);
     flex: 1 1 auto;
+  }
+
+  /* The toolbar's search field, as the table's (.sf-search-input): from g0,
+     taking the room the end group has. */
+  .sf-data-view-skeleton-toolbar .sf-skeleton-text[data-control="field"] {
+    min-inline-size: 0;
+    flex: 1 1 var(--sf-g0);
+  }
+
+  /* The optional controls (sf-view 1.12.0): the layout switch is the
+     segmented track of two icon segments (sf-button-group--segmented: two
+     squares of the control less the track's padding on each side, the
+     padding between them and around them, so two controls less one
+     padding); the create kinds' arrow is a square joined to the create
+     button; the toolbar actions' «more» a square. The compact list's
+     toolbar has none of the three. */
+  .sf-data-view-skeleton .sf-skeleton-text[data-control="switch"] {
+    inline-size: var(--sf-data-view-skeleton--switch);
+  }
+  .sf-data-view-skeleton-toolbar > [data-part] > [data-part="create"] {
+    display: flex;
+    align-items: center;
   }
 
   /* The table's section: its toolbar, then its rows, a step apart. */
@@ -81,9 +135,60 @@
     min-inline-size: 0;
   }
 
+  /* The table's toolbar (.sf-table-toolbar): the filter group at the start
+     and the search group at the end, 1/2 apart, the end group taking the room
+     and keeping g0 or going to the line above; the search group's parts 1/3
+     apart (sf-view 1.11.1: the gap was the step below, and the field ran to
+     the edge past the create button). */
   .sf-data-view-skeleton-toolbar {
     display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: space-between;
+    gap: var(--sf-space-1\/2);
+  }
+
+  .sf-data-view-skeleton-toolbar > [data-part] {
+    display: flex;
+    align-items: center;
+    min-inline-size: 0;
+  }
+
+  .sf-data-view-skeleton-toolbar > [data-part="start"]:empty {
+    display: none;
+  }
+
+  .sf-data-view-skeleton-toolbar > [data-part="end"] {
+    flex: 1 1 auto;
     gap: var(--sf-space-1\/3);
+    min-inline-size: var(--sf-g0);
+  }
+
+  /* The compact list's toolbar (.sf-table-toolbar--list): one line, the field
+     first and taking what is left, the filter and create as squares of the
+     step's control after it, 1/3 apart, and no saved-views control. The
+     list draws it below list-below, and on a list at any width unless the
+     layout switch keeps the table's toolbar there (view161 acceptance O1:
+     the skeleton kept the filter first and the field moved 116 / 92 px). */
+  .sf-data-view-skeleton[data-layout="list"]:not([data-layout-switch]) .sf-data-view-skeleton-toolbar {
+    flex-wrap: nowrap;
+    gap: var(--sf-space-1\/3);
+  }
+  .sf-data-view-skeleton[data-layout="list"]:not([data-layout-switch]) .sf-data-view-skeleton-toolbar > [data-part] {
+    display: contents;
+  }
+  .sf-data-view-skeleton[data-layout="list"]:not([data-layout-switch]) .sf-data-view-skeleton-toolbar [data-control="field"] {
+    order: -1;
+    flex: 1 1 0;
+  }
+  .sf-data-view-skeleton[data-layout="list"]:not([data-layout-switch]) .sf-data-view-skeleton-toolbar :is([data-control="filter"], [data-control="create"]) {
+    inline-size: var(--sf-data-view-skeleton--control);
+    padding: 0;
+    overflow: hidden;
+    font-size: 0;
+  }
+    .sf-data-view-skeleton[data-layout="list"]:not([data-layout-switch]) .sf-data-view-skeleton-toolbar :is([data-control="split"], [data-control="switch"], [data-control="actions"]),
+.sf-data-view-skeleton[data-layout="list"]:not([data-layout-switch]) .sf-data-view-skeleton-toolbar [data-control="segment"] {
+    display: none;
   }
 
   /* A row (the head first) as tall as the table's: the cell padding, the
@@ -93,14 +198,10 @@
     display: flex;
     align-items: center;
     gap: var(--sf-space-1);
-    padding-block: var(--sf-data-view-skeleton--pad);
-    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
-  }
-
-  .sf-data-view-skeleton-table > div:not(:first-child) {
     box-sizing: border-box;
     min-block-size: var(--sf-data-view-skeleton--row);
     padding-block: var(--sf-data-view-skeleton--row-pad);
+    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
   }
 
   .sf-data-view-skeleton-table > div > span {
@@ -167,6 +268,28 @@
 
   @container (width < 600px) {
     .sf-data-view-skeleton[data-layout="auto"] .sf-data-view-skeleton-table {
+      display: none;
+    }
+    /* Below list-below the list's compact toolbar, as above. */
+    .sf-data-view-skeleton:is([data-layout="auto"], [data-layout="list"]) .sf-data-view-skeleton-toolbar {
+      flex-wrap: nowrap;
+      gap: var(--sf-space-1\/3);
+    }
+    .sf-data-view-skeleton:is([data-layout="auto"], [data-layout="list"]) .sf-data-view-skeleton-toolbar > [data-part] {
+      display: contents;
+    }
+    .sf-data-view-skeleton:is([data-layout="auto"], [data-layout="list"]) .sf-data-view-skeleton-toolbar [data-control="field"] {
+      order: -1;
+      flex: 1 1 0;
+    }
+    .sf-data-view-skeleton:is([data-layout="auto"], [data-layout="list"]) .sf-data-view-skeleton-toolbar :is([data-control="filter"], [data-control="create"]) {
+      inline-size: var(--sf-data-view-skeleton--control);
+      padding: 0;
+      overflow: hidden;
+      font-size: 0;
+    }
+    .sf-data-view-skeleton:is([data-layout="auto"], [data-layout="list"]) .sf-data-view-skeleton-toolbar :is([data-control="split"], [data-control="switch"], [data-control="actions"]),
+    .sf-data-view-skeleton:is([data-layout="auto"], [data-layout="list"]) .sf-data-view-skeleton-toolbar [data-control="segment"] {
       display: none;
     }
     .sf-data-view-skeleton[data-layout="auto"] .sf-data-view-skeleton-list {

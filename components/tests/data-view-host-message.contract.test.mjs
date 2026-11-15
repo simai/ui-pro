@@ -17,6 +17,9 @@ const manifestImports = {
   aliases: json('src/smart/view/aliases.json'),
   en: json('src/smart/view/lang/en.json'),
   ru: json('src/smart/view/lang/ru.json'),
+  // The table's own words, for the toolbar the first paint draws (sf-view 1.11.1).
+  tableEn: json('src/smart/view-table/lang/en.json'),
+  tableRu: json('src/smart/view-table/lang/ru.json'),
   answerActions,
   settingSetters,
   installAliases: () => ({uninstall() {}}),

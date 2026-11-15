@@ -2,9 +2,9 @@
 // the duplicate-shipping window).
 //
 // sf-view, sf-view-table and sf-view-properties moved to the view set: their
-// source is simai/ui-view, released as view-23ed2acf30d7 (@simai-studio/view
-// 1.6.0, ui-view tag view-23ed2acf30d7, package/src/smart/<folder>; earlier
-// releases view-aea031ba718b, view-99763f547560, view-99c8dd1585fd, view-4d7070623fe1, view-9c963d217188, view-f529c2354b0d and
+// source is simai/ui-view, released as view-9eff67bbf11f (@simai-studio/view
+// 1.7.1, ui-view tag view-9eff67bbf11f, package/src/smart/<folder>; earlier
+// releases view-0e589597e2d9, view-23ed2acf30d7, view-aea031ba718b, view-99763f547560, view-99c8dd1585fd, view-4d7070623fe1, view-9c963d217188, view-f529c2354b0d and
 // view-cd0d82aeb756; view-a79198bb298c was prepared, never published). Until the next pro bundle takes them from that
 // release, ui-pro still ships its own copies of the three folders, and they
 // must stay the release's tree exactly: a change made here would ship in pro
@@ -26,35 +26,27 @@ import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
 
-// view-23ed2acf30d7: `git -C ui-view rev-parse view-23ed2acf30d7:package/src/smart/<folder>`.
-const RELEASE = 'view-23ed2acf30d7';
+// view-9eff67bbf11f: `git -C ui-view rev-parse view-9eff67bbf11f:package/src/smart/<folder>`.
+const RELEASE = 'view-9eff67bbf11f';
 const FROZEN = {
-  'view': '559ece8cef89443ee9e7d8c2124bef71b2ddb038',
-  'view-table': '24bc7fb6eff2ecfeca56b3efc41946176e22a39c',
-  'view-properties': '59c2eaf203e1c5067ba81c7694934536d072805c',
+  'view': '0c4074806be12afd19c95408a193d73ba751ad36',
+  'view-table': '8f132cd67a7cb8788feceb7b12c0a7a1ad6449c1',
+  'view-properties': '13b3999b10133de53c18fbeba38dfb2dba7a9c0b',
 };
 
 // A change made here ahead of the view set: one folder, one named patch. The
 // folder must be the release's tree with exactly that patch, and simai/ui-view
 // releases the same change before the next take (the take then drops the entry
-// here). sf-view-properties: decision C22 -- the panel writes a size on the
-// controls it draws only when the host has one, as sf-view and sf-view-table do
-// since view 1.6.0; with size 1 written on them they stayed 40 under compact
-// density beside the page's 32. Dispatcher order 2026-11-10 (pro over
-// ui-a0370c0c99fb); the patch for simai/ui-view (index.js, the template, component.json) is
-// ui-control control/evidence/2026-11-10-pro-next-1110/view-properties-c22.patch.
+// here). The take of view-9eff67bbf11f (2026-11-15) dropped the two earlier
+// entries: sf-view-properties C22 (released in view 1.6.1) and the sf-view-table
+// pin shadow on a surface role (released in view 1.7.0).
 const PATCHED = {
-  'view-properties': {tree: '660b9268c96af4a120e7c35c2b207d9e3d8090fc', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10)'},
-  // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
-  // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
-  // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
-  // Pro over ui-7fb26d395af2, 2026-11-12; the patch for simai/ui-view is
-  // ui-control control/evidence/2026-11-12-pro-over-7fb26d395af2/view-table-alpha.patch.
-  // Over ui-141822273efe (2026-11-15) the folder is rebuilt with nothing of its
-  // own: sf-view-table 1.17.5, smart.manifest.json's provenance of the
-  // Framework files it builds in (option-badge, pagination) and the version.
-  // simai/ui-view takes the same when it moves to that pair.
-  'view-table': {tree: 'c44b718bddbf6ce1681deadef2e56934535141f7', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); rebuilt over ui-141822273efe, sf-view-table 1.17.5 (2026-11-15)'},
+  // sf-view-table: the view release rebuilt over ui-141822273efe (2026-11-15):
+  // smart.manifest.json's provenance of the Framework files it builds in
+  // (option-badge, pagination) and the version, 1.18.3 (1.18.2 is held by
+  // unreleased simai/ui-view branches). simai/ui-view takes the same when it
+  // moves to that pair.
+  'view-table': {tree: '34460b506c904705eb138b2047c9f1c9cb02004b', patch: 'rebuilt over ui-141822273efe, sf-view-table 1.18.3 (2026-11-15)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

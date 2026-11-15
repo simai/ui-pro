@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -96,7 +96,7 @@
         "sf-view-tree",
         "sf-view-files-drop",
         "sf-pagination-count",
-        "sf-view-saved-view-intent",
+        "sf-view-save",
         "sf-table-action-intent",
         "sf-table-column-settings-change",
         "sf-table-column-settings-reset",
@@ -985,8 +985,8 @@
         "additionalProperties": true
       }
     },
-    "sf-view-saved-view-intent": {
-      "summary": "An event a page raises on the view to save a shared saved view (port 1.1.0 or later): the view raises view.save_shared with the detail's key and label.",
+    "sf-view-save": {
+      "summary": "A page raises it on the view to save a shared saved view (vocabulary 1.1.5 §9 save, kind view; port 1.1.0 or later): the view raises view.save_shared with the detail's key and label. A detail of another kind is not the view's and is left alone. The former name sf-view-saved-view-intent (and sf-data-view-saved-view-intent) is still heard until 2027-01-01 and noted in SF.deprecations.",
       "payload": {
         "type": "object",
         "required": [
@@ -994,6 +994,10 @@
           "label"
         ],
         "properties": {
+          "kind": {
+            "const": "view",
+            "description": "What is saved: a saved view. A detail without kind is the former name's and is read as view."
+          },
           "key": {
             "type": "string",
             "description": "The saved view's key."
@@ -1425,11 +1429,18 @@
       "alias_of": "sf-view-files-drop"
     },
     "sf-data-view-saved-view-intent": {
-      "summary": "Dated alias of sf-view-saved-view-intent until 2027-01-01 (same-detail).",
+      "summary": "Dated alias of sf-view-save until 2027-01-01 (same-detail).",
       "payload": {
         "type": "object"
       },
-      "alias_of": "sf-view-saved-view-intent"
+      "alias_of": "sf-view-save"
+    },
+    "sf-view-saved-view-intent": {
+      "summary": "Dated alias of sf-view-save until 2027-01-01 (same-detail).",
+      "payload": {
+        "type": "object"
+      },
+      "alias_of": "sf-view-save"
     },
     "sf-data-view-list-open": {
       "summary": "Dated alias of sf-view-list-open until 2027-01-01 (same-detail).",
@@ -1618,6 +1629,24 @@
           "The controls the view makes and its table are relative (C22, Larena 2026-11-10): a view without a size writes no size on its table, page row, selection band (the action list, Apply, Clear and their options) or Show all, so compact page density moves them with the page (32 at 1280 where they stayed 40); a view with size=\"1\" or \"1/2\" still hands it down. A table given its own size inside a view without one loses it to the view (it used to be overwritten with 1).",
           "Over SIMAI Framework ui-a0370c0c99fb (core.runtime 1.49.0; the set still needs 1.43.0 or newer). Nothing to change for a host that does not use the new settings."
         ]
+      },
+      {
+        "from": "1.11.0",
+        "to": "1.11.1",
+        "changes": [
+          "When the page declares saved views before the first answer (its data-sf-port lists saved-views, or a port is given), the first paint holds the saved-views control's place in the toolbar: a square of the step's control joined to the filter button, so the search field does not move when the answer draws the control (DEV decision msg-e39bb812, 2026-11-09; it moved 54px at 1280). Not declared, nothing is held and the control comes when a port brings it, as before; the compact list's toolbar has no such control and holds no place.",
+          "The first paint follows sf-view-table 1.17.1: the head is a row like the others (40 at 1/2, 48 at 1), and the toolbar's gap is the table's (--sf-space-1/2; it was --sf-space-1/3). Needs sf-view-table 1.17.1 (the same release).",
+          "The first paint's toolbar is the one the table draws (view161 acceptance O1, O2): the filter group at the start and the search field with the create button at the end; the filter and create blocks hold the table's own words in the button's type, unseen, so each is as wide as its button (the side padding, the filter's icon, the label's padding and its words; a fixed three controls was 9.72 / 16.5 px short); in the compact list the field comes first and the two are squares after it (the field moved 116 / 92 px on a phone). The search field no longer moves from the first paint to the drawn toolbar. The create block is held when the port offers create-record. Nothing to change for a host.",
+          "Over SIMAI Framework ui-2bd5a3ab478a (ui-source d25a01f9989d, core.runtime 1.51.0), which the set now needs (core.runtime 1.51.0 or newer): the pair that carries the roles --sf-surface-underlay and --sf-surface-place-solid. Nothing to change for a host on that pair."
+        ]
+      },
+      {
+        "from": "1.11.1",
+        "to": "1.12.0",
+        "changes": [
+          "A page asks the view to save a shared saved view with save {kind: \"view\", key, label, revision?, roles?} on the view (vocabulary 1.1.5 §9: sf-data-view-saved-view-intent -> sf-view-save with kind view). The view raises view.save_shared as before; a save of another kind is left alone. The former names sf-view-saved-view-intent and sf-data-view-saved-view-intent are dated aliases until 2027-01-01 (aliases.json, same-detail): still heard, their detail without kind read as a view, each use noted in SF.deprecations.",
+          "The first paint holds the optional toolbar controls that are known before the answer: the layout switch (layout-switch; the segmented track, two controls less the track's padding: 76 at size 1, 62 at 1/2 and compact), and, when the page gave its table createItems or toolbarActions before the first paint, the create kinds' arrow joined to Create and the toolbar actions' button. The search field then stands where it will stand (its end edge moved 66 to 172 px at 1440 when they were drawn). The compact list's toolbar has none of them. The list's sort button is not held: it comes with a sortable column, which only the port's answer names."
+        ]
       }
     ]
   },
@@ -1627,7 +1656,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view/index.js",
-        "sha256": "bfcf7d95120473636f12acb261eb2abed7979db342ef638bfbd39f645a01e2e7"
+        "sha256": "e9697bf4b62a6532e669912f7646688c46c48a25cde4f74c68d352c90c4c5724"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",
@@ -1635,7 +1664,7 @@
       },
       {
         "path": "src/smart/view/docs.md",
-        "sha256": "b927d8b2f3171e75cd205dee10485e7a3ad67ebc7950e94b5dda1848df1603e9"
+        "sha256": "1c058c935304931289818d25a17e15eb3782cb487d4da68f221a0a0daa44373d"
       },
       {
         "path": "tests/fixtures/data-view-composite-lab.html",
@@ -1647,7 +1676,7 @@
       },
       {
         "path": "src/smart/view/js/first-paint.css",
-        "sha256": "6f2ac90c84b367163cefaa9669cfb6412a75b13dde477f16c06a079c895d77ed"
+        "sha256": "64b5763f33f6c08943a9e2899586b870d29d3d2e6891de5aa5ca701d2195bd90"
       }
     ],
     "generated_runtime": []

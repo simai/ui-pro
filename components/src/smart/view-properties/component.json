@@ -1741,7 +1741,8 @@
           "from": "1.13.2",
           "to": "1.13.3",
           "changes": [
-            "The controls the panel draws (the open-all bar, the group and section buttons, the section tabs, the profile picker, the edge controls) carry the panel's size when it has one and none when it has not (decision C22), as sf-view and sf-view-table do since view 1.6.0, so page density moves them: under compact density a panel with no size draws them at 32, size 1 keeps 40. `size` still chooses the panel's own type steps (1/2 or 1). Made in ui-pro ahead of simai/ui-view (2026-11-10); the view set releases the same change. Nothing to change for a host."
+            "The controls the panel draws (the open-all bar, the group and section buttons, the section tabs, the profile picker, the edge controls) carry the panel's size when it has one and none when it has not (decision C22), as sf-view and sf-view-table do since view 1.6.0, so page density moves them: under compact density a panel with no size draws them at 32, size 1 keeps 40. `size` still chooses the panel's own type steps (1/2 or 1). Made in ui-pro ahead of simai/ui-view (2026-11-10) and released here in view 1.6.1. Nothing to change for a host.",
+            "Over SIMAI Framework ui-2bd5a3ab478a (ui-source d25a01f9989d, core.runtime 1.51.0), which the set now needs (core.runtime 1.51.0 or newer): the pair that carries the roles --sf-surface-underlay and --sf-surface-place-solid. Nothing to change for a host on that pair."
           ]
         }
       ]

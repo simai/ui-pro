@@ -11,7 +11,9 @@
 //   12. a refused list offers no toolbar, selection or «Создать», and they
 //       come back with the access;
 //   13. the column search speaks the page's language;
-//   and, found while describing the events: the port's sf-data-view-saved-view-intent
+//   and, found while describing the events: save {kind: "view"} on the view
+//   (sf-view 1.12.0; the former sf-view-saved-view-intent still heard and
+//   noted, the new name without kind not noted)
 //   saves a shared view, and several templates saved at once are each saved.
 import {resolve, join} from 'node:path';
 import {chromium} from 'playwright';
@@ -129,7 +131,20 @@ try {
     const searchedRows = table.querySelectorAll('tbody tr[data-row-id]').length;
 
     // Shared view from page code; several templates at once.
+    // sf-view 1.12.0: save {kind: "view"} (vocabulary 1.1.5 §9); another
+    // kind is not the view's; the former name is still heard and noted.
+    window.SF?.deprecations?.clear?.();
+    view.dispatchEvent(new CustomEvent('sf-view-save', {detail: {kind: 'view', key: 'crew', label: 'Экипаж'}}));
+    view.dispatchEvent(new CustomEvent('sf-view-save', {detail: {kind: 'record', key: 'other', label: 'Другое'}}));
+    // The new name without kind (the manifest marks kind optional) is a view
+    // and is not noted as the former name (acceptance D1).
+    view.dispatchEvent(new CustomEvent('sf-view-save', {detail: {key: 'nk', label: 'Без вида'}}));
+    const newNameNoted = (window.SF?.deprecations?.list?.() ?? []).some((entry) => entry.from === 'sf-view-saved-view-intent');
     view.dispatchEvent(new CustomEvent('sf-view-saved-view-intent', {detail: {key: 'team', label: 'Команда'}}));
+    const oldNameNoted = (window.SF?.deprecations?.list?.() ?? []).some((entry) => entry.from === 'sf-view-saved-view-intent' && entry.to === 'sf-view-save');
+    window.SF?.deprecations?.clear?.();
+    view.dispatchEvent(new CustomEvent('sf-data-view-saved-view-intent', {detail: {key: 'older', label: 'Старое'}}));
+    const olderNameNoted = (window.SF?.deprecations?.list?.() ?? []).some((entry) => entry.from === 'sf-view-saved-view-intent' && entry.to === 'sf-view-save');
     table.dispatchEvent(new CustomEvent('sf-view-table-template-save', {bubbles: true, composed: true, detail: {templates: [{key: 'a', label: 'A'}, {key: 'b', label: 'B'}]}}));
     await wait(400);
     const views = (host.views ?? []).map((entry) => entry.join(':'));
@@ -156,7 +171,7 @@ try {
 
     // 13. The page's language.
     const columnSearch = table.text('columnSearchPlaceholder', 'column-search-placeholder');
-    return {general, worded, views, conflict, hiddenByPreference, backWithoutIt, searchBox, searchedRows, refused, restored, columnSearch};
+    return {general, worded, views, newNameNoted, oldNameNoted, olderNameNoted, conflict, hiddenByPreference, backWithoutIt, searchBox, searchedRows, refused, restored, columnSearch};
   });
 
   if (m.conflict.first !== 'conflict' || m.conflict.second !== 'applied' || m.conflict.saves.join() !== 'p1,p2') {
@@ -170,7 +185,8 @@ try {
   if (m.restored.toolbar === 'false' || m.restored.selectable !== 'true' || m.restored.creatable !== 'true' || !m.restored.searchDrawn) {
     note({case: 'they come back with the access', got: m.restored});
   }
-  if (m.views.join() !== 'view.save_shared:team,view.save:a,view.save:b') note({case: 'a shared view from page code, and several templates at once', got: m.views});
+  if (m.views.join() !== 'view.save_shared:crew,view.save_shared:nk,view.save_shared:team,view.save_shared:older,view.save:a,view.save:b') note({case: 'a shared view from page code (save kind view, the new name without kind, then the two former names), another kind left alone, and several templates at once', got: m.views});
+  if (m.newNameNoted || !m.oldNameNoted || !m.olderNameNoted) note({case: 'the former sf-view-saved-view-intent and sf-data-view-saved-view-intent are noted in SF.deprecations, the new name is not, with or without kind', got: {newNameNoted: m.newNameNoted, oldNameNoted: m.oldNameNoted, olderNameNoted: m.olderNameNoted}});
   const unworded = m.worded.filter(([, text]) => !text || text === m.general || !/[а-я]/u.test(text)).map(([reason]) => reason);
   if (unworded.length || new Set(m.worded.map(([, text]) => text)).size !== m.worded.length) note({case: 'every reason the port lists has its own words', got: m.worded});
   if (m.columnSearch !== 'Поиск по полям') note({case: "the column search speaks the page's language", got: m.columnSearch});

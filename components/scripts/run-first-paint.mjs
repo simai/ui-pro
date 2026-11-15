@@ -23,7 +23,7 @@
 // (core/core, smart/smart, ...) or the `distr` of the ui distribution; a
 // distr is laid out as a product root with symbolic links.
 import {spawnSync} from 'node:child_process';
-import {cpSync, existsSync, mkdirSync, rmSync, symlinkSync, writeFileSync} from 'node:fs';
+import {cpSync, existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {PACKAGE_COMPONENTS, PACKAGE_ROOT, materializeOverlay, packageNameOf} from './overlay.mjs';
 import {linkOverlayPlaywright} from './playwright-local.mjs';
@@ -57,6 +57,19 @@ if (!existsSync(join(free, 'core', 'core', 'js', 'core.js'))) {
     if (!existsSync(join(free, product))) throw new Error(`the free output has no ${product}: ${free}`);
     mkdirSync(join(root, folder), {recursive: true});
     symlinkSync(join(free, product), join(root, folder, inner));
+  }
+}
+
+// The set's own known gate failures (tests/fixtures/first-paint/package-known.json),
+// merged into the overlay's gate-known.json, which is ui-source's and which a
+// package file may not replace.
+if (mode === 'gate') {
+  const ownKnown = join(PACKAGE_ROOT, 'tests', 'fixtures', 'first-paint', 'package-known.json');
+  const gateKnown = join(overlay, 'tests', 'fixtures', 'first-paint', 'gate-known.json');
+  if (existsSync(ownKnown) && existsSync(gateKnown)) {
+    const into = JSON.parse(readFileSync(gateKnown, 'utf8'));
+    into.known = {...(into.known ?? {}), ...(JSON.parse(readFileSync(ownKnown, 'utf8')).known ?? {})};
+    writeFileSync(gateKnown, `${JSON.stringify(into, null, 2)}\n`);
   }
 }
 

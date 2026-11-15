@@ -34,7 +34,7 @@ const styles = [
   'component/component/dropdown/css/dropdown.css', 'component/component/datepicker/css/datepicker.css',
   'component/component/tags/css/tags.css', 'component/component/textarea/css/textarea.css',
   'component/component/skeleton/css/skeleton.css',
-  'component/component/tabs/css/tabs.css', 'smart/smart/tabs/css/tabs.css',
+  'component/component/tabs/css/tabs.css',
   'smart/smart/drawer/css/drawer.css', 'smart/smart/popover/css/popover.css',
   'smart/smart/empty-state/css/empty-state.css', 'component/component/featured-icon/css/featured-icon.css',
   'component/component/context-menu/css/context-menu.css',

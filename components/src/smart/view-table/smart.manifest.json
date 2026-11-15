@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.17.5",
+  "version": "1.18.3",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2706,14 +2706,34 @@
         "from": "1.17.0",
         "to": "1.17.1",
         "changes": [
-          "The shadow at the edge of the pinned columns reads the surface role --sf-surface-state-select (the neutral 8% step, light and dark, and the place's own inside a place) instead of the public ramp --sf-alpha-8: over SIMAI Framework ui-7fb26d395af2 no component reads --sf-alpha-* (DEV acceptance 2026-11-10, Q3). Made in ui-pro ahead of simai/ui-view (2026-11-12); the view set releases the same change. Nothing to change for a host."
+          "The head row is on the ladder (D2 of the view 1.6.0 acceptance): it is a one-line row of its step, with the rows' padding and rung -- 40 at size 1/2 and 48 at size 1 beside rows with the box and menu, whether it holds the box and sortable column controls or only their names (it was 45 and 57 with the controls, 37/33 and 41 without). --sf-table-head-block-size-* follow: 40 and 48 (they said 33 and 41).",
+          "The published box agrees with the drawn tables under page density (C22, D3 of the 1.6.0 acceptance): a written size is stronger than density, so the -1/2 names are the size=\"1/2\" table on every page -- 40, 48 and head 40 on a compact page too (they gave 36, 40 and 29) -- and the -1 names are the table without a size in the density of the element they are read on (40/48/40 on a compact page). The names are also declared on every element with data-sf-density, so a data-sf-density=\"normal\" region of a compact page reads the normal box (the size=\"1\" table there).",
+          "A draw reads the column settings once (simai/ui-pro#1): getColumnSetting() takes them from the draw while the template is built; counted over one setRows() draw, 8 rows asked getColumnSettings() 268 times and 60 rows 343, now 4. An idle row's actions cell is the bare <td> (simai/ui-pro#2): the buttons are bound on the cell, so a row of five columns with its box, menu and actions is 29 nodes (31), the buttons still come with the pointer, the focus and the current row, and the row is not drawn anew when they do. Nothing to change for a host.",
+          "On a selected list item, the open record (aria-current) and a selected table row, --sf-surface-underlay is the place's solid colour (--sf-surface-place-solid, else --sf-surface-place, so a selected row on a soft place leaves the badge alone), so a tonal badge on that translucent fill lays its tone over a solid base (C43, D1 of the 1.6.0 acceptance: a warning badge on the open record read grey). It needs the SIMAI Framework roles --sf-surface-underlay and --sf-surface-place-solid (ui-source fix/c43-badge-on-place c6711098, the next pair, core.runtime 1.50.0 or newer); on an older pair the line does nothing.",
+          "Over SIMAI Framework ui-2bd5a3ab478a (ui-source d25a01f9989d, core.runtime 1.51.0), which the set now needs (core.runtime 1.51.0 or newer): the pair that carries the roles --sf-surface-underlay and --sf-surface-place-solid. Nothing to change for a host on that pair."
         ]
       },
       {
         "from": "1.17.1",
-        "to": "1.17.5",
+        "to": "1.18.0",
         "changes": [
-          "Rebuilt over SIMAI Framework ui-141822273efe (ui-source f92aeee7, core.runtime 1.56.0); nothing of its own changed. The Framework code it builds in moved: option-badge (C140 (2), BG-7) draws a hex option colour in the nearest static palette hue at the fill step 24 and takes a palette hue by name, and sf-pagination 1.5 (C97) says the total as the page's range. 1.17.2 to 1.17.4 are held by unreleased ui-pro branches (fix/progress-a11y-5, fix/pro-g4, fix/admin-set-k1). Nothing to change for a host."
+          "The table's own windows by their kind (owner decision C32, 2026-11-09), from the Framework's popup widths, which follow density: the filter with its saved views (filter-settings) and the column settings (table-settings) are panels, --sf-popup-panel-width (20rem; 18rem compact) or the trigger's width when wider; saving a template (filter-favorites) and a chip's own filter (tag-settings) are forms, --sf-popup-form-width (20rem; 18rem compact), where they were as wide as their content (295 / 283 compact / 250 on a phone, now 320 / 288 / 320). A panel in several columns (context-menu-columns) is as wide as its columns. --sf-table-context-menu--max-width still caps every window, and the room a window has caps it. The menus (create, list sort, row and toolbar actions) are sf-menu-context's rows and keep its menu widths (10-18rem)."
+        ]
+      },
+      {
+        "from": "1.18.0",
+        "to": "1.18.1",
+        "changes": [
+          "The content table of an sf-view whose code has not arrived yet does not draw on its own (DEV decision msg-e39bb812, zero toolbar shift when saved views are declared): the Loader defines the table before the view, and the table drew its own toolbar -- the search field across the whole row, the filter button and the saved-views control coming in a frame later -- for a frame or two before the view's first paint replaced it with the skeleton, so the toolbar moved by the controls' width (182 px with saved views declared and 142 px without at 1440; at 390 the bar went from 80 to 36 px tall). It draws once sf-view is defined, with the settings the view gave it, and the first toolbar on the page is the skeleton, which stands where the answer draws it. A table whose static markup the server printed is adopted as before. Nothing to change for a host.",
+          "Also 1.18.1 (saved-views r2, DEV acceptance D1): the first render reads the width of the table's box before it draws, so at 390 a table whose answer was in when its code was defined draws the compact toolbar and the list from its first frame; it drew the desktop toolbar first (80-124 px, then 36), because the box was measured only after the first paint.",
+          "Also 1.18.1 (D2): the content table waits for sf-view at most 3 s, or half a second after the view's script errs, then draws on its own without the view's toolbar and warns once; a view whose code never came left the area blank."
+        ]
+      },
+      {
+        "from": "1.18.1",
+        "to": "1.18.3",
+        "changes": [
+          "ui-pro's copy of the view release view-9eff67bbf11f (view 1.7.1), rebuilt over SIMAI Framework ui-141822273efe (ui-source f92aeee7, core.runtime 1.56.0): the Framework code it builds in moved -- option-badge (C140 (2), BG-7) draws a hex option colour in the nearest static palette hue at the fill step 24 and takes a palette hue by name, and sf-pagination 1.5 (C97) says the total as the page's range. 1.18.2 is held by unreleased simai/ui-view branches. Nothing to change for a host."
         ]
       }
     ]
@@ -2724,15 +2744,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-table/index.js",
-        "sha256": "05d95b92c18e67f0649ed11838eed92367a118ced8006decee43ecf5a2c2b8bd"
+        "sha256": "bd7ceb437538368b9a059de32d74163abc56cdf95b7bff6fc491098014752b8a"
       },
       {
         "path": "src/smart/view-table/js/templates/default.js",
-        "sha256": "2197b74d2c0de08e6d05581ad90068a35896a83712549a906762df33b6dc5ffb"
+        "sha256": "bd71a4cac9bde3bdb1c1087e149d7ea6499f32c2f87866076c65eea66dc091ce"
       },
       {
         "path": "src/smart/view-table/js/templates/default.css",
-        "sha256": "5e3986ef976e03b18682428fc4bbb6dc516356e4f85af8ed367b73b0da9d6f93"
+        "sha256": "5251608a4f16a3584440490246df29b02dfb963c03ed17d371ff796b48e15a51"
       },
       {
         "path": "src/smart/helpers/option-badge.js",

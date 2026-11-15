@@ -115,7 +115,12 @@
      (--sf-ui-3--control-height). The padding is the step's control ladder,
      never --sf-space-1, which density does not move: step 1 stood at 53 and
      73 with the reorder handle, step 1/2 at 45, 53 and 48 side by side. The
-     head keeps the step's own space around its line. On a compact page (C22)
+     head row is a one-line row of its step (view 1.6.1): the same padding
+     and the same rung, so beside rows with the box and menu it is 40 at 1/2
+     and 48 at 1, whether it holds the box and the column controls or only
+     their names. It was the step's space around its line, 33 and 41, and 45 and 57
+     with the controls, beside 40 and 48 rows: off the ladder (D2 of the 1.6.0
+     acceptance). On a compact page (C22)
      the ladder moves one rung down and the rows with it. The person's own
      view density (data-sf-view-density, below) keeps its padding. */
   :is(sf-view-table, sf-table) > * .table > :not(caption) > * > * {
@@ -127,11 +132,13 @@
     padding-block: var(--sf-ui-1\/2--space-y);
   }
 
-  :is(sf-view-table, sf-table):not([data-sf-view-density]) > * .table > tbody > tr {
+  /* The head is a row like the others: its names or its controls in the
+     middle of the same padding, on the same rung. */
+  :is(sf-view-table, sf-table):not([data-sf-view-density]) > * .table > :is(thead, tbody) > tr {
     block-size: var(--sf-ui-2--control-height);
   }
 
-  :is(sf-view-table, sf-table):not([data-sf-view-density]) > * .table > tbody > tr > * {
+  :is(sf-view-table, sf-table):not([data-sf-view-density]) > * .table > :is(thead, tbody) > tr > * {
     padding-block: calc((var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) - var(--sf-px)) / 2);
   }
 
@@ -142,11 +149,11 @@
     padding-block: calc((var(--sf-ui-3--control-height) - var(--sf-text-height-1) - var(--sf-text-height-1\/2) - var(--sf-px)) / 2);
   }
 
-  :is(sf-view-table, sf-table)[size="1/2"]:not([data-sf-view-density]) > * .table > tbody > tr {
+  :is(sf-view-table, sf-table)[size="1/2"]:not([data-sf-view-density]) > * .table > :is(thead, tbody) > tr {
     block-size: var(--sf-ui-1--control-height);
   }
 
-  :is(sf-view-table, sf-table)[size="1/2"]:not([data-sf-view-density]) > * .table > tbody > tr > * {
+  :is(sf-view-table, sf-table)[size="1/2"]:not([data-sf-view-density]) > * .table > :is(thead, tbody) > tr > * {
     padding-block: calc((var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) - var(--sf-px)) / 2);
   }
 
@@ -189,20 +196,33 @@
     pointer-events: auto;
   }
 
-  /* A window is as wide as what it holds, from the standard menu's floor to its
-     ceiling or the room the window has: every window was 24rem whatever it
-     held, and a list of two short field names stood with a third of the width
-     empty between the name and its checkbox (owner, 2026-10-14). */
+  /* The window kinds of C32 (owner, 2026-11-09), from the Framework's popup
+     widths, which follow density: a panel (the filter with its saved views,
+     the column settings) is --sf-popup-panel-width or its trigger's width
+     when that is wider; a form (saving a template, a chip's filter) is
+     --sf-popup-form-width. Both are one width whatever they hold, so a
+     panel does not grow under the pointer. A panel in several columns is as
+     wide as they are. --sf-table-context-menu--max-width still caps them,
+     and the room the window has caps everything. */
   .sf-table-context-menu {
-    min-width: min(var(--sf-context-menu--min-inline-size, var(--sf-e8)), var(--sf-table-context-menu--available-inline-size, 100vw));
-    max-width: min(var(--sf-table-context-menu--max-width, var(--sf-g2)), var(--sf-table-context-menu--available-inline-size, 100vw));
-    width: max-content;
+    --sf-table-context-menu--width: max(var(--sf-table-context-menu--trigger-inline-size, 0px), var(--sf-popup-panel-width, var(--sf-g0)));
+    min-width: min(var(--sf-table-context-menu--width), var(--sf-table-context-menu--max-width, 100vw), var(--sf-table-context-menu--available-inline-size, 100vw));
+    max-width: min(var(--sf-table-context-menu--max-width, 100vw), var(--sf-table-context-menu--available-inline-size, 100vw));
+    width: var(--sf-table-context-menu--width);
     /* A window as tall as its content puts its own buttons below the fold as
        soon as a site has fifteen fields, and the page has to be scrolled to
        reach them. The ceiling is the space left under the window's own top
        edge, which only the component knows, so it arrives as a property. */
     max-block-size: var(--sf-table-context-menu--max-block-size, none);
     overflow: hidden;
+  }
+
+  .sf-table-context-menu.sf-table-context-menu--form {
+    --sf-table-context-menu--width: var(--sf-popup-form-width, var(--sf-g0));
+  }
+
+  .sf-table-context-menu.sf-table-context-menu--columns {
+    width: max-content;
   }
 
   /* The chain a bounded window needs: every box between the ceiling and the
@@ -293,29 +313,54 @@
        inset was computed from that reading and put an embedded list 7px out once
        the table was styled. */
     --sf-table--row-text-inset: calc(var(--sf-table--cell-spacing) + var(--sf-a8));
+  }
 
-    /* The table's box, published so a page can hold the room of a list before
-       it draws -- min-block-size = toolbar + toolbar gap + head + rows x row
-       (docs.md) -- from the same tokens the rows below are drawn with, never a
-       number typed into the page. On the root for the reason above: the page
-       reads them outside the table. One value per step of the ladder (size
-       1/2 and 1); a row is the ladder's (C31, the row model below): its
-       cells' padding -- the rung of two lines less the step's two lines --
-       around its tallest content, the step's control (the row's box and
-       menu) or its text, one line or two, and never below the rung it
-       stands on. */
+  /* The table's box, published so a page can hold the room of a list before
+     it draws -- min-block-size = toolbar + toolbar gap + head + rows x row
+     (docs.md) -- from the same tokens the rows below are drawn with, never a
+     number typed into the page. On the root for the reason above: the page
+     reads them outside the table. One value per step of the ladder (size
+     1/2 and 1); a row is the ladder's (C31, the row model below): its
+     cells' padding -- the rung of two lines less the step's two lines --
+     around its tallest content, the step's control (the row's box and
+     menu) or its text, one line or two, and never below the rung it
+     stands on. The head is a one-line row (view 1.6.1).
+
+     Density (C22, view 1.6.1). A size the page writes is stronger than the
+     page's density, so a table of size="1/2" draws the normal ladder on a
+     compact page too, and the -1/2 names say that table on every page. A
+     table without a size is the one density moves: the -1 names follow the
+     density of the element they are read on. Declared on every element that
+     sets a density as well as on the root, so a region of data-sf-density
+     reads the box of its own density. On a compact page the -1/2 names are
+     the step above in the compact ladder, which is the normal 1/2 (C22: each
+     step holds the value of the step below), so a table without a size
+     there is exactly the -1/2 box. Desktop only, as the density itself
+     (SIMAI Framework _sf_css__density.scss: 60rem). The 1.6.0 names gave 36
+     on a compact page beside the 40 the 1/2 table draws (D3 of the 1.6.0
+     acceptance). */
+  :root,
+  [data-sf-density] {
     --sf-table-row-block-size-1\/2: max(var(--sf-ui-1--control-height), var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) + max(var(--sf-ui-1\/2--control-height), var(--sf-text-height-1\/2)));
     --sf-table-row-block-size-1: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), var(--sf-text-height-1)));
     --sf-table-row-2-lines-block-size-1\/2: max(var(--sf-ui-1--control-height), var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) + max(var(--sf-ui-1\/2--control-height), 2 * var(--sf-text-height-1\/2)));
     --sf-table-row-2-lines-block-size-1: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), 2 * var(--sf-text-height-1)));
-    /* The head row: the step's space around a line of the head's text, its line. */
-    --sf-table-head-block-size-1\/2: calc(2 * var(--sf-ui-1\/2--space-y) + var(--sf-text-height-1\/2) + var(--sf-px));
-    --sf-table-head-block-size-1: calc(2 * var(--sf-ui-1--space-y) + var(--sf-text-height-1) + var(--sf-px));
+    /* The head row: a one-line row of its step. */
+    --sf-table-head-block-size-1\/2: var(--sf-table-row-block-size-1\/2);
+    --sf-table-head-block-size-1: var(--sf-table-row-block-size-1);
     /* The toolbar on one line (search, settings, export): the step's control,
        and the gap between it and the head. */
     --sf-table-toolbar-block-size-1\/2: var(--sf-ui-1\/2--control-height);
     --sf-table-toolbar-block-size-1: var(--sf-ui-1--control-height);
     --sf-table-toolbar-gap: var(--sf-space-1\/3);
+  }
+
+  @media (min-width: 60rem) {
+    [data-sf-density="compact"] {
+      --sf-table-row-block-size-1\/2: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), var(--sf-text-height-1)));
+      --sf-table-row-2-lines-block-size-1\/2: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), 2 * var(--sf-text-height-1)));
+      --sf-table-toolbar-block-size-1\/2: var(--sf-ui-1--control-height);
+    }
   }
 
   /* The moment the table is measured for its content widths (see
@@ -741,7 +786,13 @@
     background-image: linear-gradient(var(--sf-surface-container-hover), var(--sf-surface-container-hover));
   }
 
+  /* A translucent place: what sits on it (a tonal badge) lays its tone over
+     the place's solid colour (C43, core --sf-surface-underlay and
+     --sf-surface-place-solid, so a selected row on a soft place leaves the
+     badge alone; a pair without it takes the place's colour). On a pair
+     without the underlay role the line does nothing. */
   :is(sf-view-table, sf-table) .sf-table-list-item[data-selected] {
+    --sf-surface-underlay: var(--sf-surface-place-solid, var(--sf-surface-place));
     background-image: linear-gradient(var(--sf-primary-container), var(--sf-primary-container));
   }
 
@@ -754,6 +805,7 @@
      is still seen on the way back from its card (owner C31, 2026-11-09). The
      row the keyboard is on (data-current) shows the focus ring only. */
   :is(sf-view-table, sf-table) .sf-table-list-item[aria-current="true"] {
+    --sf-surface-underlay: var(--sf-surface-place-solid, var(--sf-surface-place));
     background-image: linear-gradient(var(--sf-primary-container), var(--sf-primary-container));
   }
 
@@ -1307,12 +1359,12 @@
     inset-inline-end: calc(var(--sf-a4) * -1);
     inline-size: var(--sf-a4);
     pointer-events: none;
-    /* `--sf-surface-state-select` is the neutral 8% step of the surface
-       roles, so the shadow follows light and dark (and the place it stands
-       in) without a colour of its own; the components read the roles, not
-       the public --sf-alpha-* ramp (DEV acceptance 2026-11-10, Q3). The direction
-       is written physically because a gradient takes no logical keyword; the
-       RTL pipeline mirrors it, as it does for the row's focus bar. */
+    /* `--sf-surface-state-select` is the surface role at the 8% state step
+       (the Framework's components read the surface roles, not --sf-alpha-*,
+       since DEV acceptance 2026-11-10 Q3), so the shadow follows light, dark
+       and the place without a colour of its own. The direction is written
+       physically because a gradient takes no logical keyword; the RTL
+       pipeline mirrors it, as it does for the row's focus bar. */
     background-image: linear-gradient(to right, var(--sf-surface-state-select), transparent);
   }
 
@@ -1426,6 +1478,7 @@
   }
 
   :is(sf-view-table, sf-table) tbody tr[data-selected] {
+    --sf-surface-underlay: var(--sf-surface-place-solid, var(--sf-surface-place));
     background-image: linear-gradient(
       var(--sf-primary-container),
       var(--sf-primary-container)

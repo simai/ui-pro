@@ -1,4 +1,5 @@
-import {html, nothing} from "lit";
+import {html, nothing, render} from "lit";
+import {Directive, directive, PartType} from "lit/directive.js";
 import {keyed} from "lit/directives/keyed.js";
 import {repeat} from "lit/directives/repeat.js";
 import {ref} from "lit/directives/ref.js";
@@ -643,6 +644,32 @@ function renderLinkCell(value) {
 // This is the migration form (§16) until template.html is compiled.
 const ROW_HOLE = Symbol("row-hole");
 const ROW_STRINGS = new Map();
+
+// The actions cell (view 1.6.1, simai/ui-pro#2): its buttons stand only in
+// the row a person is on, and an idle row's cell is the bare <td>. It was a
+// child part with an empty box in it (a marker and a <div>, 31 nodes a row
+// where 29 do). The cell keeps one kind whether its buttons show or not,
+// bound on the cell itself (an element part has no marker): a row whose
+// strings change is drawn anew, and the focus that brought the buttons in
+// would leave with the old row.
+class ActionsCellDirective extends Directive {
+    constructor(part) {
+        super(part);
+        if (part.type !== PartType.ELEMENT) throw new Error("actionsCell binds an element");
+    }
+
+    render() {
+        return nothing;
+    }
+
+    update(part, [content, host]) {
+        // A cell never drawn into stays bare; once drawn, Lit's own part
+        // empties it.
+        if (content !== nothing || part.element.childNodes.length) render(content, part.element, {host});
+        return nothing;
+    }
+}
+const actionsCell = directive(ActionsCellDirective);
 function rowStrings(kinds) {
     const signature = kinds.join("|");
     const known = ROW_STRINGS.get(signature);
@@ -652,7 +679,9 @@ function rowStrings(kinds) {
         ' aria-rowindex=', ROW_HOLE, ' data-row-id=', ROW_HOLE, ' data-current=', ROW_HOLE, ' aria-current=', ROW_HOLE,
         ' tabindex="-1" @mousedown=', ROW_HOLE, ' @click=', ROW_HOLE, ' @dblclick=', ROW_HOLE, ' @keydown=', ROW_HOLE, '>'];
     for (const kind of kinds) {
-        pieces.push('<td data-key=', ROW_HOLE, ' data-item=', ROW_HOLE, ' data-sf-pinned=', ROW_HOLE, ' style=', ROW_HOLE, '>');
+        pieces.push('<td data-key=', ROW_HOLE, ' data-item=', ROW_HOLE, ' data-sf-pinned=', ROW_HOLE, ' style=', ROW_HOLE);
+        // The actions cell's buttons are bound on the cell (actionsCell).
+        pieces.push(...(kind === 'actions' ? [' ', ROW_HOLE, '>'] : ['>']));
         if (kind === 'box') {
             pieces.push('<label class=', ROW_HOLE, '><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value=', ROW_HOLE,
                 ' .checked=', ROW_HOLE, ' aria-label=', ROW_HOLE, ' @change=', ROW_HOLE, '></span></label>');
@@ -1053,6 +1082,9 @@ export function renderTableTemplate(context) {
                     values.push(mark.className, mark.title ?? nothing, mark.text);
                 } else if (mark?.kind === 'empty') {
                     kinds.push('empty');
+                } else if (column.key === 'actions') {
+                    kinds.push('actions');
+                    values.push(actionsCell(fullCell(row, column), component));
                 } else {
                     kinds.push('node');
                     values.push(fullCell(row, column));
@@ -1288,9 +1320,7 @@ export function renderTableTemplate(context) {
                 // pointer, with the focus, or current -- and the column keeps its
                 // width in the others (owner, 2026-10-15): drawn in every row they
                 // were most of a page's elements.
-                if (!context.component.actionsShownFor?.(row)) {
-                    return html`<div class="sf-table-row-actions" data-row-actions="idle"></div>`;
-                }
+                if (!context.component.actionsShownFor?.(row)) return nothing;
                 return html`
                     <div class="sf-table-row-actions flex items-cross-center gap-1/3">
                         ${value.map((item) => renderCellItem(item, context.component))}

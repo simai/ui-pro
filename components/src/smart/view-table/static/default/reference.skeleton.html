@@ -59,7 +59,7 @@
 <div class="sf-table-resize-guide" aria-hidden="true" hidden></div>
 
 
-<table class="table border-separate border-spacing-0 min-w-full sf-table-content-sized table-fixed transition" aria-label="Записи" style="--sf-table-pin-select: 0px;">
+<table class="table border-separate border-spacing-0 min-w-full table-fixed transition sf-table-content-sized" aria-label="Записи" style="--sf-table-pin-select: 0px;">
 
 <colgroup>
 
@@ -81,12 +81,12 @@
 
 <th class="relative" data-key="select" data-label="select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;">
 <sf-checkbox position="end" root-class="content-main-between" aria-label="Выбрать все строки" style="display: contents;">
-<label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" data-sf-static aria-hidden="true">
+<label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" for="sf-view-table-reference-2" data-sf-static aria-hidden="true">
 
 
 
 <span class="sf-checkbox-box transition flex">
-<input type="checkbox" value="" aria-label="Выбрать все строки">
+<input type="checkbox" value="" aria-label="Выбрать все строки" id="sf-view-table-reference-2">
 <sf-icon aria-hidden="true" icon style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static></i></sf-icon>
 </span>
 </label>
@@ -109,14 +109,14 @@
 </button>
 
 
-<button type="button" role="separator" aria-orientation="vertical" class="sf-table-column-resizer" aria-keyshortcuts="ArrowLeft ArrowRight Home End Enter" id="sf-view-table-reference-2" data-sf-column-resizer="title" aria-label="Изменить ширину столбца: Название"></button>
+<button type="button" role="separator" aria-orientation="vertical" class="sf-table-column-resizer" aria-keyshortcuts="ArrowLeft ArrowRight Home End Enter" id="sf-view-table-reference-3" data-sf-column-resizer="title" aria-label="Изменить ширину столбца: Название"></button>
 </div>
 </th>
 <th class="relative" data-key="status" data-label="Статус">
 <div class="sidebar-resizer flex items-cross-center h-full select-none">
 <span class="sf-first-paint-bar" aria-hidden="true">Статус</span>
 
-<button type="button" role="separator" aria-orientation="vertical" class="sf-table-column-resizer" aria-keyshortcuts="ArrowLeft ArrowRight Home End Enter" id="sf-view-table-reference-3" data-sf-column-resizer="status" aria-label="Изменить ширину столбца: Статус"></button>
+<button type="button" role="separator" aria-orientation="vertical" class="sf-table-column-resizer" aria-keyshortcuts="ArrowLeft ArrowRight Home End Enter" id="sf-view-table-reference-4" data-sf-column-resizer="status" aria-label="Изменить ширину столбца: Статус"></button>
 </div>
 </th>
 <th class="relative" data-key="actions" data-label="Действия">
@@ -125,7 +125,7 @@
 </tr>
 </thead>
 
-<tbody><tr tabindex="-1" data-row-id="1"><td data-key="select" data-item="1_select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;"><label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" data-sf-checkbox-bound="1"><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value="" aria-label="Выбрать строку: Портал клиента"></span></label></td><td data-key="settings" data-item="1_settings" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-settings, 0px); z-index: 2;" data-sf-pin-edge><button type="button" value="menu" data-sf-row-menu class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" aria-label="Меню"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button></td><td data-key="title" data-item="1_title"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Портал клиента</span></span></td><td data-key="status" data-item="1_status"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Опубликовано</span></span></td><td data-key="actions" data-item="1_actions"><div class="sf-table-row-actions" data-row-actions="idle"></div></td></tr><tr tabindex="-1" data-row-id="2"><td data-key="select" data-item="2_select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;"><label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" data-sf-checkbox-bound="1"><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value="" aria-label="Выбрать строку: Каталог товаров"></span></label></td><td data-key="settings" data-item="2_settings" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-settings, 0px); z-index: 2;" data-sf-pin-edge><button type="button" value="menu" data-sf-row-menu class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" aria-label="Меню"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button></td><td data-key="title" data-item="2_title"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Каталог товаров</span></span></td><td data-key="status" data-item="2_status"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Черновик</span></span></td><td data-key="actions" data-item="2_actions"><div class="sf-table-row-actions" data-row-actions="idle"></div></td></tr></tbody>
+<tbody><tr tabindex="-1" data-row-id="1"><td data-key="select" data-item="1_select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;"><label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" data-sf-checkbox-bound="1" for="class-sf-checkbox-1--input"><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value="" aria-label="Выбрать строку: Портал клиента" id="class-sf-checkbox-1--input"></span></label></td><td data-key="settings" data-item="1_settings" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-settings, 0px); z-index: 2;" data-sf-pin-edge><button type="button" value="menu" data-sf-row-menu class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" aria-label="Меню"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button></td><td data-key="title" data-item="1_title"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Портал клиента</span></span></td><td data-key="status" data-item="1_status"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Опубликовано</span></span></td><td data-key="actions" data-item="1_actions"></td></tr><tr tabindex="-1" data-row-id="2"><td data-key="select" data-item="2_select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;"><label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" data-sf-checkbox-bound="1" for="class-sf-checkbox-2--input"><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value="" aria-label="Выбрать строку: Каталог товаров" id="class-sf-checkbox-2--input"></span></label></td><td data-key="settings" data-item="2_settings" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-settings, 0px); z-index: 2;" data-sf-pin-edge><button type="button" value="menu" data-sf-row-menu class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" aria-label="Меню"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button></td><td data-key="title" data-item="2_title"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Каталог товаров</span></span></td><td data-key="status" data-item="2_status"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Черновик</span></span></td><td data-key="actions" data-item="2_actions"></td></tr></tbody>
 </table>
 </div>
 

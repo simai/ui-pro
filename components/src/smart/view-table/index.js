@@ -1,4 +1,4 @@
-import SfBaseElement, {canonicalTag} from "../../core/js/smart-base";
+import SfBaseElement, {canonicalTag, isTag} from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {settingSetters} from "./js/manifest-actions.js";
 import manifest from "./component.json";
@@ -36,6 +36,12 @@ const preferences = () => globalThis.SF?.Preferences || BundledPreferences;
 const tablePreferenceKey = (key) => `sf-table/${String(key).replace(/[^\w.:-]+/gu, "-")}`;
 // What a cell may draw as markup rather than as an element of its own.
 const LIGHT_CELL_TAGS = new Set(["sf-badge", "sf-tag", "sf-avatar"]);
+// How long the content table of an sf-view waits for the view's code before
+// it draws on its own (saved-views r2, D2), and the grace after the view's
+// script errs, for the Loader's one try of the module's other form.
+const VIEW_WAIT_MS = 3000;
+const VIEW_SCRIPT_RETRY_MS = 500;
+const VIEW_SCRIPT = /\/view\/js\/view(?:\.min)?\.js(?:[?#]|$)/u;
 const GENERAL_TABLE_PREFERENCE = "sf-table/*";
 const TABLE_VIEW_DEFAULTS = Object.freeze({density: "normal", stripes: false, lines: false, singleLine: false, stickyHead: true});
 
@@ -1687,6 +1693,64 @@ class SfTable extends TableElement {
         }));
     }
 
+    // A table that is the content of an sf-view whose code has not arrived
+    // yet does not draw on its own (DEV decision msg-e39bb812: zero toolbar
+    // shift when saved views are declared). The Loader defines the table
+    // before the view, and drawn alone it showed its own toolbar -- the
+    // search field across the whole row, the filter button and the
+    // saved-views control coming in a frame later -- for the frames before
+    // the view's first paint replaced it with the skeleton, whose toolbar
+    // stands where the answer draws it: the toolbar moved by the width of
+    // the controls (181 px with saved views declared, 141 px without, at
+    // 1440). It draws once the view is defined, with what the view gave it.
+    // A table the server printed (its static markup) is adopted as before.
+    // The wait is bounded (saved-views r2, D2): when the view's code fails to
+    // load (its script errs; the Loader's other form is given half a second)
+    // or has not come in VIEW_WAIT_MS, the table draws on its own, without
+    // the view's toolbar, and says so once in the console. Without the bound
+    // a view whose code never came left the area blank for the page's life.
+    canScheduleComponentUpdate(reason = "unknown") {
+        if (this._waitsForView()) return false;
+        return super.canScheduleComponentUpdate(reason);
+    }
+
+    _waitsForView() {
+        if (this._viewDefined) return false;
+        const host = this.parentElement;
+        const waits = Boolean(host) && isTag(host, "sf-view") && this.getAttribute("slot") === "content"
+            && !globalThis.customElements?.get?.(host.localName)
+            && !this.querySelector("[data-sf-static]");
+        if (!waits) {
+            this._viewDefined = true;
+            return false;
+        }
+        if (!this._viewWait) {
+            const done = (reason) => {
+                if (this._viewDefined) return;
+                clearTimeout(this._viewWaitTimer);
+                this._viewWaitAbort?.abort();
+                this._viewWait = null;
+                this._viewDefined = true;
+                if (reason !== "defined") {
+                    console.warn(`sf-view-table: the ${host.localName} around this table ${reason === "failed" ? "failed to load" : `was not defined in ${VIEW_WAIT_MS} ms`}; the table draws on its own, without the view's toolbar.`);
+                }
+                if (this.isConnected) this.requestComponentUpdate("host-view");
+            };
+            this._viewWait = globalThis.customElements.whenDefined(host.localName).then(() => done("defined"));
+            this._viewWaitTimer = setTimeout(() => done("timeout"), VIEW_WAIT_MS);
+            this._viewWaitAbort = new AbortController();
+            // A script of the view's own module that errs: the Loader tries
+            // the module's other form once, so the table waits a little more.
+            document.addEventListener("error", (event) => {
+                const src = event.target?.localName === "script" ? String(event.target.src || "") : "";
+                if (!VIEW_SCRIPT.test(src)) return;
+                clearTimeout(this._viewWaitTimer);
+                this._viewWaitTimer = setTimeout(() => done("failed"), VIEW_SCRIPT_RETRY_MS);
+            }, {capture: true, signal: this._viewWaitAbort.signal});
+        }
+        return true;
+    }
+
     onConnected() {
         super.onConnected();
         // The content widths are read once the rows are drawn, and a font or
@@ -3321,7 +3385,7 @@ class SfTable extends TableElement {
             inset-block-start: calc(${y}px + calc(var(--sf-focus-outline-width) * 2));
             z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
           "
-                    root-class="sf-table-context-menu ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
+                    root-class="sf-table-context-menu ${this.contextWindowClass('filter-favorites')} ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
                     data-context-main-menu
                     position="${position || ""}"
             >
@@ -3582,7 +3646,8 @@ class SfTable extends TableElement {
     getColumnSetting(columnKey) {
         if (!columnKey) return {};
 
-        const settings = this.getColumnSettings()?.[columnKey];
+        // During a draw, the settings read once for it (drawingWith).
+        const settings = (this._drawColumnSettings ?? this.getColumnSettings())?.[columnKey];
 
         return settings && typeof settings === "object" && !Array.isArray(settings)
             ? settings
@@ -4656,8 +4721,9 @@ class SfTable extends TableElement {
             transform: ${pos};
             z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
             --sf-table-context-menu--max-block-size: calc(100dvh - ${y}px - var(--sf-space-4));
+            --sf-table-context-menu--trigger-inline-size: ${this.contextTriggerInlineSize(data)}px;
           "
-                    root-class="sf-table-context-menu ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
+                    root-class="sf-table-context-menu ${this.contextWindowClass('filter-settings', menuColumnCount)} ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
                     position="${position || ""}"
                     role="dialog"
                     tabs=${contextItems}
@@ -4806,7 +4872,7 @@ class SfTable extends TableElement {
             inset-block-start: calc(${y}px + calc(var(--sf-focus-outline-width) * 2));
             z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
           "
-                    root-class="sf-table-context-menu ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
+                    root-class="sf-table-context-menu ${this.contextWindowClass('tag-settings')} ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
                     position="${position || ""}"
             >
                 <div class="flex flex-col flex-1 ${this.size === "1/2" ? "p-top-1" : "p-top-3"}" slot="content">
@@ -4942,8 +5008,9 @@ class SfTable extends TableElement {
             transform: ${pos};
             z-index: var(--sf-table-context-menu--z-index, ${this.contextMenuZIndex()});
             --sf-table-context-menu--max-block-size: calc(100dvh - ${y}px - var(--sf-space-4));
+            --sf-table-context-menu--trigger-inline-size: ${this.contextTriggerInlineSize(data)}px;
           "
-                    root-class="sf-table-context-menu ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
+                    root-class="sf-table-context-menu ${this.contextWindowClass('table-settings', menuColumnCount)} ${this.size === "1/2" ? "sf-table-context-menu--dense " : ""}flex flex-col"
                     position="${position || ""}"
                     role="dialog"
                     tabs=${`${this.text('settingsFieldsTab')}|${this.text('settingsViewTab')}`}
@@ -6058,6 +6125,32 @@ class SfTable extends TableElement {
 
     // The window's place on the stack's z-index scale; the Framework's old
     // fixed step until it is on the stack.
+    // The kind of window a menu name opens (C32, owner 2026-11-09): the
+    // table's own windows are not menus -- the menus (create, sort, row and
+    // toolbar actions) are sf-menu-context's own rows and take its widths.
+    // The filter with its saved views and the column settings are panels:
+    // one width, --sf-popup-panel-width (20rem; 18rem compact), or the
+    // trigger's when that is wider. Saving a template and a chip's own
+    // filter are forms: --sf-popup-form-width (20rem; 18rem compact). A
+    // panel laid out in several columns is as wide as they are. Every window
+    // stays inside the room it has (--sf-table-context-menu--available-inline-size).
+    contextWindowClass(menu, columns = 1) {
+        const kind = {
+            'filter-settings': 'panel',
+            'table-settings': 'panel',
+            'filter-favorites': 'form',
+            'tag-settings': 'form',
+        }[menu] ?? 'panel';
+        return `sf-table-context-menu--${kind}${kind === 'panel' && Number(columns) > 1 ? ' sf-table-context-menu--columns' : ''}`;
+    }
+
+    // The trigger's width, for a panel that is at least as wide as the button
+    // that opened it.
+    contextTriggerInlineSize(data = {}) {
+        const width = data.anchor?.getBoundingClientRect?.().width;
+        return Number.isFinite(width) ? Math.ceil(width) : 0;
+    }
+
     contextMenuZIndex() {
         const zIndex = this._contextLayerOwner ? layerZIndex(this._contextLayerOwner) : '';
         return zIndex === '' ? 'var(--sf-z-index-9)' : String(zIndex);
@@ -6811,7 +6904,13 @@ class SfTable extends TableElement {
         return `position: sticky; inset-inline-${side}: var(--sf-table-pin-${column.key}, 0px); z-index: 2;`;
     }
 
+    // Measured after a draw and on every resize of the box: the column
+    // settings are read once for it (drawingWith).
     measurePinnedColumns() {
+        return this.drawingWith(() => this.measurePinnedColumnsNow());
+    }
+
+    measurePinnedColumnsNow() {
         const table = this.refs.table?.value;
         const scroll = this.refs.scroll?.value;
         if (!table) return this;
@@ -7140,7 +7239,7 @@ class SfTable extends TableElement {
         const systemColumns = this.getSystemColumns();
         this._labelColumnBatch = {};
         try {
-            return rows.map((row) => this.normalizeRow(row, systemColumns));
+            return this.drawingWith(() => rows.map((row) => this.normalizeRow(row, systemColumns)));
         } finally {
             this._labelColumnBatch = null;
         }
@@ -7480,6 +7579,10 @@ class SfTable extends TableElement {
             clearTimeout(page.searchTimer);
         }
         this._filterOptionPages.clear();
+        clearTimeout(this._viewWaitTimer);
+        this._viewWaitAbort?.abort();
+        this._viewWaitAbort = null;
+        this._viewWait = null;
         this._responsiveObserver?.disconnect();
         this._responsiveObserver = null;
         this._responsiveWidth = 0;
@@ -7553,6 +7656,7 @@ class SfTable extends TableElement {
     }
 
     templateContext() {
+        this._readResponsiveWidthNow();
         this._renderedCramped = this.columnsAreCramped;
         const props = this.getPropsContext();
 
@@ -7630,6 +7734,31 @@ class SfTable extends TableElement {
         this.refs.items = new Map();
     }
 
+    // The width the first render is chosen by (saved-views r2, D1): the
+    // observer below reports a width only after the first paint, so a table
+    // whose answer was in by the time its code was defined drew its first
+    // frame as if it were wide -- at 390 the desktop toolbar, the search
+    // field across the row and Create and Filter on the rows below, 80-124 px
+    // tall, then the compact 36 px bar one or two frames later. The compact
+    // toolbar and the list are other markup, not a restyle, and list-below is
+    // the table's own attribute, which a container query cannot read; so
+    // until the observer has spoken, the width is read here, before the
+    // render and so before any paint: the content box of the nearest
+    // ancestor that has a box (the table's own tag and sf-view are
+    // display: contents), as the observer measures it.
+    _readResponsiveWidthNow() {
+        if (this._responsiveWidth > 0 || !this.isConnected) return;
+        for (let element = this.querySelector(".sf-table") ?? this.parentElement; element; element = element.parentElement) {
+            const box = element.getBoundingClientRect?.();
+            if (!box || box.width <= 0) continue;
+            const style = globalThis.getComputedStyle?.(element);
+            const edge = (side) => (parseFloat(style?.[`padding${side}`]) || 0) + (parseFloat(style?.[`border${side}Width`]) || 0);
+            const width = Math.floor(box.width - edge("Left") - edge("Right"));
+            if (width > 0) this._responsiveWidth = width;
+            return;
+        }
+    }
+
     // SfBaseElement is display: contents, so its own box has no width: the
     // nearest visible container is observed instead of the custom tag. The
     // box is chosen again once the one observed has left the document: a
@@ -7647,6 +7776,10 @@ class SfTable extends TableElement {
     }
 
     afterRender() {
+        this.drawingWith(() => this.afterDraw());
+    }
+
+    afterDraw() {
         this._observeResponsiveBox();
         this.bindRowActionsEvents(this.refs.table?.value);
         if (this._windowed) this.bindWindowScroll();
@@ -7724,8 +7857,25 @@ class SfTable extends TableElement {
 
     template() {
         // Building the template writes nothing to the page: what it reads of
-        // the layout (the cap, whether the columns are cramped) is read once.
-        return this.readingLayout(() => renderTableTemplate(this.templateContext()));
+        // the layout (the cap, whether the columns are cramped) is read once,
+        // and so are the column settings (drawingWith).
+        return this.drawingWith(() => this.readingLayout(() => renderTableTemplate(this.templateContext())));
+    }
+
+    // The column settings of one draw, read once (simai/ui-pro#1): every
+    // column and every cell asked for them: counted over one setRows() draw,
+    // 268 times for 8 rows and 343 for 60, now 4. Building the template,
+    // measuring it after (afterRender, measurePinnedColumns) and preparing the rows
+    // (normalizeRows) change no setting; a handler they bind runs later,
+    // outside, and reads them afresh.
+    drawingWith(draw) {
+        const outer = this._drawColumnSettings;
+        this._drawColumnSettings = outer ?? this.getColumnSettings();
+        try {
+            return draw();
+        } finally {
+            this._drawColumnSettings = outer;
+        }
     }
 }
 

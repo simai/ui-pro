@@ -21,6 +21,8 @@ import manifest from "./component.json";
 import aliases from "./aliases.json";
 import en from "./lang/en.json";
 import ru from "./lang/ru.json";
+import tableEn from "../view-table/lang/en.json";
+import tableRu from "../view-table/lang/ru.json";
 import BundledPreferences from "../../core/js/preferences.js";
 import {acceptLevel, collapse, createTree, expandKnown, hasLevel, knownRecords, markLoading, visibleRows} from "./js/tree.js";
 const LISTENED = Object.freeze([
@@ -29,7 +31,7 @@ const LISTENED = Object.freeze([
     "sf-view-table-expand", "sf-view-table-load-more", "sf-view-table-reference-open", "sf-view-table-cell-set", "sf-view-table-move",
     "sf-pagination-change", "sf-pagination-size-change", "sf-pagination-apply", "sf-pagination-load-more",
     "sf-pagination-selection-clear", "sf-pagination-count", "sf-pagination-action-change",
-    "sf-pagination-action-for-all-change", "sf-view-saved-view-intent",
+    "sf-pagination-action-for-all-change", "sf-view-save",
 ]);
 // The table's and the page row's events by their names since standard 1.3.8
 // (vocabulary 1.1.5): the old names they still send until 2026-12-01 are not
@@ -130,6 +132,15 @@ const DATA_VIEW_TEXT = {
     en: camelWords(en.runtime),
     ru: camelWords(ru.runtime),
 };
+// The table's own words for the toolbar it will draw: the skeleton writes the
+// filter and create labels into their blocks, so each block is as wide as the
+// button the table then draws (sf-view 1.11.1). Read under sf-view-table, so
+// words a product registers for the table reach the skeleton too.
+const TABLE_TOOLBAR_TEXT = {
+    en: {filterText: tableEn.runtime["filter-text"], createText: tableEn.runtime["create-text"]},
+    ru: {filterText: tableRu.runtime["filter-text"], createText: tableRu.runtime["create-text"]},
+};
+const escapeText = (text) => String(text).replace(/[&<>"]/gu, (letter) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"})[letter]);
 
 // The parts this element draws itself and a consumer can leave out. `status` is
 // absent on purpose and cannot be switched off: a list that could not say a load
@@ -621,7 +632,24 @@ class SfDataView extends DataViewElement {
         if (this.getAttribute("data-sf-instance")) this._ownParts();
         this._askForParts(["sf-view-table", "sf-pagination"]);
         // Dated aliases (§16.20), installed once per element as the Smart base does.
-        if (!this.__sfAliases) this.__sfAliases = installAliases(this, aliases, {tag: this.localName, adapters: {}});
+        if (!this.__sfAliases) {
+            this.__sfAliases = installAliases(this, aliases, {tag: this.localName, adapters: {}});
+            // A page's save under a former name is promoted by the alias shim:
+            // sf-view-save arrives first with the detail as it was, without
+            // kind, exactly like the new name sent without kind. Only the call
+            // that sent the former name can tell them apart, so the view counts
+            // the dispatches of the former save names on itself (reading the
+            // event's type is not a use of it) and notes a kind-less save only
+            // inside one of them (D1).
+            const SAVE_FORMER = new Set(["sf-view-saved-view-intent", "sf-data-view-saved-view-intent"]);
+            const aliased = this.dispatchEvent;
+            this._saveByFormerName = 0;
+            Object.defineProperty(this, "dispatchEvent", {configurable: true, writable: true, value: (event) => {
+                if (!SAVE_FORMER.has(event?.type)) return aliased.call(this, event);
+                this._saveByFormerName += 1;
+                try { return aliased.call(this, event); } finally { this._saveByFormerName -= 1; }
+            }});
+        }
         this._bindFileDrop();
         this.epoch += 1;
         // The key reaches the table before its first paint.
@@ -880,12 +908,50 @@ class SfDataView extends DataViewElement {
         const select = this.renders("select") && !hostWroteOff(table, "selectable");
         const settings = this.renders("settings") && !hostWroteOff(table, "settings");
         const layout = this._firstPaintLayout(table);
+        // The saved-views control (the filter's bookmark segment), when the
+        // page declared it before the first answer -- a data-sf-port that
+        // lists saved-views, or a port already given: its place is held from
+        // the first paint, a control of the step, and the search field stands
+        // where it will stand (DEV decision msg-e39bb812, 2026-11-09). Not
+        // declared, the control comes when a port brings it, as before.
+        const views = toolbar && this.hostOffers("saved-views");
+        // The toolbar the table draws (sf-view 1.11.1, view161 acceptance O1,
+        // O2): the filter button, then the search field and the create button
+        // at the end; in the compact list the field first and the two as
+        // icons after it. The labels are the table's words, so the blocks are
+        // as wide as the buttons; the sheet orders and sizes them for each.
+        const creatable = this.hostOffers("create-record");
+        const word = (key, attribute) => escapeText(table?.getAttribute?.(attribute) || pageText(TABLE_TOOLBAR_TEXT, key, table ?? this, "sf-view-table"));
+        const label = (kind, text) => `<i class="sf-skeleton-text" data-control="${kind}">${text}</i>`;
+        // The optional controls (sf-view 1.12.0, msg-8c5606e7): each is drawn
+        // when what draws it is known before the answer -- the layout switch
+        // from the view's layout-switch, and the table's create kinds
+        // (createItems: the split arrow) and its toolbar actions (the «more»
+        // button) when the page gave them to its table before the first
+        // paint. A control the page gives later still comes with the answer,
+        // as before. The list's sort button is not held: it comes with a
+        // sortable column, and the columns are the port's answer.
+        const switchValue = this.getAttribute?.("layout-switch");
+        const layoutSwitch = switchValue !== null && switchValue !== undefined && switchValue !== "false" && this.renders("toolbar");
+        const known = (read) => { try { return read(); } catch { return undefined; } };
+        const createSplit = creatable && (known(() => table?.createItems?.length) ?? 0) > 0;
+        const toolbarActions = settings && (known(() => table?.toolbarActions?.length) ?? 0) > 0;
+        const createMarkup = creatable
+            ? (createSplit ? `<span data-part="create">${label("create", word("createText", "create-text"))}${control("split")}</span>` : label("create", word("createText", "create-text")))
+            : "";
+        const toolbarMarkup = '<div class="sf-data-view-skeleton-toolbar">'
+            + `<div data-part="start">${label("filter", word("filterText", "filter-text"))}${views ? control("segment") : ""}</div>`
+            + `<div data-part="end">${control("field")}${layoutSwitch ? control("switch") : ""}${createMarkup}${toolbarActions ? control("actions") : ""}</div>`
+            + "</div>";
+        if (layoutSwitch) skeleton.setAttribute("data-layout-switch", "");
+        else skeleton.removeAttribute?.("data-layout-switch");
         skeleton.setAttribute("data-layout", ["auto", "table", "list"].includes(layout) ? layout : "table");
         const columns = this.expectedColumns;
         const rows = this.firstPaintRows;
         const listFields = Number.parseInt(table?.getAttribute("list-fields") ?? "", 10);
         const fields = Math.min(columns - 1, Number.isFinite(listFields) && listFields >= 0 ? listFields : FIRST_PAINT_LIST_FIELDS);
-        const row = (head) => `<div>${select ? `<span data-chrome>${bar}</span>` : ""}${settings ? `<span data-chrome>${head ? bar : control()}</span>` : ""}${`<span>${bar}</span>`.repeat(columns)}</div>`;
+        // The head is a row like the others (sf-view-table 1.17.1).
+        const row = () => `<div>${select ? `<span data-chrome>${bar}</span>` : ""}${settings ? `<span data-chrome>${control()}</span>` : ""}${`<span>${bar}</span>`.repeat(columns)}</div>`;
         const record = `<div>${select ? bar : "<span></span>"}<div>${bar.repeat(fields + 1)}</div>${settings ? control() : "<span></span>"}</div>`;
         const pageRow = `<nav class="sf-pagination sf-pagination--size-${this.size} flex flex-col"><div class="sf-pagination-main flex items-cross-center content-main-between">`
             + `<div class="sf-pagination-left flex items-cross-center">${bar}</div>`
@@ -896,8 +962,8 @@ class SfDataView extends DataViewElement {
             // An own toolbar slot is a row of the view's layout, even empty.
             ownToolbar ? '<div class="sf-data-view-skeleton-own-toolbar"></div>' : "",
             '<div class="sf-data-view-skeleton-records">',
-            toolbar ? `<div class="sf-data-view-skeleton-toolbar">${control("button")}${control("field")}</div>` : "",
-            `<div class="sf-data-view-skeleton-table">${row(true)}${Array.from({length: rows}, () => row(false)).join("")}</div>`,
+            toolbar ? toolbarMarkup : "",
+            `<div class="sf-data-view-skeleton-table">${row()}${Array.from({length: rows}, () => row()).join("")}</div>`,
             `<div class="sf-data-view-skeleton-list">${record.repeat(rows)}</div>`,
             "</div>",
             this.renders("pagination") ? pageRow : "",
@@ -2475,11 +2541,20 @@ class SfDataView extends DataViewElement {
         if (this._seenEvents.has(event)) return;
         this._seenEvents.add(event);
         // The port's event for a shared saved view (view.save_shared): a page
-        // raises it on the view itself, so it is taken before the rule that
-        // ignores the view's own events. It was declared and never listened to.
-        if (event.type === "sf-view-saved-view-intent") {
+        // raises save {kind: "view", key, label} on the view itself (vocabulary
+        // 1.1.5 §9; sf-view 1.12.0), so it is taken before the rule that
+        // ignores the view's own events. The former name
+        // sf-view-saved-view-intent arrives here through the alias shim as
+        // sf-view-save with its detail as it was, without kind: that is read
+        // as a view, and noted only when it came under the former name (the
+        // new name without kind is a view too, and is not noted). A save of
+        // another kind is not the view's.
+        if (event.type === "sf-view-save") {
             if (event.currentTarget !== this) return;
             const view = event.detail ?? {};
+            if (view.kind !== undefined && view.kind !== "view") return;
+            if (view.kind === undefined && this._saveByFormerName > 0) noteDeprecated({component: "sf-view", tag: "sf-view", kind: "event",
+                from: "sf-view-saved-view-intent", to: "sf-view-save", since: "2026-11-10", remove_after: "2027-01-01"});
             return this.saveView({key: view.key, label: view.label ?? view.key, revision: view.revision, level: "shared", roles: view.roles});
         }
         if (event.target === this || event.target?.closest?.(tagSelector("sf-view")) !== this && !this.shadowRoot.contains(event.target)) return;

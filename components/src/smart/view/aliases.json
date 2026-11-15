@@ -116,7 +116,7 @@
     },
     {
       "from": "sf-data-view-saved-view-intent",
-      "to": "sf-view-saved-view-intent",
+      "to": "sf-view-save",
       "kind": "event",
       "component": "sf-view",
       "since": "2026-11-03",
@@ -124,6 +124,17 @@
       "mode": "same-detail",
       "section": "§8",
       "note": "the event name carries the tag"
+    },
+    {
+      "from": "sf-view-saved-view-intent",
+      "to": "sf-view-save",
+      "kind": "event",
+      "component": "sf-view",
+      "since": "2026-11-10",
+      "remove_after": "2027-01-01",
+      "mode": "same-detail",
+      "section": "vocabulary 1.1.5 §9 (save, kind view)",
+      "note": "a page's request to the view to save a shared saved view; the new detail adds kind: \"view\", and a detail without kind is read as a view"
     },
     {
       "from": "sf-data-view-list-open",
