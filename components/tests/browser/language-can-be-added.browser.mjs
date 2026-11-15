@@ -106,8 +106,9 @@ try {
     window.SF.language.registerAll('tr', {
       'sf-view-table': {filterText: 'Filtre', createText: 'Oluştur'},
       // sf-pagination says its words by their kebab keys since it is made from
-      // its component.json (SIMAI Framework standard 1.3.8 §11).
-      'sf-pagination': {'total-label': 'Toplam:'},
+      // its component.json (SIMAI Framework standard 1.3.8 §11). Since 1.5
+      // (C97) it says the total as the page's range, the word range.
+      'sf-pagination': {range: '{from}–{to} / toplam {total}'},
     });
     window.SF.language.use('tr');
   });
@@ -117,12 +118,12 @@ try {
   if (!/Filtre/u.test(added.toolbar) || !/Oluştur/u.test(added.toolbar)) {
     failures.push({step: 'a language added', said: 'the words a product registered did not reach the screen', added});
   }
-  if (!/Toplam:/u.test(added.pageRow)) {
+  if (!/toplam 1/u.test(added.pageRow)) {
     failures.push({step: 'a language added', said: 'a second component did not take the same language', added});
   }
   // What the product did not translate falls back to English, never to the
   // language the page happened to be written in.
-  if (/Страницы|На странице/u.test(added.pageRow)) {
+  if (/Страницы|На странице|По \d| из /u.test(added.pageRow)) {
     failures.push({step: 'a language added', said: 'an untranslated word fell back to the page language instead of English', added});
   }
 
