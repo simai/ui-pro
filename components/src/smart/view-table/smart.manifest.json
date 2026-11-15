@@ -2729,7 +2729,7 @@
       },
       {
         "path": "src/smart/helpers/option-badge.js",
-        "sha256": "ee43e3f6b7257a1b8c30a4d8b7774819cb697380aea8bd3b7a11ac53de74aa0f"
+        "sha256": "bc56841fbeb1689e492d3e47b754ab76ca7de9502740a05c105eb26ead44ee2d"
       },
       {
         "path": "src/smart/view-table/rule.js",
@@ -2741,7 +2741,7 @@
       },
       {
         "path": "src/smart/pagination/index.js",
-        "sha256": "e6c76ad5cb4e2e869259ed15c2d9a9a55ca12dc62d2dbe36d6e2e04f6ede8423"
+        "sha256": "8a1f057c7871e96cdc70418185a672d4778e3a63a103672c0ae269217de12d8d"
       }
     ],
     "generated_runtime": []
