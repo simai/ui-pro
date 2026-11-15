@@ -108,7 +108,7 @@ try {
       const a = getComputedStyle(cell);
       const b = sort ? getComputedStyle(sort) : null;
       return {
-        cell: {paddingTop: a.paddingTop, fontSize: a.fontSize, lineHeight: a.lineHeight, verticalAlign: a.verticalAlign},
+        cell: {paddingTop: a.paddingTop, fontSize: a.fontSize, lineHeight: a.lineHeight, verticalAlign: a.verticalAlign, boxShadow: a.boxShadow},
         sort: b && {borderTopWidth: b.borderTopWidth, backgroundColor: b.backgroundColor, cursor: b.cursor},
         height: Math.round(table.getBoundingClientRect().height),
       };
@@ -141,7 +141,10 @@ try {
   if (!result.styled.old || !result.styled.new) failures.push(`a table drew no rows: ${JSON.stringify(result.styled)}`);
   else {
     if (JSON.stringify(result.styled.old) !== JSON.stringify(result.styled.new)) failures.push(`<sf-table> draws unlike <sf-view-table>: ${JSON.stringify(result.styled)}`);
-    if (result.styled.old.cell.paddingTop === '0px') failures.push('the old table\'s cells have no padding: the sheet did not reach it');
+    // The sheet's mark on a cell: the line between rows, drawn inside the cell
+    // as an inset shadow (none without the sheet). Since sf-view-table 1.19.0
+    // (C146 (1)) a cell has no block padding, so padding no longer tells.
+    if (!/inset/u.test(result.styled.old.cell.boxShadow)) failures.push(`the old table's cells draw no row line (box-shadow ${result.styled.old.cell.boxShadow}): the sheet did not reach it`);
   }
   const expect = (what, got, names) => {
     for (const name of names) if (!(name in got)) failures.push(`${what}: ${name} did not fire (heard ${Object.keys(got).join(', ') || 'nothing'})`);
