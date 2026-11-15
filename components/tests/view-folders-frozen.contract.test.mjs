@@ -50,7 +50,11 @@ const PATCHED = {
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
   // Pro over ui-7fb26d395af2, 2026-11-12; the patch for simai/ui-view is
   // ui-control control/evidence/2026-11-12-pro-over-7fb26d395af2/view-table-alpha.patch.
-  'view-table': {tree: '92c5e6217cbce2e9460f52263948f47f4288b6df', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12)'},
+  // Over ui-141822273efe (2026-11-15) the folder is rebuilt with nothing of its
+  // own: sf-view-table 1.17.5, smart.manifest.json's provenance of the
+  // Framework files it builds in (option-badge, pagination) and the version.
+  // simai/ui-view takes the same when it moves to that pair.
+  'view-table': {tree: 'c44b718bddbf6ce1681deadef2e56934535141f7', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); rebuilt over ui-141822273efe, sf-view-table 1.17.5 (2026-11-15)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
