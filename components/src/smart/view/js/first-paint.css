@@ -68,9 +68,15 @@
     --sf-skeleton-text--line: var(--sf-text-height-1\/2);
   }
 
+  /* A control block is a block, not a line of text: since SIMAI Framework
+     C136 (1) (ui-141822273efe) the skeleton's bar is the capitals' height,
+     0.727 of --sf-skeleton-text--height rounded to 2px, so the step's 40px
+     control drew a 30px bar and the toolbar grew 10px when the table came.
+     The bar is the whole control here. */
   .sf-data-view-skeleton .sf-skeleton-text[data-control] {
     --sf-skeleton-text--height: var(--sf-data-view-skeleton--control);
     --sf-skeleton-text--line: var(--sf-data-view-skeleton--control);
+    --sf-skeleton-text--bar: var(--sf-data-view-skeleton--control);
     inline-size: var(--sf-data-view-skeleton--control);
     flex: none;
   }

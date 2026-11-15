@@ -33,7 +33,14 @@ const TYPES = new Map([['.js', 'text/javascript'], ['.mjs', 'text/javascript'], 
 const VIEW_JS = /^\/distr\/smart\/view\/js\/view(?:\.min)?\.js$/u;
 const records = [1, 2, 3].map((n) => ({id: String(n), revision: `r${n}`, title: `Запись ${n}`, state: 'Опубликована', actions: ['open']}));
 const answer = {records, total: 3, revision: 'list-1', columns: [{key: 'title', label: 'Название'}, {key: 'state', label: 'Состояние'}], row_actions: [{id: 'open', label: 'Открыть'}]};
-const BOOT = {cacheVersion: 'without-view', pluginListVersion: 'without-view', preloader: {enabled: false}, packages: {view: {base: '/distr/smart/'}}};
+// The package the output carries, by the name its rule file registers: the
+// view set's is view, ui-pro's copy ships in the package pro (as
+// package-manifest-probes and pro-former-names read it). Declared under
+// another name the Loader never fetches the rule file, the view waits for
+// ever and every page times out.
+const ruleFile = join(out, 'smart', 'smart', 'rule.js');
+const PACKAGE = existsSync(ruleFile) ? /registerPackage\(\s*["']([a-z][a-z0-9-]*)["']/u.exec(readFileSync(ruleFile, 'utf8'))?.[1] ?? 'view' : 'view';
+const BOOT = {cacheVersion: 'without-view', pluginListVersion: 'without-view', preloader: {enabled: false}, packages: {[PACKAGE]: {base: '/distr/smart/'}}};
 const QUERY = {filters: {}, search: '', sort: [], page: 1, per_page: 20};
 
 const pages = new Map();

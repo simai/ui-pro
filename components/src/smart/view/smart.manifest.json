@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view",
-  "version": "1.12.0",
+  "version": "1.12.3",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -1647,6 +1647,13 @@
           "A page asks the view to save a shared saved view with save {kind: \"view\", key, label, revision?, roles?} on the view (vocabulary 1.1.5 §9: sf-data-view-saved-view-intent -> sf-view-save with kind view). The view raises view.save_shared as before; a save of another kind is left alone. The former names sf-view-saved-view-intent and sf-data-view-saved-view-intent are dated aliases until 2027-01-01 (aliases.json, same-detail): still heard, their detail without kind read as a view, each use noted in SF.deprecations.",
           "The first paint holds the optional toolbar controls that are known before the answer: the layout switch (layout-switch; the segmented track, two controls less the track's padding: 76 at size 1, 62 at 1/2 and compact), and, when the page gave its table createItems or toolbarActions before the first paint, the create kinds' arrow joined to Create and the toolbar actions' button. The search field then stands where it will stand (its end edge moved 66 to 172 px at 1440 when they were drawn). The compact list's toolbar has none of them. The list's sort button is not held: it comes with a sortable column, which only the port's answer names."
         ]
+      },
+      {
+        "from": "1.12.0",
+        "to": "1.12.3",
+        "changes": [
+          "The first paint's toolbar controls are as tall as the controls the table draws over SIMAI Framework ui-141822273efe: since C136 (1) the skeleton's bar is the capitals' height (0.727 of its text height, rounded to 2px), and a control block, which sets that height to the step's control, drew 30 for 40, so the toolbar grew 10px when the answer came (probe data-view-saved-views-first-paint). The block's bar is its whole control again. ui-pro's copy ahead of simai/ui-view; 1.12.1 and 1.12.2 are held by unreleased simai/ui-view branches. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1676,7 +1683,7 @@
       },
       {
         "path": "src/smart/view/js/first-paint.css",
-        "sha256": "64b5763f33f6c08943a9e2899586b870d29d3d2e6891de5aa5ca701d2195bd90"
+        "sha256": "657049a0a9aeea890086d3ec7e083ede9cc37a99b8f5534d301d703ce55ce7ea"
       }
     ],
     "generated_runtime": []

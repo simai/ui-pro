@@ -41,6 +41,12 @@ const FROZEN = {
 // entries: sf-view-properties C22 (released in view 1.6.1) and the sf-view-table
 // pin shadow on a surface role (released in view 1.7.0).
 const PATCHED = {
+  // sf-view 1.12.3 (2026-11-15): the first paint's control blocks keep their
+  // whole height under SIMAI Framework C136 (1) (ui-141822273efe: the
+  // skeleton's bar is the capitals' height, so a 40px control drew 30).
+  // 1.12.1-1.12.2 are held by unreleased simai/ui-view branches. The patch for
+  // simai/ui-view is ui-control control/evidence/2026-11-15-pro-fixes/view.patch.
+  'view': {tree: '164e9c7a0b6ff7ba1c740898a78f356855e524b0', patch: 'first-paint control blocks under C136, sf-view 1.12.3 (2026-11-15)'},
   // sf-view-table 1.18.3 (2026-11-15, pro over ui-141822273efe): the view
   // release rebuilt over that pair (smart.manifest.json's provenance of the
   // Framework files it builds in, option-badge and pagination), the published
