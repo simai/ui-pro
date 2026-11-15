@@ -142,7 +142,8 @@ try {
     {id: 'm100', first: true, last: false, own: false, author: 'Анна'},
     {id: 'm101', first: false, last: false, own: false, author: null},
     {id: 'm103', first: false, last: true, own: false, author: null},
-    {id: 'm104', first: true, last: true, own: true, author: null},
+    // One's own run is headed too, as «Вы» (sf-list-feed 1.2.0, C167 (4)).
+    {id: 'm104', first: true, last: true, own: true, author: 'Вы'},
   ];
   if (JSON.stringify(runs) !== JSON.stringify(expectRuns)) note({case: 'runs of one author and the reader\'s side', got: runs});
   const side = await page.evaluate(() => {
@@ -307,14 +308,22 @@ try {
 
   // 8. Empty: the slot instead of the column.
   await make({count: 0, hasMore: false, empty: true});
+  // Since sf-list-feed 1.3.0 (C120 (3)) a slot of words alone is the heading of
+  // the feed's own empty state (sf-empty-state no-data), not bare text.
   const empty = await page.evaluate(() => ({
-    greeting: Boolean(document.getElementById('greeting')?.offsetParent),
+    greeting: Boolean(document.getElementById('greeting')?.offsetParent)
+      || [...document.querySelectorAll('#log sf-empty-state')].some((state) => state.offsetParent
+        && state.getAttribute('heading') === 'Начните разговор'),
     column: getComputedStyle(document.querySelector('.sf-list-feed__column')).display,
   }));
   if (!empty.greeting || empty.column !== 'none') note({case: 'an empty conversation shows the empty slot', got: empty});
   await page.evaluate(() => document.getElementById('log').upsert({id: 'first', author: 'anna', 'author-name': 'Анна', text: 'Привет'}));
   await frames(3);
-  const filled = await page.evaluate(() => ({greeting: Boolean(document.getElementById('greeting')?.offsetParent), items: document.querySelectorAll('.sf-list-feed__item').length}));
+  const filled = await page.evaluate(() => ({
+    greeting: Boolean(document.getElementById('greeting')?.offsetParent)
+      || [...document.querySelectorAll('#log sf-empty-state')].some((state) => state.offsetParent),
+    items: document.querySelectorAll('.sf-list-feed__item').length,
+  }));
   if (filled.greeting || filled.items !== 1) note({case: 'the first message replaces the empty slot', got: filled});
 
   // 9. English.
