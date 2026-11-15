@@ -44,17 +44,22 @@ const FROZEN = {
 // ui-a0370c0c99fb); the patch for simai/ui-view (index.js, the template, component.json) is
 // ui-control control/evidence/2026-11-10-pro-next-1110/view-properties-c22.patch.
 const PATCHED = {
-  'view-properties': {tree: '660b9268c96af4a120e7c35c2b207d9e3d8090fc', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10)'},
+  // Over ui-994f9db407fa (2026-11-15), sf-view-properties 1.16.1: the panel takes
+  // back the drawer's own block padding (--sf-drawer--inset) and the skeleton's
+  // tab strip stands over the tabs' hairline, as ui-pro 4059d01; simai/ui-view
+  // takes the same when it moves to that pair.
+  'view-properties': {tree: '1f1a740f5dee09111716310e092f26c6c61a32dd', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15)'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
   // Pro over ui-7fb26d395af2, 2026-11-12; the patch for simai/ui-view is
   // ui-control control/evidence/2026-11-12-pro-over-7fb26d395af2/view-table-alpha.patch.
-  // Over ui-994f9db407fa (2026-11-15) the folder is rebuilt with nothing of its
-  // own: sf-view-table 1.17.6, smart.manifest.json's provenance of the
-  // Framework files it builds in (option-badge, pagination) and the version.
-  // simai/ui-view takes the same when it moves to that pair.
-  'view-table': {tree: '428b9f7a49d11460f35378575d4d749752642ea4', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); rebuilt over ui-994f9db407fa, sf-view-table 1.17.6 (2026-11-15)'},
+  // Over ui-994f9db407fa (2026-11-15), sf-view-table 1.19.7: smart.manifest.json's
+  // provenance of the Framework files it builds in (option-badge, pagination),
+  // the row-text inset on --sf-space-1 (utility.table 1.3.0, as ui-pro d766e41)
+  // and the windows on the menu's own inline inset (C105 H4, C106, as ui-pro
+  // 4059d01). simai/ui-view takes the same when it moves to that pair.
+  'view-table': {tree: 'f75e50e903e0faa8cfed08033f2c288664d42aed', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
