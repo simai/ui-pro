@@ -2,6 +2,7 @@
   "title": "Message log",
   "runtime": {
     "earlier-text": "Show earlier messages",
+    "empty-text": "No messages yet",
     "latest-label": "To the latest message",
     "loading-earlier-text": "Loading earlier messages",
     "log-label": "Messages",
