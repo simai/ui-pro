@@ -74,11 +74,16 @@
        is a scroller: the bands fitted into its padding by a pixel, so anything
        that grew by one more made the whole panel scroll -- head, record and
        foot together, which is the foot «travelling» the owner reported. Inside
-       the panel's own box there is nothing to scroll. The drawer's block
-       padding is its gutter alone since sf-drawer 1.10.5 (C105 H6, the
-       scroll-area rule of C106: no stable 14 px scrollbar gutter); taking back
-       the gutter and a scrollbar's room put the foot 14 px below the floor. */
-    margin-block: calc(-1 * var(--sf-property-view--panel-bleed));
+       the panel's own box there is nothing to scroll.
+       The block padding taken back is the drawer's own, --sf-drawer--inset
+       (SIMAI Framework sf-drawer, owner decision C105 H6 and the C106
+       scroll-area rule): the drawer's body pads a headless panel with the
+       window inset alone since it keeps no stable scrollbar gutter, where it
+       had padded it with the gutter plus --sf-scroll-bg-width. Taking back the
+       old sum (30) against a padding of 16 hung the arranging bar 14px below
+       the panel's bottom and lifted the head 14px above its top. Outside a
+       drawer (no --sf-drawer--inset) the panel takes back its axis, as before. */
+    margin-block: calc(-1 * var(--sf-drawer--inset, var(--sf-property-view--panel-axis)));
     /* Not clipped: a popover opened at the panel's edge belongs outside it. */
     overflow: visible;
   }
@@ -355,10 +360,11 @@
      height sf-tabs gives its buttons. The hairline under it and the empty panel
      below are the tabs' sheet's (.sf-tabs-top-container, .sf-tabs-main-container),
      so the record's tabs take the same box when they come (simai/ui-pro#3).
-     The strip stands over the hairline by its width, as sf-tabs' underline
-     strip does since the SIMAI Framework's tabs spacing (C105, in the pair
-     ui-141822273efe): a tab's line is drawn on the hairline, so the box is the
-     strip's height and the skeleton was a pixel taller. */
+     The tabs are sf-tabs' underline look, whose strip of buttons stands over
+     the hairline (margin-bottom: minus the tabs' border width) so the line
+     under the current tab covers it; the skeleton's strip does the same, or
+     it stood 1px taller than the tabs (73 against 72 at size 1, 65 against 64
+     at 1/2) and the first group moved up by that pixel when the record came. */
   .sf-property-view-tabs-skeleton-strip {
     min-block-size: var(--sf-ui-1--control-height);
     margin-block-end: calc(var(--sf-tabs-border-width, var(--sf-tabs--border-width, var(--sf-px))) * -1);

@@ -42,7 +42,13 @@ const FROZEN = {
 // sf-view-table 1.18.3 (rebuilt over ui-141822273efe, C79 published box,
 // menu-inset footer; view 1.8.0 carries them in sf-view-table 1.19.5) and
 // sf-view-properties 1.15.2 (drawer inset, skeleton tab strip).
-const PATCHED = {};
+const PATCHED = {
+  // DIAGNOSTIC VARIANT (not for release): ui-pro keeps its own sf-view-properties
+  // 1.15.2 of 28b384f (view 1.7.1 + drawer inset + skeleton strip), without the
+  // C139 sf-input-lookup relation of view 1.8.0, which the pair's
+  // pro.package.json at ui-141822273efe does not carry.
+  'view-properties': {tree: 'a0c9b60c22c7ae8bf37bb5f9dd2daf3426d717d2', patch: 'diagnostic: ui-pro 28b384f sf-view-properties'},
+};
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
 const IGNORED = new Set(['.DS_Store', 'node_modules']);

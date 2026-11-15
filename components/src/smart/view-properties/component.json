@@ -793,16 +793,6 @@
       "lazy": true
     },
     {
-      "name": "cl-input-lookup",
-      "lazy": true,
-      "$comment": [
-        "A record, a relation, a user and a paged lookup are edited in sf-input-lookup",
-        "(field-renderers 1.9.0, owner decision C139 (1)): a search over the host's",
-        "pages with a picture and a caption per row. Without the relation the field",
-        "would hold an element that never upgrades."
-      ]
-    },
-    {
       "name": "cl-input-date",
       "lazy": true
     },
@@ -1757,23 +1747,11 @@
         },
         {
           "from": "1.13.3",
-          "to": "1.15.0",
-          "changes": [
-            "A record, a relation, a user and a paged lookup field are edited in sf-input-lookup (field-renderers 1.9.0, owner decision C139 (1)): focus asks the host for the first page (the quiet page asked as the group opens is reused), typing searches through loadFieldOptions, «Show more» follows the cursor, and the chosen value is written as {value, label}. The rule relates cl-input-lookup (lazy). A row's caption, avatar ({src} or {initials}, or avatarText) and icon reach the lookup as the host sends them in options_page.items; property-view-port 1.18.0 names only value and label, so a host that wants them needs the port to say so. A short list given whole stays sf-dropdown. The renderer set is built into this bundle, so the change comes with a package built over a ui-source that has field-renderers 1.9.0, and the page needs the pair with sf-input-lookup 1.10.0; a package built over an older ui-source keeps the searchable sf-dropdown. 1.14.0 is held by another branch (fix/view-properties-section-tabs). Made in ui-pro first (fix/pro-g4, 2026-11-14) and taken here; the view set releases the same change."
-          ]
-        },
-        {
-          "from": "1.15.0",
-          "to": "1.15.1",
-          "changes": [
-            "The panel's «⋯» and view menu is on the panel's step (owner remark 2026-11-15): the menu lives on <body> or in the open dialog, had no size and fell back to the menu's own 1/2 beside a panel of size 1. On every opening it now takes the panel's size (1, or 1/2) and the density of the panel's area (core followDensity). Nothing to change for a host."
-          ]
-        },
-        {
-          "from": "1.15.1",
           "to": "1.15.2",
           "changes": [
-            "Over the SIMAI Framework pair ui-141822273efe: (1) in the arranging mode and in an open panel the bar of actions stands on the drawer's floor again. sf-drawer 1.10.5 keeps no stable scrollbar gutter (C105 H6, the scroll-area rule of C106), so its block padding is the gutter alone; the panel took back the gutter and a scrollbar's 14 px and its foot stood 14 px below the floor. It takes back the gutter now. (2) The skeleton's tab strip stands over the hairline by its width, as sf-tabs' underline strip does since the pair's tabs spacing (C105): the skeleton was a pixel taller than the tabs, and the first group moved by a pixel when the record came. Nothing to change for a host."
+            "The panel takes back the drawer's own block padding, --sf-drawer--inset (SIMAI Framework ui-141822273efe, sf-drawer: owner decision C105 H6, the C106 scroll-area rule): a headless drawer body is padded with the window inset alone now that it keeps no stable scrollbar gutter, and the panel still took back the old gutter plus --sf-scroll-bg-width (30 against 16), so the arranging bar hung 14px below the panel's bottom and the head stood 14px above its top. Outside a drawer the panel takes back its axis as before.",
+            "The loading skeleton's tab strip stands over the tabs' hairline as sf-tabs' underline strip does (margin-bottom minus the tabs' border width): it was 1px taller than the record's tabs (73 against 72 at size 1, 65 against 64 at 1/2), so the first group moved up by a pixel when the record came (simai/ui-pro#3).",
+            "ui-pro's copy of the view release view-9eff67bbf11f (view 1.7.1) with these two changes ahead of simai/ui-view; 1.14.0 to 1.15.1 are held by unreleased ui-pro and simai/ui-view branches. Nothing to change for a host."
           ]
         }
       ]
