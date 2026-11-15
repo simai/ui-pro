@@ -6,8 +6,10 @@
 // - a column the person moved and a column they hid are so before the host
 //   answers -- the first paint is the person's arrangement;
 // - a host's value for the person wins over this browser's copy;
-// - the gear's «Вид» tab sets the rows' density and alternate rows, kept for
-//   this table, or for all the person's tables with «Для всех моих таблиц».
+// - the gear's «Вид» tab sets the rows' density, kept for this table, or for
+//   all the person's tables with «Для всех моих таблиц»; alternate rows are
+//   no longer the person's (C146 (4), since 1.19.0: the report's author
+//   sets the stripes attribute), so the tab offers none.
 import {resolve, join} from 'node:path';
 import {chromium} from 'playwright';
 
@@ -127,7 +129,7 @@ try {
   const panel = await viewed.evaluate(() => Boolean(document.querySelector('[data-table-view-settings]')));
   await pick('[data-view-density="compact"] sf-radio');
   await viewed.waitForTimeout(300);
-  await pick('[data-view-option="stripes"] sf-checkbox');
+  const offersStripes = await pick('[data-view-option="stripes"] sf-checkbox');
   await viewed.waitForTimeout(300);
   const own = await viewed.evaluate(() => ({
     density: document.getElementById('t').getAttribute('data-sf-view-density'),
@@ -154,7 +156,8 @@ try {
       close: Boolean(menu?.querySelector('.sf-context-menu-close button'))};
   });
   if (head.gap === null || head.gap < 0 || head.gap > 16 || head.panels || !head.close) note({case: 'the tab row: no hole, no overlap, a close button', got: head});
-  if (own.density !== 'compact' || !own.stripes || own.kept?.density !== 'compact' || own.kept?.stripes !== true) note({case: 'the view is set and kept for this table', got: own});
+  if (own.density !== 'compact' || own.kept?.density !== 'compact') note({case: 'the view is set and kept for this table', got: own});
+  if (offersStripes || own.stripes) note({case: 'alternate rows are the author\'s, not offered in «Вид»', got: {offersStripes, own}});
   if (everywhere.general?.lines !== true || !everywhere.lines) note({case: '«Для всех моих таблиц» keeps it for every table', got: everywhere});
   await viewed.evaluate(() => document.querySelector('sf-menu-context .sf-context-menu-close button')?.click());
   await viewed.waitForTimeout(300);

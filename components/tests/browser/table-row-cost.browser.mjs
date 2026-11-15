@@ -5,12 +5,12 @@
 //   - the column settings are read once a draw, not once a cell: counted
 //     over one setRows() draw, 8 rows ask getColumnSettings() a handful of
 //     times (they asked 268), a window of 60 rows of 1 000 as few;
-//   - an idle row's actions cell is the bare <td>: a row of the bench's five
-//     columns with its box, menu and actions is 29 nodes (it was 31, with an
-//     empty box and its marker);
-//   - the buttons still come into the row under the pointer and leave it,
-//     and focus that brings them in stays where it is (the row is not drawn
-//     anew);
+//   - variant В (C146 (5), R239): no «Действия» column, so no row carries
+//     hover-only buttons; a row of the bench's five columns with its box and
+//     ≡ menu is ROW_NODES nodes: 29, the box's tick glyph in and the bare
+//     actions cell out (it was 29 with that cell and no glyph);
+//   - the pointer over a row draws nothing into it and focus on the name
+//     link stays where it is (the row is not drawn anew);
 //   - a clean console.
 import {resolve, join} from 'node:path';
 import {chromium} from 'playwright';
@@ -26,6 +26,7 @@ const modules = ['core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/sm
   'smart/smart/spinner/js/spinner.js', 'smart/smart/pagination/js/pagination.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js'].map((p) => join(out, p));
 
+const ROW_NODES = Number(process.env.ROW_NODES ?? 29);
 const COLUMNS = [{key: 'title', label: 'Название', sortable: true, role: 'title'}, {key: 'status', label: 'Статус'}, {key: 'owner', label: 'Владелец'}, {key: 'amount', label: 'Сумма', type: 'number'}, {key: 'published', label: 'Опубликовано', type: 'boolean'}];
 const rows = (n) => Array.from({length: n}, (_, i) => ({id: String(i + 1), title: `Запись ${i + 1}`, status: 'active', owner: 'Сотрудник', amount: i, published: i % 2 === 0, revision: 'r1', actions: ['view', 'edit', 'delete']}));
 
@@ -56,7 +57,7 @@ try {
       const draw8 = calls;
       const row = t.querySelector('tbody tr[data-row-id="2"]');
       const nodes = count(row);
-      const idleCell = count(row.querySelector('td[data-key="actions"]'));
+      const actionCells = t.querySelectorAll('td[data-key="actions"], th[data-key="actions"]').length;
       calls = 0; t.setRows(R1000); await settle();
       const window1000 = calls;
       const drawn = t.querySelectorAll('tbody tr[data-row-id]').length;
@@ -66,27 +67,29 @@ try {
       const before = three();
       before.querySelector('td[data-key="owner"]').dispatchEvent(new PointerEvent('pointerover', {bubbles: true}));
       await settle();
-      const hovered = three().querySelectorAll('td[data-key="actions"] button').length;
+      const hovered = three().querySelectorAll('button').length;
+      const hoveredNodes = count(three());
       const same = three() === before;
       t.querySelector('tbody tr[data-row-id="5"] td[data-key="owner"]').dispatchEvent(new PointerEvent('pointerover', {bubbles: true}));
       await settle();
-      const left = three().querySelectorAll('td[data-key="actions"] button').length;
+      const left = three().querySelectorAll('button').length;
       const leftNodes = count(three());
+      const menus = three().querySelectorAll('[data-sf-row-menu]').length;
       // Focus into row 6: its buttons come in, the focus stays on the link.
       const link = t.querySelector('tbody tr[data-row-id="6"] .sf-table-title-link');
       link?.focus();
       await settle();
       const focus = {kept: document.activeElement === link && link.isConnected,
-        buttons: t.querySelectorAll('tbody tr[data-row-id="6"] td[data-key="actions"] button').length};
-      return {draw8, window1000, drawn, nodes, idleCell, hovered, same, left, leftNodes, focus};
+        buttons: t.querySelectorAll('tbody tr[data-row-id="6"] button').length};
+      return {draw8, window1000, drawn, nodes, actionCells, hovered, hoveredNodes, same, left, leftNodes, menus, focus};
     }, {COLUMNS, R8: rows(8), R1000: rows(1000)});
     const where = scheme;
     if (read.draw8 > 12) failures.push(`${where}: a draw of 8 rows read the column settings ${read.draw8} times`);
     if (read.window1000 > 12) failures.push(`${where}: a window of ${read.drawn} rows read the column settings ${read.window1000} times`);
-    if (read.nodes !== 29 || read.idleCell !== 1) failures.push(`${where}: an idle row is ${read.nodes} nodes, its actions cell ${read.idleCell}`);
-    if (read.hovered < 1 || !read.same) failures.push(`${where}: the row under the pointer has ${read.hovered} buttons (row kept: ${read.same})`);
-    if (read.left !== 0) failures.push(`${where}: the row left keeps ${read.left} buttons`);
-    if (!read.focus.kept || read.focus.buttons < 1) failures.push(`${where}: focus into a row: ${JSON.stringify(read.focus)}`);
+    if (read.nodes !== ROW_NODES || read.actionCells !== 0) failures.push(`${where}: an idle row is ${read.nodes} nodes, «Действия» cells ${read.actionCells}`);
+    if (!read.same || read.hoveredNodes !== read.leftNodes || read.hovered !== read.left) failures.push(`${where}: the pointer drew into the row: ${read.hovered}/${read.left} buttons, ${read.hoveredNodes}/${read.leftNodes} nodes (row kept: ${read.same})`);
+    if (read.menus !== 1) failures.push(`${where}: the row has ${read.menus} ≡ menus`);
+    if (!read.focus.kept || read.focus.buttons !== read.left) failures.push(`${where}: focus into a row: ${JSON.stringify(read.focus)}`);
     if (errors.length) failures.push(`${where}: console ${errors.slice(0, 3).join(' | ')}`);
     await context.close();
   }
@@ -100,4 +103,4 @@ if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
 }
-console.log('table row cost: the column settings read once a draw, an idle row 29 nodes, the buttons come and go with the pointer and the focus');
+console.log(`table row cost: the column settings read once a draw, an idle row ${ROW_NODES} nodes, no «Действия» column, the pointer and the focus draw nothing into a row`);

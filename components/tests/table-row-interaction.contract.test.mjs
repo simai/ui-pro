@@ -144,8 +144,9 @@ test('the keyboard reaches the same two answers as the pointer', async () => {
   );
   // A key pressed inside a control in the row belongs to that control.
   // The list row's title link (its tab stop, C31) passes the arrows, Home and
-  // End on to the row, and nothing else.
-  assert.match(source, /const fromTitle = event\?\.target !== event\?\.currentTarget\s*&& event\?\.target\?\.matches\?\.\("\.sf-table-title-link"\)\s*&& \["ArrowDown", "ArrowUp", "Home", "End"\]\.includes\(event\?\.key\);\s*if \(event\?\.target !== event\?\.currentTarget && !fromTitle\) return this;/u);
+  // End on to the row, and nothing else. A table with actions is a grid
+  // (C146 (8)), whose arrows are the grid's.
+  assert.match(source, /const fromTitle = this\.isList && event\?\.target !== event\?\.currentTarget\s*&& event\?\.target\?\.matches\?\.\("\.sf-table-title-link"\)\s*&& \["ArrowDown", "ArrowUp", "Home", "End"\]\.includes\(event\?\.key\);\s*if \(event\?\.target !== event\?\.currentTarget && !fromTitle\) return this;/u);
 });
 
 test('a column move survives the render a host answer brings with it', async () => {

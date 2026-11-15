@@ -45,7 +45,7 @@ test('the panel carries the four controls the owner asked for', async () => {
   // It names the number when there is one, an estimate as «~N» (gate 29).
   // With the count unknown the label stays bare until marking the box has
   // asked for it.
-  const forAll = async (settings) => /<sf-checkbox\s+(?:size=\S*\s+)?label=([^\n]*?)\s+\?checked=/u.exec((await render(await pagination({
+  const forAll = async (settings) => /<sf-checkbox\s+(?:size=\S+\s+)?label=([^\n]*?)\s+\?checked=/u.exec((await render(await pagination({
     selectedCount: 2, actions: 'archive:Archive', showActionForAll: true, ...settings,
   }))).markup)?.[1];
   assert.equal(await forAll({total: 450}), '{action-for-all-label} (450)', 'for-all names how many it would touch');
@@ -69,8 +69,8 @@ test('the cross announces the end of a selection it does not own', async () => {
   // view directly. Neither keeps a copy that could drift from the boxes.
   assert.match(
     pagination,
-    // sf-pagination 1.5 (C97) first notes a footer event of an element written
-    // without appearance, then announces it.
+    // sf-pagination 1.5.0 (C97) first notes the band's event as a compatible
+    // footer part (noteFooterEvent), then sends it.
     /clearSelection\(\) \{\s*(?:this\.noteFooterEvent\("selection-clear"\);\s*)?this\.sfEmit\("selection-clear", \{/u,
   );
   // By the page row's name since standard 1.3.8 (sf-pagination-selection-clear).

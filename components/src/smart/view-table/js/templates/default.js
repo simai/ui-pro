@@ -308,7 +308,7 @@ function renderToolbar(context) {
                                     size=${context.controlSize ?? nothing}
                                     appearance="outline"
                                     scheme="primary"
-                                    icon="more_vert"
+                                    icon="more_horiz"
                                     aria-label="Действия с представлением"
                                     aria-haspopup="menu"
                                     @click=${e => {
@@ -335,7 +335,7 @@ function renderEmptyState(context, dataState) {
     if (component?.hasSlotContent?.('empty')) return component.getSlotContent('empty');
     const brick = component.emptyBrick(dataState);
     return html`<sf-empty-state kind=${brick.kind} size=${brick.size} heading-level=${brick.headingLevel}
-                                heading=${brick.title || nothing} text=${brick.text || nothing} live=${brick.live || nothing}
+                                icon=${brick.icon || nothing} heading=${brick.title || nothing} text=${brick.text || nothing} live=${brick.live || nothing}
                                 .actions=${brick.actions}></sf-empty-state>`;
 }
 
@@ -359,7 +359,8 @@ function renderHeadLabel(context, column) {
     // The gear opens the column settings; without them (settings-menu="false",
     // a host that saves no personal settings) the column keeps its row menus and
     // its heading is only a name.
-    if (column.key === 'settings' && context.settingsMenu === false) {
+    // settings="false" with row actions keeps the column for the «≡» alone.
+    if (column.key === 'settings' && (context.settingsMenu === false || context.settings === false)) {
         return html`<span class="sf-table-visually-hidden">${context.component.text('settingsColumnLabel')}</span>`;
     }
     const content = column.component
@@ -370,7 +371,9 @@ function renderHeadLabel(context, column) {
     }
     const sort = context.component.state.sort || {};
     const direction = sort.key === column.key ? sort.direction : null;
-    const icon = direction === 'asc' ? 'arrow_upward' : direction === 'desc' ? 'arrow_downward' : 'unfold_more';
+    // The mark stands only at the sorted column (owner decision C146 (6));
+    // the others show, on hover and focus, the arrow a press would give.
+    const icon = direction === 'desc' ? 'arrow_downward' : 'arrow_upward';
 
     return html`
         <button type="button" class="sf-table-sort-button flex items-cross-center gap-1/4 min-w-0"
@@ -403,6 +406,7 @@ function renderHead(context) {
                                     class="relative"
                                     data-key="${column.key}"
                                     data-label="${column.label || column.key || ''}"
+                                    data-sf-cell=${cellKind(context.component, column, columns)}
                                     data-sf-pinned=${context.component.isPinnedColumn(column) ? '' : nothing}
                                     style=${context.component.getStickyCellStyle(columns, k) || nothing}
                                     aria-sort=${ariaSort(context, column)}
@@ -411,7 +415,7 @@ function renderHead(context) {
                                             : nothing}
                             >
                                 ${column.system || k === columns.length - 1 ?
-                                        renderHeadLabel(context, column) :
+                                        html`${renderHeadLabel(context, column)}${k === columns.length - 1 ? renderTipSurfaces(context) : nothing}` :
                                 html`<div
                                         class="sidebar-resizer flex items-cross-center h-full select-none"
                                 >
@@ -420,9 +424,13 @@ function renderHead(context) {
                                          two headers. There is no handle to find
                                          first: this is the line's own hit strip,
                                          invisible, astride the separator, and
-                                         still a button, so the keyboard keeps
-                                         the name and the arrows it had. -->
+                                         still a button with its name and its
+                                         arrows. It is no Tab stop of its own
+                                         (owner decision C146 (8), the resizer
+                                         study RS-10): the table is one stop,
+                                         and a width is set by the pointer. -->
                                     <button type="button"
+                                            tabindex="-1"
                                             role="separator"
                                             aria-orientation="vertical"
                                             class="sf-table-column-resizer"
@@ -439,6 +447,14 @@ function renderHead(context) {
         </tr>
         </thead>
     `
+}
+
+// The tooltip of a cut name (owner decision C146 (7)): one surface for the
+// table, in the head of the last column, which every cut name names by id
+// (data-tooltip). A surface in each row cost about ten nodes a row and broke
+// the thirty nodes a row of a long list (standard 1.3.8 gate 17).
+function renderTipSurfaces(context) {
+    return html`<span class="sf-tooltip sf-tooltip--dark sf-tooltip--size-1/3 sf-tooltip--arrow-bottom-inline-start" hidden id=${context.component.tipId('title')}><span class="sf-tooltip-content"><span class="sf-tooltip-text"></span></span></span>`;
 }
 
 function toColumnSize(value) {
@@ -500,7 +516,14 @@ export function columnStyle(component, column) {
     const width = toColumnSize(column.colWidth ?? column.width ?? column.size)
             || (column.key === 'actions' ? (component?.actionsColumnWidth || 'var(--sf-table--actions-column-width, var(--sf-f0))') : '')
             || component?.contentWidth?.(column)
+            // A content-sized table takes no floor: each data column gets its
+            // content width and the one that takes the spare room its content
+            // width at least (the table's least width), as the unmeasured
+            // first paint lays them out. Floored before the widths were
+            // measured, or the spare room's column after, the columns stood at
+            // 160 on a phone for a frame and every printed cell moved.
             || (component?.columnsAreCramped
+                    && !component?.contentSized
                     && component?.columnTakesFloor?.(column)
                 ? 'var(--sf-table--column-min-inline-size)'
                 : '');
@@ -539,9 +562,14 @@ function renderColgroup(context) {
                 // it and held at their floor.
                 const style = columnStyle(context.component, column);
 
+                // The column that takes the spare room is marked, so a first
+                // paint the code has not measured yet gives it the spare room
+                // too (default.css, the unmeasured content-sized table).
+                const spare = column.key && column.key === context.component?.spareRoomColumnKey?.();
                 return keyed(`col:${column.key}`, html`
                     <col
                             data-key=${column.key || nothing}
+                            data-sf-spare-room=${spare ? '' : nothing}
                             style=${style || nothing}
                     />
                 `);
@@ -643,6 +671,19 @@ function renderLinkCell(value) {
 // fragments are fixed; a cell's values are bound, never written as HTML.
 // This is the migration form (§16) until template.html is compiled.
 const ROW_HOLE = Symbol("row-hole");
+
+// What a column's cells are to the look (owner decision C146): `number`,
+// end-aligned with digits of one width and never wrapped (3); `title`, the
+// record's name, up to two lines and then an ellipsis with the whole name
+// in a tooltip (7). Other cells keep one line.
+function cellKind(component, column, columns) {
+    if (!column?.key) return nothing;
+    if (component?.isNumberColumn?.(column)) return 'number';
+    if (!column.system && column.role === 'title') return 'title';
+    if (!column.system && !columns?.some((one) => one?.role === 'title')
+            && columns?.find((one) => one?.key && !SYSTEM_COLUMNS.has(one.key) && !one.system) === column) return 'title';
+    return nothing;
+}
 const ROW_STRINGS = new Map();
 
 // The actions cell (view 1.6.1, simai/ui-pro#2): its buttons stand only in
@@ -679,12 +720,17 @@ function rowStrings(kinds) {
         ' aria-rowindex=', ROW_HOLE, ' data-row-id=', ROW_HOLE, ' data-current=', ROW_HOLE, ' aria-current=', ROW_HOLE,
         ' tabindex="-1" @mousedown=', ROW_HOLE, ' @click=', ROW_HOLE, ' @dblclick=', ROW_HOLE, ' @keydown=', ROW_HOLE, '>'];
     for (const kind of kinds) {
-        pieces.push('<td data-key=', ROW_HOLE, ' data-item=', ROW_HOLE, ' data-sf-pinned=', ROW_HOLE, ' style=', ROW_HOLE);
+        pieces.push('<td data-key=', ROW_HOLE, ' data-item=', ROW_HOLE, ' data-sf-cell=', ROW_HOLE, ' data-sf-pinned=', ROW_HOLE, ' style=', ROW_HOLE);
         // The actions cell's buttons are bound on the cell (actionsCell).
         pieces.push(...(kind === 'actions' ? [' ', ROW_HOLE, '>'] : ['>']));
         if (kind === 'box') {
             pieces.push('<label class=', ROW_HOLE, '><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value=', ROW_HOLE,
-                ' .checked=', ROW_HOLE, ' aria-label=', ROW_HOLE, ' @change=', ROW_HOLE, '></span></label>');
+                ' .checked=', ROW_HOLE, ' aria-label=', ROW_HOLE, ' @change=', ROW_HOLE,
+                // The tick: checkbox class markup draws the glyph of the
+                // .sf-icon inside the box (sf-checkbox's own template does the
+                // same with sf-icon); without it a checked row showed a filled
+                // box and no tick (DEV recipes p1, 2026-11-15).
+                '><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true" .textContent=', ROW_HOLE, '></i></span></label>');
         } else if (kind === 'menu') {
             pieces.push('<button type="button" class=', ROW_HOLE, ' aria-label=', ROW_HOLE, ' value="menu" data-sf-row-menu @click=', ROW_HOLE,
                 '><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button>');
@@ -1032,20 +1078,31 @@ export function renderTableTemplate(context) {
     function renderRows(context, columns, rows, {busy = false} = {}) {
         const component = context.component;
         const treeColumn = component.treeColumnKey?.(columns);
-        const titleColumn = columns.find((column) => column?.role === 'title' && !column.system)?.key ?? null;
+        // The main field is the link that opens the record (owner decision
+        // C146 (5), variant В): the column the host marked as the title, else
+        // the first data column when it shows a plain value (a column with a
+        // renderer or a component of its own keeps it).
+        const firstData = columns.find((column) => column?.key && !SYSTEM_COLUMNS.has(column.key) && !column.system);
+        const titleColumn = columns.find((column) => column?.role === 'title' && !column.system)?.key
+            ?? (firstData && !firstData.renderer && !firstData.component && !component.isNumberColumn?.(firstData) ? firstData.key : null);
         const slice = component.windowSlice?.(rows) ?? null;
         const shown = slice ? rows.slice(slice.first, slice.last + 1) : rows;
         const offset = slice ? slice.first : 0;
         const span = String(Math.max(columns.length, 1));
         const draggable = (component.hasAttribute('drag-rows') || component.getAttribute('row-reorder') === 'true');
         const sticky = columns.map((column, index) => component.getStickyCellStyle(columns, index) || nothing);
+        const cellKinds = columns.map((column) => cellKind(component, column, columns));
         const pinned = columns.map((column) => (component.isPinnedColumn(column) ? '' : nothing));
         // The stripes are nth-child: a spacer of no height keeps the parity of
         // the drawn rows the parity they have in the whole list.
         const spacer = (height, key) => html`<tr class="sf-table-window-spacer" aria-hidden="true" data-sf-window-spacer=${key}><td colspan=${span} style=${`block-size: ${Math.max(0, Math.round(height))}px`}></td></tr>`;
-        const fullCell = (row, column) => (column.key === treeColumn
-            ? renderTreeCell(context, row, column.key === titleColumn ? renderTitleLink(context, row, renderCellValue(row, column)) : renderCellValue(row, column))
-            : column.key === titleColumn ? renderTitleLink(context, row, renderCellValue(row, column)) : renderCellValue(row, column));
+        const fullCell = (row, column, kind) => {
+            const value = column.key === titleColumn ? renderTitleLink(context, row, renderCellValue(row, column)) : renderCellValue(row, column);
+            // The name's two lines (C146 (7)) are its cell's text, by the
+            // cell's data-sf-cell="title": no element around it.
+            if (column.key === treeColumn) return renderTreeCell(context, row, value);
+            return value;
+        };
         const renderRow = (row, at) => {
             const index = at + offset;
             const current = component.isCurrentRow(row, index);
@@ -1069,11 +1126,17 @@ export function renderTableTemplate(context) {
                 (event) => component.handleRowKeydown(event, row),
             ];
             columns.forEach((column, cellIndex) => {
-                const mark = component.rowMarkupCell?.(row, column) ?? null;
-                values.push(column.key, `${row.id}_${column.key}`, pinned[cellIndex], sticky[cellIndex]);
-                if (mark?.kind === 'box') {
+                // The main field of a row that opens is its link, not markup.
+                const opens = column.key === titleColumn && component.canOpenRow?.(row) && row?.id != null;
+                const mark = opens ? null : (component.rowMarkupCell?.(row, column) ?? null);
+                values.push(column.key, `${row.id}_${column.key}`, cellKinds[cellIndex], pinned[cellIndex], sticky[cellIndex]);
+                if (cellKinds[cellIndex] === 'title' && mark?.kind === 'text') {
+                    // The name as text: two lines by its cell (C146 (7)).
+                    kinds.push('text');
+                    values.push('sf-table-cell-text', nothing, mark.text);
+                } else if (mark?.kind === 'box') {
                     kinds.push('box');
-                    values.push(`sf-checkbox sf-checkbox--size-${mark.size} flex content-main-between cursor-pointer`, mark.value, mark.checked, mark.label, mark.change);
+                    values.push(`sf-checkbox sf-checkbox--size-${mark.size} flex content-main-between cursor-pointer`, mark.value, mark.checked, mark.label, mark.change, mark.checked ? 'check' : '');
                 } else if (mark?.kind === 'menu') {
                     kinds.push('menu');
                     values.push(`sf-icon-button sf-icon-button--size-${mark.size} sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface`, mark.label, mark.click);
@@ -1087,7 +1150,7 @@ export function renderTableTemplate(context) {
                     values.push(actionsCell(fullCell(row, column), component));
                 } else {
                     kinds.push('node');
-                    values.push(fullCell(row, column));
+                    values.push(fullCell(row, column, cellKinds[cellIndex]));
                 }
             });
             return html(rowStrings(kinds), ...values);
@@ -1366,14 +1429,18 @@ export function renderTableTemplate(context) {
                     ${resolvedDataState(context) === 'loading' && (context.component.getTableData()?.rows?.length ?? 0) > 0
                         ? html`
                             <div class="sf-table-busy" role="status">
-                                <sf-spinner size=${context.controlSize ?? nothing} label="" aria-label=${context.loadingText}></sf-spinner>
+                                <!-- The words are the spinner's label, kept for a screen reader
+                                     and hidden from the eye (label-hidden, owner decision C138,
+                                     SP-06): the spinner keeps one name mechanism and the status
+                                     region says them once. -->
+                                <sf-spinner size=${context.controlSize ?? nothing} label=${context.loadingText} label-hidden></sf-spinner>
                             </div>
                         `
                         : nothing}
                     ${context.list ? renderList() : html`
                     <table
                             ${ref(context.component.refs.table)}
-                            class="table border-separate border-spacing-0 min-w-full ${context.component?.hasContentWidths ? 'sf-table-content-sized' : 'w-max'} table-fixed transition"
+                            class="table border-separate border-spacing-0 min-w-full ${context.component?.contentSized ? 'sf-table-content-sized' : 'w-max'} table-fixed transition"
                             role=${context.component.isTree?.() ? 'treegrid' : nothing}
                             aria-label=${context.ariaLabel || nothing}
                             aria-rowcount=${context.component.windowRowCount?.() ?? nothing}

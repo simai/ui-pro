@@ -65,15 +65,22 @@ test('a row says whether it is selected, and the look follows from that', async 
   // Every state colour is an alpha colour, so a pinned cell that inherited one
   // flattened result painted the tint twice and came out darker than its row.
   assert.match(css, /tbody tr \{\s*background-color: var\(--sf-table-row--background-color, var\(--sf-surface-page\)\);/u);
-  assert.match(css, /tbody tr:hover \{\s*background-image: linear-gradient\(\s*var\(--sf-surface-container-hover\),/u);
-  // The selected row is a translucent place: a tonal badge on it lays its
-  // tone over the place's solid colour (C43, --sf-surface-underlay).
-  assert.match(css, /tbody tr\[data-selected\] \{\s*--sf-surface-underlay: var\(--sf-surface-place-solid, var\(--sf-surface-place\)\);\s*background-image: linear-gradient\(\s*var\(--sf-primary-container\),/u);
-  assert.match(
-    css,
-    /tbody tr\[data-selected\]:hover \{\s*background-image: linear-gradient\(\s*var\(--sf-primary-container-hover\),/u,
-    'a selected row still answers hover',
-  );
+  // Each state row is a tint over the row's own opaque base, and names both to
+  // core mix sf-place-fill (C43 D3, D4): the base is the underlay a tonal badge
+  // lays its tone over, the tint the fill an anchored badge's ring takes.
+  const fill = (tint) => String.raw`\{\s*--sf-surface-underlay: var\(--sf-table-row--background-color, var\(--sf-surface-page\)\);\s*--sf-surface-place-fill: var\(--sf-${tint}\);\s*background-image: linear-gradient\(\s*var\(--sf-${tint}\),`;
+  for (const [selector, tint] of [
+    [String.raw`tbody tr:hover `, 'surface-container-hover'],
+    [String.raw`tbody tr\[data-selected\] `, 'primary-container'],
+    [String.raw`tbody tr\[data-selected\]:hover `, 'primary-container-hover'],
+    [String.raw`\.sf-table-list-item:hover `, 'surface-container-hover'],
+    [String.raw`\.sf-table-list-item\[data-selected\] `, 'primary-container'],
+    [String.raw`\.sf-table-list-item\[data-selected\]:hover `, 'primary-container-hover'],
+    [String.raw`\.sf-table-list-item\[aria-current="true"\] `, 'primary-container'],
+    [String.raw`\.sf-table-list-item\[aria-current="true"\]:hover `, 'primary-container-hover'],
+  ]) {
+    assert.match(css, new RegExp(selector + fill(tint), 'u'), `${selector} names its fill and base`);
+  }
   assert.match(
     css,
     /\.sf-table-scroll tbody \[data-sf-pinned\] \{\s*background-color: inherit;\s*background-image: inherit;/u,

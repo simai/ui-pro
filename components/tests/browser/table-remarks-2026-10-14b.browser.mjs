@@ -70,8 +70,10 @@ try {
   if (hovered !== 'underline') note({case: 'a link is underlined on hover', got: hovered});
 
   // A heading dragged: the insertion line, two pixels, the height of the table.
+  // The second column: the first stands pinned since 1.19.0 (C146 (9)) and a
+  // pinned column is not dragged.
   const head = await page.evaluate(() => {
-    const box = document.querySelector('#t thead th[data-key="name"]').getBoundingClientRect();
+    const box = document.querySelector('#t thead th[data-key="city"]').getBoundingClientRect();
     const target = document.querySelector('#t thead th[data-key="code"]').getBoundingClientRect();
     return {x: box.left + 20, y: box.top + box.height / 2, to: target.left + target.width * 0.75};
   });

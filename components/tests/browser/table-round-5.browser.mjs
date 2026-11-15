@@ -303,15 +303,19 @@ try {
     const style = getComputedStyle(content);
     const published = style.getPropertyValue('--sf-context-menu--item-inset-start-1').trim();
     const row = content.querySelector('[data-column-key]');
-    // Where the rows' plates stand: the content box of the panel's body, or of
-    // the content itself for a menu without one.
-    const holder = content.querySelector(':scope > .sf-context-menu-body') ?? content;
-    const holderStyle = getComputedStyle(holder);
-    const plates = Math.round((holder.getBoundingClientRect().left + holder.clientLeft + parseFloat(holderStyle.paddingLeft) - origin) * 10) / 10;
+    // The panel's body is its scroll area (SIMAI Framework C106 addendum to
+    // C105, since ui-994f9db407fa): it stands its rows' plates the inset
+    // --sf-space-1/4 from the panel's edge, the border inside it (C105 H4), and
+    // a row's content the item inset further in. The footer keeps the
+    // published inset from the panel's outer edge.
+    const body = content.querySelector('.sf-context-menu-body');
+    const bodyInset = body
+      ? Math.round((body.getBoundingClientRect().left - origin + parseFloat(getComputedStyle(body).paddingInlineStart)) * 10) / 10
+      : 0;
     return {
-      plates,
-      item: published ? px(published) : null,
-      published: published ? Math.round((plates + px(published)) * 10) / 10 : null,
+      bodyInset,
+      border: content.clientLeft,
+      published: published ? px(published) : null,
       // Each block is measured by its content, not by its own padded box: a
       // block's box spans the panel, and a Framework control's host is
       // display: contents and has no box at all. Both mistakes read as zero or
@@ -327,10 +331,16 @@ try {
   if (!axis || axis.published === null) {
     note({case: 'menu axis', got: axis, expected: 'the menu publishes its item axis for this window to read'});
   } else {
-    const off = (value) => value === null || Math.abs(value - axis.published) > 0.5;
-    if (off(axis.searchField) || off(axis.rowStart) || off(axis.buttons)) {
+    const off = (value, want) => value === null || Math.abs(value - want) > 0.5;
+    const inBody = axis.bodyInset + axis.published;
+    // The footer's buttons too: the window's blocks start on one axis, where
+    // the Framework's panel rows put their text (the plates' inset plus the
+    // item inset, 15 from the padding edge). The table zeroed the menu's
+    // inline padding, from which the footer takes its margin, and its
+    // buttons stood at 11 (ui-pro release fix, 2026-11-15).
+    if (off(axis.searchField, inBody) || off(axis.rowStart, inBody) || off(axis.buttons, inBody)) {
       note({case: 'blocks on the menu axis', got: axis,
-        expected: `the search field, the rows and the buttons all start on the menu's item axis, the plates' inset plus the published item inset (${axis.published})`});
+        expected: `the search field, the rows and the footer's buttons at the body's inset plus the item inset (${inBody}), as the Framework's panel rows`});
     }
     // The pin sits at the end edge, so the search field and the pin have to
     // finish on one axis. The panel's body keeps the scrollbar's room

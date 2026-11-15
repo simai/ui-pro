@@ -51,7 +51,7 @@ const answerWith = (mode) => page.evaluate((next) => { window.mode = next; }, mo
 const brick = (id) => page.evaluate((host) => {
   const element = document.querySelector(`#${host} sf-empty-state`);
   if (!element) return null;
-  return {kind: element.getAttribute('kind'), size: element.getAttribute('size'),
+  return {kind: element.getAttribute('kind'), size: element.getAttribute('size'), icon: element.getAttribute('icon'),
     title: element.querySelector('.sf-empty-state-title')?.textContent.trim(),
     actions: [...element.querySelectorAll('sf-button')].map((button) => button.getAttribute('text'))};
 }, id);
@@ -71,7 +71,7 @@ try {
         if (window.mode === 'unavailable') return {answer: 'unavailable', reason: 'down', sequence: payload.sequence};
         return {answer: 'applied', sequence: payload.sequence, data: {
           records: [], total: 0, columns: [{key: 'name', label: 'Название', role: 'title'}],
-          echo: {search: payload.query.search ?? '', filters: {}, sort: [], page: 1, per_page: 25},
+          echo: {search: payload.query.search ?? '', filters: payload.query.filters ?? {}, sort: [], page: 1, per_page: 25},
         }};
       },
     });
@@ -94,6 +94,20 @@ try {
   const cleared = await page.evaluate(() => ({search: document.getElementById('v').query.search, last: window.raised.filter((one) => one.intent === 'query.change').pop()?.search}));
   const afterReset = await brick('t');
   if (cleared.search !== '' || cleared.last !== '' || afterReset?.kind !== 'no-data') note({case: 'the reset empties the search', got: {cleared, afterReset}});
+  // A search keeps the brick's own glyph (search_off); filters alone draw
+  // filter_alt_off (owner decision C120 (3)), and a search with filters keeps
+  // search_off.
+  if (found?.icon !== null) note({case: 'nothing found by a search keeps search_off', got: found});
+  await page.evaluate(() => document.getElementById('v').changeQuery({filters: {name: 'zz'}}, 'filter'));
+  await settle();
+  const filtered = await brick('t');
+  if (!filtered || filtered.kind !== 'nothing-found' || filtered.icon !== 'filter_alt_off') note({case: 'nothing found by filters draws filter_alt_off', got: filtered});
+  await page.evaluate(() => document.getElementById('v').changeQuery({search: 'zz', filters: {name: 'zz'}}, 'search'));
+  await settle();
+  const both = await brick('t');
+  if (!both || both.kind !== 'nothing-found' || both.icon !== null) note({case: 'a search with filters keeps search_off', got: both});
+  await page.evaluate(() => document.getElementById('v').changeQuery({search: '', filters: {}}, 'search'));
+  await settle();
 
   await answerWith('unavailable');
   await page.evaluate(() => document.getElementById('v').refresh('probe'));
@@ -111,7 +125,7 @@ try {
 
   const alone = await brick('alone');
   if (!alone || alone.kind !== 'no-data' || alone.size !== '1') note({case: 'a standalone table', got: alone});
-  console.log(JSON.stringify({none, found, afterReset, failed, denied, alone}));
+  console.log(JSON.stringify({none, found, afterReset, filtered, both, failed, denied, alone}));
 } finally {
   await browser.close();
 }

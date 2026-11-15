@@ -1519,9 +1519,25 @@
         },
         {
           "from": "1.12.0",
+          "to": "1.12.1",
+          "changes": [
+            "The first paint's rows are the table's C146 rows (sf-view-table 1.19.0): the step's control, 40 at size 1 and 32 at 1/2 and compact, the head as tall; they were the rung above (48 and 40). Nothing to change for a host.",
+          "The bulk band's Apply is a regular button (outline on-surface, C116), the outlined danger over an action that deletes (delete, remove, destroy, trash), and such an action is listed last (C164 (5)); it was the filled main button. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.12.1",
+          "to": "1.12.2",
+          "changes": [
+            "The bulk band's Apply over an action that deletes writes status=\"danger\", the button's word for it (rule C13, C116 (4)); it wrote status=\"error\", the control's former word, which SIMAI Framework sf-button keeps as an alias until 2027-01-01. The look is the same outlined danger. Which action deletes is the rule SIMAI Framework sf-pagination 1.6.0 reads for its own band (isDestructiveAction): the action's danger flag or a value delete, remove, destroy or trash; that action is listed last. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.12.2",
           "to": "1.12.3",
           "changes": [
-            "The first paint's toolbar controls are as tall as the controls the table draws over SIMAI Framework ui-141822273efe: since C136 (1) the skeleton's bar is the capitals' height (0.727 of its text height, rounded to 2px), and a control block, which sets that height to the step's control, drew 30 for 40, so the toolbar grew 10px when the answer came (probe data-view-saved-views-first-paint). The block's bar is its whole control again. ui-pro's copy ahead of simai/ui-view; 1.12.1 and 1.12.2 are held by unreleased simai/ui-view branches. Nothing to change for a host."
+            "The first paint's control blocks (the toolbar's saved-views place, the layout switch, the create split arrow and the actions button) are the controls' boxes again over the SIMAI Framework pair ui-141822273efe. That pair's skeleton draws a text bar at the capitals' height (owner decision C136 (1), 0.727 of the text size), and the view's control blocks are skeleton text: they were held at 30 of 40 (24 of 32 compact, 20 of 28 at 1/2 compact) while the controls that came were whole, so the toolbar looked different from its first frame. A control block now sets its own bar, height and margin. Text bars take the pair's capital height. Nothing to change for a host.",
+            "The first paint's page row is the one SIMAI Framework sf-pagination 1.5 draws (owner decision C97, the compatible footer): the range, the arrows to the first and the previous page, the page field with its «из N», the arrows to the next and the last, and the page-size button. It held the 1.4 row (a label and one control for the pages, a label and a field for the size), which fit one line on a phone where the drawn row puts the pages on a line of their own: the view grew 48 px when its answer came (1211 to 1259 at 390). Nothing to change for a host."
           ]
         }
       ]

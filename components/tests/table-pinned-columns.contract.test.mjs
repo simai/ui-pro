@@ -22,7 +22,7 @@ test('the person decides what is pinned, and the title column starts pinned', as
   );
   assert.match(
     source,
-    /const chosen = pending\?\.pinned \?\? setting\.pinned \?\? column\.pinned;\s*if \(typeof chosen === "boolean"\) return chosen;\s*\n\s*return column\.role === "title";/u,
+    /const chosen = pending\?\.pinned \?\? setting\.pinned \?\? column\.pinned;\s*if \(typeof chosen === "boolean"\) return chosen;\s*\n\s*if \(column\.role === "title"\) return true;/u,
     'a stored answer wins, and without one the title column is the pinned one',
   );
   assert.match(

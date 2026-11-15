@@ -202,9 +202,9 @@ try {
   //    больше нет"), so what round three measured -- equal space above and
   //    below that row -- no longer has a subject. What is measured instead is
   //    that the row is gone and the button sits on the footer's own line.
-  //    C97 (1) (owner 2026-11-12) reverses that: Show more is a view of its own,
-  //    never on one line with the arrows; the compatible footer of an element
-  //    written without appearance draws it on its own row above (sf-pagination-top).
+  //    Owner decision C97 (2026-11-12, sf-pagination 1.5.0 in the pair
+  //    ui-141822273efe) turned it back: Show more is never in one row with the
+  //    arrows; the compatible footer draws it on a line of its own above.
   const spacing = await page.evaluate(async () => {
     const pagination = document.getElementById('p');
     pagination.setState?.({hasNextPage: true});
@@ -220,9 +220,9 @@ try {
     const moreBox = box(more);
     const arrowBox = box(arrow);
     return {
-      ownRow: Boolean(document.querySelector('#p .sf-pagination-top')),
+      ownRow: Boolean(document.querySelector('#p .sf-pagination-top .sf-pagination-more-button')),
       more: Boolean(more),
-      // One line: the two share a centre, within a couple of pixels.
+      // One line: the two share a centre, within a couple of pixels (C97: never).
       sharedLine: moreBox && arrowBox
         ? Math.abs((moreBox.top + moreBox.height / 2) - (arrowBox.top + arrowBox.height / 2)) <= 2
         : null,
@@ -234,7 +234,7 @@ try {
     note({case: 'spacing', got: spacing, expected: 'no demo panel in the table'});
   }
   if (!spacing.ownRow || !spacing.more || spacing.sharedLine !== false) {
-    note({case: 'show more', got: spacing, expected: 'Show more on a row of its own, not on the footer line with the arrows (C97 (1))'});
+    note({case: 'show more', got: spacing, expected: 'Show more on a line of its own above the footer, not with the arrows (C97)'});
   }
 
   // 8. The page field is as wide as its number and grows as it is typed -- and

@@ -247,11 +247,11 @@ try {
     await dragged.mouse.up();
     await dragged.waitForTimeout(600);
     const after = await dragged.evaluate(() => [...document.querySelectorAll('#t thead th')].map((cell) => cell.dataset.key).join(','));
-    if (before !== 'select,settings,name,code,city,actions') {
+    if (before !== 'select,settings,name,code,city') {
       note({case: 'column move', before, expected: 'the pinned title column first, then the loose ones in order'});
     }
-    if (after !== 'select,settings,name,city,code,actions') {
-      note({case: `column move${rerenderMidway ? ' with a render halfway' : ''}`, after, expected: 'select,settings,name,city,code,actions'});
+    if (after !== 'select,settings,name,city,code') {
+      note({case: `column move${rerenderMidway ? ' with a render halfway' : ''}`, after, expected: 'select,settings,name,city,code'});
     }
     await dragged.close();
   }
@@ -274,11 +274,9 @@ try {
       fits: box ? Math.ceil(field.scrollWidth) <= Math.ceil(box.width) + 1 : null,
       betweenArrows: Boolean(list?.querySelector('.sf-pagination-item-field')),
       prev: Boolean(element.querySelector('.sf-pagination-direction--prev')),
-      prevDimmed: (() => {
-        const host = element.querySelector('.sf-pagination-direction--prev');
-        const back = host?.querySelector('button, a');
-        return host ? host.hasAttribute('disabled') || back?.disabled === true || back?.getAttribute('aria-disabled') === 'true' : null;
-      })(),
+      // Since sf-pagination 1.5.0 a control at an end is disabled, not removed,
+      // so the row keeps its width while a person pages (PG-02, C97).
+      prevEnabled: Boolean(element.querySelector('.sf-pagination-direction--prev:not([disabled])')),
       next: Boolean(element.querySelector('.sf-pagination-direction--next')),
       last: Boolean(element.querySelector('.sf-pagination-direction--last')),
     };
@@ -289,9 +287,7 @@ try {
     if (shown.numbers !== 0 || shown.value !== String(current) || shown.fits !== true || !shown.betweenArrows) {
       note({case: `switcher on page ${current}`, got: shown, expected: 'no row of numbers; the page in a field between the arrows, and the number fits it'});
     }
-    // The edge buttons dim on the first page instead of going, so the row keeps
-    // its width (C97 (4), owner 2026-11-12).
-    if (current === 1 && shown.prev && shown.prevDimmed !== true) note({case: 'switcher', got: shown, expected: 'back is dimmed on the first page'});
+    if (current === 1 && shown.prevEnabled) note({case: 'switcher', expected: 'no back to press on the first page'});
     if (current > 1 && !shown.prev) note({case: `switcher on page ${current}`, expected: 'back appears'});
     if (!shown.next || !shown.last) note({case: `switcher on page ${current}`, expected: 'forward and last while there is more'});
   }
@@ -348,8 +344,8 @@ try {
     element.addEventListener('sf-pagination-selection-clear', (event) => cleared.push(event.detail['selected-count']));
     element.querySelector('.sf-pagination-actions-clear')?.click();
     await new Promise((done) => setTimeout(done, 150));
-    // Show more is its own row since C97 (1) (sf-pagination-top in the
-    // compatible footer), not a button on the footer line.
+    // The compatible footer of sf-pagination 1.5.0 (C97) draws Show more on a
+    // line of its own above the row (.sf-pagination-top).
     const showMoreWithNext = Boolean(element.querySelector('.sf-pagination-more-button'));
     element.setAttribute('total', '10');
     await new Promise((done) => setTimeout(done, 200));

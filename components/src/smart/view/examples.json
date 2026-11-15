@@ -9,8 +9,8 @@
       },
       "children": "<sf-view-table slot=\"content\" aria-label=\"Решения\"></sf-view-table><sf-pagination slot=\"pagination\"></sf-pagination>",
       "first-paint": {
-        "max-bytes": 20480,
-        "why": "The view's skeleton (the toolbar, the head and a page of rows, the compact list for a phone, the page row) beside the table and the page row the page gives it as documented, each printed in its own resting markup and held out of view until the host's first answer."
+        "max-bytes": 24576,
+        "why": "The view's skeleton (the toolbar, the head and a page of rows, the compact list for a phone, the page row) beside the table and the page row the page gives it as documented, each printed in its own resting markup and held out of view until the host's first answer. 24 KB since the pair ui-141822273efe: the Framework's resting markup of the parts it prints grew (for one, the sf-checkable classes on every row's checkbox), and the printed page is 22.1 KB where it was under 20."
       },
       "expect": {
         "name": "Решения",
@@ -314,8 +314,8 @@
       },
       "children": "<sf-view-table slot=\"content\" aria-label=\"Решения\"></sf-view-table><sf-pagination slot=\"pagination\"></sf-pagination>",
       "first-paint": {
-        "max-bytes": 20480,
-        "why": "The view's skeleton (the toolbar, the head and a page of rows, the compact list for a phone, the page row) beside the table and the page row the page gives it as documented, each printed in its own resting markup and held out of view until the host's first answer."
+        "max-bytes": 24576,
+        "why": "The view's skeleton (the toolbar, the head and a page of rows, the compact list for a phone, the page row) beside the table and the page row the page gives it as documented, each printed in its own resting markup and held out of view until the host's first answer. 24 KB since the pair ui-141822273efe: the Framework's resting markup of the parts it prints grew (for one, the sf-checkable classes on every row's checkbox), and the printed page is 22.1 KB where it was under 20."
       },
       "expect": {
         "name": "Решения",

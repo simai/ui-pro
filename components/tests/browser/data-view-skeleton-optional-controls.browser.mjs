@@ -78,7 +78,7 @@ try {
           sort: native('sf-button-icon[icon="swap_vert"]'),
           switch: box(bar?.querySelector('sf-segmented')?.firstElementChild ?? bar?.querySelector('sf-segmented')),
           split: native('sf-button-icon[icon="keyboard_arrow_down"]'),
-          actions: native('sf-button-icon[icon="more_vert"]'),
+          actions: native('sf-button-icon[icon="more_horiz"]'),
         }}];
       }));
     }, {answer, BASE, ids: Object.keys(CASES)});

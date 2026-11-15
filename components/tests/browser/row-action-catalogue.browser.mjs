@@ -92,19 +92,19 @@ try {
     null, {timeout: 8000},
   );
 
+  // Variant В (C146 (5), R239): the row's actions are the entries of its «≡».
+  await page.locator('#list tbody tr').first().locator('[data-sf-row-menu]').click();
+  await page.waitForTimeout(300);
   const measured = await page.evaluate(() => {
     const table = document.querySelector('#list sf-view-table');
-    const row = document.querySelector('#list tbody tr');
-    const cells = [...(row?.querySelectorAll('td') ?? [])];
-    const cell = cells[cells.length - 1];
+    const menu = [...document.querySelectorAll('sf-menu-context')].find((one) => one.dataset.sfTableMenu === 'row' && one.isOpen);
     return {
       catalogue: (table?.ACTIONS_SETTINGS_ROW ?? []).map((action) => ({
         id: action.id, type: action.component?.type, icon: action.component?.props?.icon,
       })),
-      labels: [...(cell?.querySelectorAll('.sf-button-text-container') ?? [])]
-        .map((span) => span.textContent.trim()),
-      icons: [...(cell?.querySelectorAll('.sf-icon') ?? [])].map((icon) => icon.textContent.trim()),
-      controls: cell?.querySelectorAll('button').length ?? 0,
+      labels: (menu?.entries ?? []).map((entry) => String(entry.text ?? '').trim()),
+      icons: (menu?.entries ?? []).map((entry) => entry.icon),
+      controls: (menu?.entries ?? []).length,
     };
   });
 

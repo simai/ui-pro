@@ -26,6 +26,7 @@ import ru from "./lang/ru.json";
 import {ICON_CHOICES} from "../../core/js/icon-choices.js";
 import {pageText} from "../../core/js/page-language";
 import {FOCUSABLE, hasLayer, hasLayerAbove, openLayers} from "../../core/js/layer-stack";
+import {followDensity} from "../../core/js/density.js";
 import {renderPropertyViewTemplate} from "./js/templates/default";
 // The day-and-time reading is the field renderers' (A-14): this view kept a
 // copy from before it was lifted into the Framework.
@@ -1049,6 +1050,11 @@ class SfPropertyView extends PropertyViewElement {
             menu.close();
             return null;
         }
+        // The panel's step and the density of its area, on every opening (owner
+        // remark 2026-11-15): the menu stands on <body> or in the open dialog,
+        // outside the panel, and fell back to the menu's own 1/2.
+        menu.setAttribute("size", this.size);
+        followDensity(menu, this);
         menu.setAttribute("aria-label", label ?? "");
         menu.entries = entries;
         this._standardMenuSelect = select;

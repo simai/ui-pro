@@ -2,9 +2,9 @@
 // the duplicate-shipping window).
 //
 // sf-view, sf-view-table and sf-view-properties moved to the view set: their
-// source is simai/ui-view, released as view-9eff67bbf11f (@simai-studio/view
-// 1.7.1, ui-view tag view-9eff67bbf11f, package/src/smart/<folder>; earlier
-// releases view-0e589597e2d9, view-23ed2acf30d7, view-aea031ba718b, view-99763f547560, view-99c8dd1585fd, view-4d7070623fe1, view-9c963d217188, view-f529c2354b0d and
+// source is simai/ui-view, released as view-80e24b1bd7cc (@simai-studio/view
+// 1.8.0, ui-view tag view-80e24b1bd7cc at the bind 0960503,
+// package/src/smart/<folder>; earlier releases view-9eff67bbf11f, view-0e589597e2d9, view-23ed2acf30d7, view-aea031ba718b, view-99763f547560, view-99c8dd1585fd, view-4d7070623fe1, view-9c963d217188, view-f529c2354b0d and
 // view-cd0d82aeb756; view-a79198bb298c was prepared, never published). Until the next pro bundle takes them from that
 // release, ui-pro still ships its own copies of the three folders, and they
 // must stay the release's tree exactly: a change made here would ship in pro
@@ -26,44 +26,23 @@ import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
 
-// view-9eff67bbf11f: `git -C ui-view rev-parse view-9eff67bbf11f:package/src/smart/<folder>`.
-const RELEASE = 'view-9eff67bbf11f';
+// view-80e24b1bd7cc: `git -C ui-view rev-parse view-80e24b1bd7cc:package/src/smart/<folder>`.
+const RELEASE = 'view-80e24b1bd7cc';
 const FROZEN = {
-  'view': '0c4074806be12afd19c95408a193d73ba751ad36',
-  'view-table': '8f132cd67a7cb8788feceb7b12c0a7a1ad6449c1',
-  'view-properties': '13b3999b10133de53c18fbeba38dfb2dba7a9c0b',
+  'view': '505d0721691c1007f4a1bed429a4f6a49a8daf6e',
+  'view-table': 'f063241cd72f177ff58a02f9c5744494075ed181',
+  'view-properties': '9186e9c4cd6b124bd1f78d094878107a15117815',
 };
 
 // A change made here ahead of the view set: one folder, one named patch. The
 // folder must be the release's tree with exactly that patch, and simai/ui-view
 // releases the same change before the next take (the take then drops the entry
-// here). The take of view-9eff67bbf11f (2026-11-15) dropped the two earlier
-// entries: sf-view-properties C22 (released in view 1.6.1) and the sf-view-table
-// pin shadow on a surface role (released in view 1.7.0).
-const PATCHED = {
-  // sf-view 1.12.3 (2026-11-15): the first paint's control blocks keep their
-  // whole height under SIMAI Framework C136 (1) (ui-141822273efe: the
-  // skeleton's bar is the capitals' height, so a 40px control drew 30).
-  // 1.12.1-1.12.2 are held by unreleased simai/ui-view branches. The patch for
-  // simai/ui-view is ui-control control/evidence/2026-11-15-pro-fixes/view.patch.
-  'view': {tree: '164e9c7a0b6ff7ba1c740898a78f356855e524b0', patch: 'first-paint control blocks under C136, sf-view 1.12.3 (2026-11-15)'},
-  // sf-view-table 1.18.3 (2026-11-15, pro over ui-141822273efe): the view
-  // release rebuilt over that pair (smart.manifest.json's provenance of the
-  // Framework files it builds in, option-badge and pagination), the published
-  // box following density for a written size too (C79), and the windows'
-  // footer on the menu's inset (C105 H4, C106: the table zeroed the menu's
-  // inline content padding). 1.18.2 is held by unreleased simai/ui-view
-  // branches. The patch for simai/ui-view is ui-control
-  // control/evidence/2026-11-15-pro-fixes/view-table.patch.
-  'view-table': {tree: 'f63751fc79e37c8d3a9c23f5304289bd84b0ce60', patch: 'rebuilt over ui-141822273efe, C79 published box, menu-inset footer, sf-view-table 1.18.3 (2026-11-15)'},
-  // sf-view-properties 1.15.2 (2026-11-15): the panel takes back the drawer's
-  // own block padding (--sf-drawer--inset, sf-drawer over ui-141822273efe),
-  // and the skeleton's tab strip stands over the tabs' hairline (1px taller
-  // than the tabs before). 1.14.0-1.15.1 are held by unreleased branches. The
-  // patch for simai/ui-view is ui-control
-  // control/evidence/2026-11-15-pro-fixes/view-properties.patch.
-  'view-properties': {tree: 'a0c9b60c22c7ae8bf37bb5f9dd2daf3426d717d2', patch: 'drawer inset and skeleton tab strip, sf-view-properties 1.15.2 (2026-11-15)'},
-};
+// here). The take of view-80e24b1bd7cc (2026-11-15) dropped all three entries
+// of 2026-11-15: sf-view 1.12.3 (first-paint control blocks under C136),
+// sf-view-table 1.18.3 (rebuilt over ui-141822273efe, C79 published box,
+// menu-inset footer; view 1.8.0 carries them in sf-view-table 1.19.5) and
+// sf-view-properties 1.15.2 (drawer inset, skeleton tab strip).
+const PATCHED = {};
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
 const IGNORED = new Set(['.DS_Store', 'node_modules']);

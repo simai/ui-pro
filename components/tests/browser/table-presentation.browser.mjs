@@ -51,8 +51,11 @@ try {
   // 1. A sorted column is answered in its header: the label takes the primary
   // role and a mark sits under the header. The cells of that column keep the
   // background every other column has.
+  // The first data column stands pinned since 1.19.0 (C146 (9)) and a pinned
+  // cell carries the row's surface; here it is unpinned, so the sorted
+  // column is compared with a plain one alone.
   const sorted = await open('<sf-view-table id="t" toolbar="false" settings="false"></sf-view-table>');
-  await fill(sorted, [{key: 'name', label: 'Name', sortable: true}, {key: 'city', label: 'City'}], [
+  await fill(sorted, [{key: 'name', label: 'Name', sortable: true, pinned: false}, {key: 'city', label: 'City'}], [
     {id: 'a', name: 'A', city: 'X'},
     {id: 'b', name: 'B', city: 'Y'},
   ]);

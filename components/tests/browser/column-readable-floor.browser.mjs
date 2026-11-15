@@ -44,7 +44,7 @@ try {
   const page = await browser.newPage({viewport: {width: 420, height: 700}});
   await page.setContent(
     '<!doctype html><html class="theme-light" lang="ru"><body style="margin:0">'
-    + '<div id="box" style="inline-size:420px"><sf-view-table id="t" toolbar="false" aria-label="Проба"></sf-view-table></div>'
+    + '<div id="box" style="inline-size:420px"><sf-view-table id="t" layout="table" toolbar="false" aria-label="Проба"></sf-view-table></div>'
     + '</body></html>',
   );
   for (const style of styles) await page.addStyleTag({path: style});

@@ -63,11 +63,11 @@ class FakeElement {
     }
   }
   sfEmit(name, detail) { this.events.push({name, detail}); }
-  // A word as its key, with the values it was given (sf-pagination 1.5 says
-  // its range as one word with from, to and total): {range|from=1,to=10,total=450}.
-  sfWord(key, {vars} = {}) {
-    const given = vars && Object.keys(vars).length ? '|' + Object.entries(vars).map(([name, value]) => name + '=' + value).join(',') : '';
-    return '{' + key + given + '}';
+  // A word with its values, so a test can read which numbers a line carries:
+  // {range from=1 to=10 total=450} (sf-pagination 1.5.0 range part, C97 point 2).
+  sfWord(key, options) {
+    const vars = Object.entries(options?.vars ?? {}).map(([name, value]) => ' ' + name + '=' + value).join('');
+    return '{' + key + vars + '}';
   }
   // The settings the template reads from the element's props (smart-base).
   getPropsContext() { return {size: this.getAttribute('size') || '1', top: this.top, middle: this.middle, bottom: this.bottom}; }
@@ -77,8 +77,8 @@ class FakeElement {
   addEventListener() {}
 }
 const elementFromManifest = () => FakeElement;
-// sf-pagination 1.5 (C97 appearances) notes its former word keys and follows
-// the sm step of the breakpoint ladder; neither matters to these checks.
+// sf-pagination 1.5.0 (C97) notes its compatible footer in SF.deprecations and
+// reads the sm step of the ladder for its numbers: neither is what is checked here.
 const noteDeprecated = () => {};
 const breakpointMedia = () => null;
 const renderPaginationTemplate = () => null;

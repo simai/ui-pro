@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
 
-// row-actions hides the row action column alone; actions still owns the create button.
+// Variant В (C146 (5), R239): no «Действия» column; every row action lives in the
+// leading ≡ menu. row-actions stays accepted and no longer draws a column;
+// actions still owns the create button.
 const source = fs.readFileSync(new URL('../src/smart/view-table/index.js', import.meta.url), 'utf8');
 const template = fs.readFileSync(new URL('../src/smart/view-table/js/templates/default.js', import.meta.url), 'utf8');
 const manifest = JSON.parse(fs.readFileSync(new URL('../src/smart/view-table/smart.manifest.json', import.meta.url), 'utf8'));
@@ -25,11 +27,12 @@ function table(props, actionActive = true, rowMenu = [{id: 'delete'}]) {
 }
 const keys = (owner) => owner.systemColumns().map((column) => column.key);
 
-test('the row action column shows by default', () => {
-    assert.deepEqual(keys(table({})), ['settings', 'actions']);
+test('no row action column: the ≡ column alone carries the row menu', () => {
+    assert.deepEqual(keys(table({})), ['settings']);
+    assert.ok(!keys(table({rowActions: true})).includes('actions'));
 });
 
-test('row-actions false hides only the row action column', () => {
+test('row-actions false changes no column and leaves the create button alone', () => {
     assert.deepEqual(keys(table({rowActions: false})), ['settings']);
     assert.match(source, /rowActions: \{attribute: "row-actions", type: Boolean, default: true\}/);
     // The create button stays behind actions, and behind creatable, which a
@@ -56,18 +59,24 @@ test('the manifest declares row-actions with its default', () => {
 // draws no column of buttons that open nothing (Larena, the sites list,
 // 2026-11-05).
 test('the settings column goes when it has nothing to open', () => {
-    assert.deepEqual(keys(table({settingsMenu: false}, true, [])), ['actions']);
+    assert.deepEqual(keys(table({settingsMenu: false}, true, [])), []);
     assert.deepEqual(keys(table({settingsMenu: false, actions: false}, true, [])), []);
 });
 
 test('the settings column stays for the gear, a row menu or reordering', () => {
-    assert.deepEqual(keys(table({settingsMenu: true}, true, [])), ['settings', 'actions']);
-    assert.deepEqual(keys(table({settingsMenu: false})), ['settings', 'actions']);
-    assert.deepEqual(keys(table({settingsMenu: false, rowReorder: true}, true, [])), ['settings', 'actions']);
+    assert.deepEqual(keys(table({settingsMenu: true}, true, [])), ['settings']);
+    assert.deepEqual(keys(table({settingsMenu: false})), ['settings']);
+    assert.deepEqual(keys(table({settingsMenu: false, rowReorder: true}, true, [])), ['settings']);
     // A host whose actions live in the row menu alone (row-actions="false") keeps the ≡.
     assert.deepEqual(keys(table({settingsMenu: false, rowActions: false})), ['settings']);
 });
 
 test('settings false is the word of the host, whatever the table could offer', () => {
-    assert.deepEqual(keys(table({settings: false, settingsMenu: true, rowReorder: true})), ['actions']);
+    assert.deepEqual(keys(table({settings: false, settingsMenu: true, rowReorder: true, rowActions: false})), []);
+    assert.deepEqual(keys(table({settings: false, settingsMenu: true, rowReorder: true}, false)), []);
+});
+
+test('row actions keep the ≡ column when settings are off (variant В)', () => {
+    assert.deepEqual(keys(table({settings: false})), ['settings']);
+    assert.deepEqual(keys(table({settings: false}, true, [])), []);
 });

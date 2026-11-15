@@ -8,7 +8,7 @@
 <sf-button appearance="default" scheme="primary" icon-start="filter_list" text="Фильтр" style="display: contents;">
 <button type="button" class="sf-button sf-button--size-1 sf-button--default sf-button--primary flex items-cross-center" data-sf-static>
 
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" icon="filter_list" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>filter_list</i></sf-icon>
+<sf-icon root-class="pointer-event-none" aria-hidden="true" icon="filter_list" style="display: contents;"><i class="sf-icon pointer-event-none" aria-hidden="true" data-sf-static>filter_list</i></sf-icon>
 <span class="sf-button-text-container text-center pointer-event-none">
 Фильтр
 </span>
@@ -33,10 +33,13 @@
 
 
 
+
+
+
 <sf-button-icon appearance="ghost" scheme="on-surface" icon="search" aria-label="Поиск" style="display: contents;">
 <button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" aria-label="Поиск" data-sf-static>
 
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="search" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>search</i></sf-icon>
+<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="search" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true" data-sf-static>search</i></sf-icon>
 </button>
 </sf-button-icon>
 
@@ -71,16 +74,16 @@
 
 <th class="relative" data-key="select" data-label="select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;" data-sf-pin-edge>
 <sf-checkbox position="end" root-class="content-main-between" aria-label="Выбрать все строки" style="display: contents;">
-<label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" for="sf-view-open-record-2" data-sf-static>
+<label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer sf-checkable sf-checkable--size-1" for="sf-view-open-record-2" data-sf-static>
 
 
 
-<span class="sf-checkbox-box transition flex">
+<span class="sf-checkbox-box flex">
 <input type="checkbox" value="on" aria-label="Выбрать все строки" id="sf-view-open-record-2">
-<sf-icon aria-hidden="true" icon style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static></i></sf-icon>
+<sf-icon aria-hidden="true" icon style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static></i></sf-icon>
 </span>
 </label>
-</sf-checkbox>
+</sf-checkbox><span class="sf-tooltip sf-tooltip--dark sf-tooltip--size-1/3 sf-tooltip--arrow-bottom-inline-start" hidden id="sf-view-open-record-3"></span>
 </th>
 </tr>
 </thead>
@@ -162,28 +165,43 @@
 
 
 </sf-view-table><sf-pagination slot="pagination" style="display: contents;" bottom="false" page-sizes="10,20,25,30,40" current="1" page-size="25">
-<nav class="sf-pagination sf-pagination--size-1 flex flex-col" aria-label="Страницы результатов" data-sf-static>
+<nav class="sf-pagination sf-pagination--size-1 sf-pagination--footer flex flex-col" aria-label="Страницы результатов" data-sf-static>
+
 
 
 <div class="sf-pagination-main flex items-cross-center content-main-between">
 
 <div class="sf-pagination-left flex items-cross-center">
-
 <div class="sf-pagination-total flex items-cross-center">
-
-
-<div class="sf-pagination-total-text flex items-cross-center">
-Всего: 10
-
-</div>
+<span class="sf-pagination-range" role="status">1–10 из 10</span>
 
 </div>
 </div>
+
 
 <div class="sf-pagination-container flex items-cross-center">
-<span class="sf-pagination-pages-label">Страницы:</span>
+
+
 <ol class="sf-pagination-list flex items-cross-center">
 
+<li class="sf-pagination-item">
+<sf-button-icon appearance="ghost" scheme="on-surface" class="sf-pagination-direction sf-pagination-direction--first" size="1" icon="first_page" title="В начало" aria-label="В начало" disabled style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" disabled aria-label="В начало" title="В начало" data-sf-static>
+
+<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="first_page" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" data-sf-icon-mirror aria-hidden="true" data-sf-static>first_page</i></sf-icon>
+</button>
+</sf-button-icon>
+</li>
+
+
+<li class="sf-pagination-item">
+<sf-button-icon appearance="ghost" scheme="on-surface" class="sf-pagination-direction sf-pagination-direction--prev" size="1" icon="keyboard_arrow_left" title="Предыдущая страница" aria-label="Предыдущая страница" disabled style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" disabled aria-label="Предыдущая страница" title="Предыдущая страница" data-sf-static>
+
+<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="keyboard_arrow_left" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" data-sf-icon-mirror aria-hidden="true" data-sf-static>keyboard_arrow_left</i></sf-icon>
+</button>
+</sf-button-icon>
+</li>
 
 <li class="sf-pagination-item sf-pagination-item-field flex items-cross-center">
 
@@ -202,39 +220,57 @@
 
 
 
+
+
+
+
 </span>
 
 </label>
 </sf-input>
 </label>
 
+<span class="sf-pagination-of" aria-hidden="true">из 1</span>
+</li>
+
+<li class="sf-pagination-item">
+<sf-button-icon appearance="ghost" scheme="on-surface" class="sf-pagination-direction sf-pagination-direction--next" size="1" icon="keyboard_arrow_right" title="Следующая страница" aria-label="Следующая страница" disabled style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" disabled aria-label="Следующая страница" title="Следующая страница" data-sf-static>
+
+<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="keyboard_arrow_right" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" data-sf-icon-mirror aria-hidden="true" data-sf-static>keyboard_arrow_right</i></sf-icon>
+</button>
+</sf-button-icon>
+</li>
+
+
+<li class="sf-pagination-item">
+<sf-button-icon appearance="ghost" scheme="on-surface" class="sf-pagination-direction sf-pagination-direction--last" size="1" icon="last_page" title="Последняя" aria-label="Последняя" disabled style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" disabled aria-label="Последняя" title="Последняя" data-sf-static>
+
+<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="last_page" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" data-sf-icon-mirror aria-hidden="true" data-sf-static>last_page</i></sf-icon>
+</button>
+</sf-button-icon>
 </li>
 
 </ol>
+
 </div>
 
 
-
 <div class="sf-pagination-count flex items-cross-center">
-<span>На странице:</span>
-<sf-dropdown appearance="outlined" search="false" mode="select" portal="true" size="1" value="25" aria-label="На странице:" style="display: contents;" data-sf-size-relative>
-<div class="sf-dropdown sf-dropdown--size-1 sf-dropdown--outlined sf-dropdown--text flex flex-col" portal data-portal="true" data-sf-static>
+<sf-button class="sf-pagination-size" appearance="ghost" scheme="on-surface" icon-end="arrow_drop_down" aria-haspopup="menu" size="1" text="По 25" aria-label="На странице: 25" style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-button sf-button--size-1 sf-button--ghost sf-button--link sf-button--on-surface flex items-cross-center" aria-label="На странице: 25" aria-haspopup="menu" data-sf-static>
 
 
-<label class="sf-dropdown-field cursor-pointer items-cross-center relative transition flex" tabindex="-1">
-
-
-<input type="text" class="cursor-pointer" readonly placeholder="Не выбрано" aria-label="На странице:" tabindex="-1">
-
-<button type="button" class="sf-icon-button sf-icon-button--icon sf-icon-button--on-surface sf-icon-button--link sf-icon-button--size-1/2 absolute" id="sf-view-open-record-3" tabindex="0" aria-expanded="false" aria-haspopup="listbox" aria-controls="sf-dropdown-1--listbox" aria-describedby="sf-view-open-record-4" aria-label="На странице:">
-<sf-icon aria-hidden="true" icon="keyboard_arrow_down" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>keyboard_arrow_down</i></sf-icon>
+<span class="sf-button-text-container text-center pointer-event-none">
+По 25
+</span>
+<sf-icon root-class="pointer-event-none" aria-hidden="true" icon="arrow_drop_down" style="display: contents;"><i class="sf-icon pointer-event-none" aria-hidden="true" data-sf-static>arrow_drop_down</i></sf-icon>
 </button>
-</label>
-
-
-<div class="sf-list sf-list--size-1 flex flex-col" style="--sf-list--cell: var(--sf-ui-1--control-height)" hidden></div>
-<span class="sf-dropdown-value" id="sf-view-open-record-4">25</span></div>
-</sf-dropdown>
+</sf-button>
+<sf-menu-context class="sf-pagination-size-menu" popup size="1" aria-label="На странице:" style="display: contents;" data-sf-size-relative>
+<div class="sf-context-menu sf-context-menu--size-1" role="menu" aria-label="На странице:" data-sf-static></div>
+</sf-menu-context>
 </div>
 
 </div>
@@ -242,4 +278,4 @@
 
 
 </nav>
-</sf-pagination><div slot="first-paint" aria-hidden="true" class="sf-data-view-skeleton sf-skeleton sf-skeleton--animation-pulse" data-size="1" data-layout="auto" data-sf-static><div class="sf-data-view-skeleton-records"><div class="sf-data-view-skeleton-toolbar"><div data-part="start"><i class="sf-skeleton-text" data-control="filter">Фильтр</i></div><div data-part="end"><i class="sf-skeleton-text" data-control="field"></i></div></div><div class="sf-data-view-skeleton-table"><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div></div><div class="sf-data-view-skeleton-list"><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div></div></div><nav class="sf-pagination sf-pagination--size-1 flex flex-col"><div class="sf-pagination-main flex items-cross-center content-main-between"><div class="sf-pagination-left flex items-cross-center"><i class="sf-skeleton-text"></i></div><div class="sf-pagination-container flex items-cross-center"><span class="sf-pagination-pages-label"><i class="sf-skeleton-text"></i></span><i class="sf-skeleton-text" data-control></i></div><div class="sf-pagination-count flex items-cross-center"><i class="sf-skeleton-text"></i><i class="sf-skeleton-text" data-control="field"></i></div></div></nav></div></sf-view>
+</sf-pagination><div slot="first-paint" aria-hidden="true" class="sf-data-view-skeleton sf-skeleton sf-skeleton--animation-pulse" data-size="1" data-layout="auto" data-sf-static><div class="sf-data-view-skeleton-records"><div class="sf-data-view-skeleton-toolbar"><div data-part="start"><i class="sf-skeleton-text" data-control="filter">Фильтр</i></div><div data-part="end"><i class="sf-skeleton-text" data-control="field"></i></div></div><div class="sf-data-view-skeleton-table"><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div><div><span data-chrome><i class="sf-skeleton-text"></i></span><span data-chrome><i class="sf-skeleton-text" data-control></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span><span><i class="sf-skeleton-text"></i></span></div></div><div class="sf-data-view-skeleton-list"><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div><div><i class="sf-skeleton-text"></i><div><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i><i class="sf-skeleton-text"></i></div><i class="sf-skeleton-text" data-control></i></div></div></div><nav class="sf-pagination sf-pagination--size-1 sf-pagination--footer flex flex-col"><div class="sf-pagination-main flex items-cross-center content-main-between"><div class="sf-pagination-left flex items-cross-center"><i class="sf-skeleton-text"></i></div><div class="sf-pagination-container flex items-cross-center"><i class="sf-skeleton-text" data-control></i><i class="sf-skeleton-text" data-control></i><i class="sf-skeleton-text" data-control="page"></i><i class="sf-skeleton-text" data-control></i><i class="sf-skeleton-text" data-control></i></div><div class="sf-pagination-count flex items-cross-center"><i class="sf-skeleton-text" data-control="size"></i></div></div></nav></div></sf-view>

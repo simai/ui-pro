@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Usage: node this-file /absolute/path/to/output
 //
-// The «Действия» column draws the actions a row offers.
+// The row's «≡» menu offers the actions a row names (variant В, C146 (5),
+// R239: the «Действия» column it was first measured on is gone).
 //
 // It drew an empty container instead, in every row of every list -- a consumer
 // reported it on an embedded one, which is only where they happened to be
@@ -83,11 +84,17 @@ try {
   });
   await page.waitForFunction(() => document.querySelectorAll('#list tbody tr').length === 3, null, {timeout: 8000});
 
-  const measured = await page.evaluate(() => [...document.querySelectorAll('#list tbody tr')].map((tr) => {
-    const cells = [...tr.querySelectorAll('td')];
-    const last = cells[cells.length - 1];
-    return {controls: last ? last.querySelectorAll('button, sf-button').length : 0};
-  }));
+  const measured = [];
+  for (let index = 0; index < 3; index += 1) {
+    await page.locator('#list tbody tr').nth(index).locator('[data-sf-row-menu]').click();
+    await page.waitForTimeout(300);
+    measured.push(await page.evaluate(() => {
+      const menu = [...document.querySelectorAll('sf-menu-context')].find((one) => one.dataset.sfTableMenu === 'row' && one.isOpen);
+      return {controls: menu ? (menu.entries ?? []).length : 0};
+    }));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(200);
+  }
 
   // A row that names its actions offers exactly those: one for the first, two
   // for the second. A row that names none offers the list's own, which is the

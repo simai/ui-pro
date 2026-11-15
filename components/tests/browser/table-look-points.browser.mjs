@@ -9,10 +9,12 @@
 // it is measured on, never a number typed here:
 // 1. the record's title is the surface's text colour, medium weight, no
 //    underline at rest and an underline while the row is pointed at;
-// 2. one row model for the table: at size 1/2 a row with a supporting line
-//    and a row whose text wraps to two lines are --sf-ui-2--control-height
-//    (48), a one-line row with its box and menu --sf-ui-1--control-height
-//    (40), three lines a text line more; the published boxes say the same;
+// 2. one row model for the table (owner decision C146 (1), (7), since
+//    1.19.0): a row is the control of its step, --sf-ui-1/2--control-height
+//    (32) at size 1/2, a row with a supporting line two text lines of the
+//    step when they are taller (40); a long text other than the name stays
+//    on one line, so a row whose text would wrap is a one-line row; the
+//    published boxes say the same (to 1.18.x: 40, 48 and three lines 64);
 // 3. the open record (current) carries aria-current and the primary
 //    container fill (alpha 12 light, 24 dark); the arrows move the person's
 //    row (data-current), which shows the focus ring and no fill;
@@ -22,9 +24,8 @@
 //    folds them), as built;
 // 6. the search field's left edge, «Создать»'s right edge and the rows' fill
 //    are on one line (R077);
-// 7. size 1 follows the same model: a row with the reorder/menu control is
-//    --sf-ui-2--control-height (48, it was 73), two lines
-//    --sf-ui-3--control-height (56).
+// 7. size 1 follows the same model: --sf-ui-1--control-height (40), a row
+//    with a supporting line 48 (to 1.18.x 48 and 56).
 import {join, resolve} from 'node:path';
 import {existsSync} from 'node:fs';
 import {chromium} from 'playwright';
@@ -176,16 +177,17 @@ try {
     if (m.title.colour !== m.title.onSurface || m.title.colour === m.title.link) note({point: 1, said: 'the title is not the surface\'s text colour', got: m.title});
     if (m.title.weight !== m.title.medium) note({point: 1, said: 'the title is not medium weight', got: m.title});
     if (m.title.rest !== 'none' || m.title.hover !== 'underline') note({point: 1, said: 'the title is not underlined on hover only', got: m.title});
-    // 2 and 7. The row model: two-line rows on the rung above the one-line row.
+    // 2 and 7. The row model: one line on the step's control, a supporting
+    // line two text lines of the step where they are taller.
     const [link12, one12, wrapped12, three12] = rows.t12;
     const [link1, one1, wrapped1, three1] = rows.t1;
-    if (link12 !== ladder.control2 || wrapped12 !== ladder.control2) note({point: 2, said: 'a two-line row at size 1/2 is not --sf-ui-2--control-height', got: rows.t12, ladder});
-    if (three12 !== ladder.control2 + ladder.text12) note({point: 2, said: 'a three-line row at size 1/2 is not the two-line rung and a line', got: rows.t12, ladder});
-    if (link1 !== ladder.control3 || wrapped1 !== ladder.control3) note({point: 7, said: 'a two-line row at size 1 is not --sf-ui-3--control-height', got: rows.t1, ladder});
-    if (three1 !== ladder.control3 + ladder.text1) note({point: 7, said: 'a three-line row at size 1 is not the two-line rung and a line', got: rows.t1, ladder});
+    const two12 = Math.max(ladder.control12, 2 * ladder.text12);
+    const two1 = Math.max(ladder.control1, 2 * ladder.text1);
+    if (link12 !== two12) note({point: 2, said: 'a row with a supporting line at size 1/2 is not two text lines of its step', got: rows.t12, ladder});
+    if ([one12, wrapped12, three12].some((height) => height !== ladder.control12)) note({point: 2, said: 'a one-line row at size 1/2 is not --sf-ui-1/2--control-height, or a long text wraps', got: rows.t12, ladder});
+    if (link1 !== two1) note({point: 7, said: 'a row with a supporting line at size 1 is not two text lines of its step', got: rows.t1, ladder});
+    if ([one1, wrapped1, three1].some((height) => height !== ladder.control1)) note({point: 7, said: 'a one-line row at size 1 is not --sf-ui-1--control-height, or a long text wraps', got: rows.t1, ladder});
     if (desktop) {
-      if (one12 !== ladder.control1) note({point: 2, said: 'a one-line row with its box and menu at size 1/2 is not --sf-ui-1--control-height', got: rows.t12, ladder});
-      if (one1 !== ladder.control2) note({point: 7, said: 'a one-line row with its box and menu at size 1 is not --sf-ui-2--control-height (it was 73)', got: rows.t1, ladder});
       if (published.row12 !== one12 || published.twoLines12 !== link12 || published.row1 !== one1 || published.twoLines1 !== link1) {
         note({point: 2, said: 'the published row boxes are not the rows drawn', got: {published, rows}});
       }

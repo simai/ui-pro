@@ -953,10 +953,16 @@ class SfDataView extends DataViewElement {
         // The head is a row like the others (sf-view-table 1.17.1).
         const row = () => `<div>${select ? `<span data-chrome>${bar}</span>` : ""}${settings ? `<span data-chrome>${control()}</span>` : ""}${`<span>${bar}</span>`.repeat(columns)}</div>`;
         const record = `<div>${select ? bar : "<span></span>"}<div>${bar.repeat(fields + 1)}</div>${settings ? control() : "<span></span>"}</div>`;
-        const pageRow = `<nav class="sf-pagination sf-pagination--size-${this.size} flex flex-col"><div class="sf-pagination-main flex items-cross-center content-main-between">`
+        // The page row as sf-pagination 1.5 draws its compatible footer (C97):
+        // the range, then the arrows to the first and the previous page, the
+        // page field with «из N», the arrows to the next and the last, and the
+        // page-size button. The markup keeps the 1.4 order (range, pages,
+        // size); the pagination sheet puts the pages last and, on a narrow
+        // page, on a line of their own, so the skeleton wraps where the row does.
+        const pageRow = `<nav class="sf-pagination sf-pagination--size-${this.size} sf-pagination--footer flex flex-col"><div class="sf-pagination-main flex items-cross-center content-main-between">`
             + `<div class="sf-pagination-left flex items-cross-center">${bar}</div>`
-            + `<div class="sf-pagination-container flex items-cross-center"><span class="sf-pagination-pages-label">${bar}</span>${control()}</div>`
-            + `<div class="sf-pagination-count flex items-cross-center">${bar}${control("field")}</div>`
+            + `<div class="sf-pagination-container flex items-cross-center">${control()}${control()}${control("page")}${control()}${control()}</div>`
+            + `<div class="sf-pagination-count flex items-cross-center">${control("size")}</div>`
             + "</div></nav>";
         return [
             // An own toolbar slot is a row of the view's layout, even empty.
@@ -1600,12 +1606,16 @@ class SfDataView extends DataViewElement {
                 <span class="sf-pagination-actions-count" data-sf-bulk="count"></span>
                 <span class="sf-pagination-actions-separator" aria-hidden="true"></span>
                 <sf-dropdown data-sf-bulk="actions" appearance="outlined" search="false" mode="select"></sf-dropdown>
-                <sf-button data-sf-bulk="apply" appearance="default" scheme="primary"></sf-button>
+                <sf-button data-sf-bulk="apply" data-sf-bulk-danger="false" appearance="outline" scheme="on-surface"></sf-button>
                 <span class="sf-pagination-actions-separator" aria-hidden="true" data-sf-bulk="for-all-separator"></span>
                 <sf-checkbox data-sf-bulk="for-all"></sf-checkbox>
                 <sf-button-icon data-sf-bulk="clear" class="sf-pagination-actions-clear" appearance="ghost" scheme="on-surface" icon="close"></sf-button-icon>`;
-            band.querySelector('[data-sf-bulk="apply"]')
-                .addEventListener("click", () => this.applyBulkAction());
+            // One listener on the band: Apply is drawn anew when its look
+            // changes, and a press must reach the view once.
+            band.addEventListener("click", (event) => {
+                const apply = event.target instanceof Element ? event.target.closest('[data-sf-bulk="apply"]') : null;
+                if (apply && !apply.disabled && !apply.hasAttribute("disabled")) this.applyBulkAction();
+            });
             band.querySelector('[data-sf-bulk="actions"]')
                 .addEventListener("change", (event) => pagination.setAction?.(event.detail?.value ?? ""));
             band.querySelector('[data-sf-bulk="for-all"]')
@@ -1623,11 +1633,30 @@ class SfDataView extends DataViewElement {
         chosen(parts.actions, "aria-label", pagination.actionsLabel);
         parts.actions.options = [
             {type: "text", size: this.controlSize ?? undefined, text: pagination.actionChooseLabel, value: "", selected: !action},
-            ...actions.map((item) => ({
+            ...[...actions].sort((a, b) => Number(this._bulkDestructive(a)) - Number(this._bulkDestructive(b))).map((item) => ({
                 type: "text", size: this.controlSize ?? undefined, text: item.text, value: item.value,
                 selected: item.value === action, disabled: Boolean(item.disabled),
             })),
         ];
+        // C116: Apply is a regular button in a band of controls (outline
+        // on-surface), never the filled main one; over an action that
+        // deletes it is the outlined danger (status danger: error is the
+        // control's former word, kept by sf-button until 2027-01-01), and
+        // that action is listed last.
+        // A Smart button draws its look once, as class markup over a native
+        // button: a look that changes is a new button in the same place.
+        const danger = this._bulkDestructive(actions.find((item) => item.value === action));
+        if ((parts.apply.dataset.sfBulkDanger === "true") !== danger) {
+            const apply = document.createElement("sf-button");
+            apply.dataset.sfBulk = "apply";
+            apply.dataset.sfBulkDanger = String(danger);
+            apply.setAttribute("appearance", "outline");
+            apply.setAttribute("scheme", "on-surface");
+            if (danger) apply.setAttribute("status", "danger");
+            chosen(apply, "size", this.controlSize);
+            parts.apply.replaceWith(apply);
+            parts.apply = band.querySelector('[data-sf-bulk="apply"]') ?? apply;
+        }
         chosen(parts.apply, "text", pagination.actionApplyText);
         chosen(parts.apply, "disabled", !action);
         chosen(parts["for-all"], "label", forAllLabel);
@@ -1640,6 +1669,15 @@ class SfDataView extends DataViewElement {
         chosen(parts.clear, "aria-label", pagination.clearSelectionLabel);
 
         return this;
+    }
+
+    // The rule SIMAI Framework sf-pagination 1.6.0 reads for its own band
+    // (isDestructiveAction, smart/pagination/js/actions.js): the action's
+    // danger flag ({danger: true}, or "delete:Delete::danger" once the
+    // pagination parses it) or a value that deletes. Kept here until the pair
+    // this set is pinned to carries that module.
+    _bulkDestructive(item) {
+        return Boolean(item) && (item.danger === true || /^(delete|remove|destroy|trash)\b/iu.test(String(item.value ?? item.id ?? "")));
     }
 
     // Apply is the band's only write, and it goes the same way it went from the

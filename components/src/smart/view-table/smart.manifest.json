@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.18.3",
+  "version": "1.19.5",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -95,6 +95,7 @@
         "error-text",
         "retry-text",
         "toolbar",
+        "stripes",
         "pin-column-label",
         "unpin-column-label",
         "column-move-label",
@@ -316,6 +317,11 @@
         "default": true,
         "description": "Show the built-in toolbar; a composite can provide its own toolbar slot."
       },
+      "stripes": {
+        "type": "boolean",
+        "default": false,
+        "description": "Alternate rows (zebra), the report author's choice for a wide table that is only read (owner decision C146 (4)). A person's view no longer offers it; lines between the rows and the hovered and selected row's fill are the table's own."
+      },
       "pin-column-label": {
         "type": "string",
         "description": "Accessible name and tooltip of the control that pins a column."
@@ -351,8 +357,8 @@
       },
       "layout": {
         "type": "string",
-        "default": "table",
-        "description": "How the records are drawn: a table, a compact list of records, or auto -- a table while the table's container is at least list-below pixels wide, the list below that. sf-view asks for auto on a page's list. With layout-switch, the person's choice comes first.",
+        "default": "auto",
+        "description": "How the records are drawn: a table, a compact list of records, or auto (the default since 1.19.0, owner decisions C31 and C146) -- a table while the table's container is at least list-below pixels wide, the list below that. `table` keeps a table at every width; in a narrow box it scrolls sideways with its first column standing still (C146 (9)). With layout-switch, the person's choice comes first.",
         "enum": [
           "auto",
           "table",
@@ -2731,11 +2737,55 @@
       },
       {
         "from": "1.18.1",
-        "to": "1.18.3",
+        "to": "1.18.2",
         "changes": [
-          "ui-pro's copy of the view release view-9eff67bbf11f (view 1.7.1), rebuilt over SIMAI Framework ui-141822273efe (ui-source f92aeee7, core.runtime 1.56.0): the Framework code it builds in moved -- option-badge (C140 (2), BG-7) draws a hex option colour in the nearest static palette hue at the fill step 24 and takes a palette hue by name, and sf-pagination 1.5 (C97) says the total as the page's range. 1.18.2 is held by unreleased simai/ui-view branches. Nothing to change for a host.",
-          "The published box follows density for a written size too (owner decision C79, 2026-11-11, changing the C22 reading of view 1.6.1): a size=\"1/2\" table on a compact desktop page draws the compact ladder (36 with the box and menu), and the -1/2 names said the normal 40; the rule that moved them a rung up on a compact page is gone, so --sf-table-*-1/2 and -1 are the tables of the density of the element they are read on, a data-sf-density=\"normal\" region included.",
-          "The windows' footer stands on the menu's own inset (SIMAI Framework C105 H4, C106): the table zeroed the menu's inline content padding, from which the head, the top and the footer take their margin (the padding less the border), so the footer stood 1px outside the panel's padding edge and its buttons 11px from it while the search and the rows stood at the panel inset plus the item inset, 15 (16 from the outer edge, where the Framework's panel rows put their text). The inline padding is the menu's again and the window's blocks start on one axis."
+          "Rows name their fill to SIMAI Framework core mix sf-place-fill (C43 D3, D4): a hovered, selected, open and selected-and-hovered row, in the table and in the phone list, declares --sf-surface-underlay as the row's own opaque base (--sf-table-row--background-color, else --sf-surface-page) and --sf-surface-place-fill as the tint it paints. A tonal badge on the row lays its tone over the base, and an anchored badge's ring takes the row's tint over the place, where it cut the hovered row's tint out to the bare place colour. Selected and open rows took the place's solid colour as the underlay; they take the row's base now, which is what is under their tint. On a pair without the roles the lines do nothing.",
+          "The busy overlay's spinner carries its words as label with label-hidden (owner decision C138; SP-06 of the skeleton and spinner study) instead of an empty label and an aria-label, so the spinner keeps one name mechanism and the status region says the words once. label-hidden ships with sf-spinner 1.4.0 in the next SIMAI Framework pair; on an older pair the attribute is ignored and the words show beside the spinner, so this version is released over a pair with sf-spinner 1.4.0.",
+          "A list empty only because of its filters says so by its glyph (owner decision C120 (3)): the nothing-found brick draws filter_alt_off (sf-empty-state icon); found nothing by a search, or by a search and filters, keeps the brick's own search_off."
+        ]
+      },
+      {
+        "from": "1.18.2",
+        "to": "1.19.0",
+        "changes": [
+          "A row's text starts where the SIMAI Framework table now puts it: the published --sf-table--row-text-inset is the cell spacing plus --sf-space-1 (16 at 1440, 12 under compact density and on a phone), the edge inset a list row has, which the table classes give the first cell from utility.table 1.3.0 (ui-source fix/table-classes-g4, C77, C105 H6); it was the cell spacing plus --sf-a8, the 8 every cell had. sf-view-properties pulls a related list out by this number, so the list's row text stays on the field-label axis (with the old number it would stand 8, 4 compact, off it). Needs the SIMAI Framework pair with utility.table 1.3.0; over an older pair a related list stands 8 (4) left of the labels. Made in ui-pro first (fix/pro-g4 as 1.17.3, 2026-11-14) and taken here. Nothing to change for a host.",
+          "The table of owner decision C146 (prototypes/table-study.html, research TB rows). (1) A row is a control of its step: 40 at 1, 32 at 1/2 and under compact density, a row with a second line 48 (40 compact); the head row is as tall as the rows. (2) The head is quiet: medium weight, --sf-on-surface-variant, no fill of its own beyond the surface, one line under it. (3) A number column (integer, number, money, percent) is end-aligned, its digits tabular, never wrapped; its sort mark stands before the label. (4) Lines between rows, the hovered and the selected row's fill; alternate rows only when the report author writes stripes (new boolean setting, default false) -- the person's «Вид» no longer offers stripes, and a stored stripes preference is ignored.",
+          "(5) Row actions, variant В (owner remark R239): the row menu «≡» at the start of the row after the box, named «Действия: <name>», holds every action of the row; the hover-only «Действия» column is gone; the main field -- the title column, else the first data column with a plain value -- is the link that opens the record (a real href opens in a new tab or with the middle button); the right button on a row opens the same menu (Shift+right button and the right button on a link keep the browser's), and so do Shift+F10 and the menu key; on a selected row that menu acts on every selected row (headed «Выбрано N», the actions they share), a row outside the selection becomes the selection first, and «Удалить» comes last after a divider (C164). The column-settings gear stays in the «≡» column's head. Bulk action buttons are regular (outline on-surface, C116), the one that deletes the outlined danger and last; a checked row box draws its tick (the box markup had no glyph). A cell's sf-badge is tonal (C140) unless the host asks for outline. (6) The sort mark shows only on the sorted column, arrow_upward or arrow_downward. (7) A title runs to two lines and ends in an ellipsis; a clipped title carries the whole text in a SIMAI Framework tooltip. (8) A table with actions is a grid (role grid): one Tab stop, the arrows move between the controls of a row and between rows, Home/End and Ctrl+Home/End, Shift+F10 or the menu key opens the row's «≡»; the column-resize edges are no Tab stops (resizer study RS-10), a width is set by the pointer. (9) layout defaults to auto (TB-11): below list-below the records are the list; a plain table (layout table) on a narrow screen scrolls in its frame with its first column standing still -- the title column, else the first data column. The empty state stands in the visible part of the frame on a phone (TB-12). Hosts: a host that relied on the stripes preference sets the stripes attribute; a host that read the «Действия» column (key actions) reads the «≡» menu."
+        ]
+      },
+      {
+        "from": "1.19.0",
+        "to": "1.19.1",
+        "changes": [
+          "Every menu of the table is on the table's step (owner remark 2026-11-15, recipe-list-toolbar): the row menu (data-sf-table-menu=\"row\"), which lives on <body> or in the open dialog, had no size and fell back to the menu's own 1/2 (32 px rows, 14 px text) beside a table of size 1 (rows 48, text 16). On every opening it now takes the table's resolved size (the size attribute, else the default 1) and the density of the table's area (data-sf-density, core followDensity); the menus the table draws itself (settings, filters, sort, create, tags, toolbar actions, template actions) take the resolved size too, where they took it only from a written attribute. Size 1 is 40 px rows and 16 px text (32 and 14 under compact density), 1/2 is 32 and 14 (28 compact). Works on the released pair ui-7fb26d395af2; SIMAI Framework fix/menu-opener-size makes every menu without a size follow its opener as well. Nothing to change for a host."
+        ]
+      },
+      {
+        "from": "1.19.1",
+        "to": "1.19.2",
+        "changes": [
+          "The view's actions button in the toolbar and a filter template's actions button draw ⋯ (more_horiz), not ⋮ (more_vert): owner decision C155 (2), defect TL-1 of the ui-pro admin set (K-1). A right click on a row opens the row's menu at the pointer, its corner at the point (C164 (1), ui-control research 2026-11-14-context-menu CM-1; sf-menu-context's point anchor, a fixed box of no size removed when the menu closes); it opened under the row's ≡ button. The keys still open it at that button. The list's rows (layout list, the narrow table) get the same: a right click, the context-menu key and Shift+F10 open the list their own button opens -- the ≡ of a plain list every action, the ⋯ of a list with quick actions what the row does not show (all of them while a narrow list folds the quick ones away); before, only the button opened it. A link, a field and Shift with the right button keep the browser's menu, as in the table. Nothing to change for a host."
+        ]
+      },
+      {
+        "from": "1.19.2",
+        "to": "1.19.3",
+        "changes": [
+          "A list row's context menu follows the table's selection rule (C164 (3), dispatcher decision: one behaviour for both layouts): a right click, the context-menu key or Shift+F10 on a selected list row opens the menu over the whole selection -- the «Выбрано N» heading and only the actions every selected row offers, a choice acting on all of them -- and on a row outside the selection that row becomes the selection first, as in the table. Before, the list opened the row's own button list and left the selection as it was. With one row (alone or the only selected) the list keeps its own button's list (C164 (2)): the ≡ of a plain list every action, the ⋯ of a list with quick actions what the row does not show. Table and list go through one path (openRowContextMenu over rowMenuTargets); a second opening while the first waits for the redraw of a new selection is ignored in both. Nothing to change for a host."
+        ]
+      },
+      {
+        "from": "1.19.3",
+        "to": "1.19.4",
+        "changes": [
+          "Over the SIMAI Framework pair ui-141822273efe a size 1/2 table is 32 again (28 compact, 28 on a phone): the row holds the step and its cells follow it. The Framework's class table puts the step-1 control height on every cell since utility.table 1.4.0 (C146 (1)), which held every size 1/2 row and the head at 40 (36 on a phone) and the published --sf-table-row-block-size-1/2 and --sf-table-head-block-size-1/2 no longer were the rows drawn. Size 1 is unchanged. The toolbar holds its own gaps (12 between its groups, 8 inside them, the steps its gap-1/2 and gap-1/3 classes name): the class sheet is a utility the Loader fetches when it sees the class, and a table drawn before its sheets moved its search field by 12 px (16 in the list toolbar) when it came. Nothing to change for a host."
+        ]
+      },
+      {
+        "from": "1.19.4",
+        "to": "1.19.5",
+        "changes": [
+          "The printed first paint and the drawn table lay the columns out by one rule (standard 1.3.8 gate 24): every data column at its content width on one line, the last data column nobody sized taking the spare room, the select, settings and actions columns at their declared widths. The unmeasured content-sized table had shared the spare room between every column and drew the select column as wide as its box's label wanted (50 against 42), and the measured widths were rounded up to the 4px grid with a pixel to spare, so every printed cell moved when the code measured (typed-cells: CLS 0.035 at 1280, 0.041 at 1440, 0.002 at 390). The measured width is now the content's own (the printed first paint carries no measured width, §5.4, and is laid out in the page's own face); the spare-room column is marked in the markup (data-sf-spare-room on its col); a table with rows is content-sized from its first render, where it was drawn for a frame as a fixed table as wide as its content; a content-sized table takes no column floor (the spare-room column stood at 160 on a phone, wider than its content). The column window's footer stands on the menu's own inset (SIMAI Framework C105 H4, C106): the table zeroed sf-menu-context's inline content padding, from which the head, the top and the footer take their margin, so the footer's buttons stood 11 from the panel's padding edge while the search and the rows stood at 15 (the plates' inset 3 plus the item inset 12, where the Framework's panel rows put their text); the window's blocks now start on one axis. Nothing to change for a host."
         ]
       }
     ]
@@ -2746,15 +2796,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-table/index.js",
-        "sha256": "bd7ceb437538368b9a059de32d74163abc56cdf95b7bff6fc491098014752b8a"
+        "sha256": "f193a7a87fb7cd5e4cfb8508c1cb75481b62aa325c620fb60fa429ef88d867b1"
       },
       {
         "path": "src/smart/view-table/js/templates/default.js",
-        "sha256": "bd71a4cac9bde3bdb1c1087e149d7ea6499f32c2f87866076c65eea66dc091ce"
+        "sha256": "9b5f1cb22a69c6c7336f50a7df1370008736188c9172d061691e22c664a865c7"
       },
       {
         "path": "src/smart/view-table/js/templates/default.css",
-        "sha256": "16991ed40032e88985669f13c16b8397225672aadd4174fdaad670f940ef8199"
+        "sha256": "89fcf270055a65d0ac74904b76e4c0575878b12b11bff726c4e813da5d4fba22"
       },
       {
         "path": "src/smart/helpers/option-badge.js",

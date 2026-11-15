@@ -106,8 +106,9 @@ try {
     window.SF.language.registerAll('tr', {
       'sf-view-table': {filterText: 'Filtre', createText: 'Oluştur'},
       // sf-pagination says its words by their kebab keys since it is made from
-      // its component.json (SIMAI Framework standard 1.3.8 §11). Since 1.5
-      // (C97) it says the total as the page's range, the word range.
+      // its component.json (SIMAI Framework standard 1.3.8 §11). Since
+      // sf-pagination 1.5.0 (C97 point 2) its footer says the range line
+      // «1–1 из 1», not «Всего: 1».
       'sf-pagination': {range: '{from}–{to} / toplam {total}'},
     });
     window.SF.language.use('tr');

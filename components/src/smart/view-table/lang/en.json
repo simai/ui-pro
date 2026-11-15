@@ -135,6 +135,7 @@
     "view-reset": "Reset the view",
     "view-single-line": "Text on one line",
     "view-sticky-head": "Keep the filter and the head in view",
-    "view-stripes": "Alternate rows"
+    "view-stripes": "Alternate rows",
+    "selected-rows-heading": "Selected"
   }
 }

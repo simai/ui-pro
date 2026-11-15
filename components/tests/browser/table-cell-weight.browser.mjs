@@ -75,19 +75,18 @@ try {
       avatars: body.querySelectorAll('.sf-avatar').length, cell: box(badge), alone: box(ref)};
   });
   if (weight.elements !== 0 || !weight.badges || !weight.tags || !weight.avatars) note({case: 'shown values are markup, not elements', got: weight});
-  // The row's buttons are in the row a person is on, and follow the pointer.
-  const actions = async () => page.evaluate(() => [...document.querySelectorAll('#t tbody tr[data-row-id]')]
-    .filter((row) => row.querySelector('td[data-key="actions"] sf-button-icon, td[data-key="actions"] .sf-icon-button')).map((row) => row.dataset.rowId));
-  const idle = await actions();
+  // Variant В (C146 (5), R239): no row draws hover-only buttons; every row
+  // carries its one ≡ menu, and the pointer changes no row's buttons.
+  const buttons = async () => page.evaluate(() => [...document.querySelectorAll('#t tbody tr[data-row-id]')]
+    .map((row) => row.querySelectorAll('button, sf-button-icon').length).join(','));
+  const menus = await page.evaluate(() => [...document.querySelectorAll('#t tbody tr[data-row-id]')]
+    .every((row) => row.querySelectorAll('[data-sf-row-menu]').length === 1));
+  const idle = await buttons();
   await page.hover('#t tbody tr[data-row-id]:nth-child(3) td[data-key="name"]');
   await page.waitForTimeout(250);
-  const hovered = await actions();
-  await page.hover('#t tbody tr[data-row-id]:nth-child(5) td[data-key="name"]');
-  await page.waitForTimeout(250);
-  const moved = await actions();
-  if (idle.length > 1 || hovered.length !== 1 || moved.length !== 1 || hovered[0] === moved[0]) {
-    note({case: "a row's buttons are in the row a person is on", got: {idle, hovered, moved}});
-  }
+  const hovered = await buttons();
+  const actionCells = await page.locator('#t td[data-key="actions"], #t th[data-key="actions"]').count();
+  if (!menus || idle !== hovered || actionCells) note({case: 'every row has its ≡ and the pointer draws no buttons', got: {menus, idle, hovered, actionCells}});
   // A sort: no more than two renders of the table.
   const renders = await page.evaluate(async () => {
     const table = document.getElementById('t');

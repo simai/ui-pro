@@ -135,6 +135,7 @@
     "view-reset": "Сбросить вид",
     "view-single-line": "Текст в одну строку",
     "view-sticky-head": "Закреплять фильтр и шапку",
-    "view-stripes": "Чередовать строки"
+    "view-stripes": "Чередовать строки",
+    "selected-rows-heading": "Выбрано"
   }
 }

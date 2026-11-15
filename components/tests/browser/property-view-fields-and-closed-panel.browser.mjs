@@ -128,23 +128,22 @@ try {
   const own = await page.evaluate(() => document.querySelector('#formatted [data-field="birthday"] .sf-field-view')?.textContent.trim());
   if (own !== 'по-своему') note(`the host's formatFieldValue lost to the set: «${own}»`);
 
-  // The colour stays inside its half of the row. Since sf-input-color 1.7.0
-  // (owner decision C83, 2026-11-12) the field is one control of the ladder - a
-  // swatch, the value and a chevron - and the palette lives in the window it
-  // opens, so the field draws one trigger and hands the six swatches to the control.
+  // The colour field stays inside its half of the row. Since sf-input-color
+  // 1.7.0 (C83, CO-03; the pair ui-141822273efe) the product colours are the
+  // swatches of the field's window, not a row of presets beside the chip: the
+  // row holds the frame alone.
   const colour = await page.evaluate(() => {
     const field = document.querySelector('#edit [data-field="tag"]');
     const beside = document.querySelector('#edit [data-field="workday"]') ?? document.querySelector('#edit [data-field="brand"]');
     const box = field.getBoundingClientRect();
-    const control = field.querySelector('sf-input-color');
-    const triggers = [...field.querySelectorAll('.sf-color-trigger')].map((one) => one.getBoundingClientRect());
-    return {right: box.right, triggers: triggers.length, swatches: control?.swatchList?.length ?? 0,
-      furthest: Math.max(...triggers.map((one) => one.right)),
+    const presets = [...field.querySelectorAll('.sf-color-preset')].map((preset) => preset.getBoundingClientRect());
+    const frame = field.querySelector('.sf-color-frame')?.getBoundingClientRect();
+    return {right: box.right, presets: presets.length, furthest: frame ? frame.right : null,
       besideLeft: beside.getBoundingClientRect().left, fieldLeft: box.left};
   });
-  if (colour.triggers !== 1) note(`the colour field draws ${colour.triggers} triggers, not one`);
-  if (colour.swatches !== 6) note(`the colour control holds ${colour.swatches} swatches, not 6`);
-  if (colour.furthest > colour.right + 1) note(`the colour trigger ends at ${colour.furthest}px, past its field at ${colour.right}px`);
+  if (colour.presets !== 0) note(`the row draws ${colour.presets} presets beside the chip; they belong to the window (C83)`);
+  if (colour.furthest === null) note('the colour field draws no frame');
+  else if (colour.furthest > colour.right + 1) note(`the colour frame ends at ${colour.furthest}px, past its field at ${colour.right}px`);
 
   // One control for a datetime and one for a time.
   const editors = await page.evaluate(() => ({

@@ -45,7 +45,9 @@ test('a size of 1 becomes the host\'s size, or none without one; a size of its o
 test('the table writes its step on what it draws and its rows follow', () => {
   assert.doesNotMatch(template, /\bsize="1"/u, 'no control in the template is fixed at 1');
   assert.doesNotMatch(table, /\bsize="1"/u, 'no control in the menus is fixed at 1');
-  assert.match(css, /:is\(sf-view-table, sf-table\)\[size="1\/2"\][^{]*\{\s*padding-block: var\(--sf-ui-1\\\/2--space-y\);/u);
+  // A row is a control of its step (owner decision C146 (1)): 40 at 1, 32 at
+  // 1/2, the head as tall as the rows.
+  assert.match(css, /:is\(sf-view-table, sf-table\)\[size="1\/2"\] > \* \.table > :is\(thead, tbody\) > tr \{\s*block-size: var\(--sf-ui-1\\\/2--control-height\);/u);
 });
 
 test('the data view hands its own size to the table, the page row and the band, and none without one', () => {

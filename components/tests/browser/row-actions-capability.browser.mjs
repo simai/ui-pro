@@ -10,6 +10,9 @@
 // nothing would ever explain. The same rule the saved-view controls already
 // follow: claimed, or not shown (found on the admin polygon by turning the
 // capability off, 2026-10-10).
+//
+// Variant В (C146 (5), R239): there is no «Действия» column; a row's actions
+// live in its leading ≡ menu, so the claim is read off the ≡ and the name link.
 import {resolve, join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {chromium} from 'playwright';
@@ -76,7 +79,8 @@ const measure = async (capabilities) => {
     const row = document.querySelector('#list tbody tr');
     return {
       columns: [...document.querySelectorAll('#list thead th')].map((th) => th.dataset.key),
-      controlsInLastCell: [...row.querySelectorAll('td')].pop()?.querySelectorAll('button').length ?? 0,
+      rowMenus: row.querySelectorAll('[data-sf-row-menu] button, button[data-sf-row-menu]').length,
+      nameLink: Boolean(row.querySelector('td a[href]')),
     };
   });
   await page.close();
@@ -87,17 +91,17 @@ try {
   const claimed = await measure(['row-actions']);
   const unclaimed = await measure([]);
 
-  if (!claimed.columns.includes('actions')) {
-    failures.push({said: 'the host claims row-actions and the list offers none', claimed});
+  for (const [said, got] of [['claimed', claimed], ['unclaimed', unclaimed]]) {
+    if (got.columns.includes('actions')) failures.push({said: `${said}: variant В draws no «Действия» column`, got});
   }
-  if (!(claimed.controlsInLastCell > 0)) {
-    failures.push({said: 'the host claims row-actions and the row draws no control', claimed});
+  if (claimed.rowMenus !== 1) {
+    failures.push({said: 'the host claims row-actions and the row draws no ≡ menu', claimed});
   }
-  if (unclaimed.columns.includes('actions')) {
-    failures.push({said: 'the host claims no row-actions and the list draws the actions column anyway', unclaimed});
+  if (!claimed.nameLink) {
+    failures.push({said: 'the host claims row-actions with view and the name is no link', claimed});
   }
-  if (unclaimed.controlsInLastCell > 0) {
-    failures.push({said: 'the host claims no row-actions and the row still draws controls', unclaimed});
+  if (unclaimed.rowMenus > 0) {
+    failures.push({said: 'the host claims no row-actions and the row still draws a ≡ menu', unclaimed});
   }
 
   console.log(JSON.stringify({

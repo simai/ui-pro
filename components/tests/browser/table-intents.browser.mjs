@@ -114,11 +114,12 @@ for (const theme of ['light', 'dark']) for (const dir of ['ltr', 'rtl']) {
   check(loading.state === 'loading' && loading.busy === 'true', `${tag}: a loading region says so`, loading);
   await page.evaluate(() => document.getElementById('second').setDataState('auto'));
 
-  // 6. The actions column is a system column: no resizer, not in settings.
+  // 6. Variant В (C146 (5), R239): no «Действия» column at all -- no head, no
+  // resizer, never in saved settings; the row's actions are in its ≡.
   check(await page.locator('#table--column-resizer--actions').count() === 0, `${tag}: actions column has no resizer`);
   const settings = await events('sf-table-column-settings-change');
   check(settings.every((detail) => !Object.hasOwn(detail.columnSettings || {}, 'actions')), `${tag}: actions width never saved`, settings);
-  check(await page.locator('sf-view-table#table th').last().getAttribute('data-key') === 'actions', `${tag}: actions stays last`);
+  check(await page.locator('sf-view-table#table th[data-key="actions"]').count() === 0, `${tag}: no «Действия» column`);
 
   // 5. Badge options in the filter menu.
   await page.locator('sf-view-table#table sf-button').filter({ hasText: 'Фильтр' }).locator('button').click();

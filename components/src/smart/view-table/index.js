@@ -18,6 +18,7 @@ import {setLoaderDragState} from "../helpers/loaderDragState";
 import BundledPosition from "../../core/js/position.js";
 import {holdOpenSurfaceMark} from "../../core/js/open-surface-mark.js";
 import {layerZIndex} from "../../core/js/layer-stack.js";
+import {followDensity} from "../../core/js/density.js";
 import BundledPreferences from "../../core/js/preferences.js";
 
 // Sized for what they hold rather than for reading, so they take no floor.
@@ -47,6 +48,30 @@ const TABLE_VIEW_DEFAULTS = Object.freeze({density: "normal", stripes: false, li
 
 // The nearest box that scrolls vertically above an element, across shadow
 // roots; null when it is the page.
+// Where a right click was, as a menu anchor (C164 (1); ui-control research
+// 2026-11-14-context-menu, CM-1): a fixed box of no size at the pointer.
+// sf-menu-context reads such an anchor as a point (1.18.0): the menu's corner
+// is the point, and the focus goes back to the control under it. The table
+// removes it when the menu closes.
+function menuPointAt({x, y}) {
+    const point = document.createElement("span");
+    point.dataset.sfTableMenuPoint = "";
+    point.style.cssText = `position: fixed; left: ${x}px; top: ${y}px; inline-size: 0; block-size: 0`;
+    document.body.append(point);
+    return point;
+}
+
+// A list row's own menu button: «≡» of a plain list, «⋯» of a list with
+// quick actions.
+const LIST_ROW_MENU_BUTTON = "[data-sf-row-menu], .sf-table-list-menu button";
+
+// The context-menu key and Shift+F10 (C164 (1), C184 (5)).
+const isMenuKey = (event) => event?.key === "ContextMenu" || (event?.key === "F10" && event?.shiftKey === true);
+
+// A target that keeps the browser's own menu: a link (open in a new tab) and
+// a field a person types in.
+const keepsBrowserMenu = (target) => Boolean(target?.closest?.("a[href], input, textarea, select, [contenteditable]"));
+
 function verticalScroller(element) {
     for (let node = element; node; node = node.parentElement ?? node.getRootNode?.()?.host ?? null) {
         if (node === document.body || node === document.documentElement) return null;
@@ -72,6 +97,9 @@ const SYSTEM_COLUMN_KEYS = new Set(["select", "settings", "actions"]);
 // status value and a fact's status mean there.
 const LIST_ROLES = new Set(["status", "title", "supporting", "fact", "hidden"]);
 const MAX_QUICK_ACTIONS = 3;
+// The column types whose values are numbers (C146 (3)): end-aligned, digits of
+// one width, never wrapped.
+const NUMBER_TYPES = new Set(["integer", "number", "money", "percent"]);
 const STATUS_DOTS = Object.freeze({
     ok: "success", warning: "warning", error: "error", stopped: "neutral",
     success: "success", danger: "error", neutral: "neutral", info: "info", primary: "primary",
@@ -137,14 +165,15 @@ function cellValueBox(item) {
 // follow once through the dated aliases (aliases.json). The table's own props
 // below keep their parsers and defaults; what they do not name is the
 // manifest's.
-// A column's content width, a pixel to spare and rounded up to the 4px grid.
-// The page's text face is font-display: optional, so one page sets a value in
-// Inter and the next -- or the server's printed first paint, measured on
-// another page -- in its metric fallback, a pixel or two apart: a column
-// measured to the pixel in one wrapped the same value in the other, and the
-// row grew by a line when the code took over (standard 1.3.8 gate 24).
+// A column's content width, as the laid-out table gives it. It is no longer
+// rounded up to the 4px grid with a pixel to spare: the printed first paint
+// carries no measured width (standard 1.3.9 §5.4) and lays the same columns
+// out by their content in the page's own face (default.css, the unmeasured
+// content-sized table), so a rounded width moved every printed cell a few
+// pixels when the code measured (gate 24, typed-cells: CLS 0.035 at 1280).
+// A face that comes later measures again (the fonts' loadingdone).
 function contentStep(width) {
-    return Math.ceil((Math.ceil(width) + 1) / 4) * 4;
+    return Math.ceil(width * 64) / 64;
 }
 
 const TableElement = elementFromManifest(manifest, {
@@ -194,7 +223,12 @@ class SfTable extends TableElement {
             // `table` and `list` hold one of them whatever the width (owner,
             // 2026-10-12: one mobile view, the compact list). A table is a table
             // unless asked: sf-view asks for auto on a page's list.
-            layout: {default: 'table', values: ['auto', 'table', 'list']},
+            // Auto by default since 1.19.0 (owner decisions C31, C146; TB-11 of
+            // the table study): a table alone on a phone stayed a table, wider
+            // than the screen, with the box and the menu covering the title.
+            // `table` keeps a table at every width; then a narrow box scrolls
+            // it sideways with the first column standing still (C146 (9)).
+            layout: {default: 'auto', values: ['auto', 'table', 'list']},
             listBelow: {attribute: 'list-below', type: Number, default: 600},
             // How many fields a record shows under its title in the list, chosen
             // by the columns' priority (lower first).
@@ -213,6 +247,11 @@ class SfTable extends TableElement {
             // views; below list-below there is only the list and no switch.
             layoutSwitch: {attribute: 'layout-switch', type: Boolean, default: false},
             toolbar: {type: Boolean, default: true},
+            // Alternate rows (zebra), the report author's choice for a wide
+            // table that is only read (owner decision C146 (4)); a person's view
+            // no longer offers it. Lines between the rows, the hovered and the
+            // selected row's fill are the table's own.
+            stripes: {type: Boolean, default: false},
             settings: {type: Boolean, default: true},
             pagin: {type: Boolean, default: false},
             actions: {type: Boolean, default: true},
@@ -419,6 +458,7 @@ class SfTable extends TableElement {
                     // delete in a host catalogue only to restore the red row is
                     // no longer the price of leaving it to the kit (Larena
                     // storage QA, 2026-10-22). The icon in the actions column
+                    // (gone with variant В, C146 (5); kept for list rows)
                     // says the same with `status: 'error'` (decided 2026-10-23,
                     // control/VISUAL-DECISIONS.md «Разрушительное действие
                     // строкой»): one act must not look like two on the two
@@ -847,8 +887,14 @@ class SfTable extends TableElement {
     renderBulkActions() {
         if (!this.state.bulkActions?.length) return nothing;
         const selected = this.getSelectedRecordIds();
+        // C116: a bulk action is a regular button (outline on-surface); one
+        // that deletes opens a confirmation, so it is the outlined danger and
+        // stands last (C164 (5)). None is the filled main button.
+        const destructive = (action) => /^(delete|remove|destroy|trash)\b/iu.test(String(action.id));
+        const ordered = [...this.state.bulkActions].sort((a, b) => Number(destructive(a)) - Number(destructive(b)));
         return html`<div class="flex flex-wrap gap-1/3">
-            ${this.state.bulkActions.map((action) => html`<sf-button
+            ${ordered.map((action) => html`<sf-button
+                appearance="outline" scheme="on-surface" status=${destructive(action) ? "error" : nothing}
                 text=${action.name} ?disabled=${selected.length === 0}
                 @click=${() => {
                     const ids = this.getSelectedRecordIds();
@@ -950,7 +996,7 @@ class SfTable extends TableElement {
         };
         return html`
             <sf-menu-context
-                    size=${this.controlSize ?? nothing}
+                    size=${this.menuSize}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'toolbar-actions'})}
                     style="
@@ -998,7 +1044,7 @@ class SfTable extends TableElement {
         ];
         return html`
             <sf-menu-context
-                    size=${this.controlSize ?? nothing}
+                    size=${this.menuSize}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'list-sort'})}
                     style="
@@ -1025,7 +1071,7 @@ class SfTable extends TableElement {
         };
         return html`
             <sf-menu-context
-                    size=${this.controlSize ?? nothing}
+                    size=${this.menuSize}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'create'})}
                     style="
@@ -1614,9 +1660,18 @@ class SfTable extends TableElement {
     }
 
     handleRowKeydown(event, row) {
+        // A list row's menu from the keyboard (C164 (1)): the context-menu
+        // key and Shift+F10 on the row or a control in it, not in a field.
+        // The table's rows have theirs in handleGridKeydown.
+        if (this.isList && isMenuKey(event) && !keepsBrowserMenu(event?.target)
+            && event?.currentTarget?.matches?.("li.sf-table-list-item[data-row-id]")) {
+            if (this.openListRowMenu(event.currentTarget)) event.preventDefault?.();
+            return this;
+        }
         // In the list the row's title link is its tab stop: the arrows, Home
         // and End move from it as from the row.
-        const fromTitle = event?.target !== event?.currentTarget
+        // In the table the grid walks from a control (C146 (8)).
+        const fromTitle = this.isList && event?.target !== event?.currentTarget
             && event?.target?.matches?.(".sf-table-title-link")
             && ["ArrowDown", "ArrowUp", "Home", "End"].includes(event?.key);
         if (event?.target !== event?.currentTarget && !fromTitle) return this;
@@ -1753,6 +1808,19 @@ class SfTable extends TableElement {
 
     onConnected() {
         super.onConnected();
+        // A right click on a list row (C164 (1)(2)); a table's rows are
+        // heard by the grid (bindGridKeys).
+        if (!this._listContextMenu) {
+            this._listContextMenu = (event) => {
+                if (event.defaultPrevented || event.shiftKey || !this.isList) return;
+                const target = event.target instanceof Element ? event.target : null;
+                if (!target || keepsBrowserMenu(target)) return;
+                const item = target.closest("li.sf-table-list-item[data-row-id]");
+                if (!item || !this.contains(item)) return;
+                if (this.openListRowMenu(item, {x: event.clientX, y: event.clientY})) event.preventDefault();
+            };
+            this.addEventListener("contextmenu", this._listContextMenu);
+        }
         // The content widths are read once the rows are drawn, and a font or
         // a component's stylesheet that arrives after that makes the same
         // content wider: columns measured before it stayed narrow and their
@@ -2873,6 +2941,19 @@ class SfTable extends TableElement {
         return {text, level: FACT_LEVELS[status] ?? 0, status: FACT_LEVELS[status] ? status : "", tip: String(props?.tip ?? props?.title ?? option?.tip ?? "")};
     }
 
+    // The id of the table's shared name tooltip (C146 (7)).
+    tipId(key) {
+        return `${this.getInstanceId()}--tip--${String(key).replace(/[^\w-]+/gu, "-")}`;
+    }
+
+    // Whether a column holds numbers (C146 (3)): its type, or the host's
+    // own word for it (align: end).
+    isNumberColumn(column) {
+        if (!column?.key || column.system) return false;
+        if (column.align === "end" || column.numeric === true) return true;
+        return NUMBER_TYPES.has(column.propertyType ?? column.property_type ?? column.type);
+    }
+
     get actionsColumnWidth() {
         const inline = (this.ACTIONS_SETTINGS_ROW ?? []).filter((action) => action?.inline !== false).length;
         if (!inline) return "";
@@ -2958,7 +3039,7 @@ class SfTable extends TableElement {
         this.remeasureWhenDrawn(table);
         const previous = this._contentWidths ?? new Map();
         const changed = measured.size !== previous.size
-            || [...measured].some(([key, width]) => Math.abs((previous.get(key) ?? 0) - width) > 2);
+            || [...measured].some(([key, width]) => Math.abs((previous.get(key) ?? 0) - width) > 0.01);
         if (changed) this._contentWidths = measured;
         return changed || surplusChanged || contentChanged;
     }
@@ -3121,8 +3202,8 @@ class SfTable extends TableElement {
                 else col.removeAttribute('style');
             }
         });
-        table.classList.toggle('sf-table-content-sized', this.hasContentWidths);
-        table.classList.toggle('w-max', !this.hasContentWidths);
+        table.classList.toggle('sf-table-content-sized', this.contentSized);
+        table.classList.toggle('w-max', !this.contentSized);
         if (this.hasContentWidths && this._contentInlineSize) table.style.setProperty('--sf-table--content-inline-size', `${this._contentInlineSize}px`);
         else table.style.removeProperty('--sf-table--content-inline-size');
     }
@@ -3152,6 +3233,16 @@ class SfTable extends TableElement {
 
     get hasContentWidths() {
         return Boolean(this._contentWidths?.size);
+    }
+
+    // Content-sized from the first render with rows, before the widths are
+    // measured: the table is laid out by its content (default.css, the
+    // unmeasured content-sized table), as its printed first paint is, until
+    // the measured widths come. Drawn as wide as its content with a fixed
+    // layout instead, the first render shared the room between every column
+    // for a frame and the printed cells moved twice (gate 24, typed-cells).
+    get contentSized() {
+        return this.hasContentWidths || (this.getTableData?.()?.rows?.length ?? 0) > 0;
     }
 
     // Reads that write nothing in between: the cap and the cramped answer are
@@ -3205,11 +3296,17 @@ class SfTable extends TableElement {
         if (props.selectable) {
             columns.push(this.getSelectColumn());
         }
-        if (props.settings && this.settingsColumnHasUse(props)) {
+        // No «Действия» column (owner decision C146 (5), variant В): every
+        // action of a row is in its «≡» menu, which the right button, the
+        // menu key and Shift+F10 open too; opening the record is the main
+        // field's link. The hover-only column of buttons is gone, so the
+        // «≡» column carries the row actions wherever that column stood:
+        // settings="false" (a view whose chrome draws no settings) takes the
+        // gear from its head and keeps the row menus.
+        const rowMenus = Boolean(props.actions && props.rowActions && this.state.actionActive
+            && (this.ACTIONS_SETTINGS_ROW ?? []).length);
+        if ((props.settings && this.settingsColumnHasUse(props)) || rowMenus) {
             columns.push(this.TABLE_SETTINGS_COLUMN);
-        }
-        if (props.actions && props.rowActions && this.state.actionActive) {
-            columns.push(this.TABLE_ACTIONS_COLUMN);
         }
 
         return columns;
@@ -3376,7 +3473,7 @@ class SfTable extends TableElement {
         const template = this.getSelectedFilterTemplate();
         return html`
             <sf-menu-context
-                    size=${this.controlSize ?? nothing}
+                    size=${this.menuSize}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'filter-favorites'})}
                     style="
@@ -3505,7 +3602,7 @@ class SfTable extends TableElement {
         }
         return html`
             <sf-menu-context
-                    size=${this.controlSize ?? nothing}
+                    size=${this.menuSize}
                     :key=${x + y}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'row-settings'})}
                     style="
@@ -4693,7 +4790,7 @@ class SfTable extends TableElement {
                                     data-context-submenu-anchor="${col.key}"
                                     scheme="on-surface"
                                     aria-label=${`${this.text("templateActionsLabel")}: ${col.label}`}
-                                    icon="more_vert"
+                                    icon="more_horiz"
                                     @click=${(event) => {
                                         this.openContextSubmenu(event, {
                                             type: 'filter-template-actions',
@@ -4711,7 +4808,7 @@ class SfTable extends TableElement {
         let contextItems = `${this.text('templatesTabText')}|${this.text('fieldsTabText')}`;
         return html`
             <sf-menu-context
-                    size=${this.controlSize ?? nothing}
+                    size=${this.menuSize}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'filter-settings'})}
                     style="
@@ -4863,7 +4960,7 @@ class SfTable extends TableElement {
         };
         return html`
             <sf-menu-context
-                    size=${this.controlSize ?? nothing}
+                    size=${this.menuSize}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'tag-settings'})}
                     style="
@@ -4998,7 +5095,7 @@ class SfTable extends TableElement {
         // them taught nobody anything.
         return html`
             <sf-menu-context
-                    size=${this.controlSize ?? nothing}
+                    size=${this.menuSize}
                     :key=${x + y + this._renderToken}
                     aria-label=${this.getContextMenuLabel({...data, menu: 'table-settings'})}
                     style="
@@ -5094,7 +5191,6 @@ class SfTable extends TableElement {
                                   @change=${() => this.setTableView({density: value}, {everywhere})}></sf-radio>
                         <span>${this.text(label[value])}</span></label>`)}
                 </div>
-                ${check("stripes", "viewStripes")}
                 ${check("lines", "viewLines")}
                 ${check("singleLine", "viewSingleLine")}
                 ${this.getAttribute("vertical-scroll") === "page" ? check("stickyHead", "viewStickyHead") : nothing}
@@ -5145,7 +5241,7 @@ class SfTable extends TableElement {
         const isDefaultTemplate = (temp || template).default === true;
         return html`
             <sf-menu-context
-                    size=${this.controlSize ?? nothing}
+                    size=${this.menuSize}
                     :key=${`${template.key || ''}-${x}-${y}`}
                     aria-label=${this.getContextMenuLabel({...data, type: 'filter-template-actions'})}
                     style="
@@ -5597,7 +5693,9 @@ class SfTable extends TableElement {
         const flag = (name, on) => (on ? this.setAttribute(name, "") : this.removeAttribute(name));
         if (view.density === "normal") this.removeAttribute("data-sf-view-density");
         else this.setAttribute("data-sf-view-density", view.density);
-        flag("data-sf-view-stripes", view.stripes === true);
+        // Zebra is the author's (C146 (4)): a person's stored choice is no
+        // longer read.
+        flag("data-sf-view-stripes", this.hasAttribute("stripes") && this.getAttribute("stripes") !== "false");
         flag("data-sf-view-lines", view.lines === true);
         flag("data-sf-view-single-line", view.singleLine === true);
         const page = this.getAttribute("vertical-scroll") === "page" && !this.isList;
@@ -6695,6 +6793,11 @@ class SfTable extends TableElement {
     // anything interactive, or a component not defined yet, stays an element.
     renderCellElement(type, props = {}) {
         const tag = canonicalTag(`sf-${String(type ?? "").replace(/^sf-/u, "")}`);
+        // A status or a value in a cell is a tonal badge (owner decision C140
+        // (2), (4); TB-6 of the table study): the host's main, or no
+        // appearance on a pair whose default is still main, draws tonal; an
+        // outline stays an outline.
+        if (tag === "sf-badge" && props.appearance !== "outline") props = {...props, appearance: "tonal"};
         const shown = LIGHT_CELL_TAGS.has(tag)
             && props.interactive !== true && props.closable !== true && props.type !== "checkbox"
             && !Object.keys(props).some((key) => key.startsWith("@") || /^on[A-Z]/u.test(key));
@@ -6740,6 +6843,15 @@ class SfTable extends TableElement {
     get controlSize() {
         const size = this.getAttribute("size");
         return size === "1/2" || size === "1" ? size : null;
+    }
+
+    // Every menu the table opens is on the table's step (owner remark
+    // 2026-11-15): its resolved size -- the attribute, else the default "1" --
+    // as its rows, checkboxes and buttons already are. A menu with no size
+    // fell back to the menu's own default 1/2: a table of size 1 (rows 48,
+    // text 16) opened 32 px rows with 14 px text.
+    get menuSize() {
+        return this.size === "1/2" ? "1/2" : "1";
     }
 
     // A control a column or an action names at size 1 is "this table's
@@ -6871,7 +6983,12 @@ class SfTable extends TableElement {
         const chosen = pending?.pinned ?? setting.pinned ?? column.pinned;
         if (typeof chosen === "boolean") return chosen;
 
-        return column.role === "title";
+        if (column.role === "title") return true;
+        // Without a title, the first data column stands still when the table
+        // scrolls sideways (owner decision C146 (9)): a plain table on a phone
+        // keeps the name of each row in view.
+        const data = (this.getTableData().columns || []).filter((one) => one?.key && !SYSTEM_COLUMN_KEYS.has(one.key) && !one.system);
+        return !data.some((one) => one.role === "title") && data[0]?.key === column.key;
     }
 
     getPinnedColumnKeys(columns = this.getColumns()) {
@@ -6964,6 +7081,20 @@ class SfTable extends TableElement {
     // moving through the column hears each box by the row's first data cell,
     // instead of a run of unnamed checkboxes it cannot tell apart.
     getRowSelectLabel(row) {
+        const text = this.getRowNameText(row);
+        return text ? `${this.text("selectRowLabel")}: ${text}` : this.text("selectRowLabel");
+    }
+
+    // The row's «≡» says whose actions it holds (owner decision C146 (5),
+    // variant В): «Действия: <name>», as the SIMAI Framework table recipe
+    // names it (utility.table 1.5.0).
+    getRowMenuLabel(row) {
+        const text = this.getRowNameText(row);
+        return text ? `${this.text("actionsColumnLabel")}: ${text}` : this.text("menuLabel");
+    }
+
+    // The text a row is named by: its first data column's value, else its id.
+    getRowNameText(row) {
         const batch = this._labelColumnBatch;
         const column = batch && "column" in batch
             ? batch.column
@@ -6971,8 +7102,7 @@ class SfTable extends TableElement {
         if (batch) batch.column = column;
         const raw = column ? row?.[column.key] : undefined;
         const value = raw !== null && typeof raw === "object" ? (raw.text ?? raw.label ?? raw.value ?? "") : raw;
-        const text = String(value ?? "").trim() || String(row?.id ?? "").trim();
-        return text ? `${this.text("selectRowLabel")}: ${text}` : this.text("selectRowLabel");
+        return String(value ?? "").trim() || String(row?.id ?? "").trim();
     }
 
     createRowComponentCell(component, props = {}) {
@@ -6996,16 +7126,29 @@ class SfTable extends TableElement {
     // of the host's row_actions is a real submenu rather than a second menu
     // swapped in over the first. What a choice does is unchanged -- an intent
     // for the row, or the action's own handler where it has one.
-    async openRowMenu(event, row = {}, only = null) {
+    //
+    // at: a point anchor (menuPointAt) for a right click -- the menu opens at
+    // the pointer, while a handler of the host still gets the row's button
+    // as its anchor; the point leaves the page when the menu closes.
+    async openRowMenu(event, row = {}, only = null, {ids = null, at = null} = {}) {
         const anchor = event?.currentTarget?.querySelector?.("button")
             ?? event?.target?.closest?.("button")
             ?? event?.currentTarget;
-        if (!(anchor instanceof Element)) return null;
+        if (!(anchor instanceof Element)) {
+            at?.remove();
+            return null;
+        }
         const selection = Array.isArray(row.actions) && row.actions.every((item) => typeof item === "string")
             ? row.actions
             : null;
         // The list's «more» menu holds the actions its row does not show.
-        const items = Array.isArray(only) ? only : this.getActionRowItems(row);
+        // Several selected rows (C164): the actions every one of them offers.
+        const many = Array.isArray(ids) && ids.length > 1;
+        let items = Array.isArray(only) ? only : this.getActionRowItems(row);
+        if (many) {
+            const rows = this.getTableData().rows.filter((one) => ids.some((id) => String(id) === String(one.id)));
+            items = items.filter((action) => rows.every((one) => this.getActionRowItems(one).some((other) => other.id === action.id)));
+        }
         const iconOf = (action) => action?.icon ?? action?.component?.props?.icon ?? undefined;
         const entries = items.map((action) => (Array.isArray(action.members)
             ? {
@@ -7015,14 +7158,33 @@ class SfTable extends TableElement {
                     .map((member) => ({id: member.id, text: member.name, icon: iconOf(member), danger: member.danger === true})),
             }
             : {id: action.id, text: action.name, icon: iconOf(action), danger: action.danger === true}));
+        // A destructive entry closes the menu (C164 (5)): whatever order a host
+        // catalogue gives, «Удалить» is the last entry, the rest keep theirs.
+        entries.sort((a, b) => Number(a.danger === true) - Number(b.danger === true));
+        // …after a divider, when anything stands above it (C164).
+        const firstDanger = entries.findIndex((entry) => entry.danger === true);
+        if (firstDanger > 0) entries.splice(firstDanger, 0, {type: "separator"});
+        if (many) entries.unshift({type: "heading", text: `${this.text("selectedRowsHeading")} ${ids.length}`});
         // The standard menu is a lazy relation of the table: fetched after the
         // page is ready, and asked for here if a press comes first.
         await globalThis.SF?.Loader?.ensure?.(["sf-menu-context"]);
         const menu = this.rowMenu();
+        // On every opening, as the table stands now: the row menu lives on
+        // <body> or in the open dialog, outside the table, so it has neither
+        // the table's size nor the density of the table's area unless it is
+        // given them (owner remark 2026-11-15).
+        menu.setAttribute("size", this.menuSize);
+        followDensity(menu, this);
         menu.setAttribute("aria-label", this.getContextMenuLabel({row, menu: "row-settings"}));
         menu.entries = entries;
-        this._rowMenuContext = {row, items, anchor};
-        return menu.toggleFor(anchor);
+        this._rowMenuContext = {row, items, anchor, ids: many ? ids.map(String) : null};
+        if (!at) return menu.toggleFor(anchor);
+        // Bound once the menu is open: opening it again closes the previous
+        // opening first, and that close must not take the new point.
+        const opened = await menu.toggleFor(at);
+        if (menu.isOpen) menu.addEventListener("sf-menu-context-closed", () => at.remove(), {once: true});
+        else at.remove();
+        return opened;
     }
 
     rowMenu() {
@@ -7034,7 +7196,12 @@ class SfTable extends TableElement {
             const context = this._rowMenuContext;
             if (!context) return;
             const id = event.detail?.id;
-            const {row, items, anchor} = context;
+            const {row, items, anchor, ids} = context;
+            // A menu over several selected rows acts on all of them.
+            if (ids && id) {
+                this.requestActionIntent(id, ids);
+                return;
+            }
             const action = items.find((item) => item.id === id);
             const member = action ? null : items.flatMap((item) => item.members ?? []).find((item) => item.id === id);
             if (member) {
@@ -7190,7 +7357,7 @@ class SfTable extends TableElement {
                     appearance: "link",
                     scheme: "on-surface",
                     icon: "menu",
-                    ariaLabel: this.text("menuLabel"),
+                    ariaLabel: this.getRowMenuLabel(row),
                     value: "menu",
                     "@click": (e) => this.openRowMenu(e, row),
                 },
@@ -7559,7 +7726,10 @@ class SfTable extends TableElement {
         if (kind === "no-access") return {kind, size, headingLevel, title: message, text: "", actions: []};
         if (kind === "nothing-found") {
             const key = {search: "resetSearchText", filters: "resetFiltersText"}[context.reset] ?? "resetBothText";
-            return {kind, size, headingLevel, title: "", text: "",
+            // A list empty only because of its filters says so by its glyph
+            // (owner decision C120 (3)): filter_alt_off; a search, or a search
+            // and filters together, keep the brick's own search_off.
+            return {kind, size, headingLevel, title: "", text: "", icon: context.reset === "filters" ? "filter_alt_off" : "",
                 actions: [{id: "reset-query", text: this.text(key), appearance: "outline"}]};
         }
         const creatable = this.getBooleanAttr("actions", true) && this.getBooleanAttr("creatable", true);
@@ -7782,6 +7952,7 @@ class SfTable extends TableElement {
     afterDraw() {
         this._observeResponsiveBox();
         this.bindRowActionsEvents(this.refs.table?.value);
+        this.syncGrid();
         if (this._windowed) this.bindWindowScroll();
         // A row the keyboard asked for outside the drawn range is drawn now:
         // it is focused and scrolled into view, and the scroll that brings
@@ -7804,6 +7975,7 @@ class SfTable extends TableElement {
             this.fitCellValues();
             this.measurePinnedColumns();
             this.syncWindow();
+            this.markClippedTitles();
             return;
         }
         // A render that only moved a row's buttons changed no width.
@@ -7853,6 +8025,294 @@ class SfTable extends TableElement {
         this.bindColumnResizeEvent();
         this.bindColumnDragEvent();
         this.syncWindow();
+        this.markClippedTitles();
+    }
+
+    // A name cut by its two lines (C146 (7)) says so on its cell, and the
+    // Framework tooltip over it shows the whole name; a name that fits has
+    // no tooltip.
+    markClippedTitles() {
+        const table = this.refs.table?.value;
+        if (!table) return;
+        const tip = this.tipId("title");
+        for (const clamp of table.querySelectorAll('tbody td[data-sf-cell="title"] .sf-table-cell-text')) {
+            const clipped = clamp.scrollHeight > clamp.clientHeight + 1 || clamp.scrollWidth > clamp.clientWidth + 1;
+            if (clipped !== clamp.hasAttribute("data-sf-clipped")) clamp.toggleAttribute("data-sf-clipped", clipped);
+            // A cut name is a trigger of the table's name tooltip; a whole
+            // one is none (the Framework's tooltip unlinks it).
+            if (clipped && clamp.getAttribute("data-tooltip") !== tip) clamp.setAttribute("data-tooltip", tip);
+            else if (!clipped && clamp.hasAttribute("data-tooltip")) clamp.removeAttribute("data-tooltip");
+        }
+        if (this._titleTipTable === table) return;
+        this._titleTipTable = table;
+        // The name tooltip says the name the pointer or the focus is on,
+        // written before the tooltip's delay ends.
+        const write = (event) => {
+            const clamp = event.target instanceof Element ? event.target.closest('td[data-sf-cell="title"] .sf-table-cell-text[data-sf-clipped]') : null;
+            const text = clamp ? document.getElementById(tip)?.querySelector(".sf-tooltip-text") : null;
+            if (text && text.textContent !== clamp.textContent.trim()) text.textContent = clamp.textContent.trim();
+        };
+        table.addEventListener("pointerover", write);
+        table.addEventListener("focusin", write);
+    }
+
+    // ─── the table as a grid (owner decision C146 (8)) ──────────────────────
+    // A table whose rows hold controls -- the box, the row menu, the name's
+    // link, the row's buttons -- is a grid: one Tab stop, the arrows between its rows
+    // and between the controls of a row (WAI-ARIA APG grid). Up and down keep
+    // the place in the row; left and right walk the row's controls, the row
+    // itself first; Home and End go to the row's first and last, with Ctrl to
+    // the first and last row; Enter opens, Space marks the row; Shift+F10 and
+    // the menu key open the row's «≡» (C146 (5)). The head is
+    // the grid's first row: its sort
+    // buttons, the edges that set a width, the box for all and the gear. A
+    // plain table, with nothing to press in its rows, stays a table.
+    gridControls(row) {
+        const own = row.parentElement?.tagName === "TBODY" ? [row] : [];
+        // A column edge is no stop of the grid (C146 (8), RS-10): the person
+        // sets a width with the pointer.
+        const controls = [...row.querySelectorAll("a[href], button:not([disabled]), input:not([disabled]):not([type=hidden]), select:not([disabled]), textarea:not([disabled])")]
+            .filter((element) => !element.closest(".sf-tooltip, [hidden]") && !element.matches("[data-sf-column-resizer]"));
+        return [...own, ...controls];
+    }
+
+    gridRows(table = this.refs.table?.value) {
+        if (!table) return [];
+        return [...table.querySelectorAll(":scope > thead > tr, :scope > tbody > tr[data-row-id]")];
+    }
+
+    get isGrid() {
+        const table = this.refs.table?.value;
+        if (!table || this.isList) return false;
+        return Boolean(table.querySelector(":scope > tbody > tr[data-row-id] :is(a[href], button, input)"));
+    }
+
+    syncGrid() {
+        const table = this.refs.table?.value;
+        if (!(table instanceof HTMLTableElement)) return;
+        this.bindGridKeys(table);
+        const grid = this.isGrid;
+        if (!this.isTree()) {
+            if (grid) table.setAttribute("role", "grid");
+            else if (table.getAttribute("role") === "grid") table.removeAttribute("role");
+        }
+        if (!grid) return;
+        const rows = this.gridRows(table);
+        const stops = rows.flatMap((row) => this.gridControls(row));
+        // The one stop: the control the person was on, else the row the
+        // person is on, else the first row.
+        let stop = this._gridStop?.isConnected && stops.includes(this._gridStop) ? this._gridStop : null;
+        stop ??= table.querySelector(":scope > tbody > tr[data-current]")
+            ?? table.querySelector(":scope > tbody > tr[data-row-id]");
+        for (const element of stops) {
+            const index = element === stop ? "0" : "-1";
+            if (element.getAttribute("tabindex") !== index) element.setAttribute("tabindex", index);
+        }
+        this._gridStop = stop;
+    }
+
+    bindGridKeys(table) {
+        if (this._gridTable === table) return;
+        this._gridAbort?.abort();
+        this._gridAbort = new AbortController();
+        this._gridTable = table;
+        const {signal} = this._gridAbort;
+        // Wherever the focus lands -- a click, a Tab into a control the grid
+        // has not seen yet -- that is the one stop.
+        table.addEventListener("focusin", (event) => {
+            if (!this.isGrid) return;
+            const target = event.target;
+            if (!(target instanceof Element) || target === this._gridStop) return;
+            if (!this.gridRows(table).some((row) => row.contains(target))) return;
+            this._gridStop = target;
+            this.syncGrid();
+        }, {signal});
+        table.addEventListener("keydown", (event) => this.handleGridKeydown(event, table), {signal});
+        // The right button on a row opens the row's «≡» menu (C146 (5),
+        // variant В; C164 (2): the same list), at the pointer (C164 (1)).
+        // Shift keeps the browser's own menu, and so do a link (open in a
+        // new tab) and a field.
+        table.addEventListener("contextmenu", (event) => {
+            if (event.shiftKey) return;
+            const target = event.target instanceof Element ? event.target : null;
+            if (!target || keepsBrowserMenu(target)) return;
+            const row = target.closest("tbody > tr[data-row-id]");
+            if (!row || !table.contains(row)) return;
+            if (this.openRowMenuOf(row, target, {x: event.clientX, y: event.clientY})) event.preventDefault();
+        }, {signal});
+        // A row's buttons come after the draw: the «Действия» buttons of the
+        // row a person is on, and a Smart button's own <button>, which its
+        // element draws once defined. Each new control leaves the Tab order
+        // in the next frame, or it would be a second stop.
+        let queued = 0;
+        const observer = new MutationObserver((records) => {
+            if (queued || !records.some((record) => [...record.addedNodes].some((node) => node.nodeType === 1))) return;
+            queued = requestAnimationFrame(() => {
+                queued = 0;
+                if (this._gridTable === table) this.syncGrid();
+            });
+        });
+        observer.observe(table, {childList: true, subtree: true});
+        signal.addEventListener("abort", () => {
+            observer.disconnect();
+            if (queued) cancelAnimationFrame(queued);
+        });
+    }
+
+    rowOfElement(element) {
+        const key = element?.closest?.("[data-row-id]")?.dataset.rowId;
+        if (key == null) return null;
+        const rows = this.getTableData().rows || [];
+        return rows.find((row, index) => String(this.getRowKey(row, index)) === key) ?? null;
+    }
+
+    // The rows a context menu over `row` acts on (C164): a selected row
+    // speaks for the whole selection; a row outside it becomes the selection
+    // first. ids is null for the row alone.
+    //
+    // The table's own context wiring (the contextmenu listener and the menu
+    // key in handleGridKeydown, both through openRowMenuOf) stands in for the
+    // SIMAI Framework engine, sf-menu-context 1.21.0 `for="<table id>"` with
+    // its cancellable `open` event (ui-source fix/context-menu-c164). Once a
+    // pair carries it, the switch is: bind the row menu with `for`, drop the
+    // two triggers, and in the `open` handler take `targets` as the ids and
+    // fill the entries with openRowMenu's list -- this function and the entry
+    // building stay.
+    rowMenuTargets(row) {
+        if (!this.getPropsContext().selectable) return {ids: null, reselected: false};
+        const selected = this.getSelectedRecordIds().map(String);
+        if (selected.includes(String(row.id))) return {ids: selected, reselected: false};
+        if (selected.length) this.clearSelection();
+        this.applyRowSelection(row.id, true);
+        return {ids: null, reselected: true};
+    }
+
+    // Opens a row's «≡» menu as its button would, under the button; a table
+    // without the button (settings="false") opens it under the cell. pointer
+    // ({x, y}, a right click) opens it at the pointer instead.
+    openRowMenuOf(rowElement, from, pointer = null) {
+        const row = this.rowOfElement(rowElement);
+        if (!row || !this.getActionRowItems(row).length) return false;
+        const cellKey = from?.closest?.("td")?.dataset.key;
+        return this.openRowContextMenu(rowElement, row, "tbody > tr[data-row-id]", (drawn) => ({
+            anchor: drawn.querySelector("[data-sf-row-menu]")
+                ?? (cellKey ? drawn.querySelector(`td[data-key="${CSS.escape(cellKey)}"]`) : null) ?? drawn,
+        }), pointer);
+    }
+
+    // A list row's menu (C164 (2)): the list its own button opens -- the
+    // «≡» of a plain list every action, the «⋯» of a list with quick actions
+    // what its row does not show (all of them while the narrow list folds
+    // the quick ones away) -- at the pointer for a right click, else at that
+    // button. A row without the button keeps the browser's menu. Over several
+    // selected rows it is the table's menu (C164 (3)): every action they all
+    // offer, under «Выбрано N» -- a quick button acts on its row alone.
+    // Answers whether it opened.
+    openListRowMenu(item, pointer = null) {
+        const row = this.rowOfElement(item);
+        const button = item.querySelector(LIST_ROW_MENU_BUTTON);
+        if (!row || !button) return false;
+        let only = null;
+        const actions = button.closest(".sf-table-resource-actions");
+        if (actions) {
+            const {quick, rest} = this.listRowActions(row);
+            const box = actions.querySelector(".sf-table-resource-quick");
+            const folded = Boolean(box) && getComputedStyle(box).display === "none";
+            only = folded ? [...quick, ...rest] : rest;
+            if (!only.length) return false;
+        } else if (!this.getActionRowItems(row).length) return false;
+        return this.openRowContextMenu(item, row, "li.sf-table-list-item[data-row-id]", (drawn, ids) => ({
+            anchor: drawn.querySelector(LIST_ROW_MENU_BUTTON) ?? button,
+            only: ids?.length > 1 ? null : only,
+        }), pointer);
+    }
+
+    // The one path of a row's context menu, table row and list row alike
+    // (C164 (3)): the selection rule (rowMenuTargets), then the menu on the
+    // row as drawn after it -- a row outside the selection becomes the
+    // selection and is drawn again first. place(drawn, ids) gives the anchor
+    // and the entries (only) on that drawn row. Answers true: it opens.
+    openRowContextMenu(rowElement, row, rowSelector, place, pointer = null) {
+        const key = rowElement.dataset.rowId;
+        // The menu key sends a keydown and then a contextmenu: the second
+        // must not close what the first opened, or is opening.
+        if (this._rowMenuPending === key) return true;
+        if (this._rowMenu?.isOpen && String(this._rowMenuContext?.row?.id) === String(row.id)) return true;
+        const {ids, reselected} = this.rowMenuTargets(row);
+        const open = () => {
+            if (this._rowMenuPending === key) this._rowMenuPending = null;
+            // The selection redraws the row: anchor on the row drawn now.
+            const drawn = [...this.querySelectorAll(rowSelector)].find((element) => element.dataset.rowId === key) ?? rowElement;
+            const {anchor, only = null} = place(drawn, ids);
+            this.openRowMenu({currentTarget: anchor, target: anchor}, this.rowOfElement(drawn) ?? row, only,
+                {ids, at: pointer ? menuPointAt(pointer) : null});
+        };
+        if (reselected) {
+            this._rowMenuPending = key;
+            requestAnimationFrame(open);
+        } else open();
+        return true;
+    }
+
+    handleGridKeydown(event, table) {
+        if (event.defaultPrevented || !this.isGrid) return;
+        const target = event.target instanceof Element ? event.target : null;
+        if (!target) return;
+        // A field keeps its own keys.
+        if (target.closest("textarea, select, [contenteditable]") || (target.matches("input") && !/^(checkbox|radio)$/u.test(target.type))) return;
+        // An edge that sets a width keeps its arrows, Home and End.
+        if (target.matches("[data-sf-column-resizer]") && /^(ArrowLeft|ArrowRight|Home|End|Enter)$/u.test(event.key)) return;
+        const rows = this.gridRows(table);
+        const rowIndex = rows.findIndex((row) => row === target || row.contains(target));
+        if (rowIndex < 0) return;
+        const row = rows[rowIndex];
+        if (isMenuKey(event) && row.parentElement?.tagName === "TBODY") {
+            if (this.openRowMenuOf(row, target)) event.preventDefault();
+            return;
+        }
+        const controls = this.gridControls(row);
+        const at = controls.indexOf(target);
+        // The row's own keys (handleRowKeydown) move between rows from the
+        // row itself, drawn or not; these move from a control, and across.
+        const inBody = row.parentElement?.tagName === "TBODY";
+        const place = (index, list, from) => {
+            // A body row starts with the row itself; the head row does not.
+            const fromBody = from.parentElement?.tagName === "TBODY";
+            const toBody = list[0]?.tagName === "TR";
+            const shift = (toBody ? 1 : 0) - (fromBody ? 1 : 0);
+            return Math.max(0, Math.min(list.length - 1, index + shift));
+        };
+        let next = null;
+        if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+            const forward = (event.key === "ArrowRight") !== this.isRightToLeft();
+            next = controls[at + (forward ? 1 : -1)] ?? null;
+            // A tree row opens and closes with the arrows from the row itself.
+            if (target === row && row.hasAttribute("aria-expanded")) return;
+        } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            // From a row the row's own keys moved already, when there was a
+            // row to move to; from the first one, up is the head.
+            const other = rows[rowIndex + (event.key === "ArrowDown" ? 1 : -1)];
+            if (other) {
+                const list = this.gridControls(other);
+                next = list[place(at, list, row)] ?? null;
+            }
+        } else if (event.key === "Home" || event.key === "End") {
+            if (event.ctrlKey) {
+                const body = rows.filter((one) => one.parentElement?.tagName === "TBODY");
+                next = (event.key === "Home" ? body[0] : body[body.length - 1]) ?? null;
+            } else if (target !== row || !inBody) {
+                next = event.key === "Home" ? controls[0] : controls[controls.length - 1];
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+        if (!next || next === target) return;
+        event.preventDefault();
+        this._gridStop = next;
+        this.syncGrid();
+        next.focus({preventScroll: false});
     }
 
     template() {
