@@ -202,6 +202,9 @@ try {
   //    больше нет"), so what round three measured -- equal space above and
   //    below that row -- no longer has a subject. What is measured instead is
   //    that the row is gone and the button sits on the footer's own line.
+  //    C97 (1) (owner 2026-11-12) reverses that: Show more is a view of its own,
+  //    never on one line with the arrows; the compatible footer of an element
+  //    written without appearance draws it on its own row above (sf-pagination-top).
   const spacing = await page.evaluate(async () => {
     const pagination = document.getElementById('p');
     pagination.setState?.({hasNextPage: true});
@@ -212,7 +215,7 @@ try {
       return rect ? {top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height)} : null;
     };
     const scroll = document.querySelector('#t .sf-table-scroll');
-    const more = document.querySelector('#p .sf-pagination-more sf-button button');
+    const more = document.querySelector('#p .sf-pagination-more-button button');
     const arrow = document.querySelector('#p .sf-pagination-direction--next button');
     const moreBox = box(more);
     const arrowBox = box(arrow);
@@ -230,8 +233,8 @@ try {
   if (spacing.panels !== 0) {
     note({case: 'spacing', got: spacing, expected: 'no demo panel in the table'});
   }
-  if (spacing.ownRow || !spacing.more || spacing.sharedLine !== true) {
-    note({case: 'show more', got: spacing, expected: 'no row above the footer; Show more on the footer line with the arrows'});
+  if (!spacing.ownRow || !spacing.more || spacing.sharedLine !== false) {
+    note({case: 'show more', got: spacing, expected: 'Show more on a row of its own, not on the footer line with the arrows (C97 (1))'});
   }
 
   // 8. The page field is as wide as its number and grows as it is typed -- and

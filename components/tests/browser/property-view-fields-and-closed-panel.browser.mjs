@@ -128,17 +128,23 @@ try {
   const own = await page.evaluate(() => document.querySelector('#formatted [data-field="birthday"] .sf-field-view')?.textContent.trim());
   if (own !== 'по-своему') note(`the host's formatFieldValue lost to the set: «${own}»`);
 
-  // The palette stays inside its half of the row.
+  // The colour stays inside its half of the row. Since sf-input-color 1.7.0
+  // (owner decision C83, 2026-11-12) the field is one control of the ladder - a
+  // swatch, the value and a chevron - and the palette lives in the window it
+  // opens, so the field draws one trigger and hands the six swatches to the control.
   const colour = await page.evaluate(() => {
     const field = document.querySelector('#edit [data-field="tag"]');
     const beside = document.querySelector('#edit [data-field="workday"]') ?? document.querySelector('#edit [data-field="brand"]');
     const box = field.getBoundingClientRect();
-    const presets = [...field.querySelectorAll('.sf-color-preset')].map((preset) => preset.getBoundingClientRect());
-    return {right: box.right, presets: presets.length, furthest: Math.max(...presets.map((one) => one.right)),
+    const control = field.querySelector('sf-input-color');
+    const triggers = [...field.querySelectorAll('.sf-color-trigger')].map((one) => one.getBoundingClientRect());
+    return {right: box.right, triggers: triggers.length, swatches: control?.swatchList?.length ?? 0,
+      furthest: Math.max(...triggers.map((one) => one.right)),
       besideLeft: beside.getBoundingClientRect().left, fieldLeft: box.left};
   });
-  if (colour.presets !== 6) note(`the palette draws ${colour.presets} swatches`);
-  if (colour.furthest > colour.right + 1) note(`a swatch ends at ${colour.furthest}px, past its field at ${colour.right}px`);
+  if (colour.triggers !== 1) note(`the colour field draws ${colour.triggers} triggers, not one`);
+  if (colour.swatches !== 6) note(`the colour control holds ${colour.swatches} swatches, not 6`);
+  if (colour.furthest > colour.right + 1) note(`the colour trigger ends at ${colour.furthest}px, past its field at ${colour.right}px`);
 
   // One control for a datetime and one for a time.
   const editors = await page.evaluate(() => ({

@@ -232,7 +232,10 @@ try {
     list.loading = true;
     await new Promise((done) => setTimeout(done, 150));
     return {busy: document.querySelector('.sf-list__frame').getAttribute('aria-busy'),
-      rows: document.querySelectorAll('.sf-list__skeleton span').length,
+      // Since sf-list 1.12.0 (owner decision C130, list and feed study LF-2) a
+      // skeleton row is the list's own sf-list-item holding first-paint bars,
+      // so the rows are counted, not the spans inside them.
+      rows: document.querySelectorAll('.sf-list__skeleton > .sf-list__row--skeleton').length,
       status: document.querySelector('.sf-thread-list__status')?.hidden};
   });
   if (loading.busy !== 'true' || loading.rows !== 3 || loading.status !== true) note({case: 'loading shows the shape of the list, busy', got: loading});
@@ -271,7 +274,9 @@ try {
     headings: document.querySelectorAll('.sf-list__heading').length,
     captions: [...document.querySelectorAll('.sf-list__row sf-list-item')].map((node) => node.getAttribute('supporting')),
     unread: [...document.querySelectorAll('sf-badge.sf-list__count')].map((node) => [node.getAttribute('text'), node.getAttribute('aria-label')]),
-    avatars: document.querySelectorAll('.sf-list__row sf-avatar').length,
+    // Since sf-list 1.8.0 (list item study LI-10, C148) a row's avatar is a
+    // picture (sf-avatar's drawing in a span), not an sf-avatar element.
+    avatars: document.querySelectorAll('.sf-list__row .sf-avatar:not(.sf-list__sign)').length,
     listLabel: document.querySelector('.sf-list__rows')?.getAttribute('aria-label'),
   }));
   const expectedPeople = {headings: 0, captions: ['До завтра!', 'Пётр: отчёт готов', 'Спасибо'], unread: [['3', '3 непрочитанных'], ['99+', '250 непрочитанных']], avatars: 1, listLabel: 'Разговоры'};
