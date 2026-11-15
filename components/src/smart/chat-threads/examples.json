@@ -558,7 +558,7 @@
         },
         {
           "id": "p6-settings-and-outcomes",
-          "title": "loading and status are settings; setLoading, the 1.0 setter, still works and is noted; actions answer outcomes; has-more asks load-more {direction: after} once",
+          "title": "loading and status are settings; setLoading, the 1.0 setter, still works and is noted; actions answer outcomes; with has-more an end on screen asks nothing until «Показать ещё» (sf-list 1.12.0, LF-8), whose press asks load-more {direction: after} once",
           "covers": "settings.loading, settings.status, actions rename/remove-thread outcomes, events.load-more",
           "steps": [
             {
@@ -616,6 +616,11 @@
             {
               "script": "(document.querySelector('#list').hasMore = true, true)",
               "wait": 500,
+              "check": "!document.querySelector('#list .sf-list__next').hidden"
+            },
+            {
+              "script": "(document.querySelector('#list .sf-list__next button, #list .sf-list__next sf-button').click(), true)",
+              "wait": 300,
               "expect": {
                 "events": [
                   {
@@ -671,7 +676,7 @@
             {
               "script": "(document.querySelector('#list').threads = [{id: 'a', title: 'Анна', 'updated-at': '2026-10-27T09:00:00Z', avatar: {text: 'АН'}}, {id: 'g', title: 'Группа', 'updated-at': '2026-10-26T09:00:00Z', avatar: {text: 'ГР', shape: 'square'}}, {id: 'c', title: 'Канал', 'updated-at': '2026-10-25T09:00:00Z', avatar: {icon: 'campaign', shape: 'square'}}, {id: 'b', title: 'Бот', 'updated-at': '2026-10-24T09:00:00Z', avatar: {icon: 'bolt'}}, {id: 'n', title: 'ИИ-разговор', 'updated-at': '2026-10-23T09:00:00Z'}], true)",
               "wait": 300,
-              "check": "(() => { const row = (id) => document.querySelector('#list .sf-list__row[data-id=\"' + id + '\"]'); const sign = (id) => row(id).querySelector('.sf-list__sign sf-icon'); const left = (id) => row(id).querySelector('.sf-list-item__text, [class*=\"__headline\"], sf-list-item').getBoundingClientRect().left; return row('g').querySelector('sf-avatar').getAttribute('shape') === 'square' && row('a').querySelector('sf-avatar').getAttribute('shape') === 'circle' && sign('c')?.getAttribute('icon') === 'campaign' && row('c').querySelector('.sf-list__sign').classList.contains('sf-avatar--square') && sign('b')?.getAttribute('icon') === 'bolt' && !row('b').querySelector('.sf-list__sign').classList.contains('sf-avatar--square') && !row('n').querySelector('sf-avatar, .sf-list__sign'); })()"
+              "check": "(() => { const row = (id) => document.querySelector('#list .sf-list__row[data-id=\"' + id + '\"]'); const sign = (id) => row(id).querySelector('.sf-list__sign sf-icon'); const left = (id) => row(id).querySelector('.sf-list-item__text, [class*=\"__headline\"], sf-list-item').getBoundingClientRect().left; const picture = (id) => row(id).querySelector('.sf-avatar:not(.sf-list__sign)'); return picture('g').classList.contains('sf-avatar--square') && Boolean(picture('a')) && !picture('a').classList.contains('sf-avatar--square') && sign('c')?.getAttribute('icon') === 'campaign' && row('c').querySelector('.sf-list__sign').classList.contains('sf-avatar--square') && sign('b')?.getAttribute('icon') === 'bolt' && !row('b').querySelector('.sf-list__sign').classList.contains('sf-avatar--square') && !row('n').querySelector('.sf-avatar'); })()"
             }
           ]
         }
