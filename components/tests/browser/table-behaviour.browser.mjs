@@ -274,6 +274,11 @@ try {
       fits: box ? Math.ceil(field.scrollWidth) <= Math.ceil(box.width) + 1 : null,
       betweenArrows: Boolean(list?.querySelector('.sf-pagination-item-field')),
       prev: Boolean(element.querySelector('.sf-pagination-direction--prev')),
+      prevDimmed: (() => {
+        const host = element.querySelector('.sf-pagination-direction--prev');
+        const back = host?.querySelector('button, a');
+        return host ? host.hasAttribute('disabled') || back?.disabled === true || back?.getAttribute('aria-disabled') === 'true' : null;
+      })(),
       next: Boolean(element.querySelector('.sf-pagination-direction--next')),
       last: Boolean(element.querySelector('.sf-pagination-direction--last')),
     };
@@ -284,7 +289,9 @@ try {
     if (shown.numbers !== 0 || shown.value !== String(current) || shown.fits !== true || !shown.betweenArrows) {
       note({case: `switcher on page ${current}`, got: shown, expected: 'no row of numbers; the page in a field between the arrows, and the number fits it'});
     }
-    if (current === 1 && shown.prev) note({case: 'switcher', expected: 'no back on the first page'});
+    // The edge buttons dim on the first page instead of going, so the row keeps
+    // its width (C97 (4), owner 2026-11-12).
+    if (current === 1 && shown.prev && shown.prevDimmed !== true) note({case: 'switcher', got: shown, expected: 'back is dimmed on the first page'});
     if (current > 1 && !shown.prev) note({case: `switcher on page ${current}`, expected: 'back appears'});
     if (!shown.next || !shown.last) note({case: `switcher on page ${current}`, expected: 'forward and last while there is more'});
   }
@@ -341,10 +348,12 @@ try {
     element.addEventListener('sf-pagination-selection-clear', (event) => cleared.push(event.detail['selected-count']));
     element.querySelector('.sf-pagination-actions-clear')?.click();
     await new Promise((done) => setTimeout(done, 150));
-    const showMoreWithNext = Boolean(element.querySelector('.sf-pagination-more sf-button'));
+    // Show more is its own row since C97 (1) (sf-pagination-top in the
+    // compatible footer), not a button on the footer line.
+    const showMoreWithNext = Boolean(element.querySelector('.sf-pagination-more-button'));
     element.setAttribute('total', '10');
     await new Promise((done) => setTimeout(done, 200));
-    const showMoreAtEnd = Boolean(element.querySelector('.sf-pagination-more sf-button'));
+    const showMoreAtEnd = Boolean(element.querySelector('.sf-pagination-more-button'));
     return {empty, marked, cleared, showMoreWithNext, showMoreAtEnd};
   });
   if (states.empty !== null) note({case: 'panel', expected: 'nothing marked, no panel'});

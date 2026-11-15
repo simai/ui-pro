@@ -235,13 +235,16 @@ try {
       fieldBetweenArrows: Boolean(list?.querySelector('.sf-pagination-item-field .sf-pagination-page-input')),
       numbersLeft: numbers.filter((item) => /^\d+$/u.test(item.textContent.trim())).length,
       showMoreRow: Boolean(document.querySelector('#p .sf-pagination-top')),
-      showMoreInFooter: Boolean(main?.querySelector('.sf-pagination-more sf-button')),
+      showMoreInFooter: Boolean(main?.querySelector('.sf-pagination-more-button')),
       hasField: Boolean(field),
     };
   });
-  if (footer.marked || footer.ofN || !footer.fieldBetweenArrows || footer.numbersLeft > 0
-      || footer.showMoreRow || !footer.showMoreInFooter) {
-    note({case: 'footer', got: footer, expected: 'one row: no marked count, the field between the arrows, Show more beside them'});
+  // C97 (owner 2026-11-12): the admin footer is one row «41–60 из 240 · По 20 ▾
+  // · ‹ [3] из 12 ›» (2), (3), (5), and Show more is a view of its own, never on
+  // one line with the arrows (1).
+  if (footer.marked || !footer.ofN || !footer.fieldBetweenArrows || footer.numbersLeft > 0
+      || footer.showMoreInFooter) {
+    note({case: 'footer', got: footer, expected: 'one row: no marked count, the range, the field «из N» between the arrows, and Show more not on that line'});
   }
 
   // 4. The menus stay under their buttons.

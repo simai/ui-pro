@@ -271,7 +271,9 @@ try {
     headings: document.querySelectorAll('.sf-list__heading').length,
     captions: [...document.querySelectorAll('.sf-list__row sf-list-item')].map((node) => node.getAttribute('supporting')),
     unread: [...document.querySelectorAll('sf-badge.sf-list__count')].map((node) => [node.getAttribute('text'), node.getAttribute('aria-label')]),
-    avatars: document.querySelectorAll('.sf-list__row sf-avatar').length,
+    // Since sf-list 1.8.0 (list item study LI-10, C148) a row's avatar is a
+    // picture (sf-avatar's drawing in a span), not an sf-avatar element.
+    avatars: document.querySelectorAll('.sf-list__row .sf-avatar:not(.sf-list__sign)').length,
     listLabel: document.querySelector('.sf-list__rows')?.getAttribute('aria-label'),
   }));
   const expectedPeople = {headings: 0, captions: ['До завтра!', 'Пётр: отчёт готов', 'Спасибо'], unread: [['3', '3 непрочитанных'], ['99+', '250 непрочитанных']], avatars: 1, listLabel: 'Разговоры'};
