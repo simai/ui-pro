@@ -63,7 +63,12 @@ class FakeElement {
     }
   }
   sfEmit(name, detail) { this.events.push({name, detail}); }
-  sfWord(key) { return '{' + key + '}'; }
+  // A word as its key, with the values it was given (sf-pagination 1.5 says
+  // its range as one word with from, to and total): {range|from=1,to=10,total=450}.
+  sfWord(key, {vars} = {}) {
+    const given = vars && Object.keys(vars).length ? '|' + Object.entries(vars).map(([name, value]) => name + '=' + value).join(',') : '';
+    return '{' + key + given + '}';
+  }
   // The settings the template reads from the element's props (smart-base).
   getPropsContext() { return {size: this.getAttribute('size') || '1', top: this.top, middle: this.middle, bottom: this.bottom}; }
   createTemplateContext(context) { return context; }
@@ -72,6 +77,10 @@ class FakeElement {
   addEventListener() {}
 }
 const elementFromManifest = () => FakeElement;
+// sf-pagination 1.5 (C97 appearances) notes its former word keys and follows
+// the sm step of the breakpoint ladder; neither matters to these checks.
+const noteDeprecated = () => {};
+const breakpointMedia = () => null;
 const renderPaginationTemplate = () => null;
 `;
 
@@ -90,7 +99,7 @@ export async function loadPagination() {
       read('src/smart/pagination/lang/en.json'),
       read('src/smart/pagination/lang/ru.json'),
     ]);
-    const element = stripImports(index, 7, 'src/smart/pagination/index.js')
+    const element = stripImports(index, 9, 'src/smart/pagination/index.js')
       .replace(/^SfPagination\.define\("sf-pagination"\);$/mu, 'export default SfPagination;');
     if (!/export default SfPagination;/u.test(element)) {
       throw new Error('src/smart/pagination/index.js: SfPagination.define("sf-pagination") not found');

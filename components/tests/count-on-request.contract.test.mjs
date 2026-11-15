@@ -92,9 +92,10 @@ test('the three answers to "how many" are rendered, and nothing else is', async 
   const totalText = (rendered) => /<div class="sf-pagination-total flex items-cross-center">([\s\S]*?)<\/div>\s*<\/div>/u
     .exec(rendered.markup)?.[1] ?? '';
 
-  // The number.
+  // The number, said as the range of the page among it since sf-pagination
+  // 1.5 (C97 point 2): «1–10 of 450».
   const number = await render(await pagination({total: 450, canCount: true}));
-  assert.match(totalText(number), /\{total-label\} 450\s/u, 'the number');
+  assert.match(totalText(number), /\{range\|from=1,to=10,total=450\}/u, 'the number');
   assert.doesNotMatch(number.markup, /sf-pagination-count-request|<sf-spinner/u, 'and nothing to ask for');
   // A short wait.
   const waiting = await render(await pagination({countKnown: false, canCount: true, counting: true}));
@@ -108,11 +109,14 @@ test('the three answers to "how many" are rendered, and nothing else is', async 
   assert.deepEqual(offerElement.events.map((event) => [event.name, event.detail.reason]), [['count', 'total']]);
   // A host that cannot count is offered nothing: a link that answers
   // "unavailable" is worse than no link.
+  // Without a number the range says «of many» (C97 point 2), still with no
+  // wait and no link.
   const cannot = await render(await pagination({countKnown: false}));
-  assert.equal(totalText(cannot).trim(), '', 'no number, no wait, no link');
+  assert.match(totalText(cannot), /^\s*<span class="sf-pagination-range" role="status">\{range-many\|from=1,to=10\}<\/span>\s*$/u,
+    'no number, no wait, no link');
   // An estimate (gate 29) reads «~N», with the offer beside it.
   const estimate = await render(await pagination({total: 450, totalExact: false, canCount: true}));
-  assert.match(totalText(estimate), /\{total-label\} ~450\s[\s\S]*class="sf-pagination-count-request"/u);
+  assert.match(totalText(estimate), /\{range\|from=1,to=10,total=~450\}[\s\S]*class="sf-pagination-count-request"/u);
   // The marked count left the footer in round four: the band of bulk controls
   // says how many are marked, and only while something is. Saying it twice gave
   // a footer that read «Отмечено: 0/450» at rest and «0/0» before the first
