@@ -72,7 +72,9 @@ test('a message the control draws is not drawn twice', () => {
 test('a field its condition turns off reaches the set as disabled', () => {
   assert.match(body(view, '    fieldDisabled(field, values = this.fieldValues()) {'), /return Boolean\(field\?\.when\) && !fieldConditions\(field, values\)\.enabled;/u);
   assert.match(template, /const disabled = !context\.configuring && Boolean\(field\.when\) && context\.fieldDisabled\(field\);/u);
-  assert.match(template, /\{size: context\.size, \.\.\.\(disabled \? \{disabled: true\} : \{\}\)\},/u);
+  // The record picker option (C139, while the pair lacks smart.input-lookup)
+  // rides beside the size; the disabled flag is still handed on.
+  assert.match(template, /\{size: context\.size, (?:\.\.\.EDIT_PICKER, )?\.\.\.\(disabled \? \{disabled: true\} : \{\}\)\},/u);
 });
 
 test('the field editors the set draws for the two are fetched by the rule', () => {

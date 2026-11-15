@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.16.1",
+  "version": "1.16.2",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1626,11 +1626,12 @@
       },
       {
         "from": "1.13.3",
-        "to": "1.16.1",
+        "to": "1.16.2",
         "changes": [
           "The panel takes back the drawer's own block padding, --sf-drawer--inset (SIMAI Framework ui-994f9db407fa, sf-drawer: owner decision C105 H6, the C106 scroll-area rule): a headless drawer body is padded with the window inset alone now that it keeps no stable scrollbar gutter, and the panel still took back the old gutter plus --sf-scroll-bg-width (30 against 16), so the arranging bar hung 14px below the panel's bottom and the head stood 14px above its top. Outside a drawer the panel takes back its axis as before.",
           "The loading skeleton's tab strip stands over the tabs' hairline as sf-tabs' underline strip does (margin-bottom minus the tabs' border width): it was 1px taller than the record's tabs (73 against 72 at size 1, 65 against 64 at 1/2), so the first group moved up by a pixel when the record came (simai/ui-pro#3).",
-          "Both as ui-pro 4059d01 (pin/pair-141822273efe), ahead of simai/ui-view; 1.14.0 to 1.16.0 are held by unreleased ui-pro and simai/ui-view branches. Nothing to change for a host."
+          "Both as ui-pro 4059d01 (pin/pair-141822273efe), ahead of simai/ui-view; 1.14.0 to 1.16.1 are held by unreleased ui-pro and simai/ui-view branches. Nothing to change for a host.",
+          "Record, relation, user and paged lookup fields are edited with the searchable sf-dropdown again, asked of the SIMAI Framework field renderers with {picker: 'dropdown'} (owner decision C139 (1) keeps it until 2027-01-01): over ui-994f9db407fa the renderers draw sf-input-lookup, which the pair's package contract does not let this component relate, so the field held an element that never upgraded, with no picker and no chosen label. The panel returns to sf-input-lookup when the pair carries smart.input-lookup in pro.package.json."
         ]
       }
     ]
@@ -1657,7 +1658,7 @@
       },
       {
         "path": "src/smart/view-properties/js/field-value.js",
-        "sha256": "aa04dbf2f3f8a979966af613c82e2bcffa13020371a5884f88728f50c1145b8e"
+        "sha256": "a855aedae905d8d4a1a39ee500c72c6a0903b6e9939c5f3ea87acf43b12c277c"
       },
       {
         "path": "src/smart/view-properties/js/requisites.js",

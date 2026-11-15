@@ -46,9 +46,11 @@ const FROZEN = {
 const PATCHED = {
   // Over ui-994f9db407fa (2026-11-15), sf-view-properties 1.16.1: the panel takes
   // back the drawer's own block padding (--sf-drawer--inset) and the skeleton's
-  // tab strip stands over the tabs' hairline, as ui-pro 4059d01; simai/ui-view
-  // takes the same when it moves to that pair.
-  'view-properties': {tree: '1f1a740f5dee09111716310e092f26c6c61a32dd', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15)'},
+  // tab strip stands over the tabs' hairline, as ui-pro 4059d01; 1.16.2 asks
+  // the field renderers for the dropdown record picker while the pair's
+  // pro.package.json lacks smart.input-lookup (C139). simai/ui-view takes the
+  // same when it moves to that pair.
+  'view-properties': {tree: 'f0e0c9acb7e67dc28f828baf40d7154ecda7e2bb', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); record picker as sf-dropdown while the pair lacks smart.input-lookup (C139), sf-view-properties 1.16.2'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).

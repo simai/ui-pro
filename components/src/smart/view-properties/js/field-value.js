@@ -2,6 +2,19 @@ import {html, nothing} from 'lit';
 import {renderViewField, renderEditField} from '../../field-renderers/index.js';
 import {renderSetField} from './set-fields.js';
 
+// The record picker of a record, relation, user or paged lookup field, while
+// the SIMAI Framework pair lacks the relation to sf-input-lookup. Since owner
+// decision C139 (1) the field renderers draw those fields with sf-input-lookup
+// (field-renderers 1.9.0), and the set is bundled into this component. Over
+// ui-994f9db407fa the package contract (distr/core/contracts/packages/
+// pro.package.json) does not let cl-view-properties relate smart.input-lookup,
+// so the element would never upgrade: an empty field with no picker. Until it
+// does, the panel asks the renderers for the searchable sf-dropdown they keep
+// for a host that asks {picker: 'dropdown'}, an alias noted as deprecated until
+// 2027-01-01. Remove when the pair carries smart.input-lookup in
+// pro.package.json (then relate cl-input-lookup in rule.js, as ui-pro d032639).
+const EDIT_PICKER = {picker: 'dropdown'};
+
 // One field's value, shown or edited, drawn by the SIMAI Framework field
 // renderers. Moved out of the record component's template (sf-view-properties
 // 1.10.0) so that every view of the set that draws a field draws it the same
@@ -65,7 +78,7 @@ export function renderFieldValue(context, field, editing, {disabled = false} = {
             editHost,
             // A field its condition turns off is drawn disabled where the set
             // draws disabled apart from read-only (a choice as buttons).
-            {size: context.size, ...(disabled ? {disabled: true} : {})},
+            {size: context.size, ...EDIT_PICKER, ...(disabled ? {disabled: true} : {})},
         )
         : renderViewField(field, field.value, context.viewHost, {size: context.size});
 
