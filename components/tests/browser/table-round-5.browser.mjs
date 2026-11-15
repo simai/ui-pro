@@ -273,7 +273,12 @@ try {
   // blind to the thing a person actually sees: whether they agree with the rows
   // the Framework draws inside them. Both are measured here from one origin --
   // the padding box of .sf-context-menu-content, which is the panel the items
-  // live in -- against the axis the menu publishes for its own items.
+  // live in -- against the axis where the menu puts its own items' text: the
+  // inset its rows' plates stand at (a panel's body padding, C105 H4 and C106:
+  // --sf-space-1/4 less the border, so 3) plus the item inset it publishes
+  // (--sf-context-menu--item-inset-start-1, 12): 15, 16 from the outer edge.
+  // Over ui-141822273efe the body took the panel's inset and the probe still
+  // read the item inset alone (12), from before the panel had a body.
   const axis = await page.evaluate(() => {
     const content = document.querySelector('sf-menu-context .sf-context-menu-content')
       ?? document.querySelector('sf-menu-context .sf-table-context-menu');
@@ -298,8 +303,15 @@ try {
     const style = getComputedStyle(content);
     const published = style.getPropertyValue('--sf-context-menu--item-inset-start-1').trim();
     const row = content.querySelector('[data-column-key]');
+    // Where the rows' plates stand: the content box of the panel's body, or of
+    // the content itself for a menu without one.
+    const holder = content.querySelector(':scope > .sf-context-menu-body') ?? content;
+    const holderStyle = getComputedStyle(holder);
+    const plates = Math.round((holder.getBoundingClientRect().left + holder.clientLeft + parseFloat(holderStyle.paddingLeft) - origin) * 10) / 10;
     return {
-      published: published ? px(published) : null,
+      plates,
+      item: published ? px(published) : null,
+      published: published ? Math.round((plates + px(published)) * 10) / 10 : null,
       // Each block is measured by its content, not by its own padded box: a
       // block's box spans the panel, and a Framework control's host is
       // display: contents and has no box at all. Both mistakes read as zero or
@@ -318,7 +330,7 @@ try {
     const off = (value) => value === null || Math.abs(value - axis.published) > 0.5;
     if (off(axis.searchField) || off(axis.rowStart) || off(axis.buttons)) {
       note({case: 'blocks on the menu axis', got: axis,
-        expected: `the search field, the rows and the buttons all start at the published axis (${axis.published})`});
+        expected: `the search field, the rows and the buttons all start on the menu's item axis, the plates' inset plus the published item inset (${axis.published})`});
     }
     // The pin sits at the end edge, so the search field and the pin have to
     // finish on one axis. The panel's body keeps the scrollbar's room

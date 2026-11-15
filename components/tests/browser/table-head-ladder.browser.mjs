@@ -8,12 +8,13 @@
 //     the box and controls, on a desktop names only too (they were 45/57
 //     with controls, 37/41 without; published 33/41);
 //   - --sf-table-head-block-size-* is the head drawn;
-//   - the -1/2 names are the size="1/2" table on every page (a written size
-//     is stronger than density): on a compact page too (they gave 36 there
-//     beside the 40 drawn);
-//   - the -1 names are the table without a size in the density they are read
-//     in: on a compact page the compact table, in a data-sf-density="normal"
-//     region the size="1" table.
+//   - the -1/2 names are the size="1/2" table and the -1 names the table
+//     without a size, in the density they are read in: since C79 (owner
+//     2026-11-11, changing C22) an explicit size follows the region's density
+//     one step down, so on a compact desktop page the size="1/2" table draws
+//     the compact ladder (36 with the box and menu, 32 names only; size 1 and
+//     no size 40) and the names say it; in a data-sf-density="normal" region
+//     the normal tables (size 1/2 40, size 1 48).
 import {resolve, join} from 'node:path';
 import {chromium} from 'playwright';
 
@@ -45,7 +46,7 @@ const table = (id, attrs) => `<sf-view-table id="${id}" ${attrs} toolbar="false"
 const page = (density) => `<!doctype html><html lang="ru"${density === 'compact' ? ' data-sf-density="compact"' : ''}><head><meta charset="utf-8"></head><body style="margin:0;padding:16px">
   ${table('half', 'size="1/2"')}${table('one', 'size="1"')}${table('none', '')}
   ${table('half-plain', 'size="1/2" selectable="false" settings="false"')}${table('one-plain', 'size="1" selectable="false" settings="false"')}
-  <div id="normal" data-sf-density="normal">${table('region-one', 'size="1"')}${table('region-none', '')}</div></body></html>`;
+  <div id="normal" data-sf-density="normal">${table('region-half', 'size="1/2"')}${table('region-one', 'size="1"')}${table('region-none', '')}</div></body></html>`;
 
 const failures = [];
 const browser = await chromium.launch();
@@ -91,12 +92,19 @@ try {
     // On the ladder: 40 at 1/2 and 48 at 1 with the box and controls, on a
     // desktop and on a phone; the heads of names only on a desktop (on a
     // phone they stand on the phone's rung, 36 and 44, as their rows do).
-    if (!near(drawn.half.head, 40) || !near(drawn.one.head, 48)) failures.push(`${where}: the heads with controls are ${drawn.half.head}/${drawn.one.head}, not 40/48`);
-    if (width >= 1000 && (!near(drawn['half-plain'].head, 40) || !near(drawn['one-plain'].head, 48))) failures.push(`${where}: the heads of names are ${drawn['half-plain'].head}/${drawn['one-plain'].head}, not 40/48`);
-    // The -1/2 names are the size="1/2" table; the -1 names the table without a size; a normal region reads size 1.
+    // A compact desktop page moves the explicit sizes a step down with it
+    // (C79): 36/40 with the controls, 32/40 names only; compact density is
+    // desktop only, so a phone keeps its ladder.
+    const compactDesk = density === 'compact' && width >= 1000;
+    const [controlsHalf, controlsOne, namesHalf, namesOne] = compactDesk ? [36, 40, 32, 40] : [40, 48, 40, 48];
+    if (!near(drawn.half.head, controlsHalf) || !near(drawn.one.head, controlsOne)) failures.push(`${where}: the heads with controls are ${drawn.half.head}/${drawn.one.head}, not ${controlsHalf}/${controlsOne}`);
+    if (width >= 1000 && (!near(drawn['half-plain'].head, namesHalf) || !near(drawn['one-plain'].head, namesOne))) failures.push(`${where}: the heads of names are ${drawn['half-plain'].head}/${drawn['one-plain'].head}, not ${namesHalf}/${namesOne}`);
+    // In the normal region the tables draw the normal ladder whatever the page.
+    if (!near(drawn['region-half'].head, 40) || !near(drawn['region-one'].head, 48)) failures.push(`${where}: the normal region's heads are ${drawn['region-half'].head}/${drawn['region-one'].head}, not 40/48`);
+    // The -1/2 names are the size="1/2" table; the -1 names the table without a size; a normal region reads its own tables.
     const checks = [['row12', drawn.half.row], ['head12', drawn.half.head], ['row1', drawn.none.row], ['head1', drawn.none.head]];
     for (const [key, value] of checks) if (!near(read.page[key], value)) failures.push(`${where}: --${key} reads ${read.page[key]} on the page, the table draws ${value}`);
-    for (const [key, value] of [['row1', drawn['region-one'].row], ['head1', drawn['region-one'].head], ['row12', drawn.half.row]]) {
+    for (const [key, value] of [['row1', drawn['region-one'].row], ['head1', drawn['region-one'].head], ['row12', drawn['region-half'].row], ['head12', drawn['region-half'].head]]) {
       if (!near(read.region[key], value)) failures.push(`${where}: --${key} reads ${read.region[key]} in a normal region, the table draws ${value}`);
     }
     if (drawn.half.controls < 1) failures.push(`${where}: the 1/2 head draws no controls (${JSON.stringify(drawn.half)})`);
@@ -113,4 +121,4 @@ if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
 }
-console.log('table head ladder: heads are one-line rows (40/48), the published box is the drawn one on normal and compact pages, light and dark, 1280 and 390');
+console.log('table head ladder: heads are one-line rows (40/48; a compact desktop page a step down, C79), the published box is the drawn one on normal and compact pages and in a normal region, light and dark, 1280 and 390');

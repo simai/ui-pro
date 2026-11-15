@@ -2378,7 +2378,9 @@
           "from": "1.18.1",
           "to": "1.18.3",
           "changes": [
-            "ui-pro's copy of the view release view-9eff67bbf11f (view 1.7.1), rebuilt over SIMAI Framework ui-141822273efe (ui-source f92aeee7, core.runtime 1.56.0): the Framework code it builds in moved -- option-badge (C140 (2), BG-7) draws a hex option colour in the nearest static palette hue at the fill step 24 and takes a palette hue by name, and sf-pagination 1.5 (C97) says the total as the page's range. 1.18.2 is held by unreleased simai/ui-view branches. Nothing to change for a host."
+            "ui-pro's copy of the view release view-9eff67bbf11f (view 1.7.1), rebuilt over SIMAI Framework ui-141822273efe (ui-source f92aeee7, core.runtime 1.56.0): the Framework code it builds in moved -- option-badge (C140 (2), BG-7) draws a hex option colour in the nearest static palette hue at the fill step 24 and takes a palette hue by name, and sf-pagination 1.5 (C97) says the total as the page's range. 1.18.2 is held by unreleased simai/ui-view branches. Nothing to change for a host.",
+            "The published box follows density for a written size too (owner decision C79, 2026-11-11, changing the C22 reading of view 1.6.1): a size=\"1/2\" table on a compact desktop page draws the compact ladder (36 with the box and menu), and the -1/2 names said the normal 40; the rule that moved them a rung up on a compact page is gone, so --sf-table-*-1/2 and -1 are the tables of the density of the element they are read on, a data-sf-density=\"normal\" region included.",
+            "The windows' footer stands on the menu's own inset (SIMAI Framework C105 H4, C106): the table zeroed the menu's inline content padding, from which the head, the top and the footer take their margin (the padding less the border), so the footer stood 1px outside the panel's padding edge and its buttons 11px from it while the search and the rows stood at the panel inset plus the item inset, 15 (16 from the outer edge, where the Framework's panel rows put their text). The inline padding is the menu's again and the window's blocks start on one axis."
           ]
         }
       ]

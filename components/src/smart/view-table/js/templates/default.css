@@ -326,19 +326,17 @@
      menu) or its text, one line or two, and never below the rung it
      stands on. The head is a one-line row (view 1.6.1).
 
-     Density (C22, view 1.6.1). A size the page writes is stronger than the
-     page's density, so a table of size="1/2" draws the normal ladder on a
-     compact page too, and the -1/2 names say that table on every page. A
-     table without a size is the one density moves: the -1 names follow the
-     density of the element they are read on. Declared on every element that
-     sets a density as well as on the root, so a region of data-sf-density
-     reads the box of its own density. On a compact page the -1/2 names are
-     the step above in the compact ladder, which is the normal 1/2 (C22: each
-     step holds the value of the step below), so a table without a size
-     there is exactly the -1/2 box. Desktop only, as the density itself
-     (SIMAI Framework _sf_css__density.scss: 60rem). The 1.6.0 names gave 36
-     on a compact page beside the 40 the 1/2 table draws (D3 of the 1.6.0
-     acceptance). */
+     Density (C79, owner 2026-11-11, changing the C22 reading of view
+     1.6.1): an explicit size follows the region's density one step down, as
+     a table without a size does, so a table of size="1/2" on a compact page
+     draws the compact ladder (36 with the box and menu at 1280, where the
+     view 1.6.1 names said 40), and a data-sf-density="normal" region keeps
+     the normal one. Both the -1/2 and the -1 names are therefore the ladder
+     of the density of the element they are read on: the tokens below move
+     with it, and they are declared on every element that sets a density as
+     well as on the root, so a region reads the box of its own density. The
+     view 1.6.1 rule that moved the -1/2 names a rung up on a compact desktop
+     page (C22: a written size stronger than density) is gone. */
   :root,
   [data-sf-density] {
     --sf-table-row-block-size-1\/2: max(var(--sf-ui-1--control-height), var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) + max(var(--sf-ui-1\/2--control-height), var(--sf-text-height-1\/2)));
@@ -353,14 +351,6 @@
     --sf-table-toolbar-block-size-1\/2: var(--sf-ui-1\/2--control-height);
     --sf-table-toolbar-block-size-1: var(--sf-ui-1--control-height);
     --sf-table-toolbar-gap: var(--sf-space-1\/3);
-  }
-
-  @media (min-width: 60rem) {
-    [data-sf-density="compact"] {
-      --sf-table-row-block-size-1\/2: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), var(--sf-text-height-1)));
-      --sf-table-row-2-lines-block-size-1\/2: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), 2 * var(--sf-text-height-1)));
-      --sf-table-toolbar-block-size-1\/2: var(--sf-ui-1--control-height);
-    }
   }
 
   /* The moment the table is measured for its content widths (see
@@ -1155,15 +1145,20 @@
     /*--sf-context-menu-content--padding-inline-end: var(--sf-space-2);*/
     /*--sf-context-menu-content--padding-inline-start: var(--sf-space-2);*/
     /*--sf-context-menu-content--padding-top: var(--sf-space-2);*/
-    /* These are lengths, not numbers. The menu's own axis is published as
-       `calc(space-x + 1px - var(--sf-context-menu-content--padding-inline-start))`,
-       and a unitless 0 makes that calc invalid, so the whole declaration is
-       dropped: the axis read as nothing on this panel, the menu's own items lost
-       their inset here, and this window's blocks had no axis to follow. A zero
-       with a unit costs nothing and keeps the arithmetic valid. */
+    /* These are lengths, not numbers: a unitless 0 makes the menu's own
+       arithmetic invalid and drops the declaration.
+
+       The inline insets stay the menu's own (SIMAI Framework C105 H4, C106):
+       a panel gives its inline padding to its body, which stands the inset
+       --sf-space-1/4 less the border from the panel's edge, and the head, the
+       top and the footer take the same inset as a margin
+       (--sf-context-menu-content--edge-inline-*, the padding less the
+       border). Zeroed here, that edge read 0 - 1px: the footer stood 1px
+       outside the panel's padding edge and its buttons 11px from it, while the
+       search and the rows in the body stood at the inset plus the item inset,
+       15 (16 from the outer edge, where the Framework's own panel rows put
+       their text). The window's blocks follow the menu's axis whole. */
     --sf-context-menu-content--padding-bottom: 0px;
-    --sf-context-menu-content--padding-inline-end: 0px;
-    --sf-context-menu-content--padding-inline-start: 0px;
     --sf-context-menu-content--padding-top: 0px;
   }
   .sf-table-context-menu .sf-settings-context-menu-item .sf-icon-button {

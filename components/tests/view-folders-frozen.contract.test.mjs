@@ -41,12 +41,22 @@ const FROZEN = {
 // entries: sf-view-properties C22 (released in view 1.6.1) and the sf-view-table
 // pin shadow on a surface role (released in view 1.7.0).
 const PATCHED = {
-  // sf-view-table: the view release rebuilt over ui-141822273efe (2026-11-15):
-  // smart.manifest.json's provenance of the Framework files it builds in
-  // (option-badge, pagination) and the version, 1.18.3 (1.18.2 is held by
-  // unreleased simai/ui-view branches). simai/ui-view takes the same when it
-  // moves to that pair.
-  'view-table': {tree: '34460b506c904705eb138b2047c9f1c9cb02004b', patch: 'rebuilt over ui-141822273efe, sf-view-table 1.18.3 (2026-11-15)'},
+  // sf-view-table 1.18.3 (2026-11-15, pro over ui-141822273efe): the view
+  // release rebuilt over that pair (smart.manifest.json's provenance of the
+  // Framework files it builds in, option-badge and pagination), the published
+  // box following density for a written size too (C79), and the windows'
+  // footer on the menu's inset (C105 H4, C106: the table zeroed the menu's
+  // inline content padding). 1.18.2 is held by unreleased simai/ui-view
+  // branches. The patch for simai/ui-view is ui-control
+  // control/evidence/2026-11-15-pro-fixes/view-table.patch.
+  'view-table': {tree: 'f63751fc79e37c8d3a9c23f5304289bd84b0ce60', patch: 'rebuilt over ui-141822273efe, C79 published box, menu-inset footer, sf-view-table 1.18.3 (2026-11-15)'},
+  // sf-view-properties 1.15.2 (2026-11-15): the panel takes back the drawer's
+  // own block padding (--sf-drawer--inset, sf-drawer over ui-141822273efe),
+  // and the skeleton's tab strip stands over the tabs' hairline (1px taller
+  // than the tabs before). 1.14.0-1.15.1 are held by unreleased branches. The
+  // patch for simai/ui-view is ui-control
+  // control/evidence/2026-11-15-pro-fixes/view-properties.patch.
+  'view-properties': {tree: 'a0c9b60c22c7ae8bf37bb5f9dd2daf3426d717d2', patch: 'drawer inset and skeleton tab strip, sf-view-properties 1.15.2 (2026-11-15)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
