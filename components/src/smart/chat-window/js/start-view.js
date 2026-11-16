@@ -10,6 +10,9 @@
 import {iconButton} from '../../chat-message/js/view/message.js';
 import {GroupKey, checkGroup, groupLimits, searchOutcome, startOutcome} from './start-model.js';
 
+// How many frames a just-placed field may take to draw its input (focusField).
+const FIELD_FRAMES = 60;
+
 let views = 0;
 
 // A form cannot wait for ever (a promise the host never settles would hold it
@@ -159,9 +162,13 @@ export class StartView {
   }
 
   // The field's own box: sf-input's host takes no focus (it has no box of its
-  // own), and a field just placed draws it a frame later.
+  // own), and a field just placed draws it some frames later. The first field
+  // of a new form is drawn when its sheets are in: over SIMAI Framework
+  // ui-078a4b4c6f6e (sf-input 1.11+, C153) that is about ten frames after the
+  // element is defined, past the window's usual budget, and the focus stayed
+  // on the form's title. A field waits up to FIELD_FRAMES, then makes do.
   focusField(field) {
-    this.win.afterDraw(() => field.querySelector('input'), (input) => input?.focus());
+    this.win.afterDraw(() => field.querySelector('input'), (input) => input?.focus(), FIELD_FRAMES);
   }
 
   clear() {

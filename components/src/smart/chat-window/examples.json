@@ -1919,7 +1919,7 @@
             {
               "script": "(window.w.openStart({kind: 'group'}), window.answers['recipients.search'] = () => ({answer: 'applied', data: {items: [window.people.a, window.people.b]}}), true)",
               "wait": 600,
-              "check": "window.lookup().getAttribute('max-items') === '2' && window.titleField().querySelector('input').maxLength === 10 && JSON.stringify(window.lookup().exclude) === '[7]'"
+              "check": "window.lookup().getAttribute('max-items') === '2' && window.titleField().getAttribute('maxlength') === '10' && JSON.stringify(window.lookup().exclude) === '[7]'"
             },
             {
               "script": "(window.w.querySelector('.chat-start__create button').click(), true)",
