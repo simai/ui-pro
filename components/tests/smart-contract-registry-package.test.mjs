@@ -34,7 +34,9 @@ test("the package composites are generated into the searchable registry beside t
   // sf-input-choice, sf-list-description and sf-list-timeline
   // (ui-0c23f6a0af12): 81 free and 17 of the package make 98. sf-time and
   // sf-change (ui-7f1d29b02919): 83 free and 17 of the package make 100.
-  assert.equal(registry.entries.length, 100);
+  // sf-display-settings, sf-form and sf-tag-group (pair 5.20261115.1622,
+  // ui-source 5f130e62f): 86 free and 17 of the package make 103.
+  assert.equal(registry.entries.length, 103);
   assert.ok(registry.entries.some((entry) => entry.id === "smart.confirm-change"), "sf-confirm-change, now the Framework's");
   for (const id of ["smart.admin-menu", "smart.view-table", "smart.view", "smart.view-properties",
     "smart.message-log", "smart.chat-threads", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",

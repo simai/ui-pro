@@ -54,8 +54,11 @@ const PATCHED = {
   // template's actions (C155 (2), TL-1), and a row's menu on a right click, the
   // context-menu key and Shift+F10 (C164 (1)(2), TL-2), sf-view-table 1.17.4;
   // the patch for simai/ui-view is ui-control
-  // control/evidence/2026-11-15-admin-set-k1/view-table-k1.patch.
-  'view-table': {tree: 'e56544e06f6e47fdded26c0488ce32a4e6859a39', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); ⋯ and the row context menu, 1.17.4 (2026-11-15)'},
+  // control/evidence/2026-11-15-admin-set-k1/view-table-k1.patch. Over pair
+  // 5.20261115.1622 (ui-source 5f130e62f, admin set K-2, 2026-11-16) the
+  // manifest's provenance digest of the Framework's pagination/index.js is
+  // refreshed; no source of the folder changes.
+  'view-table': {tree: '806c59cdd793d014435cb7f849ab54685aaf48ba', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); ⋯ and the row context menu, 1.17.4 (2026-11-15); provenance over ui-source 5f130e62f (2026-11-16)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
