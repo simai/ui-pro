@@ -20,5 +20,6 @@ SF.RuleLoader['cl-editor'] = {
     { name: 'cl-editor-inline' },
     { name: 'cl-menu-context', lazy: true },
     { name: 'cl-modal', lazy: true },
+    { name: 'cl-empty-state', lazy: true },
   ],
 };

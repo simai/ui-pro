@@ -31,6 +31,20 @@ const FROZEN = {
   'editor': '40c91f0c7a26342304e9f997c9f5a067422589c3',
 };
 
+// A folder may carry a patch the release does not have yet, made here ahead of
+// simai/ui-editor because a pair needs it before the next editor release
+// (as view-folders-frozen.contract.test.mjs allows for the view folders). The
+// patched tree is the one held; the patch is named so the next editor release
+// takes it.
+// Over ui-078a4b4c6f6e (2026-11-16), sf-editor 1.2.6: the rule relates
+// cl-empty-state (lazy), which the pair's pro.package.json requires of
+// cl-editor since ui-source 64e639814 (sf-editor draws sf-empty-state as the
+// Composition fragment boundary's error state); without it the package
+// receipt refuses the build. simai/ui-editor takes the same relation.
+const PATCHED = {
+  'editor': {tree: '89ad5ba037e20ad77a14daf56a4c4b3a24cf5889', patch: 'cl-empty-state relation, sf-editor 1.2.6 (2026-11-16)'},
+};
+
 // What git ignores here (.gitignore of this repository) is not part of a tree.
 const IGNORED = new Set(['.DS_Store', 'node_modules']);
 
@@ -58,11 +72,13 @@ const treeOf = (directory) => {
   return object('tree', body);
 };
 
-for (const [folder, expected] of Object.entries(FROZEN)) {
-  test(`src/smart/${folder} is the editor release ${RELEASE}, unchanged`, () => {
+for (const [folder, released] of Object.entries(FROZEN)) {
+  const patched = PATCHED[folder];
+  const expected = patched?.tree ?? released;
+  test(`src/smart/${folder} is the editor release ${RELEASE}${patched ? ` with the patch ${patched.patch}` : ', unchanged'}`, () => {
     const actual = treeOf(join(root, 'src', 'smart', folder)).toString('hex');
     assert.equal(actual, expected,
-      `src/smart/${folder} differs from the editor set release ${RELEASE} (tree ${expected}). `
+      `src/smart/${folder} differs from the editor set release ${RELEASE} (tree ${expected}${patched ? `, the release ${released} with the patch ${patched.patch}` : ''}). `
       + 'The editor folder is frozen in ui-pro: changes to sf-editor go to simai/ui-editor (package/src/smart), '
       + 'are released there, and come into pro with the next editor release. '
       + 'Revert the change here and make it in simai/ui-editor.');
