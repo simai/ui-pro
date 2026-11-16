@@ -2768,7 +2768,7 @@
       },
       {
         "path": "src/smart/chat-window/js/start-view.js",
-        "sha256": "5dc43f0fc8ab67705568c28bb68cef22e1016088be8269bff514226770212435"
+        "sha256": "5a164c1f2420855dbfc8c71b2bedd48a8a64e35a1648cc81de2c0aaf300688d1"
       },
       {
         "path": "src/smart/chat-window/js/start-model.js",
@@ -2792,7 +2792,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "7086a0a4299c6e740db719dd92994cce746aceac254397cf9af81964381546e1"
+        "sha256": "8cf3c8bd8be19265d447d5a1d0d353b1b9aa7791fb4961947c7797fdd2f2ff88"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

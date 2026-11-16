@@ -162,13 +162,17 @@ export class StartView {
   }
 
   // The field's own box: sf-input's host takes no focus (it has no box of its
-  // own), and a field just placed draws it some frames later. The first field
-  // of a new form is drawn when its sheets are in: over SIMAI Framework
-  // ui-078a4b4c6f6e (sf-input 1.11+, C153) that is about ten frames after the
-  // element is defined, past the window's usual budget, and the focus stayed
-  // on the form's title. A field waits up to FIELD_FRAMES, then makes do.
+  // own), and a field just placed draws it some frames later. Over SIMAI
+  // Framework ui-078a4b4c6f6e (sf-input 1.11+, C153) the input is there before
+  // the field's sheets are, but hidden until they are, and a hidden input
+  // takes no focus: the focus stayed on the form's title. So the field is
+  // ready when its input can be seen; it waits up to FIELD_FRAMES, then makes do.
   focusField(field) {
-    this.win.afterDraw(() => field.querySelector('input'), (input) => input?.focus(), FIELD_FRAMES);
+    const shown = (input) => (input && typeof input.checkVisibility === 'function' ? input.checkVisibility({visibilityProperty: true}) : Boolean(input));
+    this.win.afterDraw(() => {
+      const input = field.querySelector('input');
+      return shown(input) ? input : null;
+    }, (input) => input?.focus(), FIELD_FRAMES);
   }
 
   clear() {
