@@ -463,11 +463,15 @@ class SfMailInspector extends MailInspectorElement {
         this.menuFor = {path, index};
         const native = anchor?.querySelector?.("button") ?? anchor;
         // The Loader brings sf-menu-context when the page is ready (the rule
-        // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-menu-context").then(() => {
-            menu.entries = this.menuEntries(list, index);
-            menu.toggleFor(native);
-        });
+        // fetches it lazily); a press before that asks the Loader for it now
+        // (SF.Loader.ensure, defect TL-7) and waits for it.
+        Promise.resolve(globalThis.SF?.Loader?.ensure?.(["sf-menu-context"]))
+            .catch(() => null)
+            .then(() => customElements.whenDefined("sf-menu-context"))
+            .then(() => {
+                menu.entries = this.menuEntries(list, index);
+                menu.toggleFor(native);
+            });
     }
 
     onMenuSelect(detail = {}) {
