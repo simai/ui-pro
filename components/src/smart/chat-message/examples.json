@@ -1106,7 +1106,7 @@
         },
         {
           "id": "p9-sanitize",
-          "title": "ui-chat's sanitize acceptance through the element (tests/browser/sanitize.test.mjs): the schemes, the OWASP families and nested forbidden elements execute nothing and leave no element or attribute off the list; every scheme vector loses its href and keeps its text; h1 and s are unwrapped; allowed markup and root-relative links stay; code keeps one language class. SF.sanitizeHtml is used when the page has it, else the component's copy",
+          "title": "ui-chat's sanitize acceptance through the element (tests/browser/sanitize.test.mjs): the schemes, the OWASP families and nested forbidden elements execute nothing and leave no element or attribute off the list; every scheme vector loses its href and keeps its text; h1 and s are unwrapped; allowed markup and root-relative links stay; code keeps one language class; a kept link opening a new tab carries Core's new-tab sign (SIMAI Framework C186 (3)), read apart from the markup. SF.sanitizeHtml is used when the page has it, else the component's copy",
           "covers": "sanitize (SF.sanitizeHtml, Core's), security.untrusted_inputs",
           "steps": [
             {
@@ -1127,7 +1127,7 @@
             {
               "script": "(document.querySelector('#s').message = {\"id\":\"s4\",\"role\":\"assistant\",\"status\":\"completed\",\"text\":\"Отпуск — 28 дней.\",\"html\":\"<h3>Итог</h3><p><strong>28</strong> дней, <em>см.</em> <a href=\\\"https://example.gov.ru/tk/125\\\">ТК</a> и <a href=\\\"/app/help\\\">справку</a></p><pre><code class=\\\"language-js\\\">a &lt; b</code></pre><blockquote>цитата</blockquote><ul><li>раз</li></ul><table><thead><tr><th colspan=\\\"2\\\" scope=\\\"col\\\">A</th></tr></thead></table>\"}, true)",
               "wait": 300,
-              "check": "(() => { const m = document.querySelector('#s .sf-chat-markup'); const html = m.innerHTML; const code = m.querySelector('code.language-js'); return html.startsWith('<h3>Итог</h3><p><strong>28</strong> дней, <em>см.</em> <a href=\"https://example.gov.ru/tk/125\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">ТК</a> и <a href=\"/app/help\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">справку</a></p>') && html.includes('<blockquote>цитата</blockquote><ul><li>раз</li></ul>') && code && code.textContent === 'a < b' && m.querySelector('th[colspan=\"2\"][scope=col]').textContent === 'A'; })()"
+              "check": "(() => { const m = document.querySelector('#s .sf-chat-markup'); const marked = m.querySelectorAll('a[target=\"_blank\"] > [data-sf-new-tab=\"tail\"] > [data-sf-new-tab=\"mark\"]').length; const bare = m.cloneNode(true); bare.querySelectorAll('[data-sf-new-tab=\"mark\"], [data-sf-new-tab=\"words\"]').forEach((one) => one.remove()); bare.querySelectorAll('[data-sf-new-tab=\"tail\"]').forEach((one) => one.replaceWith(...one.childNodes)); const html = bare.innerHTML; const code = m.querySelector('code.language-js'); return html.startsWith('<h3>Итог</h3><p><strong>28</strong> дней, <em>см.</em> <a href=\"https://example.gov.ru/tk/125\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">ТК</a> и <a href=\"/app/help\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">справку</a></p>') && html.includes('<blockquote>цитата</blockquote><ul><li>раз</li></ul>') && code && code.textContent === 'a < b' && m.querySelector('th[colspan=\"2\"][scope=col]').textContent === 'A' && marked === 2; })()"
             }
           ]
         },
