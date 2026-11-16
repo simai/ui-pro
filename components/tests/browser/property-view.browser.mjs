@@ -1206,7 +1206,12 @@ try {
       }
       const labels = () => [...node.querySelectorAll('[role="option"]')]
         .map((item) => (item.querySelector('.sf-lookup-option-label')?.textContent ?? item.textContent ?? '').trim()).filter(Boolean);
-      const firstPage = labels();
+      // A lookup holding a value opens no rows on focus (C139: suggestions are
+      // for an empty field), so the first page is read where the group put it:
+      // the page held for the field, asked quietly as the group opened.
+      const shownRows = labels();
+      const heldRows = view.getFieldOptionsPage({key: 'section'})?.items?.map((item) => item.label) ?? [];
+      const firstPage = shownRows.length ? shownRows : heldRows;
       // A chosen record the first page does not hold must still be the
       // selection and still be shown -- in the field, where a lookup shows it.
       const holdsChosen = /Платежи/u.test(node.querySelector('.sf-lookup-input')?.value ?? '')
