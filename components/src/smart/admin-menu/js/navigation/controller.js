@@ -292,7 +292,10 @@ export class NavigationController {
             // arrangement of the menu -- the rail and the phone included, which
             // is the reason it is a palette over the page rather than a column.
             if (matchesShortcut(event, PALETTE_KEYS) && this.offers("search")) {
+                // The key is the menu's: the open window's field does not hear
+                // it after the window has closed under it.
                 event.preventDefault();
+                event.stopPropagation();
                 this.togglePalette();
             }
         };
