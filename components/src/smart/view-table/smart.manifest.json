@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.19.7",
+  "version": "1.19.8",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2717,6 +2717,13 @@
           "A row's text starts where the Framework's table now puts it: the published --sf-table--row-text-inset is the cell spacing plus --sf-space-1 (16 at 1440, 12 under compact density and on a phone), the edge inset a list row has, which the table classes give the first cell from utility.table 1.3.0 (C77, C105 H6, in the pair); it was the cell spacing plus --sf-a8, the 8 every cell had. sf-view-properties pulls a related list out by this number, so the list's row text stays on the field-label axis (with the old number it stood 8, 4 compact and on a phone, off it). As ui-pro d766e41 (fix/pro-g4) and simai/ui-view 1.19.0.",
           "The windows' blocks stand on the menu's own inset (C105 H4, C106, sf-menu-context 1.19.0 in the pair): the table no longer zeroes the menu's inline content padding, from which the menu's head, top and footer take their margin; zeroed, the footer stood 1px outside the panel's padding edge and its buttons 11px from it, beside the search and the rows at 15. Search, rows and buttons all start at 15 now. As ui-pro 4059d01 (pin/pair-141822273efe).",
           "1.17.2 to 1.19.6 are held by unreleased ui-pro and simai/ui-view branches. Nothing to change for a host."
+        ]
+      },
+      {
+        "from": "1.19.7",
+        "to": "1.19.8",
+        "changes": [
+          "Rebuilt over SIMAI Framework ui-078a4b4c6f6e (ui-source 10145e63b, core.runtime 1.58.0). The Framework code it builds in moved: sf-pagination 1.7 (C167) loads the next page when «Show more» comes within reach of the box that scrolls it, and its bulk band lists a deleting action last as the outlined danger Apply (C116); smart.manifest.json's provenance of src/smart/pagination/index.js follows. Nothing of its own changes; 1.19.8 is above every origin branch (1.19.7 in simai/ui-pro, 1.19.6 in simai/ui-view). Nothing to change for a host."
         ]
       }
     ]

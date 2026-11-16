@@ -61,8 +61,10 @@ const PATCHED = {
   // provenance of the Framework files it builds in (option-badge, pagination),
   // the row-text inset on --sf-space-1 (utility.table 1.3.0, as ui-pro d766e41)
   // and the windows on the menu's own inline inset (C105 H4, C106, as ui-pro
-  // 4059d01). simai/ui-view takes the same when it moves to that pair.
-  'view-table': {tree: 'f75e50e903e0faa8cfed08033f2c288664d42aed', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15)'},
+  // 4059d01). Over ui-078a4b4c6f6e (2026-11-16), sf-view-table 1.19.8: the
+  // provenance of src/smart/pagination/index.js (sf-pagination 1.7, C167), and
+  // the version. simai/ui-view takes the same when it moves to that pair.
+  'view-table': {tree: 'e9867d0b8283583243035196841761ba5463d8d7', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, sf-view-table 1.19.8 (2026-11-16)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
