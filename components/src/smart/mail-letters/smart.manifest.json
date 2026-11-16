@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-letters",
-  "version": "1.0.8",
+  "version": "1.1.1",
   "title": "Emails",
   "summary": "Every letter a person has in SIMAI Email Editor: a search by name, an order, and what each row offers -- «Открыть» and, under ⋯, a copy, a rename and a delete. The moment and the block count are worded in the page's language. The element holds no letter and stores nothing; it says what the person chose.",
   "kind": "smart",
@@ -138,9 +138,19 @@
       "summary": "Search as the field does: sets query.",
       "arguments": [
         {
-          "name": "query",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "query"
+            ]
           }
         }
       ],
@@ -153,11 +163,21 @@
       "summary": "Order the rows as the order control does; refused unknown for an order that is not changed or title.",
       "arguments": [
         {
-          "name": "order",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "enum": [
-              "changed",
-              "title"
+            "type": "object",
+            "properties": {
+              "order": {
+                "enum": [
+                  "changed",
+                  "title"
+                ]
+              }
+            },
+            "required": [
+              "order"
             ]
           }
         }
@@ -171,20 +191,27 @@
       "summary": "Do what a row or the bar would: sends open, copy, rename, delete or create; refused current for opening the letter open now.",
       "arguments": [
         {
-          "name": "action",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "enum": [
-              "open",
-              "copy",
-              "rename",
-              "delete",
-              "create"
+            "type": "object",
+            "properties": {
+              "action": {
+                "enum": [
+                  "open",
+                  "copy",
+                  "rename",
+                  "delete",
+                  "create"
+                ]
+              },
+              "id": {}
+            },
+            "required": [
+              "action"
             ]
           }
-        },
-        {
-          "name": "id",
-          "schema": {}
         }
       ],
       "returns": {
@@ -393,15 +420,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/mail-letters/index.js",
-        "sha256": "2b16db37d5326d5141a041fcd9627ca46672462edcc953fd91b9b57176814a88"
+        "sha256": "b800d4c22abb97ae816d7d2578354923520358fe9d814d2bc46dc32a5a8cefa6"
       },
       {
         "path": "src/smart/mail-letters/js/templates/default.js",
-        "sha256": "302426803ca1e38ac84481cdcb66ddf2e85abd016b9a2071f46652f02f65dc03"
+        "sha256": "6142b7785ca28556b586304d9b23c81ecca90f937beff1d9d136791105193b39"
       },
       {
         "path": "src/smart/mail-letters/js/templates/default.css",
-        "sha256": "9edd09ba51724e6f77316359fddabec9d2ba16252df27ef0f7d8ce41064b5059"
+        "sha256": "034473469050d0d6222cd8cee21a3241624e13e181b004fd4b3c22e4bfb2f7c0"
       },
       {
         "path": "src/smart/mail-letters/rule.js",
@@ -413,7 +440,7 @@
       },
       {
         "path": "src/smart/mail-letters/component.json",
-        "sha256": "c7a987b915392365ce3ecc7d1186332da833e492dbe770c250176eddcb0fd047"
+        "sha256": "6dffcc4f204f54f2052d909421f136745410de74a151fee66579bb19cbfbdcfa"
       },
       {
         "path": "src/smart/mail-letters/lang/en.json",

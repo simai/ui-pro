@@ -1698,12 +1698,16 @@ class SfContentEditor extends ContentEditorElement {
                 {type: "separator"},
             );
         }
+        // The keys in SIMAI Framework's shortcut notation (component kbd, C04;
+        // KB-1): sf-menu-context draws them in the platform's words -- ⌥↑ and
+        // ⌘D on a Mac, Alt+↑ and Ctrl+D elsewhere -- where «⌘D» was written
+        // for every system.
         entries.push(
-            {id: "up", text: this.sfWord("up-text"), icon: "arrow_upward", shortcut: "Alt+↑", disabled: place.index === 0},
-            {id: "down", text: this.sfWord("down-text"), icon: "arrow_downward", shortcut: "Alt+↓", disabled: place.index === list.length - 1},
-            {id: "duplicate", text: this.sfWord("duplicate-text"), icon: "content_copy", shortcut: "⌘D"},
+            {id: "up", text: this.sfWord("up-text"), icon: "arrow_upward", shortcut: "alt+up", disabled: place.index === 0},
+            {id: "down", text: this.sfWord("down-text"), icon: "arrow_downward", shortcut: "alt+down", disabled: place.index === list.length - 1},
+            {id: "duplicate", text: this.sfWord("duplicate-text"), icon: "content_copy", shortcut: "mod+d"},
             {type: "separator"},
-            {id: "remove", text: this.sfWord("delete-text"), icon: "delete", shortcut: "⌫", danger: true},
+            {id: "remove", text: this.sfWord("delete-text"), icon: "delete", shortcut: "backspace", danger: true},
         );
         return entries;
     }

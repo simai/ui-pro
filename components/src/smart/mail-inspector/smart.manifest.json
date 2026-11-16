@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-inspector",
-  "version": "1.0.7",
+  "version": "1.1.1",
   "title": "Letter inspector",
   "summary": "The right panel of SIMAI Email Editor as a form drawn from data: a heading with its actions, the path of levels, tabs, accordion sections and every field the editor has. The host passes the form in the person's language, including each field's value, error, hint and placeholder; the element says what the person did and changes nothing. Typed text the host did not take survives a redraw, and a redraw never moves the focus or the caret out of the field being typed in.",
   "kind": "smart",
@@ -264,9 +264,19 @@
       "summary": "what a press on the path does; refused unknown",
       "arguments": [
         {
-          "name": "index",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "number"
+            "type": "object",
+            "properties": {
+              "index": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "index"
+            ]
           }
         }
       ],
@@ -279,8 +289,18 @@
       "summary": "asks for a tab as a press does: sends tab, the host passes it back; refused unknown",
       "arguments": [
         {
-          "name": "id",
-          "schema": {}
+          "name": "args",
+          "type": "object",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": {}
+            },
+            "required": [
+              "id"
+            ]
+          }
         }
       ],
       "returns": {
@@ -292,8 +312,18 @@
       "summary": "opens or closes a section as its heading does; refused unknown",
       "arguments": [
         {
-          "name": "key",
-          "schema": {}
+          "name": "args",
+          "type": "object",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "key": {}
+            },
+            "required": [
+              "key"
+            ]
+          }
         }
       ],
       "returns": {
@@ -305,15 +335,23 @@
       "summary": "what an item's disclosure does; refused unknown",
       "arguments": [
         {
-          "name": "path",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "index",
-          "schema": {
-            "type": "number"
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "index": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "path",
+              "index"
+            ]
           }
         }
       ],
@@ -326,9 +364,19 @@
       "summary": "what «Добавить элемент» does; refused unknown, full",
       "arguments": [
         {
-          "name": "path",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path"
+            ]
           }
         }
       ],
@@ -341,27 +389,29 @@
       "summary": "asks to move an item to a place or by steps; refused unknown, unchanged",
       "arguments": [
         {
-          "name": "path",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "index",
-          "schema": {
-            "type": "number"
-          }
-        },
-        {
-          "name": "to",
-          "schema": {
-            "type": "number"
-          }
-        },
-        {
-          "name": "by",
-          "schema": {
-            "type": "number"
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "index": {
+                "type": "number"
+              },
+              "to": {
+                "type": "number"
+              },
+              "by": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "path",
+              "index"
+            ]
           }
         }
       ],
@@ -374,15 +424,23 @@
       "summary": "what «Дублировать» under ⋯ does; refused unknown, full",
       "arguments": [
         {
-          "name": "path",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "index",
-          "schema": {
-            "type": "number"
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "index": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "path",
+              "index"
+            ]
           }
         }
       ],
@@ -395,15 +453,23 @@
       "summary": "what «Удалить» under ⋯ does; refused unknown, least",
       "arguments": [
         {
-          "name": "path",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "index",
-          "schema": {
-            "type": "number"
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "index": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "path",
+              "index"
+            ]
           }
         }
       ],
@@ -416,15 +482,23 @@
       "summary": "puts the focus on an item's disclosure, after the draw; refused unknown with no path",
       "arguments": [
         {
-          "name": "path",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
-          }
-        },
-        {
-          "name": "index",
-          "schema": {
-            "type": "number"
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "index": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "path",
+              "index"
+            ]
           }
         }
       ],
@@ -791,15 +865,15 @@
     "source_artifacts": [
       {
         "path": "src/smart/mail-inspector/index.js",
-        "sha256": "a97dab6a9f6ef37d5c864f4ba664a9098cf9111feb27c4fcddde1db4bd097511"
+        "sha256": "96a9ecbee15794603ffb8c551683498019ef7155bb83336460069aed946daa26"
       },
       {
         "path": "src/smart/mail-inspector/js/templates/default.js",
-        "sha256": "7c7e136c295f7efd59f6c73369531049de34b33c4da3dd7d5e3a634fa0dded8f"
+        "sha256": "f996c666ad10b5a469161eca5d174c5f24b9e7c93502f6667d38dbfed5815d5a"
       },
       {
         "path": "src/smart/mail-inspector/js/templates/default.css",
-        "sha256": "510e1ecc013d49cf6f4c7b56d815dfd6aa53865c109ca63fc7ffd61fefe7dbce"
+        "sha256": "494755bff011d441ff9e3225051895905919424502568cb406039bcffc0fa60c"
       },
       {
         "path": "src/smart/mail-inspector/rule.js",
@@ -811,7 +885,7 @@
       },
       {
         "path": "src/smart/mail-inspector/component.json",
-        "sha256": "2773fc741d5a20949ce7eec55c7a90a62e150efd89806e7152e147987f1a7293"
+        "sha256": "ca4a5ceb2f51144e4bf79acb5eb9642947340e9d5c90b2f3caed60969ed05522"
       },
       {
         "path": "src/smart/mail-inspector/lang/en.json",

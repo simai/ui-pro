@@ -21,6 +21,10 @@
 
 
 
+<button type="button" class="sf-field-action sf-input-clear" data-action="clear" aria-label="Очистить"><sf-icon icon="close" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>close</i></sf-icon></button>
+
+
+
 
 
 </span>
@@ -41,10 +45,11 @@
 
 <input type="text" class="cursor-pointer" readonly placeholder="Не выбрано" aria-label="Порядок" tabindex="-1">
 
-<button type="button" class="sf-icon-button sf-icon-button--icon sf-icon-button--on-surface sf-icon-button--link sf-icon-button--size-1/2 absolute" id="sf-mail-letters-nothing-found-4" tabindex="0" aria-expanded="false" aria-haspopup="listbox" aria-controls="sf-dropdown-1--listbox" aria-describedby="sf-mail-letters-nothing-found-5" aria-labelledby="sf-mail-letters-nothing-found-3">
+<button type="button" class="sf-field-action sf-field-action--indicator sf-dropdown-chevron absolute" id="sf-mail-letters-nothing-found-4" tabindex="0" aria-expanded="false" aria-haspopup="listbox" aria-controls="sf-dropdown-1--listbox" aria-describedby="sf-mail-letters-nothing-found-5" aria-labelledby="sf-mail-letters-nothing-found-3">
 <sf-icon aria-hidden="true" icon="keyboard_arrow_down" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>keyboard_arrow_down</i></sf-icon>
 </button>
 </label>
+
 
 <div class="sf-list sf-list--size-1/2 flex flex-col" style="--sf-list--cell: var(--sf-ui-1\/2--control-height)" hidden></div>
 <span class="sf-dropdown-value" id="sf-mail-letters-nothing-found-5">Сначала изменённые</span></div>
@@ -63,7 +68,7 @@
 
 <sf-empty-state class="sf-mail-letters-empty" size="1/2" heading-level="2" kind="nothing-found" heading="Ничего не найдено" text="Нет писем с таким названием." style="display: contents;" data-sf-size-relative>
 <div class="sf-empty-state sf-empty-state--size-1-2 sf-empty-state--nothing-found" role="status" data-sf-static>
-<span aria-hidden="true" class="sf-featured-icon sf-featured-icon--size-1 sf-featured-icon--neutral sf-featured-icon--soft sf-empty-state-icon"><i class="sf-icon">search_off</i></span>
+<span class="sf-featured-icon sf-featured-icon--size-1 sf-featured-icon--neutral sf-featured-icon--soft sf-empty-state-icon" aria-hidden="true"><i class="sf-icon">search_off</i></span>
 <h2 class="sf-empty-state-title">Ничего не найдено</h2>
 <p class="sf-empty-state-text">Нет писем с таким названием.</p>
 

@@ -28,9 +28,9 @@
 import {closeMenu, openMenu, removeMenu, updateMenu} from "./menu";
 import {getInitials} from "../../../helpers/text";
 import {pageText} from "../../../../core/js/page-language";
-import {closeLayer, focusablesIn, openLayer} from "../../../../core/js/layer-stack";
 import BundledPreferences from "../../../../core/js/preferences.js";
 import {wordsOf} from "../words.js";
+import {matchesShortcut, parseShortcut} from "../../../../component/kbd/js/shortcut";
 
 export const NAVIGATION_PORT = "simai.admin-navigation-port";
 
@@ -48,13 +48,12 @@ const WIDE_MEDIA_QUERY = "(min-width: 48rem)";
 const FIND_IN_SECTION_FROM = 7;
 
 
-// How long typing may pause before the palette asks the host. Short enough to
-// feel immediate; long enough that a word typed at speed is one question.
-const PALETTE_PAUSE_MS = 120;
-
-// ⌘K on a Mac, Ctrl K elsewhere: the hint says the keys this keyboard has.
-const IS_MAC = /Mac|iPhone|iPad/u.test(globalThis.navigator?.platform ?? globalThis.navigator?.userAgent ?? "");
-export const PALETTE_SHORTCUT = IS_MAC ? "⌘K" : "Ctrl K";
+// The palette's keys in SIMAI Framework's shortcut notation (component kbd):
+// mod is Cmd on an Apple platform and Ctrl elsewhere. The Framework says which
+// platform this is, draws the keys (⌘K, Ctrl+K) and hears them (KB-2, C04):
+// the menu keeps no platform test and no key look of its own.
+export const PALETTE_SHORTCUT = "mod+k";
+const PALETTE_KEYS = parseShortcut(PALETTE_SHORTCUT);
 
 // The id prefix of the lists sf-sortable reorders in the edit mode.
 export const LIST_ID = "sf-admin-nav-list-";
@@ -85,9 +84,6 @@ export const NAVIGATION_TEXT = wordsOf({
     moreSites: "more-sites",
     external: "external",
     paletteHint: "palette-hint",
-    paletteNavigate: "palette-navigate",
-    paletteOpen: "palette-open",
-    paletteClose: "palette-close",
     account: "account",
     theme: "theme",
     menuWidth: "menu-width",
@@ -263,17 +259,14 @@ export class NavigationController {
         this.screen = "first";
         this.sequence = 0;
         this.sites = {open: false, query: "", items: [], next: null, loading: false, sequence: 0};
-        // The ⌘K palette: what was typed, what the host answered for it, which
-        // result is under the keyboard, and where focus goes back to.
-        this.palette = {open: false, query: "", groups: [], scope: "", active: 0, loading: false, sequence: 0};
-        this._paletteTimer = null;
-        this._paletteZIndex = "";
-        // The palette's place in the one document layer stack (core
-        // layer-stack.js, core.runtime 1.19.0): not the element, whose own rows
-        // a press on the dimmed page would count as inside. Live while the
-        // element is on the page.
-        const owner = element;
-        this._paletteLayer = {get isConnected() { return owner.isConnected; }};
+        // The ⌘K palette is SIMAI Framework's sf-search (palette.js, K-04): the
+        // window, its keys, scrim, layer and focus are the element's. The menu
+        // answers its provider from the port, numbering its questions so a late
+        // answer is not taken, and remembers what each result it handed stands
+        // for, to choose it through the port (search.choose).
+        this._paletteSequence = 0;
+        this._paletteChoices = new Map();
+        this.paletteProvider = (query, options) => this.askPalette(query, options);
         // The edit mode: on or off, what is being renamed or added, the row whose
         // ⋯ is open, the profile list in the banner, and what the last save said.
         this.edit = {on: false, renaming: null, adding: null, rowMenu: null, profiles: false, naming: null, message: ""};
@@ -298,15 +291,16 @@ export class NavigationController {
             // ⌘K / Ctrl+K opens the palette from anywhere on the page, in every
             // arrangement of the menu -- the rail and the phone included, which
             // is the reason it is a palette over the page rather than a column.
-            if ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey
-                && String(event.key).toLowerCase() === "k" && this.offers("search")) {
+            if (matchesShortcut(event, PALETTE_KEYS) && this.offers("search")) {
+                // The key is the menu's: the open window's field does not hear
+                // it after the window has closed under it.
                 event.preventDefault();
-                if (this.palette.open) this.closePalette();
-                else this.openPalette();
+                event.stopPropagation();
+                this.togglePalette();
             }
         };
-        // Escape, Tab and a press on the dimmed page are the layer stack's
-        // while the palette is its top layer (openPalette).
+        // Escape, Tab and a press on the scrim are sf-search's while its
+        // window is open (openPalette).
         document.addEventListener("keydown", this._onKeyDown, true);
         // The admin's pages without full reloads (interface fragments,
         // 2026-10-15), piloted here: the menu turns region navigation on when
@@ -436,8 +430,7 @@ export class NavigationController {
 
     dispose() {
         removeMenu(this);
-        clearTimeout(this._paletteTimer);
-        closeLayer(this._paletteLayer, {restoreFocus: false});
+        this.closePalette();
         this.element.removeEventListener("sf-sortable-intent", this._onSortableIntent);
         this.element.removeEventListener("sf-resizer-resize", this._onResize);
         this.wideMedia?.removeEventListener?.("change", this._onWideChange);
@@ -452,22 +445,6 @@ export class NavigationController {
 
     update(reason) {
         this.element.requestComponentUpdate(`navigation-${reason}`);
-        if (this.palette?.open) requestAnimationFrame(() => this.syncPaletteField());
-    }
-
-    // The field is sf-input's own input, so the listbox it drives is named on
-    // that element rather than on the wrapper a screen reader never focuses.
-    syncPaletteField() {
-        const input = this.element.querySelector(".sf-admin-nav-palette-field input");
-        if (!input) return;
-        input.setAttribute("role", "combobox");
-        input.setAttribute("aria-expanded", "true");
-        input.setAttribute("aria-controls", "sf-admin-nav-palette-results");
-        input.setAttribute("aria-autocomplete", "list");
-        input.setAttribute("aria-label", this.text("search"));
-        const count = this.paletteResults().length;
-        if (count) input.setAttribute("aria-activedescendant", `sf-admin-nav-palette-option-${this.palette.active}`);
-        else input.removeAttribute("aria-activedescendant");
     }
 
     // The port's capabilities; before the port, the ones the page printed
@@ -1337,144 +1314,101 @@ export class NavigationController {
 
     // ─── the palette ─────────────────────────────────────────────────────────
 
-    // The palette is a modal layer of the one document stack (core
-    // layer-stack.js): drawn at the stack's height (it stood at z-index 1000,
-    // under a drawer or a modal it was opened over), Escape and Tab while it is
-    // on top, a press on the dimmed page closes it, the page does not scroll
-    // under it, and focus goes back where it was.
-    openPalette() {
-        if (!this.offers("search") || this.palette.open) return;
+    // The palette is SIMAI Framework's search window (sf-search, the admin
+    // command palette recipe of C162 and C175): a modal dialog of the shared
+    // layer stack with a combobox field, the host's groups as its rows and
+    // filters, recent queries, key hints, Escape that closes it and gives the
+    // focus back. The element is drawn with the menu (palette.js) and fetched
+    // by the Loader when it first appears; the menu hands it the provider and
+    // opens it.
+    async paletteElement() {
+        if (!this.offers("search")) return null;
+        if (!customElements.get("sf-search")) await globalThis.SF?.Loader?.ensure?.(["sf-search"]);
+        const search = this.element.querySelector("sf-search.sf-admin-nav-search");
+        if (!search || typeof search.open !== "function") return null;
+        if (search.provider !== this.paletteProvider) search.provider = this.paletteProvider;
+        return search;
+    }
+
+    async openPalette() {
+        const search = await this.paletteElement();
+        if (!search || search.isOpen) return;
         this.closeSites();
-        this.palette = {...this.palette, open: true, query: "", groups: [], scope: "", active: 0};
-        openLayer(this._paletteLayer, {
-            kind: "modal",
-            locksPage: true,
-            trapsFocus: true,
-            root: () => this.element.querySelector(".sf-admin-nav-palette-dialog"),
-            focusIn: () => this.focusPalette(),
-            onEscape: () => {
-                this.closePalette();
-                return true;
-            },
-            onTab: (event) => this.onPaletteTab(event),
-            onOutsidePress: () => this.closePalette(),
-            place: ({zIndex}) => {
-                this._paletteZIndex = String(zIndex);
-            },
+        search.open();
+    }
+
+    async togglePalette() {
+        const search = await this.paletteElement();
+        if (!search) return;
+        if (search.isOpen) search.close({reason: "close"});
+        else {
+            this.closeSites();
+            search.open();
+        }
+    }
+
+    closePalette() {
+        const search = this.element.querySelector("sf-search.sf-admin-nav-search");
+        if (search?.isOpen) search.close({reason: "api"});
+    }
+
+    // sf-search's provider (its simple path, which wraps it in a host of
+    // simai.search-port): the port's search.query answered in the provider's
+    // shape. A group is a scope of the window, with its results page (more);
+    // a result of kind action is a command. The empty query is asked when the
+    // window opens: its commands are the quick actions. A host that cannot
+    // answer is the window's error state with «Повторить»; a refusal is an
+    // empty answer.
+    async askPalette(query, {signal} = {}) {
+        const sequence = ++this._paletteSequence;
+        const answer = await this.raise("search.query", {query: String(query ?? ""), sequence});
+        if (signal?.aborted || sequence !== this._paletteSequence) return {groups: [], items: []};
+        if (answer.answer === "unavailable") throw new Error(answer.reason || "unavailable");
+        if (answer.answer !== "applied") return {groups: [], items: []};
+        const groups = [];
+        const items = [];
+        const choices = new Map();
+        (answer.groups ?? []).forEach((group, at) => {
+            const key = String(group.key ?? `group-${at}`);
+            const list = group.items ?? [];
+            if (!list.length && !group.more) return;
+            const scope = {id: key, label: group.label ?? key};
+            if (group.more?.href) scope.more = group.more.href;
+            if (Number.isInteger(group.total)) scope.count = group.total;
+            groups.push(scope);
+            list.forEach((item, index) => {
+                const action = item.kind === "action";
+                const id = String(item.key ?? `${key}:${index}`);
+                choices.set(id, {group: key, item});
+                items.push({
+                    id, group: key, title: item.label ?? "", path: item.caption ?? "",
+                    icon: item.icon || (action ? "bolt" : "description"),
+                    ...(action ? {action: id} : {href: item.href ?? ""}),
+                    ...(item.shortcut ? {shortcut: item.shortcut} : {}),
+                });
+            });
         });
-        this.update("palette");
-        // Empty text asks for what the host shows before anything is typed:
-        // «Недавние» and the actions.
-        this.queryPalette("", {now: true});
-        this.focusPalette();
+        this._paletteChoices = choices;
+        return {groups, items};
     }
 
-    // The field is sf-input's own <input>. The first time the palette opens on a
-    // page, sf-input may not even be loaded yet -- the Loader fetches a tag's
-    // script when the tag first appears -- so the field arrives some hundreds of
-    // milliseconds after the dialog. Asking once, or for a few frames, found
-    // nothing and left focus on the page behind a dialog that says it is modal.
-    focusPalette(attempt = 0) {
-        if (!this.palette.open) return;
-        const input = this.element.querySelector(".sf-admin-nav-palette-field input");
-        if (!input) {
-            if (attempt < 60) setTimeout(() => this.focusPalette(attempt + 1), 50);
-            return;
-        }
-        this.syncPaletteField();
-        if (document.activeElement !== input) input.focus();
-    }
-
-    closePalette({restoreFocus = true} = {}) {
-        if (!this.palette.open) return;
-        clearTimeout(this._paletteTimer);
-        this.palette = {...this.palette, open: false};
-        this.update("palette");
-        // Focus goes back to what was active when it opened (the stack's rule).
-        closeLayer(this._paletteLayer, {restoreFocus});
-    }
-
-    // Tab stays inside the palette (aria-modal), with the stack's focus list.
-    onPaletteTab(event) {
-        const root = this.element.querySelector(".sf-admin-nav-palette-dialog");
-        const items = focusablesIn(root);
-        if (!root || !items.length) return;
-        const first = items[0];
-        const last = items.at(-1);
-        const active = document.activeElement;
-        if (!root.contains(active)) {
-            event.preventDefault();
-            (event.shiftKey ? last : first).focus();
-        } else if (event.shiftKey && active === first) {
-            event.preventDefault();
-            last.focus();
-        } else if (!event.shiftKey && active === last) {
-            event.preventDefault();
-            first.focus();
-        }
-    }
-
-    queryPalette(text, {now = false} = {}) {
-        const query = String(text ?? "");
-        this.palette = {...this.palette, query};
-        clearTimeout(this._paletteTimer);
-        const ask = async () => {
-            const sequence = ++this.palette.sequence;
-            this.palette = {...this.palette, loading: true};
-            this.update("palette");
-            const answer = await this.raise("search.query", {query, sequence});
-            // A late answer is dropped: what the field shows is what the
-            // results answer.
-            if (!this.palette.open || sequence !== this.palette.sequence) return;
-            if (answer.answer === "applied") {
-                this.palette = {
-                    ...this.palette,
-                    loading: false,
-                    groups: (answer.groups ?? []).filter((group) => (group.items ?? []).length || group.more),
-                    scope: answer.echo?.scope ?? "",
-                    active: 0,
-                };
-            } else {
-                this.palette = {...this.palette, loading: false, groups: []};
-            }
-            this.update("palette");
-        };
-        if (now) ask();
-        else this._paletteTimer = setTimeout(ask, PALETTE_PAUSE_MS);
-    }
-
-    paletteResults() {
-        return this.palette.groups.flatMap((group) => (group.items ?? []).map((item) => ({group: group.key, item})));
-    }
-
-    movePalette(delta) {
-        const count = this.paletteResults().length;
-        if (!count) return;
-        this.palette = {...this.palette, active: (this.palette.active + delta + count) % count};
-        this.update("palette-active");
-        requestAnimationFrame(() => this.element
-            .querySelector(".sf-admin-nav-palette-item[data-active=\"true\"]")
-            ?.scrollIntoView?.({block: "nearest"}));
-    }
-
-    async choosePalette(index = this.palette.active) {
-        const chosen = this.paletteResults()[index];
+    // A result chosen in the window: the port is told (search.choose), and an
+    // applied answer is the menu's navigate, with the address the host gave;
+    // the browser does not go there itself, as a row of the menu does not.
+    // What the menu did not hand -- a group's results page, a page from the
+    // recent list -- is an ordinary link the window follows.
+    async onPaletteNavigate(event) {
+        const chosen = this._paletteChoices.get(String(event.detail?.id ?? ""));
         if (!chosen) return;
+        event.preventDefault();
         const answer = await this.raise("search.choose", {group: chosen.group, key: chosen.item.key});
         if (answer.answer !== "applied") return;
-        this.closePalette({restoreFocus: false});
         const href = answer.href ?? chosen.item.href ?? null;
         if (chosen.item.kind !== "action" && this.navigation) {
             this.navigation = {...this.navigation, current: chosen.item.key};
             this.update("open");
         }
         this.element.sfEmit("navigate", {id: chosen.item.key, key: chosen.item.key, href});
-    }
-
-    onPaletteKey(event) {
-        if (event.key === "ArrowDown") { event.preventDefault(); this.movePalette(1); }
-        else if (event.key === "ArrowUp") { event.preventDefault(); this.movePalette(-1); }
-        else if (event.key === "Enter") { event.preventDefault(); this.choosePalette(); }
     }
 
     shownRoot() {
@@ -1500,8 +1434,6 @@ export class NavigationController {
                 && !this.openRoot && this.pageColumn()),
             filter: this.filter,
             sites: this.sites,
-            palette: this.palette,
-            paletteZIndex: this._paletteZIndex,
             shortcut: PALETTE_SHORTCUT,
             edit: this.edit,
             columns: skeletonColumns(this.element),

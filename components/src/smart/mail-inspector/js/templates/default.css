@@ -108,10 +108,13 @@
     border-color: var(--sf-primary);
   }
 
+  /* The row's disclosure and its ⋯ are neighbours of one action row, not a
+     toolbar: --sf-space-1/3 apart, 8 and 4 under compact density (C105 H5,
+     C144; RG-S2-44). They stood 4 apart. */
   .sf-mail-inspector-item-head {
     display: flex;
     align-items: center;
-    gap: var(--sf-space-1\/4);
+    gap: var(--sf-space-1\/3);
     padding: var(--sf-space-1\/4);
   }
 

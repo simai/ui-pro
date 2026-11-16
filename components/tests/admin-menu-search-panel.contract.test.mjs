@@ -129,7 +129,8 @@ test('the field is a combobox and the keys do what the panel says they do', asyn
   assert.match(returnTarget, /const toggle = this\.getSearchToggle\(\)/u);
   assert.match(returnTarget, /\.sf-admin-menu-panel-sub\.open/u);
   assert.match(returnTarget, /querySelector\("\.sf-admin-menu-back"\)/u);
-  assert.match(markup, /<kbd class="sf-admin-menu-search-kbd">Esc<\/kbd>/u);
+  // Esc is the SIMAI Framework kbd unit's key (C04, KB-2): no class of the menu's own.
+  assert.match(markup, /<span class="sf-input-right"><kbd>Esc<\/kbd><\/span>/u);
   assert.match(markup, /class="sf-admin-menu-search-keys flex-none">\$\{context\.searchKeysHint\}/u);
 });
 

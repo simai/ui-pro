@@ -5,7 +5,8 @@
 // - both columns stand with an sf-resizer on their edge; dragging the first
 //   column's edge widens it within 13rem..24rem and the width is kept on the
 //   next page; a double click gives the width back;
-// - the theme is a row of the profile menu with its choice in a submenu.
+// - the theme is a row of the profile menu with its choice a level deeper:
+//   sf-settings' row in the drill look, the value under the name (C176, K-11).
 import {resolve, join} from 'node:path';
 import {chromium} from 'playwright';
 
@@ -146,22 +147,22 @@ try {
     const menu = document.querySelector('sf-menu-context[data-sf-admin-nav-menu]');
     const rows = [...(menu?.querySelectorAll('.sf-context-menu-item') ?? [])];
     const row = rows.find((item) => item.querySelector('.sf-context-menu-item-label')?.textContent.trim() === 'Тема');
-    const labels = [...(menu?.querySelectorAll('.sf-context-menu-item-label, .sf-context-menu-item-value') ?? [])];
+    const labels = [...(menu?.querySelectorAll('.sf-context-menu-item-label, .sf-context-menu-item-value, .sf-context-menu-item-under') ?? [])];
     const surface = menu?.querySelector('.sf-context-menu-content')?.getBoundingClientRect();
     return {
       width: surface ? Math.round(surface.width) : null,
       button: Math.round(person?.getBoundingClientRect().width ?? 0),
       cut: labels.filter((label) => label.scrollWidth > label.clientWidth + 1).map((label) => label.textContent.trim()),
       choice: Boolean(menu?.querySelector('.sf-context-menu-choice')),
-      row: Boolean(row), value: row?.querySelector('.sf-context-menu-item-value')?.textContent.trim() ?? null,
-      submenu: row?.getAttribute('aria-haspopup') ?? null,
+      row: Boolean(row), value: row?.querySelector('.sf-context-menu-item-under, .sf-context-menu-item-value')?.textContent.trim() ?? null,
+      submenu: row?.getAttribute('aria-haspopup') ?? null, drill: menu?.getAttribute('submenu') ?? null,
     };
   });
   // At least the button's width, and no line cut short.
   if (theme.width === null || theme.width < theme.button - 1 || theme.cut.length) {
     note({case: 'the profile menu is at least as wide as its button and cuts no line', got: theme});
   }
-  if (theme.choice || !theme.row || theme.value !== 'Тёмная' || theme.submenu !== 'menu') {
+  if (theme.choice || !theme.row || theme.value !== 'Тёмная' || theme.submenu !== 'menu' || theme.drill !== 'drill') {
     note({case: 'the theme is a row with a submenu', got: theme});
   }
   // The edit mode's profiles are the profile picker: the profiles as rows,

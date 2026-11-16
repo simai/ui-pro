@@ -27,6 +27,21 @@ import {renderMailLettersTemplate} from "./js/templates/default.js";
 import manifest from "./component.json";
 import en from "./lang/en.json";
 import ru from "./lang/ru.json";
+import {isEditableTarget} from "../../component/kbd/js/shortcut";
+
+// A row's context menu (decision C164 (1)(2), defect TL-2): a right click on
+// the row, the context-menu key and Shift+F10 open the row's ⋯ menu, with the
+// same list. A right click opens it at the pointer through sf-menu-context's
+// point anchor (1.18.0: a fixed box of no size, removed when the menu closes).
+// The core's one SF.menu.open (C184) is not in the pair this is built over;
+// when it is, openMenu() opens through it and these two helpers go.
+const isMenuKey = (event) => event?.key === "ContextMenu" || (event?.shiftKey === true && event?.key === "F10");
+function pointAnchor(event) {
+    const point = document.createElement("span");
+    point.style.cssText = `position: fixed; left: ${event.clientX}px; top: ${event.clientY}px`;
+    document.body.append(point);
+    return point;
+}
 
 const ORDERS = ["changed", "title"];
 const CHOICES = ["open", "copy", "rename", "delete", "create"];
@@ -153,12 +168,37 @@ class SfMailLetters extends MailLettersElement {
         this.menuFor = String(id);
         const native = anchor?.querySelector?.("button") ?? anchor;
         // The Loader brings sf-menu-context when the page is ready (the rule
-        // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-menu-context").then(() => {
-            menu.entries = this.menuEntries();
-            menu.toggleFor(native);
-        });
+        // fetches it lazily); a press before that asks the Loader for it now
+        // (SF.Loader.ensure, defect TL-7) and waits for it.
+        Promise.resolve(globalThis.SF?.Loader?.ensure?.(["sf-menu-context"]))
+            .catch(() => null)
+            .then(() => customElements.whenDefined("sf-menu-context"))
+            .then(() => {
+                menu.entries = this.menuEntries();
+                menu.toggleFor(native);
+            });
         return applied();
+    }
+
+    /** A right click on a row opens its ⋯ menu at the pointer (C164). */
+    onRowContextMenu(id, event) {
+        if (event.shiftKey || isEditableTarget(event.target)) return;
+        const menu = this.menu;
+        if (!menu) return;
+        event.preventDefault();
+        const point = pointAnchor(event);
+        menu.addEventListener("sf-menu-context-closed", () => point.remove(), {once: true});
+        this.openMenu(id, point);
+    }
+
+    /** The context-menu key or Shift+F10 in a row opens its ⋯ menu at the ⋯ (C164). */
+    onRowKeydown(id, event) {
+        if (!isMenuKey(event) || isEditableTarget(event.target)) return;
+        const more = event.currentTarget.querySelector("[data-action=\"more\"]");
+        if (!more) return;
+        event.preventDefault();
+        event.stopPropagation();
+        this.openMenu(id, more);
     }
 
     // The menu answers for the row it was opened from, whatever is redrawn

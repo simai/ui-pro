@@ -17,7 +17,7 @@ async function standardMenuDefined() {
 // the trigger, whichever is wider. Anything else is "content".
 const OPEN_WIDTH = {trigger: "list", panel: "panel"};
 
-export async function openMenu(controller, anchor, {label, entries, select, side = "block-end", align = "start", width = "content", search = null, onSearch = null, onClose = null}) {
+export async function openMenu(controller, anchor, {label, entries, select, change = null, submenu = "flyout", side = "block-end", align = "start", width = "content", search = null, onSearch = null, onClose = null}) {
     if (!(anchor instanceof Element)) return null;
     if (!(await standardMenuDefined())) return null;
     let menu = controller._menu;
@@ -27,6 +27,11 @@ export async function openMenu(controller, anchor, {label, entries, select, side
         menu.dataset.sfAdminNavMenu = "";
         menu.addEventListener("sf-menu-context-select", (event) => controller._menuSelect?.(event.detail?.id, event));
         menu.addEventListener("sf-menu-context-search", (event) => controller._menuSearch?.(event.detail?.query ?? ""));
+        // A value row's fact (a choice of the person menu, C176): the menu has
+        // already shown it; the host applies and keeps it.
+        menu.addEventListener("sf-menu-context-changed", (event) => {
+            if (event.target === menu) controller._menuChange?.(event.detail?.id, event.detail?.value, event);
+        });
         // Closed, not asked to close: sf-menu-context-close is the cancelable
         // request sent before an owned menu closes (SIMAI Framework 1.3.8 §19.3).
         menu.addEventListener("sf-menu-context-closed", (event) => {
@@ -45,9 +50,14 @@ export async function openMenu(controller, anchor, {label, entries, select, side
     // The menu that was open hears that it closed before another takes its place.
     if (menu.isOpen) menu.close({restoreFocus: false});
     menu.setAttribute("aria-label", label ?? "");
+    // The person menu drills (C176: one panel, a setting's options a level
+    // deeper, the value under its name); the other menus open their submenus
+    // beside the row, as before. One element serves them all, so each says.
+    menu.setAttribute("submenu", submenu === "drill" ? "drill" : "flyout");
     menu.search = search;
     menu.entries = entries;
     controller._menuSelect = select;
+    controller._menuChange = change;
     controller._menuSearch = onSearch;
     controller._menuClose = onClose;
     controller._menuAnchor = anchor;

@@ -10,8 +10,17 @@ SF.RuleLoader['cl-admin-menu'] = {
     { name: 'icons' },
     { name: 'inputs' },
     { name: 'badges' },
+    // A row's shortcut and the search row's keys are SIMAI Framework's kbd unit
+    // (C04, KB-2, K-05): the menu writes the keys, the kbd sheet draws them.
+    { name: 'kbd' },
+    // The person's picture is the Framework's avatar drawing beside the button's text
+    // (avatar/js/picture.js, K-06): the avatars sheet draws it.
+    { name: 'avatars' },
     { name: 'cl-button' },
     { name: 'cl-menu-context', lazy: true },
+    // The ⌘K palette is SIMAI Framework's search window in its admin command palette
+    // recipe (C162, C175; K-04); it is fetched when the menu draws it.
+    { name: 'cl-search', lazy: true },
     { name: 'cl-badge' },
     { name: 'cl-icon' },
     { name: 'cl-button-icon' },

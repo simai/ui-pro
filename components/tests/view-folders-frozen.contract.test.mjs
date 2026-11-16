@@ -50,8 +50,10 @@ const PATCHED = {
   // ui-078a4b4c6f6e (2026-11-16), sf-view-properties 1.16.4: record, relation
   // and user fields edit in sf-input-lookup (the cl-input-lookup relation,
   // field-renderers 1.9.0, C139 (1)), as ui-pro d032639; the 1.16.2 dropdown
-  // interim is gone. simai/ui-view takes the same when it moves to that pair.
-  'view-properties': {tree: '851f49d13ff226b0b01f918506f76aa322e066c7', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel's head beside sf-drawer 1.16's edge in the head, sf-view-properties 1.16.4 (2026-11-16)'},
+  // interim is gone; a panel that fills the screen keeps its title clear of
+  // the edge controls sf-drawer 1.16 draws in its head. simai/ui-view takes the
+  // same when it moves to that pair.
+  'view-properties': {tree: '851f49d13ff226b0b01f918506f76aa322e066c7', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16)'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
@@ -63,8 +65,13 @@ const PATCHED = {
   // and the windows on the menu's own inline inset (C105 H4, C106, as ui-pro
   // 4059d01). Over ui-078a4b4c6f6e (2026-11-16), sf-view-table 1.19.8: the
   // provenance of src/smart/pagination/index.js (sf-pagination 1.7, C167), and
-  // the version. simai/ui-view takes the same when it moves to that pair.
-  'view-table': {tree: 'e9867d0b8283583243035196841761ba5463d8d7', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, sf-view-table 1.19.8 (2026-11-16)'},
+  // the version; with it the admin set K-1 change (ui-pro f08641b, accepted
+  // 2026-11-16): ⋯ (more_horiz) for the view's and a template's actions (C155
+  // (2), TL-1) and a row's menu on a right click, the context-menu key and
+  // Shift+F10 (C164 (1)(2), TL-2); its patch for simai/ui-view is ui-control
+  // control/evidence/2026-11-15-admin-set-k1/view-table-k1.patch. simai/ui-view
+  // takes the same when it moves to that pair.
+  'view-table': {tree: '8684f15e4ab14219edd2715bb76346e122bcb8e5', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

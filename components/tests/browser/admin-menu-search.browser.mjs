@@ -178,7 +178,7 @@ try {
       open: search?.classList.contains('open') ?? false,
       focused: document.activeElement === field,
       keys: Boolean(search?.querySelector('.sf-admin-menu-search-keys')),
-      esc: search?.querySelector('.sf-admin-menu-search-kbd')?.textContent?.trim() ?? null,
+      esc: search?.querySelector('.sf-input-right > kbd')?.textContent?.trim() ?? null,
       listbox: Boolean(search?.querySelector('#sf-admin-search-list[role="listbox"]')),
       insidePanel: fieldBox
         ? Math.round(fieldBox.left - panelBox.left) >= 0 && Math.round(panelBox.right - fieldBox.right) >= 0

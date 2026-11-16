@@ -2723,7 +2723,9 @@
         "from": "1.19.7",
         "to": "1.19.8",
         "changes": [
-          "Rebuilt over SIMAI Framework ui-078a4b4c6f6e (ui-source 10145e63b, core.runtime 1.58.0). The Framework code it builds in moved: sf-pagination 1.7 (C167) loads the next page when «Show more» comes within reach of the box that scrolls it, and its bulk band lists a deleting action last as the outlined danger Apply (C116); smart.manifest.json's provenance of src/smart/pagination/index.js follows. Nothing of its own changes; 1.19.8 is above every origin branch (1.19.7 in simai/ui-pro, 1.19.6 in simai/ui-view). Nothing to change for a host."
+          "Rebuilt over SIMAI Framework ui-078a4b4c6f6e (ui-source 10145e63b, core.runtime 1.58.0). The Framework code it builds in moved: sf-pagination 1.7 (C167) loads the next page when «Show more» comes within reach of the box that scrolls it, and its bulk band lists a deleting action last as the outlined danger Apply (C116); smart.manifest.json's provenance of src/smart/pagination/index.js follows. 1.19.8 is above every origin branch (1.19.7 in simai/ui-pro, 1.19.6 in simai/ui-view). Nothing to change for a host.",
+          "The view's actions button and a template's actions button draw ⋯ (more_horiz), not ⋮ (owner decision C155 (2), defect TL-1). A row's menu also opens on a right click on the row, at the pointer (sf-menu-context's point anchor), and on the context-menu key and Shift+F10 from the row or a control in it, at the row's menu button, with the same list as that button (the table's ≡ every action, the list's ⋯ what the row does not show; decision C164 (1)(2), defect TL-2); not from a field a person types in, and Shift with a right click leaves the browser's menu. A row without a menu button keeps the browser's menu. 1.17.2 and 1.17.3 are held by other branches. Made in ui-pro ahead of simai/ui-view (2026-11-15); the view set releases the same change. Nothing to change for a host.",
+          "The ⋯ and row-menu change above is ui-pro f08641b (fix/admin-set-k1, 1.17.4 there; admin set K-1, accepted by DEV 2026-11-16), merged onto 1.19.7; 1.17.4 itself was never released. Nothing to change for a host."
         ]
       }
     ]
@@ -2734,11 +2736,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-table/index.js",
-        "sha256": "05d95b92c18e67f0649ed11838eed92367a118ced8006decee43ecf5a2c2b8bd"
+        "sha256": "6aa8f72b648b942a647f74c6d378b4e54cee565e73d526d9790225cd04d977c2"
       },
       {
         "path": "src/smart/view-table/js/templates/default.js",
-        "sha256": "2197b74d2c0de08e6d05581ad90068a35896a83712549a906762df33b6dc5ffb"
+        "sha256": "13516ba30338c0a3622484433e51313c2449fcfe2537dd60a0a3e16112556643"
       },
       {
         "path": "src/smart/view-table/js/templates/default.css",

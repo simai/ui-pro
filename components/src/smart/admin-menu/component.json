@@ -2,7 +2,7 @@
   "$comment": "The source of sf-admin-menu's interface (standard simai.smart-component 1.3.8). Taken from simai/ui-control control/smart-architecture/migration/out/admin-menu (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.admin-menu",
   "tag": "sf-admin-menu",
-  "version": "1.11.2",
+  "version": "1.12.0",
   "kind": "leaf",
   "family": "menu",
   "settings": {
@@ -602,11 +602,33 @@
       "name": "badges"
     },
     {
+      "name": "kbd",
+      "$comment": [
+        "A row's shortcut and the search row's keys are SIMAI Framework's kbd unit",
+        "(C04, KB-2, K-05): the menu writes the keys, the kbd sheet draws them."
+      ]
+    },
+    {
+      "name": "avatars",
+      "$comment": [
+        "The person's picture is the Framework's avatar drawing beside the button's text",
+        "(avatar/js/picture.js, K-06): the avatars sheet draws it."
+      ]
+    },
+    {
       "name": "cl-button"
     },
     {
       "name": "cl-menu-context",
       "lazy": true
+    },
+    {
+      "name": "cl-search",
+      "lazy": true,
+      "$comment": [
+        "The ⌘K palette is SIMAI Framework's search window in its admin command palette",
+        "recipe (C162, C175; K-04); it is fetched when the menu draws it."
+      ]
     },
     {
       "name": "cl-badge"
@@ -960,7 +982,9 @@
     "version 1.8.2 (2026-11-10): a patch, for SIMAI Framework ui-a0370c0c99fb. The person menu opens with the profile picker's panel rule (decision C32 \"panel\"; DEV 2026-11-10, owner rule 2026-10-14 kept): max(the person button, --sf-popup-panel-width), 320 at 1280, 288 under compact density, 320 on a phone, never wider than the screen less its gutters; no line is cut, which the list step (1.8.1) did to «Профиль меню». The site switcher keeps the list width. In the narrow rail the menu is as wide as its lines, as before. Settings, values and events are unchanged.",
     "version 1.9.0 (2026-11-10): a minor version (a look), for SIMAI Framework ui-2bd5a3ab478a (ui-source d25a01f9), as its navigation menu now draws the current page and its path (component.menu 1.5, C23 and C30 amended 2026-11-09). The 3 by 16 bar is retired: a root of the first column whose rows hold the current page, or a section of the second column folded over it, takes the path mark -- a medium label, no bar (R065 a: neither column has a border at its start); in the rail, where a row is an icon alone, that root takes a 2px primary line on the rail's own start edge, as tall as the row, and no weight (DEV answer b). A row's label is regular at rest, so the medium label is the current page's and the path's second cue besides the colour. A root whose column is open takes the neutral select plate of the alpha scale (--sf-surface-state-select) instead of the secondary container, so open and current cannot look alike (C30, R060); so does the person button while its menu is open. Rows and the menu's own buttons hover and press with the state family (--sf-surface-state-hover 4, --sf-surface-state-active 12), as the Framework navigation menu does; the fill family's hover (container-hover, 20) sat as close to the current plate as a second plate. A tonal count on the current plate or the open root's plate lays its tone over the solid place (C43: --sf-surface-underlay, as the Framework's translucent rows declare it). The settings menus keep giving sf-menu-context entries (1.8.0), the entry form of sf-menu-context 1.14.2. Settings, values and events are unchanged.",
     "version 1.9.1 (2026-11-12): a patch (no change of its own), for SIMAI Framework ui-7fb26d395af2 (ui-source 8c13bf45). The Framework's admin-menu sheet it builds in (component.admin-menu 1.1.2) names the page surface --sf-surface-page (C16; --sf-surface-0 is its former name, the same value), and its current, open and hover rows are translucent places whose fill an anchored badge rings with (C43 D3, D4). Nothing to change for a host.",
-    "version 1.11.2 (2026-11-15): a patch (no change of its own), for SIMAI Framework ui-994f9db407fa (ui-source 09cf1b0f). The Framework's admin-menu sheet it builds in moved to component.admin-menu 1.2.0: a row's icon is one step paler than its label, --sf-on-surface-variant (C107, as in sf-menu and sf-menu-context). 1.9.2 to 1.11.1 are held by unreleased ui-pro branches (fix/language-row-g4, fix/pro-g4, fix/admin-set-k1, pin/pair-141822273efe). Settings, values and events are unchanged."
+    "version 1.11.0 (2026-11-15): a minor (owner decisions C04, C155 (2), C164 (1)(2); defects KB-1/KB-2, K-05, K-06, TL-1, TL-2), for SIMAI Framework ui-994f9db407fa (ui-source 09cf1b0f). Keys: the palette's shortcut is written in SIMAI Framework's notation (mod+k) and the Framework says the platform, draws the keys and hears them -- ⌘K on a Mac, Ctrl+K elsewhere (it wrote «Ctrl K» without the +), aria-keyshortcuts Meta+K or Control+K; the menu's own platform test, its own key classes (sf-admin-nav-kbd, sf-admin-nav-key, sf-admin-menu-search-kbd) and their styles are gone: the search row, a row's shortcut (the host's shortcut in the notation or as text), the palette's foot and its chosen row, and the search panel's Esc are the kbd unit's keys (plain in a menu row and a list, the key look in the palette's foot, a cap in a field). The person's picture is the Framework's avatar drawing (avatar/js/picture.js, size 1/2), not an own circle on the tertiary container: a photo fills the circle, initials stand on the neutral plate (C17); it is a picture inside the person button, not an sf-avatar element, which would be a second Tab stop (AR-1). The settings mode's ⋮ is ⋯ (more_horiz, C155 (2)). A row's menu in the edit mode and the settings mode also opens on a right click (at the pointer, through sf-menu-context's point anchor) and on the context-menu key and Shift+F10 (at the row's ⋯), with the same list (C164 (1)(2)); Shift with a right click leaves the browser's menu. The rule relates kbd and avatars. 1.10.0 is held by another branch. Settings, values, events and the port are unchanged; the three key classes were internal (not in the documentation).",
+    "version 1.11.2 (2026-11-15): a patch (no change of its own), for SIMAI Framework ui-994f9db407fa (ui-source 09cf1b0f). The Framework's admin-menu sheet it builds in moved to component.admin-menu 1.2.0: a row's icon is one step paler than its label, --sf-on-surface-variant (C107, as in sf-menu and sf-menu-context). 1.9.2 to 1.11.1 are held by unreleased ui-pro branches (fix/language-row-g4, fix/pro-g4, fix/admin-set-k1, pin/pair-141822273efe). Settings, values and events are unchanged.",
+    "version 1.12.0 (2026-11-16): a minor (owner decisions C162, C175, C176 (1)(2); kits inventory K-04, K-11), for SIMAI Framework pair 5.20261115.1622 (ui-source 5f130e62f). The ⌘K palette is SIMAI Framework's sf-search in its admin command palette recipe, not a dialog and listbox of the menu's own: the window, its combobox field, rows, filters (the host's search groups as scopes, with counts), recent queries and pages (kept as the view preference sf-search/admin-menu), quick actions on an empty field, key hints after the first arrow, scrim, layer, Escape and focus return are the element's. The menu is its host through the provider: search.query answers the rows (a group's more is its results page, kind action a command with its shortcut), a chosen row is search.choose and then the menu's navigate, as before; mod+k stays the menu's key through the kbd unit and toggles the window; a host that is unavailable is the window's error state with «Повторить». The scope the host echoed is no longer drawn beside the field and the host's own recent group on an empty query is not shown (the window keeps its own recent list). The person menu's theme row is the settings row sf-settings makes (entriesFor, a choice in the drill look): «Тема» with its value under the name and «Как в системе», «Светлая», «Тёмная» a level deeper; the person menu drills (submenu=drill, C176), so the language and the menu profile open in the same panel too. The choice is applied at once and kept by the host (preference.theme), as before. The rule relates cl-search (lazy). The internal palette classes (sf-admin-nav-palette*) and its three words (palette-navigate, palette-open, palette-close) are gone; none is in the documentation. 1.11.1 and 1.11.2 are held by main (pin moves). Settings, events and the port are unchanged."
   ],
   "x-registry": {
     "kind": "composite",

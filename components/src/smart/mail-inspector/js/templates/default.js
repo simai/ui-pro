@@ -92,7 +92,7 @@ function renderItem(context, field, item, index) {
     return html`
         <div slot="item" class=${["sf-mail-inspector-item", isOpen ? "is-open" : "", item.problem ? "has-problem" : ""].filter(Boolean).join(" ")}
              data-sf-sortable-item=${`item-${index}`} data-item=${index} tabindex="-1">
-            <div class="sf-mail-inspector-item-head">
+            <div class="sf-mail-inspector-item-head" @contextmenu=${(event) => component.onItemContextMenu(field.path, index, event)}>
                 <span class="sf-mail-inspector-handle" data-sf-sortable-handle aria-hidden="true"><sf-icon icon="drag_indicator" size="1"></sf-icon></span>
                 <button type="button" class="sf-mail-inspector-toggle" aria-expanded=${isOpen ? "true" : "false"} aria-controls=${bodyId} data-toggle=${index}
                         @click=${() => component.itemToggle({path: field.path, index})}

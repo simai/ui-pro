@@ -1,5 +1,6 @@
 import {html, nothing} from "lit";
-import {getInitials} from "../../../helpers/text";
+import {avatarPicture} from "../../../avatar/js/picture";
+import {entriesFor} from "../../../settings/js/settings";
 import {openMenu} from "./menu";
 
 // The profile menu at the bottom of the first column: who is signed in, the
@@ -10,15 +11,34 @@ const icon = (name, rootClass = "sf-admin-nav-row-icon") => (name
     ? html`<sf-icon root-class=${rootClass} aria-hidden="true" icon=${name}></sf-icon>`
     : nothing);
 
-const avatar = (person) => (person.avatar
-    ? html`<img class="sf-admin-nav-avatar" src=${person.avatar} alt="">`
-    : html`<span class="sf-admin-nav-avatar" aria-hidden="true">${getInitials(person.name ?? "")}</span>`);
+// The person's picture is SIMAI Framework's avatar drawing (K-06, C152; the
+// avatar study AV-8): the photo filling the circle, else the initials of the
+// name on the neutral plate, from the avatars sheet. It is the picture beside
+// the button's own text, not an sf-avatar element: sf-avatar is a button, and
+// a button inside the person button would be a second Tab stop with no action
+// (AR-1). Size 1/2 is the 32 px mark the column's site mark has.
+const avatar = (person) => avatarPicture({
+    imageUrl: person.avatar, name: person.name ?? "", size: "1/2",
+});
 
-const THEMES = [
-    {value: "light", icon: "light_mode", label: "themeLight"},
-    {value: "dark", icon: "dark_mode", label: "themeDark"},
-    {value: "system", icon: "contrast", label: "themeSystem"},
+// The theme is a setting of the person menu (owner decision C176 (1), (2);
+// K-11): SIMAI Framework's settings row, made by sf-settings' own entriesFor
+// from one choice item -- «Тема» with its value under the name, the options a
+// level deeper in the same panel (the drill look), «Как в системе» first as
+// sf-settings writes it. The menu keeps the words and the person's value only.
+const THEME_OPTIONS = [
+    {id: "system", icon: "computer", label: "themeSystem"},
+    {id: "light", icon: "light_mode", label: "themeLight"},
+    {id: "dark", icon: "dark_mode", label: "themeDark"},
 ];
+
+export function themeEntry(text, value) {
+    const known = THEME_OPTIONS.some((option) => option.id === value) ? value : "system";
+    return entriesFor([{
+        id: "theme", type: "choice", text: text("theme"), icon: "contrast", value: known,
+        options: THEME_OPTIONS.map((option) => ({id: option.id, text: text(option.label), icon: option.icon})),
+    }], "drill")[0];
+}
 
 // The profile menu is the Framework's standard menu (owner, 2026-10-12): who
 // is signed in, the host's links, the theme as a choice row, the language and
@@ -43,18 +63,10 @@ export function openAccountMenu(context, anchor) {
     if (controller.offers("preferences")) {
         entries.push(
             {type: "separator"},
-            // A row with its choice in a submenu, as the language and the menu
-            // profile are (owner, 2026-10-14): three glyphs side by side said
-            // less than the words.
-            {
-                id: "theme", text: text("theme"),
-                icon: (THEMES.find((theme) => theme.value === person.theme) ?? THEMES[2]).icon,
-                value: text((THEMES.find((theme) => theme.value === person.theme) ?? THEMES[2]).label),
-                submenu: THEMES.map((theme) => ({
-                    id: `theme:${theme.value}`, text: text(theme.label), icon: theme.icon,
-                    kind: "radio", checked: person.theme === theme.value,
-                })),
-            },
+            // A row with its choice a level deeper, as the language and the
+            // menu profile are (owner, 2026-10-14): three glyphs side by side
+            // said less than the words.
+            themeEntry(text, person.theme),
             {
                 id: "language", text: text("language"), icon: "translate", value: language?.native ?? person.language,
                 search: {placeholder: text("findLanguage"), empty: text("nothingFound")},
@@ -88,7 +100,7 @@ export function openAccountMenu(context, anchor) {
         entries.push({type: "separator"}, {id: "sign-out", text: text("signOut"), icon: "logout", danger: true});
     }
     return openMenu(controller, anchor, {
-        label: text("account"), entries, side: "block-start", align: "start",
+        label: text("account"), entries, submenu: "drill", side: "block-start", align: "start",
         // As wide as the person button (owner, 2026-10-14), and never cutting a
         // line: the profile picker's panel rule, max(trigger, the panel step)
         // (decision C32 "panel"; DEV 2026-11-10, G1 320/288/320). In the narrow
@@ -96,13 +108,15 @@ export function openAccountMenu(context, anchor) {
         width: controller.compact ? "content" : "panel",
         select: (id) => {
             const [kind, value] = String(id ?? "").split(/:(.*)/su);
-            if (kind === "theme") return controller.chooseTheme(value);
             if (kind === "language") return controller.chooseLanguage(value);
             if (kind === "profile" && value) return controller.chooseProfile(value);
             if (kind === "sign-out") return controller.signOut();
             if (kind === "configure-menu") return controller.startEdit();
             return null;
         },
+        // The theme row's choice: the menu marks it and stays open, the page
+        // takes the theme at once and the host keeps it (preference.theme).
+        change: (id, value) => (id === "theme" ? controller.chooseTheme(value) : null),
     });
 }
 

@@ -358,13 +358,14 @@
     --sf-badge--padding-inline-end: var(--sf-a4);
   }
 
-  /* A row's shortcut: SIMAI Framework's kbd draws it (owner decision
-     2026-11-07, docs review R030, rule C04); the rows ask for its plain look
-     with appearance="plain". Only the place in the row's flex line is the
-     menu's: the key never shrinks. */
-  /* sf-kbd-lint: allow layout only, the key's look is the kbd component's */
-  .sf-admin-nav-kbd {
+  /* A row's shortcut: SIMAI Framework's kbd unit draws the keys (owner
+     decision 2026-11-07, docs review R030, rule C04; KB-2): the rows ask for
+     its plain look with appearance="plain". The menu styles no key; only the
+     place of their box in the row's flex line is the menu's: it never
+     shrinks. */
+  .sf-admin-nav-row-keys {
     flex: none;
+    display: inline-flex;
   }
 
   /* In the rail a row's counter sits on its icon (simai/ui-source#12): the
@@ -660,21 +661,6 @@
     justify-content: center;
   }
 
-  .sf-admin-nav-avatar {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    inline-size: var(--sf-admin-nav-mark-size, var(--sf-c6));
-    block-size: var(--sf-admin-nav-mark-size, var(--sf-c6));
-    border-radius: 50%;
-    background-color: var(--sf-tertiary-container);
-    color: var(--sf-on-tertiary-container);
-    font-size: var(--sf-text-size-1\/3);
-    font-weight: var(--sf-font-weight-bold);
-    object-fit: cover;
-  }
-
   .sf-admin-nav-person-row {
     display: flex;
     align-items: center;
@@ -773,145 +759,9 @@
 
   /* ─── the ⌘K palette ────────────────────────────────────────────────────── */
 
-  /* Over the page, so the same search is there on the rail and on a phone. The
-     page is dimmed by the shared scrim, and the dialog stands on step 3. Its
-     height is the layer stack's (written inline when it opens); the token is
-     where the stack starts. */
-  .sf-admin-nav-palette {
-    position: fixed;
-    inset: 0;
-    z-index: var(--sf-z-index-layer, 9000);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: var(--sf-e2) var(--sf-space-1) var(--sf-space-1);
-  }
-
-  /* The one scrim every window draws (core --sf-scrim-color at
-     --sf-scrim-opacity, black at 60 by default): it borrowed sf-drawer's
-     overlay variables before. At 20 it all but vanished in the dark theme
-     (owner, 2026-10-16). */
-  .sf-admin-nav-palette::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: var(--sf-scrim-color, var(--sf-black));
-    opacity: var(--sf-scrim-opacity, var(--sf-opacity-60));
-  }
-
-  .sf-admin-nav-palette-dialog {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    inline-size: min(100%, var(--sf-g7));
-    max-block-size: min(100%, var(--sf-g9));
-    border: var(--sf-px) solid var(--sf-outline-variant);
-    border-radius: var(--sf-radius--surface);
-    /* A window over the scrim: the modal place (C20), on the popup surface. */
-    background-color: var(--sf-surface-popup);
-    box-shadow: var(--sf-shadow-modal);
-    overflow: hidden;
-  }
-
-  .sf-admin-nav-palette-field {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: var(--sf-space-1\/2);
-    padding: var(--sf-space-1\/2);
-    border-block-end: var(--sf-px) solid var(--sf-outline-variant);
-  }
-
-  /* sf-input is display: contents; the field box inside it is what fills the row. */
-  .sf-admin-nav-palette-field sf-input > .sf-input {
-    flex: 1 1 auto;
-  }
-
-  /* Where the host searched, so nobody takes one site's records for all of them. */
-  .sf-admin-nav-palette-scope {
-    flex: none;
-    padding: var(--sf-a2) var(--sf-a6);
-    border: var(--sf-px) solid var(--sf-outline-variant);
-    border-radius: var(--sf-radius-rounded);
-    color: var(--sf-on-surface-variant);
-    font-size: var(--sf-text-size-1\/3);
-    line-height: var(--sf-text-height-1\/3);
-    white-space: nowrap;
-  }
-
-  .sf-admin-nav-palette-results {
-    flex: 1 1 auto;
-    min-block-size: 0;
-    overflow-y: auto;
-    padding: var(--sf-a4);
-  }
-
-  .sf-admin-nav-palette-item {
-    display: flex;
-    align-items: center;
-    gap: var(--sf-space-1\/2);
-    min-block-size: calc(var(--sf-icon-size-2) + 2 * var(--sf-a6));
-    padding: 0 calc(var(--sf-px) + var(--sf-b4));
-    border-radius: var(--sf-radius--ui);
-    cursor: pointer;
-  }
-
-  .sf-admin-nav-palette-item[data-active="true"] {
-    background-color: var(--sf-secondary-container);
-    color: var(--sf-on-secondary-container);
-    --sf-icon--color: var(--sf-on-secondary-container);
-  }
-
-  .sf-admin-nav-palette-label {
-    flex: 0 1 auto;
-    min-inline-size: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-weight: var(--sf-font-weight-medium);
-  }
-
-  .sf-admin-nav-palette-caption {
-    flex: 1 1 auto;
-    min-inline-size: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    color: var(--sf-on-surface-variant);
-    font-size: var(--sf-text-size-1\/3);
-    line-height: var(--sf-text-height-1\/3);
-  }
-
-  .sf-admin-nav-palette-more {
-    display: block;
-    padding: var(--sf-a4) calc(var(--sf-px) + var(--sf-b4));
-    color: var(--sf-primary);
-    font-size: var(--sf-text-size-1\/3);
-    text-decoration: none;
-  }
-
-  .sf-admin-nav-palette-foot {
-    flex: none;
-    display: flex;
-    gap: var(--sf-space-1);
-    padding: var(--sf-a6) var(--sf-space-1\/2);
-    border-block-start: var(--sf-px) solid var(--sf-outline-variant);
-    color: var(--sf-on-surface-variant);
-    font-size: var(--sf-text-size-1\/3);
-    line-height: var(--sf-text-height-1\/3);
-  }
-
-  .sf-admin-nav-key {
-    display: inline-flex;
-    justify-content: center;
-    min-inline-size: var(--sf-text-height-1\/3);
-    margin-inline-end: var(--sf-a2);
-    padding: 0 var(--sf-a3);
-    border: var(--sf-px) solid var(--sf-outline-variant);
-    border-radius: var(--sf-radius--ui);
-    font-family: inherit;
-    font-size: inherit;
-  }
+  /* SIMAI Framework's sf-search draws it (K-04, C162, C175): its window,
+     scrim, rows and key hints are the search sheet's, in a portal at the end
+     of the body. The menu styles none of it. */
 
   /* ─── the profile menu ──────────────────────────────────────────────────── */
 

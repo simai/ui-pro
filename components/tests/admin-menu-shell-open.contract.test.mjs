@@ -49,9 +49,14 @@ test('the second column follows the page, and whether it is open is the person\'
 test('the theme is a row with a submenu, and the columns are widened by their edges', async () => {
   // Owner, 2026-10-14: the theme is chosen as the language and the menu
   // profile are, and the two columns take an sf-resizer within limits.
+  // Owner decision C176 (1), (2), K-11 (2026-11-16): the row is the settings
+  // row sf-settings makes (entriesFor, a choice in the drill look), and the
+  // person menu drills; no theme list of the menu's own as radio rows.
   const account = await read('src/smart/admin-menu/js/navigation/account.js');
-  assert.match(account, /id: "theme", text: text\("theme"\),[\s\S]*?submenu: THEMES\.map/u);
-  assert.doesNotMatch(account, /type: "choice", id: "theme"/u);
+  assert.match(account, /import \{entriesFor\} from "\.\.\/\.\.\/\.\.\/settings\/js\/settings"/u);
+  assert.match(account, /entriesFor\(\[\{\s*id: "theme", type: "choice"[\s\S]*?\}\], "drill"\)/u);
+  assert.match(account, /submenu: "drill"/u);
+  assert.doesNotMatch(account, /\bTHEMES\b|`theme:\$\{/u);
   const template = await read('src/smart/admin-menu/js/navigation/template.js');
   assert.match(template, /<sf-resizer min=\$\{limits\.min\} max=\$\{limits\.max\}/u);
   assert.match(template, /property=\$\{`--sf-admin-nav-\$\{column\}--inline-size`\}/u);
