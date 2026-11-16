@@ -21,7 +21,7 @@ export function renderContentEditorTemplate(context) {
                      aria-label=${context.titleLabel} data-placeholder=${context.titlePlaceholder}
                      ?hidden=${!context.titleShown}></div>
                 <div class="sf-content-editor-blocks" role="group" tabindex="-1" aria-label=${context.label}></div>
-                <div class="sf-content-editor-gutter">
+                <div class="sf-content-editor-gutter" @contextmenu=${(event) => component.onGutterContextMenu(event)}>
                     <sf-button-icon class="sf-content-editor-plus" size="1/3" appearance="ghost" icon="add"
                                     aria-label=${context.plusLabel} title=${context.plusLabel}
                                     @click=${(event) => component.openMenu("plus", event.currentTarget)}></sf-button-icon>

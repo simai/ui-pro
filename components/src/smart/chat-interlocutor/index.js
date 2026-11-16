@@ -147,9 +147,12 @@ class SfChatInterlocutor extends ChatInterlocutorElement {
             ? {placeholder: this.sfWord("search-placeholder"), empty: this.sfWord("search-empty-text")}
             : null;
         menu.entries = this.entries();
-        // The Loader brings sf-menu-context when the page is ready (the rule
-        // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-menu-context").then(() => menu.toggleFor(button));
+        // The Loader brings sf-menu-context lazily (the rule); a press before
+        // it came asks it for the menu now (defect TL-7) and waits for it.
+        Promise.resolve(globalThis.SF?.Loader?.ensure?.(["sf-menu-context"]))
+            .catch(() => {})
+            .then(() => customElements.whenDefined("sf-menu-context"))
+            .then(() => menu.toggleFor(button));
         return applied();
     }
 

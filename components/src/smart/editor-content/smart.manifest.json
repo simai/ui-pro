@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.editor-content",
-  "version": "1.4.8",
+  "version": "1.5.0",
   "title": "Content editor",
   "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
   "kind": "smart",
@@ -538,7 +538,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/editor-content/index.js",
-        "sha256": "c43ecec615cf8d689900eca2779b0bcf35387ec5b72650c3ba4217598ddf51f5"
+        "sha256": "47ee7e0447e2643d8fc90be05601c1baee86c78f383e0bcf4c453182b601f252"
       },
       {
         "path": "src/smart/editor-content/js/model.js",
@@ -558,7 +558,7 @@
       },
       {
         "path": "src/smart/editor-content/js/templates/default.js",
-        "sha256": "ec04a84d302074b863585158c212c13ba59ca82295a2b96f615c4b49899bf743"
+        "sha256": "840e90ec8a251ae16291cdca4457edd4565fc78d6128a4afd71757249ce76539"
       },
       {
         "path": "src/smart/editor-content/js/templates/default.css",
@@ -570,11 +570,11 @@
       },
       {
         "path": "src/smart/editor-content/docs.md",
-        "sha256": "f9c65c440bbc7353bc14c19ebaca4d7d2e4360f23008c6bd1f75349a6d5aba37"
+        "sha256": "fb412656a629930ffc583852c152f367fa85453d30dab27428516f3eadfb812d"
       },
       {
         "path": "src/smart/editor-content/component.json",
-        "sha256": "a624b940dd05655c19cf9762a5b18b288ab96f22518da57cb0c04811d4a44a81"
+        "sha256": "c00675efd99a56a2a862174638eaa5f55eb6fa3dbe365f40702860ddfe534451"
       },
       {
         "path": "src/smart/editor-content/lang/en.json",

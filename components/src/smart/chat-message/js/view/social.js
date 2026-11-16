@@ -112,9 +112,12 @@ export function renderReplies(ctx, message, view = {}) {
   return button;
 }
 
-// «⋯»: edit and delete in the Framework's menu, made on the first press and
-// waiting for the element, which the Loader brings lazily (the rule).
-function openMore(ctx, message, holder, anchor, {edit, remove, discuss}) {
+// «⋯»: edit and delete in the Framework's menu, made on the first press. The
+// Loader brings the element lazily (the rule); a press before it came asks it
+// for the menu now (SF.Loader.ensure, defect TL-7) and waits for it. `at`
+// {x, y, target}: opened by a right click, the menu's corner at the pointer
+// and the focus back on the message (sf-menu-context openAt, C164 (1)).
+function openMore(ctx, message, holder, anchor, {edit, remove, discuss}, at = null) {
   let menu = holder.querySelector('sf-menu-context');
   if (!menu) {
     menu = element(ctx, 'sf-menu-context', 'sf-chat-tools__menu', {popup: true, 'aria-label': ctx.words('people.actions')});
@@ -132,9 +135,48 @@ function openMore(ctx, message, holder, anchor, {edit, remove, discuss}) {
     ...(edit ? [{id: 'edit', text: ctx.words('people.edit'), icon: 'edit'}] : []),
     ...(remove ? [{id: 'delete', text: ctx.words('people.delete'), icon: 'delete'}] : []),
   ];
-  ctx.document.defaultView.customElements.whenDefined('sf-menu-context').then(() => {
-    menu.entries = entries;
-    menu.toggleFor(anchor);
+  const view = ctx.document.defaultView;
+  Promise.resolve(view.SF?.Loader?.ensure?.(['sf-menu-context']))
+    .catch(() => {})
+    .then(() => view.customElements.whenDefined('sf-menu-context'))
+    .then(() => {
+      menu.entries = entries;
+      if (at) menu.openAt(at.x, at.y, {target: at.target});
+      else menu.toggleFor(anchor);
+    });
+}
+
+// What keeps the browser's own menu on a message (C164 (1)): Shift with the
+// right button, a link, a field, and text the reader selected in it.
+const BROWSER_KEEPS = 'a[href], input, textarea, select, [contenteditable="true"], [contenteditable="plaintext-only"]';
+function browserKeeps(ctx, event, root) {
+  if (event.shiftKey || event.target?.closest?.(BROWSER_KEEPS)) return true;
+  const selection = ctx.document.getSelection?.();
+  return Boolean(selection && !selection.isCollapsed && String(selection).trim() && root.contains(selection.anchorNode));
+}
+
+/**
+ * The message's «⋯» also opens on a right click on the message, at the
+ * pointer, and on the menu key or Shift+F10 from a control of the message, at
+ * the «⋯», with the same list (decision C164 (1)(2), defect TL-2). Nothing is
+ * bound when the message has no «⋯».
+ */
+export function bindMessageMenu(ctx, root, tools) {
+  const more = tools?.querySelector?.('.sf-chat-tools__more');
+  if (!root || !more) return;
+  root.addEventListener('contextmenu', (event) => {
+    if (event.defaultPrevented || browserKeeps(ctx, event, root)) return;
+    event.preventDefault();
+    // A key's contextmenu (the menu key after its keydown) opened it already.
+    if (event.button !== 2) return;
+    more._sfOpenAt?.({x: event.clientX, y: event.clientY, target: root});
+  });
+  root.addEventListener('keydown', (event) => {
+    if (event.key !== 'ContextMenu' && !(event.shiftKey && event.key === 'F10')) return;
+    if (event.defaultPrevented || event.target?.closest?.(BROWSER_KEEPS)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    more.click();
   });
 }
 
@@ -167,6 +209,8 @@ export function renderTools(ctx, message, view = {}, {edit = false, remove = fal
     const more = iconButton(ctx, {icon: 'more_horiz', label: words('tools.more'), size: '1/2', className: 'sf-chat-tools__more'});
     more.setAttribute('aria-haspopup', 'menu');
     more.addEventListener('click', () => openMore(ctx, message, tools, more, {edit, remove, discuss}));
+    // A right click on the message opens the same menu at the pointer (bindMessageMenu).
+    more._sfOpenAt = (at) => openMore(ctx, message, tools, more, {edit, remove, discuss}, at);
     tools.append(more);
   }
   return tools;

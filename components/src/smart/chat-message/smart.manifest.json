@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.7.7",
+  "version": "1.8.0",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -747,11 +747,11 @@
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
-        "sha256": "d74814ba590d7a9c6500df5977710ffd810efc5e84d28c4cdeb4a2338aa3635f"
+        "sha256": "54cf508bc380c7f690f87dc050a53ebd1b2c97d8b5460f6a8c8ff347ff3e1916"
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
-        "sha256": "f727ff4223b435b162da27a66b959748c44146dfad22fdeb193515a2bafc81be"
+        "sha256": "760a8e622a2d09b607c58d54515d4a2a4ed10a7de222e52193b578f06f72405b"
       },
       {
         "path": "src/smart/chat-message/js/view/proposed.js",
@@ -759,7 +759,7 @@
       },
       {
         "path": "src/smart/chat-message/js/view/social.js",
-        "sha256": "a784b525e1ebca7a6ef9e0442cba5eb42e2e1b18fed99dd2f3a01506d4a6b1f2"
+        "sha256": "e9e90706addfe73d5f34b315c9a7de46f62a2ded1621cd03b9a02f427a24dae5"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
@@ -771,11 +771,11 @@
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "df566fdc9b790b12f1717d0392d4ca0d8fc39d6cf4e733d125f95365472c36e5"
+        "sha256": "35514c01f3a5819fcda6007c3d73cb9adbeaa327a2f3b9cac10921b0957e0d0b"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "d836388fb93dc0b44cec81cf52176b3b794823a1760f126ca5511ea855f92aed"
+        "sha256": "b69b270b2624813b3232b190dbd489a99a8ba240cc4ece0f28d2f5dcb2081da0"
       },
       {
         "path": "src/smart/chat-message/aliases.json",

@@ -52,7 +52,7 @@ import {copyText} from '../../../../core/js/clipboard.js';
 import {attachmentState, renderAttachment as attachmentChip} from '../../../chat-composer/js/templates/parts.js';
 import {deliverablesOf, previewTarget, stepsOf, timeOf} from './proposed.js';
 import {documentOf} from '../blocks.js';
-import {renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderReplies, renderTools, whenPlaced} from './social.js';
+import {bindMessageMenu, renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderReplies, renderTools, whenPlaced} from './social.js';
 
 export const safeHref = (value) => globalThis.SF.safeHref(value);
 const sanitizeHtml = (html, policy) => globalThis.SF.sanitizeHtml(html, policy);
@@ -1034,6 +1034,8 @@ export function renderMessage(ctx, message, view = {}) {
     if (replies) body.append(replies);
   }
   if (answered) body.append(renderActions(ctx, message, view, features, sources));
+  // Among people its «⋯» opens on a right click and the menu key too (C164).
+  if (documentOf && answered) bindMessageMenu(ctx, root, body.querySelector('.sf-chat-tools'));
   if (documentOf && answered && view.picker && view.canReact) root.append(renderPicker(ctx, message, view));
   if (documentOf && view.askDelete) body.append(renderDeleteAsk(ctx, message, view.conflict));
   // «Не полезно» asks why, once, in place; the window says when (view).

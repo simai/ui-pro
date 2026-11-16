@@ -22,6 +22,12 @@ import manifest from "./component.json";
 import en from "./lang/en.json";
 import ru from "./lang/ru.json";
 
+// The Loader brings sf-menu-context lazily (the rule); a press before it came
+// asks it for the menu now instead of waiting for the page's own turn (TL-7).
+const menuReady = () => Promise.resolve(globalThis.SF?.Loader?.ensure?.(["sf-menu-context"]))
+    .catch(() => {})
+    .then(() => customElements.whenDefined("sf-menu-context"));
+
 const applied = () => ({outcome: "applied"});
 const refused = (reason) => ({outcome: "refused", reason});
 
@@ -159,11 +165,32 @@ class SfMailStructure extends MailStructureElement {
         if (!row || !menu) return;
         this.menuFor = row.id;
         const native = anchor?.querySelector?.("button") ?? anchor;
-        // The Loader brings sf-menu-context when the page is ready (the rule
-        // fetches it lazily); a press before that waits for it.
-        customElements.whenDefined("sf-menu-context").then(() => {
+        menuReady().then(() => {
             menu.entries = this.menuEntries(row);
             menu.toggleFor(native);
+        });
+    }
+
+    /**
+     * A right click on a row opens its ⋯ menu where the pointer is, with the
+     * same list (decision C164 (1)(2), defect TL-2): sf-menu-context's openAt,
+     * the focus back on the row. Shift with it keeps the browser's menu; the
+     * menu key and Shift+F10 are onRowKeydown's (at the row's ⋯).
+     */
+    onRowContextMenu(event, id) {
+        if (event.shiftKey || event.defaultPrevented) return;
+        const row = this.rowOf(id);
+        const menu = this.menu;
+        if (!row || !menu) return;
+        event.preventDefault();
+        // A key's contextmenu (the menu key after its keydown) opened it already.
+        if (event.button !== 2) return;
+        const {clientX: x, clientY: y} = event;
+        const target = event.currentTarget;
+        this.menuFor = row.id;
+        menuReady().then(() => {
+            menu.entries = this.menuEntries(row);
+            menu.openAt(x, y, {target});
         });
     }
 

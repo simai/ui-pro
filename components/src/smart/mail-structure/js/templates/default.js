@@ -15,6 +15,7 @@ function renderRow(context, row) {
              aria-current=${row.isSelected ? "true" : "false"}
              @focus=${() => { component.stop = row.id; }}
              @click=${(event) => component.onRowClick(event, row.id)}
+             @contextmenu=${(event) => component.onRowContextMenu(event, row.id)}
              @keydown=${(event) => component.onRowKeydown(event, row.id)}>
             ${row.family
                 ? html`<span class="sf-mail-structure-handle" aria-hidden="true" title=${context.pinnedLabel}><sf-icon icon="push_pin" size="1"></sf-icon></span>`

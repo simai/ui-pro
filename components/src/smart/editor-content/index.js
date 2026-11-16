@@ -33,6 +33,7 @@ import SfBaseElement from "../../core/js/smart-base";
 import {elementFromManifest} from "../../core/js/element-manifest";
 import {BUILTIN_EDITOR_MANIFESTS, BUILTIN_TYPE_MANIFESTS} from "../../core/js/composition/builtins.mjs";
 import {textOffset} from "../../core/js/composition/inline-editor.mjs";
+import {roving} from "../../core/js/roving.js";
 import {inlineLength, inlineText, normalizeInline} from "../../core/js/composition/inline-model.mjs";
 import {CATALOG, DEFAULT_KINDS, SHORTCUTS, TURN_INTO, entryOf, kindOf} from "./js/catalog.js";
 import {CONVERTIBLE, FIELDS, FLOWS, ITEMS, TEXT_BLOCKS, blank, cloneFresh, convert, idMaker, inlineOf, insertAt, isFlow, join, locate, moveWithin, paramValue, removeNode, replaceNode, setCell, setInline, setParam, setPlain, split} from "./js/model.js";
@@ -382,6 +383,14 @@ class SfContentEditor extends ContentEditorElement {
         host.replaceChildren(blocks(this.viewContext(), this.doc.root));
         this.resizing?.observe(host);
         if (this.quick) this.resizing?.observe(this.quick);
+        // The quick toolbar is a toolbar of the WAI-ARIA pattern (defect TL-4):
+        // one Tab stop that comes back to the button left, ← → between its
+        // toggles and «Параметры…», Home and End, wrapping (core's roving
+        // helper, owner decision C184); its buttons are drawn anew per block.
+        if (this.quick && this.quickKeys?.row !== this.quick) {
+            this.quickKeys?.keys.destroy();
+            this.quickKeys = {row: this.quick, keys: roving(this.quick, {items: "sf-button-icon, sf-button"})};
+        }
         const title = this.querySelector(".sf-content-editor-title");
         if (title) {
             // A plain field of the root: write() puts what it holds in data.title.
@@ -1291,6 +1300,14 @@ class SfContentEditor extends ContentEditorElement {
             this.enter(id, "end", "first");
             return true;
         }
+        // The menu key and Shift+F10 on a chosen block: its menu at its grip,
+        // the list a press on the grip opens (C164 (2), defect TL-2).
+        if (this.isMenuKey(event) && places.length === 1) {
+            this.showGutter(places[0].node.id);
+            const grip = this.querySelector(".sf-content-editor-grip");
+            if (grip && this.gutterFor) this.openMenu("block", grip);
+            return true;
+        }
         if (key === "Escape") {
             this.clearPicked();
             // Esc with nothing left to undo here: the host may take the person back (the layout, say).
@@ -1650,7 +1667,11 @@ class SfContentEditor extends ContentEditorElement {
     // A menu opens at what opened it: under the + or the grip, its left edge on
     // theirs. The anchor is the native button inside sf-button-icon, whose
     // host draws no box of its own (display: contents).
-    openMenu(mode, trigger) {
+    // `at` {x, y}: a right click in the gutter opens the block's menu with its
+    // corner at the pointer (sf-menu-context openAt, decision C164 (1)).
+    // sf-menu-context is a lazy relation: a press before the Loader brought it
+    // asks it for the menu now (SF.Loader.ensure, defect TL-7).
+    openMenu(mode, trigger, at = null) {
         const menu = this.menu;
         if (!menu || !this.gutterFor) return;
         this.finishSession();
@@ -1658,12 +1679,36 @@ class SfContentEditor extends ContentEditorElement {
         this.menuFor = this.gutterFor;
         const anchor = trigger?.matches?.("button") ? trigger : trigger?.querySelector?.("button") ?? trigger;
         clearTimeout(this.gutterTimer);
-        customElements.whenDefined("sf-menu-context").then(() => {
-            menu.search = {placeholder: this.sfWord("menu-search"), empty: this.sfWord("nothing-found")};
-            menu.entries = mode === "plus" ? this.kindEntries() : this.blockEntries(this.menuFor);
-            anchor?.focus?.({preventScroll: true});
-            menu.toggleFor(anchor, {side: "block-end", align: "start"});
-        });
+        Promise.resolve(globalThis.SF?.Loader?.ensure?.(["sf-menu-context"]))
+            .catch(() => {})
+            .then(() => customElements.whenDefined("sf-menu-context"))
+            .then(() => {
+                menu.search = {placeholder: this.sfWord("menu-search"), empty: this.sfWord("nothing-found")};
+                menu.entries = mode === "plus" ? this.kindEntries() : this.blockEntries(this.menuFor);
+                anchor?.focus?.({preventScroll: true});
+                if (at) menu.openAt(at.x, at.y, {target: anchor});
+                else menu.toggleFor(anchor, {side: "block-end", align: "start"});
+            });
+    }
+
+    /**
+     * A right click in the gutter beside a block opens the block's menu at the
+     * pointer, the same list as a press on the grip (C164 (1), defect TL-2).
+     * The text of a block keeps the browser's menu (spelling, copy and paste);
+     * so does Shift with the right button.
+     */
+    onGutterContextMenu(event) {
+        if (event.shiftKey || event.defaultPrevented || !this.gutterFor) return;
+        event.preventDefault();
+        // A key's contextmenu (the menu key after its keydown) opened it already.
+        if (event.button !== 2) return;
+        this.pick([this.gutterFor]);
+        this.openMenu("block", this.querySelector(".sf-content-editor-grip"), {x: event.clientX, y: event.clientY});
+    }
+
+    // The menu key and Shift+F10 (C164 (2)).
+    isMenuKey(event) {
+        return event.key === "ContextMenu" || (event.shiftKey && event.key === "F10");
     }
 
     /** What finds a kind: its words in the page's language, and its own English names in every language (/div, /image). */
@@ -1833,7 +1878,7 @@ class SfContentEditor extends ContentEditorElement {
     }
 
     onGripKey(event) {
-        if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
+        if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown" || this.isMenuKey(event)) {
             event.preventDefault();
             this.openMenu("block", event.currentTarget);
         }

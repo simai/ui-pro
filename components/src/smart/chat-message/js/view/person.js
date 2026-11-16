@@ -32,7 +32,7 @@
 import { formatDate } from '../../../../core/js/format.js';
 import { getInitials } from '../../../helpers/text.js';
 import { element, text, iconButton, iconNode, renderAttachment } from './message.js';
-import { renderConflict, renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderReplies, renderTools, whenPlaced } from './social.js';
+import { bindMessageMenu, renderConflict, renderDeleteAsk, renderPicker, renderQuote, renderReactions, renderReplies, renderTools, whenPlaced } from './social.js';
 
 let editCounts = 0;
 
@@ -155,6 +155,7 @@ export function renderPersonMessage(ctx, message, view = {}) {
   } else if (!view.editing && !pending && message.id != null && (view.canReact || view.canReply || view.canDiscuss)) {
     const tools = renderTools(ctx, message, view, { edit: Boolean(message.canEdit), remove: Boolean(message.canDelete) });
     if (tools) root.append(tools);
+    bindMessageMenu(ctx, root, tools);
     if (view.picker && view.canReact) root.append(renderPicker(ctx, message, view));
   } else if (!view.editing && !pending && message.id != null && (message.canEdit || message.canDelete)) {
     const tools = element(ctx, 'div', 'sf-chat-person__tools', { role: 'group', 'aria-label': words('people.actions') });
