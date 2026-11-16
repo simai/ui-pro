@@ -61,7 +61,10 @@ const PATCHED = {
   // the row-text inset on --sf-space-1 (utility.table 1.3.0, as ui-pro d766e41)
   // and the windows on the menu's own inline inset (C105 H4, C106, as ui-pro
   // 4059d01). simai/ui-view takes the same when it moves to that pair.
-  'view-table': {tree: 'f75e50e903e0faa8cfed08033f2c288664d42aed', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15)'},
+  // Over pair 5.20261115.1622 (ui-source 5f130e62f, 2026-11-16, as ui-pro
+  // fefef6b of the admin set K-2) the manifest's provenance digest of the
+  // Framework's pagination/index.js is refreshed; no source of the folder changes.
+  'view-table': {tree: '415c621acb85cc7a7e732e7e66ccb924514e78d3', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); provenance over ui-source 5f130e62f (2026-11-16)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
