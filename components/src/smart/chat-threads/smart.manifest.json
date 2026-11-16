@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-threads",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "title": "Thread list",
   "summary": "A person's conversations, newest first: grouped by day, the open one marked, renamed in place, archived or acted on through the Framework's menu, with one Tab stop and the next page asked for at the end.",
   "kind": "composite",

@@ -2,7 +2,7 @@
   "$comment": "The source of sf-thread-list's element plumbing (core/js/element-manifest.js). Taken from simai/ui-control control/smart-architecture/migration/out/thread-list (migration/convert-1.3.8.mjs over simai/ui-pro@9cbe061); standard simai.smart-component 1.3.8, vocabulary 1.1.5. Every x-todo of the conversion is decided: x-decisions says how.",
   "id": "smart.chat-threads",
   "tag": "sf-chat-threads",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "kind": "leaf",
   "family": "list",
   "settings": {
@@ -798,7 +798,8 @@
     "version 2.0.1 (2026-11-09): a patch (no visible change). SIMAI Framework ui-cb287da78ab1 (core.runtime 1.45.0, standard §4.4) writes an action's method in the reference as one args object whose schema is the action's `with` fields, not the fields one by one (ui-source 9d2eeb8e, generate-component-files.mjs argumentsOf); smart.manifest.json is regenerated and changes only in methods.*.arguments. The element already took both forms; x-registry.action-calls records where its code also reads the value alone: the list for setThreads and appendThreads, the id for removeThread, rename and openMenu. Settings, values and events are unchanged. The same version first-paint snapshots are retaken over that pair; static/sheets.json is unchanged.",
     "version 2.0.2 (2026-11-09): a patch (first paint only), for SIMAI Framework ui-b4a77681f0a7. The first-paint snapshots (reference, ungrouped, people, avatars and their skeletons) are retaken over the pair: sf-avatar takes hue=\"auto\" and writes its colour as the hue class (sf-hue-<name>) for the former tone class. Code, settings, values and events are unchanged.",
     "version 2.0.3 (2026-11-10): a patch (first paint only). The first-paint snapshots are retaken over SIMAI Framework ui-2bd5a3ab478a: the pair's sf-menu-context prints its panel without the flex utility class (class=\"sf-context-menu\"); static/sheets.json is unchanged (no sheet drift). Code, settings, values and events are unchanged.",
-    "version 2.0.6 (2026-11-15): a patch (probes only), over SIMAI Framework ui-994f9db407fa. The example p-avatar-shape-icon follows sf-list: since sf-list 1.8.0 (LI-10, C148) a row's avatar is sf-avatar's drawing in a span, so the check reads the shape from the picture (.sf-avatar--square). 2.0.4 is held by the chat set (simai/ui-chat), 2.0.5 by the unreleased ui-pro branch pin/pair-141822273efe. Code, settings, values and events are unchanged."
+    "version 2.0.6 (2026-11-15): a patch (probes only), over SIMAI Framework ui-994f9db407fa. The example p-avatar-shape-icon follows sf-list: since sf-list 1.8.0 (LI-10, C148) a row's avatar is sf-avatar's drawing in a span, so the check reads the shape from the picture (.sf-avatar--square). 2.0.4 is held by the chat set (simai/ui-chat), 2.0.5 by the unreleased ui-pro branch pin/pair-141822273efe. Code, settings, values and events are unchanged.",
+    "version 2.0.7 (2026-11-16): a patch (probes only), over SIMAI Framework ui-078a4b4c6f6e. sf-list 1.14+ shows a row's actions in the page's one shared menu (core SF.menu.open, owner decision C184 (4)) instead of its own .sf-list__menu, so p3 and p4 read the entries from the list's menu getter. Since the list and feed study LF-8 a list whose end is already in sight asks for no next page by itself: «Показать ещё» (or the first scroll) asks; p6 now sets has-more, hears no load-more, presses «Показать ещё» and hears load-more {direction: after} once. Code, settings, values and events are unchanged. Numbered above 2.0.6, the highest on any ui-pro branch."
   ],
   "x-rule": {
     "$comment": [

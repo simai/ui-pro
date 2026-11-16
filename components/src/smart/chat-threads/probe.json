@@ -129,7 +129,7 @@
         {
           "user": "keyboard:Shift+F10",
           "wait": 300,
-          "check": "document.querySelector('#list .sf-list__menu').entries.map((one) => one.id).join() === 'rename,action:archive,action:host:pin'"
+          "check": "document.querySelector('#list sf-list').menu.entries.map((one) => one.id).join() === 'rename,action:archive,action:host:pin'"
         },
         {
           "script": "(document.querySelector('#list sf-list').onMenu({id: 'action:archive'}), true)",
@@ -201,7 +201,7 @@
               "outcome": "applied"
             }
           },
-          "check": "document.querySelector('#archive .sf-list__menu').entries.map((one) => one.id).join() === 'rename,action:restore'"
+          "check": "document.querySelector('#archive sf-list').menu.entries.map((one) => one.id).join() === 'rename,action:restore'"
         },
         {
           "script": "(document.querySelector('#archive sf-list').onMenu({id: 'action:restore'}), true)",
@@ -285,7 +285,7 @@
     },
     {
       "id": "p6-settings-and-outcomes",
-      "title": "loading and status are settings; setLoading, the 1.0 setter, still works and is noted; actions answer outcomes; has-more asks load-more {direction: after} once",
+      "title": "loading and status are settings; setLoading, the 1.0 setter, still works and is noted; actions answer outcomes; has-more shows «Показать ещё», which asks load-more {direction: after} once (an end already in sight asks nothing by itself, SIMAI Framework sf-list LF-8)",
       "covers": "settings.loading, settings.status, actions rename/remove-thread outcomes, events.load-more",
       "steps": [
         {
@@ -343,6 +343,19 @@
         {
           "script": "(document.querySelector('#list').hasMore = true, true)",
           "wait": 500,
+          "expect": {
+            "events": [
+              {
+                "name": "sf-chat-threads-load-more",
+                "count": 0
+              }
+            ]
+          },
+          "check": "!document.querySelector('#list .sf-list__next').hidden"
+        },
+        {
+          "user": "click:#list .sf-list__next button",
+          "wait": 300,
           "expect": {
             "events": [
               {
