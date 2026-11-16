@@ -31,6 +31,7 @@ const styles = [
   'smart/smart/popover/css/popover.css',
   'component/component/icon-buttons/css/icon-buttons.css',
   'smart/smart/button-copy/css/button-copy.css',
+  'smart/smart/input-lookup/css/input-lookup.css',
   'smart/smart/view-properties/css/view-properties.css',
   'smart/smart/sortable/css/sortable.css',
   'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
@@ -51,6 +52,9 @@ const modules = [
   'smart/smart/switch/js/switch.js', 'smart/smart/segmented/js/segmented.js',
   'smart/smart/file-upload/js/file-upload.js', 'smart/smart/file-preview/js/file-preview.js',
   'smart/smart/progress-bar/js/progress-bar.js',
+  // A record, a relation and a user are edited in sf-input-lookup since
+  // field-renderers 1.9.0 (C139 (1)).
+  'smart/smart/input-lookup/js/input-lookup.js',
   'smart/smart/field-renderers/js/field-renderers.js',
   'smart/smart/sortable/js/sortable.js',
   // A related group composes a data view, which brings a table and a page row.
@@ -95,7 +99,7 @@ try {
   await page.waitForTimeout(1400);
 
   const unupgraded = await page.evaluate(() => {
-    const tags = ['sf-view-properties', 'sf-drawer', 'sf-input', 'sf-input-textarea', 'sf-dropdown',
+    const tags = ['sf-view-properties', 'sf-drawer', 'sf-input', 'sf-input-textarea', 'sf-dropdown', 'sf-input-lookup',
       'sf-input-date', 'sf-switch', 'sf-button-group', 'sf-checkbox', 'sf-file-upload',
       'sf-file-preview', 'sf-progress-bar', 'sf-progress-scale', 'sf-avatar', 'sf-badge',
       'sf-tag', 'sf-reference-link', 'sf-tree', 'sf-tree-item', 'sf-button', 'sf-button-icon',
@@ -322,7 +326,7 @@ try {
         dateHeld: dateView.querySelector('[data-field="due"] sf-input-date')?.value ?? null,
         // A refused field has no candidates now or ever, so a retry cannot help
         // and an empty picker over a real value reads as the value being gone.
-        refusedPicker: Boolean(owner?.querySelector('sf-dropdown')),
+        refusedPicker: Boolean(owner?.querySelector('sf-dropdown, sf-input-lookup')),
         refusedRetry: (owner?.textContent ?? '').includes('Повторить'),
         refusedShowsValue: (owner?.textContent ?? '').includes('Пакет отсутствует'),
         fullWidthSpans: about ? getComputedStyle(about).gridColumnStart : null,
@@ -1033,7 +1037,7 @@ try {
       const box = oldHostView.querySelector('[data-field="ref"] .sf-property-view-field-value');
       return {empty: Boolean(box?.querySelector('.sf-property-view-empty')),
         readonly: Boolean(box?.querySelector('[data-readonly]')),
-        picker: Boolean(box?.querySelector('sf-dropdown')),
+        picker: Boolean(box?.querySelector('sf-dropdown, sf-input-lookup')),
         text: box?.textContent.replace(/\s+/gu, ' ').trim() ?? ''};
     })();
 
@@ -1172,7 +1176,10 @@ try {
       const box = root.querySelector('[data-field="section"] .sf-property-view-field-value');
       return {empty: Boolean(box?.querySelector('.sf-property-view-empty')),
         readonly: Boolean(box?.querySelector('[data-readonly]')),
-        text: box?.textContent.replace(/\s+/gu, ' ').trim() ?? ''};
+        // A lookup holds the chosen label in its field (an input's value is
+        // not text), so both are read.
+        text: [box?.textContent, ...[...(box?.querySelectorAll('input') ?? [])].map((input) => input.value)]
+          .join(' ').replace(/\s+/gu, ' ').trim()};
     })();
     // Every reference field in the group is read at once when it opens, and every
     // one of them must end with its page. A single counter kept only the last
@@ -1189,19 +1196,24 @@ try {
     // The record picker: the three cases that break pickers, measured through the
     // composite rather than against the renderer set alone.
     const picker = await (async () => {
-      const node = root.querySelector('[data-field="section"] sf-dropdown');
+      // sf-input-lookup since field-renderers 1.9.0 (C139 (1)): focus asks for
+      // the first page (the quiet one asked as the group opened is reused).
+      const node = root.querySelector('[data-field="section"] sf-input-lookup');
       if (!node) return {rendered: false};
-      for (let attempt = 0; attempt < 40 && !Array.isArray(node.selectedValues); attempt += 1) {
+      node.querySelector('.sf-lookup-input')?.focus();
+      for (let attempt = 0; attempt < 40 && !node.querySelector('[role="option"]'); attempt += 1) {
         await new Promise((done) => setTimeout(done, 50));
       }
-      const labels = () => [...node.querySelectorAll('[role="option"], sf-list-item')]
-        .map((item) => (item.textContent ?? '').trim()).filter(Boolean);
+      const labels = () => [...node.querySelectorAll('[role="option"]')]
+        .map((item) => (item.querySelector('.sf-lookup-option-label')?.textContent ?? item.textContent ?? '').trim()).filter(Boolean);
       const firstPage = labels();
-      // A chosen record the first page does not hold must still be in the list and
-      // still be the selection -- the case that makes a picker look as if it has
-      // forgotten the answer.
-      const holdsChosen = firstPage.some((text) => /Платежи/u.test(text));
-      const selected = (node.selectedValues ?? []).map(String);
+      // A chosen record the first page does not hold must still be the
+      // selection and still be shown -- in the field, where a lookup shows it.
+      const holdsChosen = /Платежи/u.test(node.querySelector('.sf-lookup-input')?.value ?? '')
+        || /Платежи/u.test(node.textContent ?? '');
+      const chosenValue = node.value && typeof node.value === 'object' ? node.value.value : node.value;
+      const selected = chosenValue == null ? [] : [String(chosenValue)];
+      node.querySelector('.sf-lookup-input')?.blur();
       // Searching asks the host, with the paging reset.
       await view.loadFieldOptions({key: 'section'}, {cursor: null, search: 'Решение 400'});
       await new Promise((done) => setTimeout(done, 300));
@@ -1215,7 +1227,7 @@ try {
       await new Promise((done) => setTimeout(done, 300));
       const afterMore = view.getFieldOptionsPage({key: 'section'})?.items?.length ?? 0;
       return {rendered: true, firstPageCount: firstPage.length, holdsChosen, selected,
-        searchPlaceholder: node.getAttribute('search-placeholder'),
+        searchPlaceholder: node.getAttribute('placeholder'),
         quietStatus: (root.querySelector('[data-field="related"] .sf-field-picker-state')
           ?.textContent ?? '').trim(),
         afterSearchCount: afterSearch.length, beforeMore, afterMore,
@@ -2116,7 +2128,7 @@ try {
     anchor?.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
     await new Promise((done) => window.setTimeout(done, 300));
     const after = view.panelContent() ?? view;
-    const edits = after.querySelectorAll('.sf-property-view-group sf-input, .sf-property-view-group sf-dropdown').length;
+    const edits = after.querySelectorAll('.sf-property-view-group :is(sf-input, sf-dropdown, sf-input-lookup)').length;
 
     view.copyAddress?.();
     await new Promise((done) => window.setTimeout(done, 200));

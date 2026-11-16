@@ -2,7 +2,7 @@
   "$comment": "sf-property-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/property-view; every x-todo decided in x-decisions.",
   "id": "smart.view-properties",
   "tag": "sf-view-properties",
-  "version": "1.16.2",
+  "version": "1.16.4",
   "kind": "leaf",
   "family": "record",
   "implements": [
@@ -791,6 +791,16 @@
     {
       "name": "cl-dropdown",
       "lazy": true
+    },
+    {
+      "name": "cl-input-lookup",
+      "lazy": true,
+      "$comment": [
+        "A record, a relation, a user and a paged lookup are edited in sf-input-lookup",
+        "(field-renderers 1.9.0, owner decision C139 (1)): a search over the host's",
+        "pages with a picture and a caption per row. Without the relation the field",
+        "would hold an element that never upgrades."
+      ]
     },
     {
       "name": "cl-input-date",
@@ -1752,6 +1762,13 @@
             "The loading skeleton's tab strip stands over the tabs' hairline as sf-tabs' underline strip does (margin-bottom minus the tabs' border width): it was 1px taller than the record's tabs (73 against 72 at size 1, 65 against 64 at 1/2), so the first group moved up by a pixel when the record came (simai/ui-pro#3).",
             "Both as ui-pro 4059d01 (pin/pair-141822273efe), ahead of simai/ui-view; 1.14.0 to 1.16.1 are held by unreleased ui-pro and simai/ui-view branches. Nothing to change for a host.",
             "Record, relation, user and paged lookup fields are edited with the searchable sf-dropdown again, asked of the SIMAI Framework field renderers with {picker: 'dropdown'} (owner decision C139 (1) keeps it until 2027-01-01): over ui-994f9db407fa the renderers draw sf-input-lookup, which the pair's package contract does not let this component relate, so the field held an element that never upgraded, with no picker and no chosen label. The panel returns to sf-input-lookup when the pair carries smart.input-lookup in pro.package.json."
+          ]
+        },
+        {
+          "from": "1.16.2",
+          "to": "1.16.4",
+          "changes": [
+            "A record, a relation, a user and a paged lookup field are edited in sf-input-lookup again (field-renderers 1.9.0, owner decision C139 (1)): SIMAI Framework ui-078a4b4c6f6e carries smart.input-lookup in pro.package.json (cl-view-properties requires it), so the panel no longer asks the renderers for the searchable sf-dropdown (the 1.16.2 interim is removed) and the rule relates cl-input-lookup (lazy). Focus asks the host for the first page (the quiet page asked as the group opens is reused), typing searches through loadFieldOptions, «Show more» follows the cursor, and the chosen value is written as {value, label}. A row's caption, avatar ({src} or {initials}, or avatarText) and icon reach the lookup as the host sends them in options_page.items; property-view-port 1.18.0 names only value and label, so a host that wants them needs the port to say so. A short list given whole stays sf-dropdown. As ui-pro d032639 (fix/pro-g4, 1.15.0 there); 1.16.3 is held by simai/ui-view. Nothing to change for a host."
           ]
         }
       ]

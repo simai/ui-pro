@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.16.2",
+  "version": "1.16.4",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -51,6 +51,7 @@
       "smart.input-color",
       "smart.input-country",
       "smart.input-date",
+      "smart.input-lookup",
       "smart.input-textarea",
       "smart.list-item",
       "smart.popover",
@@ -1633,6 +1634,13 @@
           "Both as ui-pro 4059d01 (pin/pair-141822273efe), ahead of simai/ui-view; 1.14.0 to 1.16.1 are held by unreleased ui-pro and simai/ui-view branches. Nothing to change for a host.",
           "Record, relation, user and paged lookup fields are edited with the searchable sf-dropdown again, asked of the SIMAI Framework field renderers with {picker: 'dropdown'} (owner decision C139 (1) keeps it until 2027-01-01): over ui-994f9db407fa the renderers draw sf-input-lookup, which the pair's package contract does not let this component relate, so the field held an element that never upgraded, with no picker and no chosen label. The panel returns to sf-input-lookup when the pair carries smart.input-lookup in pro.package.json."
         ]
+      },
+      {
+        "from": "1.16.2",
+        "to": "1.16.4",
+        "changes": [
+          "A record, a relation, a user and a paged lookup field are edited in sf-input-lookup again (field-renderers 1.9.0, owner decision C139 (1)): SIMAI Framework ui-078a4b4c6f6e carries smart.input-lookup in pro.package.json (cl-view-properties requires it), so the panel no longer asks the renderers for the searchable sf-dropdown (the 1.16.2 interim is removed) and the rule relates cl-input-lookup (lazy). Focus asks the host for the first page (the quiet page asked as the group opens is reused), typing searches through loadFieldOptions, «Show more» follows the cursor, and the chosen value is written as {value, label}. A row's caption, avatar ({src} or {initials}, or avatarText) and icon reach the lookup as the host sends them in options_page.items; property-view-port 1.18.0 names only value and label, so a host that wants them needs the port to say so. A short list given whole stays sf-dropdown. As ui-pro d032639 (fix/pro-g4, 1.15.0 there); 1.16.3 is held by simai/ui-view. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1658,7 +1666,7 @@
       },
       {
         "path": "src/smart/view-properties/js/field-value.js",
-        "sha256": "a855aedae905d8d4a1a39ee500c72c6a0903b6e9939c5f3ea87acf43b12c277c"
+        "sha256": "aa04dbf2f3f8a979966af613c82e2bcffa13020371a5884f88728f50c1145b8e"
       },
       {
         "path": "src/smart/view-properties/js/requisites.js",
@@ -1686,7 +1694,7 @@
       },
       {
         "path": "src/smart/view-properties/rule.js",
-        "sha256": "d6b0ba37902b2b84b46be67ec3a4d8261110b08e0f4e5c4685ef2fd4766dbedf"
+        "sha256": "42a5bbe62b2298a139850ec114639c64ced897c556b57ba2ccd28d5600ad196c"
       },
       {
         "path": "src/core/contracts/ports/simai.property-view-port/1.4.0/port.json",
@@ -1694,7 +1702,7 @@
       },
       {
         "path": "src/smart/view-properties/docs.md",
-        "sha256": "1561c72c492262d7b9722c6fc62017e6ee676f372a54c8791c3e83862b1de10d"
+        "sha256": "e2a29465f32db3b5e62cd95f9bcfe65ebe6838aa73bcad1af2dccf3cc974fbe6"
       }
     ],
     "generated_runtime": []
