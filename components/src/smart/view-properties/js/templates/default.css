@@ -947,6 +947,15 @@
   .sf-property-view-panel--fills .sf-property-view-head {
     padding-inline-start: calc(var(--sf-space-1) + var(--sf-property-view--edge-room, 0px) + var(--sf-space-1\/2));
   }
+  /* Since sf-drawer 1.16.0 (C157 (2), C14) a panel that fills the screen takes
+     its edge controls into the head's row at its end (data-sf-drawer-edge-in-head)
+     and says how much room they take (--sf-drawer-edge-room). The record's name
+     then starts on the panel's own axis and stops a step short of them: still
+     padded for a strip at the start, it ran under the close and copy-link. */
+  .sf-drawer[data-sf-drawer-edge-in-head] .sf-property-view-panel--fills .sf-property-view-head {
+    padding-inline-start: var(--sf-property-view--panel-axis);
+    padding-inline-end: calc(var(--sf-property-view--panel-axis) + var(--sf-drawer-edge-room, 0px) + var(--sf-space-1\/3));
+  }
 
 
   /* A value is a button that opens its group, so reading and changing are one

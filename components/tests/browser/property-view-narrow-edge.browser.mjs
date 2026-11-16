@@ -131,7 +131,7 @@ try {
         wide: Boolean(view.wide),
         viewport: innerWidth,
         panel: panel ? {left: Math.round(panel.left), right: Math.round(panel.right)} : null,
-        title: title ? {left: Math.round(title.left), top: Math.round(title.top), bottom: Math.round(title.bottom)} : null,
+        title: title ? {left: Math.round(title.left), right: Math.round(title.right), top: Math.round(title.top), bottom: Math.round(title.bottom)} : null,
         controls,
       };
     }, record);
@@ -156,7 +156,12 @@ try {
         note({width, case: 'beside a wide panel the strip stands outside it', got: {panel: seen.panel, over}});
       }
     } else if (seen.title) {
+      // Since sf-drawer 1.16.0 (C157 (2), C14) a panel that fills the screen
+      // draws its edge controls in its head's row at the end, the close last,
+      // where they stood along its top at the start before; either way none
+      // may cross the title's box.
       const covering = seen.controls.filter((control) => control.right > seen.title.left
+        && control.left < seen.title.right
         && control.bottom > seen.title.top && control.top < seen.title.bottom);
       if (covering.length) {
         note({width, case: "in a panel that fills the screen no control stands over the record's name",

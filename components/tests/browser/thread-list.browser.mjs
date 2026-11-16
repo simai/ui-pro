@@ -232,7 +232,10 @@ try {
     list.loading = true;
     await new Promise((done) => setTimeout(done, 150));
     return {busy: document.querySelector('.sf-list__frame').getAttribute('aria-busy'),
-      rows: document.querySelectorAll('.sf-list__skeleton span').length,
+      // Since sf-list 1.12.0 (owner decision C130, list and feed study LF-2) a
+      // skeleton row is the list's own sf-list-item holding first-paint bars,
+      // so the rows are counted, not the spans inside them.
+      rows: document.querySelectorAll('.sf-list__skeleton > .sf-list__row--skeleton').length,
       status: document.querySelector('.sf-thread-list__status')?.hidden};
   });
   if (loading.busy !== 'true' || loading.rows !== 3 || loading.status !== true) note({case: 'loading shows the shape of the list, busy', got: loading});
