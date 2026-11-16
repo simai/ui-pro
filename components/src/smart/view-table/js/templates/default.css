@@ -313,9 +313,13 @@
     --sf-table-row-block-size-1: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), var(--sf-text-height-1)));
     --sf-table-row-2-lines-block-size-1\/2: max(var(--sf-ui-1--control-height), var(--sf-ui-2--control-height) - 2 * var(--sf-text-height-1\/2) + max(var(--sf-ui-1\/2--control-height), 2 * var(--sf-text-height-1\/2)));
     --sf-table-row-2-lines-block-size-1: max(var(--sf-ui-2--control-height), var(--sf-ui-3--control-height) - 2 * var(--sf-text-height-1) + max(var(--sf-ui-1--control-height), 2 * var(--sf-text-height-1)));
-    /* The head row: the step's space around a line of the head's text, its line. */
-    --sf-table-head-block-size-1\/2: calc(2 * var(--sf-ui-1\/2--space-y) + var(--sf-text-height-1\/2) + var(--sf-px));
-    --sf-table-head-block-size-1: calc(2 * var(--sf-ui-1--space-y) + var(--sf-text-height-1) + var(--sf-px));
+    /* The head row: the step's space around a line of the head's text, its
+       line, and never below the Framework table's row, which every cell of a
+       .table stands on, the head's too (utility.table, C146 (1)): the size-1
+       control height, moved by the area's density (C185 (2)). At 1/2 that row
+       (40) is taller than the head's text and space (33). */
+    --sf-table-head-block-size-1\/2: max(var(--sf-ui-1--control-height), 2 * var(--sf-ui-1\/2--space-y) + var(--sf-text-height-1\/2) + var(--sf-px));
+    --sf-table-head-block-size-1: max(var(--sf-ui-1--control-height), 2 * var(--sf-ui-1--space-y) + var(--sf-text-height-1) + var(--sf-px));
     /* The toolbar on one line (search, settings, export): the step's control,
        and the gap between it and the head. */
     --sf-table-toolbar-block-size-1\/2: var(--sf-ui-1\/2--control-height);

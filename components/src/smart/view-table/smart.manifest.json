@@ -2723,7 +2723,8 @@
         "from": "1.19.7",
         "to": "1.19.8",
         "changes": [
-          "Rebuilt over SIMAI Framework ui-078a4b4c6f6e (ui-source 10145e63b, core.runtime 1.58.0). The Framework code it builds in moved: sf-pagination 1.7 (C167) loads the next page when «Show more» comes within reach of the box that scrolls it, and its bulk band lists a deleting action last as the outlined danger Apply (C116); smart.manifest.json's provenance of src/smart/pagination/index.js follows. Nothing of its own changes; 1.19.8 is above every origin branch (1.19.7 in simai/ui-pro, 1.19.6 in simai/ui-view). Nothing to change for a host."
+          "Rebuilt over SIMAI Framework ui-078a4b4c6f6e (ui-source 10145e63b, core.runtime 1.58.0). The Framework code it builds in moved: sf-pagination 1.7 (C167) loads the next page when «Show more» comes within reach of the box that scrolls it, and its bulk band lists a deleting action last as the outlined danger Apply (C116); smart.manifest.json's provenance of src/smart/pagination/index.js follows. 1.19.8 is above every origin branch (1.19.7 in simai/ui-pro, 1.19.6 in simai/ui-view). Nothing to change for a host.",
+          "The published head row (--sf-table-head-block-size-1/2 and -1) never stands below the Framework table's row, which a .table's head cells stand on too (utility.table, C146 (1)): the size-1 control height, moved by the area's density (C185 (2)). At 1/2 the head said 33 and drew 40, so a page holding the list's room from the docs' formula was 7 short (241 against 248; table-published-box)."
         ]
       }
     ]
@@ -2742,7 +2743,7 @@
       },
       {
         "path": "src/smart/view-table/js/templates/default.css",
-        "sha256": "0109a8e77b68753c193786680107ae0f6bb4f2da62c2d4dd99cb5203162c58b3"
+        "sha256": "a4243d018dbee524ed1ea841efa809e759e0ba1627cba910c8999927f16e720d"
       },
       {
         "path": "src/smart/helpers/option-badge.js",
