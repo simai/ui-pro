@@ -515,7 +515,7 @@
       },
       {
         "path": "src/smart/mail-canvas/component.json",
-        "sha256": "6f7851338e61793165b2f125171ab61633ae32c4e504b1f3ff3cd44699d54801"
+        "sha256": "58dfe8ae4cde25289ad2fb8281511899969803accdacd00e45ad13bff4828c7f"
       },
       {
         "path": "src/smart/mail-canvas/lang/en.json",
