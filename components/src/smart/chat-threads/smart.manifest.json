@@ -1105,7 +1105,7 @@
       },
       {
         "path": "src/smart/chat-threads/component.json",
-        "sha256": "49f2834d348714c2693ba42e67b39324ac0dc97bc5cd9eb53d6df5047750128a"
+        "sha256": "d77ab9393e6ab6e09e6801249f6ce9f785fb5cb1de1db742c99d35fab7347670"
       },
       {
         "path": "src/smart/chat-threads/aliases.json",
