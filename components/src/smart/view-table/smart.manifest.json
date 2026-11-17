@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.20.4",
+  "version": "1.23.2",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2739,6 +2739,13 @@
           "The first-paint snapshots are retaken over SIMAI Framework group build 9 (ui-source 3d55e44d7).",
           "The released pro-589ced99cfbd (over ui-078a4b4c6f6e) ships an sf-view-table 1.19.8 without the admin set K-1 change; this 1.19.8 -> 1.20.4 is over the 1.19.8 that has it (the ⋯ for the view and template actions, C155 (2), and a row menu on a right click, the context-menu key and Shift+F10, C164 (1)(2)), so a host taking 1.20.4 gets K-1 too."
         ]
+      },
+      {
+        "from": "1.20.4",
+        "to": "1.23.2",
+        "changes": [
+          "Rebuilt over SIMAI Framework ui-1ed6b6c9a040 (ui-source acc113415, core.runtime 1.60.0). The Framework code it builds in moved: sf-pagination carries its English words only and takes every other language from a language file (owner decision C282); smart.manifest.json's provenance of src/smart/pagination/index.js follows. simai/ui-view round/view-r2-page holds 1.23.1, so the number is 1.23.2, above every origin branch; the view set's own 1.20.5 to 1.23.1 are not in this copy, which ui-pro drops once the View release takes its place (D31). Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -2772,7 +2779,7 @@
       },
       {
         "path": "src/smart/pagination/index.js",
-        "sha256": "424b8ae852757155c6d997f83c65b647056c1c418d80685e5e618ab35f2877de"
+        "sha256": "942192f5112be7e05271f8ffbc7f1145ddad789217b4844753ce68bc2464007e"
       }
     ],
     "generated_runtime": []

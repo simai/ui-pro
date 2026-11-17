@@ -84,7 +84,11 @@ const PATCHED = {
   // frame (PRO-ADM-12: «ResizeObserver loop completed» at 390 on every load),
   // and the icon buttons ghost, not the dated link look (C15); its patch for
   // simai/ui-view is ui-control control/evidence/2026-11-17-pro-over-gb9/view-table-gb9.patch.
-  'view-table': {tree: 'da0897dd794e35daff15a250cc4cbe4bf3db053a', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), first-paint snapshots retaken, over the K-1 1.19.8 (the released pro-589ced99cfbd has a 1.19.8 without it), sf-view-table 1.20.4 (2026-11-17)'},
+  // Over ui-1ed6b6c9a040 (ui-source acc113415, 2026-11-18), sf-view-table 1.23.2
+  // (above ui-view round/view-r2-page's 1.23.1): the provenance of
+  // src/smart/pagination/index.js (sf-pagination English only, C282) and the
+  // version; nothing else. simai/ui-view takes the same when it moves to that pair.
+  'view-table': {tree: '3ebe697e5f9f0db06998587aa03b5d1de5c3e699', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), first-paint snapshots retaken, over the K-1 1.19.8 (the released pro-589ced99cfbd has a 1.19.8 without it), sf-view-table 1.20.4 (2026-11-17); over ui-1ed6b6c9a040 (ui-source acc113415), pagination provenance, sf-view-table 1.23.2 (2026-11-18)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
