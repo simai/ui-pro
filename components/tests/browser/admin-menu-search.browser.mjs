@@ -531,6 +531,32 @@ try {
   if (!row.row || row.toggle) {
     note({case: 'default mode', got: row, expected: 'the search row, and no magnifier'});
   }
+
+  // 8. The row searches as the panel does (owner decision C276, PRO-ADM-2):
+  // the end of a word is dropped, so «роль» finds «Роли», and the host is
+  // asked (sf-admin-menu-query) for what the menu cannot know, «1042».
+  const asked = await legacy.evaluate(async () => {
+    const menu = document.getElementById('m');
+    const queries = [];
+    menu.addEventListener('sf-admin-menu-query', (event) => queries.push(event.detail?.query ?? null));
+    const wait = (ms) => new Promise((done) => setTimeout(done, ms));
+    menu.search('роль');
+    await wait(450);
+    const panel = menu.querySelector('.sf-admin-menu-panel-search');
+    const found = [...(panel?.querySelectorAll('.sf-admin-menu-search-results .sf-admin-menu-item') ?? [])]
+      .map((item) => item.textContent.replace(/\s+/gu, ' ').trim());
+    const open = Boolean(panel?.classList.contains('open'));
+    menu.search('1042');
+    await wait(450);
+    return {open, found, queries};
+  });
+  console.error(JSON.stringify({rowSearch: asked}));
+  if (!asked.open || !asked.found.some((text) => text.startsWith('Роли'))) {
+    note({case: 'row search stem (C276)', got: asked, expected: 'the search panel open with «Роли» for «роль»'});
+  }
+  if (!asked.queries.includes('1042')) {
+    note({case: 'row search asks the host (C276)', got: asked, expected: 'sf-admin-menu-query with «1042»'});
+  }
   await legacy.close();
 } finally {
   await browser.close();

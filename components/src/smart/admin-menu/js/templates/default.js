@@ -530,21 +530,54 @@ export function renderAdminMenuTemplate(context) {
     `;
   }
 
+  // A group the host answered, in the row's list: plain links as the
+  // sections are (the row has no listbox; the panel's rows are options).
+  function renderHostResults(group) {
+    return html`
+      <div class="sf-admin-menu-search-group flex flex-col">
+        <div class="sf-admin-menu-search-group-head flex items-cross-center content-main-between">
+          <span>${group.label}</span>
+          ${group.more ? html`<a href=${group.more.href}>${group.more.text}</a>` : nothing}
+        </div>
+        <ul class="sf-admin-menu-search-results p-0 m-0 gap-1/3 flex flex-col">
+          ${group.items.map((item) => html`
+            <li class="sf-admin-menu-item-wrap flex items-cross-center">
+              <a class="sf-admin-menu-item sf-admin-menu-search-host flex items-cross-center flex-1 max-w-full min-w-0" href=${item.href}>
+                <span class="sf-admin-menu-item-container max-w-full wrap-none flex items-cross-center flex-1">
+                  ${item.icon ? renderIcon(item.icon) : renderPlaceholder(item.text)}
+                  <span class="flex flex-col min-w-0">
+                    <span class="overflow-hidden whitespace-nowrap t-ellipsis">${item.text}</span>
+                    ${item.subtext
+                      ? html`<span class="sf-admin-menu-search-result-path sf-text-1/3 color-on-surface-variant overflow-hidden whitespace-nowrap t-ellipsis">${item.subtext}</span>`
+                      : nothing}
+                  </span>
+                </span>
+              </a>
+            </li>`)}
+        </ul>
+      </div>
+    `;
+  }
+
+  // The row's results (search-mode row): the menu's sections, then what the
+  // host answered for the same query, grouped as in the panel (C276).
   function renderSearchResults() {
     if (!searchQuery) return nothing;
-
-    if (!searchResults?.length) {
-      return html`
-        <div class="sf-admin-menu-search-empty p-2 color-on-surface-variant">
-          ${menuText("empty")}
-        </div>
-      `;
-    }
+    const hosted = (searchGroups || []).filter((group) => group.items.length);
 
     return html`
-      <ul class="sf-admin-menu-search-results p-0 m-0 gap-1/3 flex flex-col">
-        ${searchResults.map(renderSearchResult)}
-      </ul>
+      ${searchResults?.length
+        ? html`<ul class="sf-admin-menu-search-results p-0 m-0 gap-1/3 flex flex-col">
+            ${searchResults.map(renderSearchResult)}
+          </ul>`
+        : nothing}
+      ${hosted.map(renderHostResults)}
+      ${searchPending ? renderSearchSkeletons() : nothing}
+      ${!searchResults?.length && !hosted.length && !searchPending
+        ? html`<div class="sf-admin-menu-search-empty p-2 color-on-surface-variant">
+            ${menuText("empty")}
+          </div>`
+        : nothing}
     `;
   }
 
@@ -760,6 +793,18 @@ export function renderAdminMenuTemplate(context) {
     `;
   }
 
+  // The name beside the logo. Collapsed, the column is one icon wide
+  // (PRO-ADM-3: «Магазин», 103 px, stood cut on both sides in the 56 px
+  // column): with a logo the logo stays alone and its alt names the menu;
+  // without one the name's first letters stand where an item's icon stands,
+  // as an item without an icon shows them, and the name is still read.
+  function renderBrand() {
+    if (!context.brand) return nothing;
+    if (!context.compact) return html`<span>${context.brand}</span>`;
+    if (context.logo) return nothing;
+    return html`<span class="sf-admin-menu-head-initials flex" aria-hidden="true">${renderPlaceholder(context.brand)}</span><span class="sr-only">${context.brand}</span>`;
+  }
+
   function renderHeader(main = true, item = null) {
     if (main) {
       if (!context.logo && !context.brand) return nothing;
@@ -779,7 +824,7 @@ export function renderAdminMenuTemplate(context) {
                   />
                 </a>`
               : nothing}
-            ${context.brand ? html`<span>${context.brand}</span>` : nothing}
+            ${renderBrand()}
           </div>
           ${context.searchMode === "panel" && !context.compact
             ? html`<sf-button-icon

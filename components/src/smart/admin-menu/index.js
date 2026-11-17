@@ -826,10 +826,7 @@ class SfAdminMenu extends AdminMenuElement {
     }
 
     normalizeSearchText(text = "") {
-        return String(text || "")
-            .trim()
-            .replace(/\s+/g, " ")
-            .toLowerCase();
+        return normalizeSearchWord(String(text || "").trim().replace(/\s+/g, " "));
     }
 
     flattenMenuItems(items = [], parentPath = [], parentPanels = []) {
@@ -868,8 +865,11 @@ class SfAdminMenu extends AdminMenuElement {
         return 0;
     }
 
+    // The row's answer (search-mode row, the default) compares as the panel
+    // does (owner decision C276): ё reads as е and the end of a word is
+    // dropped, so «роль» finds «Роли»; the best match still comes first.
     getSearchResults(text = "") {
-        const query = this.normalizeSearchText(text);
+        const query = searchStem(this.normalizeSearchText(text));
         if (!query) return [];
 
         return this.flattenMenuItems(this._itemsData)
@@ -1031,6 +1031,11 @@ class SfAdminMenu extends AdminMenuElement {
 
             return this.state.searchResults;
         }
+
+        // The row asks the host as the panel does (C276): the menu answers
+        // with its sections at once, the host with what the menu cannot know
+        // (a record's number, a person), under the sections.
+        this.requestHostSearch(query);
 
         if (!query.length) {
             this.set((state) => ({
