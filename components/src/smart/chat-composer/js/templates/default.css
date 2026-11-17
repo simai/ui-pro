@@ -185,6 +185,16 @@
     max-inline-size: 100%;
   }
 
+  /* Until SIMAI Framework fixes it: sf-file-preview 1.5.0 (group build 9)
+     makes a failed row a size container (C260), and a chip sizes to its
+     content, so a failed chip measures its content as nothing and folds to
+     its holder, 32 wide and 500 high. A failed chip here takes the chip's own
+     cap as its width, so the container has a size to read. Remove with the
+     Framework's fix. */
+  .sf-chat-composer__files .sf-file-preview.sf-file-preview--chip.sf-file-preview--error {
+    inline-size: min(100%, var(--sf-f8));
+  }
+
   /* Touch screens: every target at least the comfortable control, and no
      keyboard to press Enter on, so the hint has nothing to say. */
   @media (pointer: coarse) {

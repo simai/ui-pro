@@ -771,7 +771,7 @@
       },
       {
         "path": "src/smart/chat-message/js/templates/default.css",
-        "sha256": "a77925c431dd87397f16f69b4494e2514bbd724d53474cb803df91504b09ae1c"
+        "sha256": "a89ec173f7798a1a344d45a09e4d8f3d3fa5c32677f4fd118ba13877107a7e0f"
       },
       {
         "path": "src/smart/chat-message/rule.js",

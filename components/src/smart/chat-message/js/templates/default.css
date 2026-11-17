@@ -1082,6 +1082,19 @@
 
   /* --- attachment ------------------------------------------------------ */
 
+  /* A file is the Framework's sf-file-preview chip where the element draws
+     the view (C149). Until SIMAI Framework fixes it: sf-file-preview 1.5.0
+     (group build 9) makes a failed row a size container (C260), and a chip
+     sizes to its content, so a failed chip folds to its holder, 32 wide; a
+     failed chip here takes the chip's own cap as its width. Remove with the
+     Framework's fix. */
+  :is(.sf-chat-message, .sf-chat-person) .sf-file-preview.sf-file-preview--chip.sf-file-preview--error {
+    inline-size: min(100%, var(--sf-f8));
+  }
+
+  /* The chat's own chip: the view drawn without the Framework (the site
+     widget, the pilot). */
+
   :is(.sf-chat-message, .sf-chat-person) .sf-chat-attachment {
     position: relative;
     display: inline-flex;

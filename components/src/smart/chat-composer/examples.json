@@ -46,6 +46,10 @@
     {
       "name": "files",
       "title": "Файлы: готов, загружается, отказ",
+      "first-paint": {
+        "max-bytes": 10240,
+        "why": "Three files over the field, each SIMAI Framework's sf-file-preview chip (C149): the chip prints its holder, its name in the full and the fitted form with the spoken line, its meta, the progress bar of an upload and the failed row's «Повторить» with its narrow icon and tooltip, more markup per file than the chat's own chip did; it is the resting field with its files, not an open surface."
+      },
       "settings": {
         "attachments": true,
         "accept": ".pdf,.docx",
@@ -77,9 +81,9 @@
       "expect": {
         "name": "Сообщение",
         "texts": {
-          ".sf-chat-attachment--ready .sf-chat-attachment__meta": "47 КБ",
-          ".sf-chat-attachment--uploading .sf-chat-attachment__meta": "Загружается, 40%",
-          ".sf-chat-attachment--error .sf-chat-attachment__meta": "не похоже на документ"
+          ".sf-file-preview--chip:not(.sf-file-preview--uploading):not(.sf-file-preview--error) .sf-file-preview-size": "PDF · 47 КБ",
+          ".sf-file-preview--uploading .sf-file-preview-name .sf-file-preview-full": "Регламент.docx",
+          ".sf-file-preview--error .sf-file-preview-error": "Не загрузился: не похоже на документ"
         }
       }
     },
@@ -376,10 +380,10 @@
                   "outcome": "applied"
                 }
               },
-              "check": "(() => { const c = document.querySelector('#files'); const chips = c.querySelectorAll('.sf-chat-composer__files .sf-chat-attachment'); const bar = c.querySelector('.sf-chat-attachment--uploading [role=progressbar]'); return chips.length === 3 && c.querySelector('.sf-chat-attachment--ready').getAttribute('aria-label') === 'Файл Договор.pdf, 47 КБ' && c.querySelector('.sf-chat-attachment--ready .sf-chat-attachment__meta').textContent.trim() === '47 КБ' && c.querySelector('.sf-chat-attachment--uploading .sf-chat-attachment__meta').textContent.trim() === 'Загружается, 40%' && bar?.getAttribute('aria-valuenow') === '40' && c.querySelector('.sf-chat-attachment--error .sf-chat-attachment__meta').getAttribute('role') === 'alert' && c.querySelector('.sf-chat-composer__send').disabled && c.querySelector('.sf-chat-composer__attach').disabled && c.querySelector('.sf-chat-composer__box--tall') !== null; })()"
+              "check": "(() => { const c = document.querySelector('#files'); const chips = c.querySelectorAll('.sf-chat-composer__files sf-file-preview[appearance=chip]'); const ready = c.querySelector('.sf-chat-composer__files .sf-file-preview--chip:not(.sf-file-preview--uploading):not(.sf-file-preview--error)'); const bar = c.querySelector('.sf-file-preview--uploading [role=progressbar]'); return chips.length === 3 && ready?.getAttribute('aria-label') === 'Договор.pdf' && ready.querySelector('.sf-file-preview-size').textContent.trim() === 'PDF · 47 КБ' && ready.querySelector('[data-action=remove]').getAttribute('aria-label') === 'Убрать Договор.pdf' && bar?.getAttribute('aria-valuenow') === '40' && c.querySelector('.sf-file-preview--error .sf-file-preview-error').textContent.trim() === 'Не загрузился: не похоже на документ' && c.querySelector('.sf-file-preview--error').getBoundingClientRect().width > 64 && c.querySelector('.sf-chat-composer__send').disabled && c.querySelector('.sf-chat-composer__attach').disabled && c.querySelector('.sf-chat-composer__box--tall') !== null; })()"
             },
             {
-              "user": "click:#files .sf-chat-attachment--ready .sf-chat-attachment__remove",
+              "user": "click:#files .sf-file-preview--chip:not(.sf-file-preview--uploading):not(.sf-file-preview--error) [data-action=remove]",
               "expect": {
                 "events": [
                   {

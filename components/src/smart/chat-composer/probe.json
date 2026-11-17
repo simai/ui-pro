@@ -247,10 +247,10 @@
               "outcome": "applied"
             }
           },
-          "check": "(() => { const c = document.querySelector('#files'); const chips = c.querySelectorAll('.sf-chat-composer__files .sf-chat-attachment'); const bar = c.querySelector('.sf-chat-attachment--uploading [role=progressbar]'); return chips.length === 3 && c.querySelector('.sf-chat-attachment--ready').getAttribute('aria-label') === 'Файл Договор.pdf, 47 КБ' && c.querySelector('.sf-chat-attachment--ready .sf-chat-attachment__meta').textContent.trim() === '47 КБ' && c.querySelector('.sf-chat-attachment--uploading .sf-chat-attachment__meta').textContent.trim() === 'Загружается, 40%' && bar?.getAttribute('aria-valuenow') === '40' && c.querySelector('.sf-chat-attachment--error .sf-chat-attachment__meta').getAttribute('role') === 'alert' && c.querySelector('.sf-chat-composer__send').disabled && c.querySelector('.sf-chat-composer__attach').disabled && c.querySelector('.sf-chat-composer__box--tall') !== null; })()"
+          "check": "(() => { const c = document.querySelector('#files'); const chips = c.querySelectorAll('.sf-chat-composer__files sf-file-preview[appearance=chip]'); const ready = c.querySelector('.sf-chat-composer__files .sf-file-preview--chip:not(.sf-file-preview--uploading):not(.sf-file-preview--error)'); const bar = c.querySelector('.sf-file-preview--uploading [role=progressbar]'); return chips.length === 3 && ready?.getAttribute('aria-label') === 'Договор.pdf' && ready.querySelector('.sf-file-preview-size').textContent.trim() === 'PDF · 47 КБ' && ready.querySelector('[data-action=remove]').getAttribute('aria-label') === 'Убрать Договор.pdf' && bar?.getAttribute('aria-valuenow') === '40' && c.querySelector('.sf-file-preview--error .sf-file-preview-error').textContent.trim() === 'Не загрузился: не похоже на документ' && c.querySelector('.sf-file-preview--error').getBoundingClientRect().width > 64 && c.querySelector('.sf-chat-composer__send').disabled && c.querySelector('.sf-chat-composer__attach').disabled && c.querySelector('.sf-chat-composer__box--tall') !== null; })()"
         },
         {
-          "user": "click:#files .sf-chat-attachment--ready .sf-chat-attachment__remove",
+          "user": "click:#files .sf-file-preview--chip:not(.sf-file-preview--uploading):not(.sf-file-preview--error) [data-action=remove]",
           "expect": {
             "events": [
               {

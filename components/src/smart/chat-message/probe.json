@@ -413,18 +413,18 @@
     },
     {
       "id": "p7-question-files",
-      "title": "a person's question: a bubble and its files as sf-chat-composer's chips; a sent file with href is a download link, checked first — a file gone (404) loses its link and says «Файл недоступен»; a question sent by a button is a note",
+      "title": "a person's question: a bubble and its files as SIMAI Framework's sf-file-preview chips (C149); a sent file with href is a link, a document downloads after its address is checked — a file gone (404) loses its link and says «Файл недоступен»; a question sent by a button is a note",
       "covers": "message.attachments, runtime.attachment-deleted, runtime.files-download-label, display.note",
       "steps": [
         {
-          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').display = {}, document.querySelector('#a').message = {id: 'q1', role: 'user', text: 'Проверьте договор', attachments: [{id: 'att_1', name: 'Удалённый.pdf', bytes: 48213, href: '/sf-chat-message-probe/missing.pdf'}, {id: 'att_2', name: 'Приложение.docx', bytes: 1572864}]}, true)",
+          "script": "(await customElements.whenDefined('sf-chat-message'), document.querySelector('#a').display = {}, document.querySelector('#a').message = {id: 'q1', role: 'user', text: 'Проверьте договор', attachments: [{id: 'att_1', name: 'Удалённый.docx', bytes: 48213, href: '/sf-chat-message-probe/missing.docx'}, {id: 'att_2', name: 'Приложение.docx', bytes: 1572864}]}, true)",
           "wait": 300,
-          "check": "(() => { const a = document.querySelector('#a'); const link = a.querySelector('.sf-chat-attachment__link'); return a.querySelector('article').getAttribute('aria-label') === 'Вы' && a.querySelector('.sf-chat-message__bubble').textContent === 'Проверьте договор' && link.getAttribute('download') === 'Удалённый.pdf' && link.title === 'Скачать Удалённый.pdf' && a.querySelectorAll('.sf-chat-attachment').length === 2 && a.querySelectorAll('.sf-chat-attachment__meta')[1].textContent === '1,5 МБ'; })()"
+          "check": "(() => { const a = document.querySelector('#a'); const link = a.querySelector('a.sf-file-preview-name'); return a.querySelector('article').getAttribute('aria-label') === 'Вы' && a.querySelector('.sf-chat-message__bubble').textContent === 'Проверьте договор' && link.getAttribute('download') === 'Удалённый.docx' && link.title === 'Удалённый.docx' && a.querySelectorAll('sf-file-preview[appearance=chip]').length === 2 && a.querySelectorAll('.sf-file-preview-size')[1].textContent.trim() === 'DOCX · 1,5 МБ'; })()"
         },
         {
-          "user": "click:#a .sf-chat-attachment__link",
+          "user": "click:#a a.sf-file-preview-name",
           "wait": 600,
-          "check": "(() => { const a = document.querySelector('#a'); const meta = a.querySelector('.sf-chat-attachment__meta'); return !a.querySelector('.sf-chat-attachment__link') && meta.textContent === 'Файл недоступен' && meta.getAttribute('role') === 'status'; })()"
+          "check": "(() => { const a = document.querySelector('#a'); const meta = a.querySelector('.sf-file-preview-size'); return !a.querySelector('a.sf-file-preview-name') && meta.textContent.trim() === 'DOCX · Файл недоступен'; })()"
         },
         {
           "script": "(document.querySelector('#a').display = {note: 'confirm', code: 'P-17'}, document.querySelector('#a').message = {id: 'q2', role: 'user', text: 'подтверждаю P-17'}, true)",

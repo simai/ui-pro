@@ -582,7 +582,7 @@
       },
       {
         "path": "src/smart/chat-composer/js/templates/default.css",
-        "sha256": "13ea317c946c6dfdf26b18612020ca868894b979d56508bd11f2cca650846bd2"
+        "sha256": "443481a7319f5e6ccfbbbfc14f5bca69a6880d67887bd1c5119c7c31a0999a96"
       },
       {
         "path": "src/smart/chat-composer/rule.js",
