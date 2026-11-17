@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-message",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "title": "Chat message",
   "summary": "One chat message: an assistant's answer with its markup, sources, verification, notices, proposal, rating and task brief, or its wait; a person's question with its files; or, in the template person, a message of a conversation between people. It reports what a person does; the host decides what it means.",
   "kind": "smart",
@@ -31,6 +31,7 @@
       "smart.avatar",
       "smart.badge",
       "smart.confirm-change",
+      "smart.file-preview",
       "smart.icon",
       "smart.menu-context",
       "smart.view-properties"
@@ -726,6 +727,13 @@
         "changes": [
           "Inline code in a table cell of an answer keeps SIMAI Framework's plate (the cell rule that took it away is gone), and inline code in the markup wraps inside a narrow bubble rather than staying on one line as the Framework's running text keeps it (tokens.typography 1.3.0, the pair ui-5edc71bd6936). Settings, values and events are unchanged."
         ]
+      },
+      {
+        "from": "1.8.3",
+        "to": "1.9.0",
+        "changes": [
+          "On a Framework page a question's files and a person's files are SIMAI Framework's sf-file-preview chip (C149) through the view's ctx.file hook; a picture, a PDF or a video opens in the page's viewer, any other file downloads after the address check. Needs the SIMAI Framework pair with sf-file-preview 1.5.0 (appearance chip) and sf-gallery's viewer. The view without a runtime keeps the chip. Settings and events are unchanged; a page that styled .sf-chat-attachment inside a message styles the widget's chip only."
+        ]
       }
     ]
   },
@@ -735,7 +743,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-message/index.js",
-        "sha256": "1f0885713c76e8033d556afc6a50d51bb1467506b0dcb212ba9f867d1898c9fe"
+        "sha256": "a362894c7acecdaf283cccfdde054ebc614d9d141d29202bd460af187527b255"
       },
       {
         "path": "src/smart/chat-message/js/templates/default.js",
@@ -747,11 +755,11 @@
       },
       {
         "path": "src/smart/chat-message/js/view/message.js",
-        "sha256": "22ed1417e52e80625f60feec7f91921a7aa5071e7c543ffec7f73e483f2107f0"
+        "sha256": "2b449f65cae070db2888021d897e65434b58eb087fc2add6578ce5aa4a074a5c"
       },
       {
         "path": "src/smart/chat-message/js/view/person.js",
-        "sha256": "f727ff4223b435b162da27a66b959748c44146dfad22fdeb193515a2bafc81be"
+        "sha256": "d80eff97856736c5f5dc71b724e8eca6ef51437dedc67be5d7664c77028c8bfb"
       },
       {
         "path": "src/smart/chat-message/js/view/proposed.js",
@@ -767,15 +775,15 @@
       },
       {
         "path": "src/smart/chat-message/rule.js",
-        "sha256": "90893f5212999745164827779d00d5d5a5e451f95c0d49a59557c3f629807337"
+        "sha256": "76e19ebfcf03d3b42fb8f45eb97189a7b7d9e1a5634acccd0015bebfc0f48ab4"
       },
       {
         "path": "src/smart/chat-message/docs.md",
-        "sha256": "df566fdc9b790b12f1717d0392d4ca0d8fc39d6cf4e733d125f95365472c36e5"
+        "sha256": "6cb4a17309c15a5d162c36cfe78fee10274ef96fe562e99352c3d403feb8e649"
       },
       {
         "path": "src/smart/chat-message/component.json",
-        "sha256": "c558734eccdca37897ff5db9caf60ec7af65c8c15d0b16bd06489780e46f9801"
+        "sha256": "1245d7c3091c1c98961a9da6734005e362e5bef3d152f174971574a3bc91ed30"
       },
       {
         "path": "src/smart/chat-message/aliases.json",

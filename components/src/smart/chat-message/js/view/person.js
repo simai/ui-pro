@@ -262,6 +262,23 @@ function renderEditor(ctx, message, editing, conflict = null, editLimit = 0) {
 
 function renderPersonFile(ctx, message, file) {
   const words = ctx.words;
+  const retryFile = () => ctx.onAction?.('retry-file', { messageId: message.id, fileKey: file.key ?? file.id });
+  // On a Framework page: sf-file-preview's chip (C149), the name the file's
+  // link, «Повторить» its own; the module's address as given, so no check.
+  if (ctx.file) {
+    const preview = renderAttachment(ctx, {
+      id: file.id ?? file.key,
+      name: file.name,
+      bytes: file.size,
+      mime: file.mime,
+      href: file.state !== 'uploading' && file.state !== 'failed' ? file.downloadUrl : undefined,
+      progress: file.state === 'uploading' ? null : undefined,
+      uploading: file.state === 'uploading',
+      error: file.state === 'failed' ? words('people.fileFailed') : null,
+    }, { onRetry: retryFile });
+    preview.classList.add('sf-chat-person__file');
+    return preview;
+  }
   const chip = renderAttachment(ctx, {
     id: file.id ?? file.key,
     name: file.name,
@@ -272,7 +289,7 @@ function renderPersonFile(ctx, message, file) {
   chip.classList.add('sf-chat-person__file');
   if (file.state === 'failed') {
     const retry = text(ctx, 'button', 'sf-chat-notice__action', words('action.retry'), { type: 'button' });
-    retry.addEventListener('click', () => ctx.onAction?.('retry-file', { messageId: message.id, fileKey: file.key ?? file.id }));
+    retry.addEventListener('click', retryFile);
     chip.append(retry);
   } else if (file.downloadUrl && file.state !== 'uploading') {
     // The whole chip opens the file: the module's protected link, as given.

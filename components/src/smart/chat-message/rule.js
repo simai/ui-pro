@@ -18,6 +18,7 @@ SF.RuleLoader['cl-chat-message'] = {
     { name: 'buttons' },
     { name: 'inputs' },
     { name: 'cl-icon' },
+    { name: 'cl-file-preview', lazy: true },
     { name: 'cl-confirm-change' },
     { name: 'cl-view-properties', lazy: true },
     { name: 'cl-avatar', lazy: true },

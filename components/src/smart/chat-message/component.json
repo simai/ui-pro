@@ -2,7 +2,7 @@
   "$comment": "The source of sf-chat-message's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.3.9, vocabulary 1.1.5. Moved from simai/ui-chat components/src/smart/chat-message (smart.manifest.json 0.3.1, ui-chat 10d376b) by the D31 move, step 5 (owner yes 2026-10-27), with the message view of component/chat it drew on (render.js, people.js as the template person, sanitize.js, the message's words of strings.js, chat.css and people.css); written by hand on the shape of sf-chat-interlocutor and sf-chat-composer (steps 3 and 4), since migration/convert-1.3.8.mjs takes only the pinned 66 and needs stand 17's output. x-decisions says how each point was decided.",
   "id": "smart.chat-message",
   "tag": "sf-chat-message",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "kind": "leaf",
   "family": "chat",
   "settings": {
@@ -234,6 +234,10 @@
       "name": "cl-icon"
     },
     {
+      "name": "cl-file-preview",
+      "lazy": true
+    },
+    {
       "name": "cl-confirm-change"
     },
     {
@@ -447,7 +451,8 @@
     "version 1.7.7 (2026-11-09): a patch (a look, the people editor only). The count and the refusal under a person's description read --sf-chat-message--muted, a variable nothing declares, so they took the text colour of the row; they read --sf-chat-message--ink-muted (the muted colour, --sf-chat-message-muted-color or on-surface-variant) as the rest of the message's secondary text does. Settings, values and events are unchanged.",
     "version 1.8.1 (2026-11-16): a patch (probes only), over SIMAI Framework ui-078a4b4c6f6e. Core marks a link in text that opens a new tab (owner decision C186 (3), core/js/new-tab-link.js): arrow_outward after the last word and «(откроется в новой вкладке)» for a screen reader, in [data-sf-new-tab] spans inside the <a>. The sanitized markup keeps its links as before (href, rel noopener noreferrer nofollow, target _blank); p9 reads the markup with Core's marks set apart and checks that both kept links carry them. Code, settings, values and events are unchanged. Numbered above 1.8.0 (ui-pro fix/toolbar-tl1), the highest on any ui-pro branch.",
     "version 1.8.2 (2026-11-17): a patch (no visible change). The icon buttons a message draws (and the chat window draws with the same helper) are ghost (sf-icon-button--ghost), not the dated sf-icon-button--link look: SIMAI Framework group build 9 draws both the same and warns on the console for the link one (C15, until 2027-01-01). Settings, values and events unchanged. 1.8.1 is on ui-pro release/pro-over-078a (never released), so the number is 1.8.2.",
-    "version 1.8.3 (2026-11-17): a patch (owner decision C17; avatar study, old attribute names). A person's avatar is asked for its hue with hue=\"auto\", the attribute's name since sf-avatar took C17; it wrote the former name tone, which sf-avatar reads only until 2027-01-01. The picture is unchanged."
+    "version 1.8.3 (2026-11-17): a patch (owner decision C17; avatar study, old attribute names). A person's avatar is asked for its hue with hue=\"auto\", the attribute's name since sf-avatar took C17; it wrote the former name tone, which sf-avatar reads only until 2027-01-01. The picture is unchanged.",
+    "version 1.9.0 (2026-11-17): a minor (owner decision C149 (1), (2), (3), (5)). Where the element draws the view (a Framework page), a file of a question and a person's file are the SIMAI Framework sf-file-preview chip (file-preview 1.5.0 of group build 9) through the view's new ctx.file hook, in place of the composer's chip markup: the glyph of the type, the name cut in the middle with the extension kept, «PDF · 2,4 МБ»; the name is the file's link -- a picture, a PDF or a video opens in the page's viewer (sf-gallery), any other file downloads after its address is asked (HEAD): a file deleted since says «Файл недоступен» in place of its size and loses its link; a person's file uploading is the indeterminate bar, a failed one «Не загрузился» and the Framework's «Повторить», which is the element's retry {id, key, kind: file} as the former button. The preview's own requests stop at the message. The view called without a runtime (the site widget, the pilot) gets no ctx.file and keeps the chip. Settings and events unchanged."
   ],
   "x-rule": {
     "$comment": [
@@ -751,6 +756,13 @@
           "to": "1.7.3",
           "changes": [
             "Inline code in a table cell of an answer keeps SIMAI Framework's plate (the cell rule that took it away is gone), and inline code in the markup wraps inside a narrow bubble rather than staying on one line as the Framework's running text keeps it (tokens.typography 1.3.0, the pair ui-5edc71bd6936). Settings, values and events are unchanged."
+          ]
+        },
+        {
+          "from": "1.8.3",
+          "to": "1.9.0",
+          "changes": [
+            "On a Framework page a question's files and a person's files are SIMAI Framework's sf-file-preview chip (C149) through the view's ctx.file hook; a picture, a PDF or a video opens in the page's viewer, any other file downloads after the address check. Needs the SIMAI Framework pair with sf-file-preview 1.5.0 (appearance chip) and sf-gallery's viewer. The view without a runtime keeps the chip. Settings and events are unchanged; a page that styled .sf-chat-attachment inside a message styles the widget's chip only."
           ]
         }
       ]

@@ -179,6 +179,57 @@ class SfChatMessage extends ChatMessageElement {
                 }
                 return avatar;
             },
+            // A file (owner decision C149 (1)): the Framework's sf-file-preview
+            // chip -- the glyph of its type, the name cut in the middle with
+            // its extension kept, «PDF · 2,4 МБ»; a picture, a PDF or a video
+            // opens in the page's viewer, any other file downloads; while it
+            // uploads the bar, after a failure the reason and «Повторить». The
+            // preview only asks: its requests are answered here and go no
+            // further. A sent file's address is asked before it downloads, and
+            // one deleted since says so in place of its size, its link gone.
+            file(file, {onRemove = null, onRetry = null, onDownload = null} = {}) {
+                const preview = documentRef.createElement("sf-file-preview");
+                preview.setAttribute("appearance", "chip");
+                preview.setAttribute("file-name", String(file.name ?? ""));
+                if (file.bytes !== undefined && file.bytes !== null && file.bytes !== "") preview.setAttribute("file-size", String(file.bytes));
+                if (file.mime) preview.setAttribute("mime-type", String(file.mime));
+                if (file.href && file.state === "ready") preview.setAttribute("href", String(file.href));
+                preview.setAttribute("state", file.state);
+                if (file.state === "uploading" && file.progress !== undefined && file.progress !== null) {
+                    preview.setAttribute("value", String(Math.round(Math.min(1, Math.max(0, Number(file.progress) || 0)) * 100)));
+                }
+                if (file.state === "error") preview.setAttribute("error-text", String(file.error ?? ""));
+                preview.setAttribute("remove-action", onRemove ? "true" : "false");
+                preview.addEventListener("sf-file-preview-detach", (event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    onRemove?.();
+                });
+                preview.addEventListener("sf-file-preview-retry", (event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    onRetry?.();
+                });
+                let checked = false;
+                preview.addEventListener("sf-file-preview-download", (event) => {
+                    event.stopPropagation();
+                    if (!onDownload) return;
+                    if (checked) {
+                        checked = false;
+                        return;
+                    }
+                    event.preventDefault();
+                    onDownload((said) => {
+                        preview.removeAttribute("href");
+                        preview.setAttribute("file-size", said);
+                    }).then((present) => {
+                        if (!present) return;
+                        checked = true;
+                        preview.querySelector("a.sf-file-preview-name")?.click();
+                    });
+                });
+                return preview;
+            },
             // The word beside a name: a non-interactive label, so a word and
             // not only a colour says who is not a person.
             badge(word) {

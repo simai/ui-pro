@@ -1,6 +1,6 @@
 import {html, nothing} from "lit";
 import {repeat} from "lit/directives/repeat.js";
-import {iconButton, renderAttachment} from "./parts.js";
+import {attachmentState, iconButton} from "./parts.js";
 import "./default.css";
 
 // Where a question is written and files are added: a form with the box (the
@@ -15,6 +15,34 @@ import "./default.css";
 //
 // The first paint is the box with its field and buttons, the chips the host
 // gave, and the hint (§5.4).
+// A file over the field is the Framework's sf-file-preview chip (owner
+// decision C149 (1)): 48 high, at most 18rem, the glyph of its type, the name
+// cut in the middle with its extension kept, «PDF · 2,4 МБ», «×» «Убрать
+// <имя>»; while it uploads the bar with its per cent, after the server's
+// refusal «Не загрузился: <причина>» and «Повторить». The preview only asks:
+// «×» is the composer's detach, «Повторить» takes the refused file out and
+// opens the picker to add it again (the composer holds no file to resend).
+// Its own requests stop here, so a page hears the composer's events only.
+function renderFile(file, component) {
+    const state = attachmentState(file);
+    const percent = state === "uploading" && file.progress !== undefined && file.progress !== null
+        ? String(Math.round(Math.min(1, Math.max(0, Number(file.progress) || 0)) * 100))
+        : nothing;
+    const bytes = file.bytes === undefined || file.bytes === null || file.bytes === "" ? nothing : String(file.bytes);
+    return html`<sf-file-preview
+            class="sf-chat-composer__file"
+            appearance="chip"
+            file-name=${file.name}
+            file-size=${bytes}
+            mime-type=${file.mime || nothing}
+            state=${state}
+            value=${percent}
+            error-text=${state === "error" ? String(file.error) : nothing}
+            @sf-file-preview-detach=${(event) => { event.stopPropagation(); event.preventDefault(); component.removeFile(file); }}
+            @sf-file-preview-retry=${(event) => { event.stopPropagation(); event.preventDefault(); component.retryFile(file); }}
+    ></sf-file-preview>`;
+}
+
 export function renderChatComposerTemplate(context) {
     const {component} = context;
     const rootClass = [
@@ -37,7 +65,7 @@ export function renderChatComposerTemplate(context) {
                 <div class="sf-chat-composer__files" ?hidden=${!context.files.length}>${repeat(
                     context.files,
                     (file, index) => file.localId ?? file.id ?? `#${index}`,
-                    (file) => renderAttachment(file, {words: context.fileWords, removable: true, onRemove: (one) => component.removeFile(one)}),
+                    (file) => renderFile(file, component),
                 )}</div>
                 <div class="sf-chat-composer__row">
                     ${iconButton({

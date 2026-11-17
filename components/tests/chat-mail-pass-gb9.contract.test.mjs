@@ -37,7 +37,8 @@ test('PRO-CH-3: file chips wrap inside the field, none off its edge', () => {
   const files = rule(css, '.sf-chat-composer__files');
   assert.match(files, /flex-wrap: wrap/u);
   assert.doesNotMatch(files, /overflow-x|scrollbar-width: none/u, 'no row scrolled sideways without a bar');
-  assert.match(rule(css, '.sf-chat-attachment'), /max-inline-size: min\(var\(--sf-f6\), 100%\)/u);
+  // A file is the Framework's sf-file-preview chip (C149), capped by the row it wraps in.
+  assert.match(rule(css, '.sf-chat-composer__file'), /max-inline-size: 100%/u);
 });
 
 test('C141 (1): the composer counts from 80 % of the limit, as the Framework fields', () => {

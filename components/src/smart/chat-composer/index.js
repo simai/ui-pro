@@ -223,12 +223,6 @@ class SfChatComposer extends ChatComposerElement {
             inputId: partId(path, "input"),
             statusId: partId(path, "status"),
             hintId: partId(path, "hint"),
-            fileWords: {
-                file: (name, size) => this.sfWord("file-label", {vars: {name, size}}),
-                uploading: (percent) => this.sfWord("uploading-text", {vars: {percent}}),
-                remove: (name) => this.sfWord("remove-label", {vars: {name}}),
-                size: (bytes) => this.formatBytes(bytes),
-            },
         };
     }
 
@@ -367,6 +361,15 @@ class SfChatComposer extends ChatComposerElement {
 
     removeFile(file) {
         this.sfEmit("detach", {id: file.id, name: file.name}, {cancelable: true});
+    }
+
+    // «Повторить» on a file the server refused (sf-file-preview's failed
+    // chip): the composer keeps no file to send again, so it takes the
+    // refused one out (detach, as «×») and opens the picker for it, in the
+    // same press, so the browser lets the picker open.
+    retryFile(file) {
+        this.removeFile(file);
+        if (this.canAttach()) this.pick();
     }
 
     canSend() {

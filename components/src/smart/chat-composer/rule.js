@@ -14,6 +14,7 @@ SF.RuleLoader['cl-chat-composer'] = {
     { name: 'textarea' },
     { name: 'icon-buttons' },
     { name: 'cl-icon' },
+    { name: 'cl-file-preview', lazy: true },
     { name: 'sr-only/default' },
   ],
 };

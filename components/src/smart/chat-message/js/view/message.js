@@ -32,6 +32,8 @@
 //                                        (1.4.0) also react | reply | quote | picker | fold |
 //                                        stop | delete-ask | delete-cancel | delete
 //   avatar?: ({text, image, icon}) => Node, among people: sf-avatar, or its markup with a sign
+//   file?: (file, {onRemove, onRetry, onDownload}) => Node   a file as the Framework's
+//                                        sf-file-preview chip (C149); without it the chip below
 //   enhanceCode?: (pre) => void,         SF.Highlight on a Framework page
 //   renderProposal?: (proposal, {disabled}) => Node,
 //                                        sf-confirm-change (index.js)
@@ -360,7 +362,21 @@ export function renderStages(ctx, message) {
  * that downloads it, checked first: a file deleted since is said so.
  * @param {{id?: string, name: string, bytes: number, href?: string, progress?: number|null, error?: string, removable?: boolean}} file
  */
-export function renderAttachment(ctx, file) {
+export function renderAttachment(ctx, file, { onRetry = null } = {}) {
+  // On a Framework page the file is sf-file-preview's chip (owner decision
+  // C149 (1)); the widget and the pilot, which carry no runtime, keep the chip.
+  if (ctx.file) {
+    const state = file.uploading ? 'uploading' : attachmentState(file);
+    return ctx.file({ ...file, state }, {
+      onRemove: file.removable ? () => ctx.onAction?.('remove-attachment', { id: file.id, name: file.name }) : null,
+      onRetry,
+      // A sent file's address is asked first: one deleted since is said so.
+      onDownload: file.href && state === 'ready' ? (gone) => checkAddress(ctx, file.href).then((missing) => {
+        if (missing) gone(ctx.words('attachment.deleted'));
+        return !missing;
+      }) : null,
+    });
+  }
   const words = {
     file: (name, size) => ctx.words('attachment.file', {name, size}),
     uploading: (percent) => ctx.words('attachment.uploading', {percent}),
@@ -400,16 +416,20 @@ async function checkDownload(ctx, event, link, metaNode, name) {
   });
 }
 
-// A download link asks its address first (HEAD, the page's own cookies) and
-// follows it unless the file is gone (404 or 410): then `gone` says so.
+// Whether a file's address is gone (HEAD, the page's own cookies: 404 or 410).
+async function checkAddress(ctx, href) {
+  try {
+    const response = await ctx.document.defaultView.fetch(href, { method: 'HEAD', credentials: 'same-origin' });
+    return response.status === 404 || response.status === 410;
+  } catch { return false; }
+}
+
+// A download link asks its address first and follows it unless the file is
+// gone: then `gone` says so.
 async function checkFirst(ctx, event, link, gone) {
   if (link.dataset.checked) { delete link.dataset.checked; return; }
   event.preventDefault();
-  let missing = false;
-  try {
-    const response = await ctx.document.defaultView.fetch(link.href, { method: 'HEAD', credentials: 'same-origin' });
-    missing = response.status === 404 || response.status === 410;
-  } catch { missing = false; }
+  const missing = await checkAddress(ctx, link.href);
   if (!missing) {
     link.dataset.checked = '1';
     link.click();
@@ -750,7 +770,11 @@ function renderUser(ctx, message, view = {}) {
   }
   if (message.attachments?.length) {
     const files = element(ctx, 'div', 'sf-chat-message__files');
-    for (const file of message.attachments) files.append(renderAttachment(ctx, file));
+    for (const file of message.attachments) {
+      files.append(renderAttachment(ctx, file, {
+        onRetry: () => ctx.onAction?.('retry-file', { messageId: message.id, fileKey: file.id }),
+      }));
+    }
     root.append(files);
   }
   if (message.text) root.append(text(ctx, 'div', 'sf-chat-message__bubble', message.text));
