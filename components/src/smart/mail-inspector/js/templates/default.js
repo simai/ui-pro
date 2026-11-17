@@ -14,7 +14,7 @@ function renderText(context, field) {
     const onLeave = () => component.onFieldLeave(field.path);
     const onInput = (event) => component.onFieldInput(field.path, event.currentTarget);
     if (field.kind === "multiline") {
-        return html`<sf-input-textarea class="sf-mail-inspector-field" size="1/2" auto-grow min-rows="2" max-rows="12" data-path=${field.path}
+        return html`<sf-input-textarea class="sf-mail-inspector-field" size="1/2" auto-grow data-path=${field.path}
                                  label=${field.label || nothing} aria-label=${field.ariaLabel || nothing}
                                  value=${component.valueAttribute(field)} placeholder=${field.placeholder || nothing} hint=${field.hint || nothing}
                                  inherited-value=${field.inheritedValue || nothing} ?required=${field.required} ?disabled=${field.disabled}
