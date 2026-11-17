@@ -176,7 +176,9 @@ class SfChatComposer extends ChatComposerElement {
         const disabled = this.disabled;
         const length = this.value.length;
         const limit = this.limit;
-        const near = length > limit * 0.8;
+        // From 80 % of the limit, at 80 of 100 (C141 (1), the Framework's
+        // helpers/char-count.js rule): the count showed from the 81st.
+        const near = length >= limit * 0.8;
         const over = length > limit;
         const countText = near
             ? (over ? this.sfWord("too-long-text", {vars: {max: limit}}) : this.sfWord("count-text", {vars: {count: length, max: limit}}))

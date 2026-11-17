@@ -1140,7 +1140,10 @@ class SfChatWindow extends ChatWindowElement {
         list.addEventListener("sf-chat-message-delete", (event) => this.deleteMessage(event.detail.ids?.[0]));
         // The last message seen at the bottom is reported read (scroll does
         // not bubble; it is caught on its way down).
-        list.addEventListener("scroll", () => this.maybeRead(), true);
+        list.addEventListener("scroll", () => {
+            this.maybeRead();
+            this.syncComposerEdge();
+        }, true);
         // Reactions and replies (1.6.0).
         list.addEventListener("sf-chat-message-react", (event) => this.react(event.detail.id, event.detail.emoji, event.detail.on));
         list.addEventListener("sf-chat-message-reply", (event) => this.startReply(event.detail.id));
@@ -2194,7 +2197,21 @@ class SfChatWindow extends ChatWindowElement {
             // What is found follows the messages drawn again.
             if (this._find.open && this.parts.findInput.value.trim()) this.find({keep: true});
             this.maybeRead();
+            this.syncComposerEdge();
         });
+    }
+
+    // The field is flat (owner decision C275); while the log runs on under it
+    // -- its latest entries below the view -- the window parts the field's
+    // band from the log with its line (data-log-under), as a header scrolled
+    // under is (C20). At the latest entry there is no line.
+    syncComposerEdge() {
+        const box = this._parts?.composerBox;
+        if (!box) return;
+        const scroller = this._parts.list?.scroller;
+        const under = Boolean(scroller && scroller.clientHeight
+            && scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight > 1);
+        if (box.hasAttribute("data-log-under") !== under) box.toggleAttribute("data-log-under", under);
     }
 
     markLast() {

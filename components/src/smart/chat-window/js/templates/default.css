@@ -168,17 +168,31 @@
     color: var(--sf-on-surface-variant);
   }
 
+  /* The field's band spans the window, its content the conversation's
+     column: the side room is the larger of --sf-space-3 and what the column
+     leaves (as max-inline-size and auto margins did). The field is flat
+     (C275); while the log runs on under it -- its latest entries below the
+     view -- the band is parted from the log by the window's line, as a
+     header scrolled under is (C20). The window says it: data-log-under.
+     The line is a shadow, so it moves nothing. */
   .chat-shell__composer {
     box-sizing: border-box;
     inline-size: 100%;
-    max-inline-size: calc(var(--sf-chat-window--column) + 2 * var(--sf-space-3));
-    margin-inline: auto;
-    padding-inline: var(--sf-space-3);
-    padding-block: 0 var(--sf-space-1\/2);
+    padding-inline: max(var(--sf-space-3), calc((100% - var(--sf-chat-window--column)) / 2));
+    padding-block: var(--sf-space-1\/2);
     display: flex;
     flex-direction: column;
     gap: var(--sf-space-1\/3);
     outline: none;
+    transition: box-shadow var(--sf-duration-fast) var(--sf-animation);
+  }
+
+  .chat-shell__composer[data-log-under] {
+    box-shadow: inset 0 var(--sf-px) 0 var(--sf-outline-variant);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-shell__composer { transition: none; }
   }
 
   /* An empty conversation: greeting, field and suggestions meet in the middle. */
@@ -236,9 +250,6 @@
     color: var(--sf-on-surface);
     font-family: var(--sf-text--family);
   }
-
-  /* Inside a framed host the field is not lifted again: an edge, no shadow (D-18). */
-  .chat-shell--embedded .sf-chat-composer__box { box-shadow: none; }
 
   /* iOS zooms into a field under 16px; the list's field is no exception. */
   @media (max-width: 1023px) {
