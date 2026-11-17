@@ -1047,7 +1047,7 @@ export function renderTableTemplate(context) {
                     values.push(`sf-checkbox sf-checkbox--size-${mark.size} flex content-main-between cursor-pointer`, mark.value, mark.checked, mark.label, mark.change);
                 } else if (mark?.kind === 'menu') {
                     kinds.push('menu');
-                    values.push(`sf-icon-button sf-icon-button--size-${mark.size} sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface`, mark.label, mark.click);
+                    values.push(`sf-icon-button sf-icon-button--size-${mark.size} sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface`, mark.label, mark.click);
                 } else if (mark?.kind === 'text') {
                     kinds.push('text');
                     values.push(mark.className, mark.title ?? nothing, mark.text);
@@ -1205,7 +1205,7 @@ export function renderTableTemplate(context) {
                     type: "button-icon",
                     props: {
                         size: "1",
-                        appearance: "link",
+                        appearance: "ghost",
                         scheme: "on-surface",
                         icon: "menu",
                         ariaLabel: "Меню",

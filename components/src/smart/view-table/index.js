@@ -395,7 +395,7 @@ class SfTable extends TableElement {
                         props: {
                             kind: 'icon',
                             size: '1',
-                            appearance: 'link',
+                            appearance: 'ghost',
                             scheme: 'on-surface',
                             icon: 'edit',
                             ariaLabel: this.text('editActionText'),
@@ -411,7 +411,7 @@ class SfTable extends TableElement {
                         props: {
                             kind: 'icon',
                             size: '1',
-                            appearance: 'link',
+                            appearance: 'ghost',
                             scheme: 'on-surface',
                             icon: 'visibility',
                             ariaLabel: this.text('viewActionText'),
@@ -443,7 +443,7 @@ class SfTable extends TableElement {
                         props: {
                             kind: 'icon',
                             size: '1',
-                            appearance: 'link',
+                            appearance: 'ghost',
                             scheme: 'on-surface',
                             status: 'error',
                             icon: 'delete',
@@ -471,7 +471,7 @@ class SfTable extends TableElement {
                 type: "button-icon",
                 props: {
                     size: "1",
-                    appearance: "link",
+                    appearance: "ghost",
                     scheme: "on-surface",
                     icon: "settings",
                     ariaLabel: this.text("settingsColumnLabel"),
@@ -1738,13 +1738,24 @@ class SfTable extends TableElement {
             }, {capture: true, signal});
         }
         if (typeof ResizeObserver !== "undefined" && !this._responsiveObserver) {
+            // What a new width moves (the columns, the pinned offsets) is
+            // done in the next frame, not inside the observer: written there,
+            // it resized what is observed again in the same frame, and at 390
+            // the page logged «ResizeObserver loop completed with undelivered
+            // notifications» (PRO-ADM-12). The last width of a frame wins.
             this._responsiveObserver = new ResizeObserver(([entry]) => {
-                const width = Math.floor(entry.contentRect.width);
-                if (width > 0 && width !== this._responsiveWidth) {
-                    this._responsiveWidth = width;
-                    this.requestComponentUpdate("responsive-columns");
-                }
-                this.measurePinnedColumns();
+                this._responsiveNext = Math.floor(entry.contentRect.width);
+                if (this._responsiveFrame) return;
+                this._responsiveFrame = requestAnimationFrame(() => {
+                    this._responsiveFrame = 0;
+                    if (!this.isConnected) return;
+                    const width = this._responsiveNext;
+                    if (width > 0 && width !== this._responsiveWidth) {
+                        this._responsiveWidth = width;
+                        this.requestComponentUpdate("responsive-columns");
+                    }
+                    this.measurePinnedColumns();
+                });
             });
             this._observeResponsiveBox();
         }
@@ -5613,7 +5624,15 @@ class SfTable extends TableElement {
             // late fonts): the rail follows the table's size, not the render.
             this._railObserver?.disconnect();
             if (typeof ResizeObserver !== "undefined") {
-                this._railObserver = new ResizeObserver(() => this.syncRail());
+                // In the next frame, as the columns' observer (PRO-ADM-12):
+                // the rail shown or hidden resizes what is observed.
+                this._railObserver = new ResizeObserver(() => {
+                    if (this._railFrame) return;
+                    this._railFrame = requestAnimationFrame(() => {
+                        this._railFrame = 0;
+                        if (this.isConnected) this.syncRail();
+                    });
+                });
                 this._railObserver.observe(scroll);
                 if (this.refs.table?.value) this._railObserver.observe(this.refs.table.value);
             }
@@ -7155,7 +7174,7 @@ class SfTable extends TableElement {
                 type: "button-icon",
                 props: {
                     size: "1",
-                    appearance: "link",
+                    appearance: "ghost",
                     scheme: "on-surface",
                     icon: "menu",
                     ariaLabel: this.text("menuLabel"),
