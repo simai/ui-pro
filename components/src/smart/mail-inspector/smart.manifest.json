@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-inspector",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "title": "Letter inspector",
   "summary": "The right panel of SIMAI Email Editor as a form drawn from data: a heading with its actions, the path of levels, tabs, accordion sections and every field the editor has. The host passes the form in the person's language, including each field's value, error, hint and placeholder; the element says what the person did and changes nothing. Typed text the host did not take survives a redraw, and a redraw never moves the focus or the caret out of the field being typed in.",
   "kind": "smart",
@@ -869,7 +869,7 @@
       },
       {
         "path": "src/smart/mail-inspector/js/templates/default.js",
-        "sha256": "614e685bb11d6b766e5f25fb0a7dda2710ef78e1c73bb6d139f3053197847ea5"
+        "sha256": "1ba65022485b88aefaad4947f7b9af811a22c17d41d13d7c431b8bae2762ee81"
       },
       {
         "path": "src/smart/mail-inspector/js/templates/default.css",
@@ -885,7 +885,7 @@
       },
       {
         "path": "src/smart/mail-inspector/component.json",
-        "sha256": "20c5f59d94d386a0fa3ef2cdbf0300061a4a6c7bb6f404fbaa54c0745ad95b7c"
+        "sha256": "7609ee575b9f944af5e58a4245b6d1ee7f7b8da1de7612c459a9871d61cf2674"
       },
       {
         "path": "src/smart/mail-inspector/lang/en.json",
