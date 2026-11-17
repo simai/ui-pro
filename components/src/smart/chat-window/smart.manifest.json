@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-window",
-  "version": "1.16.0",
+  "version": "1.16.1",
   "title": "Chat window",
   "summary": "A whole chat window on the host port simai.chat-port 1.0.0: the conversations (archive, paging, search, pinning), the open conversation with its messages, proposals, ratings and task briefs, the field with its files and the questions queued while an answer is awaited, the search within the conversation, whom one talks to, and «Мои файлы». It never talks to a server: the host gives the data and answers each intent, through the port or the settle action.",
   "kind": "smart",
@@ -2736,7 +2736,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "fcd0087ab78cfeaa41287786f20fa83cb813f472e9463c195dc81ea46be4f7cd"
+        "sha256": "0e4e36febb8007405ac49dbef8580faa7d3a281ec10550f1e50294de9bea5f28"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2792,7 +2792,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "877afe0bf901feb4a0230e6d17a82f1e688950c8cb0f10cefbf2ae20909cac14"
+        "sha256": "b18ba04479bad0de8f4c9262ff232664cc782107590329f6810332c0dc3cec8a"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

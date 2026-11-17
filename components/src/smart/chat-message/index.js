@@ -167,8 +167,9 @@ class SfChatMessage extends ChatMessageElement {
                 const avatar = documentRef.createElement("sf-avatar");
                 avatar.setAttribute("size", "1/2");
                 avatar.setAttribute("text", text);
-                // The same person keeps one muted tone: sf-avatar 1.2.0 picks it from the name.
-                avatar.setAttribute("tone", "auto");
+                // The same person keeps one hue: sf-avatar picks it from the name
+                // (hue auto, C17; the former name tone is read until 2027-01-01).
+                avatar.setAttribute("hue", "auto");
                 if (name) avatar.setAttribute("aria-label", name);
                 avatar.setAttribute("aria-hidden", "true");
                 avatar.toggleAttribute("inert", true);

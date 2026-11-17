@@ -1,6 +1,8 @@
 import {html, nothing} from "lit";
 import {avatarPicture} from "../../../avatar/js/picture";
 import {entriesFor} from "../../../settings/js/settings";
+import {languageRows, matchLanguage, normalizeLanguages, useNames} from "../../../language/js/languages";
+import languageNames from "../../../language/data/names.json";
 import {openMenu} from "./menu";
 
 // The profile menu at the bottom of the first column: who is signed in, the
@@ -40,9 +42,33 @@ export function themeEntry(text, value) {
     }], "drill")[0];
 }
 
+// The language row is the one SIMAI Framework's app menus take
+// (SfLanguage.menuEntry, C142 (7); owner decision C176, SM-4): each language
+// named in itself, its name in the page's language beside it when that
+// differs, a radio row with the language's own lang, the current name the
+// row's value, the rows at the panel width, and a search from eight
+// languages on. It is built from sf-language's own module (language/js), so
+// the rows are the Framework's, not a copy; the element itself is not
+// loaded. The menu keeps its words and the note under the rows.
+useNames(languageNames);
+
+export function languageEntry(text, person) {
+    const items = (person?.languages ?? []).map((entry) => ({code: entry.code, label: entry.native}));
+    const list = normalizeLanguages([], items);
+    const page = person?.language || globalThis.document?.documentElement?.getAttribute("lang") || "en";
+    const current = matchLanguage(list, person?.language) ?? null;
+    const entry = {
+        id: "language", text: text("language"), icon: "translate", value: current?.label ?? person?.language,
+        submenu: [...languageRows(list, current, {page, prefix: "language:"}), {type: "note", text: text("languageNote")}],
+        width: "panel",
+    };
+    if (list.length >= 8) entry.search = {placeholder: text("findLanguage"), empty: text("nothingFound")};
+    return entry;
+}
+
 // The profile menu is the Framework's standard menu (owner, 2026-10-12): who
 // is signed in, the host's links, the theme as a choice row, the language and
-// the menu profile as submenus -- the language with its search -- and signing
+// the menu profile as submenus -- the language as SIMAI Framework writes it -- and signing
 // out apart. It opens above the person, start-aligned.
 export function openAccountMenu(context, anchor) {
     const {controller, navigation, text} = context;
@@ -51,7 +77,6 @@ export function openAccountMenu(context, anchor) {
     const site = navigation.site?.current;
     const profiles = navigation.profiles;
     const currentProfile = profiles?.list?.find((entry) => entry.key === profiles.current);
-    const language = controller.currentLanguage();
     const entries = [{
         type: "header", text: person.name, avatar: person.avatar,
         caption: [person.email, person.role ? `${person.role}${site ? ` · ${site.label}` : ""}` : null].filter(Boolean),
@@ -67,17 +92,7 @@ export function openAccountMenu(context, anchor) {
             // menu profile are (owner, 2026-10-14): three glyphs side by side
             // said less than the words.
             themeEntry(text, person.theme),
-            {
-                id: "language", text: text("language"), icon: "translate", value: language?.native ?? person.language,
-                search: {placeholder: text("findLanguage"), empty: text("nothingFound")},
-                submenu: [
-                    ...(person.languages ?? []).map((entry) => ({
-                        id: `language:${entry.code}`, text: entry.native, caption: entry.english, keywords: entry.code,
-                        kind: "radio", checked: entry.code === person.language, lang: entry.code,
-                    })),
-                    {type: "note", text: text("languageNote")},
-                ],
-            },
+            languageEntry(text, person),
         );
     }
     // Configuring the menu sits with the menu profile, in the person's menu: a
@@ -96,8 +111,11 @@ export function openAccountMenu(context, anchor) {
             })),
         });
     }
+    // Signing out is last, after a separator, in the plain colour (owner
+    // decisions C163 (6), C176; PP-10, SM-5): it ends a session, it destroys
+    // nothing, so it is not a danger row.
     if (controller.offers("sign-out")) {
-        entries.push({type: "separator"}, {id: "sign-out", text: text("signOut"), icon: "logout", danger: true});
+        entries.push({type: "separator"}, {id: "sign-out", text: text("signOut"), icon: "logout"});
     }
     return openMenu(controller, anchor, {
         label: text("account"), entries, submenu: "drill", side: "block-start", align: "start",

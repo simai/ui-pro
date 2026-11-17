@@ -47,7 +47,7 @@ export function renderEditBanner(context) {
             <span class="sf-admin-nav-row-label">${text("editMenu")}</span>
             <sf-button size="1/2" @click=${() => controller.stopEdit()} text=${text("done")}></sf-button>
         </div>
-        <sf-profile-picker size="1/2" label=${text("profileLabel").replace(/:\s*$/u, "")} current=${controller.navigation?.profiles?.current ?? ""}
+        <sf-profile-picker label=${text("profileLabel").replace(/:\s*$/u, "")} current=${controller.navigation?.profiles?.current ?? ""}
             resettable message=${edit.message || ""}
             .profiles=${profilePickerEntries(controller)}
             .rights=${{create: {personal: kinds.personal, shared: kinds.shared}}}

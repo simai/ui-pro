@@ -58,7 +58,7 @@
     position: relative;
     margin-inline: calc(var(--sf-content-editor-reach) * -1);
     padding: var(--sf-space-1\/4) var(--sf-content-editor-reach);
-    border-radius: var(--sf-radius-1);
+    border-radius: var(--sf-radius--surface);
   }
 
   .sf-content-editor-block.is-picked {
@@ -517,7 +517,7 @@
     align-items: center;
     gap: var(--sf-space-1\/2);
     padding: var(--sf-space-1\/4);
-    border-radius: var(--sf-radius-1);
+    border-radius: var(--sf-radius--surface);
     background: var(--sf-surface-popup);
     box-shadow: var(--sf-shadow-overlay);
     color: var(--sf-on-surface);
@@ -574,7 +574,7 @@
     align-items: center;
     gap: var(--sf-space-1\/2);
     padding: var(--sf-space-1\/2) var(--sf-space-1);
-    border-radius: var(--sf-radius-1);
+    border-radius: var(--sf-radius--surface);
     background: var(--sf-surface-popup);
     box-shadow: var(--sf-shadow-overlay);
     color: var(--sf-on-surface);
@@ -671,7 +671,7 @@
     gap: var(--sf-space-1\/2);
     min-block-size: var(--sf-ui-1--control-height);
     padding-inline: var(--sf-space-1\/2);
-    border-radius: var(--sf-radius-1);
+    border-radius: var(--sf-radius--surface);
     cursor: pointer;
   }
 
