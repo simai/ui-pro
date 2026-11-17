@@ -1,90 +1,50 @@
 // The view folders are frozen in ui-pro (sets split plan 2026-11-05, section 6,
-// the duplicate-shipping window).
+// the duplicate-shipping window; C288: ui-pro stops writing set components).
 //
-// sf-view, sf-view-table and sf-view-properties moved to the view set: their
-// source is simai/ui-view, released as view-23ed2acf30d7 (@simai-studio/view
-// 1.6.0, ui-view tag view-23ed2acf30d7, package/src/smart/<folder>; earlier
-// releases view-aea031ba718b, view-99763f547560, view-99c8dd1585fd, view-4d7070623fe1, view-9c963d217188, view-f529c2354b0d and
-// view-cd0d82aeb756; view-a79198bb298c was prepared, never published). Until the next pro bundle takes them from that
-// release, ui-pro still ships its own copies of the three folders, and they
-// must stay the release's tree exactly: a change made here would ship in pro
-// and not in view, and the next bundle would silently drop it.
+// sf-view, sf-view-table and sf-view-properties belong to the view set: their
+// source is simai/ui-view (package/src/smart/<folder>), released there. Until
+// the pro bundle takes them from a view release, ui-pro ships copies of the
+// three folders, and the copies must be one view release's tree exactly: a
+// change made here would ship in pro and not in view, and the next take would
+// silently drop it. There is no patch door: a change goes to simai/ui-view,
+// is released there and comes into pro with the take (view round 1 B1, VW-3,
+// draft set standard §5.4-5.6).
+//
+// The anchor is the view release the copies are. It is written in the commit
+// that takes a release (its id, version and the folders' tree ids). Before the
+// release, on the take's branch, the anchor names the candidate instead: a
+// ref of simai/ui-view whose package/src/smart folders the copies must equal,
+// read from a ui-view checkout (UI_VIEW_ROOT, else ../ui-view beside this
+// repository's checkout). The anchor may lag the set's latest release by one
+// release at most; older fails, so pro cannot keep shipping an old view.
 //
 // The guard computes the git tree id of each folder as it is on disk (the
 // working tree, so an uncommitted edit fails too) and compares it with the
-// tree id of the same folder in the view release. Git computes the same id
-// for the same files, names and modes, so equal ids mean equal folders.
-//
-// To change one of these components: change it in simai/ui-view, release the
-// view set, and take the release into pro (the bundle, or a copy of the
-// released folders with the new tree ids below, in one commit).
+// anchor's. Git computes the same id for the same files, names and modes, so
+// equal ids mean equal folders.
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {lstatSync, readdirSync, readFileSync, readlinkSync} from 'node:fs';
+import {existsSync, lstatSync, readdirSync, readFileSync, readlinkSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
+const FOLDERS = ['view', 'view-table', 'view-properties'];
 
-// view-23ed2acf30d7: `git -C ui-view rev-parse view-23ed2acf30d7:package/src/smart/<folder>`.
-const RELEASE = 'view-23ed2acf30d7';
-const FROZEN = {
-  'view': '559ece8cef89443ee9e7d8c2124bef71b2ddb038',
-  'view-table': '24bc7fb6eff2ecfeca56b3efc41946176e22a39c',
-  'view-properties': '59c2eaf203e1c5067ba81c7694934536d072805c',
-};
+// The candidate of view round 1 (target view 1.9.0 over pair ui-24d64b7f6eb7).
+// After the release: {release: 'view-<12>', version: '1.9.0', trees: {<folder>: <tree id>}}.
+const ANCHOR = {candidate: 'origin/round/view-r1', version: '1.9.0'};
 
-// A change made here ahead of the view set: one folder, one named patch. The
-// folder must be the release's tree with exactly that patch, and simai/ui-view
-// releases the same change before the next take (the take then drops the entry
-// here). sf-view-properties: decision C22 -- the panel writes a size on the
-// controls it draws only when the host has one, as sf-view and sf-view-table do
-// since view 1.6.0; with size 1 written on them they stayed 40 under compact
-// density beside the page's 32. Dispatcher order 2026-11-10 (pro over
-// ui-a0370c0c99fb); the patch for simai/ui-view (index.js, the template, component.json) is
-// ui-control control/evidence/2026-11-10-pro-next-1110/view-properties-c22.patch.
-const PATCHED = {
-  // Over group build 9 (ui-source 3d55e44d7, 2026-11-17), sf-view 1.12.6 and
-  // sf-view-properties 1.16.8 (above ui-view fix/view-set-j1's 1.12.5 and
-  // 1.16.7): the first-paint snapshots retaken over the group build, and
-  // sf-view's declared first-paint size 20 KiB -> 24 KiB (its reference and
-  // open-record markup is 21.3 KiB with the group build's checkbox and input
-  // parts). The patches for simai/ui-view are ui-control
-  // control/evidence/2026-11-17-pro-over-gb9/view-gb9.patch and view-properties-gb9.patch.
-  'view': {tree: 'c1afd63456d3356e8685bf0ab8e418fbdeebd114', patch: 'over group build 9 (ui-source 3d55e44d7), first-paint snapshots retaken and the declared size 24 KiB, sf-view 1.12.6 (2026-11-17)'},
-  // Over ui-994f9db407fa (2026-11-15), sf-view-properties 1.16.1: the panel takes
-  // back the drawer's own block padding (--sf-drawer--inset) and the skeleton's
-  // tab strip stands over the tabs' hairline, as ui-pro 4059d01. Over
-  // ui-078a4b4c6f6e (2026-11-16), sf-view-properties 1.16.4: record, relation
-  // and user fields edit in sf-input-lookup (the cl-input-lookup relation,
-  // field-renderers 1.9.0, C139 (1)), as ui-pro d032639; the 1.16.2 dropdown
-  // interim is gone; a panel that fills the screen keeps its title clear of
-  // the edge controls sf-drawer 1.16 draws in its head. simai/ui-view takes the
-  // same when it moves to that pair.
-  'view-properties': {tree: 'd4140b4e832ec79e6c96bc9e3076f881b6ecdbb1', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17)'},
-  // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
-  // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
-  // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
-  // Pro over ui-7fb26d395af2, 2026-11-12; the patch for simai/ui-view is
-  // ui-control control/evidence/2026-11-12-pro-over-7fb26d395af2/view-table-alpha.patch.
-  // Over ui-994f9db407fa (2026-11-15), sf-view-table 1.19.7: smart.manifest.json's
-  // provenance of the Framework files it builds in (option-badge, pagination),
-  // the row-text inset on --sf-space-1 (utility.table 1.3.0, as ui-pro d766e41)
-  // and the windows on the menu's own inline inset (C105 H4, C106, as ui-pro
-  // 4059d01). Over ui-078a4b4c6f6e (2026-11-16), sf-view-table 1.19.8: the
-  // provenance of src/smart/pagination/index.js (sf-pagination 1.7, C167), and
-  // the version; with it the admin set K-1 change (ui-pro f08641b, accepted
-  // 2026-11-16): ⋯ (more_horiz) for the view's and a template's actions (C155
-  // (2), TL-1) and a row's menu on a right click, the context-menu key and
-  // Shift+F10 (C164 (1)(2), TL-2); its patch for simai/ui-view is ui-control
-  // control/evidence/2026-11-15-admin-set-k1/view-table-k1.patch. simai/ui-view
-  // takes the same when it moves to that pair. Over group build 9 (ui-source
-  // 3d55e44d7, 2026-11-17), sf-view-table 1.20.4 (above ui-view's 1.20.3): the
-  // pagination provenance, the two resize observers hand their work to the next
-  // frame (PRO-ADM-12: «ResizeObserver loop completed» at 390 on every load),
-  // and the icon buttons ghost, not the dated link look (C15); its patch for
-  // simai/ui-view is ui-control control/evidence/2026-11-17-pro-over-gb9/view-table-gb9.patch.
-  'view-table': {tree: 'da0897dd794e35daff15a250cc4cbe4bf3db053a', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), first-paint snapshots retaken, over the K-1 1.19.8 (the released pro-589ced99cfbd has a 1.19.8 without it), sf-view-table 1.20.4 (2026-11-17)'},
+const packageRoot = resolve(process.env.SF_PACKAGE_ROOT ?? join(root, '..'));
+const viewRoot = resolve(process.env.UI_VIEW_ROOT ?? join(packageRoot, '..', '..', 'ui-view'));
+const viewGit = (...args) => execFileSync('git', ['-C', viewRoot, ...args], {encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore']}).trim();
+const haveView = existsSync(join(viewRoot, '.git'));
+const anchorName = ANCHOR.release ?? `the candidate ${ANCHOR.candidate} (view ${ANCHOR.version})`;
+const expectedTree = (folder) => {
+  if (ANCHOR.trees) return ANCHOR.trees[folder];
+  if (!haveView) throw new Error(`the anchor is a candidate: set UI_VIEW_ROOT to a simai/ui-view checkout (looked in ${viewRoot})`);
+  return viewGit('rev-parse', `${ANCHOR.candidate}:package/src/smart/${folder}`);
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
@@ -114,18 +74,30 @@ const treeOf = (directory) => {
   return object('tree', body);
 };
 
-for (const [folder, released] of Object.entries(FROZEN)) {
-  const patched = PATCHED[folder];
-  const expected = patched?.tree ?? released;
-  test(`src/smart/${folder} is the view release ${RELEASE}${patched ? ` with the patch ${patched.patch}` : ', unchanged'}`, () => {
+for (const folder of FOLDERS) {
+  test(`src/smart/${folder} is the view anchor, ${anchorName}, unchanged`, () => {
+    const expected = expectedTree(folder);
     const actual = treeOf(join(root, 'src', 'smart', folder)).toString('hex');
     assert.equal(actual, expected,
-      `src/smart/${folder} differs from the view set release ${RELEASE} (tree ${expected}${patched ? `, the release ${released} with the patch ${patched.patch}` : ''}). `
+      `src/smart/${folder} differs from ${anchorName} (tree ${expected}). `
       + 'The view folders are frozen in ui-pro: changes to sf-view, sf-view-table and sf-view-properties go to '
-      + 'simai/ui-view (package/src/smart), are released there, and come into pro with the next view release. '
+      + 'simai/ui-view (package/src/smart), are released there, and come into pro with the take of that release. '
       + 'Revert the change here and make it in simai/ui-view.');
   });
 }
+
+const semver = (version) => version.split('.').map(Number);
+const newer = (a, b) => (semver(a).map((part, index) => part - semver(b)[index]).find((delta) => delta !== 0) ?? 0) > 0;
+
+test('the anchor is the set\'s latest release or the one before it', (t) => {
+  if (!haveView) { t.skip(`no simai/ui-view checkout at ${viewRoot} (UI_VIEW_ROOT) to read the set's releases`); return; }
+  let ref = 'origin/main';
+  try { viewGit('rev-parse', '--verify', '--quiet', ref); } catch { ref = 'HEAD'; }
+  const releases = viewGit('ls-tree', '--name-only', `${ref}:contracts/releases`).split('\n').filter((name) => /^view-[0-9a-f]{12}\.lock\.json$/u.test(name))
+    .map((name) => JSON.parse(viewGit('show', `${ref}:contracts/releases/${name}`)).version);
+  const ahead = releases.filter((version) => newer(version, ANCHOR.version));
+  assert.ok(ahead.length <= 1, `the anchor view ${ANCHOR.version} is ${ahead.length} releases behind the set (${ahead.sort().join(', ')}); take the latest view release`);
+});
 
 test('the tree id is git\'s own (a known tree computes to its id)', () => {
   // Guards the hashing itself: an empty tree is git's well-known id.

@@ -33,7 +33,7 @@ const FROZEN = {
 
 // A folder may carry a patch the release does not have yet, made here ahead of
 // simai/ui-editor because a pair needs it before the next editor release
-// (as view-folders-frozen.contract.test.mjs allows for the view folders). The
+// (the view folders had the same door until view round 1 closed it). The
 // patched tree is the one held; the patch is named so the next editor release
 // takes it.
 // Over ui-078a4b4c6f6e (2026-11-16), sf-editor 1.2.6: the rule relates
