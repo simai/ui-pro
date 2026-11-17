@@ -41,8 +41,12 @@ const FROZEN = {
 // cl-editor since ui-source 64e639814 (sf-editor draws sf-empty-state as the
 // Composition fragment boundary's error state); without it the package
 // receipt refuses the build. simai/ui-editor takes the same relation.
+// Over group build 9 (ui-source 3d55e44d7, 2026-11-17), sf-editor 1.3.2 (above
+// ui-editor main's 1.3.1): the first-paint snapshots retaken over the group
+// build; the patch for simai/ui-editor is ui-control
+// control/evidence/2026-11-17-pro-over-gb9/editor-gb9.patch.
 const PATCHED = {
-  'editor': {tree: '89ad5ba037e20ad77a14daf56a4c4b3a24cf5889', patch: 'cl-empty-state relation, sf-editor 1.2.6 (2026-11-16)'},
+  'editor': {tree: '9b8c8036f26dfc438ef50951556ec05201848fc9', patch: 'cl-empty-state relation, sf-editor 1.2.6 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshots retaken, sf-editor 1.3.2 (2026-11-17)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
