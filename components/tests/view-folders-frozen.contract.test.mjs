@@ -70,8 +70,13 @@ const PATCHED = {
   // (2), TL-1) and a row's menu on a right click, the context-menu key and
   // Shift+F10 (C164 (1)(2), TL-2); its patch for simai/ui-view is ui-control
   // control/evidence/2026-11-15-admin-set-k1/view-table-k1.patch. simai/ui-view
-  // takes the same when it moves to that pair.
-  'view-table': {tree: '69441decd053ecd1991eda643627696a909b9e06', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, sf-view-table 1.19.9 (2026-11-17)'},
+  // takes the same when it moves to that pair. Over group build 9 (ui-source
+  // 3d55e44d7, 2026-11-17), sf-view-table 1.20.4 (above ui-view's 1.20.3): the
+  // pagination provenance, the two resize observers hand their work to the next
+  // frame (PRO-ADM-12: «ResizeObserver loop completed» at 390 on every load),
+  // and the icon buttons ghost, not the dated link look (C15); its patch for
+  // simai/ui-view is ui-control control/evidence/2026-11-17-pro-over-gb9/view-table-gb9.patch.
+  'view-table': {tree: '0ccd5152cc55be52a31d25a76d88e12a913fe351', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), sf-view-table 1.20.4 (2026-11-17)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
