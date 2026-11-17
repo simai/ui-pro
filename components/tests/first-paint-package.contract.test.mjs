@@ -14,7 +14,7 @@ import {fillSkeleton} from '../scripts/first-paint-skeleton.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const smart = join(root, 'src', 'smart');
-const PACKAGE = ['admin-menu', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window', 'editor-content', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'view', 'view-properties', 'view-table'];
+const PACKAGE = ['admin-menu', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window', 'editor-content', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'view'];
 const inner = (html, tag) => html.replace(/<!--[\s\S]*?-->\n?/gu, '').trim()
   .replace(new RegExp(`^<${tag}[^>]*>`, 'u'), '').replace(new RegExp(`</${tag}>$`, 'u'), '')
   .replace(/>\s+</gu, '><').trim();
@@ -35,14 +35,6 @@ test('every example of every package component has its static markup and sheets'
       }
     }
   }
-});
-
-test('sf-view-properties: skeleton.html is the loading render the element draws', () => {
-  const component = describe(smart, 'view-properties');
-  const printed = readFileSync(exampleFiles(component, {name: 'reference'}).html, 'utf8');
-  const example = component.examples.find((one) => one.name === 'reference');
-  const filled = fillSkeleton(component, example.settings, readFileSync(component.skeletonFile, 'utf8'));
-  assert.equal(inner(`<sf-view-properties>${filled}</sf-view-properties>`, 'sf-view-properties'), inner(printed, 'sf-view-properties'));
 });
 
 test('sf-view: its static markup is its skeleton, slotted as the first paint, in the shape of the data', () => {
@@ -69,7 +61,7 @@ test('sf-view: its static markup is its skeleton, slotted as the first paint, in
 
 test('the port-fed components give gate 24 a fake port, so phase 3 checks their data', async () => {
   const {portOf} = await import('../scripts/first-paint-lib.mjs');
-  for (const folder of ['view', 'view-properties']) {
+  for (const folder of ['view']) {
     const component = describe(smart, folder);
     for (const example of component.examples) {
       const port = portOf(component, example);
@@ -80,24 +72,14 @@ test('the port-fed components give gate 24 a fake port, so phase 3 checks their 
   }
 });
 
-test('sf-view-table brings the cells it draws with other Smart elements with it, not after the rows', () => {
-  const rule = readFileSync(join(smart, 'view-table', 'rule.js'), 'utf8');
-  for (const name of ['cl-reference-link', 'cl-file-preview', 'cl-input-color']) {
-    assert.match(rule, new RegExp(`\\{ name: (['"])${name}\\1 \\}`, 'u'), `${name} eager`);
-  }
-  const table = describe(smart, 'view-table');
-  assert.ok(table.examples.some((one) => one.name === 'typed-cells'), 'an example with those cells');
-});
-
 test('a port-fed component holds its box: it fills its region and its data scrolls inside', () => {
   const css = (path) => readFileSync(join(smart, path), 'utf8');
   // sf-view is no scroll container: the page is its one scroll (owner,
   // 2026-10-15, table-one-scroll); its rows are what must hold.
   assert.doesNotMatch(readFileSync(join(smart, 'view', 'index.js'), 'utf8'), /:host \{[^}]*overflow/u);
-  assert.match(css('view-properties/js/templates/default.css'), /:is\(sf-view-properties, sf-property-view\):not\(\[panel\]\),\s*:is\(sf-view-properties, sf-property-view\)\[full\] \{\s*\/\*[^*]*\*\/\s*display: block !important;\s*block-size: 100%;\s*overflow: auto;/u);
   assert.match(css('admin-menu/js/navigation/navigation.css'), /\.sf-admin-nav--skeleton \.sf-admin-nav-second \{\s*display: none;/u, 'the skeleton keeps one column on a phone');
   // Each such example puts the component in a region, as a page does.
-  for (const [folder, names] of [['view-properties', ['reference', 'full']], ['admin-menu', ['navigation-port']]]) {
+  for (const [folder, names] of [['admin-menu', ['navigation-port']]]) {
     const component = describe(smart, folder);
     for (const name of names) assert.match(component.examples.find((one) => one.name === name).parent ?? '', /block-size: \d+rem/u, `${folder}/${name}`);
   }

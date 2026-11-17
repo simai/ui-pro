@@ -43,6 +43,8 @@ test('host port request: every component that takes a host port asks for one', (
     const answer = body(source, /^\s+setHostPort\(\w+\)\s*\{/mu);
     assert.doesNotMatch(answer, /_portRequested/u, `${name}: setHostPort does not reset the flag`);
   }
-  assert.ok(owners.length >= 2, `only ${owners.join(', ')} take a host port; the scan is not finding them`);
+  // Since View 1.8.2 sf-view-table and sf-view-properties are the view set's
+  // (D31): sf-view is the package's one host-port owner.
+  assert.ok(owners.includes('view'), `only ${owners.join(', ')} take a host port; the scan is not finding sf-view`);
   assert.ok(read('docs/developer/smart-component-authoring.md').includes('sf-host-port-request'));
 });

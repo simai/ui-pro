@@ -116,12 +116,15 @@ test('package rules: every relation is a rule, or in a frozen folder a forward t
     for (const match of readFileSync(file, 'utf8').matchAll(/SF\.RuleLoader(?:\[['"]([^'"]+)['"]\]|\.([A-Za-z_$][\w$]*))\s*=/gu)) declared.add(match[1] || match[2]);
   }
   const forward = forwards();
+  // Since View 1.8.2 the view set installs these (decision D31): the pro
+  // package relates them and no longer carries their rules.
+  const fromViewSet = new Set(['cl-view-table', 'cl-view-properties']);
   const dangling = [];
   for (const folder of packageFolders()) {
     const rule = `src/smart/${folder}/rule.js`;
     if (!existsSync(resolve(root, rule))) continue;
     for (const name of relationsOf(read(rule))) {
-      if (declared.has(name)) continue;
+      if (declared.has(name) || fromViewSet.has(name)) continue;
       const to = forward.get(name);
       if (FROZEN.has(folder) && to && declared.has(to.to) && to.remove_after > today) continue;
       dangling.push(`smart/${folder}/rule.js -> ${name}`);

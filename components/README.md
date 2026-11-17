@@ -18,9 +18,7 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 
 | Folder | Element | Manifest id |
 |:---|:---|:---|
-| `src/smart/view-table` | `sf-view-table` | `smart.view-table` |
 | `src/smart/view` | `sf-view` | `smart.view` |
-| `src/smart/view-properties` | `sf-view-properties` | `smart.view-properties` |
 | `src/smart/admin-menu` | `sf-admin-menu` | `smart.admin-menu` |
 | `src/smart/message-log` | `sf-message-log` | `smart.message-log` |
 | `src/smart/chat-threads` | `sf-chat-threads` | `smart.chat-threads` |

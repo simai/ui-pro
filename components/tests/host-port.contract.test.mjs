@@ -16,9 +16,7 @@ const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 
 const schema = json('src/core/contracts/composite-host-port.v1.schema.json');
 const manifestPaths = [
-  'src/smart/view-table/smart.manifest.json',
   'src/smart/view/smart.manifest.json',
-  'src/smart/view-properties/smart.manifest.json',
   'src/smart/admin-menu/smart.manifest.json',
 ];
 const declared = manifestPaths
