@@ -51,7 +51,7 @@ const PATCHED = {
   // and user fields edit in sf-input-lookup (the cl-input-lookup relation,
   // field-renderers 1.9.0, C139 (1)), as ui-pro d032639; the 1.16.2 dropdown
   // interim is gone. simai/ui-view takes the same when it moves to that pair.
-  'view-properties': {tree: '851f49d13ff226b0b01f918506f76aa322e066c7', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel's head beside sf-drawer 1.16's edge in the head, sf-view-properties 1.16.4 (2026-11-16)'},
+  'view-properties': {tree: '851f49d13ff226b0b01f918506f76aa322e066c7', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16)'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
