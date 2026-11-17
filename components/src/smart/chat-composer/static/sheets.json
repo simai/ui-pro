@@ -6,17 +6,27 @@
     "theme-dark"
   ],
   "sheets": [
+    "component/buttons/css/buttons.min.css",
+    "component/file-preview/css/file-preview.min.css",
     "component/icon-buttons/css/icon-buttons.min.css",
     "component/icons/css/icons.min.css",
+    "component/kbd/css/kbd.min.css",
+    "component/progress-bar/css/progress-bar.min.css",
     "component/textarea/css/textarea.min.css",
+    "component/tooltip/css/tooltip.min.css",
     "core/css/core.css",
     "smart/chat-composer/css/chat-composer.min.css",
     "utility/align-items/default/css/default.min.css",
     "utility/display/default/css/default.min.css",
+    "utility/flex-direction/default/css/default.min.css",
+    "utility/flex/default/css/default.min.css",
     "utility/font-weight/default/css/default.min.css",
     "utility/justify-content/default/css/default.min.css",
+    "utility/pointer-events/default/css/default.min.css",
     "utility/position/default/css/default.min.css",
-    "utility/sr-only/default/css/default.min.css"
+    "utility/sr-only/default/css/default.min.css",
+    "utility/text-align/default/css/default.min.css",
+    "utility/transition-property/default/css/default.min.css"
   ],
   "examples": {
     "busy": [
@@ -46,17 +56,27 @@
       "utility/sr-only/default/css/default.min.css"
     ],
     "files": [
+      "component/buttons/css/buttons.min.css",
+      "component/file-preview/css/file-preview.min.css",
       "component/icon-buttons/css/icon-buttons.min.css",
       "component/icons/css/icons.min.css",
+      "component/kbd/css/kbd.min.css",
+      "component/progress-bar/css/progress-bar.min.css",
       "component/textarea/css/textarea.min.css",
+      "component/tooltip/css/tooltip.min.css",
       "core/css/core.css",
       "smart/chat-composer/css/chat-composer.min.css",
       "utility/align-items/default/css/default.min.css",
       "utility/display/default/css/default.min.css",
+      "utility/flex-direction/default/css/default.min.css",
+      "utility/flex/default/css/default.min.css",
       "utility/font-weight/default/css/default.min.css",
       "utility/justify-content/default/css/default.min.css",
+      "utility/pointer-events/default/css/default.min.css",
       "utility/position/default/css/default.min.css",
-      "utility/sr-only/default/css/default.min.css"
+      "utility/sr-only/default/css/default.min.css",
+      "utility/text-align/default/css/default.min.css",
+      "utility/transition-property/default/css/default.min.css"
     ],
     "near-limit": [
       "component/icon-buttons/css/icon-buttons.min.css",
