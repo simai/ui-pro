@@ -71,7 +71,7 @@ const PATCHED = {
   // Shift+F10 (C164 (1)(2), TL-2); its patch for simai/ui-view is ui-control
   // control/evidence/2026-11-15-admin-set-k1/view-table-k1.patch. simai/ui-view
   // takes the same when it moves to that pair.
-  'view-table': {tree: 'edca45175b129ddeb1eccd0c62cfa585cafad6f6', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16)'},
+  'view-table': {tree: '69441decd053ecd1991eda643627696a909b9e06', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, sf-view-table 1.19.9 (2026-11-17)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

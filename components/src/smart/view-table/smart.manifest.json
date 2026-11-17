@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.19.8",
+  "version": "1.19.9",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2728,6 +2728,13 @@
           "The published head row (--sf-table-head-block-size-1/2 and -1) never stands below the Framework table's row, which a .table's head cells stand on too (utility.table, C146 (1)): the size-1 control height, moved by the area's density (C185 (2)). At 1/2 the head said 33 and drew 40, so a page holding the list's room from the docs' formula was 7 short (241 against 248; table-published-box).",
           "The ⋯ and row-menu change above is ui-pro f08641b (fix/admin-set-k1, 1.17.4 there; admin set K-1, accepted by DEV 2026-11-16), merged onto 1.19.7; 1.17.4 itself was never released. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.19.8",
+        "to": "1.19.9",
+        "changes": [
+          "Rebuilt over SIMAI Framework group build 9 (ui-source 3d55e44d7, core.runtime 1.58.1). The Framework code it builds in moved: sf-pagination 1.7.3 (SP-07) names its counting spinner by its label and hides the spinner's words (label-hidden); smart.manifest.json's provenance of src/smart/pagination/index.js follows. 1.19.8 is on ui-pro release/pro-over-078a (never released), so the number is 1.19.9, above every origin branch (1.19.6 in simai/ui-view). Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -2761,7 +2768,7 @@
       },
       {
         "path": "src/smart/pagination/index.js",
-        "sha256": "db0416ab0766b055e2a9cae922c824e5efcd0150c0497544c3dd356ece73c0e1"
+        "sha256": "424b8ae852757155c6d997f83c65b647056c1c418d80685e5e618ab35f2877de"
       }
     ],
     "generated_runtime": []

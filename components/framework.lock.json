@@ -4,6 +4,6 @@
   "summary": "The ui-source revision the pro component package (SIMAI Framework Pro; published as larena until 2026-11-02, a dated alias until 2027-01-01) is built and tested against: the overlay is ui-source at this revision with this folder laid over it (scripts/overlay.mjs), and ui-builder's product-package build builds the same (standard simai.component-package).",
   "source": {
     "repository": "simai/ui-source",
-    "revision": "10145e63b9dc3325eeffd62731b4bb5881b21c12"
+    "revision": "3d55e44d70ea1e98d1b89acf23c08ef45fd3bcba"
   }
 }

@@ -99,7 +99,9 @@ test('the three answers to "how many" are rendered, and nothing else is', async 
   assert.doesNotMatch(number.markup, /sf-pagination-count-request|<sf-spinner/u, 'and nothing to ask for');
   // A short wait.
   const waiting = await render(await pagination({countKnown: false, canCount: true, counting: true}));
-  assert.match(totalText(waiting), /<sf-spinner size=1 aria-label=\{counting-label\}>/u, 'a short wait');
+  // sf-pagination 1.7.3 (SP-07, in group build 9): the spinner is named by
+  // its label and hides its words (label-hidden).
+  assert.match(totalText(waiting), /<sf-spinner size=1 label=\{counting-label\} label-hidden>/u, 'a short wait');
   assert.doesNotMatch(waiting.markup, /sf-pagination-count-request/u);
   // Or an offer to find out, which asks for the total.
   const offerElement = await pagination({countKnown: false, canCount: true});
