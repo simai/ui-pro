@@ -15,7 +15,7 @@
     --sf-chat-interlocutor--color: var(--sf-chat-interlocutor-color, var(--sf-on-surface));
     --sf-chat-interlocutor--icon-color: var(--sf-chat-interlocutor-icon-color, var(--sf-on-surface-variant));
     --sf-chat-interlocutor--hover: var(--sf-chat-interlocutor-hover-background-color, var(--sf-surface-transparent-hover));
-    --sf-chat-interlocutor--radius: var(--sf-chat-interlocutor-radius, var(--sf-radius-1));
+    --sf-chat-interlocutor--radius: var(--sf-chat-interlocutor-radius, var(--sf-radius--surface));
     --sf-chat-interlocutor--height: var(--sf-chat-interlocutor-height, var(--sf-ui-1--control-height));
   }
 

@@ -2397,7 +2397,8 @@ class SfChatWindow extends ChatWindowElement {
         }
         const avatar = doc.createElement("sf-avatar");
         avatar.setAttribute("size", "1");
-        avatar.setAttribute("tone", "auto");
+        // hue, not its former name tone (C17; tone is read until 2027-01-01).
+        avatar.setAttribute("hue", "auto");
         avatar.setAttribute("aria-label", conversation.title || listed?.title || "");
         avatar.setAttribute("aria-hidden", "true");
         avatar.setAttribute("inert", "");

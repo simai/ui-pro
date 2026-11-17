@@ -69,9 +69,9 @@ function renderImage(context, field) {
                         accept=${field.accept || nothing} empty-text=${field.emptyText || context.words.imageEmpty} hint=${field.hint || nothing}
                         value=${field.value ? JSON.stringify(field.value) : nothing} ?required=${field.required} ?disabled=${field.disabled}
                         ?invalid=${Boolean(error)} error-message=${error || nothing}
-                        @sf-image-field-attach=${(event) => component.onAttach(field.path, event)}
-                        @sf-image-field-detach=${(event) => component.onDetach(field.path, event)}
-                        @sf-image-field-rejected=${(event) => component.onRejected(field.path, event)}></sf-input-image>
+                        @sf-input-image-attach=${(event) => component.onAttach(field.path, event)}
+                        @sf-input-image-detach=${(event) => component.onDetach(field.path, event)}
+                        @sf-input-image-rejected=${(event) => component.onRejected(field.path, event)}></sf-input-image>
         ${choices.length
             ? html`<sf-dropdown class="sf-mail-inspector-choose" size="1/2" mode="select" data-choose=${field.path} label=${field.chooseLabel || nothing}
                                 placeholder=${field.choosePlaceholder || nothing} value="" .options=${choices}
