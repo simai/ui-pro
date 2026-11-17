@@ -1100,7 +1100,7 @@
             {
               "script": "(() => { const editor = document.querySelector('#editor'); editor.querySelector('[data-sf-node=\"f1\"] img').dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, cancelable: true, button: 0})); return true; })()",
               "wait": 1200,
-              "check": "(() => { const bar = document.querySelector('#editor .sf-content-editor-quick'); const told = globalThis.heard.filter(([name]) => name === 'sf-editor-content-params').at(-1)?.[1]; return !bar.hidden && bar.querySelectorAll('[data-param=\"fit\"]').length === 2 && bar.querySelectorAll('[data-param=\"ratio\"]').length === 6 && told?.id === 'f1' && JSON.stringify(told.fields.map((f) => f.key)) === '[\"alt\",\"ratio\",\"fit\"]' && told.fields.find((f) => f.key === 'ratio').value === '21/9'; })()"
+              "check": "(() => { const bar = document.querySelector('#editor .sf-content-editor-quick'); const told = globalThis.heard.filter(([name]) => name === 'sf-editor-content-params').at(-1)?.[1]; return !bar.hidden && bar.querySelectorAll('[data-param=\"fit\"]').length === 2 && bar.querySelectorAll('[data-param=\"ratio\"]').length === 7 && told?.id === 'f1' && JSON.stringify(told.fields.map((f) => f.key)) === '[\"alt\",\"ratio\",\"fit\"]' && told.fields.find((f) => f.key === 'ratio').value === '21/9'; })()"
             },
             {
               "script": "(() => { globalThis.tops = [...document.querySelectorAll('#editor .sf-content-editor-blocks > .sf-content-editor-block')].map((b) => Math.round(b.getBoundingClientRect().top)); return true; })()",

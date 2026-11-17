@@ -294,10 +294,11 @@ class SfContentEditor extends ContentEditorElement {
         return {value: String(value).trim() || undefined};
     }
 
-    // A choice of two to six options is a quick one: icon toggles over the
-    // chosen block. A picture's six ratios are the widest the owner named.
+    // A choice of two to seven options is a quick one: icon toggles over the
+    // chosen block. A picture's seven ratios are the widest the owner named
+    // (six, and 3:4 since decision C230 in SIMAI Framework group build 9).
     isQuick(item) {
-        return item.kind === "choice" && item.choices.length >= 2 && item.choices.length <= 6;
+        return item.kind === "choice" && item.choices.length >= 2 && item.choices.length <= 7;
     }
 
     /** What a host's panel draws for a block: its fields, their values and words. */
@@ -1860,7 +1861,7 @@ class SfContentEditor extends ContentEditorElement {
     }
 
     // The quick toolbar stands over the one chosen block: its choices of two
-    // to six options as toggles, and «Parameters…» for the rest. It floats over
+    // to seven options as toggles, and «Parameters…» for the rest. It floats over
     // the sheet, so choosing in it moves nothing on the page.
     drawQuick() {
         const bar = this.quick;
