@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.mail-library",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "title": "Email block library",
   "summary": "The blocks a letter of SIMAI Email Editor can take, grouped by what they are for, with category chips, a search over their names and purposes, and the variants of the letter's header and footer. A row adds its block or replaces its variant; the element raises an event and never touches a letter.",
   "kind": "smart",
@@ -436,7 +436,7 @@
       },
       {
         "path": "src/smart/mail-library/component.json",
-        "sha256": "0471cba326a7938a544e01212968ffdc4b013bdde43b9ee896b65cb940df428a"
+        "sha256": "8dd5eec3e348355dcbb9fd7049f53f7244721f5ec28adc39fcdb363d8ee843d0"
       },
       {
         "path": "src/smart/mail-library/lang/en.json",
