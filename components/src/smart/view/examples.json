@@ -9,7 +9,7 @@
       },
       "children": "<sf-view-table slot=\"content\" aria-label=\"Решения\"></sf-view-table><sf-pagination slot=\"pagination\"></sf-pagination>",
       "first-paint": {
-        "max-bytes": 20480,
+        "max-bytes": 24576,
         "why": "The view's skeleton (the toolbar, the head and a page of rows, the compact list for a phone, the page row) beside the table and the page row the page gives it as documented, each printed in its own resting markup and held out of view until the host's first answer."
       },
       "expect": {
@@ -314,7 +314,7 @@
       },
       "children": "<sf-view-table slot=\"content\" aria-label=\"Решения\"></sf-view-table><sf-pagination slot=\"pagination\"></sf-pagination>",
       "first-paint": {
-        "max-bytes": 20480,
+        "max-bytes": 24576,
         "why": "The view's skeleton (the toolbar, the head and a page of rows, the compact list for a phone, the page row) beside the table and the page row the page gives it as documented, each printed in its own resting markup and held out of view until the host's first answer."
       },
       "expect": {

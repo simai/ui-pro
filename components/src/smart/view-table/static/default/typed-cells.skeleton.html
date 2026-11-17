@@ -12,7 +12,7 @@
 <sf-input root-class="sf-search-input m-inline-start-auto" appearance="bordered" name="sf_table_search" hint-icon="search" value placeholder="Поиск" style="display: contents;">
 
 
-<label class="sf-input  sf-input--size-1 sf-input--bordered  sf-search-input m-inline-start-auto flex flex-col" data-mask="false" data-mask-pattern data-mask-lazy data-mask-placeholder-char data-mask-options data-sf-input-bound="1" for="sf-view-table-typed-cells-1" data-sf-static aria-hidden="true">
+<label class="sf-input  sf-input--size-1 sf-input--bordered   sf-search-input m-inline-start-auto flex flex-col" data-mask="false" data-mask-pattern data-mask-lazy data-mask-placeholder-char data-mask-options data-sf-input-bound="1" for="sf-view-table-typed-cells-1" data-sf-static aria-hidden="true">
 
 <span class="sf-input-field items-cross-center transition flex">
 
@@ -25,13 +25,14 @@
 
 
 <sf-button-icon appearance="ghost" scheme="on-surface" icon="search" aria-label="Поиск" style="display: contents;">
-<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" aria-label="Поиск" data-sf-static aria-hidden="true">
+<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" aria-label="Поиск" data-sf-static aria-hidden="true">
 
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="search" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>search</i></sf-icon>
+<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="search" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true" data-sf-static>search</i></sf-icon>
 </button>
 </sf-button-icon>
 
 </span>
+
 
 </label>
 </sf-input>
@@ -94,16 +95,16 @@
 
 <span class="sf-checkbox-box flex">
 <input type="checkbox" value="" aria-label="Выбрать все строки" id="sf-view-table-typed-cells-2">
-<sf-icon aria-hidden="true" icon style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static></i></sf-icon>
+<sf-icon aria-hidden="true" icon style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static></i></sf-icon>
 </span>
 </label>
 </sf-checkbox>
 </th>
 <th class="relative" data-key="settings" data-label="settings" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-settings, 0px); z-index: 2;" data-sf-pin-edge>
 <sf-button-icon appearance="ghost" scheme="on-surface" icon="settings" aria-label="Настройки" value="settings" style="display: contents;">
-<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" aria-label="Настройки" data-sf-static aria-hidden="true">
+<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" aria-label="Настройки" data-sf-static aria-hidden="true">
 
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="settings" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>settings</i></sf-icon>
+<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="settings" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true" data-sf-static>settings</i></sf-icon>
 </button>
 </sf-button-icon>
 </th>
@@ -141,43 +142,41 @@
 </tr>
 </thead>
 
-<tbody><tr tabindex="-1" data-row-id="1"><td data-key="select" data-item="1_select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;"><label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" data-sf-checkbox-bound="1" for="class-sf-checkbox-1--input"><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value="" aria-label="Выбрать строку: Портал клиента" id="class-sf-checkbox-1--input"></span></label></td><td data-key="settings" data-item="1_settings" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-settings, 0px); z-index: 2;" data-sf-pin-edge><button type="button" value="menu" data-sf-row-menu class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" aria-label="Меню"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button></td><td data-key="title" data-item="1_title"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Портал клиента</span></span></td><td data-key="owner" data-item="1_owner"><sf-reference-link line="1/2" appearance="plain" icon label="Анна Захарова" href="#u-1" style="display: contents;">
+<tbody><tr tabindex="-1" data-row-id="1"><td data-key="select" data-item="1_select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;"><label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" data-sf-checkbox-bound="1" for="class-sf-checkbox-1--input"><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value="" aria-label="Выбрать строку: Портал клиента" id="class-sf-checkbox-1--input"></span></label></td><td data-key="settings" data-item="1_settings" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-settings, 0px); z-index: 2;" data-sf-pin-edge><button type="button" value="menu" data-sf-row-menu class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" aria-label="Меню"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button></td><td data-key="title" data-item="1_title"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Портал клиента</span></span></td><td data-key="owner" data-item="1_owner"><sf-reference-link line="1/2" appearance="plain" icon label="Анна Захарова" href="#u-1" style="display: contents;">
 <div class="sf-reference-link sf-reference-link--line-1/2 sf-reference-link--plain flex items-cross-center" data-sf-static aria-hidden="true">
 <div class="sf-reference-link__main sf-reference-link-left">
 
 
-<a class="sf-reference-link__link" href="#u-1" target="_self">
-<span class="sf-first-paint-bar" aria-hidden="true">Анна Захарова</span>
-</a>
+<a class="sf-reference-link__link" href="#u-1" target="_self"><span class="sf-reference-link__label"><span class="sf-first-paint-bar" aria-hidden="true">Анна Захарова</span></span></a>
 
 </div>
 <div class="sf-reference-link__meta sf-reference-link-text"></div>
+
 </div>
 </sf-reference-link></td><td data-key="attachment" data-item="1_attachment"><sf-reference-link line="1/2" label="договор.pdf" icon="picture_as_pdf" href="#f-1" style="display: contents;">
 <div class="sf-reference-link sf-reference-link--line-1/2 flex items-cross-center" data-sf-static aria-hidden="true">
 <div class="sf-reference-link__main sf-reference-link-left">
 <i class="sf-reference-link__icon sf-icon" aria-hidden="true">picture_as_pdf</i>
 
-<a class="sf-reference-link__link" href="#f-1" target="_self">
-<span class="sf-first-paint-bar" aria-hidden="true">договор.pdf</span>
-</a>
+<a class="sf-reference-link__link" href="#f-1" target="_self"><span class="sf-reference-link__label"><span class="sf-first-paint-bar" aria-hidden="true">договор.pdf</span></span></a>
 
 </div>
 <div class="sf-reference-link__meta sf-reference-link-text"></div>
+
 </div>
 </sf-reference-link></td><td data-key="accent" data-item="1_accent">
-<sf-input-color size="1/2" appearance="plain" disabled value="#2f6feb" aria-label="Цвет" style="display: contents;" data-sf-size-relative>
+<sf-input-color size="1/2" appearance="plain" readonly value="#2f6feb" aria-label="Цвет" style="display: contents;" data-sf-size-relative>
 <div class="sf-color-field sf-color-field--size-1/2" data-sf-static aria-hidden="true">
 
 <div class="sf-color sf-color--plain sf-color--size-1/2" data-set="true" data-open="false">
-<div class="sf-color-frame" data-disabled>
-<button type="button" class="sf-color-trigger" aria-haspopup="dialog" title="Выбрать цвет" aria-expanded="false" aria-label="Цвет: #2f6feb" disabled>
+<div class="sf-color-frame" data-readonly>
+<span class="sf-color-trigger" role="img" aria-label="Цвет: #2f6feb">
 <span aria-hidden="true" class="sf-color-chip" style="--sf-color-fill: #2f6feb; --sf-color-solid: #2f6feb"></span>
 <span class="sf-color-text"><code><span class="sf-first-paint-bar" aria-hidden="true">#2f6feb</span></code></span>
-</button>
+</span>
 
 
-<sf-icon root-class="sf-color-chevron" aria-hidden="true" icon="keyboard_arrow_down" style="display: contents;"><i class="sf-icon sf-icon--weight-regular sf-color-chevron" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>keyboard_arrow_down</i></sf-icon>
+
 </div>
 
 </div>
@@ -186,43 +185,41 @@
 
 </div>
 </sf-input-color>
-</td><td data-key="actions" data-item="1_actions"><div class="sf-table-row-actions" data-row-actions="idle"></div></td></tr><tr tabindex="-1" data-row-id="2"><td data-key="select" data-item="2_select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;"><label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" data-sf-checkbox-bound="1" for="class-sf-checkbox-2--input"><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value="" aria-label="Выбрать строку: Каталог товаров" id="class-sf-checkbox-2--input"></span></label></td><td data-key="settings" data-item="2_settings" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-settings, 0px); z-index: 2;" data-sf-pin-edge><button type="button" value="menu" data-sf-row-menu class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link flex items-cross-center sf-icon-button--on-surface" aria-label="Меню"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button></td><td data-key="title" data-item="2_title"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Каталог товаров</span></span></td><td data-key="owner" data-item="2_owner"><sf-reference-link line="1/2" appearance="plain" icon label="Илья Петров" href="#u-2" style="display: contents;">
+</td><td data-key="actions" data-item="1_actions"><div class="sf-table-row-actions" data-row-actions="idle"></div></td></tr><tr tabindex="-1" data-row-id="2"><td data-key="select" data-item="2_select" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-select, 0px); z-index: 2;"><label class="sf-checkbox sf-checkbox--size-1 flex content-main-between cursor-pointer" data-sf-checkbox-bound="1" for="class-sf-checkbox-2--input"><span class="sf-checkbox-box transition flex"><input type="checkbox" data-sf-row-box value="" aria-label="Выбрать строку: Каталог товаров" id="class-sf-checkbox-2--input"></span></label></td><td data-key="settings" data-item="2_settings" data-sf-pinned style="position: sticky; inset-inline-start: var(--sf-table-pin-settings, 0px); z-index: 2;" data-sf-pin-edge><button type="button" value="menu" data-sf-row-menu class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" aria-label="Меню"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true">menu</i></button></td><td data-key="title" data-item="2_title"><span class="sf-table-cell-text"><span class="sf-first-paint-bar" aria-hidden="true">Каталог товаров</span></span></td><td data-key="owner" data-item="2_owner"><sf-reference-link line="1/2" appearance="plain" icon label="Илья Петров" href="#u-2" style="display: contents;">
 <div class="sf-reference-link sf-reference-link--line-1/2 sf-reference-link--plain flex items-cross-center" data-sf-static aria-hidden="true">
 <div class="sf-reference-link__main sf-reference-link-left">
 
 
-<a class="sf-reference-link__link" href="#u-2" target="_self">
-<span class="sf-first-paint-bar" aria-hidden="true">Илья Петров</span>
-</a>
+<a class="sf-reference-link__link" href="#u-2" target="_self"><span class="sf-reference-link__label"><span class="sf-first-paint-bar" aria-hidden="true">Илья Петров</span></span></a>
 
 </div>
 <div class="sf-reference-link__meta sf-reference-link-text"></div>
+
 </div>
 </sf-reference-link></td><td data-key="attachment" data-item="2_attachment"><sf-reference-link line="1/2" label="схема.png" icon="image" href="#f-2" style="display: contents;">
 <div class="sf-reference-link sf-reference-link--line-1/2 flex items-cross-center" data-sf-static aria-hidden="true">
 <div class="sf-reference-link__main sf-reference-link-left">
 <i class="sf-reference-link__icon sf-icon" aria-hidden="true">image</i>
 
-<a class="sf-reference-link__link" href="#f-2" target="_self">
-<span class="sf-first-paint-bar" aria-hidden="true">схема.png</span>
-</a>
+<a class="sf-reference-link__link" href="#f-2" target="_self"><span class="sf-reference-link__label"><span class="sf-first-paint-bar" aria-hidden="true">схема.png</span></span></a>
 
 </div>
 <div class="sf-reference-link__meta sf-reference-link-text"></div>
+
 </div>
 </sf-reference-link></td><td data-key="accent" data-item="2_accent">
-<sf-input-color size="1/2" appearance="plain" disabled value="#1a7f37" aria-label="Цвет" style="display: contents;" data-sf-size-relative>
+<sf-input-color size="1/2" appearance="plain" readonly value="#1a7f37" aria-label="Цвет" style="display: contents;" data-sf-size-relative>
 <div class="sf-color-field sf-color-field--size-1/2" data-sf-static aria-hidden="true">
 
 <div class="sf-color sf-color--plain sf-color--size-1/2" data-set="true" data-open="false">
-<div class="sf-color-frame" data-disabled>
-<button type="button" class="sf-color-trigger" aria-haspopup="dialog" title="Выбрать цвет" aria-expanded="false" aria-label="Цвет: #1a7f37" disabled>
+<div class="sf-color-frame" data-readonly>
+<span class="sf-color-trigger" role="img" aria-label="Цвет: #1a7f37">
 <span aria-hidden="true" class="sf-color-chip" style="--sf-color-fill: #1a7f37; --sf-color-solid: #1a7f37"></span>
 <span class="sf-color-text"><code><span class="sf-first-paint-bar" aria-hidden="true">#1a7f37</span></code></span>
-</button>
+</span>
 
 
-<sf-icon root-class="sf-color-chevron" aria-hidden="true" icon="keyboard_arrow_down" style="display: contents;"><i class="sf-icon sf-icon--weight-regular sf-color-chevron" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>keyboard_arrow_down</i></sf-icon>
+
 </div>
 
 </div>

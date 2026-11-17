@@ -2,7 +2,20 @@
 <sf-message-log style="display: contents;"><script type="application/json" data-sf-settings>{"messages":[]}</script>
 <div role="region" tabindex="0" class="sf-list-feed sf-list-feed--empty" aria-label="Переписка" data-sf-static>
 <div class="sf-list-feed__earlier" hidden></div>
-<div class="sf-list-feed__empty" hidden></div>
+<div class="sf-list-feed__empty">
+<sf-empty-state kind="no-data" size="1/2" heading="Сообщений пока нет" style="display: contents;" data-sf-size-relative>
+<div class="sf-placeholder sf-empty-state sf-empty-state--size-1-2 sf-empty-state--no-data" data-sf-static>
+<span class="sf-placeholder__visual sf-featured-icon sf-featured-icon--size-1 sf-featured-icon--neutral sf-featured-icon--soft sf-empty-state-icon" aria-hidden="true"><i class="sf-icon">inbox</i></span>
+<div class="sf-placeholder__content">
+<div class="sf-placeholder__header">
+<h3 class="sf-placeholder__title sf-empty-state-title">Сообщений пока нет</h3>
+<p class="sf-placeholder__description sf-empty-state-text">Они появятся здесь, когда их добавят</p>
+</div>
+
+</div>
+</div>
+</sf-empty-state>
+</div>
 <div class="sf-list-feed__column" role="log" aria-live="off" aria-label="Сообщения"></div>
 <div class="sf-list-feed__jump" hidden></div>
 <div class="sf-list-feed__announcer sr-only" aria-live="polite"></div>

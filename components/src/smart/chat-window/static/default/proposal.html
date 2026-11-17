@@ -4,7 +4,7 @@
 <div class="sf-thread-list__head">
 
 <button type="button" class="sf-thread-list__command" data-action="create">
-<sf-icon size="2" aria-hidden="true" icon="edit_square" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>edit_square</i></sf-icon>
+<sf-icon size="2" aria-hidden="true" icon="edit_square" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2" aria-hidden="true" data-sf-static>edit_square</i></sf-icon>
 <span>Новый разговор</span>
 </button>
 
@@ -16,15 +16,16 @@
 <div class="sf-thread-list__scroller">
 <sf-list class="sf-thread-list__rows" heading-level="2" label="Разговоры" group-by="day" empty-text="Разговоров пока нет" selected="thr_01" renamable style="display: contents;">
 <div class="sf-list sf-list__frame sf-list--size-1 " role="group" aria-label="Разговоры" aria-busy="false" data-sf-static>
+<span class="sf-list__width" aria-hidden="true"></span>
 
 <div class="sf-list__body" data-sf-list>
 
 <section class="sf-list__group" data-group="day:-5">
-<div class="sf-list__heading" role="heading" aria-level="2" id="sf-chat-window-proposal-1">Четверг</div>
+<div role="heading" class="sf-group-heading sf-list__heading" aria-level="2" id="sf-chat-window-proposal-1">Четверг</div>
 
 <ul class="sf-list__rows" aria-labelledby="sf-chat-window-proposal-1">
 
-<li class="sf-list__row sf-list__row--current" data-id="thr_01">
+<li class="sf-list__row sf-list__row--current " data-id="thr_01">
 <sf-list-item interactive kind="text" size="1" value="thr_01" text="Отпуск и перенос" selected style="display: contents;" data-sf-size-relative>
 <div class="sf-list-item flex items-cross-center sf-list-item--text sf-list-item--size-1 selected sf-list-item--interactive" data-sf-list-roving aria-current="true" tabindex="0" data-sf-static>
 
@@ -33,18 +34,18 @@
 </div>
 </div>
 </sf-list-item>
-<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Отпуск и перенос" title="Действия: Отпуск и перенос"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
+<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Отпуск и перенос" title="Действия: Отпуск и перенос"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
 </li>
 
 </ul>
 
 </section>
 <section class="sf-list__group" data-group="day:-6">
-<div class="sf-list__heading" role="heading" aria-level="2" id="sf-chat-window-proposal-2">Среда</div>
+<div role="heading" class="sf-group-heading sf-list__heading" aria-level="2" id="sf-chat-window-proposal-2">Среда</div>
 
 <ul class="sf-list__rows" aria-labelledby="sf-chat-window-proposal-2">
 
-<li class="sf-list__row " data-id="thr_02">
+<li class="sf-list__row  " data-id="thr_02">
 <sf-list-item interactive kind="text" size="1" value="thr_02" text="График на ноябрь" supporting="Кадры" style="display: contents;" data-sf-size-relative>
 <div class="sf-list-item flex items-cross-center sf-list-item--text sf-list-item--size-1 sf-list-item--two-line sf-list-item--interactive" data-sf-list-roving tabindex="-1" data-sf-static>
 
@@ -53,7 +54,7 @@
 </div>
 </div>
 </sf-list-item>
-<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: График на ноябрь" title="Действия: График на ноябрь"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
+<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: График на ноябрь" title="Действия: График на ноябрь"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
 </li>
 
 </ul>
@@ -62,9 +63,6 @@
 </div>
 
 <div class="sf-list__next" hidden></div>
-<sf-menu-context class="sf-list__menu" popup style="display: contents;">
-<div class="sf-context-menu" role="menu" data-sf-static></div>
-</sf-menu-context>
 </div>
 </sf-list>
 <p class="sf-thread-list__status" role="status" hidden></p>
@@ -72,16 +70,16 @@
 <div class="sf-thread-list__footer">
 
 <button type="button" class="sf-thread-list__command" data-action="archive-view">
-<sf-icon size="2" aria-hidden="true" icon="inventory_2" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>inventory_2</i></sf-icon>
+<sf-icon size="2" aria-hidden="true" icon="inventory_2" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2" aria-hidden="true" data-sf-static>inventory_2</i></sf-icon>
 <span>Архив</span>
 </button>
 
 
 </div>
 </nav>
-</sf-chat-threads></aside><main class="chat-shell__main sf-workspace-main"><h1 class="sf-chat-offscreen chat-shell__page-title">Отпуск и перенос</h1><header class="chat-shell__header"><button class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface flex items-cross-center content-main-center sf-workspace-back chat-shell__back" type="button" aria-label="К разговорам" title="К разговорам"><sf-icon icon="arrow_back" size="2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>arrow_back</i></sf-icon></button><sf-chat-interlocutor style="display: contents;" value="personal"><script type="application/json" data-sf-settings>{"options":[{"id":"personal","kind":"personal","title":"Мой помощник","greeting":"Чем помочь? Спросите о правилах компании или пришлите документ.","suggestions":["Сколько дней отпуска?","Как оформить командировку?"],"capabilities":{"attachments":true,"proposals":true,"memory":true}},{"id":"hr","kind":"knowledge","title":"Кадры","greeting":"Вопросы об отпусках, графике и документах.","suggestions":[]}]}</script>
+</sf-chat-threads></aside><main class="chat-shell__main sf-workspace-main"><h1 class="sf-chat-offscreen chat-shell__page-title">Отпуск и перенос</h1><header class="chat-shell__header"><button class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface flex items-cross-center content-main-center sf-workspace-back chat-shell__back" type="button" aria-label="К разговорам" title="К разговорам"><sf-icon icon="arrow_back" size="2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2" data-sf-icon-mirror aria-hidden="true" data-sf-static>arrow_back</i></sf-icon></button><sf-chat-interlocutor style="display: contents;" value="personal"><script type="application/json" data-sf-settings>{"options":[{"id":"personal","kind":"personal","title":"Мой помощник","greeting":"Чем помочь? Спросите о правилах компании или пришлите документ.","suggestions":["Сколько дней отпуска?","Как оформить командировку?"],"capabilities":{"attachments":true,"proposals":true,"memory":true}},{"id":"hr","kind":"knowledge","title":"Кадры","greeting":"Вопросы об отпусках, графике и документах.","suggestions":[]}]}</script>
 <div class="sf-chat-interlocutor" data-sf-static>
-<button type="button" class="sf-chat-interlocutor__button" aria-label="Помощник: Мой помощник" aria-haspopup="menu" aria-expanded="false" aria-describedby="sf-chat-window-proposal-3"><span class="sf-chat-interlocutor__title">Мой помощник</span><sf-icon icon="expand_more" size="1/2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>expand_more</i></sf-icon></button>
+<button type="button" class="sf-chat-interlocutor__button" aria-label="Помощник: Мой помощник" aria-haspopup="menu" aria-expanded="false" aria-describedby="sf-chat-window-proposal-3"><span class="sf-chat-interlocutor__title">Мой помощник</span><sf-icon icon="expand_more" size="1/2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2" aria-hidden="true" data-sf-static>expand_more</i></sf-icon></button>
 <sf-menu-context class="sf-chat-interlocutor__menu" popup aria-label="Выбрать помощника" style="display: contents;">
 <div class="sf-context-menu" role="menu" aria-label="Выбрать помощника" data-sf-static></div>
 </sf-menu-context>
@@ -92,34 +90,19 @@
 <div class="sf-list-feed__earlier" hidden></div>
 <div class="sf-list-feed__empty" hidden></div>
 <div class="sf-list-feed__column" role="log" aria-live="off" aria-label="Сообщения"><div class="sf-list-feed__item sf-list-feed__item--own sf-list-feed__item--first sf-list-feed__item--last" data-id="msg_03"><sf-chat-message style="display: contents;"><script type="application/json" data-sf-settings>{"features":{"feedback":true,"proposals":true,"memory":true,"brief":false,"blocks":false},"display":{"busy":false},"message":{"id":"msg_03","role":"user","author":"user","own":true,"growing":false,"text":"Перенеси мой отпуск на 10 ноября.","attachments":[]}}</script><div class="sf-chat-message-host" data-sf-static><article class="sf-chat-message sf-chat-message--user" data-id="msg_03" aria-label="Вы"><div class="sf-chat-message__bubble">Перенеси мой отпуск на 10 ноября.</div></article></div></sf-chat-message></div><div class="sf-list-feed__item sf-list-feed__item--first sf-list-feed__item--last sf-list-feed__item--end" data-id="msg_04"><sf-chat-message style="display: contents;"><script type="application/json" data-sf-settings>{"features":{"feedback":true,"proposals":true,"memory":true,"brief":false,"blocks":false},"display":{"busy":false},"message":{"id":"msg_04","role":"assistant","author":"assistant","own":false,"growing":false,"text":"Подготовил заявление на перенос.","attachments":[],"status":"completed","stage":null,"html":"\u003cp>Подготовил заявление на перенос. Проверьте и подтвердите.\u003c/p>","sources":[],"verification":null,"notices":[],"proposal":{"code":"P-104","title":"Перенос отпуска","state":"presented","changes":[{"field":"Начало отпуска","was":"3 ноября","will_be":"10 ноября"}],"confirm_command":"Подтверждаю P-104","cancel_command":"Отменяю P-104"},"finished_at":null}}</script><div class="sf-chat-message-host" data-sf-static><article class="sf-chat-message sf-chat-message--assistant sf-chat-message--completed sf-chat-message--last" data-id="msg_04" aria-label="Помощник"><div class="sf-chat-message__body"><div class="sf-chat-markup"><p>Подготовил заявление на перенос. Проверьте и подтвердите.</p></div><sf-confirm-change heading="Перенос отпуска" heading-level="2" change-id="P-104" decline-text="Отменить" accept-text="Подтвердить" state="open" data-state="open" data-expires-at changes="[{&quot;label&quot;:&quot;Начало отпуска&quot;,&quot;before&quot;:&quot;3 ноября&quot;,&quot;after&quot;:&quot;10 ноября&quot;}]" style="display: contents;">
-<section class="sf-change-confirm sf-change-confirm--open" aria-labelledby="sf-chat-window-proposal-4" data-state="open" data-sf-static>
-<div class="sf-change-confirm__heading" role="heading" id="sf-chat-window-proposal-4" aria-level="2">Перенос отпуска</div>
+<section class="sf-confirm-change sf-confirm-change--open sf-change-confirm sf-change-confirm--open" aria-labelledby="sf-chat-window-proposal-4" data-state="open" data-sf-static>
+<div class="sf-confirm-change__heading sf-change-confirm__heading" role="heading" id="sf-chat-window-proposal-4" aria-level="2">Перенос отпуска</div>
 
-<dl class="sf-change-confirm__changes" aria-label="Что изменится">
-
-<div class="sf-change-confirm__change">
-<dt class="sf-change-confirm__label">Начало отпуска</dt>
-<dd class="sf-change-confirm__before">
-<span class="sf-change-confirm__tag">Было</span>
-<span class="sf-change-confirm__value">3 ноября</span>
-</dd>
-<dd class="sf-change-confirm__after">
-<span class="sf-change-confirm__tag">Станет</span>
-<span class="sf-change-confirm__value">10 ноября</span>
-</dd>
+<div class="sf-confirm-change__changes sf-change-confirm__changes" role="group" aria-label="Что изменится">
+<sf-change class="sf-confirm-change__list sf-change-confirm__list" layout="list" style="display: contents;" data-block="true"><script type="application/json" data-sf-settings>{"changes":[{"label":"Начало отпуска","before":"3 ноября","after":"10 ноября"}]}</script><dl class="sf-change sf-change--list" data-sf-static>
+<div class="sf-change__row"><dt class="sf-change__term">Начало отпуска</dt><dd class="sf-change__value"><span aria-hidden="true"><span class="sf-change__before sf-change__whole">3&nbsp;ноября</span></span><span class="sf-change__pair"> <span class="sf-change__arrow" aria-hidden="true">→</span><span class="sr-only">было 3 ноября, стало 10 ноября</span>&nbsp;<span aria-hidden="true"><span class="sf-change__after sf-change__whole">10&nbsp;ноября</span></span></span></dd></div>
+</dl></sf-change>
 </div>
 
-</dl>
-
-<footer class="sf-change-confirm__footer">
-
-<p role="status" tabindex="-1" class="sf-change-confirm__status">
-
-</p>
-
-<div class="sf-change-confirm__actions">
-<sf-button scheme="primary" appearance="outline" size="1" text="Подтвердить" style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-button sf-button--size-1 sf-button--outline sf-button--primary flex items-cross-center" data-action="accept" data-sf-static>
+<footer class="sf-confirm-change__footer sf-change-confirm__footer">
+<div class="sf-confirm-change__actions sf-change-confirm__actions">
+<sf-button scheme="primary" appearance="default" size="1" text="Подтвердить" style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-button sf-button--size-1 sf-button--default sf-button--primary flex items-cross-center" data-action="accept" data-sf-static>
 
 
 <span class="sf-button-text-container text-center pointer-event-none flex-1">
@@ -128,8 +111,8 @@
 
 </button>
 </sf-button>
-<sf-button scheme="on-surface" appearance="outline" size="1" text="Отменить" style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-button sf-button--size-1 sf-button--outline sf-button--on-surface flex items-cross-center" data-action="decline" data-sf-static>
+<sf-button scheme="on-surface" appearance="ghost" size="1" text="Отменить" style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-button sf-button--size-1 sf-button--ghost sf-button--link sf-button--on-surface flex items-cross-center" data-action="decline" data-sf-static>
 
 
 <span class="sf-button-text-container text-center pointer-event-none flex-1">
@@ -139,9 +122,12 @@
 </button>
 </sf-button>
 </div>
+<p role="status" tabindex="-1" class="sf-confirm-change__status sf-change-confirm__status">
+
+</p>
 </footer>
 </section>
-</sf-confirm-change><div class="sf-chat-message__actions"><button class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-message__tool" type="button" aria-label="Копировать ответ" title="Копировать ответ"><sf-icon icon="content_copy" size="1" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>content_copy</i></sf-icon></button><button class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-message__tool" type="button" aria-label="Полезно" title="Полезно" aria-pressed="false" data-rating="up"><sf-icon icon="thumb_up" size="1" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>thumb_up</i></sf-icon></button><button class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-message__tool" type="button" aria-label="Не полезно" title="Не полезно" aria-pressed="false" data-rating="down"><sf-icon icon="thumb_down" size="1" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>thumb_down</i></sf-icon></button><span class="sf-chat-offscreen" role="status" aria-live="polite"></span></div></div></article></div></sf-chat-message></div></div>
+</sf-confirm-change><div class="sf-chat-message__actions"><button class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-message__tool" type="button" aria-label="Копировать ответ" title="Копировать ответ"><sf-icon icon="content_copy" size="1" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1" aria-hidden="true" data-sf-static>content_copy</i></sf-icon></button><button class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-message__tool" type="button" aria-label="Полезно" title="Полезно" aria-pressed="false" data-rating="up"><sf-icon icon="thumb_up" size="1" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1" aria-hidden="true" data-sf-static>thumb_up</i></sf-icon></button><button class="sf-icon-button sf-icon-button--size-1/2 sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-message__tool" type="button" aria-label="Не полезно" title="Не полезно" aria-pressed="false" data-rating="down"><sf-icon icon="thumb_down" size="1" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1" aria-hidden="true" data-sf-static>thumb_down</i></sf-icon></button><span class="sf-chat-offscreen" role="status" aria-live="polite"></span></div></div></article></div></sf-chat-message></div></div>
 <div class="sf-list-feed__jump" hidden></div>
 <div class="sf-list-feed__announcer sr-only" aria-live="polite"></div>
 </div>
@@ -150,10 +136,10 @@
 <div class="sf-chat-composer__box">
 <div class="sf-chat-composer__files" hidden></div>
 <div class="sf-chat-composer__row">
-<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__attach" aria-label="Прикрепить файл" title="Прикрепить файл" hidden></button>
+<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__attach" aria-label="Прикрепить файл" title="Прикрепить файл" hidden></button>
 <label class="sf-textarea sf-textarea--size-1 sf-textarea--flush sf-chat-composer__field sf-textarea--auto-grow" data-sf-textarea-bound="1" for="sf-chat-window-proposal-5"><textarea class="sf-chat-composer__input" rows="1" data-auto-grow data-max-rows="8" id="sf-chat-window-proposal-5" aria-label="Сообщение" aria-describedby="sf-chat-window-proposal-6" placeholder="Спросите что-нибудь" style="--sf-textarea--min-rows: 1; --sf-textarea--max-rows: 8;"></textarea></label>
 <span class="sf-chat-composer__count" id="sf-chat-window-proposal-6" hidden></span>
-<button type="submit" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--tonal sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__send" aria-label="Отправить" title="Отправить" disabled><sf-icon aria-hidden="true" icon="arrow_upward" size="2" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2 sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>arrow_upward</i></sf-icon></button>
+<button type="submit" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--tonal sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__send" aria-label="Отправить" title="Отправить" disabled><sf-icon aria-hidden="true" icon="arrow_upward" size="2" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2" aria-hidden="true" data-sf-static>arrow_upward</i></sf-icon></button>
 <button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--default sf-icon-button--on-surface flex items-cross-center content-main-center sf-chat-composer__stop" aria-label="Остановить ожидание" title="Остановить ожидание" hidden></button>
 </div>
 <div class="sf-chat-composer__drop" aria-hidden="true">Отпустите, чтобы прикрепить</div>

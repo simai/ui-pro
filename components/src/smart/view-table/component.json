@@ -2380,7 +2380,8 @@
           "changes": [
             "Rebuilt over SIMAI Framework group build 9 (ui-source 3d55e44d7, core.runtime 1.58.1). The Framework code it builds in moved: sf-pagination 1.7.3 (SP-07) names its counting spinner by its label and hides the spinner's words (label-hidden); smart.manifest.json's provenance of src/smart/pagination/index.js follows. 1.19.8 is on ui-pro release/pro-over-078a (never released) and simai/ui-view fix/view-set-j1 holds 1.20.3, so the number is 1.20.4, above every origin branch; the view set's own 1.19.9 to 1.20.3 (C259 phone actions, the C144 toolbar groups) are not in this copy, which simai/ui-view releases next (View 1.8.2), after which ui-pro drops it (D31). Nothing to change for a host.",
             "The table no longer re-lays itself inside its own resize observers (PRO-ADM-12): what a new width moves (the responsive columns, the pinned offsets) and the horizontal rail are done in the next frame, the last width of a frame winning. Written inside the observer they resized what is observed in the same frame, and at 390 the application example logged «ResizeObserver loop completed with undelivered notifications» on every load (6 of 6, ui-control evidence 2026-11-17-pro-over-gb9).",
-            "Its icon buttons (the row menu ≡, the settings gear, the search and view buttons) are drawn ghost, not the dated link look SIMAI Framework group build 9 warns about on the console (C15, sf-icon-button--link until 2027-01-01); they draw the same. Nothing to change for a host."
+            "Its icon buttons (the row menu ≡, the settings gear, the search and view buttons) are drawn ghost, not the dated link look SIMAI Framework group build 9 warns about on the console (C15, sf-icon-button--link until 2027-01-01); they draw the same. Nothing to change for a host.",
+            "The first-paint snapshots are retaken over SIMAI Framework group build 9 (ui-source 3d55e44d7)."
           ]
         }
       ]

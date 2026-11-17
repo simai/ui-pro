@@ -6,6 +6,7 @@
     "theme-dark"
   ],
   "sheets": [
+    "component/avatars/css/avatars.min.css",
     "component/buttons/css/buttons.min.css",
     "component/context-menu/css/context-menu.min.css",
     "component/icons/css/icons.min.css",
@@ -25,6 +26,7 @@
   ],
   "examples": {
     "former": [
+      "component/avatars/css/avatars.min.css",
       "component/buttons/css/buttons.min.css",
       "component/context-menu/css/context-menu.min.css",
       "component/icons/css/icons.min.css",
@@ -43,6 +45,7 @@
       "utility/text-decoration/default/css/default.min.css"
     ],
     "grouped": [
+      "component/avatars/css/avatars.min.css",
       "component/buttons/css/buttons.min.css",
       "component/context-menu/css/context-menu.min.css",
       "component/icons/css/icons.min.css",
@@ -61,6 +64,7 @@
       "utility/text-decoration/default/css/default.min.css"
     ],
     "reference": [
+      "component/avatars/css/avatars.min.css",
       "component/buttons/css/buttons.min.css",
       "component/context-menu/css/context-menu.min.css",
       "component/icons/css/icons.min.css",
@@ -79,6 +83,7 @@
       "utility/text-decoration/default/css/default.min.css"
     ],
     "single": [
+      "component/avatars/css/avatars.min.css",
       "component/buttons/css/buttons.min.css",
       "component/context-menu/css/context-menu.min.css",
       "component/icons/css/icons.min.css",

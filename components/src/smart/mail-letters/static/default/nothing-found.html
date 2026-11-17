@@ -3,11 +3,12 @@
 <div class="sf-mail-letters" data-sf-static>
 <div class="sf-mail-letters-bar">
 <sf-input class="sf-mail-letters-search" input-type="search" size="1/2" label="Поиск по названию" value="нет такого" style="display: contents;" data-sf-size-relative>
-<label class="sf-input  sf-input--size-1/2 sf-input--bordered   flex flex-col" data-mask="false" data-mask-pattern data-mask-lazy data-mask-placeholder-char data-mask-options data-sf-input-bound="1" for="sf-mail-letters-nothing-found-2" data-sf-static>
+<label class="sf-input  sf-input--size-1/2 sf-input--bordered    flex flex-col" data-mask="false" data-mask-pattern data-mask-lazy data-mask-placeholder-char data-mask-options data-sf-input-bound="1" for="sf-mail-letters-nothing-found-2" data-sf-static>
 
 <span class="sf-input-label flex">
 
 <span class="sf-input-text" id="sf-mail-letters-nothing-found-1">Поиск по названию</span>
+
 
 
 </span>
@@ -21,13 +22,14 @@
 
 
 
-<button type="button" class="sf-field-action sf-input-clear" data-action="clear" aria-label="Очистить"><sf-icon icon="close" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>close</i></sf-icon></button>
+<button type="button" class="sf-field-action sf-input-clear" data-action="clear" tabindex="-1" aria-label="Очистить"><sf-icon icon="close" aria-hidden="true" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>close</i></sf-icon></button>
 
 
 
 
 
 </span>
+
 
 </label>
 </sf-input>
@@ -37,16 +39,17 @@
 <span class="sf-dropdown-label flex">
 <span class="sf-dropdown-text" id="sf-mail-letters-nothing-found-3">Порядок</span>
 
+
 </span>
 
 
 <label class="sf-dropdown-field cursor-pointer items-cross-center relative transition flex" tabindex="-1">
 
 
-<input type="text" class="cursor-pointer" readonly placeholder="Не выбрано" aria-label="Порядок" tabindex="-1">
+<input type="text" class="cursor-pointer" readonly placeholder="Не выбрано" aria-label="Порядок" tabindex="-1" value="Сначала изменённые">
 
 <button type="button" class="sf-field-action sf-field-action--indicator sf-dropdown-chevron absolute" id="sf-mail-letters-nothing-found-4" tabindex="0" aria-expanded="false" aria-haspopup="listbox" aria-controls="sf-dropdown-1--listbox" aria-describedby="sf-mail-letters-nothing-found-5" aria-labelledby="sf-mail-letters-nothing-found-3">
-<sf-icon aria-hidden="true" icon="keyboard_arrow_down" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>keyboard_arrow_down</i></sf-icon>
+<sf-icon aria-hidden="true" icon="keyboard_arrow_down" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>keyboard_arrow_down</i></sf-icon>
 </button>
 </label>
 
@@ -57,7 +60,7 @@
 <sf-button class="sf-mail-letters-new" size="1/2" icon-start="add" text="Новое письмо" style="display: contents;" data-sf-size-relative>
 <button type="button" class="sf-button sf-button--size-1/2 sf-button--default sf-button--primary flex items-cross-center" data-action="create" data-sf-static>
 
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" icon="add" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>add</i></sf-icon>
+<sf-icon root-class="pointer-event-none" aria-hidden="true" icon="add" style="display: contents;"><i class="sf-icon pointer-event-none" aria-hidden="true" data-sf-static>add</i></sf-icon>
 <span class="sf-button-text-container text-center pointer-event-none">
 Новое письмо
 </span>
@@ -67,11 +70,15 @@
 </div>
 
 <sf-empty-state class="sf-mail-letters-empty" size="1/2" heading-level="2" kind="nothing-found" heading="Ничего не найдено" text="Нет писем с таким названием." style="display: contents;" data-sf-size-relative>
-<div class="sf-empty-state sf-empty-state--size-1-2 sf-empty-state--nothing-found" role="status" data-sf-static>
-<span class="sf-featured-icon sf-featured-icon--size-1 sf-featured-icon--neutral sf-featured-icon--soft sf-empty-state-icon" aria-hidden="true"><i class="sf-icon">search_off</i></span>
-<h2 class="sf-empty-state-title">Ничего не найдено</h2>
-<p class="sf-empty-state-text">Нет писем с таким названием.</p>
+<div class="sf-placeholder sf-empty-state sf-empty-state--size-1-2 sf-empty-state--nothing-found" role="status" data-sf-static>
+<span class="sf-placeholder__visual sf-featured-icon sf-featured-icon--size-1 sf-featured-icon--neutral sf-featured-icon--soft sf-empty-state-icon" aria-hidden="true"><i class="sf-icon">search_off</i></span>
+<div class="sf-placeholder__content">
+<div class="sf-placeholder__header">
+<h2 class="sf-placeholder__title sf-empty-state-title">Ничего не найдено</h2>
+<p class="sf-placeholder__description sf-empty-state-text">Нет писем с таким названием.</p>
+</div>
 
+</div>
 </div>
 </sf-empty-state>
 <sf-menu-context class="sf-mail-letters-menu" popup style="display: contents;">

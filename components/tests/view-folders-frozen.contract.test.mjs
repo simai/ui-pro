@@ -44,6 +44,14 @@ const FROZEN = {
 // ui-a0370c0c99fb); the patch for simai/ui-view (index.js, the template, component.json) is
 // ui-control control/evidence/2026-11-10-pro-next-1110/view-properties-c22.patch.
 const PATCHED = {
+  // Over group build 9 (ui-source 3d55e44d7, 2026-11-17), sf-view 1.12.6 and
+  // sf-view-properties 1.16.8 (above ui-view fix/view-set-j1's 1.12.5 and
+  // 1.16.7): the first-paint snapshots retaken over the group build, and
+  // sf-view's declared first-paint size 20 KiB -> 24 KiB (its reference and
+  // open-record markup is 21.3 KiB with the group build's checkbox and input
+  // parts). The patches for simai/ui-view are ui-control
+  // control/evidence/2026-11-17-pro-over-gb9/view-gb9.patch and view-properties-gb9.patch.
+  'view': {tree: 'c1afd63456d3356e8685bf0ab8e418fbdeebd114', patch: 'over group build 9 (ui-source 3d55e44d7), first-paint snapshots retaken and the declared size 24 KiB, sf-view 1.12.6 (2026-11-17)'},
   // Over ui-994f9db407fa (2026-11-15), sf-view-properties 1.16.1: the panel takes
   // back the drawer's own block padding (--sf-drawer--inset) and the skeleton's
   // tab strip stands over the tabs' hairline, as ui-pro 4059d01. Over
@@ -53,7 +61,7 @@ const PATCHED = {
   // interim is gone; a panel that fills the screen keeps its title clear of
   // the edge controls sf-drawer 1.16 draws in its head. simai/ui-view takes the
   // same when it moves to that pair.
-  'view-properties': {tree: '851f49d13ff226b0b01f918506f76aa322e066c7', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16)'},
+  'view-properties': {tree: 'd4140b4e832ec79e6c96bc9e3076f881b6ecdbb1', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17)'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
@@ -76,7 +84,7 @@ const PATCHED = {
   // frame (PRO-ADM-12: «ResizeObserver loop completed» at 390 on every load),
   // and the icon buttons ghost, not the dated link look (C15); its patch for
   // simai/ui-view is ui-control control/evidence/2026-11-17-pro-over-gb9/view-table-gb9.patch.
-  'view-table': {tree: '0ccd5152cc55be52a31d25a76d88e12a913fe351', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), sf-view-table 1.20.4 (2026-11-17)'},
+  'view-table': {tree: '1746773fff08b18791c3572a645acda7c655e460', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), first-paint snapshots retaken, sf-view-table 1.20.4 (2026-11-17)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

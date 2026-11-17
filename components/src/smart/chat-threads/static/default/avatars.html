@@ -5,92 +5,85 @@
 <div class="sf-thread-list__scroller">
 <sf-list class="sf-thread-list__rows" heading-level="2" label="Разговоры" group-by="day" empty-text="Разговоров пока нет" selected renamable style="display: contents;">
 <div class="sf-list sf-list__frame sf-list--size-1 " role="group" aria-label="Разговоры" aria-busy="false" data-sf-static>
+<span class="sf-list__width" aria-hidden="true"></span>
 
 <div class="sf-list__body" data-sf-list>
 
 <section class="sf-list__group" data-group="day:0">
-<div class="sf-list__heading" role="heading" aria-level="2" id="sf-chat-threads-avatars-1">Сегодня</div>
+<div role="heading" class="sf-group-heading sf-list__heading" aria-level="2" id="sf-chat-threads-avatars-1">Сегодня <sf-time class="sf-group-heading-date" format="date" tooltip="none" datetime="2026-10-27T09:00:00.000Z" style="display: contents;"><time class="sf-time" datetime="2026-10-27T09:00:00.000Z" data-sf-static>27 октября</time></sf-time></div>
 
 <ul class="sf-list__rows" aria-labelledby="sf-chat-threads-avatars-1">
 
-<li class="sf-list__row " data-id="t1">
+<li class="sf-list__row  " data-id="t1">
 <sf-list-item interactive kind="icon" size="1" value="t1" text="Анна Смирнова" style="display: contents;" data-sf-size-relative>
 <div class="sf-list-item flex items-cross-center sf-list-item--icon sf-list-item--size-1 sf-list-item--interactive" data-sf-list-roving tabindex="0" data-sf-static>
 
-<div class="sf-list-item-wrap flex flex-1 flex flex-row flex-nowrap items-center gap-2">
-<span slot="leading" class="sf-list__lead"><sf-avatar aria-hidden="true" hue="auto" aria-label="Анна Смирнова" size="1" line="1" shape="circle" text="АС" style="display: contents;">
-<button type="button" class="sf-avatar transition flex-none sf-avatar--size-1 sf-avatar--line-1 inline-flex sf-avatar--text items-cross-center content-main-center sf-hue-green" style aria-label="Анна Смирнова" data-sf-static>
-<span class="sf-avatar-text">АС</span>  
-</button>
-</sf-avatar></span> <div class="sf-list-item-container">Анна Смирнова</div> <span slot="trailing" class="sf-list__meta"></span>
+<div class="sf-list-item-wrap flex flex-1 flex flex-row flex-nowrap items-center">
+<span slot="leading" class="sf-list__lead"><span aria-hidden="true" class="sf-avatar sf-avatar--picture sf-avatar--size-1 sf-avatar--line-1 sf-avatar--text sf-hue-green"><span class="sf-avatar-text">АС</span></span></span> <div class="sf-list-item-container">Анна Смирнова</div> <span slot="trailing" class="sf-list__meta"></span>
 </div>
 </div>
 </sf-list-item>
-<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Анна Смирнова" title="Действия: Анна Смирнова"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
+<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Анна Смирнова" title="Действия: Анна Смирнова"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
 </li>
 
 </ul>
 
 </section>
 <section class="sf-list__group" data-group="day:-1">
-<div class="sf-list__heading" role="heading" aria-level="2" id="sf-chat-threads-avatars-2">Вчера</div>
+<div role="heading" class="sf-group-heading sf-list__heading" aria-level="2" id="sf-chat-threads-avatars-2">Вчера <sf-time class="sf-group-heading-date" format="date" tooltip="none" datetime="2026-10-26T15:00:00.000Z" style="display: contents;"><time class="sf-time" datetime="2026-10-26T15:00:00.000Z" data-sf-static>26 октября</time></sf-time></div>
 
 <ul class="sf-list__rows" aria-labelledby="sf-chat-threads-avatars-2">
 
-<li class="sf-list__row " data-id="t2">
+<li class="sf-list__row  " data-id="t2">
 <sf-list-item interactive kind="icon" size="1" value="t2" text="Планёрка отдела" style="display: contents;" data-sf-size-relative>
 <div class="sf-list-item flex items-cross-center sf-list-item--icon sf-list-item--size-1 sf-list-item--interactive" data-sf-list-roving tabindex="-1" data-sf-static>
 
-<div class="sf-list-item-wrap flex flex-1 flex flex-row flex-nowrap items-center gap-2">
-<span slot="leading" class="sf-list__lead"><sf-avatar aria-hidden="true" hue="auto" aria-label="Планёрка отдела" size="1" line="1" shape="square" text="ПО" style="display: contents;">
-<button type="button" class="sf-avatar transition flex-none sf-avatar--size-1 sf-avatar--line-1 inline-flex sf-avatar--text items-cross-center content-main-center sf-hue-purple sf-avatar--square" style aria-label="Планёрка отдела" data-sf-static>
-<span class="sf-avatar-text">ПО</span>  
-</button>
-</sf-avatar></span> <div class="sf-list-item-container">Планёрка отдела</div> <span slot="trailing" class="sf-list__meta"></span>
+<div class="sf-list-item-wrap flex flex-1 flex flex-row flex-nowrap items-center">
+<span slot="leading" class="sf-list__lead"><span aria-hidden="true" class="sf-avatar sf-avatar--picture sf-avatar--size-1 sf-avatar--line-1 sf-avatar--text sf-hue-purple sf-avatar--square"><span class="sf-avatar-text">ПО</span></span></span> <div class="sf-list-item-container">Планёрка отдела</div> <span slot="trailing" class="sf-list__meta"></span>
 </div>
 </div>
 </sf-list-item>
-<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Планёрка отдела" title="Действия: Планёрка отдела"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
+<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Планёрка отдела" title="Действия: Планёрка отдела"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
 </li>
 
 </ul>
 
 </section>
 <section class="sf-list__group" data-group="day:-7">
-<div class="sf-list__heading" role="heading" aria-level="2" id="sf-chat-threads-avatars-3">20 октября</div>
+<div role="heading" class="sf-group-heading sf-list__heading" aria-level="2" id="sf-chat-threads-avatars-3">20 октября</div>
 
 <ul class="sf-list__rows" aria-labelledby="sf-chat-threads-avatars-3">
 
-<li class="sf-list__row " data-id="t3">
+<li class="sf-list__row  " data-id="t3">
 <sf-list-item interactive kind="icon" size="1" value="t3" text="Новости компании" style="display: contents;" data-sf-size-relative>
 <div class="sf-list-item flex items-cross-center sf-list-item--icon sf-list-item--size-1 sf-list-item--interactive" data-sf-list-roving tabindex="-1" data-sf-static>
 
-<div class="sf-list-item-wrap flex flex-1 flex flex-row flex-nowrap items-center gap-2">
-<span slot="leading" class="sf-list__lead"><span aria-hidden="true" class="sf-list__sign sf-avatar sf-avatar--size-1 sf-avatar--line-1 sf-avatar--placeholder sf-avatar--square inline-flex flex-none items-cross-center content-main-center"><sf-icon aria-hidden="true" icon="campaign" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>campaign</i></sf-icon></span></span> <div class="sf-list-item-container">Новости компании</div> <span slot="trailing" class="sf-list__meta"></span>
+<div class="sf-list-item-wrap flex flex-1 flex flex-row flex-nowrap items-center">
+<span slot="leading" class="sf-list__lead"><span aria-hidden="true" class="sf-avatar sf-avatar--picture sf-avatar--size-1 sf-avatar--line-1 sf-avatar--placeholder sf-avatar--square sf-list__sign"><sf-icon aria-hidden="true" icon="campaign" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>campaign</i></sf-icon></span></span> <div class="sf-list-item-container">Новости компании</div> <span slot="trailing" class="sf-list__meta"></span>
 </div>
 </div>
 </sf-list-item>
-<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Новости компании" title="Действия: Новости компании"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
+<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Новости компании" title="Действия: Новости компании"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
 </li>
 
 </ul>
 
 </section>
 <section class="sf-list__group" data-group="day:-8">
-<div class="sf-list__heading" role="heading" aria-level="2" id="sf-chat-threads-avatars-4">19 октября</div>
+<div role="heading" class="sf-group-heading sf-list__heading" aria-level="2" id="sf-chat-threads-avatars-4">19 октября</div>
 
 <ul class="sf-list__rows" aria-labelledby="sf-chat-threads-avatars-4">
 
-<li class="sf-list__row " data-id="t4">
+<li class="sf-list__row  " data-id="t4">
 <sf-list-item interactive kind="icon" size="1" value="t4" text="Сборщик отчётов" style="display: contents;" data-sf-size-relative>
 <div class="sf-list-item flex items-cross-center sf-list-item--icon sf-list-item--size-1 sf-list-item--interactive" data-sf-list-roving tabindex="-1" data-sf-static>
 
-<div class="sf-list-item-wrap flex flex-1 flex flex-row flex-nowrap items-center gap-2">
-<span slot="leading" class="sf-list__lead"><span aria-hidden="true" class="sf-list__sign sf-avatar sf-avatar--size-1 sf-avatar--line-1 sf-avatar--placeholder  inline-flex flex-none items-cross-center content-main-center"><sf-icon aria-hidden="true" icon="bolt" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>bolt</i></sf-icon></span></span> <div class="sf-list-item-container">Сборщик отчётов</div> <span slot="trailing" class="sf-list__meta"></span>
+<div class="sf-list-item-wrap flex flex-1 flex flex-row flex-nowrap items-center">
+<span slot="leading" class="sf-list__lead"><span aria-hidden="true" class="sf-avatar sf-avatar--picture sf-avatar--size-1 sf-avatar--line-1 sf-avatar--placeholder sf-list__sign"><sf-icon aria-hidden="true" icon="bolt" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>bolt</i></sf-icon></span></span> <div class="sf-list-item-container">Сборщик отчётов</div> <span slot="trailing" class="sf-list__meta"></span>
 </div>
 </div>
 </sf-list-item>
-<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Сборщик отчётов" title="Действия: Сборщик отчётов"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--weight-regular" style="--sf-icon--grade:0;--sf-icon--optical-size:24" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
+<button type="button" tabindex="-1" aria-haspopup="menu" class="sf-list__actions sf-icon-button sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface sf-icon-button--size-1 flex items-cross-center content-main-center flex-none" aria-label="Действия: Сборщик отчётов" title="Действия: Сборщик отчётов"><sf-icon icon="more_horiz" aria-hidden="true" style="display: contents;"><i class="sf-icon" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon></button>
 </li>
 
 </ul>
@@ -99,9 +92,6 @@
 </div>
 
 <div class="sf-list__next" hidden></div>
-<sf-menu-context class="sf-list__menu" popup style="display: contents;">
-<div class="sf-context-menu" role="menu" data-sf-static></div>
-</sf-menu-context>
 </div>
 </sf-list>
 <p class="sf-thread-list__status" role="status" hidden></p>

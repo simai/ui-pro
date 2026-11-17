@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.16.4",
+  "version": "1.16.8",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1641,6 +1641,13 @@
         "changes": [
           "A record, a relation, a user and a paged lookup field are edited in sf-input-lookup again (field-renderers 1.9.0, owner decision C139 (1)): SIMAI Framework ui-078a4b4c6f6e carries smart.input-lookup in pro.package.json (cl-view-properties requires it), so the panel no longer asks the renderers for the searchable sf-dropdown (the 1.16.2 interim is removed) and the rule relates cl-input-lookup (lazy). Focus asks the host for the first page (the quiet page asked as the group opens is reused), typing searches through loadFieldOptions, «Show more» follows the cursor, and the chosen value is written as {value, label}. A row's caption, avatar ({src} or {initials}, or avatarText) and icon reach the lookup as the host sends them in options_page.items; property-view-port 1.18.0 names only value and label, so a host that wants them needs the port to say so. A short list given whole stays sf-dropdown. As ui-pro d032639 (fix/pro-g4, 1.15.0 there); 1.16.3 is held by simai/ui-view.",
           "A panel that fills the screen keeps the record's name clear of its edge controls again: since sf-drawer 1.16.0 (C157 (2), C14) the drawer draws them in its head's row at the end (data-sf-drawer-edge-in-head) and says their room (--sf-drawer-edge-room); the head was still padded for a strip at its start, so on a phone the name stood from 144 to 304 under the close and copy-link (250 to 330). It now starts on the panel's axis and stops a step (--sf-space-1/3) short of that room. Nothing to change for a host."
+        ]
+      },
+      {
+        "from": "1.16.4",
+        "to": "1.16.8",
+        "changes": [
+          "The first-paint pass for SIMAI Framework group build 9 (ui-source 3d55e44d7). The first-paint snapshot is retaken over the group build. Settings, values, events and actions are unchanged. The number is above 1.16.7, which simai/ui-view fix/view-set-j1 holds."
         ]
       }
     ]
