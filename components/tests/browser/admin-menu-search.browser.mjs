@@ -535,23 +535,26 @@ try {
   // 8. The row searches as the panel does (owner decision C276, PRO-ADM-2):
   // the end of a word is dropped, so «роль» finds «Роли», and the host is
   // asked (sf-admin-menu-query) for what the menu cannot know, «1042».
+  // search() waits for typing to stop and the host is asked 250 ms after
+  // that, so each query is given 900 ms.
   const asked = await legacy.evaluate(async () => {
     const menu = document.getElementById('m');
     const queries = [];
     menu.addEventListener('sf-admin-menu-query', (event) => queries.push(event.detail?.query ?? null));
     const wait = (ms) => new Promise((done) => setTimeout(done, ms));
     menu.search('роль');
-    await wait(450);
+    await wait(900);
     const panel = menu.querySelector('.sf-admin-menu-panel-search');
     const found = [...(panel?.querySelectorAll('.sf-admin-menu-search-results .sf-admin-menu-item') ?? [])]
       .map((item) => item.textContent.replace(/\s+/gu, ' ').trim());
     const open = Boolean(panel?.classList.contains('open'));
     menu.search('1042');
-    await wait(450);
+    await wait(900);
     return {open, found, queries};
   });
   console.error(JSON.stringify({rowSearch: asked}));
-  if (!asked.open || !asked.found.some((text) => text.startsWith('Роли'))) {
+  // A row's text starts with its icon's ligature («badge Роли Безопасность»).
+  if (!asked.open || !asked.found.some((text) => /(^|\s)Роли(\s|$)/u.test(text))) {
     note({case: 'row search stem (C276)', got: asked, expected: 'the search panel open with «Роли» for «роль»'});
   }
   if (!asked.queries.includes('1042')) {
