@@ -570,7 +570,7 @@
       },
       {
         "path": "src/smart/chat-composer/js/templates/parts.js",
-        "sha256": "39a3af446ba4d89441eca034c4639ce2b8191538a3414afa974daea56c08ec0c"
+        "sha256": "3312ffa0b5322cda95dab9551236552bc95e3ee247d9bdaacf7cbb9eddd65ef8"
       },
       {
         "path": "src/smart/chat-composer/js/templates/default.css",
@@ -586,7 +586,7 @@
       },
       {
         "path": "src/smart/chat-composer/component.json",
-        "sha256": "e012ab3d2e7dc89d9678200511102c8510b089bada7cfdc484e1acf9d6ba9fc3"
+        "sha256": "f080dbabe88c6b03d28dcfb748794ec2fe2724b2eec234d65d4ab83fc428b11f"
       },
       {
         "path": "src/smart/chat-composer/aliases.json",

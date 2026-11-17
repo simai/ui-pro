@@ -75,7 +75,7 @@ export class PreviewView {
     meta.className = 'chat-preview__meta';
     titles.append(title, meta);
     const tab = doc.createElement('a');
-    tab.className = 'sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--link sf-icon-button--on-surface flex items-cross-center content-main-center chat-preview__tab';
+    tab.className = 'sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface flex items-cross-center content-main-center chat-preview__tab';
     tab.target = '_blank';
     tab.rel = 'noopener';
     tab.setAttribute('aria-label', this.words('preview.newTab'));

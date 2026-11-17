@@ -97,7 +97,7 @@ export function iconNode(ctx, name, className = '', size = '') {
 const ICON_IN_BUTTON = { '1/3': '1', '1/2': '1', 1: '2', 2: '2', 3: '3' };
 
 /** A Framework icon button: one native button, a decorative icon, a required name. */
-export function iconButton(ctx, { icon, label, appearance = 'link', scheme = 'on-surface', size = '1/2', pressed, className = '' }) {
+export function iconButton(ctx, { icon, label, appearance = 'ghost', scheme = 'on-surface', size = '1/2', pressed, className = '' }) {
   const button = element(ctx, 'button', [
     'sf-icon-button', `sf-icon-button--size-${size}`, 'sf-icon-button--icon',
     // The Framework's own icon-button markup centres on both axes.

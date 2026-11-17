@@ -16,7 +16,7 @@ const ICON_IN_BUTTON = {"1/3": "1", "1/2": "1", "1": "2", "2": "2", "3": "3"};
 export function iconButton({
     icon,
     label,
-    appearance = "link",
+    appearance = "ghost",
     scheme = "on-surface",
     size = "1/2",
     className = "",
