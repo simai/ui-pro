@@ -43,8 +43,8 @@ function renderVariant(context, place, item) {
     `;
 }
 
-// The Library: the search field, the category chips («Все» and one per group,
-// when there is more than one group), the groups the search and the category
+// The Library: the search field, the category switch (an sf-segmented: «Все»
+// and one per group, when there is more than one group), the groups the search and the category
 // leave, then the places («Шапка и подвал») while «Все» is chosen, and the
 // empty state when nothing is left.
 export function renderMailLibraryTemplate(context) {
@@ -54,10 +54,10 @@ export function renderMailLibraryTemplate(context) {
                       value=${context.query}
                       @input=${(event) => context.component.search({query: event.target?.value ?? event.detail?.value ?? ""})}></sf-input>
             ${context.chips.length
-                ? html`<div class="sf-mail-library-chips" role="group" aria-label=${context.categoryLabel}>
-                    ${context.chips.map((chip) => html`<sf-button size="1/2" appearance=${chip.id === context.category ? "tonal" : "ghost"} scheme=${chip.id === context.category ? "primary" : "on-surface"}
-                        text=${chip.title} data-category=${chip.id} aria-pressed=${String(chip.id === context.category)}
-                        @click=${() => context.component.filter({category: chip.id})}></sf-button>`)}
+                ? html`<div class="sf-mail-library-chips">
+                    <sf-segmented size="1/2" aria-label=${context.categoryLabel}
+                        .items=${context.chips.map((chip) => ({value: chip.id, label: chip.title}))} .value=${context.category}
+                        @change=${(event) => context.component.filter({category: event.detail?.value})}></sf-segmented>
                 </div>`
                 : nothing}
             <div class="sf-mail-library-groups">

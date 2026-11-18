@@ -1,5 +1,5 @@
-// Docs round 4 found five things in the Pro components, not in the docs
-// (ui-control evidence 2026-11-18-docs-fixes, items DF-10..DF-14; this
+// Docs round 4 found these in the Pro components, not in the docs
+// (ui-control evidence 2026-11-18-docs-fixes, items DF-10..DF-14 and DF-16; this
 // branch's evidence 2026-11-18-df10-pro). Each is held here by what the
 // source says; the browser half is the probe in that evidence.
 import assert from 'node:assert/strict';
@@ -74,4 +74,18 @@ test('DF-14: a failed answer outside a window always offers its retry', () => {
   const hiding = [...sheet.matchAll(/([^{}]*\.sf-chat-notice__action)\s*\{\s*display:\s*none;?\s*\}/gu)].map((match) => match[1].trim());
   assert.deepEqual(hiding, ['sf-chat-window .sf-chat-message--failed:not(.sf-chat-message--last) .sf-chat-notice__action']);
   assert.equal(json('chat-message/component.json').version, '1.9.2');
+});
+
+test('DF-16: the Library chooses its category with sf-segmented, not a row of toggles (C211 (1))', () => {
+  const template = code('mail-library/js/templates/default.js');
+  const chips = template.slice(template.indexOf('sf-mail-library-chips'), template.indexOf('sf-mail-library-groups'));
+  assert.ok(chips.length > 0, 'the category row is found');
+  assert.match(chips, /<sf-segmented size="1\/2" aria-label=\$\{context\.categoryLabel\}/u);
+  assert.match(chips, /\.value=\$\{context\.category\}/u);
+  assert.match(chips, /filter\(\{category: event\.detail\?\.value\}\)/u);
+  assert.doesNotMatch(chips, /sf-button|aria-pressed/u, 'no toggle buttons for a choice of one');
+  const component = json('mail-library/component.json');
+  assert.equal(component.version, '1.0.7');
+  const relations = component.relations.map((relation) => relation.name);
+  assert.ok(relations.includes('cl-segmented') && !relations.includes('cl-button'));
 });

@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "id": "smart.mail-library",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "title": "Email block library",
-  "summary": "The blocks a letter of SIMAI Email Editor can take, grouped by what they are for, with category chips, a search over their names and purposes, and the variants of the letter's header and footer. A row adds its block or replaces its variant; the element raises an event and never touches a letter.",
+  "summary": "The blocks a letter of SIMAI Email Editor can take, grouped by what they are for, with a category switch, a search over their names and purposes, and the variants of the letter's header and footer. A row adds its block or replaces its variant; the element raises an event and never touches a letter.",
   "kind": "smart",
   "reuse_mode": "whole",
   "lifecycle": "experimental",
@@ -26,10 +26,10 @@
   "exported_parts": [],
   "composition": {
     "uses": [
-      "smart.button",
       "smart.empty-state",
       "smart.icon",
-      "smart.input"
+      "smart.input",
+      "smart.segmented"
     ],
     "public_parts": []
   },
@@ -44,11 +44,13 @@
       },
       "root-class": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Classes added to the root element the component draws."
       },
       "root-style": {
         "type": "string",
-        "default": ""
+        "default": "",
+        "description": "Inline style declarations set on the root element the component draws, custom properties included."
       },
       "query": {
         "type": "string",
@@ -58,7 +60,7 @@
       "category": {
         "type": "string",
         "default": "all",
-        "description": "all, or the id of one group, as its chip would set it. An id no group has shows every group, so a stale filter never leaves the Library empty."
+        "description": "all, or the id of one group, as its segment of the category switch would set it. An id no group has shows every group, so a stale filter never leaves the Library empty."
       },
       "items": {
         "type": "array",
@@ -111,7 +113,7 @@
             "title"
           ]
         },
-        "description": "The groups in the order they are shown: {id, title}. With more than one, the chips «Все» and one per group are drawn above the rows."
+        "description": "The groups in the order they are shown: {id, title}. With more than one, the category switch «Все» and one per group is drawn above the rows."
       },
       "places": {
         "type": "array",
@@ -214,9 +216,19 @@
       "summary": "Search as the field does: sets query and filters at once.",
       "arguments": [
         {
-          "name": "query",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "query"
+            ]
           }
         }
       ],
@@ -226,12 +238,22 @@
       }
     },
     "filter": {
-      "summary": "Show one group, or all, as its chip would.",
+      "summary": "Show one group, or all, as its segment of the category switch would.",
       "arguments": [
         {
-          "name": "category",
+          "name": "args",
+          "type": "object",
+          "required": true,
           "schema": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "category"
+            ]
           }
         }
       ],
@@ -244,8 +266,18 @@
       "summary": "Add a block as its row would: sends add {type}; refused unknown for a type no item has.",
       "arguments": [
         {
-          "name": "type",
-          "schema": {}
+          "name": "args",
+          "type": "object",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "type": {}
+            },
+            "required": [
+              "type"
+            ]
+          }
         }
       ],
       "returns": {
@@ -257,12 +289,20 @@
       "summary": "Choose a variant of a place as its row would: sends replace {family, type}; refused current for the variant the letter has now.",
       "arguments": [
         {
-          "name": "family",
-          "schema": {}
-        },
-        {
-          "name": "type",
-          "schema": {}
+          "name": "args",
+          "type": "object",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "family": {},
+              "type": {}
+            },
+            "required": [
+              "family",
+              "type"
+            ]
+          }
         }
       ],
       "returns": {
@@ -349,7 +389,7 @@
       "Enter",
       "Space"
     ],
-    "focus": "The search field comes first, then the category chips (sf-button with aria-pressed, in a group named «Категория»), then every row as an ordinary button; Enter or Space adds its block or replaces the variant. A group is a role=group named by its title, and the title text is hidden from assistive technology so it is not read twice. A row's accessible name is its own words -- the block's name and purpose -- followed by the action; a variant row says «сейчас в письме» for the current one and carries aria-pressed. Icons are decorative."
+    "focus": "The search field comes first, then the category switch (sf-segmented named «Категория»: one radio per group and «Все», one Tab stop, the arrows move the choice), then every row as an ordinary button; Enter or Space adds its block or replaces the variant. A group is a role=group named by its title, and the title text is hidden from assistive technology so it is not read twice. A row's accessible name is its own words -- the block's name and purpose -- followed by the action; a variant row says «сейчас в письме» for the current one and carries aria-pressed. Icons are decorative."
   },
   "presentation": {
     "themes": [
@@ -420,23 +460,23 @@
       },
       {
         "path": "src/smart/mail-library/js/templates/default.js",
-        "sha256": "747fee19a5dcbc33a7d9220a29e08a2f5065226943de05c9773d938b489bcc15"
+        "sha256": "680538232755e8eb0486241cfa63ce646a96ad2c760cfeb79b858d5f2e735133"
       },
       {
         "path": "src/smart/mail-library/js/templates/default.css",
-        "sha256": "2e3a294cab8bd17fadd26abc46f6ffc78df9961611cd42c8850d08f6961a2323"
+        "sha256": "e6ec98d25cd355175ae2e339234d0bdd682c0cc69167b13f9001ed282ea00512"
       },
       {
         "path": "src/smart/mail-library/rule.js",
-        "sha256": "4936a7400ae6b9ef16df02bc6f1e738866b193e5f2deaa7cf3f615dd6ab77be9"
+        "sha256": "69fac04ffca6b519d697fcb7feaa338a7f26bd2a286fff4721ced3b5630cc4c9"
       },
       {
         "path": "src/smart/mail-library/docs.md",
-        "sha256": "e6f4bf1c0fa3c54b6d5415c94be8940de5a15fc3fd075378f4df1b4b61be6dc1"
+        "sha256": "67357e5fd00a0605a75beeb024f071336250ce692bfe911c5479f118f57ec49e"
       },
       {
         "path": "src/smart/mail-library/component.json",
-        "sha256": "8dd5eec3e348355dcbb9fd7049f53f7244721f5ec28adc39fcdb363d8ee843d0"
+        "sha256": "54b6b222246a376d42859fb583f8f54ae8cd219b22200d84030ed7c0f84ba513"
       },
       {
         "path": "src/smart/mail-library/lang/en.json",

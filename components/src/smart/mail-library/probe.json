@@ -165,18 +165,18 @@
     },
     {
       "id": "p6-chips",
-      "title": "the chips are «Все» and one per group, «Все» pressed; a chip shows its group only and hides the places; «Все» brings them back",
+      "title": "the category switch is «Все» and one per group, «Все» chosen; a segment shows its group only and hides the places; «Все» brings them back",
       "covers": "settings.category, actions.filter, runtime.all-text, runtime.category-label",
       "steps": [
         {
           "script": "true",
           "wait": 60,
-          "check": "[...document.querySelectorAll('#library .sf-mail-library-chips button[data-category]')].map((chip) => `${chip.dataset.category}:${chip.getAttribute('aria-pressed')}`).join(',') === 'all:true,basics:false,commerce:false' && document.querySelector('#library .sf-mail-library-chips').getAttribute('aria-label') === 'Категория' && document.querySelector('#library button[data-category=\"all\"]').textContent.trim() === 'Все'"
+          "check": "[...document.querySelectorAll('#library .sf-mail-library-chips sf-segmented button[role=\"radio\"]')].map((segment) => `${segment.dataset.sfButtonGroupValue}:${segment.getAttribute('aria-checked')}`).join(',') === 'all:true,basics:false,commerce:false' && document.querySelector('#library .sf-mail-library-chips [role=\"radiogroup\"]').getAttribute('aria-label') === 'Категория' && document.querySelector('#library .sf-mail-library-chips button[data-sf-button-group-value=\"all\"]').textContent.trim() === 'Все' && document.querySelectorAll('#library .sf-mail-library-chips [aria-pressed]').length === 0"
         },
         {
-          "user": "click:#library button[data-category=\"commerce\"]",
+          "user": "click:#library .sf-mail-library-chips button[data-sf-button-group-value=\"commerce\"]",
           "wait": 300,
-          "check": "[...document.querySelectorAll('#library [data-add]')].map((row) => row.dataset.add).join(',') === 'price' && document.querySelectorAll('#library [data-variant]').length === 0 && document.querySelector('#library button[data-category=\"commerce\"]').getAttribute('aria-pressed') === 'true' && document.querySelector('#library').category === 'commerce'"
+          "check": "[...document.querySelectorAll('#library [data-add]')].map((row) => row.dataset.add).join(',') === 'price' && document.querySelectorAll('#library [data-variant]').length === 0 && document.querySelector('#library .sf-mail-library-chips button[data-sf-button-group-value=\"commerce\"]').getAttribute('aria-checked') === 'true' && document.querySelector('#library').category === 'commerce'"
         },
         {
           "action": {
@@ -204,7 +204,7 @@
         {
           "script": "true",
           "wait": 60,
-          "check": "[...document.querySelectorAll('#stale [data-add]')].map((row) => row.dataset.add).join(',') === 'heading,text,price' && document.querySelector('#stale button[data-category=\"all\"]').getAttribute('aria-pressed') === 'true'"
+          "check": "[...document.querySelectorAll('#stale [data-add]')].map((row) => row.dataset.add).join(',') === 'heading,text,price' && document.querySelector('#stale .sf-mail-library-chips button[data-sf-button-group-value=\"all\"]').getAttribute('aria-checked') === 'true'"
         }
       ]
     },

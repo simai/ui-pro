@@ -2,7 +2,7 @@
   "$comment": "The source of sf-mail-library's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Moved from simai/ui-mail package/src/smart/mail-library (smart.manifest.json 0.2.0, ui-mail 330720b) by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. The name stays sf-mail-library (owner decision q-08d1979fc9). Written by hand in the 1.4 form on the shape of sf-chat-interlocutor; x-decisions says how each point was decided.",
   "id": "smart.mail-library",
   "tag": "sf-mail-library",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "kind": "leaf",
   "family": "list",
   "settings": {
@@ -44,7 +44,7 @@
         "key": "id",
         "changes": "content"
       },
-      "summary": "The groups in the order they are shown: {id, title}. With more than one, the chips «Все» and one per group are drawn above the rows."
+      "summary": "The groups in the order they are shown: {id, title}. With more than one, the category switch «Все» and one per group is drawn above the rows."
     },
     "places": {
       "type": "list",
@@ -72,7 +72,7 @@
     "category": {
       "type": "string",
       "default": "all",
-      "summary": "all, or the id of one group, as its chip would set it. An id no group has shows every group, so a stale filter never leaves the Library empty."
+      "summary": "all, or the id of one group, as its segment of the category switch would set it. An id no group has shows every group, so a stale filter never leaves the Library empty."
     }
   },
   "values": {},
@@ -117,8 +117,8 @@
       "x-outcomes": [
         "applied"
       ],
-      "x-summary": "a chip's press: the setting category (all or a group's id)",
-      "summary": "Show one group, or all, as its chip would.",
+      "x-summary": "a segment chosen in the category switch: the setting category (all or a group's id)",
+      "summary": "Show one group, or all, as its segment of the category switch would.",
       "x-returns": {
         "type": "object",
         "description": "{outcome: applied}"
@@ -171,7 +171,7 @@
       "name": "cl-input"
     },
     {
-      "name": "cl-button"
+      "name": "cl-segmented"
     },
     {
       "name": "cl-icon"
@@ -205,11 +205,11 @@
       "Enter": "add",
       "Space": "add"
     },
-    "x-keys": "the search field first, then the category chips, then every row as an ordinary button in the Tab order; Enter or Space on a row adds its block or replaces the variant"
+    "x-keys": "the search field first, then the category switch (one Tab stop, the arrows move the choice), then every row as an ordinary button in the Tab order; Enter or Space on a row adds its block or replaces the variant"
   },
   "host-states": {},
   "css-variables": {},
-  "x-summary": "The blocks a letter of SIMAI Email Editor can take, grouped by what they are for, with category chips, a search over their names and purposes, and the variants of the letter's header and footer. A row adds its block or replaces its variant; the element raises an event and never touches a letter.",
+  "x-summary": "The blocks a letter of SIMAI Email Editor can take, grouped by what they are for, with a category switch, a search over their names and purposes, and the variants of the letter's header and footer. A row adds its block or replaces its variant; the element raises an event and never touches a letter.",
   "x-source": {
     "package": "ui-pro",
     "folder": "mail-library",
@@ -228,25 +228,26 @@
   "x-decisions": [
     "version: 0.2.0 in simai/ui-mail → 1.0.0 here: the first release, in ui-pro, of a tag ui-mail never released.",
     "names: sf-mail-library stays (owner decision q-08d1979fc9) and keeps the Framework's sf- prefix, as the package's other elements do.",
-    "shape: a leaf. It places sf-input, sf-button chips, sf-icon rows and sf-empty-state as its own markup; no part is in a role a rule could bind.",
+    "shape: a leaf. It places sf-input, an sf-segmented category switch, sf-icon rows and sf-empty-state as its own markup; no part is in a role a rule could bind.",
     "events: add {type} and replace {family, type} are verbs of this element (vocabulary §5.1): adding a block of a type to a letter is not create (the Library makes nothing, it names a kind for the host), and replacing a place's variant is not select (local) or change (a value the element holds). Neither is cancelable: the element changes nothing, so there is nothing to undo.",
     "items, groups, places: data, not a dependency. The host passes them in the person's language, in the order they are shown, so the element works for any block library and knows nothing of the editor's manifest format.",
-    "category: a stale id (a group the host no longer gives) shows every group, never an empty Library; the chips are drawn only with more than one group.",
+    "category: a stale id (a group the host no longer gives) shows every group, never an empty Library; the category switch is drawn only with more than one group.",
     "places: the «Шапка и подвал» section shows with «Все» only -- a category is about content. The current variant is marked (is-selected, aria-pressed=true, a tick, «сейчас в письме» for a screen reader) and replace answers refused current for it.",
     "a11y-name: a row's accessible name is its own words -- the block's name and purpose -- and then the action, so a voice command with the block's name reaches it (WCAG 2.5.3); the icons are aria-hidden, a group is role=group named by its title and the title text is hidden so it is not read twice.",
-    "first paint (§5.4): no late data. The editor's blocks come from its own manifest with the page, together with the groups and places; the printed markup is the search field, the chips and the rows. A host that loads its blocks later holds its own skeleton.",
+    "first paint (§5.4): no late data. The editor's blocks come from its own manifest with the page, together with the groups and places; the printed markup is the search field, the category switch and the rows. A host that loads its blocks later holds its own skeleton.",
     "words: lang/ru.json and lang/en.json; ru is the source language (the ui-mail words were written in Russian first). The own verbs' words are events.<verb>.label.",
     "css-variables: none yet. Every value is a Framework token, as it was in ui-mail.",
     "self-contained: nothing from simai/ui-mail is imported.",
     "version 1.0.3 (2026-11-09): a patch (no visible change). A category chip that is not chosen asks for appearance=\"ghost\", the look SIMAI Framework now calls ghost (decision C15, sf-button 1.7.0 and sf-button-icon of the pair ui-d6f01121baca); link is its former name, a dated alias until 2027-01-01, drawn the same. Settings, values and events are unchanged.",
     "version 1.0.4 (2026-11-09): a patch (first paint only). The first-paint snapshots are retaken over SIMAI Framework ui-cb287da78ab1 (the pair's elements now print data-sf-size-relative on sf-icon and the other markup of that pair); static/sheets.json is unchanged (no sheet drift). Code, settings, values and events are unchanged.",
     "version 1.0.5 (2026-11-10): a patch (first paint only). The first-paint snapshots are retaken over SIMAI Framework ui-a0370c0c99fb: the pair's sf-input prints one more empty text node (its shortcut place, C38), whitespace only. Settings, values and events are unchanged.",
-    "version 1.0.6 (2026-11-17): a patch, for SIMAI Framework group build 9 (ui-source 3d55e44d7). The first-paint snapshots and sheet list are retaken over the group build. Settings, values, events and actions are unchanged. The number is above 1.0.5, the highest on any ui-pro branch and in the released pro-589ced99cfbd."
+    "version 1.0.6 (2026-11-17): a patch, for SIMAI Framework group build 9 (ui-source 3d55e44d7). The first-paint snapshots and sheet list are retaken over the group build. Settings, values, events and actions are unchanged. The number is above 1.0.5, the highest on any ui-pro branch and in the released pro-589ced99cfbd.",
+    "version 1.0.7 (2026-11-18): a patch (docs finding DF-16). The category chips were a row of sf-button with aria-pressed, the chosen one tonal primary: a screen reader heard toggles, the look was not the pressed look, and the pair's sf-button docs say a choice of one among several is no row of toggles -- write sf-segmented (owner decision C211 (1)). The chips are now one sf-segmented (size 1/2, the track look) named «Категория», its items «Все» and one per group; the chosen segment takes the pair's plate, the others are radios with aria-checked=false, Tab reaches the switch once and the arrows move the choice. The row still scrolls sideways when the groups outgrow the panel. The rule relation cl-button becomes cl-segmented. Settings, values, events and actions are unchanged (filter({category}) is what a segment calls). The number is above 1.0.6, the highest on any ui-pro branch and in the released pro-a57887949f9a."
   ],
   "x-rule": {
     "$comment": [
-      "The Library draws its search field as sf-input, the category chips as",
-      "sf-button, the row icons as sf-icon and «nothing found» as sf-empty-state;",
+      "The Library draws its search field as sf-input, the category switch as",
+      "sf-segmented, the row icons as sf-icon and «nothing found» as sf-empty-state;",
       "a tag it renders is a tag it fetches. The words a row says to a screen",
       "reader are visually hidden with the sr-only utility, which a class scan can",
       "miss on a node drawn later, so it comes with the component. Nothing else:",
@@ -415,7 +416,7 @@
     },
     "accessibility": {
       "accessible_name": "internal",
-      "focus": "The search field comes first, then the category chips (sf-button with aria-pressed, in a group named «Категория»), then every row as an ordinary button; Enter or Space adds its block or replaces the variant. A group is a role=group named by its title, and the title text is hidden from assistive technology so it is not read twice. A row's accessible name is its own words -- the block's name and purpose -- followed by the action; a variant row says «сейчас в письме» for the current one and carries aria-pressed. Icons are decorative."
+      "focus": "The search field comes first, then the category switch (sf-segmented named «Категория»: one radio per group and «Все», one Tab stop, the arrows move the choice), then every row as an ordinary button; Enter or Space adds its block or replaces the variant. A group is a role=group named by its title, and the title text is hidden from assistive technology so it is not read twice. A row's accessible name is its own words -- the block's name and purpose -- followed by the action; a variant row says «сейчас в письме» for the current one and carries aria-pressed. Icons are decorative."
     },
     "compatibility": {
       "migrations": [

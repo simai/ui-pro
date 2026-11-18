@@ -1,6 +1,6 @@
 @layer sf.components {
   /* sf-mail-library, the Library of SIMAI Email Editor: a search field and
-     the category chips over groups of rows. A row is the icon, the block's
+     the category switch over groups of rows. A row is the icon, the block's
      name and, as a second line, what it is for; «+» shows on hover and focus
      only, so 47 blocks are not 47 blue marks at rest. The host is
      display: contents; .sf-mail-library is what a panel places. Every value
@@ -12,7 +12,8 @@
   }
 
   /* One row on any panel: three rows of buttons outweigh the list they filter.
-     Tab brings a chip that is out of view into it. */
+     The category switch (sf-segmented) scrolls sideways when the groups
+     outgrow the panel; the arrows bring a segment that is out of view into it. */
   .sf-mail-library-chips {
     display: flex;
     flex-wrap: nowrap;
