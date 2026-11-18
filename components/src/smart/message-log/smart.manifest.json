@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.message-log",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "title": "Message log",
   "summary": "Dated alias of SIMAI Framework's sf-list-feed (until 2027-01-01): the feed under its former tag, with the former names (messages, setMessages, prependMessages, renderMessage, announceMessage, sf-message-log-* events) still answered.",
   "kind": "composite",
@@ -869,7 +869,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/message-log/index.js",
-        "sha256": "10339f44a38ae15457bb7fc2360fad3cda9eb42f36314b0bac2a1205ba4dc5f1"
+        "sha256": "23415f7f95ccc547c0957b1db26724566f80a082590d4a62ea3ebb85f16cef0f"
       },
       {
         "path": "src/smart/message-log/js/templates/default.css",
@@ -885,7 +885,7 @@
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "853f90428e1b4346ded484c341c70854cf65dc4008d7561477a18e96bd4be1ca"
+        "sha256": "0ba48f6613f35e3ebf3c76f07269b278130e22a3fad2e3577110e05cd9ab31cd"
       },
       {
         "path": "src/smart/message-log/aliases.json",

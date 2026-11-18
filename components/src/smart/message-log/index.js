@@ -27,7 +27,7 @@
 // this element; the subclass is defined once the feed is.
 import {noteTagAlias, registerTagAliasRows} from "../../core/js/tag-aliases.js";
 import {noteDeprecated} from "../../core/js/deprecations";
-import {pageWord} from "../../core/js/page-language.js";
+import {language, pageLocale, pageWord} from "../../core/js/page-language.js";
 import aliases from "./aliases.json";
 import en from "./lang/en.json";
 import ru from "./lang/ru.json";
@@ -97,9 +97,22 @@ const objectForm = (args, names) => {
 };
 
 // The conversation's own words («Переписка», «Сообщения»), not the feed's
-// («Лента», «Записи»): the keys are the feed's, so a word a page registered
-// for either tag still wins (the two tags share one entry, canonicalTag).
+// («Лента», «Записи»). The keys are the feed's, and the two tags share one
+// word entry (canonicalTag), so a word a page registered for either tag
+// speaks for both. Since SIMAI Framework ui-1ed6b6c9a040 (C282) Russian is a
+// language file that core fetches, and it registers the feed's words under
+// that shared entry: on a Russian page they overrode these («Лента» for
+// «Переписка»). So the element registers its own words when it is defined,
+// under an entry of its own (OWN, not a tag, so the feed is untouched), and
+// in a language it ships it reads that entry first; a page changes one of
+// them with SF.language.register("sf-message-log:own", code, words). In any
+// other language the shared entry and its packs speak, as before.
 const WORDS = {en: {...en.runtime}, ru: {...ru.runtime}};
+const OWN = "sf-message-log:own";
+const shipsLanguage = (node, key) => {
+    const base = String(pageLocale(node) || "").toLowerCase().split("-")[0];
+    return Boolean(WORDS[base] && Object.prototype.hasOwnProperty.call(WORDS[base], key));
+};
 
 function defineMessageLog(Feed) {
     const registry = globalThis.customElements;
@@ -123,6 +136,7 @@ function defineMessageLog(Feed) {
         }
 
         sfWord(key, {count, vars} = {}) {
+            if (shipsLanguage(this, key)) return pageWord(WORDS, key, this, {component: OWN, source: "en", count, vars});
             return pageWord(WORDS, key, this, {component: TAG, source: "en", count, vars});
         }
 
@@ -218,6 +232,11 @@ function defineMessageLog(Feed) {
     }
 
     Object.defineProperty(SfMessageLog, "sfTagAliasOf", {value: TO});
+    // Its own words, registered once, beneath a page's that came first.
+    for (const [code, words] of Object.entries(WORDS)) {
+        const known = language.known(OWN).includes(code);
+        if (!known) language.register(OWN, code, words);
+    }
     registry.define(TAG, SfMessageLog);
 }
 

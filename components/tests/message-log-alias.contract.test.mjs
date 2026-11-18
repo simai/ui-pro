@@ -107,7 +107,7 @@ test('the rule relates the feed, and the folder names one component', () => {
   assert.equal(manifest.custom_element, 'sf-message-log');
   assert.deepEqual(manifest.composition.uses, ['smart.list-feed']);
   assert.equal(contract.tag, 'sf-message-log');
-  assert.equal(contract.version, '2.0.5');
+  assert.equal(contract.version, '2.0.6');
   assert.equal(manifest.version, contract.version);
   assert.equal(contract.templates, undefined, 'no template of its own');
   assert.equal(manifest.ownership.source, 'simai/ui-pro');
@@ -147,5 +147,11 @@ test('the words stay the conversation\'s, under the feed\'s keys', () => {
   for (const language of ['en', 'ru']) {
     assert.deepEqual(Object.keys(json(`${folder}/lang/${language}.json`).runtime).sort(), feed(language), `lang/${language}: the feed's keys`);
   }
-  assert.match(code(`${folder}/index.js`), /sfWord\(key, \{count, vars\} = \{\}\) \{\s*return pageWord\(WORDS, key, this, \{component: TAG/u);
+  // 2.0.6: in a language it ships the element reads its own entry first, so the
+  // Framework's language file of the feed (C282) cannot speak for it; elsewhere
+  // the shared entry, as before.
+  const source = code(`${folder}/index.js`);
+  assert.match(source, /sfWord\(key, \{count, vars\} = \{\}\) \{\s*if \(shipsLanguage\(this, key\)\) return pageWord\(WORDS, key, this, \{component: OWN[\s\S]*?return pageWord\(WORDS, key, this, \{component: TAG/u);
+  assert.match(source, /language\.register\(OWN, code, words\)/u, 'its own words are registered when it is defined');
+  assert.match(source, /const OWN = "sf-message-log:own";/u, 'under an entry of its own, so sf-list-feed keeps its words');
 });
