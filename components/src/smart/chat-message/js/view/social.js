@@ -8,6 +8,7 @@
 // reply_to or reactions, so a message without them draws as it did.
 import {element, iconButton, iconNode, text} from './message.js';
 import {closeLayer, openLayer} from '../../../../core/js/layer-stack.js';
+import {pageText} from '../../../../core/js/page-language.js';
 
 // The picker open in this bundle, so the next one takes its place in the layer
 // stack: the host draws the message again without it, which no close here sees.
@@ -168,6 +169,12 @@ export function renderTools(ctx, message, view = {}, {edit = false, remove = fal
     more.setAttribute('aria-haspopup', 'menu');
     more.addEventListener('click', () => openMore(ctx, message, tools, more, {edit, remove, discuss}));
     tools.append(more);
+    // The menu's words of the page's language are asked for now, not on the
+    // first press. Since SIMAI Framework ui-1ed6b6c9a040 (C282) a language
+    // other than English is a file core fetches by family; asked on the press,
+    // its arrival drew the message again and the menu just opened went with
+    // the old tools (a Russian page's first «⋯» showed nothing).
+    pageText({}, 'menu-label', tools, 'sf-menu-context');
   }
   return tools;
 }
