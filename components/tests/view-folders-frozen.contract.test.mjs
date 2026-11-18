@@ -61,7 +61,12 @@ const PATCHED = {
   // interim is gone; a panel that fills the screen keeps its title clear of
   // the edge controls sf-drawer 1.16 draws in its head. simai/ui-view takes the
   // same when it moves to that pair.
-  'view-properties': {tree: 'd4140b4e832ec79e6c96bc9e3076f881b6ecdbb1', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17)'},
+  // sf-view-properties 1.19.1 (2026-11-18, above ui-view round/view-returns'
+  // 1.19.0): it accepts simai.property-view-port 1.19.0 (owner decision C294,
+  // additive: two optional money keys and no default percent bounds), so pair
+  // group build 12, which carries 1.19.0, does not refuse Larena's record forms.
+  // simai/ui-view releases the same in view 1.8.2.
+  'view-properties': {tree: '51efe7e365db20d99ec7f12b223a3fa48283dbc5', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17); accepts simai.property-view-port 1.19.0 (C294), sf-view-properties 1.19.1 (2026-11-18)'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).

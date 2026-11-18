@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.16.8",
+  "version": "1.19.1",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -217,7 +217,8 @@
           "1.15.0",
           "1.16.0",
           "1.17.0",
-          "1.18.0"
+          "1.18.0",
+          "1.19.0"
         ]
       }
     }
@@ -1649,6 +1650,13 @@
         "changes": [
           "The first-paint pass for SIMAI Framework group build 9 (ui-source 3d55e44d7). The first-paint snapshot is retaken over the group build. Settings, values, events and actions are unchanged. The number is above 1.16.7, which simai/ui-view fix/view-set-j1 holds."
         ]
+      },
+      {
+        "from": "1.16.8",
+        "to": "1.19.1",
+        "changes": [
+          "Accepts simai.property-view-port 1.19.0 (owner decision C294, ui-source acb9bcd77): a host that declares 1.19.0 is taken as one that declares 1.18.0 (SUPPORTED_PORT_VERSIONS, x-port.supports, host_port.supported_versions). 1.19.0 adds two optional money keys (currencies, currencyDisplay) and drops a percent's default bounds; its conformance kit is 1.18.0's 65 cases unchanged, so what the panel reads and writes does not change. The panel does not read the two money keys yet, and a percent without min and max still stops at 0..100 while typed (a host that wants a wider percent sends min and max); a value the host sends is shown and kept as it is. The contract it is checked against stays 1.18.0, the newest edition in the released pair it is built over. The number is above 1.19.0, which simai/ui-view round/view-returns holds."
+        ]
       }
     ]
   },
@@ -1658,7 +1666,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-properties/index.js",
-        "sha256": "6d5d01b4bc168dcde94091531e0d50d9df47f3e0efe1b62bb9954a09d90a1c52"
+        "sha256": "3a155cdc838c05c50575418e0f6ee4472506b030af25d57a9b2c4083fc89f975"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
