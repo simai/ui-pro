@@ -2,7 +2,7 @@
   "$comment": "sf-property-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/property-view; every x-todo decided in x-decisions.",
   "id": "smart.view-properties",
   "tag": "sf-view-properties",
-  "version": "1.19.1",
+  "version": "1.20.1",
   "kind": "leaf",
   "family": "record",
   "implements": [
@@ -1204,7 +1204,10 @@
       "1.16.0",
       "1.17.0",
       "1.18.0",
-      "1.19.0"
+      "1.19.0",
+      "1.20.0",
+      "1.21.0",
+      "1.22.0"
     ]
   },
   "x-renamed": [
@@ -1785,6 +1788,13 @@
           "to": "1.19.1",
           "changes": [
             "Accepts simai.property-view-port 1.19.0 (owner decision C294, ui-source acb9bcd77): a host that declares 1.19.0 is taken as one that declares 1.18.0 (SUPPORTED_PORT_VERSIONS, x-port.supports, host_port.supported_versions). 1.19.0 adds two optional money keys (currencies, currencyDisplay) and drops a percent's default bounds; its conformance kit is 1.18.0's 65 cases unchanged, so what the panel reads and writes does not change. The panel does not read the two money keys yet, and a percent without min and max still stops at 0..100 while typed (a host that wants a wider percent sends min and max); a value the host sends is shown and kept as it is. The contract it is checked against stays 1.18.0, the newest edition in the released pair it is built over. The number is above 1.19.0, which simai/ui-view round/view-returns holds."
+          ]
+        },
+        {
+          "from": "1.19.1",
+          "to": "1.20.1",
+          "changes": [
+            "Accepts simai.property-view-port 1.20.0, 1.21.0 and 1.22.0 (SIMAI Framework group build 13, ui-source integration/pair-next-15 89b0c3b8e): a host that declares any of them is taken as one that declares 1.18.0 (SUPPORTED_PORT_VERSIONS, x-port.supports, host_port.supported_versions). The three editions only add: field keys template, templateParams, decimals and holder and new type names (1.20.0), record.history and record.neighbours behind their own capabilities and the refusal revision_moved (1.21.0), view.publish, view.lock and the view keys head, locked and profiles[].required (1.22.0); the kit keeps 1.19.0's 65 cases unchanged (75 in 1.22.0). What the panel reads and writes does not change: it asks neither new intent, a field sent with template alone is drawn with its type's default template, a type name it does not know (phone, password, complex, url, link, ru.inn) is not offered for editing and nothing is written for it, revision_moved is shown as a refusal with nothing written, and its view.save with target.kind shared and a layer's variant are read by a 1.22.0 host until 2027-01-01. The contract it is checked against stays 1.18.0, as 1.19.0..1.22.0 only add to it; built over the released pair ui-dc9fc39aeb26 (ui-source 1dd18375c), which carries 1.19.0. The number is above 1.20.0, which simai/ui-view round/view-r4 holds."
           ]
         }
       ]

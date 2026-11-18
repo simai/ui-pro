@@ -65,8 +65,11 @@ const PATCHED = {
   // 1.19.0): it accepts simai.property-view-port 1.19.0 (owner decision C294,
   // additive: two optional money keys and no default percent bounds), so pair
   // group build 12, which carries 1.19.0, does not refuse Larena's record forms.
-  // simai/ui-view releases the same in view 1.8.2.
-  'view-properties': {tree: '51efe7e365db20d99ec7f12b223a3fa48283dbc5', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17); accepts simai.property-view-port 1.19.0 (C294), sf-view-properties 1.19.1 (2026-11-18)'},
+  // simai/ui-view releases the same in view 1.8.2. sf-view-properties 1.20.1
+  // (2026-11-18, above ui-view round/view-r4's 1.20.0): it accepts
+  // simai.property-view-port 1.20.0..1.22.0 (group build 13, additive), as
+  // view 1.8.3 does with 1.20.2.
+  'view-properties': {tree: 'bc184ad623cc7f34bc01b4904e8991b08c33865e', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17); accepts simai.property-view-port 1.19.0 (C294), sf-view-properties 1.19.1 (2026-11-18); accepts simai.property-view-port 1.20.0..1.22.0 (group build 13), sf-view-properties 1.20.1 (2026-11-18)'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
