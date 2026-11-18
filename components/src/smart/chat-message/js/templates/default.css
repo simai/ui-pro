@@ -1026,8 +1026,11 @@
   .sf-chat-notice--delayed .sf-chat-notice__icon,
   .sf-chat-notice--stopped .sf-chat-notice__icon { color: var(--sf-info); }
 
-  /* Only the latest failed answer offers a retry; an older one is a record. */
-  .sf-chat-message--failed:not(.sf-chat-message--last) .sf-chat-notice__action { display: none; }
+  /* In a window only the latest failed answer offers a retry; an older one is
+     a record (the window marks the latest, --last). A message on its own, or in
+     a list a host keeps, is not ranked: its failed answer always offers the
+     retry its contract names (1.9.2, docs round 4 DF-14). */
+  sf-chat-window .sf-chat-message--failed:not(.sf-chat-message--last) .sf-chat-notice__action { display: none; }
 
   .sf-chat-notice__action {
     flex: none;

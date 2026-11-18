@@ -79,11 +79,7 @@ export class FilesView {
     usage.hidden = true;
     const used = doc.createElement('p');
     used.className = 'chat-files__used';
-    const bar = doc.createElement('sf-progress-bar');
-    bar.className = 'chat-files__bar';
-    bar.setAttribute('size', '1/2');
-    bar.setAttribute('label', this.words('files.usage'));
-    usage.append(used, bar);
+    usage.append(used);
 
     const body = doc.createElement('div');
     body.className = 'chat-files__body';
@@ -103,7 +99,11 @@ export class FilesView {
     });
     root.addEventListener('sf-empty-state-action', () => this.win.loadFiles());
 
-    Object.assign(this, { entry, root, title, usage, used, bar, body, status });
+    // The bar (sf-progress-bar) is made by drawUsage when the host first gives
+    // a quota: made here, it stood in the closed view as a tag the Loader does
+    // not fetch until the view opens (standard 1.3.8 §7.2.1), an undefined
+    // element on every page with the window (docs round 4, DF-10).
+    Object.assign(this, { entry, root, title, usage, used, bar: null, body, status });
     return this;
   }
 
@@ -171,8 +171,17 @@ export class FilesView {
       ? this.words('files.used', { used: usedText, quota: formatBytes(quota, this.words, locale) })
       : usedText;
     this.used.textContent = text;
-    this.bar.hidden = !(Number.isFinite(quota) && quota > 0);
-    if (this.bar.hidden) return;
+    const measured = Number.isFinite(quota) && quota > 0;
+    if (!measured) { if (this.bar) this.bar.hidden = true; return; }
+    if (!this.bar) {
+      const bar = this.ctx.document.createElement('sf-progress-bar');
+      bar.className = 'chat-files__bar';
+      bar.setAttribute('size', '1/2');
+      bar.setAttribute('label', this.words('files.usage'));
+      this.usage.append(bar);
+      this.bar = bar;
+    }
+    this.bar.hidden = false;
     const percent = Math.min(100, Math.max(0, (used / quota) * 100));
     this.bar.setAttribute('value', String(Number(percent.toFixed(1))));
     this.bar.setAttribute('value-text', text);
