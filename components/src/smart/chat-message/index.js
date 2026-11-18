@@ -43,6 +43,8 @@ export const DEFAULT_FEATURES = Object.freeze({feedback: true, proposals: true, 
 // The record port version the card's host speaks (sf-view-properties): the
 // mask of a string field (field.mask) and the conditions of when (1.14.0+).
 const BLOCK_PORT_VERSION = "1.16.0";
+// Frames a detached code block waits to be placed before it is highlighted.
+const CODE_FRAMES = 60;
 
 // API.md's proposal states, as sf-confirm-change's.
 const PROPOSAL_STATE = {presented: "open", applied: "accepted", rejected: "declined", expired: "expired"};
@@ -142,11 +144,31 @@ class SfChatMessage extends ChatMessageElement {
                 icon.setAttribute("aria-hidden", "true");
                 return icon;
             },
+            // A block is highlighted once it is on the page. The markup is
+            // drawn detached (js/view/message.js renderMarkup) and placed
+            // after; SIMAI Framework's highlight names a block by an id it
+            // checks with getElementById, which never finds a detached block,
+            // and its loop did not end (a Russian page froze, ui-control
+            // evidence 2026-11-18-pro-over-1ed6). So a detached block waits
+            // for the frames after its insertion (at most CODE_FRAMES), and a
+            // block the highlight's own observer drew meanwhile is left.
             enhanceCode(pre) {
                 const highlight = globalThis.SF?.Highlight;
                 if (!highlight?.highlight) return;
                 pre.setAttribute("data-copy-label", words("code.copy"));
-                highlight.highlight(pre.querySelector("code") || pre);
+                const code = pre.querySelector("code") || pre;
+                const draw = () => {
+                    if (code.dataset.highlighted) return;
+                    highlight.highlight(code);
+                };
+                if (code.isConnected) return draw();
+                const frame = globalThis.requestAnimationFrame ?? ((run) => setTimeout(run, 16));
+                let left = CODE_FRAMES;
+                const wait = () => {
+                    if (code.isConnected) return draw();
+                    if ((left -= 1) > 0) frame(wait);
+                };
+                frame(wait);
             },
             // Among people (1.4.0): sf-avatar, not a Tab stop of its own in a
             // feed (inert, as its default template is a button), the initials
