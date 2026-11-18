@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "id": "smart.editor-content",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "title": "Content editor",
-  "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
+  "summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change. Retired in favour of sf-editor, the one block editor (owner decision 2026-11-03, component sets item 13): kept unchanged until 2027-01-01, then removed from the package.",
   "kind": "smart",
   "reuse_mode": "whole",
-  "lifecycle": "experimental",
+  "lifecycle": "deprecated",
   "tags": [
     "content",
     "editor",
@@ -507,7 +507,7 @@
         "replacement": "<sf-editor-content>"
       }
     ],
-    "replacement": null,
+    "replacement": "<sf-editor>",
     "migrations": [
       {
         "from": "1.2.3",
@@ -528,6 +528,13 @@
         "to": "1.4.0",
         "changes": [
           "New settings embed and title-field (G-15): embedded, the editor stands in a host's box as its text, with no sheet of its own, the gutter in the host's margin and the rendered page's content rhythm; the title field is optional (auto hides it embedded). Nothing changes for a host that sets neither. A host that embeds the editor removes its own overrides of the sheet's padding, width and background and keeps room for the gutter in its margin."
+        ]
+      },
+      {
+        "from": "1.5.2",
+        "to": "1.5.3",
+        "changes": [
+          "Declared retired: sf-editor takes its role (owner decision 2026-11-03). The element keeps working unchanged until 2027-01-01 and leaves the package after that date. A host moves to sf-editor (a Composition Document of the ui-layout profile) before then. Nothing else changes."
         ]
       }
     ]
@@ -570,11 +577,11 @@
       },
       {
         "path": "src/smart/editor-content/docs.md",
-        "sha256": "f9c65c440bbc7353bc14c19ebaca4d7d2e4360f23008c6bd1f75349a6d5aba37"
+        "sha256": "4b477b96a8484d18df955020ff3f87fd82321e0faeb27a6c965d2ed5e265071c"
       },
       {
         "path": "src/smart/editor-content/component.json",
-        "sha256": "071f96402e09c45b9db9900a27b5df16b219a68ff9685b0eae6d9d1d6a90b0ad"
+        "sha256": "6095b205084789843a391aeeb6f087647fa8a047ff4359adab1c510448b3f1c1"
       },
       {
         "path": "src/smart/editor-content/lang/en.json",

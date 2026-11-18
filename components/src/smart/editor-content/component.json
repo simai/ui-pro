@@ -2,7 +2,7 @@
   "$comment": "The source of sf-content-editor's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-editor by the owner's decision of 2026-11-01 (the text editor starts once the content types are out); behaviour per ui-editor prototypes/content-editor.html and the content standard, sections 6, 7 and 9. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
   "id": "smart.editor-content",
   "tag": "sf-editor-content",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "kind": "leaf",
   "family": "editor",
   "settings": {
@@ -358,7 +358,15 @@
   },
   "host-states": {},
   "css-variables": {},
-  "x-summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change.",
+  "x-summary": "The content mode of the SIMAI page editor: a page typed as one flow over a Composition Document (structured-content). Enter and Backspace split and join blocks, Markdown at a line's start and / change a block's kind, the gutter's + and grip (in the margin, outside the text) add, move and open a block's menu, each menu at what opened it, a selection gets the inline bar, Esc chooses blocks, a paste becomes blocks through html@1, a table goes by Tab. A chosen block shows its quick choices over it and gives the rest to the host's panel (or a popover). A picture is dropped, pasted or picked on the page and kept by the host. The element saves nothing: it sends the new Document in change. Retired in favour of sf-editor, the one block editor (owner decision 2026-11-03, component sets item 13): kept unchanged until 2027-01-01, then removed from the package.",
+  "x-retirement": {
+    "$comment": "The whole element retires (no dated alias: sf-editor has its own API). The manifest says it as lifecycle deprecated and compatibility.replacement; the dates are here.",
+    "since": "2026-11-03",
+    "remove_after": "2027-01-01",
+    "replacement": "sf-editor",
+    "decision": "owner decision 2026-11-03 (ui-control control/decisions/2026-11-03-component-sets.md item 13; 2026-11-03-one-editor-part-a.md item 1)",
+    "note": "the same date as the former tag sf-content-editor (aliases), so no former name outlives the element"
+  },
   "x-source": {
     "package": "ui-pro",
     "folder": "editor-content",
@@ -391,7 +399,8 @@
     "version 1.4.8 (2026-11-10): a patch (first paint only). The first-paint snapshots are retaken over SIMAI Framework ui-2bd5a3ab478a: the pair's sf-menu-context prints its panel without the flex utility class (class=\"sf-context-menu\"); static/sheets.json is unchanged (no sheet drift). Code, settings, values and events are unchanged.",
     "version 1.4.9 (2026-11-15): a patch (decision C04, defect KB-1), for SIMAI Framework ui-994f9db407fa (ui-source 09cf1b0f). The block menu's keys are written in SIMAI Framework's notation -- alt+up, alt+down, mod+d, backspace -- and sf-menu-context draws them in the platform's words: ⌥↑ and ⌘D on a Mac, Alt+↑ and Ctrl+D elsewhere, where «⌘D» was written for every system. The keys themselves are unchanged (Ctrl or Cmd with D duplicates, as before). Settings, values, events and actions are unchanged.",
     "version 1.5.1 (2026-11-17): a patch (decision C230 in SIMAI Framework group build 9, ui-source 3d55e44d7), for that group build. SIMAI Framework gives a picture a seventh ratio, 3:4, so the ratio choice has seven options; a choice of two to seven options is now a quick one (it was two to six), and the picture's quick toolbar keeps its ratio toggles beside the fit, as before. Settings, values, events and actions are unchanged. The number is above 1.5.0, which another ui-pro branch holds.",
-    "version 1.5.2 (2026-11-17): a patch (radius roles; plain group 1, card unit). The block, the format bar, the floating bar and the block menu's options read SIMAI Framework's surface role, --sf-radius--surface, the card's unit, in place of the scale step --sf-radius-1; the value is the same (8)."
+    "version 1.5.2 (2026-11-17): a patch (radius roles; plain group 1, card unit). The block, the format bar, the floating bar and the block menu's options read SIMAI Framework's surface role, --sf-radius--surface, the card's unit, in place of the scale step --sf-radius-1; the value is the same (8).",
+    "version 1.5.3 (2026-11-18): a patch (docs round 4, DF-13). The package declares the element's retirement with its date: sf-editor takes its role (owner decision 2026-11-03); the element stays, unchanged, until 2027-01-01 and leaves the package after it, the same date as its former tag sf-content-editor. The manifest says lifecycle deprecated and compatibility.replacement <sf-editor>; x-retirement holds the dates; docs.md says it first. Code, settings, values, events and actions are unchanged."
   ],
   "x-rule": {
     "$comment": [
@@ -549,9 +558,18 @@
           "changes": [
             "New settings embed and title-field (G-15): embedded, the editor stands in a host's box as its text, with no sheet of its own, the gutter in the host's margin and the rendered page's content rhythm; the title field is optional (auto hides it embedded). Nothing changes for a host that sets neither. A host that embeds the editor removes its own overrides of the sheet's padding, width and background and keeps room for the gutter in its margin."
           ]
+        },
+        {
+          "from": "1.5.2",
+          "to": "1.5.3",
+          "changes": [
+            "Declared retired: sf-editor takes its role (owner decision 2026-11-03). The element keeps working unchanged until 2027-01-01 and leaves the package after that date. A host moves to sf-editor (a Composition Document of the ui-layout profile) before then. Nothing else changes."
+          ]
         }
-      ]
-    }
+      ],
+      "replacement": "<sf-editor>"
+    },
+    "lifecycle": "deprecated"
   },
   "aliases": {
     "since": "2026-11-03",
