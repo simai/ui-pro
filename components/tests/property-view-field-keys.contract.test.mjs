@@ -33,6 +33,10 @@ const notInThisPort = new Map([
   ['filter', 'the filter-row descriptor a data view builds for a column; a property-view field has no filter'],
   ['type', 'a legacy alias of propertyType, read as a fallback for older hosts; propertyType is the name this port declares'],
   ['dataType', 'a second legacy alias of propertyType, kept for the same reason and declared under neither name'],
+  // Over the pair ui-dc9fc39aeb26 (ui-source 1dd18375c) the Framework renderers
+  // read two keys port 1.18.0 does not carry (2026-11-18):
+  ['currencies', 'the money field\'s currency list, declared by simai.property-view-port 1.19.0 (C294); the component accepts a 1.19.0 host, whose schema carries it, while the contract it is checked against stays 1.18.0'],
+  ['defaultCountry', 'the phone renderer\'s first country, read by the pair\'s field renderers but declared by no simai.property-view-port edition up to 1.22.0; a property-view host does not send it until the port declares it (reported to the Framework, 2026-11-18)'],
   // min, max, step and precision (the stepper's bounds and decimals) and the
   // settings of the property types the set draws itself (currency, columns,
   // minRows, maxRows, parts) were excused here until simai.property-view-port
