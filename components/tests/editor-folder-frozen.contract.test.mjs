@@ -45,8 +45,12 @@ const FROZEN = {
 // ui-editor main's 1.3.1): the first-paint snapshots retaken over the group
 // build; the patch for simai/ui-editor is ui-control
 // control/evidence/2026-11-17-pro-over-gb9/editor-gb9.patch.
+// Over ui-dc9fc39aeb26 (ui-source 1dd18375c, 2026-11-18), sf-editor 1.3.3:
+// the keys in the platform's marks through the sf-kbd helper (rule C04, docs
+// round 4 DF-12) and the first-paint snapshots retaken over the pair; the patch
+// for simai/ui-editor is ui-control control/evidence/2026-11-18-df10-pro/editor-df12.patch.
 const PATCHED = {
-  'editor': {tree: '9b8c8036f26dfc438ef50951556ec05201848fc9', patch: 'cl-empty-state relation, sf-editor 1.2.6 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshots retaken, sf-editor 1.3.2 (2026-11-17)'},
+  'editor': {tree: '2d710359980c3b143b30075fd36000f4248440d0', patch: 'cl-empty-state relation, sf-editor 1.2.6 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshots retaken, sf-editor 1.3.2 (2026-11-17); keys through sf-kbd (C04, DF-12) and snapshots over ui-dc9fc39aeb26, sf-editor 1.3.3 (2026-11-18)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

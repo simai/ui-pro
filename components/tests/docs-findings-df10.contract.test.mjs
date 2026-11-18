@@ -14,8 +14,8 @@ const code = (path) => read(path)
 
 test('DF-10: «Мои файлы» make sf-progress-bar when a quota comes, not with the closed view', () => {
   const view = code('chat-window/js/files-view.js');
-  const build = view.slice(view.indexOf('build('), view.indexOf('say(text)'));
-  const usage = view.slice(view.indexOf('drawUsage(data)'), view.indexOf('row(file)'));
+  const build = view.slice(view.indexOf('build(headingTag) {'), view.indexOf('say(text)'));
+  const usage = view.slice(view.indexOf('drawUsage(data) {'), view.indexOf('row(file) {'));
   assert.ok(build.length > 0 && usage.length > 0, 'build() and drawUsage() are found');
   assert.doesNotMatch(build, /sf-progress-bar/u, 'the closed view holds no undefined tag');
   assert.match(usage, /createElement\('sf-progress-bar'\)/u);
