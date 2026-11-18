@@ -6,7 +6,6 @@ import {isEditableTarget} from "../../../../component/kbd/js/shortcut";
 
 const MENU_TRANSLATIONS = wordsOf({
   empty: "empty",
-  favorites: "favorites",
   saving: "saving",
   save: "save",
   personalSettings: "personal-settings",
@@ -583,20 +582,11 @@ export function renderAdminMenuTemplate(context) {
 
   function renderSettings() {
     if (!context.collapsible && !context.settings) return nothing;
+    // No «Избранное» row here (1.14.2, docs round 4 DF-11): the items menu has
+    // no favourites (favourite.toggle refuses, docs.md), so the row it drew was
+    // a button with no action. Favourites are the navigation menu's, over the
+    // port (js/navigation, the root sf:favourites).
     return html`
-      <li class="sf-admin-menu-item-wrap flex flex-col">
-        <button
-          type="button"
-          class="sf-admin-menu-item flex-1 flex items-cross-center"
-        >
-          <span
-            class="sf-admin-menu-item-container flex items-cross-center flex-1"
-          >
-            <i class="sf-icon sf-icon-loaded" aria-hidden="true">star</i>
-            <span>${menuText("favorites")}</span>
-          </span>
-        </button>
-      </li>
       <li class="sf-admin-menu-item-wrap flex flex-col">
         ${!menuSettings
           ? html` <div

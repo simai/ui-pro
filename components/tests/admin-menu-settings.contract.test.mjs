@@ -108,9 +108,20 @@ test("overflow measurement tolerates an unmounted or empty menu", () => {
 test("menu-owned controls follow the document locale", () => {
     assert.match(source, /MENU_TRANSLATIONS/);
     assert.match(source, /this\.translate\(!tempVisible \? "hide" : "show"\)/);
-    assert.match(template, /menuText\("favorites"\)/);
     assert.match(template, /menuText\("systemSettings"\)/);
     assert.match(template, /menuText\("resetSettings"\)/);
     assert.match(template, /menuText\("expand"\)/);
     assert.match(template, /menuText\("collapse"\)/);
+});
+
+// DF-11 (docs round 4, sf-admin-menu 1.14.2): the items menu has no favourites
+// (favourite.toggle refuses), so it draws no «Избранное» row: the row it drew
+// was a button with no action. Favourites are the navigation menu's.
+test("the items menu draws no favourites row", () => {
+    assert.doesNotMatch(template, /menuText\("favorites"\)/);
+    assert.doesNotMatch(template, />star</);
+    for (const locale of ["en", "ru"]) {
+        const words = JSON.parse(readFileSync(new URL(`../src/smart/admin-menu/lang/${locale}.json`, import.meta.url), "utf8"));
+        assert.equal(JSON.stringify(words).includes('"favorites"'), false, `${locale}: no word for the row`);
+    }
 });
