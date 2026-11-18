@@ -9,7 +9,10 @@
 // and last (after the elements are defined and drawn):
 // - sf-message-log says «Переписка» / «Сообщения», drawn and asked;
 // - an sf-list-feed beside it keeps the feed's «Лента» / «Записи»;
-// - an English page says «Conversation».
+// - an English page says «Conversation»;
+// - in both bundle orders: the feed's bundle first, or sf-message-log's first
+//   (the Pro class must still hold the name: registered too early, the name line
+//   let the Smart base define sf-message-log as the feed's plain former name).
 import {resolve, join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {chromium} from 'playwright';
@@ -20,18 +23,19 @@ const styles = [
   'core/core/css/core.css', 'smart/smart/list-feed/css/list-feed.css', 'smart/smart/message-log/css/message-log.css',
 ].map((p) => join(out, p));
 const LANG_FILE = join(out, 'core/core/lang/ru.js');
+const FEED = join(out, 'smart/smart/list-feed/js/list-feed.js');
+const LOG = join(out, 'smart/smart/message-log/js/message-log.js');
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
-  'smart/smart/list-feed/js/list-feed.js', 'smart/smart/message-log/js/message-log.js',
 ].map((p) => join(out, p));
-const absent = [...styles, LANG_FILE, ...modules].filter((path) => !existsSync(path));
+const absent = [...styles, LANG_FILE, ...modules, FEED, LOG].filter((path) => !existsSync(path));
 if (absent.length) throw new Error(`${absent.length} build asset(s) not found under ${out}: ${absent.join(', ')}`);
 
 const failures = [];
 const browser = await chromium.launch();
 
-const read = async ({lang, file}) => {
+const read = async ({lang, file, order}) => {
   const page = await browser.newPage({viewport: {width: 900, height: 700}});
   const errors = [];
   page.on('pageerror', (error) => { if (!/Automatic publicPath/u.test(error.message)) errors.push(error.message); });
@@ -40,10 +44,13 @@ const read = async ({lang, file}) => {
     + '<div style="display:flex;flex-direction:column;height:300px;width:400px"><sf-list-feed id="feed"></sf-list-feed></div></div></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
   if (file === 'first') await page.addScriptTag({path: LANG_FILE});
-  for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
+  for (const module of [...modules, ...(order === 'log-first' ? [LOG, FEED] : [FEED, LOG])]) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
   await page.waitForFunction(() => Boolean(customElements.get('sf-message-log') && customElements.get('sf-list-feed')));
   const fill = () => page.evaluate(() => {
-    document.querySelector('#log').setMessages([{id: 'm1', author: 'anna', 'author-name': 'Анна', text: 'Добрый день!'}]);
+    const log = document.querySelector('#log');
+    const entries = [{id: 'm1', author: 'anna', 'author-name': 'Анна', text: 'Добрый день!'}];
+    // The feed's plain former name has no setMessages: it is read as the feed.
+    if (typeof log.setMessages === 'function') log.setMessages(entries); else log.items = entries;
     document.querySelector('#feed').items = [{id: 'f1', author: 'anna', 'author-name': 'Анна', text: 'Запись'}];
   });
   await fill();
@@ -59,6 +66,7 @@ const read = async ({lang, file}) => {
     const log = document.querySelector('#log');
     const feed = document.querySelector('#feed');
     return {
+      proClass: Object.getOwnPropertyNames(customElements.get('sf-message-log').prototype).includes('setMessages'),
       logRegion: log.querySelector('[role=region]')?.getAttribute('aria-label') ?? null,
       logWord: log.sfWord?.('region-label') ?? null,
       logList: log.sfWord?.('log-label') ?? null,
@@ -71,16 +79,17 @@ const read = async ({lang, file}) => {
   return {...seen, errors};
 };
 
-const cases = [
-  {lang: 'ru', file: 'first', log: 'Переписка', list: 'Сообщения', feed: 'Лента'},
-  {lang: 'ru', file: 'last', log: 'Переписка', list: 'Сообщения', feed: 'Лента'},
-  {lang: 'en', file: 'none', log: 'Conversation', list: 'Messages', feed: null},
-];
+const cases = ['feed-first', 'log-first'].flatMap((order) => [
+  {order, lang: 'ru', file: 'first', log: 'Переписка', list: 'Сообщения', feed: 'Лента'},
+  {order, lang: 'ru', file: 'last', log: 'Переписка', list: 'Сообщения', feed: 'Лента'},
+  {order, lang: 'en', file: 'none', log: 'Conversation', list: 'Messages', feed: null},
+]);
 const results = {};
 try {
   for (const one of cases) {
     const seen = await read(one);
-    const label = `${one.lang} page, language file ${one.file}`;
+    const label = `${one.lang} page, language file ${one.file}, ${one.order}`;
+    if (!seen.proClass) failures.push({case: label, said: 'sf-message-log is not the Pro class (the name went to the feed\'s former name)'});
     results[label] = seen;
     if (seen.logRegion !== one.log || seen.logWord !== one.log) failures.push({case: label, said: `sf-message-log says ${seen.logRegion} / ${seen.logWord}, not ${one.log}`});
     if (seen.logList !== one.list) failures.push({case: label, said: `sf-message-log's list is ${seen.logList}, not ${one.list}`});

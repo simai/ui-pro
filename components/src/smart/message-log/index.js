@@ -238,9 +238,13 @@ function defineMessageLog(Feed) {
         if (!known) language.register(OWN, code, words);
     }
     registry.define(TAG, SfMessageLog);
+    // The name line only after this class holds the name. Registered before
+    // sf-list-feed was defined, the Smart base defined sf-message-log as the
+    // feed's plain former name when the feed came, and this class never did:
+    // the element said the feed's words (bundle order message-log, then feed).
+    registerTagAliasRows([ROW]);
 }
 
-registerTagAliasRows([ROW]);
 const registry = globalThis.customElements;
 if (registry) {
     const defined = registry.get(TO);

@@ -869,7 +869,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/message-log/index.js",
-        "sha256": "23415f7f95ccc547c0957b1db26724566f80a082590d4a62ea3ebb85f16cef0f"
+        "sha256": "b3842e8cf63b6662258ec00c3bd6173631c10000f0c482ca0f19393c6a5d40bd"
       },
       {
         "path": "src/smart/message-log/js/templates/default.css",
@@ -885,7 +885,7 @@
       },
       {
         "path": "src/smart/message-log/component.json",
-        "sha256": "0ba48f6613f35e3ebf3c76f07269b278130e22a3fad2e3577110e05cd9ab31cd"
+        "sha256": "c0e2c5869d98b0e518623a1b62ed91704e3f936903a1b2ef42d9c6a318d687b0"
       },
       {
         "path": "src/smart/message-log/aliases.json",
