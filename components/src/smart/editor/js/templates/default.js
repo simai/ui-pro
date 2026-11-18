@@ -2,6 +2,7 @@ import {html, nothing} from "lit";
 import {repeat} from "lit/directives/repeat.js";
 import "./default.css";
 import {groupWordKey} from "../catalogue.mjs";
+import {shortcutView} from "../../../../component/kbd/js/shortcut";
 
 // The editor's frame: the bar (screens, undo, the template, output), the
 // library and the structure on the left, the page in the middle with what
@@ -27,6 +28,31 @@ import {groupWordKey} from "../catalogue.mjs";
 // the canvas is then an unnamed group that says its role. Every control is a Framework
 // part: sf-button, sf-button-icon, sf-segmented, sf-tabs, sf-input,
 // sf-dropdown, sf-switch, sf-menu-context, sf-modal, sf-skeleton, sf-icon.
+/**
+ * A key combination in a title, in this platform's marks (rule C04): the
+ * Framework's sf-kbd helper reads the notation -- mod+z is ⌘Z on a Mac and
+ * Ctrl+Z elsewhere, joined with + where the platform joins keys.
+ */
+export function keysText(value, last) {
+    const {keys, join} = shortcutView(value);
+    const texts = keys.map((key) => key.text);
+    // A pair of arrows reads as one key: alt+up with "↑↓" is ⌥↑↓ or Alt+↑↓.
+    if (last !== undefined && texts.length) texts[texts.length - 1] = last;
+    return texts.join(join ? "+" : "");
+}
+
+/** The keys the editor's words name, in this platform's marks. */
+export function keyWords() {
+    return {
+        alt: keysText("alt+up", "").replace(/\+$/u, ""),
+        altShift: keysText("alt+shift+up", "").replace(/\+$/u, ""),
+        undo: keysText("mod+z"),
+        move: keysText("alt+up", "↑↓"),
+        moveTyping: keysText("alt+shift+up", "↑↓"),
+        remove: keysText("backspace"),
+    };
+}
+
 /** The word for each reason a class of «Extra classes» is not taken. */
 const REFUSED = {
     modifier_unknown: "modifiers-unknown",
@@ -47,7 +73,7 @@ export function renderEditorTemplate(component) {
             <div class="sf-editor-top" role="region" aria-label=${component.label || w("label")}>
                 ${bar(component, view, w)}
                 ${component.builder ? builderBar(component, w) : nothing}
-                <p id="sf-editor-help" class="sf-editor-visually-hidden">${w("help-text")}</p>
+                <p id="sf-editor-help" class="sf-editor-visually-hidden">${w("help-text", keyWords())}</p>
                 <div class="sf-editor-live sf-editor-visually-hidden" role="status" aria-live="polite"></div>
             </div>
             <div class="sf-editor-body">
@@ -104,9 +130,9 @@ function bar(component, view, w) {
             <div class="sf-editor-bar-start">
                 ${slotted(component, "start")}
                 ${view.heading ? html`<span class="sf-editor-title"><strong class="sf-editor-title-name">${view.heading}</strong>${view.caption ? html`<span class="sf-editor-title-caption">${view.caption}</span>` : nothing}</span>` : nothing}
-                <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="undo" aria-label=${w("undo-label")} title=${`${w("undo-label")} (⌘Z)`}
+                <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="undo" aria-label=${w("undo-label")} title=${`${w("undo-label")} (${keysText("mod+z")})`}
                                 ?disabled=${!model.canUndo} @click=${() => component.history("undo")}></sf-button-icon>
-                <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="redo" aria-label=${w("redo-label")} title=${`${w("redo-label")} (⇧⌘Z)`}
+                <sf-button-icon size="1/2" appearance="ghost" scheme="on-surface-variant" icon="redo" aria-label=${w("redo-label")} title=${`${w("redo-label")} (${keysText("shift+mod+z")})`}
                                 ?disabled=${!model.canRedo} @click=${() => component.history("redo")}></sf-button-icon>
                 ${template ? html`<sf-button class="sf-editor-template-toggle" size="1/3" appearance=${model.templateEditing ? "tonal" : "ghost"} scheme=${model.templateEditing ? "primary" : "on-surface-variant"}
                         icon-start=${model.templateEditing ? "check" : ""} text=${w(model.templateEditing ? "template-done" : "template-edit")}
@@ -140,7 +166,8 @@ function helpPop(component, w) {
         <div class="sf-editor-help-pop" role="dialog" aria-label=${w("help-label")} style=${`inset-block-start:${component.helpOpen.y}px;inset-inline-end:${component.helpOpen.x}px`}>
             <h2 class="sf-editor-help-title">${w("help-title")}</h2>
             <ol class="sf-editor-help-list">
-                ${["help-1", "help-2", "help-3", "help-4"].map((key) => html`<li>${w(key)}</li>`)}
+                ${["help-1", "help-2", "help-3"].map((key) => html`<li>${w(key)}</li>`)}
+                <li>${w("help-4", keyWords())}</li>
             </ol>
         </div>
     `;
@@ -372,11 +399,11 @@ function toolbar(component, view, w) {
                                 aria-label=${w("grip-label")} title=${w("grip-label")} aria-haspopup="menu"
                                 @pointerdown=${(event) => component.onToolbarGrip(event)}
                                 @keydown=${(event) => component.onGripKey(event, node.id)}></sf-button-icon>
-                <sf-button-icon size="1/3" appearance="ghost" scheme="on-surface-variant" icon="arrow_upward" aria-label=${w("menu-up")} title=${`${w("menu-up")} (Alt+↑)`}
+                <sf-button-icon size="1/3" appearance="ghost" scheme="on-surface-variant" icon="arrow_upward" aria-label=${w("menu-up")} title=${`${w("menu-up")} (${keysText("alt+up")})`}
                                 ?disabled=${!at || at.first} @click=${() => component.moveBy(node.id, -1)}></sf-button-icon>
-                <sf-button-icon size="1/3" appearance="ghost" scheme="on-surface-variant" icon="arrow_downward" aria-label=${w("menu-down")} title=${`${w("menu-down")} (Alt+↓)`}
+                <sf-button-icon size="1/3" appearance="ghost" scheme="on-surface-variant" icon="arrow_downward" aria-label=${w("menu-down")} title=${`${w("menu-down")} (${keysText("alt+down")})`}
                                 ?disabled=${!at || at.last} @click=${() => component.moveBy(node.id, 1)}></sf-button-icon>
-                <sf-button-icon size="1/3" appearance="ghost" scheme="on-surface-variant" icon="content_copy" aria-label=${w("menu-duplicate")} title=${`${w("menu-duplicate")} (⌘D)`}
+                <sf-button-icon size="1/3" appearance="ghost" scheme="on-surface-variant" icon="content_copy" aria-label=${w("menu-duplicate")} title=${`${w("menu-duplicate")} (${keysText("mod+d")})`}
                                 @click=${() => component.run(component.model.duplicate(node.id), "duplicated-text")}></sf-button-icon>
                 <sf-button-icon class="sf-editor-toolbar-more" size="1/3" appearance="ghost" scheme="on-surface-variant" icon="more_horiz" aria-label=${w("menu-more")} title=${w("menu-more")} aria-haspopup="menu"
                                 @click=${(event) => component.openGripMenu(node.id, event.currentTarget)}></sf-button-icon></div>` : nothing}
@@ -396,7 +423,7 @@ function pathBar(component, view, w) {
                            text=${component.typeLabel(node.type)} aria-current=${node.id === view.model.selected ? "true" : "false"}
                            @click=${() => component.choose(node.id)}></sf-button>`)}
             <span class="sf-editor-spacer"></span>
-            <span class="sf-editor-keys">${w(view.model.typing ? "keys-typing" : view.selected ? "keys-chosen" : "keys-page")}</span>
+            <span class="sf-editor-keys">${w(view.model.typing ? "keys-typing" : view.selected ? "keys-chosen" : "keys-page", keyWords())}</span>
         </nav>
     `;
 }

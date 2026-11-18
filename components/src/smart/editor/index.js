@@ -1455,12 +1455,12 @@ class SfEditor extends EditorElement {
         const at = locate(this.model.doc.root, id);
         const columns = node?.type === "layout.columns";
         const entries = [
-            {id: "up", text: this.sfWord("menu-up"), icon: "arrow_upward", shortcut: "Alt+↑", disabled: !at || at.index === 0},
-            {id: "down", text: this.sfWord("menu-down"), icon: "arrow_downward", shortcut: "Alt+↓", disabled: !at?.parent || at.index >= at.parent.slots[at.slot].length - 1},
-            {id: "duplicate", text: this.sfWord("menu-duplicate"), icon: "content_copy", shortcut: "⌘D"},
+            {id: "up", text: this.sfWord("menu-up"), icon: "arrow_upward", shortcut: "alt+up", disabled: !at || at.index === 0},
+            {id: "down", text: this.sfWord("menu-down"), icon: "arrow_downward", shortcut: "alt+down", disabled: !at?.parent || at.index >= at.parent.slots[at.slot].length - 1},
+            {id: "duplicate", text: this.sfWord("menu-duplicate"), icon: "content_copy", shortcut: "mod+d"},
             ...(this.model.rights.layout ? [{id: "columns", text: this.sfWord(columns ? "menu-add-column" : "menu-columns"), icon: "view_column", disabled: columns && node.slots?.columns?.length >= MAX_COLUMNS}] : []),
             ...(this.model.rights.builder && !this.builder ? [{id: "build", text: this.sfWord(isComposed(this.model.manifestOf(node?.type)) ? "menu-change-block" : "menu-make-block"), icon: "dashboard_customize"}] : []),
-            {id: "remove", text: this.sfWord("menu-remove"), icon: "delete", danger: true, shortcut: "⌫"},
+            {id: "remove", text: this.sfWord("menu-remove"), icon: "delete", danger: true, shortcut: "backspace"},
         ];
         menu.entries = entries;
         menu.dataset.for = id;
@@ -1475,7 +1475,7 @@ class SfEditor extends EditorElement {
         const id = menu.dataset.for;
         const action = event.detail?.entry?.id ?? event.detail?.id;
         queueMicrotask(() => {
-            // The menu closes: the keys (⌘Z first) act where a person works, on the canvas.
+            // The menu closes: the keys (mod+z first) act where a person works, on the canvas.
             if (action !== "build") this.canvasElement?.focus({preventScroll: true});
             if (action === "up" || action === "down") this.moveBy(id, action === "up" ? -1 : 1);
             else if (action === "duplicate") this.run(this.model.duplicate(id), "duplicated-text");
