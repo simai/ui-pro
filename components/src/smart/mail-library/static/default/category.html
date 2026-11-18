@@ -32,35 +32,33 @@
 
 </label>
 </sf-input>
-<div class="sf-mail-library-chips" role="group" aria-label="Категория">
-<sf-button size="1/2" appearance="ghost" scheme="on-surface" text="Все" aria-pressed="false" style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-button sf-button--size-1/2 sf-button--ghost sf-button--link sf-button--on-surface flex items-cross-center" aria-pressed="false" data-category="all" data-sf-static>
+<div class="sf-mail-library-chips">
+<sf-segmented size="1/2" aria-label="Категория" value="commerce" style="display: contents;" data-sf-size-relative>
+<div role="radiogroup" class="sf-button-group sf-button-group--segmented sf-button-group--size-1/2 sf-button-group--plate-raised sf-button-group--primary" aria-label="Категория" aria-orientation="horizontal" data-value="commerce" data-plate="placed" data-sf-static>
+<span class="sf-button-group-plate" aria-hidden="true"></span>
+
+<button type="button" class="sf-button sf-button--size-1/2 sf-button--ghost sf-button--link sf-button--on-surface flex items-cross-center sf-button-group-segment" data-sf-button-group-value="all" role="radio" aria-checked="false" tabindex="-1">
 
 
-<span class="sf-button-text-container text-center pointer-event-none flex-1">
-Все
-</span>
-
+<span class="sf-button-text-container text-center pointer-events-none">Все</span>
 </button>
-</sf-button><sf-button size="1/2" appearance="ghost" scheme="on-surface" text="Основа" aria-pressed="false" style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-button sf-button--size-1/2 sf-button--ghost sf-button--link sf-button--on-surface flex items-cross-center" aria-pressed="false" data-category="basics" data-sf-static>
+
+<button type="button" class="sf-button sf-button--size-1/2 sf-button--ghost sf-button--link sf-button--on-surface flex items-cross-center sf-button-group-segment" data-sf-button-group-value="basics" role="radio" aria-checked="false" tabindex="-1">
 
 
-<span class="sf-button-text-container text-center pointer-event-none flex-1">
-Основа
-</span>
-
+<span class="sf-button-text-container text-center pointer-events-none">Основа</span>
 </button>
-</sf-button><sf-button size="1/2" appearance="tonal" scheme="primary" text="Товары" aria-pressed="true" style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-button sf-button--size-1/2 sf-button--tonal sf-button--primary flex items-cross-center" aria-pressed="true" data-category="commerce" data-sf-static>
+
+<button type="button" class="sf-button sf-button--size-1/2 sf-button--ghost sf-button--link sf-button--on-surface flex items-cross-center sf-button-group-segment active" data-sf-button-group-value="commerce" role="radio" aria-checked="true" tabindex="0">
 
 
-<span class="sf-button-text-container text-center pointer-event-none flex-1">
-Товары
-</span>
-
+<span class="sf-button-text-container text-center pointer-events-none">Товары</span>
 </button>
-</sf-button>
+
+</div>
+
+
+</sf-segmented>
 </div>
 <div class="sf-mail-library-groups">
 
@@ -68,13 +66,13 @@
 <span class="sf-mail-library-group-title" aria-hidden="true">Товары</span>
 
 <button type="button" class="sf-mail-library-row" data-add="price" title="Цена — Цена и старая цена">
-<sf-icon class="sf-mail-library-row-icon" size="2" aria-hidden="true" icon="sell" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2" aria-hidden="true" data-sf-static>sell</i></sf-icon>
+<sf-icon class="sf-mail-library-row-icon" data-sf-icon-scale="ladder" size="1/2" aria-hidden="true" icon="sell" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2" aria-hidden="true" data-sf-static>sell</i></sf-icon>
 <span class="sf-mail-library-row-words">
 <span class="sf-mail-library-row-title">Цена</span>
 <span class="sf-mail-library-row-purpose">Цена и старая цена</span>
 <span class="sr-only">Добавить</span>
 </span>
-<span class="sf-mail-library-row-add" aria-hidden="true"><sf-icon icon="add" size="2" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2" aria-hidden="true" data-sf-static>add</i></sf-icon></span>
+<span class="sf-mail-library-row-add" aria-hidden="true"><sf-icon icon="add" data-sf-icon-scale="ladder" size="1/2" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2" aria-hidden="true" data-sf-static>add</i></sf-icon></span>
 </button>
 
 </div>

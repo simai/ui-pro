@@ -7,6 +7,7 @@
   ],
   "sheets": [
     "component/badges/css/badges.min.css",
+    "component/button-group/css/button-group.min.css",
     "component/buttons/css/buttons.min.css",
     "component/close/css/close.min.css",
     "component/dot/css/dot.min.css",
@@ -40,6 +41,7 @@
   "examples": {
     "category": [
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
       "component/dot/css/dot.min.css",
@@ -72,6 +74,7 @@
     ],
     "nothing-found": [
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
       "component/dot/css/dot.min.css",
@@ -104,6 +107,7 @@
     ],
     "one-group": [
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
       "component/dot/css/dot.min.css",
@@ -136,6 +140,7 @@
     ],
     "reference": [
       "component/badges/css/badges.min.css",
+      "component/button-group/css/button-group.min.css",
       "component/buttons/css/buttons.min.css",
       "component/close/css/close.min.css",
       "component/dot/css/dot.min.css",
