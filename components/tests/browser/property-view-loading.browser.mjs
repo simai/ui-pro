@@ -40,8 +40,10 @@ const styles = [
   'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'component/component/pagination/css/pagination.css',
 ].map((p) => join(out, p));
+// Since the pair ui-1ed6b6c9a040 (owner decision C282) SIMAI Framework parts carry
+// English only; a Russian page includes core/lang/ru.js, a classic script, before core.js.
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/badge/js/badge.js',
+  'core/core/lang/ru.js', 'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/badge/js/badge.js',
   'smart/smart/avatar/js/avatar.js', 'smart/smart/reference-link/js/reference-link.js',
   'smart/smart/input/js/input.js', 'smart/smart/tree/js/tree.js',
   'smart/smart/tree-item/js/tree-item.js', 'smart/smart/button-icon/js/button-icon.js',
@@ -81,7 +83,7 @@ const open = async () => {
   const page = await browser.newPage({viewport: {width: 1200, height: 800}});
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><body style="margin:0"><sf-view-properties id="v" collection="demo"></sf-view-properties></body></html>');
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
-  for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
+  for (const path of modules) await page.addScriptTag(path.endsWith('/lang/ru.js') ? {path} : {path, type: 'module'}).catch(() => {});
   await page.waitForFunction(() => customElements.get('sf-view-properties'), null, {timeout: 8000});
   await page.evaluate((record) => {
     window.asked = [];

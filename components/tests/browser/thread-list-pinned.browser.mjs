@@ -18,8 +18,10 @@ const styles = [
   'component/component/skeleton/css/skeleton.css', 'component/component/dropdown/css/dropdown.css', 'smart/smart/list/css/list.css',
   'smart/smart/chat-threads/css/chat-threads.css',
 ].map((p) => join(out, p));
+// Since the pair ui-1ed6b6c9a040 (owner decision C282) SIMAI Framework parts carry
+// English only; a Russian page includes core/lang/ru.js, a classic script, before core.js.
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
+  'core/core/lang/ru.js', 'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/badge/js/badge.js', 'smart/smart/avatar/js/avatar.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/button/js/button.js',
   'smart/smart/empty-state/js/empty-state.js', 'smart/smart/list-item/js/list-item.js', 'smart/smart/list/js/list.js',
@@ -44,7 +46,7 @@ const open = async (options) => {
   const page = await context.newPage();
   await page.setContent('<!doctype html><html class="theme-light" lang="ru"><head><meta charset="utf-8"></head><body style="margin:0"><div id="box" style="display:flex;flex-direction:column;height:600px;width:320px"></div></body></html>');
   for (const style of styles) await page.addStyleTag({path: style}).catch(() => {});
-  for (const module of modules) await page.addScriptTag({path: module, type: 'module'}).catch(() => {});
+  for (const module of modules) await page.addScriptTag(module.endsWith('/lang/ru.js') ? {path: module} : {path: module, type: 'module'}).catch(() => {});
   await page.waitForFunction(() => Boolean(customElements.get('sf-chat-threads')));
   return {context, page};
 };

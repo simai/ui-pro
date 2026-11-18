@@ -19,8 +19,10 @@ const styles = [
   'component/component/inputs/css/inputs.css',
   'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
+// Since the pair ui-1ed6b6c9a040 (owner decision C282) SIMAI Framework parts carry
+// English only; a Russian page includes core/lang/ru.js, a classic script, before core.js.
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
+  'core/core/lang/ru.js', 'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js', 'smart/smart/button/js/button.js',
   'smart/smart/button-icon/js/button-icon.js', 'smart/smart/checkbox/js/checkbox.js',
   'smart/smart/list-item/js/list-item.js', 'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/input/js/input.js', 'smart/smart/spinner/js/spinner.js',
@@ -41,7 +43,7 @@ try {
     + '<div style="width:1100px"><sf-view-table id="t"></sf-view-table></div></body></html>',
   );
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
-  for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
+  for (const path of modules) await page.addScriptTag(path.endsWith('/lang/ru.js') ? {path} : {path, type: 'module'}).catch(() => {});
   await page.waitForTimeout(1300);
 
   await page.evaluate(() => {

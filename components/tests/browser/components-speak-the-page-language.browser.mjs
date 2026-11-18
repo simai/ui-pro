@@ -25,8 +25,10 @@ const styles = [
   'component/component/icon-buttons/css/icon-buttons.css',
   'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
+// Since the pair ui-1ed6b6c9a040 (owner decision C282) SIMAI Framework parts carry
+// English only; a Russian page includes core/lang/ru.js, a classic script, before core.js.
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
+  'core/core/lang/ru.js', 'core/core/js/core.js', 'core/core/js/smart-base.js', 'smart/smart/icon/js/icon.js',
   'smart/smart/button/js/button.js', 'smart/smart/button-icon/js/button-icon.js',
   'smart/smart/checkbox/js/checkbox.js', 'smart/smart/spinner/js/spinner.js',
   'smart/smart/menu-context/js/menu-context.js', 'smart/smart/list-item/js/list-item.js',
@@ -53,7 +55,7 @@ const read = async (lang) => {
     + '<sf-pagination slot="pagination"></sf-pagination></sf-view></body></html>',
   );
   for (const style of styles) await page.addStyleTag({path: style});
-  for (const module of modules) await page.addScriptTag({path: module, type: 'module'});
+  for (const module of modules) await page.addScriptTag(module.endsWith('/lang/ru.js') ? {path: module} : {path: module, type: 'module'});
   await page.waitForFunction(() => Boolean(customElements.get('sf-view-table') && customElements.get('sf-view')));
 
   await page.evaluate(() => {

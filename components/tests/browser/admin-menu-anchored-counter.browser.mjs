@@ -30,8 +30,10 @@ const styles = [
   'smart/smart/admin-menu/css/admin-menu.css',
   'smart/smart/resizer/css/resizer.css',
 ].map((p) => join(out, p));
+// Since the pair ui-1ed6b6c9a040 (owner decision C282) SIMAI Framework parts carry
+// English only; a Russian page includes core/lang/ru.js, a classic script, before core.js.
 const modules = [
-  'core/core/js/core.js', 'core/core/js/smart-base.js',
+  'core/core/lang/ru.js', 'core/core/js/core.js', 'core/core/js/smart-base.js',
   // The badges component, twice: the SIMAI Framework loader injects a
   // component's classic script once per plugin that names it as a relation
   // (four times on ui-admin's mock-api page, 2026-10-21), and each copy of the
@@ -85,7 +87,7 @@ async function open({width, theme, body}) {
   for (const path of styles) await page.addStyleTag({path}).catch(() => {});
   // The icon font is missing here: the glyphs take the size the font gives them.
   await page.addStyleTag({content: '.sf-icon{display:inline-block;inline-size:1.25rem;block-size:1.25rem;overflow:hidden}'});
-  for (const path of modules) await page.addScriptTag({path, type: 'module'}).catch(() => {});
+  for (const path of modules) await page.addScriptTag(path.endsWith('/lang/ru.js') ? {path} : {path, type: 'module'}).catch(() => {});
   await page.waitForFunction(() => window.SF?.AnchoredBadge && customElements.get('sf-admin-menu'), null, {timeout: 8000});
   await page.waitForTimeout(600);
   return page;
