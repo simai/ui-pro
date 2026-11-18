@@ -460,7 +460,7 @@
       },
       {
         "path": "src/smart/mail-library/js/templates/default.js",
-        "sha256": "680538232755e8eb0486241cfa63ce646a96ad2c760cfeb79b858d5f2e735133"
+        "sha256": "d5020d24077f96d72b9068dfc2f602a51c79e68123a5b7d4128598fd3d8605c8"
       },
       {
         "path": "src/smart/mail-library/js/templates/default.css",
@@ -476,7 +476,7 @@
       },
       {
         "path": "src/smart/mail-library/component.json",
-        "sha256": "54b6b222246a376d42859fb583f8f54ae8cd219b22200d84030ed7c0f84ba513"
+        "sha256": "a57d8300a56d4b3edf7d75a89cdf7548082992db928759ccc70d09f6566248c2"
       },
       {
         "path": "src/smart/mail-library/lang/en.json",

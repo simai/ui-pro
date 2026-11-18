@@ -89,3 +89,9 @@ test('DF-16: the Library chooses its category with sf-segmented, not a row of to
   const relations = component.relations.map((relation) => relation.name);
   assert.ok(relations.includes('cl-segmented') && !relations.includes('cl-button'));
 });
+
+test('DF-16: the Library rows name their icon size on the ladder, not the old scale', () => {
+  const template = code('mail-library/js/templates/default.js');
+  assert.doesNotMatch(template, /<sf-icon[^>]* size="2"/u);
+  assert.equal(template.match(/data-sf-icon-scale="ladder" size="1\/2"/gu)?.length, 4);
+});

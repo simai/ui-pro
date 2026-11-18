@@ -12,13 +12,13 @@ function renderRow(context, item) {
     return html`
         <button type="button" class="sf-mail-library-row" data-add=${item.type} title=${tip}
                 @click=${() => context.component.add({type: item.type})}>
-            <sf-icon class="sf-mail-library-row-icon" icon=${item.icon || "widgets"} size="2" aria-hidden="true"></sf-icon>
+            <sf-icon class="sf-mail-library-row-icon" icon=${item.icon || "widgets"} data-sf-icon-scale="ladder" size="1/2" aria-hidden="true"></sf-icon>
             <span class="sf-mail-library-row-words">
                 <span class="sf-mail-library-row-title">${item.title}</span>
                 ${item.purpose ? html`<span class="sf-mail-library-row-purpose">${item.purpose}</span>` : nothing}
                 <span class="sr-only">${context.addLabel}</span>
             </span>
-            <span class="sf-mail-library-row-add" aria-hidden="true"><sf-icon icon="add" size="2"></sf-icon></span>
+            <span class="sf-mail-library-row-add" aria-hidden="true"><sf-icon icon="add" data-sf-icon-scale="ladder" size="1/2"></sf-icon></span>
         </button>
     `;
 }
@@ -32,13 +32,13 @@ function renderVariant(context, place, item) {
                 data-variant=${item.type} data-family=${place.family} aria-pressed=${String(current)}
                 title=${`${item.title} — ${item.purpose ?? ""}`}
                 @click=${() => context.component.replace({family: place.family, type: item.type})}>
-            <sf-icon class="sf-mail-library-row-icon" icon=${item.icon || "widgets"} size="2" aria-hidden="true"></sf-icon>
+            <sf-icon class="sf-mail-library-row-icon" icon=${item.icon || "widgets"} data-sf-icon-scale="ladder" size="1/2" aria-hidden="true"></sf-icon>
             <span class="sf-mail-library-row-words">
                 <span class="sf-mail-library-row-title">${item.title}</span>
                 ${item.purpose ? html`<span class="sf-mail-library-row-purpose">${item.purpose}</span>` : nothing}
                 <span class="sr-only">${current ? context.currentLabel : `${context.changeVariantLabel} ${place.title}`}</span>
             </span>
-            <span class="sf-mail-library-row-add" aria-hidden="true"><sf-icon icon=${current ? "check" : "swap_horiz"} size="2"></sf-icon></span>
+            <span class="sf-mail-library-row-add" aria-hidden="true"><sf-icon icon=${current ? "check" : "swap_horiz"} data-sf-icon-scale="ladder" size="1/2"></sf-icon></span>
         </button>
     `;
 }
