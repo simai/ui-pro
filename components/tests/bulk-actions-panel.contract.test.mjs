@@ -106,7 +106,7 @@ test('every word in the panel is an attribute a host can translate', async () =>
       `${accessor} is read through a getter`,
     );
   }
-  assert.ok('sf-selection-clear' in declared.events, 'and the event is announced');
+  assert.ok('sf-pagination-selection-clear' in declared.events, 'and the event is announced');
 });
 
 test('the band is the last strip of the card, and it is the card that places it', async () => {

@@ -246,11 +246,10 @@ test('every event the source dispatches is in the manifest and the docs, and not
     const source = read(`src/smart/${name}/index.js`);
     const manifest = json(`src/smart/${name}/smart.manifest.json`);
     const docs = read(`src/smart/${name}/docs.md`);
-    // Literal names, and the one template literal: sf-change-confirm-${kind}.
+    // Literal names only: the confirm-change template literal left with the component.
     const literal = [...source.matchAll(/["'`](sf-[a-z-]+?)["'`]/gu)].map(([, event]) => event)
       .filter((event) => event.startsWith(`sf-${name}-`));
-    const templated = /`sf-change-confirm-\$\{kind\}`/u.test(source) ? ['sf-change-confirm-accept', 'sf-change-confirm-decline'] : [];
-    const dispatched = [...new Set([...literal, ...templated])].filter((event) => !event.endsWith('-heading')).sort();
+    const dispatched = [...new Set(literal)].filter((event) => !event.endsWith('-heading')).sort();
     assert.deepEqual(dispatched, Object.keys(manifest.events).sort(), `${name}: dispatched and declared events`);
     for (const event of dispatched) assert.match(docs, new RegExp(`\`${event}\``, 'u'), `${name}: ${event} is not in docs.md`);
   }
