@@ -37,6 +37,13 @@ const notInThisPort = new Map([
   // read two keys port 1.18.0 does not carry (2026-11-18):
   ['currencies', 'the money field\'s currency list, declared by simai.property-view-port 1.19.0 (C294); the component accepts a 1.19.0 host, whose schema carries it, while the contract it is checked against stays 1.18.0'],
   ['defaultCountry', 'the phone renderer\'s first country, read by the pair\'s field renderers but declared by no simai.property-view-port edition up to 1.22.0; a property-view host does not send it until the port declares it (reported to the Framework, 2026-11-18)'],
+  // Over the pair ui-97a0ebb762eb (group build 13, ui-source c570a557b) the
+  // renderers read three keys simai.property-view-port 1.20.0 declares (type
+  // templates, 2026-11-19); the component accepts a 1.20.0..1.22.0 host, whose
+  // schema carries them, while its contract stays 1.18.0:
+  ['template', 'the field\'s look within its type, declared by simai.property-view-port 1.20.0 (type templates); a template only draws, never changes a value, and the contract this component is checked against stays 1.18.0'],
+  ['templateParams', 'the parameters of that template, declared by simai.property-view-port 1.20.0 with template; the contract stays 1.18.0'],
+  ['decimals', 'the decimal places a number draws, declared by simai.property-view-port 1.20.0; the contract stays 1.18.0'],
   // min, max, step and precision (the stepper's bounds and decimals) and the
   // settings of the property types the set draws itself (currency, columns,
   // minRows, maxRows, parts) were excused here until simai.property-view-port

@@ -9,6 +9,12 @@ const read = (path) => readFile(new URL(path, root), 'utf8');
 const styles = async () => (await read('src/component/pagination/scss/_css__pagination.scss'))
   .replace(/\/\*[\s\S]*?\*\//gu, '');
 
+// Since the pair ui-97a0ebb762eb (sf-pagination 1.9.0, owner decision C295)
+// the band of bulk controls is the group actions bar, sf-bulk-actions: «Выбрано
+// N», the actions as buttons (the dangerous one last, BA-1), «Выбрать все N»
+// once the page is selected, and ×. The pagination gives the bar its settings
+// and turns the bar's events into its own, so a host listening for
+// sf-pagination-apply and -selection-clear is served as before.
 test('the panel is there while rows are marked, and not there otherwise', async () => {
   const markup = await read('src/smart/pagination/js/templates/default.js');
 
@@ -17,45 +23,34 @@ test('the panel is there while rows are marked, and not there otherwise', async 
     /\$\{context\.bottom && context\.showActions && context\.actions\?\.length && context\.selectedCount > 0/u,
     'nothing marked, no panel',
   );
-  assert.match(markup, /role="region"\s*aria-label=\$\{context\.actionsRegionLabel\}/u);
-  assert.match(
-    markup,
-    /sf-pagination-actions-count">\s*\$\{context\.selectedLabel\} \$\{context\.selectedCount\}/u,
-    'the panel says how many are marked',
-  );
+  assert.match(markup, /<sf-bulk-actions[\s\S]*?label=\$\{context\.actionsRegionLabel\}/u, 'the bar, named as the region was');
+  assert.match(markup, /count=\$\{String\(context\.selectedCount\)\}/u, 'the panel says how many are marked');
 });
 
-test('the panel carries the four controls the owner asked for', async () => {
+test('the panel carries what the owner asked for, as the group actions bar', async () => {
   const markup = await read('src/smart/pagination/js/templates/default.js');
 
-  assert.match(markup, /placeholder=\$\{context\.actionChooseLabel\}/u, 'the list asks for an action');
-  // And it opens on that choice rather than on the first real action: a select
-  // that starts on an action makes Apply pressable before anyone has chosen,
-  // and the first action is as likely to be "delete for ever" as anything else.
-  assert.match(
-    markup,
-    /text: context\.actionChooseLabel,\s*value: "",\s*selected: !context\.action,/u,
-    'the first option is not an action',
-  );
-  assert.match(
-    markup,
-    /text=\$\{context\.actionApplyText\}\s*\?disabled=\$\{!context\.action\}/u,
-    'apply is out of reach until an action is chosen',
-  );
-  // It names the number when there is one, an estimate as «~N» (gate 29).
-  // With the count unknown the label stays bare until marking the box has
-  // asked for it.
-  const forAll = async (settings) => /<sf-checkbox\s+(?:size=\S*\s+)?label=([^\n]*?)\s+\?checked=/u.exec((await render(await pagination({
+  assert.match(markup, /\.actions=\$\{context\.bulkActions\}/u, 'the actions, as the bar draws them');
+  assert.match(markup, /@sf-bulk-actions-action=\$\{\(event\) => component\.applyBulkAction\(event\)\}/u);
+  assert.match(markup, /@sf-bulk-actions-select-all=\$\{\(\) => component\.setActionForAll\(true\)\}/u);
+  assert.match(markup, /@sf-bulk-actions-clear=\$\{\(\) => component\.clearSelection\(\)\}/u, 'and the cross drops the selection');
+  // «Выбрать все N» names the number when there is one (an estimate too);
+  // with the count unknown the bar is given none.
+  const total = async (settings) => /<sf-bulk-actions[^>]*?\stotal=(\S*)/u.exec((await render(await pagination({
     selectedCount: 2, actions: 'archive:Archive', showActionForAll: true, ...settings,
   }))).markup)?.[1];
-  assert.equal(await forAll({total: 450}), '{action-for-all-label} (450)', 'for-all names how many it would touch');
-  assert.equal(await forAll({total: 450, totalExact: false}), '{action-for-all-label} (~450)');
-  assert.equal(await forAll({countKnown: false}), '{action-for-all-label}');
-  assert.match(
-    markup,
-    /sf-pagination-actions-clear"[\s\S]*?icon="close"[\s\S]*?@click=\$\{\(\) => component\.clearSelection\(\)\}/u,
-    'and the cross drops the selection',
-  );
+  assert.equal(await total({total: 450}), '450', 'for-all names how many it would touch');
+  assert.equal(await total({total: 450, totalExact: false}), '450');
+  assert.equal(await total({countKnown: false}), '');
+  // An action of the bar is the band's choice and Apply: the host hears the
+  // three events it heard before, in the same order.
+  const element = await pagination({selectedCount: 2, actions: 'archive:Archive', showActionForAll: true, total: 450});
+  element.applyBulkAction({detail: {id: 'archive', scope: 'all'}});
+  assert.deepEqual(element.events.map((event) => event.name), ['action-change', 'action-for-all-change', 'apply']);
+  assert.equal(element.events.at(-1).detail.action, 'archive');
+  const none = await pagination({selectedCount: 2, actions: 'archive:Archive'});
+  none.applyBulkAction({detail: {}});
+  assert.deepEqual(none.events, [], 'no action, nothing applied');
 });
 
 test('the cross announces the end of a selection it does not own', async () => {

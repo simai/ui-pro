@@ -225,8 +225,8 @@ test('a marked row still counts when the total does not', async () => {
   assert.equal((await pagination({total: 2, totalExact: false, selectedCount: 3})).selectedCount, 3,
     'an estimate does not');
   const panel = await render(await pagination({countKnown: false, total: 0, selectedCount: 3, actions: 'archive:Archive'}));
-  assert.match(panel.markup, /<span class="sf-pagination-actions-count">\s*\{selected-label\} 3\s*<\/span>/u,
-    'and the panel is there');
+  // The panel is the group actions bar since sf-pagination 1.9.0 (C295).
+  assert.match(panel.markup, /<sf-bulk-actions[\s\S]*?\bcount=3\b/u, 'and the panel is there');
 });
 
 test('nothing is clamped by a count that does not exist', async () => {

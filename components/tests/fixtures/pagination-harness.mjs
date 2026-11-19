@@ -95,10 +95,14 @@ let loaded;
 /** The pagination class and its template renderer, from the overlay's sources. */
 export async function loadPagination() {
   loaded ??= (async () => {
-    const [index, template, actions, manifest, en] = await Promise.all([
+    const [index, template, danger, manifest, en] = await Promise.all([
       read('src/smart/pagination/index.js'),
       read('src/smart/pagination/js/templates/default.js'),
-      read('src/smart/pagination/js/actions.js'),
+      // The danger rule is sf-bulk-actions' since sf-pagination 1.9.0 (owner
+      // decision C295); js/actions.js re-exports it, and index.js imports
+      // isDestructiveAction from there to give the bar its actions. The rule
+      // imports nothing, so it is laid in as it is.
+      read('src/smart/bulk-actions/js/danger.js'),
       read('src/smart/pagination/component.json'),
       // The words are read at module level since sf-pagination 1.2.1 (its
       // former camelCase keys are derived from them), so they are the real
@@ -108,19 +112,19 @@ export async function loadPagination() {
       // {en: {runtime: en.json's runtime}}; Russian comes from a language file.
       read('src/smart/pagination/lang/en.json'),
     ]);
-    const element = stripImports(index, 9, 'src/smart/pagination/index.js')
+    const element = stripImports(index, 10, 'src/smart/pagination/index.js')
       .replace(/^SfPagination\.define\("sf-pagination"\);$/mu, 'export default SfPagination;');
     if (!/export default SfPagination;/u.test(element)) {
       throw new Error('src/smart/pagination/index.js: SfPagination.define("sf-pagination") not found');
     }
     const {default: SfPagination} = await asModule(
-      `${BASE}\nconst manifest = ${manifest};\nconst aliases = {};\nconst languageFiles = {en: {runtime: (${en}).runtime}};\n${element}`,
+      `${BASE}\n${stripImports(danger, 0, 'src/smart/bulk-actions/js/danger.js')}\nconst manifest = ${manifest};\nconst aliases = {};\nconst languageFiles = {en: {runtime: (${en}).runtime}};\n${element}`,
     );
-    // The template keys the Apply button by its danger (lit's keyed) and lists
-    // the band's actions through js/actions.js (C116) since sf-pagination 1.7;
-    // actions.js imports nothing, so it is laid in as it is.
+    // Since sf-pagination 1.9.0 the template imports lit's html and nothing
+    // alone: the band is the sf-bulk-actions bar, which the element gives its
+    // actions (C295).
     const {renderPaginationTemplate} = await asModule(
-      `const html = (strings, ...values) => ({strings, values});\nconst nothing = undefined;\nconst keyed = (key, value) => value;\n${stripImports(actions, 0, 'src/smart/pagination/js/actions.js')}\n${stripImports(template, 3, 'src/smart/pagination/js/templates/default.js')}`,
+      `const html = (strings, ...values) => ({strings, values});\nconst nothing = undefined;\n${stripImports(template, 1, 'src/smart/pagination/js/templates/default.js')}`,
     );
     return {SfPagination, renderPaginationTemplate};
   })();

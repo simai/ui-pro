@@ -35,8 +35,10 @@ test("the package composites are generated into the searchable registry beside t
   // (ui-0c23f6a0af12): 81 free and 17 of the package make 98. sf-time and
   // sf-change (ui-7f1d29b02919): 83 free and 17 of the package make 100.
   // sf-display-settings, sf-form and sf-tag-group (ui-078a4b4c6f6e): 86 free
-  // and 17 of the package make 103.
-  assert.equal(registry.entries.length, 103);
+  // and 17 of the package make 103. sf-bulk-actions, the group actions bar
+  // (C295, ui-97a0ebb762eb): 87 free and 17 of the package make 104.
+  assert.equal(registry.entries.length, 104);
+  assert.ok(registry.entries.some((entry) => entry.id === "smart.bulk-actions"), "sf-bulk-actions, the Framework's");
   assert.ok(registry.entries.some((entry) => entry.id === "smart.confirm-change"), "sf-confirm-change, now the Framework's");
   for (const id of ["smart.admin-menu", "smart.view-table", "smart.view", "smart.view-properties",
     "smart.message-log", "smart.chat-threads", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
