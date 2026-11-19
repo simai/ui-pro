@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.23.2",
+  "version": "1.25.3",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2746,6 +2746,13 @@
         "changes": [
           "Rebuilt over SIMAI Framework ui-1ed6b6c9a040 (ui-source acc113415, core.runtime 1.60.0). The Framework code it builds in moved: sf-pagination carries its English words only and takes every other language from a language file (owner decision C282); smart.manifest.json's provenance of src/smart/pagination/index.js follows. simai/ui-view round/view-r2-page holds 1.23.1, so the number is 1.23.2, above every origin branch; the view set's own 1.20.5 to 1.23.1 are not in this copy, which ui-pro drops once the View release takes its place (D31). Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.23.2",
+        "to": "1.25.3",
+        "changes": [
+          "Rebuilt over SIMAI Framework ui-97a0ebb762eb (group build 13; ui-source c570a557b, core.runtime 1.62.0). The Framework code it builds in moved: sf-pagination draws its band of bulk controls as the group actions bar sf-bulk-actions (owner decision C295) and keeps one page without page navigation (Larena LF-11), and the option badge helper gained the option look (FO4); smart.manifest.json's provenance of src/smart/pagination/index.js and src/smart/helpers/option-badge.js follows. simai/ui-view round/view-r5-shadow-menu holds 1.25.2 (the released view 1.9.0 has 1.25.1), so the number is 1.25.3, above every origin branch; the view set's own 1.23.3 to 1.25.2 are not in this copy, which ui-pro drops once the View release takes its place (D31). Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -2767,7 +2774,7 @@
       },
       {
         "path": "src/smart/helpers/option-badge.js",
-        "sha256": "bc56841fbeb1689e492d3e47b754ab76ca7de9502740a05c105eb26ead44ee2d"
+        "sha256": "ad7638a3bc1c7baf8895dcd10b3eebcd08f47843c8f56a973a4e18974dc0dfca"
       },
       {
         "path": "src/smart/view-table/rule.js",
@@ -2779,7 +2786,7 @@
       },
       {
         "path": "src/smart/pagination/index.js",
-        "sha256": "942192f5112be7e05271f8ffbc7f1145ddad789217b4844753ce68bc2464007e"
+        "sha256": "b3edc530b8c4c41533f25ad23b1ea134dfbda9fb910366e1e7784211dcf35bd9"
       }
     ],
     "generated_runtime": []

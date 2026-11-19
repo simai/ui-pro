@@ -96,7 +96,11 @@ const PATCHED = {
   // (above ui-view round/view-r2-page's 1.23.1): the provenance of
   // src/smart/pagination/index.js (sf-pagination English only, C282) and the
   // version; nothing else. simai/ui-view takes the same when it moves to that pair.
-  'view-table': {tree: '3ebe697e5f9f0db06998587aa03b5d1de5c3e699', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), first-paint snapshots retaken, over the K-1 1.19.8 (the released pro-589ced99cfbd has a 1.19.8 without it), sf-view-table 1.20.4 (2026-11-17); over ui-1ed6b6c9a040 (ui-source acc113415), pagination provenance, sf-view-table 1.23.2 (2026-11-18)'},
+  // Over ui-97a0ebb762eb (group build 13, ui-source c570a557b, 2026-11-19),
+  // sf-view-table 1.25.3 (above ui-view round/view-r5-shadow-menu's 1.25.2): the
+  // provenance of src/smart/pagination/index.js (the bulk band is sf-bulk-actions,
+  // C295) and src/smart/helpers/option-badge.js (FO4), and the version; nothing else.
+  'view-table': {tree: '20b9be6d27c82baa7099084d2e2d74a9469b1b13', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), first-paint snapshots retaken, over the K-1 1.19.8 (the released pro-589ced99cfbd has a 1.19.8 without it), sf-view-table 1.20.4 (2026-11-17); over ui-1ed6b6c9a040 (ui-source acc113415), pagination provenance, sf-view-table 1.23.2 (2026-11-18); over ui-97a0ebb762eb (ui-source c570a557b), pagination and option-badge provenance, sf-view-table 1.25.3 (2026-11-19)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.
