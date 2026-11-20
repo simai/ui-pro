@@ -6329,7 +6329,13 @@ class SfTable extends TableElement {
         const current = this._contextPositions.get(menu);
         // SF.Position writes an inline max-width from the free space, which
         // would override the menu's stylesheet cap; keep that cap in the width.
-        const cssCap = current?.cssCap ?? (parseFloat(getComputedStyle(surface).maxWidth) || Infinity);
+        // A cap in pixels only: since component.context-menu's F-2 (pair
+        // ui-b654460cad2a) the menu's box says max-inline-size: 100%, which
+        // getComputedStyle gives back as "100%", and parseFloat read it as
+        // 100px -- a menu near the window's edge was 100px wide and its rows
+        // stood past its surface.
+        const cssMax = getComputedStyle(surface).maxWidth;
+        const cssCap = current?.cssCap ?? (/^\d+(?:\.\d+)?px$/u.test(cssMax) ? parseFloat(cssMax) : Infinity);
         const inlineSize = `${Math.max(0, Math.min(viewport.right - viewport.left - inset * 2, cssCap))}px`;
         surface.style.setProperty('--sf-table-context-menu--available-inline-size', inlineSize);
         surface.style.setProperty('--sf-context-menu-available-inline-size', inlineSize);

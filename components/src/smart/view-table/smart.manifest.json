@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.25.3",
+  "version": "1.29.1",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2753,6 +2753,13 @@
         "changes": [
           "Rebuilt over SIMAI Framework ui-97a0ebb762eb (group build 13; ui-source c570a557b, core.runtime 1.62.0). The Framework code it builds in moved: sf-pagination draws its band of bulk controls as the group actions bar sf-bulk-actions (owner decision C295) and keeps one page without page navigation (Larena LF-11), and the option badge helper gained the option look (FO4); smart.manifest.json's provenance of src/smart/pagination/index.js and src/smart/helpers/option-badge.js follows. simai/ui-view round/view-r5-shadow-menu holds 1.25.2 (the released view 1.9.0 has 1.25.1), so the number is 1.25.3, above every origin branch; the view set's own 1.23.3 to 1.25.2 are not in this copy, which ui-pro drops once the View release takes its place (D31). Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.25.3",
+        "to": "1.29.1",
+        "changes": [
+          "A menu opened from a control near the window's edge keeps its width again. Over SIMAI Framework ui-b654460cad2a (group build 14; ui-source 049a2ba3d, core.runtime 1.64.0, core.styles 1.20.0) the context menu's box says max-inline-size: 100% (component.context-menu, F-2), which getComputedStyle gives back as \"100%\"; anchorContextMenu read it with parseFloat as a 100px cap, so the view's actions menu at the end of a 1180px window was 100px wide and its rows (152px) stood past its surface. The stylesheet cap is now read only when it is in pixels. 1.29.1 is above simai/ui-view round/view-r8's 1.29.0, the highest on any origin branch; the view set's own 1.25.4 to 1.29.0 are not in this copy, which ui-pro drops once the View release takes its place (D31). Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -2762,7 +2769,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-table/index.js",
-        "sha256": "f09cd612936c1988bc20384f6e616468ed426899c10438924f66972eb08a25bb"
+        "sha256": "546182499048c1515d9e4ee115363879fc726c4f820231688a2d09cf17f117ec"
       },
       {
         "path": "src/smart/view-table/js/templates/default.js",
