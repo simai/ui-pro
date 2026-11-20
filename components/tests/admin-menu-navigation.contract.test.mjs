@@ -50,5 +50,10 @@ test('Admin Menu search and directional panels reuse logical navigation behavior
   );
   assert.match(styles, /\.sf-admin-menu-panel-sub\.open \{\s*transform: translateX\(0\);/u, 'the same as a submenu');
   assert.doesNotMatch(styles, /\.sf-admin-menu-panel-search\.open[^{]*\{\s*transform: translateX\(-?100%\)/u);
-  assert.match(styles, /\.sf-admin-menu-direction-icon:dir\(rtl\)/);
+  // The direction icon and the back chevron are directional glyphs: since
+  // component.admin-menu 1.3.3 (ui-source 136c4fec7, pair ui-b654460cad2a) the
+  // icons sheet alone turns them in a right-to-left menu; a second turn here
+  // turned them back.
+  assert.doesNotMatch(styles, /\.sf-admin-menu-direction-icon:dir\(rtl\)/);
+  assert.doesNotMatch(styles, /\.sf-admin-menu-back-button:dir\(rtl\) \.sf-icon/);
 });

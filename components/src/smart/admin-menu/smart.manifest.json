@@ -1395,7 +1395,7 @@
       },
       {
         "path": "src/component/admin-menu/scss/_css__admin_menu.scss",
-        "sha256": "5c67621bed0c5dc149b436b50da61e8750dad4197f98f1e74dabdf540254f2c0"
+        "sha256": "dd6ace7f40fe045572eaef3c810504ef47916758e7ebbc99503769cf1a6f48ca"
       },
       {
         "path": "src/smart/admin-menu/component.json",
