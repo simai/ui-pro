@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.20.1",
+  "version": "1.23.4",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1667,6 +1667,13 @@
         "changes": [
           "Accepts simai.property-view-port 1.20.0, 1.21.0 and 1.22.0 (SIMAI Framework group build 13, ui-source integration/pair-next-15 89b0c3b8e): a host that declares any of them is taken as one that declares 1.18.0 (SUPPORTED_PORT_VERSIONS, x-port.supports, host_port.supported_versions). The three editions only add: field keys template, templateParams, decimals and holder and new type names (1.20.0), record.history and record.neighbours behind their own capabilities and the refusal revision_moved (1.21.0), view.publish, view.lock and the view keys head, locked and profiles[].required (1.22.0); the kit keeps 1.19.0's 65 cases unchanged (75 in 1.22.0). What the panel reads and writes does not change: it asks neither new intent, a field sent with template alone is drawn with its type's default template, a type name it does not know (phone, password, complex, url, link, ru.inn) is not offered for editing and nothing is written for it, revision_moved is shown as a refusal with nothing written, and its view.save with target.kind shared and a layer's variant are read by a 1.22.0 host until 2027-01-01. The contract it is checked against stays 1.18.0, as 1.19.0..1.22.0 only add to it; built over the released pair ui-dc9fc39aeb26 (ui-source 1dd18375c), which carries 1.19.0. The number is above 1.20.0, which simai/ui-view round/view-r4 holds."
         ]
+      },
+      {
+        "from": "1.20.1",
+        "to": "1.23.4",
+        "changes": [
+          "The loading skeleton's strip of section tabs no longer prints an empty panel row (.sf-tabs-main-container). Since SIMAI Framework ui-97a0ebb762eb sf-tabs hides an empty panel row (hidden, data-sf-panels-empty), and the record's tabs hold no panels, so the skeleton stood 32px taller than the tabs (72 against 40 at size 1, 64 against 32 at 1/2) and the first group moved up by them when the record came (simai/ui-pro#3). skeleton.html and the two first-paint snapshots that print the skeleton follow. Built over SIMAI Framework ui-b654460cad2a (group build 14; ui-source 049a2ba3d, core.runtime 1.64.0, core.styles 1.20.0). 1.23.4 is above simai/ui-view round/view-site-docs' 1.23.3, the highest on any origin branch; the view set's own 1.20.2 to 1.23.3 are not in this copy (D31). Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1680,11 +1687,11 @@
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
-        "sha256": "737883a29aa0d85eb2e4753248bab856e5ff390db92f4b423d8017acd888d744"
+        "sha256": "2ac9da5234f2982ad8b6ab8b3eea78d8f96e3cfd765cf7f3c9f006e38f0205a9"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.css",
-        "sha256": "0b4b48b7758a14d4f7fcd81627bae147668168913dbeab6b7bcb18bfe5e6708a"
+        "sha256": "2993291d144b447e3ebd947eafff75fdbf892884d5a94299f083f2c886295fb0"
       },
       {
         "path": "src/smart/view-properties/js/conditions.js",

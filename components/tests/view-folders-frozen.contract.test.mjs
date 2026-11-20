@@ -68,8 +68,11 @@ const PATCHED = {
   // simai/ui-view releases the same in view 1.8.2. sf-view-properties 1.20.1
   // (2026-11-18, above ui-view round/view-r4's 1.20.0): it accepts
   // simai.property-view-port 1.20.0..1.22.0 (group build 13, additive), as
-  // view 1.8.3 does with 1.20.2.
-  'view-properties': {tree: 'bc184ad623cc7f34bc01b4904e8991b08c33865e', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17); accepts simai.property-view-port 1.19.0 (C294), sf-view-properties 1.19.1 (2026-11-18); accepts simai.property-view-port 1.20.0..1.22.0 (group build 13), sf-view-properties 1.20.1 (2026-11-18)'},
+  // view 1.8.3 does with 1.20.2. sf-view-properties 1.23.4 (2026-11-20, over
+  // ui-b654460cad2a, above ui-view round/view-site-docs' 1.23.3): the loading
+  // skeleton prints no empty tabs panel row, as sf-tabs no longer draws one
+  // (pair ui-97a0ebb762eb); simai/ui-view needs the same.
+  'view-properties': {tree: '2d648346a6f3e4f1e5b4c68b673c7ed067da93b9', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17); accepts simai.property-view-port 1.19.0 (C294), sf-view-properties 1.19.1 (2026-11-18); accepts simai.property-view-port 1.20.0..1.22.0 (group build 13), sf-view-properties 1.20.1 (2026-11-18); over ui-b654460cad2a (ui-source 049a2ba3d), the skeleton without the empty tabs panel row, sf-view-properties 1.23.4 (2026-11-20)'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).
@@ -100,7 +103,12 @@ const PATCHED = {
   // sf-view-table 1.25.3 (above ui-view round/view-r5-shadow-menu's 1.25.2): the
   // provenance of src/smart/pagination/index.js (the bulk band is sf-bulk-actions,
   // C295) and src/smart/helpers/option-badge.js (FO4), and the version; nothing else.
-  'view-table': {tree: '20b9be6d27c82baa7099084d2e2d74a9469b1b13', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), first-paint snapshots retaken, over the K-1 1.19.8 (the released pro-589ced99cfbd has a 1.19.8 without it), sf-view-table 1.20.4 (2026-11-17); over ui-1ed6b6c9a040 (ui-source acc113415), pagination provenance, sf-view-table 1.23.2 (2026-11-18); over ui-97a0ebb762eb (ui-source c570a557b), pagination and option-badge provenance, sf-view-table 1.25.3 (2026-11-19)'},
+  // Over ui-b654460cad2a (group build 14, ui-source 049a2ba3d, 2026-11-20),
+  // sf-view-table 1.29.1 (above ui-view round/view-r8's 1.29.0): the context
+  // menu's stylesheet cap is read only in pixels (the menu's box says
+  // max-inline-size: 100% since F-2, which parseFloat read as 100px); simai/ui-view
+  // needs the same.
+  'view-table': {tree: '4710d137c4fabd09e2d27100945e04856397565b', patch: 'surface role for the pin shadow, sf-view-table 1.17.1 (2026-11-12); over ui-994f9db407fa, row-text inset and menu inset, sf-view-table 1.19.7 (2026-11-15); over ui-078a4b4c6f6e, pagination provenance, the head row on the table row floor, and the K-1 ⋯ and row context menu, sf-view-table 1.19.8 (2026-11-16); over group build 9 (ui-source 3d55e44d7), pagination provenance, resize observers that wait for the next frame (PRO-ADM-12) and ghost icon buttons (C15), first-paint snapshots retaken, over the K-1 1.19.8 (the released pro-589ced99cfbd has a 1.19.8 without it), sf-view-table 1.20.4 (2026-11-17); over ui-1ed6b6c9a040 (ui-source acc113415), pagination provenance, sf-view-table 1.23.2 (2026-11-18); over ui-97a0ebb762eb (ui-source c570a557b), pagination and option-badge provenance, sf-view-table 1.25.3 (2026-11-19); over ui-b654460cad2a (ui-source 049a2ba3d), the context menu cap read in pixels only, sf-view-table 1.29.1 (2026-11-20)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

@@ -357,9 +357,9 @@
   }
 
   /* Its strip is a tab's height: the control height of the view's size, the
-     height sf-tabs gives its buttons. The hairline under it and the empty panel
-     below are the tabs' sheet's (.sf-tabs-top-container, .sf-tabs-main-container),
-     so the record's tabs take the same box when they come (simai/ui-pro#3).
+     height sf-tabs gives its buttons. The hairline under it is the tabs' sheet's
+     (.sf-tabs-top-container), so the record's tabs take the same box when they
+     come (simai/ui-pro#3); sf-tabs draws no empty panel row, nor does this.
      The tabs are sf-tabs' underline look, whose strip of buttons stands over
      the hairline (margin-bottom: minus the tabs' border width) so the line
      under the current tab covers it; the skeleton's strip does the same, or
