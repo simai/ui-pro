@@ -601,6 +601,14 @@
         },
         {
           "wait": 50,
+          "check": "heard.length === 0 && document.activeElement !== one.querySelector('[data-toggle=\"1\"]') && one.contains(document.activeElement)"
+        },
+        {
+          "user": "keyboard:Escape",
+          "wait": 200
+        },
+        {
+          "wait": 50,
           "check": "JSON.stringify(heard) === JSON.stringify([['level', {index: -1}]])"
         }
       ]

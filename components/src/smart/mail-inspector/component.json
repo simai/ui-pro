@@ -2,7 +2,7 @@
   "$comment": "The source of sf-mail-inspector's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-mail by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. Written by hand in the 1.4 form on the shape of sf-mail-structure; x-decisions says how each point was decided.",
   "id": "smart.mail-inspector",
   "tag": "sf-mail-inspector",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "kind": "leaf",
   "family": "form",
   "settings": {
@@ -538,7 +538,8 @@
     "version 1.1.0 (2026-11-15): a minor (decisions C04, C105 H5, C144, C164 (1)(2); register RG-S2-44, defect TL-2), for SIMAI Framework ui-994f9db407fa (ui-source 09cf1b0f). An item's disclosure and its ⋯ stand --sf-space-1/3 apart (8, 4 under compact density), where they stood 4: a row's actions are not a toolbar. An item's ⋯ menu also opens on a right click on the item's row, at the pointer (sf-menu-context's point anchor); the context-menu key and Shift+F10 already opened it. The menu's «Выше» and «Ниже» keys are written in SIMAI Framework's notation (alt+up, alt+down): ⌥↑ on a Mac, Alt+↑ elsewhere. Settings, values, events and actions are unchanged.",
     "version 1.1.1 (2026-11-16, defect TL-7 of the toolbar and row-menu study, ui-control control/research/2026-11-14-toolbar-menu-open.md; above 1.1.0 of every branch): a patch. The ⋯ menu asks the Loader for sf-menu-context (SF.Loader.ensure) before waiting for it, so a press before the page's lazy relations came opens the menu instead of nothing. Nothing drawn differently; settings, values, events and keys unchanged.",
     "version 1.1.2 (2026-11-17): a patch (a look). A multi-line property (a note) is the Framework's multi-line field as it is (C141 (2)): it no longer sets min-rows=\"2\" max-rows=\"12\", so it opens at 3 rows and grows to 10, as every multi-line field in a property form. Settings, values and events unchanged.",
-    "version 1.1.3 (2026-11-17): a patch (vocabulary 1.1.5 §9.1; IF-16, ui-mail e2e-m2). The image field is heard under the events sf-input-image sends: sf-input-image-attach, sf-input-image-detach and sf-input-image-rejected. The inspector listened to sf-image-field-attach, -detach and -rejected, which sf-input-image sends only under its dated tag sf-image-field, so a chosen, removed or refused picture reached no host. The inspector's own events and their detail are unchanged."
+    "version 1.1.3 (2026-11-17): a patch (vocabulary 1.1.5 §9.1; IF-16, ui-mail e2e-m2). The image field is heard under the events sf-input-image sends: sf-input-image-attach, sf-input-image-detach and sf-input-image-rejected. The inspector listened to sf-image-field-attach, -detach and -rejected, which sf-input-image sends only under its dated tag sf-image-field, so a chosen, removed or refused picture reached no host. The inspector's own events and their detail are unchanged.",
+    "version 1.1.4 (2026-11-20): a patch, rebuilt over SIMAI Framework ui-b654460cad2a (group build 14; ui-source 049a2ba3d, core.runtime 1.64.0, core.styles 1.20.0). Nothing of its own changes: its conformance probe p15 follows sf-sortable 1.7.0 (BV-6, pair ui-97a0ebb762eb), where Escape on a control inside an item returns the focus to its item and goes no further. After an item's menu closes the focus is on the item's toggle, so one Escape returns to the item and the next goes up a level (sf-mail-inspector-level, index -1), as the probe now presses. Settings, values and events are unchanged. 1.1.4 is above 1.1.3, the highest on any ui-pro branch."
   ],
   "x-rule": {
     "$comment": [

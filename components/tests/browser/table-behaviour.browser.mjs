@@ -20,6 +20,11 @@ const styles = [
   'component/component/inputs/css/inputs.css',
   'smart/smart/view-table/css/view-table.css', 'smart/smart/resizer/css/resizer.css',
   'smart/smart/sortable/css/sortable.css',
+  // The pagination's band of bulk controls is the group actions bar since
+  // sf-pagination 1.9.0 (C295, pair ui-97a0ebb762eb): its sheet and the
+  // buttons' it draws with.
+  'smart/smart/bulk-actions/css/bulk-actions.css', 'component/component/buttons/css/buttons.css',
+  'component/component/icon-buttons/css/icon-buttons.css',
 ].map((p) => join(out, p));
 const modules = [
   'core/core/js/core.js', 'core/core/js/smart-base.js',
@@ -31,6 +36,7 @@ const modules = [
   'smart/smart/dropdown/js/dropdown.js',
   'smart/smart/input/js/input.js',
   'smart/smart/spinner/js/spinner.js',
+  'smart/smart/bulk-actions/js/bulk-actions.js', 'smart/smart/menu-context/js/menu-context.js',
   'smart/smart/pagination/js/pagination.js',
   'smart/smart/sortable/js/sortable.js',
   'smart/smart/resizer/js/resizer.js', 'smart/smart/view-table/js/view-table.js',
@@ -326,18 +332,21 @@ try {
   const states = await panel.evaluate(async () => {
     const element = document.getElementById('p');
     await new Promise((done) => setTimeout(done, 200));
+    // The band is the group actions bar (sf-bulk-actions, place dock) since
+    // sf-pagination 1.9.0 (C295): the count, the actions as buttons (the
+    // dangerous one last, in its «⋯»), and the cross; no dropdown, no Apply,
+    // no «для всех» checkbox (the offer of all N comes once the whole page is
+    // marked).
     const read = () => {
-      const dock = element.querySelector('.sf-pagination-actions');
+      const dock = element.querySelector('sf-bulk-actions [role="region"]');
       if (!dock) return null;
       const style = getComputedStyle(dock);
-      const apply = [...dock.querySelectorAll('sf-button')].pop();
       return {
         position: style.position,
         bottom: style.insetBlockEnd,
-        count: dock.querySelector('.sf-pagination-actions-count')?.textContent?.trim() ?? '',
-        forAll: dock.querySelector('sf-checkbox')?.getAttribute('label') ?? '',
-        applyDisabled: apply?.hasAttribute('disabled') ?? null,
-        clear: Boolean(dock.querySelector('.sf-pagination-actions-clear')),
+        count: dock.querySelector('.sf-bulk-actions__count')?.textContent?.trim() ?? '',
+        actions: [...dock.querySelectorAll('[data-sf-bulk-action]')].map((one) => one.getAttribute('data-sf-bulk-action')),
+        clear: Boolean(dock.querySelector('[data-sf-bulk-action="clear"]')),
       };
     };
     const empty = read();
@@ -346,10 +355,15 @@ try {
     const marked = read();
     const cleared = [];
     element.addEventListener('sf-pagination-selection-clear', (event) => cleared.push(event.detail['selected-count']));
-    element.querySelector('.sf-pagination-actions-clear')?.click();
+    // The bar's buttons carry data-sf-bulk-action on the native button the
+    // Smart button draws (its host is display: contents).
+    const cross = element.querySelector('sf-bulk-actions [data-sf-bulk-action="clear"]');
+    (cross?.matches('button') ? cross : cross?.querySelector('button'))?.click();
     await new Promise((done) => setTimeout(done, 150));
-    // Show more is its own row since C97 (1) (sf-pagination-top in the
-    // compatible footer), not a button on the footer line.
+    // Show more is an appearance of its own since sf-pagination 1.10.0
+    // (C97 (1), Larena LF-11; pair ui-97a0ebb762eb): the compatible footer this
+    // element writes (no appearance, no top) draws none, with a next portion or
+    // without.
     const showMoreWithNext = Boolean(element.querySelector('.sf-pagination-more-button'));
     element.setAttribute('total', '10');
     await new Promise((done) => setTimeout(done, 200));
@@ -366,21 +380,18 @@ try {
     if (states.marked.position !== 'sticky') {
       note({case: 'panel', got: states.marked.position, expected: 'a band in the card, sticky at its bottom'});
     }
-    if (!/Selected:\s*3/u.test(states.marked.count)) {
+    if (!/\b3\b/u.test(states.marked.count)) {
       note({case: 'panel', got: states.marked.count, expected: 'it says three are marked'});
     }
-    if (!/\(450\)/u.test(states.marked.forAll)) {
-      note({case: 'panel', got: states.marked.forAll, expected: 'for-all names the 450 records'});
-    }
-    if (states.marked.applyDisabled !== true) {
-      note({case: 'panel', expected: 'apply is out of reach until an action is chosen'});
+    if (states.marked.actions.join() !== 'archive,more,clear') {
+      note({case: 'panel', got: states.marked.actions, expected: 'archive as a button, delete (dangerous) in «⋯», the cross'});
     }
     if (!states.marked.clear) note({case: 'panel', expected: 'a cross that drops the selection'});
   }
   if (String(states.cleared) !== '3') {
     note({case: 'panel cross', got: states.cleared, expected: 'it announces the selection it dropped'});
   }
-  if (!states.showMoreWithNext) note({case: 'show more', expected: 'shown while a next portion exists'});
+  if (states.showMoreWithNext) note({case: 'show more', expected: 'none in the compatible footer, a next portion or not (C97 (1))'});
   if (states.showMoreAtEnd) note({case: 'show more', expected: 'gone on the last portion, not greyed'});
   await panel.close();
 } finally {

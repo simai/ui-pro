@@ -203,8 +203,11 @@ try {
   //    below that row -- no longer has a subject. What is measured instead is
   //    that the row is gone and the button sits on the footer's own line.
   //    C97 (1) (owner 2026-11-12) reverses that: Show more is a view of its own,
-  //    never on one line with the arrows; the compatible footer of an element
-  //    written without appearance draws it on its own row above (sf-pagination-top).
+  //    never on one line with the arrows. Since sf-pagination 1.10.0 (Larena
+  //    LF-11, pair ui-97a0ebb762eb) the compatible footer of an element written
+  //    without appearance draws no Show more at all, even with a next page: it
+  //    is the more appearance's (or, until 2027-01-01, an author's top). So the
+  //    table's footer has neither the row above nor a button beside the arrows.
   const spacing = await page.evaluate(async () => {
     const pagination = document.getElementById('p');
     pagination.setState?.({hasNextPage: true});
@@ -233,8 +236,8 @@ try {
   if (spacing.panels !== 0) {
     note({case: 'spacing', got: spacing, expected: 'no demo panel in the table'});
   }
-  if (!spacing.ownRow || !spacing.more || spacing.sharedLine !== false) {
-    note({case: 'show more', got: spacing, expected: 'Show more on a row of its own, not on the footer line with the arrows (C97 (1))'});
+  if (spacing.ownRow || spacing.more) {
+    note({case: 'show more', got: spacing, expected: 'no Show more in the compatible footer, a next page or not (C97 (1), sf-pagination 1.10.0)'});
   }
 
   // 8. The page field is as wide as its number and grows as it is typed -- and
