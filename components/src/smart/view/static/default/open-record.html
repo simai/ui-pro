@@ -8,8 +8,8 @@
 <sf-button appearance="default" scheme="primary" icon-start="filter_list" text="Фильтр" style="display: contents;">
 <button type="button" class="sf-button sf-button--size-1 sf-button--default sf-button--primary flex items-cross-center" data-sf-static>
 
-<sf-icon root-class="pointer-event-none" aria-hidden="true" icon="filter_list" style="display: contents;"><i class="sf-icon pointer-event-none" aria-hidden="true" data-sf-static>filter_list</i></sf-icon>
-<span class="sf-button-text-container text-center pointer-event-none">
+<sf-icon root-class="pointer-events-none" aria-hidden="true" icon="filter_list" style="display: contents;"><i class="sf-icon pointer-events-none" aria-hidden="true" data-sf-static>filter_list</i></sf-icon>
+<span class="sf-button-text-container text-center pointer-events-none">
 Фильтр
 </span>
 
@@ -39,7 +39,7 @@
 <sf-button-icon appearance="ghost" scheme="on-surface" icon="search" aria-label="Поиск" style="display: contents;">
 <button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" aria-label="Поиск" data-sf-static>
 
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="search" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" aria-hidden="true" data-sf-static>search</i></sf-icon>
+<sf-icon root-class="pointer-events-none" weight="400" aria-hidden="true" filled="false" icon="search" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-events-none" aria-hidden="true" data-sf-static>search</i></sf-icon>
 </button>
 </sf-button-icon>
 
@@ -180,101 +180,6 @@
 </div>
 
 
-<div class="sf-pagination-container flex items-cross-center">
-
-
-<ol class="sf-pagination-list flex items-cross-center">
-
-<li class="sf-pagination-item">
-<sf-button-icon appearance="ghost" scheme="on-surface" class="sf-pagination-direction sf-pagination-direction--first" size="1" icon="first_page" title="В начало" aria-label="В начало" disabled style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" disabled aria-label="В начало" title data-sf-static>
-
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="first_page" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" data-sf-icon-mirror aria-hidden="true" data-sf-static>first_page</i></sf-icon>
-</button>
-</sf-button-icon>
-</li>
-
-
-<li class="sf-pagination-item">
-<sf-button-icon appearance="ghost" scheme="on-surface" class="sf-pagination-direction sf-pagination-direction--prev" size="1" icon="keyboard_arrow_left" title="Предыдущая страница" aria-label="Предыдущая страница" disabled style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" disabled aria-label="Предыдущая страница" title data-sf-static>
-
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="keyboard_arrow_left" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" data-sf-icon-mirror aria-hidden="true" data-sf-static>keyboard_arrow_left</i></sf-icon>
-</button>
-</sf-button-icon>
-</li>
-
-<li class="sf-pagination-item sf-pagination-item-field flex items-cross-center">
-
-
-<label class="sf-pagination-page-field flex items-cross-center" style="--sf-pagination-page-input--digits: 1">
-<sf-input appearance="bordered" root-class="sf-pagination-page-input" inputmode="numeric" size="1" value="1" aria-label="Страница:" style="display: contents;" data-sf-size-relative>
-<label class="sf-input  sf-input--size-1 sf-input--bordered   sf-pagination-page-input flex flex-col" data-mask="false" data-mask-pattern data-mask-lazy data-mask-placeholder-char data-mask-options data-sf-input-bound="1" for="sf-view-open-record-1" data-sf-static>
-
-<span class="sf-input-field items-cross-center transition flex">
-
-
-<input id="sf-view-open-record-1" type="text" inputmode="numeric" placeholder value="1" aria-label="Страница:" data-mask="false" data-mask-pattern data-mask-lazy data-mask-placeholder-char data-mask-options>
-
-
-
-
-
-
-
-
-
-
-
-</span>
-
-
-</label>
-</sf-input>
-</label>
-
-<span class="sf-pagination-of" aria-hidden="true">из 1</span>
-</li>
-
-<li class="sf-pagination-item">
-<sf-button-icon appearance="ghost" scheme="on-surface" class="sf-pagination-direction sf-pagination-direction--next" size="1" icon="keyboard_arrow_right" title="Следующая страница" aria-label="Следующая страница" disabled style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" disabled aria-label="Следующая страница" title data-sf-static>
-
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="keyboard_arrow_right" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" data-sf-icon-mirror aria-hidden="true" data-sf-static>keyboard_arrow_right</i></sf-icon>
-</button>
-</sf-button-icon>
-</li>
-
-
-<li class="sf-pagination-item">
-<sf-button-icon appearance="ghost" scheme="on-surface" class="sf-pagination-direction sf-pagination-direction--last" size="1" icon="last_page" title="Последняя" aria-label="Последняя" disabled style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" disabled aria-label="Последняя" title data-sf-static>
-
-<sf-icon root-class="pointer-event-none" weight="400" aria-hidden="true" filled="false" icon="last_page" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-event-none" data-sf-icon-mirror aria-hidden="true" data-sf-static>last_page</i></sf-icon>
-</button>
-</sf-button-icon>
-</li>
-
-</ol>
-
-</div>
-
-
-<div class="sf-pagination-count flex items-cross-center">
-<sf-button class="sf-pagination-size" appearance="ghost" scheme="on-surface" icon-end="arrow_drop_down" aria-haspopup="menu" size="1" text="По 25" aria-label="На странице: 25" style="display: contents;" data-sf-size-relative>
-<button type="button" class="sf-button sf-button--size-1 sf-button--ghost sf-button--link sf-button--on-surface flex items-cross-center" aria-label="На странице: 25" aria-haspopup="menu" data-sf-static>
-
-
-<span class="sf-button-text-container text-center pointer-event-none">
-По 25
-</span>
-<sf-icon root-class="pointer-event-none" aria-hidden="true" icon="arrow_drop_down" style="display: contents;"><i class="sf-icon pointer-event-none" aria-hidden="true" data-sf-static>arrow_drop_down</i></sf-icon>
-</button>
-</sf-button>
-<sf-menu-context class="sf-pagination-size-menu" popup size="1" aria-label="На странице:" style="display: contents;" data-sf-size-relative>
-<div class="sf-context-menu sf-context-menu--size-1" role="menu" aria-label="На странице:" data-sf-static></div>
-</sf-menu-context>
-</div>
 
 </div>
 

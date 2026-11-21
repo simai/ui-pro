@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.29.1",
+  "version": "1.29.4",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2759,6 +2759,13 @@
         "to": "1.29.1",
         "changes": [
           "A menu opened from a control near the window's edge keeps its width again. Over SIMAI Framework ui-b654460cad2a (group build 14; ui-source 049a2ba3d, core.runtime 1.64.0, core.styles 1.20.0) the context menu's box says max-inline-size: 100% (component.context-menu, F-2), which getComputedStyle gives back as \"100%\"; anchorContextMenu read it with parseFloat as a 100px cap, so the view's actions menu at the end of a 1180px window was 100px wide and its rows (152px) stood past its surface. The stylesheet cap is now read only when it is in pixels. 1.29.1 is above simai/ui-view round/view-r8's 1.29.0, the highest on any origin branch; the view set's own 1.25.4 to 1.29.0 are not in this copy, which ui-pro drops once the View release takes its place (D31). Nothing to change for a host."
+        ]
+      },
+      {
+        "from": "1.29.1",
+        "to": "1.29.4",
+        "changes": [
+          "version 1.29.4 (2026-11-21): a patch, rebuilt over SIMAI Framework ui-9ceecc24c988 (group build 15; ui-source e7ea89e07, core.runtime 1.65.0, core.styles 1.21.0): its first-paint snapshots (static/) are retaken from the build through scripts/run-first-paint.mjs, since the Framework segmented and button parts it prints write pointer-events-none on their glyphs and labels (the former pointer-event-none matched no utility). Its own code, settings, values and events are unchanged. 1.29.4 is above 1.29.3 (ui-view round/view-r11), the highest on any origin branch."
         ]
       }
     ]

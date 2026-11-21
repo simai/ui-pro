@@ -19,7 +19,7 @@ test('DF-10: «Мои файлы» make sf-progress-bar when a quota comes, not 
   assert.ok(build.length > 0 && usage.length > 0, 'build() and drawUsage() are found');
   assert.doesNotMatch(build, /sf-progress-bar/u, 'the closed view holds no undefined tag');
   assert.match(usage, /createElement\('sf-progress-bar'\)/u);
-  assert.equal(json('chat-window/component.json').version, '1.16.3');
+  assert.equal(json('chat-window/component.json').version, '1.16.4');
 });
 
 test('DF-11: the items menu draws no «Избранное» button without an action', () => {
@@ -56,8 +56,8 @@ test('DF-12: sf-editor names its keys through the sf-kbd helper, not in Mac glyp
 test('DF-13: the package declares sf-editor-content retired, with its date', () => {
   const component = json('editor-content/component.json');
   const manifest = json('editor-content/smart.manifest.json');
-  assert.equal(component.version, '1.5.3');
-  assert.equal(manifest.version, '1.5.3');
+  assert.equal(component.version, '1.5.4');
+  assert.equal(manifest.version, '1.5.4');
   assert.equal(manifest.lifecycle, 'deprecated');
   assert.equal(manifest.compatibility.replacement, '<sf-editor>');
   assert.equal(component['x-retirement'].replacement, 'sf-editor');
@@ -73,7 +73,7 @@ test('DF-14: a failed answer outside a window always offers its retry', () => {
   const sheet = read('chat-message/js/templates/default.css').replace(/\/\*[\s\S]*?\*\//gu, '');
   const hiding = [...sheet.matchAll(/([^{}]*\.sf-chat-notice__action)\s*\{\s*display:\s*none;?\s*\}/gu)].map((match) => match[1].trim());
   assert.deepEqual(hiding, ['sf-chat-window .sf-chat-message--failed:not(.sf-chat-message--last) .sf-chat-notice__action']);
-  assert.equal(json('chat-message/component.json').version, '1.9.2');
+  assert.equal(json('chat-message/component.json').version, '1.9.3');
 });
 
 test('DF-16: the Library chooses its category with sf-segmented, not a row of toggles (C211 (1))', () => {
@@ -85,7 +85,7 @@ test('DF-16: the Library chooses its category with sf-segmented, not a row of to
   assert.match(chips, /filter\(\{category: event\.detail\?\.value\}\)/u);
   assert.doesNotMatch(chips, /sf-button|aria-pressed/u, 'no toggle buttons for a choice of one');
   const component = json('mail-library/component.json');
-  assert.equal(component.version, '1.0.7');
+  assert.equal(component.version, '1.0.8');
   const relations = component.relations.map((relation) => relation.name);
   assert.ok(relations.includes('cl-segmented') && !relations.includes('cl-button'));
 });

@@ -2,7 +2,7 @@
   "$comment": "The source of sf-mail-structure's element plumbing (core/js/element-manifest.js); standard simai.smart-component 1.4, vocabulary 1.1.5. Written for simai/ui-mail by the owner's decision D31 of 2026-10-29: a product repository makes no component set of its own, the shared components live in ui-pro. Written by hand in the 1.4 form on the shape of sf-mail-letters; x-decisions says how each point was decided.",
   "id": "smart.mail-structure",
   "tag": "sf-mail-structure",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "kind": "leaf",
   "family": "list",
   "settings": {
@@ -342,7 +342,8 @@
     "version 1.0.4 (2026-11-09): a patch (no visible change). A row's ⋯ asks for appearance=\"ghost\", the look SIMAI Framework now calls ghost (decision C15, sf-button 1.7.0 and sf-button-icon of the pair ui-d6f01121baca); link is its former name, a dated alias until 2027-01-01, drawn the same. Settings, values and events are unchanged.",
     "version 1.0.5 (2026-11-09): a patch (first paint only). The first-paint snapshots are retaken over SIMAI Framework ui-cb287da78ab1 (the pair's elements now print data-sf-size-relative on sf-icon and the other markup of that pair); static/sheets.json is unchanged (no sheet drift). Code, settings, values and events are unchanged.",
     "version 1.0.6 (2026-11-10): a patch (first paint only). The first-paint snapshots are retaken over SIMAI Framework ui-2bd5a3ab478a: the pair's sf-menu-context prints its panel without the flex utility class (class=\"sf-context-menu\"); static/sheets.json is unchanged (no sheet drift). Code, settings, values and events are unchanged.",
-    "version 1.1.1 (2026-11-17): a patch (a look). An element's ⋯ button names its scheme, on-surface-variant (C15: an icon button's look is two axes, appearance and scheme): ghost without a scheme drew the icon in the primary ink (rgb(0 68 145)) where the panel's other quiet icons are grey. Settings, values and events unchanged. 1.1.0 is on ui-pro fix/toolbar-tl1 (unmerged), so the number is 1.1.1."
+    "version 1.1.1 (2026-11-17): a patch (a look). An element's ⋯ button names its scheme, on-surface-variant (C15: an icon button's look is two axes, appearance and scheme): ghost without a scheme drew the icon in the primary ink (rgb(0 68 145)) where the panel's other quiet icons are grey. Settings, values and events unchanged. 1.1.0 is on ui-pro fix/toolbar-tl1 (unmerged), so the number is 1.1.1.",
+    "version 1.1.2 (2026-11-21): a patch, rebuilt over SIMAI Framework ui-9ceecc24c988 (group build 15; ui-source e7ea89e07, core.runtime 1.65.0, core.styles 1.21.0): its first-paint snapshots (static/) are retaken from the build through scripts/run-first-paint.mjs, since the Framework segmented and button parts it prints write pointer-events-none on their glyphs and labels (the former pointer-event-none matched no utility). Its own code, settings, values and events are unchanged. 1.1.2 is above 1.1.1 (ui-pro), the highest on any origin branch."
   ],
   "x-rule": {
     "$comment": [

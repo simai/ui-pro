@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.chat-interlocutor",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "title": "Chat interlocutor",
   "summary": "Who the conversation is with: the server's interlocutors in the Framework's context menu, the current one checked, and a choice of another reported for the host to start a new conversation with. One interlocutor is a name, not a choice.",
   "kind": "smart",
@@ -367,7 +367,7 @@
       },
       {
         "path": "src/smart/chat-interlocutor/component.json",
-        "sha256": "107fae64e5aaa8b050379e0e16f80c0c3d2b1976b0289f98b997d65e6d840b25"
+        "sha256": "55c6452ed34669a7d5d34a2eec66cd3c136905cb14a3837481de41cd41b38c8b"
       },
       {
         "path": "src/smart/chat-interlocutor/aliases.json",
