@@ -1702,7 +1702,7 @@
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
-        "sha256": "3afe53411f82fe339519fa8e6c08dd135c2f2a4dfd9d70cadd8e5ddfe6ca7af1"
+        "sha256": "2fde9b80676d0cf0533d422f59308168207db9a7421d6b18ce4e776a8d1bbbc8"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.css",
@@ -1750,7 +1750,7 @@
       },
       {
         "path": "src/smart/view-properties/docs.md",
-        "sha256": "e2a29465f32db3b5e62cd95f9bcfe65ebe6838aa73bcad1af2dccf3cc974fbe6"
+        "sha256": "374d6cfe1659f327e6fe1b113c61fb27a41154955a95ed30905edb7738ac0a39"
       }
     ],
     "generated_runtime": []
