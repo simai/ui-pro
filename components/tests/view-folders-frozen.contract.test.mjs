@@ -51,7 +51,10 @@ const PATCHED = {
   // open-record markup is 21.3 KiB with the group build's checkbox and input
   // parts). The patches for simai/ui-view are ui-control
   // control/evidence/2026-11-17-pro-over-gb9/view-gb9.patch and view-properties-gb9.patch.
-  'view': {tree: 'c1afd63456d3356e8685bf0ab8e418fbdeebd114', patch: 'over group build 9 (ui-source 3d55e44d7), first-paint snapshots retaken and the declared size 24 KiB, sf-view 1.12.6 (2026-11-17)'},
+  // sf-view 1.29.2 (2026-11-21, above ui-view main's 1.29.1): it accepts
+  // simai.dataview-port 1.16.0 (group build 15, additive: personal-preferences
+  // this copy never asks, and the saved-view level system it never writes).
+  'view': {tree: '5e93c6762f0eaf4a1716afd1cf340ce8532956a4', patch: 'over group build 9 (ui-source 3d55e44d7), first-paint snapshots retaken and the declared size 24 KiB, sf-view 1.12.6 (2026-11-17); accepts simai.dataview-port 1.16.0 (group build 15), sf-view 1.29.2 (2026-11-21)'},
   // Over ui-994f9db407fa (2026-11-15), sf-view-properties 1.16.1: the panel takes
   // back the drawer's own block padding (--sf-drawer--inset) and the skeleton's
   // tab strip stands over the tabs' hairline, as ui-pro 4059d01. Over
@@ -71,8 +74,12 @@ const PATCHED = {
   // view 1.8.3 does with 1.20.2. sf-view-properties 1.23.4 (2026-11-20, over
   // ui-b654460cad2a, above ui-view round/view-site-docs' 1.23.3): the loading
   // skeleton prints no empty tabs panel row, as sf-tabs no longer draws one
-  // (pair ui-97a0ebb762eb); simai/ui-view needs the same.
-  'view-properties': {tree: '2d648346a6f3e4f1e5b4c68b673c7ed067da93b9', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17); accepts simai.property-view-port 1.19.0 (C294), sf-view-properties 1.19.1 (2026-11-18); accepts simai.property-view-port 1.20.0..1.22.0 (group build 13), sf-view-properties 1.20.1 (2026-11-18); over ui-b654460cad2a (ui-source 049a2ba3d), the skeleton without the empty tabs panel row, sf-view-properties 1.23.4 (2026-11-20)'},
+  // (pair ui-97a0ebb762eb); simai/ui-view needs the same. sf-view-properties
+  // 1.23.8 (2026-11-21, above ui-view main's 1.23.7): it accepts
+  // simai.property-view-port 1.22.1 (group build 15) and reads a save over a
+  // moved revision, refused or conflict, as a conflict that reads the record
+  // again on a whole-record save too; simai/ui-view needs the reread there.
+  'view-properties': {tree: 'b8860c1cbc75df1d4eff7ca266e7d4a8eb33d1fe', patch: 'C22 control size, sf-view-properties 1.13.3 (2026-11-10); drawer inset and skeleton tab strip, sf-view-properties 1.16.1 (2026-11-15); C139 lookup relation and the filled panel head clear of the sf-drawer 1.16 edge in the head, sf-view-properties 1.16.4 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshot retaken, sf-view-properties 1.16.8 (2026-11-17); accepts simai.property-view-port 1.19.0 (C294), sf-view-properties 1.19.1 (2026-11-18); accepts simai.property-view-port 1.20.0..1.22.0 (group build 13), sf-view-properties 1.20.1 (2026-11-18); over ui-b654460cad2a (ui-source 049a2ba3d), the skeleton without the empty tabs panel row, sf-view-properties 1.23.4 (2026-11-20); accepts simai.property-view-port 1.22.1 (group build 15) and a moved revision is a conflict that reads again, sf-view-properties 1.23.8 (2026-11-21)'},
   // sf-view-table: the pinned-column edge shadow reads --sf-surface-state-select,
   // not --sf-alpha-8; over ui-7fb26d395af2 the Framework's alpha-scale contract
   // refuses a component that reads --sf-alpha-* (DEV acceptance 2026-11-10 Q3).

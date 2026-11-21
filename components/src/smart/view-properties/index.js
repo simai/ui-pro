@@ -36,7 +36,7 @@ import {formatDateValue} from "../view-table/js/format-value.js";
 // keeps its list -- a guard naming a narrower set than the published versions is
 // a component refusing a host it asked to move. The contract test beside this
 // file compares the list with the manifest.
-const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0", "1.15.0", "1.16.0", "1.17.0", "1.18.0", "1.19.0", "1.20.0", "1.21.0", "1.22.0"];
+const SUPPORTED_PORT_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0", "1.15.0", "1.16.0", "1.17.0", "1.18.0", "1.19.0", "1.20.0", "1.21.0", "1.22.0", "1.22.1"];
 
 // The surface's mode (owner, 2026-10-14). view: show the object, never offer
 // a change. auto: show it and offer what this person may do. edit: every group
@@ -1661,6 +1661,11 @@ class SfPropertyView extends PropertyViewElement {
             if (answer.answer === "applied" && Array.isArray(answer.effects) && answer.effects.length) {
                 globalThis.SF?.Composition?.publishEffects?.(answer.effects, {origin: this});
             }
+            // A save over a revision that moved (Larena: refused revision_moved,
+            // with the current revision, nothing written; port 1.22.1 lets the host
+            // answer conflict as well) is a conflict: the card says so, keeps what
+            // was typed and reads the record again.
+            if (answer.answer === "refused" && answer.reason === "revision_moved") return {...answer, answer: "conflict"};
             return answer;
         } catch (error) {
             if (!this.isConnected || stale()) return null;
@@ -2442,8 +2447,11 @@ class SfPropertyView extends PropertyViewElement {
             return answer;
         }
         if (answer.answer === "conflict") {
+            // As a group save: what was typed is kept, the record is read again
+            // at its current revision (port 1.21.0, 1.22.1 revision_moved).
             this.conflict = answer.message || this.conflictText;
             this.requestComponentUpdate("conflict");
+            if (!creating) await this._rereadAfterConflict(answer);
             return answer;
         }
         if (answer.answer === "refused") {

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view",
-  "version": "1.12.6",
+  "version": "1.29.2",
   "title": "Data view",
   "summary": "Host-driven data view that composes toolbar, content and pagination around a separate data port.",
   "kind": "composite",
@@ -168,7 +168,8 @@
           "1.12.0",
           "1.13.0",
           "1.14.0",
-          "1.15.0"
+          "1.15.0",
+          "1.16.0"
         ]
       }
     }
@@ -1625,6 +1626,13 @@
         "changes": [
           "The first-paint pass for SIMAI Framework group build 9 (ui-source 3d55e44d7). The first-paint snapshots are retaken over the group build, whose checkbox, input and icon markup is longer (sf-checkable classes and the box's id): the reference and open-record examples' static markup is 21.3 KiB, and their declared first-paint size goes from 20 KiB to 24 KiB. Settings, values, events and actions are unchanged. The number is above 1.12.5, which simai/ui-view fix/view-set-j1 holds."
         ]
+      },
+      {
+        "from": "1.12.6",
+        "to": "1.29.2",
+        "changes": [
+          "Accepts simai.dataview-port 1.16.0 (SIMAI Framework group build 15 (ui-source integration/pair-next-17), DEV msg-d8ee9b8f) beside 1.0.0..1.15.0. The edition adds the personal-preferences capability (data.preferences, preferences.save) and the saved-view level system, the new name of package (read as system until 2027-01-01). Both only add: this copy never asks preferences.save, so the page size and the view zone stay in the browser, as for a host that does not announce the capability; its views menu is one flat list whatever the level, and saveView writes only personal and shared views, so a system view is never written, as a package view was not. The contract it is checked against stays 1.15.0. 1.29.2 is above simai/ui-view main's 1.29.1, the highest on any origin branch; the view set's own 1.13.0 to 1.29.1 (the 1.16.0 preferences among them) are not in this copy (D31). Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1634,7 +1642,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view/index.js",
-        "sha256": "bfcf7d95120473636f12acb261eb2abed7979db342ef638bfbd39f645a01e2e7"
+        "sha256": "eece03b20f93126c07a8d6287cce2abd0fd09cdeafb0064a94ff6cb3fe3a1438"
       },
       {
         "path": "src/core/contracts/ports/simai.dataview-port/1.5.0/port.json",

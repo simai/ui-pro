@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.23.4",
+  "version": "1.23.8",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -221,7 +221,8 @@
           "1.19.0",
           "1.20.0",
           "1.21.0",
-          "1.22.0"
+          "1.22.0",
+          "1.22.1"
         ]
       }
     }
@@ -1674,6 +1675,13 @@
         "changes": [
           "The loading skeleton's strip of section tabs no longer prints an empty panel row (.sf-tabs-main-container). Since SIMAI Framework ui-97a0ebb762eb sf-tabs hides an empty panel row (hidden, data-sf-panels-empty), and the record's tabs hold no panels, so the skeleton stood 32px taller than the tabs (72 against 40 at size 1, 64 against 32 at 1/2) and the first group moved up by them when the record came (simai/ui-pro#3). skeleton.html and the two first-paint snapshots that print the skeleton follow. Built over SIMAI Framework ui-b654460cad2a (group build 14; ui-source 049a2ba3d, core.runtime 1.64.0, core.styles 1.20.0). 1.23.4 is above simai/ui-view round/view-site-docs' 1.23.3, the highest on any origin branch; the view set's own 1.20.2 to 1.23.3 are not in this copy (D31). Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.23.4",
+        "to": "1.23.8",
+        "changes": [
+          "Accepts simai.property-view-port 1.22.1 (SIMAI Framework group build 15 (ui-source integration/pair-next-17), A8, DEV msg-d8ee9b8f): a host may answer a save over a moved revision conflict as well as refused, both with reason revision_moved and the current revision, nothing written. The card now reads a refusal revision_moved as a conflict (it showed only the refusal's message, and nothing at all on a group save), and a whole-record save (record.save, every group open) answered conflict reads the record again as a group save does: either way it says the record changed, keeps what the person typed and reads the record at its current revision. SUPPORTED_PORT_VERSIONS, x-port.supports and host_port.supported_versions gain 1.22.1; the contract it is checked against stays 1.18.0. 1.23.8 is above simai/ui-view main's 1.23.7 (view 1.10.1), the highest on any origin branch. Nothing to change for a host."
+        ]
       }
     ]
   },
@@ -1683,7 +1691,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-properties/index.js",
-        "sha256": "1584516efd08c689fa9dce7cfe1883c75e36d6e74ab181e86f89dbbd3b02d23c"
+        "sha256": "cc2902d517c1bdaa5823b1b2cd30eb5a5fd8208f2088e711eb0c055a292b9399"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
