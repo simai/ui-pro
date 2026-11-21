@@ -2792,7 +2792,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "e619b9df65ea1c81af1560447caf8a1aedfaa85be1f93c203f90d0ea7df3cd1d"
+        "sha256": "14b0ce6bd7bc55f681eb74c3a81bb4907201640ef28a4212d3d0bb02341063cf"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

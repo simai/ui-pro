@@ -81,7 +81,8 @@ try {
   if (JSON.stringify(cells.docs.map((one) => one.label)) !== '["Договор.pdf","Акт.pdf"]') note(`several documents draw ${JSON.stringify(cells.docs)}`);
   if (!cells.docs.every((one) => one.icon === 'picture_as_pdf')) note(`a document is drawn without its icon: ${JSON.stringify(cells.docs)}`);
   if (JSON.stringify(cells.one) !== '["Счёт № 45.pdf"]') note(`one document draws ${JSON.stringify(cells.one)}`);
-  const ru = (options, at) => new Intl.DateTimeFormat('ru', options).format(at);
+  // The pair holds a year's marker to the year with a no-break space (A4, group build 15, core formatDateText).
+  const ru = (options, at) => new Intl.DateTimeFormat('ru', options).format(at).replace(/(\d{4})[\s  ]+(?=\p{L}+\.)/u, '$1 ');
   // The day reads in the page's medium form again (module.smart-field-renderers
   // 1.7.1, ui-source 7b33142b, pair ui-cb287da78ab1): 2 нояб. 2026 г. and
   // 15 нояб. 2026 г., 10:30; the pair ui-d6f01121baca printed it in figures.

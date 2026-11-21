@@ -116,7 +116,8 @@ try {
   // Dates read in the page's language; the host's own text wins.
   const shown = await page.evaluate(() => Object.fromEntries(['birthday', 'meeting', 'workday'].map((key) => [key,
     document.querySelector(`#read [data-field="${key}"] .sf-field-view`)?.textContent.trim() ?? null])));
-  const ru = (options, at) => new Intl.DateTimeFormat('ru', options).format(at);
+  // The pair holds a year's marker to the year with a no-break space (A4, group build 15, core formatDateText).
+  const ru = (options, at) => new Intl.DateTimeFormat('ru', options).format(at).replace(/(\d{4})[\s  ]+(?=\p{L}+\.)/u, '$1 ');
   const expected = {
     birthday: ru({dateStyle: 'medium'}, new Date(1990, 3, 12)),
     meeting: ru({dateStyle: 'medium', timeStyle: 'short'}, new Date(2026, 10, 15, 10, 30)),
