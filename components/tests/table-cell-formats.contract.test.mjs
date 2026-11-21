@@ -20,7 +20,13 @@ const card = read('src/smart/view-properties/index.js');
 // The record component's field value lives in js/field-value.js (shared with
 // sf-view-flow); the card's template is both files.
 const cardTemplate = read('src/smart/view-properties/js/templates/default.js') + read('src/smart/view-properties/js/field-value.js');
-const en = (options) => new Intl.DateTimeFormat('en', options);
+// The expected text is the formatter's parts joined, as SIMAI Framework's format-date writes it since
+// ui-9ceecc24c988 (A4, format-intl.js formatDateText): Node's format() joins a time and «AM» with an
+// ordinary space where formatToParts gives U+202F, so format() is not the text a person reads.
+const en = (options) => {
+  const formatter = new Intl.DateTimeFormat('en', options);
+  return {format: (moment) => formatter.formatToParts(moment).map(({value}) => value).join('')};
+};
 
 test('a day is that day on the reader\'s calendar, not UTC midnight', () => {
   assert.equal(formatDateValue('date', '2026-11-02'), en({dateStyle: 'medium'}).format(new Date(2026, 10, 2)));
