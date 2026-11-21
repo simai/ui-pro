@@ -145,15 +145,50 @@ test('the conformance kit is published and pinned', () => {
       assert.ok(!seen.has(id), `case ${id}: listed once`);
       seen.add(id);
       assert.ok(testCase.intent in document.intents, `case ${id}: intent ${testCase.intent}`);
-      assert.ok(answerKinds.has(testCase.then.answer), `case ${id}: answer`);
-      assert.ok(
-        document.intents[testCase.intent].answers.includes(testCase.then.answer),
-        `case ${id}: ${testCase.intent} cannot answer ${testCase.then.answer}`,
-      );
+      // A case may name the answers either of which is right (simai.property-view-port
+      // 1.22.1: a save over a moved revision is refused or conflict).
+      const answers = [testCase.then.answer].flat();
+      assert.ok(answers.length > 0, `case ${id}: answer`);
+      for (const answer of answers) {
+        assert.ok(answerKinds.has(answer), `case ${id}: answer ${answer}`);
+        assert.ok(
+          document.intents[testCase.intent].answers.includes(answer),
+          `case ${id}: ${testCase.intent} cannot answer ${answer}`,
+        );
+      }
       if (testCase.capability) assert.ok(testCase.capability in document.capabilities, `case ${id}: capability`);
       for (const key of testCase.then.data_must_include ?? []) assert.ok(key in document.data, `case ${id}: data ${key}`);
     }
   }
+});
+
+// The newest edition a component accepts may be newer than the one it is checked
+// against (sf-view-properties: 1.18.0, accepting up to 1.22.1). Where the overlay
+// carries that edition, its kit must read too: a case's answer is one kind or a
+// list of kinds either of which is right, each one the intent can give.
+test('the kit of the newest accepted edition reads, a list of answers included', (t) => {
+  let read = 0;
+  for (const { port } of declared) {
+    const newest = port.supported_versions?.at(-1);
+    if (!newest || newest === port.version) continue;
+    const path = port.path.replace(`/${port.version}/port.json`, `/${newest}/port.json`);
+    if (!existsSync(resolve(root, path))) continue;
+    const document = json(path);
+    assert.equal(document.version, newest, `${path}: version`);
+    const kit = json(`${dirname(path)}/${document.conformance.kit}/manifest.json`);
+    assert.equal(kit.cases.length, document.conformance.cases, `${path}: case count`);
+    for (const id of kit.cases) {
+      const testCase = json(`${dirname(path)}/${document.conformance.kit}/cases/${id}.json`);
+      const answers = [testCase.then.answer].flat();
+      assert.ok(answers.length > 0, `${newest} case ${id}: answer`);
+      for (const answer of answers) {
+        assert.ok(answerKinds.has(answer), `${newest} case ${id}: answer ${answer}`);
+        assert.ok(document.intents[testCase.intent].answers.includes(answer), `${newest} case ${id}: ${testCase.intent} cannot answer ${answer}`);
+      }
+    }
+    read += 1;
+  }
+  if (!read) t.skip('the overlay carries no edition newer than the declared ones');
 });
 
 test('the kit exercises every answer a host can owe', () => {
@@ -162,7 +197,7 @@ test('the kit exercises every answer a host can owe', () => {
     const kit = json(`${dirname(port.path)}/${document.conformance.kit}/manifest.json`);
     const covered = new Set();
     for (const id of kit.cases) {
-      covered.add(json(`${dirname(port.path)}/${document.conformance.kit}/cases/${id}.json`).then.answer);
+      for (const answer of [json(`${dirname(port.path)}/${document.conformance.kit}/cases/${id}.json`).then.answer].flat()) covered.add(answer);
     }
     for (const answer of answerKinds) {
       assert.ok(covered.has(answer), `the kit has no case answering ${answer}`);
