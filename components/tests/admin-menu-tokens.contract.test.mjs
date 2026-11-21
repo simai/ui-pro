@@ -8,7 +8,8 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 test('Admin Menu sources geometry from Framework size and breakpoint contracts', async () => {
   const styles = await read('src/component/admin-menu/scss/_css__admin_menu.scss');
 
-  assert.match(styles, /--sf-admin-menu-panel--inline-size, var\(--sf-g0\)/);
+  // The panel's width is a step of the measure ladder since the pair ui-9ceecc24c988 (C396, WM-3).
+  assert.match(styles, /--sf-admin-menu-panel--inline-size, var\(--sf-measure-44\)/);
   assert.match(styles, /--sf-admin-menu-panel-compact--inline-size, var\(--sf-e1\)/);
   assert.match(styles, /@use '\.\.\/\.\.\/\.\.\/core\/scss\/vars\/sf_var__breakpoint' as bp;/);
   assert.match(styles, /@media \(max-width: map\.get\(bp\.\$breakpoint-array, sm\)\)/);

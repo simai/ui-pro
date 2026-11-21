@@ -25,7 +25,7 @@ test('DF-10: «Мои файлы» make sf-progress-bar when a quota comes, not 
 test('DF-11: the items menu draws no «Избранное» button without an action', () => {
   const template = code('admin-menu/js/templates/default.js');
   assert.doesNotMatch(template, /menuText\("favorites"\)/u);
-  assert.equal(json('admin-menu/component.json').version, '1.14.3');
+  assert.equal(json('admin-menu/component.json').version, '1.14.4');
 });
 
 test('DF-12: sf-editor names its keys through the sf-kbd helper, not in Mac glyphs (C04)', () => {
