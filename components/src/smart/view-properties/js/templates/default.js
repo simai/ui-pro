@@ -1073,7 +1073,22 @@ function renderPanelHead(context) {
                      A record being created is not one yet and cannot be a
                      favourite: no star until it has an id (Larena storage
                      review, 2026-10-28). -->
-                ${context.recordId && context.mode !== 'create' ? html`<sf-button-icon
+                ${context.recordId && context.mode !== 'create' ? (context.starLook
+                    // The toggle look (C393): off a quiet ghost, on the soft
+                    // primary plate with a 1 px primary ring inside, the glyph
+                    // kept outline; pressed writes aria-pressed on the native
+                    // button, one name says the action.
+                    ? html`<sf-button-icon
+                        appearance=${context.starLook}
+                        size=${context.controlSize ?? nothing}
+                        icon="star"
+                        pressed=${context.favourite ? 'true' : 'false'}
+                        data-action="favourite"
+                        aria-label=${context.favouriteLabel}
+                        title=${context.favouriteLabel}
+                        @click=${() => context.component.toggleFavourite()}
+                ></sf-button-icon>`
+                    : html`<sf-button-icon
                         appearance="ghost"
                         size=${context.controlSize ?? nothing}
                         icon="star"
@@ -1082,7 +1097,7 @@ function renderPanelHead(context) {
                         aria-pressed=${context.favourite ? 'true' : 'false'}
                         aria-label=${context.favouriteLabel}
                         @click=${() => context.component.toggleFavourite()}
-                ></sf-button-icon>` : nothing}
+                ></sf-button-icon>`) : nothing}
                 <span class="grow"></span>
                 ${context.hasHostSlot('actions') ? context.hostSlot('actions') : nothing}
                 ${renderMenuControl(context)}
@@ -1413,7 +1428,7 @@ function renderAddSection(context) {
 // column reaches the top of the panel the way a rail of tabs does.
 function sidebarDrawn(context) {
     const sections = listed(context, context.sections);
-    return Boolean(context.wide && context.sectionsAs === 'list'
+    return Boolean(context.wide && context.sectionsLayout === 'column' && context.sectionsAs === 'list'
         && (sections.length > 1 || context.configuring));
 }
 
@@ -1443,7 +1458,7 @@ function renderLoading(context) {
     // skeleton's empty .sf-tabs-main-container stood 32px the tabs no longer
     // take and the record moved up by them when it came.
     // The root is not .sf-tabs: that class is the tabs script's to bind.
-    const tabs = html`<div class="sf-property-view-tabs sf-property-view-tabs--skeleton" aria-hidden="true" data-sf-skeleton="tabs" data-sections-as=${context.sectionsAs} data-size=${context.size}><div class="sf-tabs-top-container"><div class="sf-property-view-tabs-skeleton-strip flex items-cross-center gap-2">${[0, 1, 2].map((at) => html`<div class="flex-none" style="inline-size: 6rem">${bar(at + 3)}</div>`)}</div></div></div>`;
+    const tabs = html`<div class="sf-property-view-tabs sf-property-view-tabs--skeleton" aria-hidden="true" data-sf-skeleton="tabs" data-sections-as=${context.sectionsLayout ?? context.sectionsAs} data-size=${context.size}><div class="sf-tabs-top-container"><div class="sf-property-view-tabs-skeleton-strip flex items-cross-center gap-2">${[0, 1, 2].map((at) => html`<div class="flex-none" style="inline-size: 6rem">${bar(at + 3)}</div>`)}</div></div></div>`;
     return html`${tabs}<div class="sf-property-view-loading flex flex-col gap-4" data-state="loading">${Array.from({length: SKELETON_GROUPS}, (_, group) => html`<section class="sf-property-view-group bg-surface-page flex flex-col gap-2" aria-busy="true"><header class="sf-property-view-group-header flex items-cross-center content-main-between gap-2"><div class="flex-1">${bar(group)}</div></header>${Array.from({length: SKELETON_FIELDS}, (_, field) => bar(group + field + 1))}</section>`)}<span class="sr-only" role="status">${context.message}</span></div>`;
 }
 
@@ -1477,12 +1492,13 @@ function renderBody(context, railOutside = false, withActions = true) {
                     </div>`
                 : nothing}
         ${onPhoneSectionList(context, sections) ? renderPhoneSectionList(context, sections) : nothing}
-        ${context.wide && context.sectionsAs === 'tabs' && sections.length > 1
+        ${context.wide && context.sectionsLayout === 'tabs' && sections.length > 1
                 ? renderSectionTabs(context, sections)
                 : nothing}
         <div class="sf-property-view-layout"
              style=${`--sf-property-view--sections-width: ${context.sectionsWidth};${context.panel ? '' : sizeStyle(context)}`}
              data-sections=${String(sections.length)}
+             data-sections-layout=${sidebarDrawn(context) ? 'column' : (context.wide && context.sectionsLayout === 'tabs' && sections.length > 1 ? 'tabs' : 'none')}
              data-screen=${onPhoneSectionList(context, sections) ? 'sections' : 'groups'}>
             ${!context.wide && sections.length > 1 && context.phoneSection !== null
                     ? renderPhoneSectionHead(context)
@@ -1573,6 +1589,7 @@ export function renderPropertyViewTemplate(context) {
                 overlay="true"
                 size=${context.wide ? context.panelSize : 'full'}
                 width=${context.wide ? (context.drawerWidth || nothing) : nothing}
+                aside-width=${context.wide ? (context.drawerAside || nothing) : nothing}
                 gutter="var(--sf-space-1)"
                 panel-style=${`--sf-drawer-background: var(--sf-surface-area); --sf-property-view--sections-width: ${context.sectionsWidth}; scrollbar-gutter: auto;${sizeStyle(context)}`}
                 show-close="false"

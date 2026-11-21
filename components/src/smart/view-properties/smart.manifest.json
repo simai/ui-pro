@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-properties",
-  "version": "1.23.8",
+  "version": "1.24.0",
   "title": "Property view",
   "summary": "One object's fields shown as sections, groups and fields, each drawn by the per-type field renderer set, behind a separate host port. A group is edited and saved as one revision by the button, and a reference field is picked from the host's own candidates a page at a time. The pair to the data view: that one is a set of records, this one is a single object.",
   "kind": "composite",
@@ -1682,6 +1682,13 @@
         "changes": [
           "Accepts simai.property-view-port 1.22.1 (SIMAI Framework group build 15 (ui-source integration/pair-next-17), A8, DEV msg-d8ee9b8f): a host may answer a save over a moved revision conflict as well as refused, both with reason revision_moved and the current revision, nothing written. The card now reads a refusal revision_moved as a conflict (it showed only the refusal's message, and nothing at all on a group save), and a whole-record save (record.save, every group open) answered conflict reads the record again as a group save does: either way it says the record changed, keeps what the person typed and reads the record at its current revision. SUPPORTED_PORT_VERSIONS, x-port.supports and host_port.supported_versions gain 1.22.1; the contract it is checked against stays 1.18.0. 1.23.8 is above simai/ui-view main's 1.23.7 (view 1.10.1), the highest on any origin branch. Nothing to change for a host."
         ]
+      },
+      {
+        "from": "1.23.8",
+        "to": "1.24.0",
+        "changes": [
+          "A minor over SIMAI Framework ui-9ceecc24c988 (group build 15; ui-source e7ea89e07). (1) The record panel is the drawer's ladder step and the column of sections on top of it (DEV decision msg-6aead3f3, A9): the panel asks sf-drawer 1.20.0 for its size step (52 characters at size 1, 64 at 2) and announces the column through aside-width (calc(var(--sf-measure-28) + the drawer gutter), the 14rem column of before as a step of the measure ladder), so the fields keep the whole step: at 1440 a panel of size 1 with four sections is 656 px, its fields 384 px wide (they had 144 px: the column was taken from the 416 px step). No free exact width is drawn for it; a consumer's own panel-width stays, off the drawer's ladder, and the column no longer goes into it either. (2) When the step and the column would take more than 60 percent of the window (1024 px and below at size 1 and 2), the sections are tabs on top and the panel is the plain step (416 or 512 px); the window's width is read again on resize. While the view is arranged the column stays: it is where sections are dragged and made. The layout says which (data-sections-layout column, tabs or none). A column of sections is sf-tree, never a folded row of tabs (VR11-1, which the view set's sf-tabs column had); a probe holds it. (3) The favourite star is the Framework's toggle where sf-button-icon has the look (appearance toggle, 1.14.0; C393, DEV msg-975e95fe): off a quiet ghost, on the soft primary plate with a 1 px primary ring inside, the glyph kept outline, pressed writes aria-pressed on the native button, one name (favourite-label); the pair's icon button warned in the console about the former ghost primary star with aria-pressed on every load. Without the toggle look the former star stays. The title keeps one line with the star right after it. Settings, values, events and the port are unchanged. 1.24.0 is above simai/ui-view round/view-r11's 1.23.9, the highest on any origin branch; the view set needs the same (its own column is sf-tabs, VR11-1)."
+        ]
       }
     ]
   },
@@ -1691,11 +1698,11 @@
     "source_artifacts": [
       {
         "path": "src/smart/view-properties/index.js",
-        "sha256": "cc2902d517c1bdaa5823b1b2cd30eb5a5fd8208f2088e711eb0c055a292b9399"
+        "sha256": "3e79d48e817aaf467f709628ee8797fadd4a6cf97a10b2c3b79555acb5e4285e"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.js",
-        "sha256": "2ac9da5234f2982ad8b6ab8b3eea78d8f96e3cfd765cf7f3c9f006e38f0205a9"
+        "sha256": "3afe53411f82fe339519fa8e6c08dd135c2f2a4dfd9d70cadd8e5ddfe6ca7af1"
       },
       {
         "path": "src/smart/view-properties/js/templates/default.css",

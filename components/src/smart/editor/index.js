@@ -1261,6 +1261,22 @@ class SfEditor extends EditorElement {
         this.writePreferences();
     }
 
+    // The library star's look (C393, DEV msg-975e95fe): the Framework's toggle
+    // where sf-button-icon declares it (1.14.0), read from its own interface
+    // as sf-header-page does; until it is defined, the former ghost star
+    // filled when on, drawn again once it is.
+    starLook() {
+        const Button = globalThis.customElements?.get?.("sf-button-icon");
+        if (!Button) {
+            if (!this._starLookWait && globalThis.customElements?.whenDefined) {
+                this._starLookWait = globalThis.customElements.whenDefined("sf-button-icon").then(() => this.refresh());
+            }
+            return null;
+        }
+        const values = Button.sfInterface?.settings?.appearance?.values;
+        return Array.isArray(values) && values.includes("toggle") ? "toggle" : null;
+    }
+
     favourite(item) {
         this.favourites = toggleFavourite(this.favourites, itemKey(item));
         this.writePreferences();

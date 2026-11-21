@@ -2,7 +2,7 @@
   "$comment": "sf-property-view from its component.json (standard simai.smart-component 1.3.8, vocabulary 1.1.5), migrated from ui-control control/smart-architecture/migration/out/property-view; every x-todo decided in x-decisions.",
   "id": "smart.view-properties",
   "tag": "sf-view-properties",
-  "version": "1.23.8",
+  "version": "1.24.0",
   "kind": "leaf",
   "family": "record",
   "implements": [
@@ -1810,6 +1810,13 @@
           "to": "1.23.8",
           "changes": [
             "Accepts simai.property-view-port 1.22.1 (SIMAI Framework group build 15 (ui-source integration/pair-next-17), A8, DEV msg-d8ee9b8f): a host may answer a save over a moved revision conflict as well as refused, both with reason revision_moved and the current revision, nothing written. The card now reads a refusal revision_moved as a conflict (it showed only the refusal's message, and nothing at all on a group save), and a whole-record save (record.save, every group open) answered conflict reads the record again as a group save does: either way it says the record changed, keeps what the person typed and reads the record at its current revision. SUPPORTED_PORT_VERSIONS, x-port.supports and host_port.supported_versions gain 1.22.1; the contract it is checked against stays 1.18.0. 1.23.8 is above simai/ui-view main's 1.23.7 (view 1.10.1), the highest on any origin branch. Nothing to change for a host."
+          ]
+        },
+        {
+          "from": "1.23.8",
+          "to": "1.24.0",
+          "changes": [
+            "A minor over SIMAI Framework ui-9ceecc24c988 (group build 15; ui-source e7ea89e07). (1) The record panel is the drawer's ladder step and the column of sections on top of it (DEV decision msg-6aead3f3, A9): the panel asks sf-drawer 1.20.0 for its size step (52 characters at size 1, 64 at 2) and announces the column through aside-width (calc(var(--sf-measure-28) + the drawer gutter), the 14rem column of before as a step of the measure ladder), so the fields keep the whole step: at 1440 a panel of size 1 with four sections is 656 px, its fields 384 px wide (they had 144 px: the column was taken from the 416 px step). No free exact width is drawn for it; a consumer's own panel-width stays, off the drawer's ladder, and the column no longer goes into it either. (2) When the step and the column would take more than 60 percent of the window (1024 px and below at size 1 and 2), the sections are tabs on top and the panel is the plain step (416 or 512 px); the window's width is read again on resize. While the view is arranged the column stays: it is where sections are dragged and made. The layout says which (data-sections-layout column, tabs or none). A column of sections is sf-tree, never a folded row of tabs (VR11-1, which the view set's sf-tabs column had); a probe holds it. (3) The favourite star is the Framework's toggle where sf-button-icon has the look (appearance toggle, 1.14.0; C393, DEV msg-975e95fe): off a quiet ghost, on the soft primary plate with a 1 px primary ring inside, the glyph kept outline, pressed writes aria-pressed on the native button, one name (favourite-label); the pair's icon button warned in the console about the former ghost primary star with aria-pressed on every load. Without the toggle look the former star stays. The title keeps one line with the star right after it. Settings, values, events and the port are unchanged. 1.24.0 is above simai/ui-view round/view-r11's 1.23.9, the highest on any origin branch; the view set needs the same (its own column is sf-tabs, VR11-1)."
           ]
         }
       ]

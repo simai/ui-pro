@@ -328,10 +328,18 @@ function rows(component, list, w, {note = (item) => (item.variant ? item.typeLab
                                }}></sf-button>
                     ${said ? html`<span class="sf-editor-item-note">${said}</span>` : nothing}
                 </span>
-                ${favourite ? html`<sf-button-icon class="sf-editor-star" size="1/3" appearance="ghost" scheme="on-surface-variant" icon="star"
+                ${favourite ? (component.starLook?.()
+                    // The toggle look (C393): on is the soft primary plate with a
+                    // 1 px primary ring inside, the glyph kept outline; pressed
+                    // writes aria-pressed, one name says the action.
+                    ? html`<sf-button-icon class="sf-editor-star" size="1/3" appearance="toggle" icon="star"
+                                pressed=${starred ? "true" : "false"} data-on=${starred ? "true" : "false"}
+                                aria-label=${w("favourite", {name: item.label})}
+                                @click=${() => component.favourite(item)}></sf-button-icon>`
+                    : html`<sf-button-icon class="sf-editor-star" size="1/3" appearance="ghost" scheme="on-surface-variant" icon="star"
                                 ?filled=${starred} data-on=${starred ? "true" : "false"} aria-pressed=${starred ? "true" : "false"}
                                 aria-label=${w(starred ? "unfavourite" : "favourite", {name: item.label})}
-                                @click=${() => component.favourite(item)}></sf-button-icon>` : nothing}
+                                @click=${() => component.favourite(item)}></sf-button-icon>`) : nothing}
                 ${toggle ? html`<sf-button-icon class="sf-editor-variants-toggle" size="1/3" appearance="ghost" scheme="on-surface-variant" icon=${toggle.open ? "expand_less" : "expand_more"}
                                 aria-expanded=${toggle.open ? "true" : "false"} aria-label=${w("variants-label", {name: item.label})}
                                 @click=${() => toggle.onToggle()}></sf-button-icon>` : nothing}

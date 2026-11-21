@@ -101,7 +101,22 @@ const DRAWER_CLOSE_REASONS = {escape: "escape", outside: "outside", close: "api"
 // property declared on the element never reaches it. The stylesheet reads this
 // through `--sf-property-view--sections-width`, which the component passes to
 // the panel and sets on the layout it draws in place.
-const SECTIONS_WIDTH = "14rem";
+//
+// A step of the measure ladder (C396): 28 characters of the body text, the
+// 14rem it was at text 16, so the column follows the text size as the panel's
+// own step does. Beside the fields it takes the drawer's gutter as its gap.
+const SECTIONS_WIDTH = "var(--sf-measure-28)";
+const SECTIONS_ASIDE = `calc(${SECTIONS_WIDTH} + var(--sf-drawer-gutter, var(--sf-space-1)))`;
+
+// The record panel's width (DEV decision msg-6aead3f3, A9): the drawer's
+// ladder step measures the fields, and the column of sections is added on
+// top of it through the drawer's aside-width (sf-drawer 1.20.0), never taken
+// from it. The step's width is the drawer's own (--sf-drawer-width of size
+// 1/2, 1 and 2: 44, 52 and 64 characters). When the step and the column would
+// take more than about 60 percent of the window (1024 px and below at size
+// 1), the sections are tabs on top and the panel is the plain step.
+const COLUMN_WINDOW_SHARE = 0.6;
+const PANEL_STEP = {"1/2": "var(--sf-measure-44)", "1": "var(--sf-measure-52)", "2": "var(--sf-measure-64)"};
 
 // How long the copy control shows its tick. The Framework's own clipboard holds
 // its tick for this long, and two controls that say «copied» for two different
@@ -617,17 +632,70 @@ class SfPropertyView extends PropertyViewElement {
     // under ~1024px the controls stood half off the screen (docs review,
     // round 4, 2026-10-20). The cap holds for every width, not only for one
     // grown by the rail: a consumer's own panel-width meets the same edge.
+    //
+    // Since sf-drawer 1.20.0 the column of sections is not in this width: it
+    // is the drawer's aside-width (drawerAside), added on top of the step or
+    // of the width a consumer asked for (DEV decision msg-6aead3f3). A width
+    // of the consumer's own is off the drawer's ladder, and the drawer says so
+    // once in the console; without one the panel is the ladder step.
     get drawerWidth() {
         const width = this.panelWidth;
         if (!width) return null;
         if (!this.wide) return width;
-        // The rail is drawn while the view is arranged even with one section,
-        // because that is where a second one is made.
-        const railed = this.sectionsAs === "list" && ((this.sections ?? []).length >= 2 || this.configuring);
-        const wanted = railed ? `calc(${width} + ${SECTIONS_WIDTH} + var(--sf-space-4))` : width;
-        // Never wider than the window: grown by the rail, a 40rem panel ran past
-        // the left edge and its sections were cut off (owner, 2026-10-14).
-        return `min(${wanted}, calc(100vw - ${this.edgeRoom}))`;
+        // Never wider than the window: a 40rem panel ran past the left edge
+        // (owner, 2026-10-14).
+        return `min(${width}, calc(100vw - ${this.edgeRoom}))`;
+    }
+
+    // The rail is drawn while the view is arranged even with one section,
+    // because that is where a second one is made.
+    get railWanted() {
+        return this.sectionsAs === "list" && ((this.sections ?? []).length >= 2 || this.configuring);
+    }
+
+    // The column of sections the drawer adds on top of the step (aside-width).
+    // A panel on the whole screen and a phone's panel add nothing.
+    get drawerAside() {
+        if (!this.wide || this.panelSize === "full") return null;
+        return this.railWanted && this.sectionsLayout === "column" ? SECTIONS_ASIDE : null;
+    }
+
+    // Where the sections stand: a column beside the fields, or tabs on top. A
+    // panel below the whole screen keeps the column while the step and the
+    // column stay within 60 percent of the window; past that the sections are
+    // tabs and the panel is the plain step (DEV decision msg-6aead3f3). While
+    // the view is arranged the column stays: it is where sections are dragged
+    // and made. A column of sections is a tree, never a folded row of tabs
+    // (VR11-1: the view set's column was sf-tabs and folded inside the panel).
+    get sectionsLayout() {
+        if (this.sectionsAs !== "list") return "tabs";
+        if (!this.panel || !this.wide || this.panelSize === "full" || this.configuring) return "column";
+        return this.sectionColumnFits ? "column" : "tabs";
+    }
+
+    get sectionColumnFits() {
+        const width = this._widenedPanelWidth();
+        const room = globalThis.innerWidth || 0;
+        return !(width > 0 && room > 0 && width > room * COLUMN_WINDOW_SHARE);
+    }
+
+    // The step (or the consumer's width) and the column in px, measured once
+    // per window width, step and density: both are text measures, so they move
+    // with the body text size.
+    _widenedPanelWidth() {
+        const doc = this.ownerDocument;
+        if (!doc?.body) return 0;
+        const step = this.panelWidth || PANEL_STEP[this.panelSize] || PANEL_STEP["1"];
+        const key = `${globalThis.innerWidth}|${step}|${doc.documentElement.getAttribute("data-sf-density") ?? ""}`;
+        if (this._widenedWidth?.key === key) return this._widenedWidth.value;
+        const probe = doc.createElement("div");
+        probe.setAttribute("aria-hidden", "true");
+        probe.style.cssText = `position: absolute; visibility: hidden; pointer-events: none; inset-block-start: 0; inset-inline-start: 0; inline-size: calc(${step} + ${SECTIONS_ASIDE});`;
+        doc.body.append(probe);
+        const value = probe.getBoundingClientRect().width;
+        probe.remove();
+        this._widenedWidth = {key, value};
+        return value;
     }
 
     // One edge control: an sf-button-icon of the panel's size is its text
@@ -974,6 +1042,22 @@ class SfPropertyView extends PropertyViewElement {
         return this.hasAttribute("favourite");
     }
 
+    // The favourite star's look (C393, DEV msg-975e95fe): the Framework's
+    // toggle where sf-button-icon declares it (1.14.0), read from its own
+    // interface as sf-header-page does; until it is defined, the former ghost
+    // star filled when on, drawn again once it is.
+    starLook() {
+        const Button = globalThis.customElements?.get?.("sf-button-icon");
+        if (!Button) {
+            if (!this._starLookWait && globalThis.customElements?.whenDefined) {
+                this._starLookWait = globalThis.customElements.whenDefined("sf-button-icon").then(() => this.requestComponentUpdate("star-look"));
+            }
+            return null;
+        }
+        const values = Button.sfInterface?.settings?.appearance?.values;
+        return Array.isArray(values) && values.includes("toggle") ? "toggle" : null;
+    }
+
     get favouriteLabel() {
         return this.getAttribute("favourite-label") || pageText(PROPERTY_VIEW_TEXT, "favouriteLabel", this);
     }
@@ -1279,6 +1363,16 @@ class SfPropertyView extends PropertyViewElement {
             this.requestComponentUpdate("viewport");
         };
         this.wideMedia?.addEventListener?.("change", this._onWideChange);
+        // The window's width decides whether the sections are a column or tabs
+        // (sectionsLayout): drawn again only when that changes.
+        this._onLayoutResize = () => {
+            if (!this.panel || this._layoutFrame) return;
+            this._layoutFrame = requestAnimationFrame(() => {
+                this._layoutFrame = 0;
+                if (this.sectionsLayout !== this._drawnSectionsLayout) this.requestComponentUpdate("section-layout");
+            });
+        };
+        globalThis.addEventListener?.("resize", this._onLayoutResize, {passive: true});
         // A view placed before it is told its record (an assembly binds
         // record-id after it places the part) asks the host nothing yet: the
         // record-id it is given reads it (attributeChangedCallback).
@@ -1330,6 +1424,10 @@ class SfPropertyView extends PropertyViewElement {
         }
         this._onDocumentSortableIntent = null;
         if (this._onWideChange) this.wideMedia?.removeEventListener?.("change", this._onWideChange);
+        if (this._onLayoutResize) globalThis.removeEventListener?.("resize", this._onLayoutResize);
+        if (this._layoutFrame) cancelAnimationFrame(this._layoutFrame);
+        this._onLayoutResize = null;
+        this._layoutFrame = 0;
         this._onWideChange = null;
         this.wideMedia = null;
         super.onDisconnected?.();
@@ -1485,6 +1583,7 @@ class SfPropertyView extends PropertyViewElement {
             errorsText: this.errorsText,
             sectionsLabel: this.sectionsLabel,
             sectionsAs: this.sectionsAs,
+            sectionsLayout: (this._drawnSectionsLayout = this.sectionsLayout),
             sections: this.sections,
             selectedSection: this.selectedSection,
             editing: this.editing,
@@ -1507,6 +1606,9 @@ class SfPropertyView extends PropertyViewElement {
             hasHostSlot: (name) => this.hasSlotContent(name),
             address: this.address,
             drawerWidth: this.drawerWidth,
+            drawerAside: this.drawerAside,
+            // C393: the star is the Framework's toggle where sf-button-icon has the look.
+            starLook: this.starLook(),
             sectionsWidth: SECTIONS_WIDTH,
             conflict: this.conflict,
             confirmation: this.confirmation,

@@ -50,7 +50,7 @@ test('DF-12: sf-editor names its keys through the sf-kbd helper, not in Mac glyp
     assert.match(summary, /Apple platforms/u, `${name}: both platforms named`);
     assert.match(summary, /Ctrl\+/u, `${name}: both platforms named`);
   }
-  assert.equal(manifest.version, '1.3.3');
+  assert.equal(manifest.version, '1.4.0');
 });
 
 test('DF-13: the package declares sf-editor-content retired, with its date', () => {
