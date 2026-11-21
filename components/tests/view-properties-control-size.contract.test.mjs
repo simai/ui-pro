@@ -17,5 +17,6 @@ test('the panel writes a size on its controls only when the host has one', async
   assert.match(element, /\n            controlSize: this\.controlSize,\n/u, 'the template context carries it');
   const template = await read('src/smart/view-properties/js/templates/default.js');
   assert.doesNotMatch(template, /\ssize=\$\{context\.size\}/u, 'no control takes the panel size, which is 1 when the host has none');
-  assert.equal(template.match(/size=\$\{context\.controlSize \?\? nothing\}/gu)?.length, 22);
+  // 23 since 1.24.0: the favourites star toggle (C393) carries the host's size too.
+  assert.equal(template.match(/size=\$\{context\.controlSize \?\? nothing\}/gu)?.length, 23);
 });

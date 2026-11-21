@@ -25,8 +25,10 @@ const body = (text, start) => {
 
 test('a wide panel is never wider than the window less the edge strip', () => {
   const width = body(source, '    get drawerWidth() {');
-  assert.match(width, /return `min\(\$\{wanted\}, calc\(100vw - \$\{this\.edgeRoom\}\)\)`;/u,
-    'every wide width, railed or not, is capped by the strip');
+  // Since sf-view-properties 1.24.0 the sections column is the drawer's aside
+  // (aside-width), so the width here is the consumer's panel width alone.
+  assert.match(width, /return `min\(\$\{width\}, calc\(100vw - \$\{this\.edgeRoom\}\)\)`;/u,
+    'every wide width is capped by the strip');
   assert.doesNotMatch(width, /100vw - var\(--sf-space-4\)/u, 'the old cap left 32px for a 64px strip');
 });
 
