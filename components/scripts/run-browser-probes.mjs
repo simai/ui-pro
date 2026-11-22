@@ -59,7 +59,7 @@ const roots = {
 };
 
 // Probes that drive a served lab and take URLs; not part of a build's evidence.
-const needsLab = new Set(['admin-menu-position', 'composition-routing', 'loader-hidden-tab', 'table-intents', 'table-search-caret']);
+const needsLab = new Set(['composition-routing', 'loader-hidden-tab', 'table-intents', 'table-search-caret']);
 const WANTS = [
   [/Smart output root and distr root/u, () => [roots.smart, roots.core]],
   [/Core and Smart output roots/u, () => [roots.core, roots.smartParent]],

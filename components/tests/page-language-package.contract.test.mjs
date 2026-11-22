@@ -9,15 +9,10 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('page language: no package component falls back to Russian', async () => {
   const sources = {
-    // admin-menu had its own reading of the rule -- the document's lang and
-    // nothing else -- which is one rule too many and missed a region that names
-    // its own language. It asks the shared helper now, like the rest.
-    'src/smart/admin-menu/index.js': [/pageText\(MENU_TRANSLATIONS, key, node/],
     // The list spoke only Russian until 2026-10-10, so an English page came out
     // a patchwork: a record panel that had switched above a toolbar that had not.
     'src/smart/view-table/index.js': [/const TABLE_TEXT = \{\n    en: camelWords\(en\.runtime\),/, /pageText\(TABLE_TEXT, key, this\)/],
     'src/smart/view/index.js': [/pageText\(DATA_VIEW_TEXT, "\w+", this\)/],
-    'src/smart/admin-menu/js/templates/default.js': [/documentElement\?\.lang \|\| "en"/],
   };
   for (const [path, patterns] of Object.entries(sources)) {
     const source = await read(path);

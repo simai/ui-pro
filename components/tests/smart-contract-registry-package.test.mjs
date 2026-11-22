@@ -37,15 +37,17 @@ test("the package composites are generated into the searchable registry beside t
   // sf-display-settings, sf-form and sf-tag-group (ui-078a4b4c6f6e): 86 free
   // and 17 of the package make 103. sf-bulk-actions, the group actions bar
   // (C295, ui-97a0ebb762eb): 87 free and 17 of the package make 104.
-  assert.equal(registry.entries.length, 104);
+  // sf-admin-menu left for the Admin set (simai/ui-admin, 2026-11-22): 87
+  // free and 16 of the package make 103.
+  assert.equal(registry.entries.length, 103);
+  assert.ok(!registry.entries.some((entry) => entry.id === "smart.admin-menu"), "sf-admin-menu, now the Admin set's");
   assert.ok(registry.entries.some((entry) => entry.id === "smart.bulk-actions"), "sf-bulk-actions, the Framework's");
   assert.ok(registry.entries.some((entry) => entry.id === "smart.confirm-change"), "sf-confirm-change, now the Framework's");
-  for (const id of ["smart.admin-menu", "smart.view-table", "smart.view", "smart.view-properties",
+  for (const id of ["smart.view-table", "smart.view", "smart.view-properties",
     "smart.message-log", "smart.chat-threads", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
     "smart.mail-library", "smart.mail-letters", "smart.mail-structure", "smart.mail-inspector", "smart.mail-canvas", "smart.editor-content", "smart.editor"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
   }
-  assert.ok(registry.entries.find(({id}) => id === "smart.admin-menu").capabilities.includes("navigation"));
   assert.ok(registry.entries.find(({id}) => id === "smart.view-table").capabilities.includes("data-view"));
   assert.ok(registry.entries.every(({contract_schema}) => contract_schema.version === 2));
 });
@@ -83,18 +85,12 @@ test("CLI discovers and describes the whole data view", () => {
   assert.deepEqual(composite.host_port.supported_versions, ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.8.0", "1.9.0", "1.10.0", "1.11.0", "1.12.0", "1.13.0", "1.14.0", "1.15.0", "1.16.0"]);
 });
 
-test("CLI discovers, describes and verifies the whole composite", () => {
+test("the package holds no navigation component: the admin menu is the Admin set's", () => {
   const listed = JSON.parse(run("list", "--kind", "smart", "--capability", "navigation"));
   // The free sf-contents, sf-menu, sf-pager, sf-search, sf-header-site and
-  // sf-language (site navigation) and the package's admin menu.
-  assert.deepEqual(listed.map(({id}) => id), ["smart.admin-menu", "smart.contents", "smart.header-site", "smart.language", "smart.menu", "smart.pager", "smart.search"]);
-  const packet = JSON.parse(run("describe", "smart.admin-menu", "--format", "ai"));
-  assert.equal(packet.decision.reuse_mode, "whole");
-  assert.equal(packet.public_abi.custom_element, "sf-admin-menu");
-  assert.equal(packet.conformance.compatibility.contract_schema.version, 2);
-  assert.equal(packet.conformance.compatibility.migrations.at(-1).to, '1.7.1');
-  assert.match(packet.backend.integration_examples.larena_php, /Smart::render\('ui\.admin_menu'/);
-  assert.deepEqual(JSON.parse(run("verify", "smart.admin-menu")), {ok: true, verified: ["smart.admin-menu"]});
+  // sf-language (site navigation); sf-admin-menu ships in the Admin set
+  // (@simai-studio/admin, simai/ui-admin) since 2026-11-22.
+  assert.deepEqual(listed.map(({id}) => id), ["smart.contents", "smart.header-site", "smart.language", "smart.menu", "smart.pager", "smart.search"]);
 });
 
 test("table preferences remain operable through the canonical source", () => {

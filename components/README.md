@@ -21,7 +21,6 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/view-table` | `sf-view-table` | `smart.view-table` |
 | `src/smart/view` | `sf-view` | `smart.view` |
 | `src/smart/view-properties` | `sf-view-properties` | `smart.view-properties` |
-| `src/smart/admin-menu` | `sf-admin-menu` | `smart.admin-menu` |
 | `src/smart/message-log` | `sf-message-log` | `smart.message-log` |
 | `src/smart/chat-threads` | `sf-chat-threads` | `smart.chat-threads` |
 | `src/smart/chat-interlocutor` | `sf-chat-interlocutor` | `smart.chat-interlocutor` |
@@ -79,8 +78,7 @@ language). Neither touches a letter: each says what the person chose and the hos
 does it. Their documentation is in each folder's `docs.md`.
 
 Documentation (Russian): [sf-view-table and sf-view](https://ui.simai.io/ru/smart-components/content/table/),
-[sf-view-properties](https://ui.simai.io/ru/smart-components/composite/property-view/),
-[sf-admin-menu](https://ui.simai.io/ru/smart-components/composite/admin-menu/); the whole
+[sf-view-properties](https://ui.simai.io/ru/smart-components/composite/property-view/); the whole
 Framework at https://ui.simai.io/.
 
 The elements keep the Framework's `sf-` prefix: they came from the Framework
@@ -88,7 +86,7 @@ and pages already use them, which the standard allows with that reason stated.
 
 Everything they are built on is the free SIMAI Framework (Apache-2.0), in `simai/ui-source`:
 Core and the Loader, `smart-base`, `page-language`, `position`, the Smart
-helpers, the typed renderer set `smart/field-renderers`, `component/admin-menu`,
+helpers, the typed renderer set `smart/field-renderers`,
 the badges and clipboard components. So are the public contracts they answer
 to: the host ports and their conformance kits (`src/core/contracts/ports/` in
 ui-source, shipped in `ui` as `distr/core/contracts/ports/`) — the data view,
@@ -100,6 +98,26 @@ The history of these files before the move is in `simai/ui-source-pro`
 
 The owner's decisions about the admin screens, and what each asks of a Larena
 host, are kept in `simai/ui-admin`, `docs/developer/admin-decisions.md`.
+
+## Components that left the package
+
+A component that has its own home elsewhere leaves this package; a page that
+used it from here declares that home beside `pro`.
+
+| Element | Left | Now in | What a page adds |
+|:---|:---|:---|:---|
+| `sf-confirm-change` (former `sf-change-confirm`) | 2026-11-03 | SIMAI Framework (core.runtime 1.25.0) | nothing: the Framework pair carries it |
+| `sf-admin-menu` | 2026-11-22 | the Admin set `admin`, `@simai-studio/admin` 1.0.0 (release `admin-8cff3084cfaf` of `simai/ui-admin`, sf-admin-menu 1.15.0) | the set beside `pro`: `data-sf-sets="admin"`, or `SF_BOOT_CONFIG.packages.admin = {base: '<admin set base>'}` |
+
+`sf-admin-menu`: the copy here (1.14.4) was frozen when the Admin set took
+the menu (simai/ui-admin owns it). While both the package and the set define
+the element, the Loader reports a conflict on every page that declares both,
+so the copy leaves. The set's 1.15.0 has one path, the navigation over
+`simai.admin-navigation-port`: the older menu of child item elements (its
+settings menu, search panel, compact mode and persistence, the aliases
+`sf-admin-menu-search` and `sf-admin-menu-settings-reset`) is not in it (owner decision C384, AM-7). A host on the items menu moves to
+the navigation port when it takes the set. The menu's history up to 1.14.4 is
+in this repository's git history.
 
 ## Built against a pinned ui-source
 

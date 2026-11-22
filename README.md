@@ -10,7 +10,6 @@ them working.
 | `sf-view-table` | a data table: columns, sorting, selection, row actions |
 | `sf-view` | a table with its toolbar, filters, paging and bulk actions |
 | `sf-view-properties` | a record view and editor over typed fields |
-| `sf-admin-menu` | an admin navigation rail and menu with counters |
 
 The source, tests and build notes are in [`components/`](components/README.md).
 The components are published as the component package `pro`; each release

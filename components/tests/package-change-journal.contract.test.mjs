@@ -28,15 +28,14 @@ const known = (component, from) => recorded.has(`${component}|${from}`) || recor
 
 // Former event names of package components the journal does not record yet,
 // by component. Each has a dated row in its aliases.json.
-const PENDING = {
-  'sf-admin-menu': ['sf-admin-menu-search', 'sf-admin-menu-settings-reset', 'sf-admin-menu-intent'],
-};
+// sf-admin-menu's three left with the menu (the Admin set, simai/ui-admin, 2026-11-22).
+const PENDING = {};
 
 // The package's folders (scripts/overlay.mjs PACKAGE_COMPONENTS; the overlay
 // holds src/, tests/ and docs/ of this repository, not its scripts).
 // The renamed ones (rename plan R2, 2026-11-03) have their earlier former
 // names recorded with their tag record (tag-sf-table-to-sf-view-table, ...).
-const packageFolders = ['admin-menu', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window',
+const packageFolders = ['chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window',
   'message-log', 'view', 'view-properties', 'view-table'];
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/u;

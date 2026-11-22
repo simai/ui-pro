@@ -22,7 +22,7 @@ const source = (folder) => readFileSync(resolve(packageRoot, 'src/smart', folder
 // (tests/package-component-files.contract.test.mjs, PHASE_A less the frozen
 // ones). The 1.3 folders (editor-content and the mail folders) keep their
 // converted manifests until they move to the 1.4 form.
-const folders = ['message-log', 'chat-threads', 'admin-menu', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window']
+const folders = ['message-log', 'chat-threads', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window']
   .filter((folder) => !FROZEN.has(folder));
 
 test('every action with parameters is one args object in an editable folder\'s manifest', () => {
@@ -54,7 +54,6 @@ const positionalOf = (folder) => {
 
 test('a class-written method with the fields in order is given the object form', () => {
   for (const [folder, expected] of [
-    ['admin-menu', ['apply-external-settings-state', 'apply-settings-result', 'apply-settings-error', 'set-search-results']],
     ['chat-window', ['open-conversation', 'set-list-footer', 'open-preview']],
   ]) {
     const actions = json(folder, 'component.json').actions;

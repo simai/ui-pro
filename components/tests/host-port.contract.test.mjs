@@ -19,7 +19,6 @@ const manifestPaths = [
   'src/smart/view-table/smart.manifest.json',
   'src/smart/view/smart.manifest.json',
   'src/smart/view-properties/smart.manifest.json',
-  'src/smart/admin-menu/smart.manifest.json',
 ];
 const declared = manifestPaths
   .map((path) => ({ path, manifest: json(path) }))
@@ -240,23 +239,3 @@ test('the composite accepts exactly the versions its manifest supports', () => {
   assert.match(source, /!SUPPORTED_PORT_VERSIONS\.includes\(host\.version\)/u, 'and the guard reads that list');
 });
 
-// The menu, the same way: the versions its shell takes are the ones its manifest
-// declares, and every intent is announced as the one event the port names.
-test('the admin menu accepts exactly the navigation port versions its manifest supports', () => {
-  const source = readFileSync(resolve(root, 'src/smart/admin-menu/js/navigation/controller.js'), 'utf8');
-  const listed = source.match(/export const SUPPORTED_NAVIGATION_VERSIONS = \[([^\]]*)\]/u);
-  assert.ok(listed, 'the accepted versions are declared in one place');
-  const accepted = listed[1].split(',').map((entry) => entry.trim().replace(/"/gu, '')).filter(Boolean);
-  const declared = json('src/smart/admin-menu/smart.manifest.json').composition.declarative.host_port;
-
-  assert.equal(declared.port, 'simai.admin-navigation-port');
-  assert.deepEqual(accepted, declared.supported_versions);
-  assert.ok(accepted.includes(declared.version), 'including the one it declares as current');
-  const index = readFileSync(resolve(root, 'src/smart/admin-menu/index.js'), 'utf8');
-  assert.match(index, /!SUPPORTED_NAVIGATION_VERSIONS\.includes\(host\.version\)/u, 'and the guard reads that list');
-  assert.match(
-    source,
-    /async raise\(intent, payload = \{\}\) \{(?:\s*\/\/[^\n]*)*\s*const \[verb, kind, fields\] = INTENT_VERBS\[intent\][^\n]*\n\s*this\.element\.sfEmit\(verb, /u,
-    'every intent is announced before the host is asked',
-  );
-});

@@ -14,7 +14,7 @@ import {fillSkeleton} from '../scripts/first-paint-skeleton.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const smart = join(root, 'src', 'smart');
-const PACKAGE = ['admin-menu', 'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window', 'editor-content', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'view', 'view-properties', 'view-table'];
+const PACKAGE = ['chat-composer', 'chat-interlocutor', 'chat-message', 'chat-threads', 'chat-window', 'editor-content', 'mail-canvas', 'mail-inspector', 'mail-letters', 'mail-structure', 'mail-library', 'message-log', 'view', 'view-properties', 'view-table'];
 const inner = (html, tag) => html.replace(/<!--[\s\S]*?-->\n?/gu, '').trim()
   .replace(new RegExp(`^<${tag}[^>]*>`, 'u'), '').replace(new RegExp(`</${tag}>$`, 'u'), '')
   .replace(/>\s+</gu, '><').trim();
@@ -95,20 +95,9 @@ test('a port-fed component holds its box: it fills its region and its data scrol
   // 2026-10-15, table-one-scroll); its rows are what must hold.
   assert.doesNotMatch(readFileSync(join(smart, 'view', 'index.js'), 'utf8'), /:host \{[^}]*overflow/u);
   assert.match(css('view-properties/js/templates/default.css'), /:is\(sf-view-properties, sf-property-view\):not\(\[panel\]\),\s*:is\(sf-view-properties, sf-property-view\)\[full\] \{\s*\/\*[^*]*\*\/\s*display: block !important;\s*block-size: 100%;\s*overflow: auto;/u);
-  assert.match(css('admin-menu/js/navigation/navigation.css'), /\.sf-admin-nav--skeleton \.sf-admin-nav-second \{\s*display: none;/u, 'the skeleton keeps one column on a phone');
   // Each such example puts the component in a region, as a page does.
-  for (const [folder, names] of [['view-properties', ['reference', 'full']], ['admin-menu', ['navigation-port']]]) {
+  for (const [folder, names] of [['view-properties', ['reference', 'full']]]) {
     const component = describe(smart, folder);
     for (const name of names) assert.match(component.examples.find((one) => one.name === name).parent ?? '', /block-size: \d+rem/u, `${folder}/${name}`);
   }
-});
-
-test('sf-admin-menu over a navigation port prints its skeleton, never the empty items menu', () => {
-  const admin = describe(smart, 'admin-menu');
-  assert.deepEqual(admin.manifest.settings.source.values, ['items', 'port']);
-  const example = admin.examples.find((one) => one.name === 'navigation-port');
-  assert.equal(example.settings.source, 'port');
-  const html = readFileSync(exampleFiles(admin, example).html, 'utf8');
-  assert.match(html, /class="sf-admin-nav sf-admin-nav--skeleton" aria-busy="true"/u);
-  assert.equal((html.match(/class="sf-admin-nav-item"/gu) ?? []).length, 12, 'six rows in each column');
 });
