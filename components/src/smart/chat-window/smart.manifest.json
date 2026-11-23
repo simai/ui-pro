@@ -38,6 +38,7 @@
       "smart.chat-threads",
       "smart.confirm-change",
       "smart.empty-state",
+      "smart.header-page",
       "smart.icon",
       "smart.input",
       "smart.input-lookup",
@@ -2736,7 +2737,7 @@
     "source_artifacts": [
       {
         "path": "src/smart/chat-window/index.js",
-        "sha256": "0e4e36febb8007405ac49dbef8580faa7d3a281ec10550f1e50294de9bea5f28"
+        "sha256": "a0c09beea5473aa582dd294b85fd0b6512672d210ddacc1f2ea909c63f8c3aa6"
       },
       {
         "path": "src/smart/chat-window/js/port.js",
@@ -2780,11 +2781,11 @@
       },
       {
         "path": "src/smart/chat-window/js/templates/default.css",
-        "sha256": "01207b2166374e820bbe603223a5a96acad337eb37438d74d2b6b692360a6c1b"
+        "sha256": "65fdf87c1ebbc685bcb669c181df3ee8542c55182b1fe7815331a63045ff7267"
       },
       {
         "path": "src/smart/chat-window/rule.js",
-        "sha256": "1336e06255572313d4cc5f5f7fc80bb6c8c13bac38a7b1fded4cc3e3dfe8f21e"
+        "sha256": "bf66be23384f574998400fa6dd3718f209cc7226926f4c229d5aebaf982a16eb"
       },
       {
         "path": "src/smart/chat-window/docs.md",
@@ -2792,7 +2793,7 @@
       },
       {
         "path": "src/smart/chat-window/component.json",
-        "sha256": "14b0ce6bd7bc55f681eb74c3a81bb4907201640ef28a4212d3d0bb02341063cf"
+        "sha256": "dd906f4677b3a470a2f667765bb2fcf4d374f2568addfb02641386a56f5ae0a0"
       },
       {
         "path": "src/smart/chat-window/aliases.json",

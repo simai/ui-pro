@@ -658,11 +658,18 @@ class SfChatWindow extends ChatWindowElement {
         side.append(sideHead, search.box, threads);
         // Embedded in a page that has its own <main>, the window is a labelled region.
         const main = element(this.getAttribute("landmark") === "section" ? "section" : "main", "chat-shell__main sf-workspace-main");
-        const pageTitle = element(this._headingTag, "sf-chat-offscreen chat-shell__page-title");
-        const header = element("header", "chat-shell__header");
+        // The head is SIMAI Framework's sf-header-page (C161 (1), 1.17.0): the
+        // page head of an app with a side menu. Its heading element, at the
+        // window's heading level, holds the window's title group (the heading
+        // slot): the conversation's title said off screen, whom one talks to,
+        // the mark and the visible title between people. The off-screen title
+        // was a heading of its own before; it is the heading's name now, so the
+        // visible title, the same words, is not read twice (aria-hidden).
+        const pageTitle = element("span", "sf-chat-offscreen chat-shell__page-title");
+        const header = element("div", "chat-shell__header");
+        const head = element("sf-header-page", "chat-shell__head", {"heading-level": this._headingTag === "h2" ? "2" : "1"});
         const interlocutor = element("sf-chat-interlocutor");
-        const threadTitle = element("span", "chat-shell__thread-title");
-        const spacer = element("div", "chat-shell__spacer");
+        const threadTitle = element("span", "chat-shell__thread-title", {"aria-hidden": "true"});
         const start = this._start.build(this._headingTag);
         const members = this._members.build(this._headingTag);
         // Between people the header says who this is (1.6.0): the list's avatar,
@@ -677,7 +684,17 @@ class SfChatWindow extends ChatWindowElement {
         // it, hides it and answers the press (.sf-workspace-back), so the
         // window only puts it in main.
         const back = iconButton(this.ctx, {icon: "arrow_back", label: words("threads.back"), size: "1", className: "sf-workspace-back chat-shell__back"});
-        header.append(back, interlocutor, headMark, headWho, spacer, members.command);
+        // «Участники» is pinned (DEV msg-975e95fe): it never goes under the
+        // header's «Ещё»; the header keeps its shared rule of 20rem for the
+        // title before the actions, so on a narrow line the title takes a line
+        // of its own under «назад» rather than the action leaving.
+        const headTitle = element("span", "chat-shell__head-title", {slot: "heading"});
+        headTitle.append(pageTitle, interlocutor, headMark, headWho);
+        back.setAttribute("slot", "start");
+        members.command.setAttribute("slot", "actions");
+        members.command.setAttribute("priority", "pin");
+        head.append(back, headTitle, members.command);
+        header.append(head);
         const find = this.buildFind(element, words);
         // Over a discussion (1.10.0): the way back to the conversation and the
         // message being discussed.
@@ -706,10 +723,10 @@ class SfChatWindow extends ChatWindowElement {
         const queueSaid = element("span", "sf-chat-offscreen", {role: "status", "aria-live": "polite"});
         queue.append(queueHeld, queueList, queueSaid);
         composerBox.append(archivedNote, statusLine, queue, composer, suggestions);
-        main.append(pageTitle, header, find.box, threadBar, list, files.root, start.root, members.root, composerBox);
+        main.append(header, find.box, threadBar, list, files.root, start.root, members.root, composerBox);
         shell.append(side, main, preview.root);
         this._parts = {
-            shell, side, sideHead, main, header, back, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, headMark, threadSub, statusLine, archivedNote, suggestions,
+            shell, side, sideHead, main, header, head, back, threads, list, composer, composerBox, interlocutor, pageTitle, threadTitle, headMark, threadSub, statusLine, archivedNote, suggestions,
             search: search.box, searchInput: search.input, searchStatus: search.status,
             find: find.box, findInput: find.input, findCount: find.count, findStatus: find.status, findPrevious: find.previous, findNext: find.next,
             queue, queueHeld, queueList, queueSaid,

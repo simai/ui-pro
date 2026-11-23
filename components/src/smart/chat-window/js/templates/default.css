@@ -156,7 +156,19 @@
   }
 
   .chat-shell__header .sf-chat-interlocutor { min-inline-size: 0; }
-  .chat-shell__spacer { flex: 1; }
+  /* The head is sf-header-page (1.17.0; its host draws no box): its header
+     takes the band, and the title group in its heading slot keeps the
+     window's own type, not the heading step's, as before. */
+  .chat-shell__header > sf-header-page > .sf-page-header { flex: 1; min-inline-size: 0; }
+  .chat-shell__head-title {
+    display: flex;
+    align-items: center;
+    gap: var(--sf-space-1\/4);
+    min-inline-size: 0;
+    font-size: var(--sf-label-large--size);
+    font-weight: 400;
+    line-height: var(--sf-label-large--height);
+  }
 
   /* The way back to the list, first in main: the Framework shows it only in a
      narrow container with main shown and a list to go back to, and answers

@@ -23,6 +23,7 @@ SF.RuleLoader['cl-chat-window'] = {
     { name: 'icon-buttons' },
     { name: 'inputs' },
     { name: 'cl-icon' },
+    { name: 'cl-header-page' },
     { name: 'cl-chat-threads' },
     { name: 'cl-list-feed' },
     { name: 'cl-chat-composer' },
