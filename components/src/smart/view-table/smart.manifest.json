@@ -2788,7 +2788,7 @@
       },
       {
         "path": "src/smart/helpers/option-badge.js",
-        "sha256": "ad7638a3bc1c7baf8895dcd10b3eebcd08f47843c8f56a973a4e18974dc0dfca"
+        "sha256": "eae115413fa54f7c6fbb12fe2be205ad3b5aad8cb9ac0b982d0608d196f8815e"
       },
       {
         "path": "src/smart/view-table/rule.js",
