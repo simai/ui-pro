@@ -174,9 +174,12 @@ try {
       got: {hex: hexBackground, scheme: cells.scheme?.background},
       expected: 'the option colour at 24 per cent, distinct from a scheme badge'});
   }
+  // Since ui-source e59dbad1c (pair ui-b4f79e1c58b7, register VL-54, C95 (6)) a
+  // choice badge in a cell is the line of the text beside it (line="text"): the
+  // row's own text at every density, its height the text's line.
   if (cells.status?.element !== 'sf-badge' || !/Опубликовано/u.test(cells.status?.text ?? '')
-      || cells.status?.line !== '1/2') {
-    note({case: 'choice', got: cells.status, expected: 'a badge on the row line with the option label'});
+      || cells.status?.line !== 'text') {
+    note({case: 'choice', got: cells.status, expected: 'a badge on the line of the row text with the option label'});
   }
   if (cells.progress?.element !== 'sf-progress-scale' || cells.progress?.value !== '42'
       || cells.progress?.line !== '1/2') {
