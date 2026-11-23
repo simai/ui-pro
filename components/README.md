@@ -107,7 +107,7 @@ used it from here declares that home beside `pro`.
 | Element | Left | Now in | What a page adds |
 |:---|:---|:---|:---|
 | `sf-confirm-change` (former `sf-change-confirm`) | 2026-11-03 | SIMAI Framework (core.runtime 1.25.0) | nothing: the Framework pair carries it |
-| `sf-admin-menu` | 2026-11-22 | the Admin set `admin`, `@simai-studio/admin` 1.0.0 (release `admin-8cff3084cfaf` of `simai/ui-admin`, sf-admin-menu 1.15.0) | the set beside `pro`: `data-sf-sets="admin"`, or `SF_BOOT_CONFIG.packages.admin = {base: '<admin set base>'}` |
+| `sf-admin-menu` | 2026-11-22 (the first Pro release without it is over the pair ui-b4f79e1c58b7, 2026-11-23) | the Admin set `admin`, `@simai-studio/admin` 1.0.0 (release `admin-8cff3084cfaf` of `simai/ui-admin`, sf-admin-menu 1.15.0) | the set beside `pro`: `data-sf-sets="admin"`, or `SF_BOOT_CONFIG.packages.admin = {base: '<admin set base>'}` |
 
 `sf-admin-menu`: the copy here (1.14.4) was frozen when the Admin set took
 the menu (simai/ui-admin owns it). While both the package and the set define
@@ -118,6 +118,17 @@ settings menu, search panel, compact mode and persistence, the aliases
 `sf-admin-menu-search` and `sf-admin-menu-settings-reset`) is not in it (owner decision C384, AM-7). A host on the items menu moves to
 the navigation port when it takes the set. The menu's history up to 1.14.4 is
 in this repository's git history.
+
+`sf-editor` stays for now. Its home is the Editor set `editor`
+(`@simai-studio/editor` 1.5.0, release `editor-6912015a62bd` of
+`simai/ui-editor`), which holds what the copy here has (the keys through
+sf-kbd, the toggle star). The SIMAI Framework pair's package reference
+(`distr/core/contracts/packages/pro.package.json`, ui-source 5097d3272: "cl-editor
+stays") still lists `cl-editor`, and the package receipt takes the package's
+rules only when they equal the reference, so the copy leaves with the pair that
+drops it from the reference. Until then a page declares `pro` or the Editor set
+for `sf-editor`, not both: the Loader reports a conflict where two declared
+packages define one element.
 
 ## Built against a pinned ui-source
 

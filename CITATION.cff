@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you refer to SIMAI Pro, please cite it as below."
 title: "SIMAI Pro"
-abstract: "Advanced Smart components built on SIMAI Framework: sf-table, sf-data-view, sf-property-view and sf-admin-menu."
+abstract: "Advanced Smart components built on SIMAI Framework: sf-table, sf-data-view and sf-property-view (sf-view, sf-view-table, sf-view-properties), the chat, mail and editor components."
 type: software
 authors:
   - family-names: "Zabarov"
