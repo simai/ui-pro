@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.29.4",
+  "version": "1.36.1",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2766,6 +2766,13 @@
         "to": "1.29.4",
         "changes": [
           "version 1.29.4 (2026-11-21): a patch, rebuilt over SIMAI Framework ui-9ceecc24c988 (group build 15; ui-source e7ea89e07, core.runtime 1.65.0, core.styles 1.21.0): its first-paint snapshots (static/) are retaken from the build through scripts/run-first-paint.mjs, since the Framework segmented and button parts it prints write pointer-events-none on their glyphs and labels (the former pointer-event-none matched no utility). Its own code, settings, values and events are unchanged. 1.29.4 is above 1.29.3 (ui-view round/view-r11), the highest on any origin branch."
+        ]
+      },
+      {
+        "from": "1.29.4",
+        "to": "1.36.1",
+        "changes": [
+          "A patch (no visible change), over SIMAI Framework ui-b4f79e1c58b7 (group build 17; ui-source e59dbad1c, core.runtime 1.67.0, core.styles 1.23.0): smart.manifest.json's provenance of the Framework helper src/smart/helpers/option-badge.js follows the pair (group build 17 F2: option badges at row text and the hue class), Framework code the table builds in. Its own code, settings, values and events are unchanged. 1.36.1 is above 1.36.0 (simai/ui-view round/view-r15 and round/view-r16), the highest on any origin branch; the view set's own 1.29.5 to 1.36.0 are not in this copy, which ui-pro drops once the View release takes its place (D31)."
         ]
       }
     ]

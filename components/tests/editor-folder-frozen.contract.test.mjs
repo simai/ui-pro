@@ -53,7 +53,10 @@ const PATCHED = {
 // Over ui-9ceecc24c988 (ui-source e7ea89e07, 2026-11-21), sf-editor 1.4.0: the
 // library favourites star is an sf-button-icon toggle (C393); simai/ui-editor
 // needs the same (ui-control control/evidence/2026-11-21-pro-gb15/editor-gb15.patch).
-  'editor': {tree: 'bc6c6925ed01abd7403855e195afaf805ba563e2', patch: 'cl-empty-state relation, sf-editor 1.2.6 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshots retaken, sf-editor 1.3.2 (2026-11-17); keys through sf-kbd (C04, DF-12) and snapshots over ui-dc9fc39aeb26, sf-editor 1.3.3 (2026-11-18); over ui-9ceecc24c988 (ui-source e7ea89e07), the library favourites star as a toggle (C393) and first-paint snapshots retaken, sf-editor 1.4.0 (2026-11-21)'},
+// Over ui-b4f79e1c58b7 (ui-source e59dbad1c, 2026-11-23), sf-editor 1.5.1 (above the
+// Editor set's 1.5.0): smart.manifest.json as the pair's generate-component-files
+// writes it; simai/ui-editor regenerates the same when it takes the pair.
+  'editor': {tree: '7f9a6de54ab7b420065064d2cd8604f4b2480668', patch: 'cl-empty-state relation, sf-editor 1.2.6 (2026-11-16); over group build 9 (ui-source 3d55e44d7), first-paint snapshots retaken, sf-editor 1.3.2 (2026-11-17); keys through sf-kbd (C04, DF-12) and snapshots over ui-dc9fc39aeb26, sf-editor 1.3.3 (2026-11-18); over ui-9ceecc24c988 (ui-source e7ea89e07), the library favourites star as a toggle (C393) and first-paint snapshots retaken, sf-editor 1.4.0 (2026-11-21); over ui-b4f79e1c58b7 (ui-source e59dbad1c), smart.manifest.json as the pair generates it (setParameter value untyped), sf-editor 1.5.1 (2026-11-23)'},
 };
 
 // What git ignores here (.gitignore of this repository) is not part of a tree.

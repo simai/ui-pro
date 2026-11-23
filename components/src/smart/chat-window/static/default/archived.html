@@ -63,7 +63,12 @@
 
 </div>
 </nav>
-</sf-chat-threads></aside><main class="chat-shell__main sf-workspace-main"><h1 class="sf-chat-offscreen chat-shell__page-title">Отпуск и перенос</h1><header class="chat-shell__header"><button class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface flex items-cross-center content-main-center sf-workspace-back chat-shell__back" type="button" aria-label="К разговорам" title="К разговорам"><sf-icon icon="arrow_back" size="2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-2" data-sf-icon-mirror aria-hidden="true" data-sf-static>arrow_back</i></sf-icon></button><sf-chat-interlocutor style="display: contents;" value="personal"><script type="application/json" data-sf-settings>{"options":[{"id":"personal","kind":"personal","title":"Мой помощник","greeting":"Чем помочь? Спросите о правилах компании или пришлите документ.","suggestions":["Сколько дней отпуска?","Как оформить командировку?"],"capabilities":{"attachments":true,"proposals":true,"memory":true}},{"id":"hr","kind":"knowledge","title":"Кадры","greeting":"Вопросы об отпусках, графике и документах.","suggestions":[]}]}</script>
+</sf-chat-threads></aside><main class="chat-shell__main sf-workspace-main"><div class="chat-shell__header"><sf-header-page class="chat-shell__head" heading-level="1" style="display: contents;"><header class="sf-page-header flex flex-col min-w-0" data-sf-static>
+
+<div class="sf-page-header-line flex items-cross-center flex-wrap min-w-0">
+<button class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost sf-icon-button--on-surface flex items-cross-center content-main-center sf-workspace-back chat-shell__back" type="button" aria-label="К разговорам" title="К разговорам" slot="start"><sf-icon icon="arrow_back" size="2" aria-hidden="true" style="display: contents;"><i class="sf-icon sf-icon--size-2" data-sf-icon-mirror aria-hidden="true" data-sf-static>arrow_back</i></sf-icon></button>
+<div class="sf-page-header-title flex items-cross-center min-w-0">
+<h1 class="sf-page-header-heading sf-page-header-heading--slot sf-h-4 m-0 min-w-0 flex items-cross-center"><span class="chat-shell__head-title" slot="heading"><span class="sf-chat-offscreen chat-shell__page-title">Отпуск и перенос</span><sf-chat-interlocutor value="personal" style="display: contents;"><script type="application/json" data-sf-settings>{"options":[{"id":"personal","kind":"personal","title":"Мой помощник","greeting":"Чем помочь? Спросите о правилах компании или пришлите документ.","suggestions":["Сколько дней отпуска?","Как оформить командировку?"],"capabilities":{"attachments":true,"proposals":true,"memory":true}},{"id":"hr","kind":"knowledge","title":"Кадры","greeting":"Вопросы об отпусках, графике и документах.","suggestions":[]}]}</script>
 <div class="sf-chat-interlocutor" data-sf-static>
 <button type="button" class="sf-chat-interlocutor__button" aria-label="Помощник: Мой помощник" aria-haspopup="menu" aria-expanded="false" aria-describedby="sf-chat-window-archived-2"><span class="sf-chat-interlocutor__title">Мой помощник</span><sf-icon icon="expand_more" size="1/2" aria-hidden="true" style="display: contents;" data-sf-size-relative><i class="sf-icon sf-icon--size-1/2" aria-hidden="true" data-sf-static>expand_more</i></sf-icon></button>
 <sf-menu-context class="sf-chat-interlocutor__menu" popup aria-label="Выбрать помощника" style="display: contents;">
@@ -71,7 +76,20 @@
 </sf-menu-context>
 <span class="sf-chat-interlocutor__note sr-only" id="sf-chat-window-archived-2">При смене помощника начнётся новый разговор</span>
 </div>
-</sf-chat-interlocutor><span class="chat-shell__head-mark" hidden></span><span class="chat-shell__head-who"><span class="chat-shell__thread-title">Отпуск и перенос</span><span class="chat-shell__thread-sub" hidden></span></span><div class="chat-shell__spacer"></div><button class="sf-button sf-button--size-1/2 sf-button--ghost sf-button--on-surface flex items-cross-center content-main-center chat-shell__members-open" type="button" hidden aria-controls="chat-members-1"></button></header><div class="chat-shell__find" role="search" aria-label="Поиск в разговоре" hidden></div><div class="chat-shell__thread-bar" hidden></div><sf-list-feed class="chat-shell__list" style="display: contents;">
+</sf-chat-interlocutor><span class="chat-shell__head-mark" hidden></span><span class="chat-shell__head-who"><span class="chat-shell__thread-title" aria-hidden="true">Отпуск и перенос</span><span class="chat-shell__thread-sub" hidden></span></span></span></h1>
+
+
+
+</div>
+<div class="sf-page-header-actions sf-page-header-actions--more flex items-cross-center" data-sf-row-laid><sf-button-icon class="sf-page-header-more sf-page-header-out" icon="more_horiz" aria-haspopup="menu" appearance="ghost" scheme="on-surface" size="1" aria-label="Ещё" title="Ещё" style="display: contents;" data-sf-size-relative>
+<button type="button" class="sf-icon-button sf-icon-button--size-1 sf-icon-button--icon sf-icon-button--ghost flex items-cross-center sf-icon-button--on-surface" aria-label="Ещё" title aria-haspopup="menu" data-sf-static>
+
+<sf-icon root-class="pointer-events-none" weight="400" aria-hidden="true" filled="false" icon="more_horiz" style="display: contents;"><i class="sf-icon sf-icon--weight-regular pointer-events-none" aria-hidden="true" data-sf-static>more_horiz</i></sf-icon>
+</button>
+</sf-button-icon><button class="sf-button sf-button--size-1/2 sf-button--ghost sf-button--on-surface flex items-cross-center content-main-center chat-shell__members-open sf-page-header-pin" type="button" hidden aria-controls="chat-members-1" slot="actions" priority="pin"></button></div>
+</div>
+
+</header></sf-header-page></div><div class="chat-shell__find" role="search" aria-label="Поиск в разговоре" hidden></div><div class="chat-shell__thread-bar" hidden></div><sf-list-feed class="chat-shell__list" style="display: contents;">
 <div role="region" tabindex="0" class="sf-list-feed " aria-label="Переписка" data-sf-static>
 <div class="sf-list-feed__earlier" hidden></div>
 <div class="sf-list-feed__empty" hidden></div>

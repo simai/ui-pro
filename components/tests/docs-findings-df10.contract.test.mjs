@@ -19,7 +19,7 @@ test('DF-10: «Мои файлы» make sf-progress-bar when a quota comes, not 
   assert.ok(build.length > 0 && usage.length > 0, 'build() and drawUsage() are found');
   assert.doesNotMatch(build, /sf-progress-bar/u, 'the closed view holds no undefined tag');
   assert.match(usage, /createElement\('sf-progress-bar'\)/u);
-  assert.equal(json('chat-window/component.json').version, '1.16.4');
+  assert.equal(json('chat-window/component.json').version, '1.17.0');
 });
 
 test('DF-12: sf-editor names its keys through the sf-kbd helper, not in Mac glyphs (C04)', () => {
@@ -44,7 +44,7 @@ test('DF-12: sf-editor names its keys through the sf-kbd helper, not in Mac glyp
     assert.match(summary, /Apple platforms/u, `${name}: both platforms named`);
     assert.match(summary, /Ctrl\+/u, `${name}: both platforms named`);
   }
-  assert.equal(manifest.version, '1.4.0');
+  assert.equal(manifest.version, '1.5.1');
 });
 
 test('DF-13: the package declares sf-editor-content retired, with its date', () => {

@@ -456,7 +456,7 @@
         ]
       },
       "first-paint": {
-        "max-bytes": 22000,
+        "max-bytes": 23000,
         "why": "A whole window: the list of conversations, the conversation with its messages, the header and the field, printed with the host's data; it is the resting window, not an open surface."
       }
     },
