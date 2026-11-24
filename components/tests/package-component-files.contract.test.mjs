@@ -21,7 +21,7 @@ const root = resolve(import.meta.dirname, '..');
 // The package folders in the 1.4 form: every generated file is byte for byte
 // what the generator writes.
 const PHASE_A = ['message-log', 'chat-threads', 'view-properties', 'view-table',
-  'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'view', 'editor'];
+  'chat-composer', 'chat-interlocutor', 'chat-message', 'chat-window', 'view'];
 
 // The package folders still in the 1.3 form: the five files the generator
 // already gives back (rule.js, aliases.json, the fixture, the scenario,
@@ -33,10 +33,8 @@ const PHASE_A = ['message-log', 'chat-threads', 'view-properties', 'view-table',
 // shared event (§8), so the port and host-port contracts still find them.
 const PENDING = [];
 
-// The frozen folders (editor: the editor release editor-6b1736f863ee; view,
-// view-table and view-properties: the view release view-aea031ba718b;
-// tests/editor-folder-frozen.contract.test.mjs,
-// tests/view-folders-frozen.contract.test.mjs) were released over SIMAI
+// The frozen folders (view, view-table and view-properties: the view release
+// view-aea031ba718b; tests/view-folders-frozen.contract.test.mjs) were released over SIMAI
 // Framework ui-cb287da78ab1 or later, whose generator writes an action's
 // method as one args object (standard 4.4), so they generate byte for byte
 // like every other folder: the methods.*.arguments exemption of

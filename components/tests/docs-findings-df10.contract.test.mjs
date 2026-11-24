@@ -22,30 +22,8 @@ test('DF-10: «Мои файлы» make sf-progress-bar when a quota comes, not 
   assert.equal(json('chat-window/component.json').version, '1.17.0');
 });
 
-test('DF-12: sf-editor names its keys through the sf-kbd helper, not in Mac glyphs (C04)', () => {
-  const template = code('editor/js/templates/default.js');
-  const index = code('editor/index.js');
-  assert.match(template, /import \{shortcutView\} from "\.\.\/\.\.\/\.\.\/\.\.\/component\/kbd\/js\/shortcut"/u);
-  for (const [name, source] of [['template', template], ['index.js', index]]) {
-    assert.doesNotMatch(source, /[⌘⇧⌥]/u, `${name}: no Mac glyph written by hand`);
-    assert.doesNotMatch(source, /\(Alt\+|shortcut: "Alt\+/u, `${name}: no Alt+ written by hand`);
-  }
-  for (const entry of ['alt+up', 'alt+down', 'mod+d', 'backspace']) {
-    assert.match(index, new RegExp(`shortcut: "${entry.replace('+', '\\+')}"`, 'u'), `the block menu writes ${entry} as notation`);
-  }
-  for (const locale of ['en', 'ru']) {
-    const words = JSON.stringify(json(`editor/lang/${locale}.json`));
-    assert.doesNotMatch(words, /[⌘⇧⌥]|Alt\+|Ctrl\+/u, `${locale}: the words take the keys as variables`);
-    assert.match(words, /\{undo\}/u);
-  }
-  const manifest = json('editor/smart.manifest.json');
-  for (const name of ['undo', 'redo']) {
-    const summary = manifest.methods[name].summary;
-    assert.match(summary, /Apple platforms/u, `${name}: both platforms named`);
-    assert.match(summary, /Ctrl\+/u, `${name}: both platforms named`);
-  }
-  assert.equal(manifest.version, '1.5.1');
-});
+// DF-12 (sf-editor names its keys through the sf-kbd helper, C04) left with the
+// editor copy: the Editor set (simai/ui-editor, sf-editor 1.5.0) carries it.
 
 test('DF-13: the package declares sf-editor-content retired, with its date', () => {
   const component = json('editor-content/component.json');

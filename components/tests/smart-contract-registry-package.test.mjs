@@ -38,14 +38,17 @@ test("the package composites are generated into the searchable registry beside t
   // and 17 of the package make 103. sf-bulk-actions, the group actions bar
   // (C295, ui-97a0ebb762eb): 87 free and 17 of the package make 104.
   // sf-admin-menu left for the Admin set (simai/ui-admin, 2026-11-22): 87
-  // free and 16 of the package make 103.
-  assert.equal(registry.entries.length, 103);
+  // free and 16 of the package make 103. sf-editor left for the Editor set
+  // (simai/ui-editor; pair ui-3963bfe39302 drops it from the pro reference,
+  // 2026-11-25): 87 free and 15 of the package make 102.
+  assert.equal(registry.entries.length, 102);
+  assert.ok(!registry.entries.some((entry) => entry.id === "smart.editor"), "sf-editor, now the Editor set's");
   assert.ok(!registry.entries.some((entry) => entry.id === "smart.admin-menu"), "sf-admin-menu, now the Admin set's");
   assert.ok(registry.entries.some((entry) => entry.id === "smart.bulk-actions"), "sf-bulk-actions, the Framework's");
   assert.ok(registry.entries.some((entry) => entry.id === "smart.confirm-change"), "sf-confirm-change, now the Framework's");
   for (const id of ["smart.view-table", "smart.view", "smart.view-properties",
     "smart.message-log", "smart.chat-threads", "smart.chat-interlocutor", "smart.chat-composer", "smart.chat-message", "smart.chat-window",
-    "smart.mail-library", "smart.mail-letters", "smart.mail-structure", "smart.mail-inspector", "smart.mail-canvas", "smart.editor-content", "smart.editor"]) {
+    "smart.mail-library", "smart.mail-letters", "smart.mail-structure", "smart.mail-inspector", "smart.mail-canvas", "smart.editor-content"]) {
     assert.ok(registry.entries.some((entry) => entry.id === id), id);
   }
   assert.ok(registry.entries.find(({id}) => id === "smart.view-table").capabilities.includes("data-view"));

@@ -8,11 +8,10 @@
 // its overlay (scripts/test.mjs, CROSS_CUTTING), and three of their tests are
 // replaced by this file (FREE_REPLACED there).
 //
-// The reason is the frozen folders. editor is the editor release
-// editor-6b1736f863ee (tests/editor-folder-frozen.contract.test.mjs) and view,
-// view-table and view-properties are the view release view-aea031ba718b
-// (tests/view-folders-frozen.contract.test.mjs); they change only in
-// simai/ui-editor and simai/ui-view. Those releases (and the ones before
+// The reason is the frozen folders. view, view-table and view-properties are
+// the view release view-aea031ba718b (tests/view-folders-frozen.contract.test.mjs);
+// they change only in simai/ui-view (the editor copy left for the Editor set,
+// 2026-11-25). Those releases (and the ones before
 // them, made over ui-0c23f6a0af12) still use, in places, names later pairs
 // turned into former names:
 // appearance="link" (now ghost, C15), status="error" on a button (now danger),
@@ -39,7 +38,7 @@ const packageRoot = resolve(process.env.SF_PACKAGE_ROOT ?? join(root, '..'));
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
 const today = new Date().toISOString().slice(0, 10);
 
-const FROZEN = new Set(['editor', 'view', 'view-table', 'view-properties']);
+const FROZEN = new Set(['view', 'view-table', 'view-properties']);
 
 // The package's own Smart folders: those this repository lays over ui-source.
 const packageFolders = () => {

@@ -5,8 +5,8 @@
 // class writes the method itself with the fields in order, the element is
 // given the object form too -- by elementFromManifest's positional (core.runtime
 // 1.43.0) or, for sf-message-log, whose class is the feed's, by its own
-// objectForm. The frozen folders (editor, view, view-table, view-properties)
-// change only in simai/ui-editor and simai/ui-view.
+// objectForm. The frozen folders (view, view-table, view-properties) change
+// only in simai/ui-view.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -14,7 +14,7 @@ import test from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
 const packageRoot = resolve(process.env.SF_PACKAGE_ROOT ?? resolve(root, '..'));
-const FROZEN = new Set(['editor', 'view', 'view-table', 'view-properties']);
+const FROZEN = new Set(['view', 'view-table', 'view-properties']);
 const camel = (name) => name.replace(/-([a-z])/gu, (_, c) => c.toUpperCase());
 const json = (folder, file) => JSON.parse(readFileSync(resolve(packageRoot, 'src/smart', folder, file), 'utf8'));
 const source = (folder) => readFileSync(resolve(packageRoot, 'src/smart', folder, 'index.js'), 'utf8');

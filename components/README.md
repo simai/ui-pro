@@ -32,7 +32,6 @@ published earlier from `simai/larena-ui` remain Apache-2.0.
 | `src/smart/mail-structure` | `sf-mail-structure` | `smart.mail-structure` |
 | `src/smart/mail-inspector` | `sf-mail-inspector` | `smart.mail-inspector` |
 | `src/smart/mail-canvas` | `sf-mail-canvas` | `smart.mail-canvas` |
-| `src/smart/editor` | `sf-editor` | `smart.editor` |
 | `src/smart/editor-content` | `sf-editor-content` | `smart.editor-content` |
 
 Five of them took new tags on 2026-11-03 (rename plan R2): `sf-table`,
@@ -108,6 +107,7 @@ used it from here declares that home beside `pro`.
 |:---|:---|:---|:---|
 | `sf-confirm-change` (former `sf-change-confirm`) | 2026-11-03 | SIMAI Framework (core.runtime 1.25.0) | nothing: the Framework pair carries it |
 | `sf-admin-menu` | 2026-11-22 (the first Pro release without it is over the pair ui-b4f79e1c58b7, 2026-11-23) | the Admin set `admin`, `@simai-studio/admin` 1.0.0 (release `admin-8cff3084cfaf` of `simai/ui-admin`, sf-admin-menu 1.15.0) | the set beside `pro`: `data-sf-sets="admin"`, or `SF_BOOT_CONFIG.packages.admin = {base: '<admin set base>'}` |
+| `sf-editor` | 2026-11-25 (the first Pro release without it is over the pair ui-3963bfe39302) | the Editor set `editor`, `@simai-studio/editor` 1.5.0 (release `editor-6912015a62bd` of `simai/ui-editor`, sf-editor 1.5.0) | the set beside `pro`: `data-sf-sets="editor"`, or `SF_BOOT_CONFIG.packages.editor = {base: '<editor set base>'}` |
 
 `sf-admin-menu`: the copy here (1.14.4) was frozen when the Admin set took
 the menu (simai/ui-admin owns it). While both the package and the set define
@@ -119,16 +119,15 @@ settings menu, search panel, compact mode and persistence, the aliases
 the navigation port when it takes the set. The menu's history up to 1.14.4 is
 in this repository's git history.
 
-`sf-editor` stays for now. Its home is the Editor set `editor`
-(`@simai-studio/editor` 1.5.0, release `editor-6912015a62bd` of
-`simai/ui-editor`), which holds what the copy here has (the keys through
-sf-kbd, the toggle star). The SIMAI Framework pair's package reference
-(`distr/core/contracts/packages/pro.package.json`, ui-source 5097d3272: "cl-editor
-stays") still lists `cl-editor`, and the package receipt takes the package's
-rules only when they equal the reference, so the copy leaves with the pair that
-drops it from the reference. Until then a page declares `pro` or the Editor set
-for `sf-editor`, not both: the Loader reports a conflict where two declared
-packages define one element.
+`sf-editor`: the copy here (1.5.1, frozen to the Editor set) leaves with the
+SIMAI Framework pair ui-3963bfe39302, whose package reference
+(`distr/core/contracts/packages/pro.package.json`, ui-source afe421467) no
+longer lists `cl-editor`. The Editor set's 1.5.0 holds what the copy had (it
+took back the copy's 1.3.3 keys through sf-kbd and 1.4.0 toggle star; 1.5.1
+here was a regenerated manifest only). A page that drew `sf-editor` from `pro`
+declares the Editor set beside it; the element, its API and events are the
+same. `sf-editor-content` stays in this package until its own date
+(2027-01-01). The copy's history is in this repository's git history.
 
 ## Built against a pinned ui-source
 
