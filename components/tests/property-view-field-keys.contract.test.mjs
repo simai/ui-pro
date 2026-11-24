@@ -44,6 +44,9 @@ const notInThisPort = new Map([
   ['template', 'the field\'s look within its type, declared by simai.property-view-port 1.20.0 (type templates); a template only draws, never changes a value, and the contract this component is checked against stays 1.18.0'],
   ['templateParams', 'the parameters of that template, declared by simai.property-view-port 1.20.0 with template; the contract stays 1.18.0'],
   ['decimals', 'the decimal places a number draws, declared by simai.property-view-port 1.20.0; the contract stays 1.18.0'],
+  // Over the pair ui-3963bfe39302 (group build 18, ui-source 96234dd71) the
+  // email renderer (sf-form 1.15.0, C422) reads one more key:
+  ['autocomplete', 'the email edit\'s browser address-book hint ("username" for a sign-in, "off"), read by the pair\'s field renderers with "email" as the default; declared by no simai.property-view-port edition up to 1.22.1, so a property-view host does not send it and the field keeps the default (2026-11-25)'],
   // min, max, step and precision (the stepper's bounds and decimals) and the
   // settings of the property types the set draws itself (currency, columns,
   // minRows, maxRows, parts) were excused here until simai.property-view-port

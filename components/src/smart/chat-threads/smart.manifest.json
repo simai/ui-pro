@@ -971,8 +971,8 @@
       "version": 2
     },
     "runtime_pair": {
-      "ui_revision": "89834691fb9dce692be5353f3214df7aee3a7e27",
-      "ui_smart_revision": "89834691fb9dce692be5353f3214df7aee3a7e27"
+      "ui_revision": "0000000000000000000000000000000000000000",
+      "ui_smart_revision": "0000000000000000000000000000000000000000"
     },
     "aliases": [
       "<sf-thread-list>"
