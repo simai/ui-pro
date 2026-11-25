@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "id": "smart.view-table",
-  "version": "1.36.1",
+  "version": "1.38.1",
   "title": "Table",
   "summary": "Complete server-backed collection view with search, filters, table preferences, row and bulk actions, and pagination.",
   "kind": "composite",
@@ -2773,6 +2773,13 @@
         "to": "1.36.1",
         "changes": [
           "A patch (no visible change), over SIMAI Framework ui-b4f79e1c58b7 (group build 17; ui-source e59dbad1c, core.runtime 1.67.0, core.styles 1.23.0): smart.manifest.json's provenance of the Framework helper src/smart/helpers/option-badge.js follows the pair (group build 17 F2: option badges at row text and the hue class), Framework code the table builds in. Its own code, settings, values and events are unchanged. 1.36.1 is above 1.36.0 (simai/ui-view round/view-r15 and round/view-r16), the highest on any origin branch; the view set's own 1.29.5 to 1.36.0 are not in this copy, which ui-pro drops once the View release takes its place (D31)."
+        ]
+      },
+      {
+        "from": "1.36.1",
+        "to": "1.38.1",
+        "changes": [
+          "version 1.38.1 (2026-11-25): a patch (no visible change), over SIMAI Framework ui-3963bfe39302 (group build 18; ui-source 96234dd71, core.runtime 1.68.0, core.styles 1.24.0): smart.manifest.json is written again by the pair's generate-component-files, which names the release that carries a manifest by the release pair marker (compatibility.runtime_pair, forty zeros; manifest schema 2.6.0) instead of a fixed pair revision. Code, settings, values, events and markup are unchanged. 1.38.1 is above 1.38.0 (simai/ui-view round/view-r18), the highest on any origin branch. The view set's own changes after this copy are not in it; ui-pro drops the copy once the View release takes its place (D31)."
         ]
       }
     ]

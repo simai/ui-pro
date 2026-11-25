@@ -19,7 +19,7 @@ test('DF-10: «Мои файлы» make sf-progress-bar when a quota comes, not 
   assert.ok(build.length > 0 && usage.length > 0, 'build() and drawUsage() are found');
   assert.doesNotMatch(build, /sf-progress-bar/u, 'the closed view holds no undefined tag');
   assert.match(usage, /createElement\('sf-progress-bar'\)/u);
-  assert.equal(json('chat-window/component.json').version, '1.17.0');
+  assert.equal(json('chat-window/component.json').version, '1.17.1');
 });
 
 // DF-12 (sf-editor names its keys through the sf-kbd helper, C04) left with the
@@ -45,7 +45,7 @@ test('DF-14: a failed answer outside a window always offers its retry', () => {
   const sheet = read('chat-message/js/templates/default.css').replace(/\/\*[\s\S]*?\*\//gu, '');
   const hiding = [...sheet.matchAll(/([^{}]*\.sf-chat-notice__action)\s*\{\s*display:\s*none;?\s*\}/gu)].map((match) => match[1].trim());
   assert.deepEqual(hiding, ['sf-chat-window .sf-chat-message--failed:not(.sf-chat-message--last) .sf-chat-notice__action']);
-  assert.equal(json('chat-message/component.json').version, '1.9.3');
+  assert.equal(json('chat-message/component.json').version, '1.9.4');
 });
 
 test('DF-16: the Library chooses its category with sf-segmented, not a row of toggles (C211 (1))', () => {
